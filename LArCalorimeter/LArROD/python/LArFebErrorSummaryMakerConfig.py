@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from LArROD.LArRODConf import LArFebErrorSummaryMaker
+from AthenaConfiguration.ComponentFactory import CompFactory
+LArFebErrorSummaryMaker=CompFactory.LArFebErrorSummaryMaker
 from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
 
 def LArFebErrorSummaryMakerCfg(configFlags):

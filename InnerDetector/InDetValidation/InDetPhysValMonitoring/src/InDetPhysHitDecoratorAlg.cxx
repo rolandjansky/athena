@@ -357,6 +357,11 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
         return true;
       }
     }
+    else {
+       // particle below pt threshold for decoration. Since this is not an error now "true" is returned.
+       // If "false" is returned the job would be aborted.
+       return true;
+    }
   } else {
     ATH_MSG_ERROR("No valid track link found ");
   }

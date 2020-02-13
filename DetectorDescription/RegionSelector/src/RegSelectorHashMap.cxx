@@ -1,15 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RegionSelector/RegSelectorHashMap.h"
 #include "PathResolver/PathResolver.h"
 #include "RegionSelector/RegionSelectorLUT.h"
+#include <fstream>
+#include <cmath>
+#include <iostream>
 #include <cstring>
 
-// #define REGSELDEBUG
-// using namespace __gnu_cxx;
-// using namespace std;
+
 
 double RegSelectorHashMap::etaminValue(){
   return m_etaminDet;
@@ -57,12 +58,11 @@ void RegSelectorHashMap::mountDataStruct(void){
   int iPage, iPosition, iXeta, iYphi; // , iNumSamples;
   double dEtaMin=-999, dEtaMax=-999, dPhiMin= -999, dPhiMax = -999;
 
-  m_iLines = (int) floor((m_phimaxDet-m_phiminDet)/m_stepMinPhi);
-  m_iColumns = (int) floor((m_etamaxDet-m_etaminDet)/m_stepMinEta);
+  m_iLines = std::floor((m_phimaxDet-m_phiminDet)/m_stepMinPhi);
+  m_iColumns = std::floor((m_etamaxDet-m_etaminDet)/m_stepMinEta);
 
   //Number of elements from the vectors (number of different ranges)
   iNumRanges = m_sample.size();
-  //  iNumSamples = m_NumSamples;
 
   //Creates the m_NumSamples matrix"es"
   // m_NumSamples*iColumns*iLines ->defines the matrix M page
@@ -80,17 +80,17 @@ void RegSelectorHashMap::mountDataStruct(void){
     dPhiMax = std::max(m_phimin[k],m_phimax[k]);
     //Guess how many times the hashID must be repeated on the X axis
     iRepeatOverX = MyRound((dEtaMax-dEtaMin)/m_stepMinEta);
-    iRepeatOverX = abs(iRepeatOverX);
+    iRepeatOverX = std::abs(iRepeatOverX);
     //Guess how many times the hashID must be repeated on the Y axis
     iRepeatOverY = MyRound((dPhiMax-dPhiMin)/m_stepMinPhi);
-    iRepeatOverY = abs(iRepeatOverY);
+    iRepeatOverY = std::abs(iRepeatOverY);
 
     iPage = m_sample[k] * (m_iColumns * m_iLines);
 
     // initial position
-    iYphi = (int) floor((dPhiMin - m_phiminDet+2e-6)/m_stepMinPhi);
+    iYphi = std::floor((dPhiMin - m_phiminDet+2e-6)/m_stepMinPhi);
     for(yPhi=0;yPhi<iRepeatOverY;yPhi++){
-     iXeta = (int) floor((dEtaMin - m_etaminDet)/m_stepMinEta);
+     iXeta = std::floor((dEtaMin - m_etaminDet)/m_stepMinEta);
      for(xEta=0;xEta<iRepeatOverX;xEta++){
         iPosition = iPage + (iYphi* m_iColumns +iXeta);
         m_hashIDMap[iPosition] = m_hashId[k];
@@ -123,14 +123,14 @@ void RegSelectorHashMap::mountDataStruct(void){
      dPhiMin = std::min(m_phimin[k],m_phimax[k]); 	 
      dPhiMax = std::max(m_phimin[k],m_phimax[k]); 	 
      iRepeatOverX = MyRound((dEtaMax-dEtaMin)/m_stepMinEta); 	 
-     iRepeatOverX = abs(iRepeatOverX); 	 
+     iRepeatOverX = std::abs(iRepeatOverX); 	 
      iRepeatOverY = MyRound((dPhiMax-dPhiMin)/m_stepMinPhi); 	 
-     iRepeatOverY = abs(iRepeatOverY); 	 
+     iRepeatOverY = std::abs(iRepeatOverY); 	 
      iPage = m_sample[k] * (m_iColumns * m_iLines); 	 
      // initial position 	 
-     iYphi = (int) floor((dPhiMin - m_phiminDet+2e-6)/m_stepMinPhi); 	 
+     iYphi = std::floor((dPhiMin - m_phiminDet+2e-6)/m_stepMinPhi); 	 
      for(yPhi=0;yPhi<iRepeatOverY;yPhi++){ 	 
-      iXeta = (int) floor((dEtaMin - m_etaminDet)/m_stepMinEta); 	 
+      iXeta = std::floor((dEtaMin - m_etaminDet)/m_stepMinEta); 	 
       for(xEta=0;xEta<iRepeatOverX;xEta++){ 	 
          iPosition = iPage + (iYphi* m_iColumns +iXeta); 	 
          std::cout << "REGSELECTOR MAPS " << 	 
@@ -153,16 +153,13 @@ void RegSelectorHashMap::mountDataStruct(void){
 void RegSelectorHashMap::regionSelectorRobIdUint(double etaminIn, double etamaxIn,
 					       double phiminIn, double phimaxIn,
 					       std::vector<uint32_t>& outList){
-  regionSelectorINROB((int)-1, (double)etaminIn, (double)etamaxIn, 
-	(double)phiminIn, (double)phimaxIn,&outList);
+  regionSelectorINROB(-1, etaminIn, etamaxIn, phiminIn, phimaxIn,&outList);
 }
 
 void RegSelectorHashMap::regionSelectorRobIdUint(int sampling, double etaminIn, double etamaxIn,
 					       double phiminIn, double phimaxIn,
 					       std::vector<uint32_t>& outList){
-  regionSelectorINROB((int)sampling, (double)etaminIn,
-	(double)etamaxIn, (double)phiminIn, (double)phimaxIn,
-	&outList);
+  regionSelectorINROB(sampling, etaminIn, etamaxIn, phiminIn, phimaxIn, &outList);
 }
 
 void RegSelectorHashMap::populateMatrix(int iPage,IdentifierHash value){
@@ -202,7 +199,6 @@ void RegSelectorHashMap::populateMatrixRobId(int iPage,uint32_t value){
 }
 
 void RegSelectorHashMap::initMatrix(void){
-  //  int k, iPage0, iPage, iNumRanges;
   int k, iPage, iNumRanges;
 
   iNumRanges =  m_NumSamples;
@@ -210,7 +206,6 @@ void RegSelectorHashMap::initMatrix(void){
   for(k=0;k<=iNumRanges;k++){
     iPage = k * (m_iColumns * m_iLines);
       populateMatrix(iPage, INITHASH);
-      //     iPage0 = iPage;
   }
 
 }
@@ -235,8 +230,8 @@ int RegSelectorHashMap::MyRound(double pdValue){
   double dFloor, dAux;
   int iReturn;
 
-  dFloor = floor(pdValue);
-  dAux = fabs(pdValue-dFloor);
+  dFloor = std::floor(pdValue);
+  dAux = std::fabs(pdValue-dFloor);
   if(dAux >= 0.5f)
     iReturn = (int) (dFloor + 1);
   else
@@ -254,11 +249,9 @@ void RegSelectorHashMap::regionSelectorIN(const int& sampling,
   std::vector<IdentifierHash>& auxsetIH=(*outListIH);
 
   /// why are we making this 
-  iYBeg = (int) floor((phiminIn - m_phiminDet+7e-3)/m_stepMinPhi);
-  iYEnd = (int) ceilf((phimaxIn - m_phiminDet-7e-3)/m_stepMinPhi);
+  iYBeg = std::floor((phiminIn - m_phiminDet+7e-3)/m_stepMinPhi);
+  iYEnd = std::ceil((phimaxIn - m_phiminDet-7e-3)/m_stepMinPhi);
 
-  // iYBeg = (int) floor((phiminIn - m_phiminDet)/m_stepMinPhi);
-  // iYEnd = (int) ceilf((phimaxIn - m_phiminDet)/m_stepMinPhi);
 
   /// need to check whether spans the pi boundary - using iYBeg > iYEnd isn't 
   /// good enough since it it is very nearly 2pi, then iYBeg and iYEnd will 
@@ -272,18 +265,10 @@ void RegSelectorHashMap::regionSelectorIN(const int& sampling,
    if(iYEnd < 0)        iYEnd += m_iLines ; 	 
    if(iYEnd > m_iLines) iYEnd -= m_iLines;
 
-  //   if(iYBeg < 0) iYBeg = 0;
-  //   if(iYBeg > m_iLines) iYBeg = m_iLines; 	 
-  //   if(iYEnd < 0) iYEnd = 0; 	 
-  //   if(iYEnd > m_iLines) iYEnd = m_iLines;
-
 
    /// why reduce the RoI size?
-   iXBeg = (int) floor((etaminIn - m_etaminDet+2e-5)/m_stepMinEta);
-   iXEnd = (int) ceilf((etamaxIn - m_etaminDet-2e-5)/m_stepMinEta);
-
-   // iXBeg = (int) floor((etaminIn - m_etaminDet)/m_stepMinEta);
-   // iXEnd = (int) ceilf((etamaxIn - m_etaminDet)/m_stepMinEta);
+   iXBeg = std::floor((etaminIn - m_etaminDet+2e-5)/m_stepMinEta);
+   iXEnd = std::ceil((etamaxIn - m_etaminDet-2e-5)/m_stepMinEta);
 
     if(iXBeg < 0) iXBeg = 0;
     if(iXBeg > m_iColumns) iXBeg = m_iColumns;
@@ -299,7 +284,6 @@ void RegSelectorHashMap::regionSelectorIN(const int& sampling,
       iXEnd = iXTemp;
     }
     if(sampling == -1){ // Consider all samplings (0...3)
-      //      if(iYBeg > iYEnd){
       if( pi_boundary ){
         for(k=0; k<=m_NumSamples; k++){
           iPage = k * (m_iColumns * m_iLines);
@@ -320,7 +304,6 @@ void RegSelectorHashMap::regionSelectorIN(const int& sampling,
     else{ // Consider only the input sampling value
       k= sampling;
       iPage = k * (m_iColumns * m_iLines);
-      //     if(iYBeg > iYEnd){
       if( pi_boundary ){
         findIdentifier(auxsetIH,iXBeg, iXEnd, iYBeg, m_iLines, iPage);
         findIdentifier(auxsetIH,iXBeg, iXEnd, 0, iYEnd, iPage);
@@ -345,12 +328,10 @@ std::vector<uint32_t>* outList){
   /// why do we reduce the size of the RoI here? if we must mess with it, 
   /// shouldn't we make it larger?
   if (m_stepMinPhi !=0){
-    iYBeg = (int) floor((phiminIn - m_phiminDet+7e-3)/m_stepMinPhi);
-    iYEnd = (int) ceilf((phimaxIn - m_phiminDet-7e-3)/m_stepMinPhi);
+    //
+    iYBeg = std::floor((phiminIn - m_phiminDet+7e-3)/m_stepMinPhi);
+    iYEnd = std::ceil((phimaxIn - m_phiminDet-7e-3)/m_stepMinPhi);
   }
-  // iYBeg = (int) floor((phiminIn - m_phiminDet)/m_stepMinPhi);
-  // iYEnd = (int) ceilf((phimaxIn - m_phiminDet)/m_stepMinPhi);
-
 
   /// need to check whether spans the pi boundary - using (iYBeg > iYEnd) 
   /// isn't good enough since it it is very nearly 2pi, then iYBeg and iYEnd 
@@ -363,27 +344,16 @@ std::vector<uint32_t>* outList){
    if(iYBeg > m_iLines) iYBeg -= m_iLines; 	 
    if(iYEnd < 0)        iYEnd += m_iLines ; 	 
    if(iYEnd > m_iLines) iYEnd -= m_iLines;
-
-   //   if(iYBeg < 0) iYBeg = 0;
-   //   if(iYBeg > m_iLines) iYBeg = m_iLines;
-   //   if(iYEnd < 0) iYEnd = 0;
-   //   if(iYEnd > m_iLines) iYEnd = m_iLines;
-
-
    /// why reduce the size of the RoI? 
    if (m_stepMinEta!=0) {
-     iXBeg = (int) floor((etaminIn - m_etaminDet+2e-5)/m_stepMinEta);
-     iXEnd = (int) ceilf((etamaxIn - m_etaminDet-2e-5)/m_stepMinEta);
+     iXBeg = std::floor((etaminIn - m_etaminDet+2e-5)/m_stepMinEta);
+     iXEnd = std::ceil((etamaxIn - m_etaminDet-2e-5)/m_stepMinEta);
    }
-   // iXBeg = (int) floor((etaminIn - m_etaminDet)/m_stepMinEta);
-   // iXEnd = (int) ceilf((etamaxIn - m_etaminDet)/m_stepMinEta);
-
     if(iXBeg < 0) iXBeg = 0;
     if(iXBeg > m_iColumns) iXBeg = m_iColumns;
     if(iXEnd < 0) iXEnd = 0;
     if(iXEnd > m_iColumns) iXEnd = m_iColumns;
-    // Was this.
-    //if(iXEnd >= m_iColumns) iXEnd = m_iColumns-1;
+  
 
     /// This is WRONG!! this forces *all* rois to increase as the 
     /// radius increases - oh dear
@@ -395,7 +365,6 @@ std::vector<uint32_t>* outList){
 
     if(sampling == -1){ // Consider all samplings (0...3)
 
-      //      if(iYBeg > iYEnd){
       if( pi_boundary ){
         for(k=0; k<=m_NumSamples; k++){
           iPage = k * (m_iColumns * m_iLines);
@@ -418,7 +387,6 @@ std::vector<uint32_t>* outList){
 
       k= sampling;
       iPage = k * (m_iColumns * m_iLines);
-      //      if(iYBeg > iYEnd){
       if( pi_boundary ){
         findIdentifierROB(auxset,iXBeg, iXEnd, iYBeg, m_iLines, iPage);
         findIdentifierROB(auxset,iXBeg, iXEnd, 0, iYEnd, iPage);
@@ -537,14 +505,11 @@ StatusCode RegSelectorHashMap::read(const char *filename){
 // use path resolver to find full path to file
   std::string unresolvedFileName(filename);
   std::string fullFileName = PathResolver::find_file (unresolvedFileName, "DATAPATH");
-  //log << MSG::DEBUG << "PathResolver found " << fullFileName << endmsg;
   if (fullFileName == "") {
-    //log << MSG::FATAL << "Could not find input file in DATAPATH" <<  unresolvedFileName<< endmsg;
     std::cerr << "LArTTRegionSelectorIdentifierHash: FATAL: Could not find input file in DATAPATH" <<  unresolvedFileName<< std::endl;
     return StatusCode::FAILURE;
   }
 
-  // int nlines = 0;
   std::ifstream fin(fullFileName.c_str());
   fin.getline(buffer,128,'\n');
    if(fin.bad()){  //Test if the file failed:
@@ -561,8 +526,8 @@ StatusCode RegSelectorHashMap::read(const char *filename){
       if ( test == 9 ) // this means that there are 2 ROBs in 1 TT
         robId.push_back(strtol(robIdStr2,0,16));
       pch=strchr(buffer,' ');
-      stepPhi = fabs(pmax-pmin);// initial value for phi and eta step
-      stepEta = fabs(emin-emax);
+      stepPhi = std::fabs(pmax-pmin);// initial value for phi and eta step
+      stepEta = std::fabs(emin-emax);
       m_stepMinPhi = std::min(m_stepMinPhi,stepPhi);
       m_stepMinEta = std::min(m_stepMinEta,stepEta);
       m_etaminDet = std::min(std::min(m_etaminDet,emin),emax);
@@ -627,8 +592,8 @@ void RegSelectorHashMap::addLut(const RegionSelectorLUT *detLut){
      phimin=detLut->phiMin(j); phimax=detLut->phiMax(j);
      layer=detLut->layerDiskNumber(j);
      // After prossessing need to update global vars
-     double stepPhi = fabs(phimax-phimin);// initial value for phi and eta step
-     double stepEta = fabs(etamin-etamax);
+     double stepPhi = std::fabs(phimax-phimin);// initial value for phi and eta step
+     double stepEta = std::fabs(etamin-etamax);
      m_stepMinPhi = std::min(m_stepMinPhi,stepPhi);
      m_stepMinEta = std::min(m_stepMinEta,stepEta);
      m_etaminDet = std::min(std::min(m_etaminDet,etamin),etamax);
@@ -874,7 +839,6 @@ void RegSelectorHashMap::verifyOutput(double etaminIn, double etamaxIn,
     for(unsigned int i=0; i < (*outputIdlist).size(); i++)
       std::cout << std::dec << (*outputIdlist)[i] << " ";
     std::cout << std::endl;
-   // std::cin.get();
   }
 }
 

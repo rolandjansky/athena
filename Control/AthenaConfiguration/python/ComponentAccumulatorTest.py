@@ -3,6 +3,7 @@
 # self test of ComponentAccumulator
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator 
 from AthenaConfiguration.Deduplication import DeduplicationFailed
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -324,7 +325,7 @@ class TestComponentAccumulatorAccessors( unittest.TestCase ):
 
 class TestDeduplication( unittest.TestCase ):
     def runTest( self ):
-        from IOVDbSvc.IOVDbSvcConf import IOVDbSvc #Test de-duplicating folder-list
+        IOVDbSvc=CompFactory.IOVDbSvc #Test de-duplicating folder-list
         result1=ComponentAccumulator()
         result1.addService(IOVDbSvc(Folders=["/foo"]))
         result1.wasMerged()

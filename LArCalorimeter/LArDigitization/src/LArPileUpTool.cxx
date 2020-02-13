@@ -156,7 +156,7 @@ StatusCode LArPileUpTool::initialize()
   ATH_CHECK(detStore()->retrieve(m_calocell_id,"CaloCell_ID"));
 
 
-  const DataHandle<CaloIdManager> caloIdMgr;
+  const CaloIdManager* caloIdMgr = nullptr;
   StatusCode sc = detStore()->retrieve(caloIdMgr);
   if (sc.isFailure()) {
     ATH_MSG_ERROR(" Unable to retrieve CaloIdManager from DetectoreStore");
@@ -672,7 +672,7 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
     ATH_MSG_DEBUG(" fillMapFromHit: asking for: " << containerName);
 
     if (m_useLArHitFloat) {
-     const DataHandle<LArHitFloatContainer> hit_container ;
+     const LArHitFloatContainer* hit_container = nullptr;
      if (myStore->contains<LArHitFloatContainer>(containerName)) {
        StatusCode sc = myStore->retrieve( hit_container,containerName ) ;
        if (sc.isFailure() || !hit_container) {
@@ -701,7 +701,7 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
 
     }
     else {
-     const DataHandle<LArHitContainer> hit_container ;
+     const LArHitContainer* hit_container = nullptr;
      if (myStore->contains<LArHitContainer>(containerName)) {
        StatusCode sc = myStore->retrieve( hit_container,containerName ) ;
        if (sc.isFailure() || !hit_container) {

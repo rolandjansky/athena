@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: PerfMonAna/python/Rtt.py
 # @purpose: a set of classes to interact with RTT
 # @author: Sebastien Binet <binet@cern.ch>
 # $Id: Rtt.py,v 1.2 2007-07-19 18:27:49 binet Exp $
+
+from __future__ import print_function
 
 """ a set of classes to interact with RTT
 """
@@ -133,8 +135,8 @@ class RttDb(object):
         idDups = {}
         releases.sort( lambda x,y: cmp(x['name'],y['name']) )
         for r in releases:
-            print "%10s" % r['type'],"%10s" % r['nbr'],"\t\t",r['name'],
-            print r['platform']
+            print ("%10s" % r['type'],"%10s" % r['nbr'],"\t\t",r['name'],)
+            print (r['platform'])
 ##             if r['type'] != 'bugfix':
 ##                 continue
             sumFileName = os.path.join(r['results'], 'RTTSummary.xml')
@@ -176,13 +178,13 @@ class RttDb(object):
                     else:
                         jobDb[jobId] = pkg
                     
-        print "pkgs:",len(pkgs)
+        print ("pkgs:",len(pkgs))
         for id in idDups.keys():
-            print ">>> warning...",id
+            print (">>> warning...",id)
             idDups[id].sort()
             for r in idDups[id]:
-                print "    ",r
-        print "dups: %i/%i" % (len(idDups.keys()), len(jobDb.keys()))
+                print ("    ",r)
+        print ("dups: %i/%i" % (len(idDups.keys()), len(jobDb.keys())))
         return
     
     pass # RttDb

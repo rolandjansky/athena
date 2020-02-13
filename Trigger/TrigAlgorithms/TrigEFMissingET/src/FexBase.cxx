@@ -14,7 +14,7 @@
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
 #include "TrigEFMissingET/METComponent.h"
 #include "TrigEFMissingET/StatusFlags.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include <memory>
 #include <algorithm>
 #include <iterator>

@@ -21,7 +21,7 @@
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "MuGirlStau/MuonBetaCalculationUtils.h"
+#include "MuonRecValidationNtuples/MuonBetaCalculationUtils.h"
 
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 

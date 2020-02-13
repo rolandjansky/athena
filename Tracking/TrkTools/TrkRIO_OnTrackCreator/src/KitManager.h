@@ -7,6 +7,7 @@
 #include <ostream>
 #include <map>
 #include <memory>
+#include "CxxUtils/checker_macros.h"
 
 class KitManagerBase
 {
@@ -44,17 +45,13 @@ public:
   }
 
   static
-  KitManager<T_KitInterface> &instance() {
-    if (!s_instance) {
-      s_instance=std::make_unique<KitManager<T_KitInterface > >();
-    }
+  KitManager<T_KitInterface>& instance ATLAS_NOT_THREAD_SAFE () {
+    /* in C++11 this is to happen once the issue is that we return a ref
+     * rather than const ref. To be thread safe we need to have static const */
+    static std::unique_ptr<KitManager<T_KitInterface>> s_instance = std::make_unique<KitManager<T_KitInterface>>();
     return *s_instance;
   }
-private:
-  static std::unique_ptr< KitManager<T_KitInterface> > s_instance;
 };
 
-template <class T_KitInterface>
-std::unique_ptr< KitManager<T_KitInterface> > KitManager<T_KitInterface>::s_instance;
 
 #endif

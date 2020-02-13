@@ -17,7 +17,6 @@
 #include "TrigDecisionTool/TrigDecisionTool.h" 
 #include "GaudiKernel/SystemOfUnits.h"
 
-using xAOD::EventInfo;
 using Gaudi::Units::GeV;
 
 #define CRACK_MIN 1.3
@@ -147,7 +146,7 @@ StatusCode tauMonTool::fillHistograms()
 	//--------------------
 	//figure out current LB
 	//--------------------
-	const DataHandle<EventInfo> evtInfo;
+	const DataHandle<xAOD::EventInfo> evtInfo;
 	if ( (evtStore()->retrieve(evtInfo)) . isFailure()) {
 		ATH_MSG_ERROR("couldn't retrieve event info");
 		return StatusCode::FAILURE;
@@ -155,7 +154,7 @@ StatusCode tauMonTool::fillHistograms()
 
 	//LAr event veto: skip events rejected by LAr
 
-	if(evtInfo->errorState(EventInfo::LAr)==EventInfo::Error){
+	if(evtInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error){
 		ATH_MSG_WARNING("SKIP for LAR error");
 		return StatusCode::SUCCESS;
 	}

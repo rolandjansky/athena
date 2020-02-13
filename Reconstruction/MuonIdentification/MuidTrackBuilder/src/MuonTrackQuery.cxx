@@ -16,12 +16,8 @@
 #include "MuidTrackBuilder/MuonTrackQuery.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkEventPrimitives/DriftCircleSide.h"
-#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
@@ -53,14 +49,9 @@ MuonTrackQuery::MuonTrackQuery (const std::string&	type,
 				const std::string&	name, 
 				const IInterface*	parent)
     :	AthAlgTool		(type, name, parent),
-	m_fitter		(""),
-	m_idHelper              ("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-	m_mdtRotCreator		("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
 	m_trackingGeometrySvc   ("TrackingGeometrySvc/AtlasTrackingGeometrySvc",name)
 {
     declareInterface<IMuonTrackQuery>(this);
-    declareProperty("Fitter",			m_fitter);
-    declareProperty("MdtRotCreator",		m_mdtRotCreator);
     declareProperty( "TrackingGeometrySvc", m_trackingGeometrySvc);
 }
 
@@ -98,14 +89,14 @@ MuonTrackQuery::initialize()
     {
 	ATH_MSG_DEBUG( "Retrieved tool " << m_edmHelperSvc );
     }
-    if (m_idHelper.retrieve().isFailure())
+    if (m_muonIdHelperSvc.retrieve().isFailure())
     {
-	ATH_MSG_FATAL( "Failed to retrieve tool " << m_idHelper );
+	ATH_MSG_FATAL( "Failed to retrieve tool " << m_muonIdHelperSvc );
 	return StatusCode::FAILURE;
     }
     else
     {
-	ATH_MSG_DEBUG( "Retrieved tool " << m_idHelper );
+	ATH_MSG_DEBUG( "Retrieved tool " << m_muonIdHelperSvc );
     }
     
     // tools needed when flipping tracks to outgoing
@@ -257,7 +248,7 @@ MuonTrackQuery::fieldIntegral (const Trk::Track& track) const
 	    && ! calorimeterVolume->inside((**s).trackParameters()->position()))
 	{
 	    Identifier id	= m_edmHelperSvc->getIdentifier(*(**s).measurementOnTrack());
-	    isPreciseHit	= (id.is_valid() && ! m_idHelper->measuresPhi(id));
+	    isPreciseHit	= (id.is_valid() && ! m_muonIdHelperSvc->measuresPhi(id));
 	}
 	if (! (**s).materialEffectsOnTrack() && ! isPreciseHit)			continue;
 
@@ -1218,11 +1209,11 @@ MuonTrackQuery::spectrometerPhiQuality (const Trk::Track& track) const
 	    || ! (**s).trackParameters()
 	    || calorimeterVolume->inside((**s).trackParameters()->position()))	continue;
 	Identifier id	= m_edmHelperSvc->getIdentifier(*(**s).measurementOnTrack());
-	if (! id.is_valid() || ! m_idHelper->measuresPhi(id))				continue;
+	if (! id.is_valid() || ! m_muonIdHelperSvc->measuresPhi(id))				continue;
 
 	// require phi measurement from CSC or CompetingROT
 	if (! dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>((**s).measurementOnTrack())
-	    && ! m_idHelper->isCsc(id))							continue;
+	    && ! m_muonIdHelperSvc->isCsc(id))							continue;
 	leadingPhiMeasurement	= *s;
 	break;
     }
@@ -1238,7 +1229,7 @@ MuonTrackQuery::spectrometerPhiQuality (const Trk::Track& track) const
 	    || ! (**r).trackParameters())						continue;
 	if (calorimeterVolume->inside((**r).trackParameters()->position()))		break;
 	Identifier id	= m_edmHelperSvc->getIdentifier(*(**r).measurementOnTrack());
-	if (! id.is_valid() || ! m_idHelper->measuresPhi(id))				continue;
+	if (! id.is_valid() || ! m_muonIdHelperSvc->measuresPhi(id))				continue;
 	if (*r != leadingPhiMeasurement) trailingPhiMeasurement	= *r;
 	break;
     }

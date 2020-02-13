@@ -18,9 +18,7 @@ ATLAS Collaboration
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 // Space point Classes,
-#include "TrkSpacePoint/SpacePoint.h"
 #include "TrkSpacePoint/SpacePointCollection.h"
-#include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "TrkSpacePoint/SpacePointCLASS_DEF.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -31,72 +29,30 @@ ATLAS Collaboration
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadCondHandle.h"
 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 namespace InDet {
 
 //------------------------------------------------------------------------
   SiTrackerSpacePointFinder::SiTrackerSpacePointFinder(const std::string& name,
       ISvcLocator* pSvcLocator)
-    : AthReentrantAlgorithm(name, pSvcLocator),
-    m_Sct_clcontainerKey("SCT_Clusters"),
-    m_Pixel_clcontainerKey("PixelClusters"),
-    m_selectPixels(true),
-    m_selectSCTs(true),
-    m_overlap(true),  // process overlaps of SCT wafers.
-    m_allClusters(false),  // process all clusters without limits.
-    m_overlapLimitOpposite(2.8),  // overlap limit for opposite-neighbour.
-    m_overlapLimitPhi(5.64),  // overlap limit for phi-neighbours.
-    m_overlapLimitEtaMin(1.68),  // low overlap limit for eta-neighbours.
-    m_overlapLimitEtaMax(3.0),  // high overlap limit for eta-neighbours.
-    m_overrideBS(false),
-    m_xVertex(0.),
-    m_yVertex(0.),
-    m_zVertex(0.),
-    m_numberOfEvents(0), m_numberOfPixel(0), m_numberOfSCT(0),
-    m_sctCacheHits(0), m_pixCacheHits(0),
-    m_cachemode(false),
-    m_idHelper(nullptr),
-    m_idHelperPixel(nullptr),
-    m_SpacePointContainer_SCTKey("SCT_SpacePoints"),
-    m_SpacePointContainerPixelKey("PixelSpacePoints"),
-    m_spacepointoverlapCollectionKey("OverlapSpacePoints"),
-    m_SpacePointCache_SCTKey(""),
-    m_SpacePointCache_PixKey(""),
-    m_SiSpacePointMakerTool("InDet::SiSpacePointMakerTool", this)
-{
-  //Use the same space point name both for internal use (for graphics) end
-  // for storing in TDS. If a name is the empty string, do not retrieve
-  // those clusters.
-  declareProperty("SCT_ClustersName", m_Sct_clcontainerKey, "SCT clContainer" );
-  declareProperty("PixelsClustersName", m_Pixel_clcontainerKey, "Pixel clContainer");
+    : AthReentrantAlgorithm(name, pSvcLocator)
+{ 
+  declareProperty("ProcessPixels", m_selectPixels=true);
+  declareProperty("ProcessSCTs", m_selectSCTs=true);
+  declareProperty("ProcessOverlaps", m_overlap=true, "process overlaps of SCT wafers.");
+  declareProperty("AllClusters", m_allClusters=false, "process all clusters without limits.");
+  declareProperty("OverlapLimitOpposite", m_overlapLimitOpposite=2.8, "overlap limit for opposite-neighbour.");
+  declareProperty("OverlapLimitPhi", m_overlapLimitPhi=5.64, "overlap limit for phi-neighbours.");
+  declareProperty("OverlapLimitEtaMin", m_overlapLimitEtaMin=1.68, "low overlap limit for eta-neighbours.");
+  declareProperty("OverlapLimitEtaMax", m_overlapLimitEtaMax=3.0, "high overlap limit for eta-neighbours.");
+  declareProperty("OverrideBeamSpot", m_overrideBS=false);
+  declareProperty("VertexX", m_xVertex=0.);
+  declareProperty("VertexY", m_yVertex=0.);
+  declareProperty("VertexZ", m_zVertex=0.);
 
-  declareProperty("SpacePointsSCTName", m_SpacePointContainer_SCTKey, "SpacePoint SCT container");
-  declareProperty("SpacePointsPixelName", m_SpacePointContainerPixelKey, "SpacePoint Pixel container");
-  declareProperty("SpacePointsOverlapName", m_spacepointoverlapCollectionKey, "Space Point Overlap collection" );
-  
-  
-  declareProperty("SiSpacePointMakerTool", m_SiSpacePointMakerTool);
-  declareProperty("BeamPositionKey", m_beamSpotKey);
-  declareProperty("ProcessPixels", m_selectPixels);
-  declareProperty("ProcessSCTs", m_selectSCTs);
-  declareProperty("ProcessOverlaps", m_overlap);
-  declareProperty("AllClusters", m_allClusters);
-  declareProperty("OverlapLimitOpposite", m_overlapLimitOpposite);
-  declareProperty("OverlapLimitPhi", m_overlapLimitPhi);
-  declareProperty("OverlapLimitEtaMin", m_overlapLimitEtaMin);
-  declareProperty("OverlapLimitEtaMax", m_overlapLimitEtaMax);
-  declareProperty("OverrideBeamSpot", m_overrideBS);
-  declareProperty("VertexX", m_xVertex);
-  declareProperty("VertexY", m_yVertex);
-  declareProperty("VertexZ", m_zVertex);
+  declareProperty("SpacePointCacheSCT", m_SpacePointCache_SCTKey="");
+  declareProperty("SpacePointCachePix", m_SpacePointCache_PixKey="");
 
-  declareProperty("SpacePointCacheSCT", m_SpacePointCache_SCTKey);
-  declareProperty("SpacePointCachePix", m_SpacePointCache_PixKey);
-
-}
-//--------------------------------------------------------------------------
-SiTrackerSpacePointFinder::~SiTrackerSpacePointFinder()
-{
 }
 
 //-----------------------------------------------------------------------
@@ -177,6 +133,8 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
   auto nSCTspacePoints = Monitored::Scalar<int>( "numSctSpacePoints"   , 0 );
   auto nPIXspacePoints = Monitored::Scalar<int>( "numPixSpacePoints"   , 0 );
 
+  auto mon = Monitored::Group( m_monTool, nReceivedClustersPIX,nReceivedClustersSCT, nPIXspacePoints, nSCTspacePoints );
+
   if (m_selectSCTs) {
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
     elements = sctDetEle.retrieve();
@@ -249,7 +207,6 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
     r_cache.SCTCContainer = sct_clcontainer.cptr();
 
     ATH_MSG_DEBUG( "SCT Cluster container found: " << sct_clcontainer->size() << " collections" );
-    nReceivedClustersSCT = sct_clcontainer->size();
     // Get hold of all clusters and iterate through them.
     // Pixel clusters will be converted immediately to pixel space points.
     // For SCT clusters, posssible pairs will be found and space points computed.
@@ -260,6 +217,8 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
 
     for (; it != itend; ++it){
       const SCT_ClusterCollection *colNext=&(**it);
+      nReceivedClustersSCT = colNext->size();
+
       // Create SpacePointCollection
       IdentifierHash idHash = colNext->identifyHash();
       SpacePointContainer::IDC_WriteHandle lock = spacePointContainer_SCT->getWriteHandle(idHash);
@@ -280,6 +239,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
         ATH_MSG_DEBUG( "Empty SCT cluster collection" );
       }
       size_t size = spacepointCollection->size();
+      nSCTspacePoints = size;
       if (size == 0){
         ATH_MSG_VERBOSE( "SiTrackerSpacePointFinder algorithm found no space points" );
       } else {
@@ -309,12 +269,12 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
     PixelClusterContainer::const_iterator colNext = pixel_clcontainer->begin();
     PixelClusterContainer::const_iterator lastCol = pixel_clcontainer->end();
 
-    nReceivedClustersPIX = pixel_clcontainer->size();
 
     int numColl=0;
     for (; colNext != lastCol; ++colNext)
     {
       ATH_MSG_VERBOSE( "Collection num " << numColl++ );
+      nReceivedClustersPIX = (*colNext)->size();
       IdentifierHash idHash = (*colNext)->identifyHash();
       SpacePointContainer::IDC_WriteHandle lock = spacePointContainerPixel->getWriteHandle(idHash);
       if(lock.alreadyPresent()){
@@ -336,6 +296,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
         ATH_MSG_DEBUG( "Empty pixel cluster collection" );
       }
       size_t size = spacepointCollection->size();
+      nPIXspacePoints = spacepointCollection->size();
       if (size == 0)
       {
         ATH_MSG_DEBUG( "SiTrackerSpacePointFinder algorithm found no space points" );
@@ -367,12 +328,10 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
   if (m_selectPixels) {
     auto c = spacePointContainerPixel->numberOfCollections();
     m_numberOfPixel += c;
-    nPIXspacePoints  = c;
   }
   if (m_selectSCTs) {
     auto c = spacePointContainer_SCT->numberOfCollections();
     m_numberOfSCT   += c;
-    nSCTspacePoints  = c;
   }
   if(m_cachemode)//Prevent unnecessary atomic counting
   {
@@ -380,7 +339,6 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
      m_pixCacheHits  += pixCacheCount;
   }
 
-  auto mon = Monitored::Group( m_monTool, nReceivedClustersPIX,nReceivedClustersSCT, nPIXspacePoints, nSCTspacePoints );
 
   return StatusCode::SUCCESS;
 }

@@ -826,7 +826,7 @@ class ConfigurableAlgorithm( Configurable ):
    __slots__ = { '_jobOptName' : 0, 'OutputLevel' : 0, \
       'Enable' : 1, 'ErrorMax' : 1, 'ErrorCounter' : 0, 'AuditAlgorithms' : 0, \
       'AuditInitialize' : 0, 'AuditReinitialize' : 0, 'AuditExecute' : 0, \
-      'AuditFinalize' : 0, 'AuditBeginRun' : 0, 'AuditEndRun' : 0 }
+      'AuditFinalize' : 0 }
 
    def __init__( self, name = Configurable.DefaultName ):
       super( ConfigurableAlgorithm, self ).__init__( name )

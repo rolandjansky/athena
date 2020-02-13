@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.BTagTrackToVertexIPEstimatorConfig import BTagTrackToVertexIPEstimatorCfg
 from JetTagTools.SVForIPToolConfig import SVForIPToolCfg
@@ -9,7 +10,7 @@ from JetTagTools.IPTrackSelectorConfig import IPTrackSelectorCfg
 from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
 
 # import the IPTag configurable
-from JetTagTools.JetTagToolsConf import Analysis__IPTag
+Analysis__IPTag=CompFactory.Analysis__IPTag
 
 def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a IP2DTag tool and returns it.

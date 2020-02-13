@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 # ------------------------------------------------------------
 #
 # ----------- now we do the RTF inside-out tracking
@@ -109,7 +111,7 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
 
     ToolSvc += InDetTrigSiSpacePointsSeedMaker
     if (InDetTrigFlags.doPrintConfigurables()):
-      print InDetTrigSiSpacePointsSeedMaker
+      print (InDetTrigSiSpacePointsSeedMaker)
 
     #InDetTrigSiSpacePointsSeedMaker.OutputLevel = 1
     
@@ -175,7 +177,7 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
     ToolSvc += InDetTrigSiTrackMaker
     
     if (InDetTrigFlags.doPrintConfigurables()):
-      print InDetTrigSiTrackMaker
+      print (InDetTrigSiTrackMaker)
 
     self.SeedsTool = InDetTrigSiSpacePointsSeedMaker
     self.ZvertexTool = InDetTrigZvertexMaker
@@ -321,7 +323,7 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
       #
       ToolSvc += InDetTrigScoringTool
       if (InDetTrigFlags.doPrintConfigurables()):
-        print      InDetTrigScoringTool
+        print (     InDetTrigScoringTool)
 
       # load Ambiguity Processor
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
@@ -377,7 +379,7 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
 
       ToolSvc += InDetTrigAmbiguityProcessor
       if (InDetTrigFlags.doPrintConfigurables()):
-         print InDetTrigAmbiguityProcessor
+         print (InDetTrigAmbiguityProcessor)
 
       self.AmbiguityProcessor = InDetTrigAmbiguityProcessor
       self.AssociationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels()
@@ -435,7 +437,7 @@ class TRTTrackExtAlg_EF( InDet__TRT_TrigTrackExtensionAlg ):
 
       ToolSvc += InDetTrigTRTDetElementsRoadMaker
       if (InDetTrigFlags.doPrintConfigurables()):
-         print      InDetTrigTRTDetElementsRoadMaker
+         print (     InDetTrigTRTDetElementsRoadMaker)
 
       # Track extension to TRT tool
       #
@@ -468,7 +470,7 @@ class TRTTrackExtAlg_EF( InDet__TRT_TrigTrackExtensionAlg ):
             
             ToolSvc += InDetTrigWeightCalculator
             if (InDetTrigFlags.doPrintConfigurables()):
-               print      InDetTrigWeightCalculator
+               print (     InDetTrigWeightCalculator)
       
             from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf import InDet__CompetingTRT_DriftCirclesOnTrackTool
             InDetTrigCompetingTRT_DC_Tool =  \
@@ -479,7 +481,7 @@ class TRTTrackExtAlg_EF( InDet__TRT_TrigTrackExtensionAlg ):
                                                              ToolForTRT_DriftCircleOnTrackCreation = InDetTrigRotCreator.ToolTRT_DriftCircle)
             ToolSvc += InDetTrigCompetingTRT_DC_Tool
             if (InDetTrigFlags.doPrintConfigurables()):
-               print      InDetTrigCompetingTRT_DC_Tool
+               print (     InDetTrigCompetingTRT_DC_Tool)
       
             from TRT_TrackExtensionTool_DAF.TRT_TrackExtensionTool_DAFConf import InDet__TRT_TrackExtensionTool_DAF
             InDetTrigTRTExtensionTool =  \
@@ -492,7 +494,7 @@ class TRTTrackExtAlg_EF( InDet__TRT_TrigTrackExtensionAlg ):
          #
          ToolSvc += InDetTrigTRTExtensionTool
          if (InDetTrigFlags.doPrintConfigurables()):
-            print InDetTrigTRTExtensionTool
+            print (InDetTrigTRTExtensionTool)
 
          self.TrackExtensionTool     = InDetTrigTRTExtensionTool
 
@@ -530,7 +532,7 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
                                          ToolForCompTRT_DriftCircles = InDetTrigCompetingTRT_DC_Tool )
       ToolSvc += InDetTrigCompetingRotCreator
       if (InDetTrigFlags.doPrintConfigurables()):
-        print      InDetTrigCompetingRotCreator
+        print (     InDetTrigCompetingRotCreator)
       
       from TrkDeterministicAnnealingFilter.TrkDeterministicAnnealingFilterConf import Trk__DeterministicAnnealingFilter
       InDetTrigExtensionFitter = \
@@ -544,7 +546,7 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
                                                                              
       ToolSvc += InDetTrigExtensionFitter
       if (InDetTrigFlags.doPrintConfigurables()):
-        print      InDetTrigExtensionFitter
+        print (     InDetTrigExtensionFitter)
 
     else:
       if type=="cosmicsN":
@@ -557,7 +559,7 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
       
       ToolSvc += InDetTrigExtensionFitter
       if (InDetTrigFlags.doPrintConfigurables()):
-        print      InDetTrigExtensionFitter
+        print (     InDetTrigExtensionFitter)
 
     # get configured track extension processor
     #-----------------------------------------------------------------------
@@ -590,7 +592,7 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
     #
     ToolSvc += InDetTrigExtScoringTool
     if (InDetTrigFlags.doPrintConfigurables()):
-      print      InDetTrigExtScoringTool
+      print (     InDetTrigExtScoringTool)
       
     if type=="cosmicsN":
       from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigTrackSummaryToolCosmics
@@ -603,7 +605,7 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
                                         )
       ToolSvc += InDetTrigScoringToolCosmics_TRT
       if (InDetTrigFlags.doPrintConfigurables()):
-        print InDetTrigScoringToolCosmics_TRT
+        print (InDetTrigScoringToolCosmics_TRT)
 
       
     self.TrackFitter  = InDetTrigExtensionFitter

@@ -85,7 +85,6 @@ namespace JiveXML {
     DataVect id; id.reserve(TrackRecordColl->size()); 
 
     //Now loop over the collection and retrieve data
-    TrackRecordCollection::const_iterator record;
     for (auto record : *TrackRecordColl ) {
 
       //Get the pdg code

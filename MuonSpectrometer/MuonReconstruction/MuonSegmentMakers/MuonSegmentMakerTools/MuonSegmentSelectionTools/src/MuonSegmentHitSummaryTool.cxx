@@ -15,7 +15,6 @@
 #include "MuonSegment/MuonSegmentQuality.h"
 #include <map>
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 
@@ -25,8 +24,7 @@ namespace Muon {
   MuonSegmentHitSummaryTool::MuonSegmentHitSummaryTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_detMgr(0)
+      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
     declareInterface<IMuonSegmentHitSummaryTool>(this);
 
@@ -44,16 +42,7 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
 
-    StoreGateSvc* detStore=0;
-    if( serviceLocator()->service("DetectorStore", detStore).isSuccess() ) {
-      if ( detStore->retrieve( m_detMgr ).isFailure() ) {
-	ATH_MSG_ERROR( " Cannot retrieve MuonDetDescrMgr ");
-	return StatusCode::FAILURE;
-      }
-    } else {
-      ATH_MSG_ERROR(" MuonDetDescrMgr not found in DetectorStore ");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_DetectorManagerKey.initialize());
 
     if(m_edmHelperSvc.retrieve().isFailure()){
       ATH_MSG_ERROR("Could not get " << m_edmHelperSvc);
@@ -83,6 +72,12 @@ namespace Muon {
 
     HitCounts hitCounts;
         
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return hitCounts; 
+    } 
 
     // calculate shortest channel
     double shortestTube = 1e9;
@@ -122,7 +117,7 @@ namespace Muon {
 	const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(*mit);
 	if( mdt ){
 
-	  const MuonGM::MdtReadoutElement* detEl = mdt->prepRawData() ? mdt->prepRawData()->detectorElement() : m_detMgr->getMdtReadoutElement(id);
+	  const MuonGM::MdtReadoutElement* detEl = mdt->prepRawData() ? mdt->prepRawData()->detectorElement() : MuonDetMgr->getMdtReadoutElement(id);
 	  if( !detEl ){
 	    ATH_MSG_WARNING(" could not get MdtReadoutElement for tube " << m_idHelperTool->toString(id));
 	    continue;
@@ -182,7 +177,7 @@ namespace Muon {
 	++layIntersect.nholes;
 
 	if( transformIsSet ){
-	  const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement(id);
+	  const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(id);
 	  if( !detEl ){
 	    ATH_MSG_WARNING(" could not get MdtReadoutElement for tube " << m_idHelperTool->toString(id));
 	    continue;

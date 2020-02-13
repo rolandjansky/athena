@@ -14,9 +14,15 @@ if InDetFlags.doxAOD():
   excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
   if InDetFlags.keepAdditionalHitsOnTrackParticle():
-   excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"  
+   excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"
   InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
+  from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+  from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
+  for col in InDetPhysValFlags.validateExtraTrackCollections() :
+    prefix=extractCollectionPrefix(col)
+    InDetAODList+=['xAOD::TrackParticleContainer#'+prefix+'TrackParticles']
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+prefix+'TrackParticlesAux.' + excludedAuxData]
   if not InDetFlags.doSLHC():
    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]
    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.' + excludedAuxData]

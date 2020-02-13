@@ -250,10 +250,10 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   StatusCode bookConfMapsGen();
   StatusCode bookConfMaps(int iregion);
 
-  int fillByteStreamErrorsHelper(const std::set<IdentifierHash>* errors,
+  int fillByteStreamErrorsHelper(const std::set<IdentifierHash>& errors,
                                  TH2F_LW* histo[SCT_ByteStreamErrors::NUM_ERROR_TYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2],
                                  bool lumi2DHist, int err_type);
-  void numByteStreamErrors(const std::set<IdentifierHash>* errors, int& ntot, int& nbar, int& neca, int& necc) const;
+  void numByteStreamErrors(const std::set<IdentifierHash>& errors, int& ntot, int& nbar, int& neca, int& necc) const;
   StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title, TString titlehitmap,
                                  TProfile2D_LW*& tprof, TH2F_LW*& th, const int layer, const bool barrel=true) const;
   StatusCode bookErrHistosHelper(MonGroup& mg, TString name, TString title,

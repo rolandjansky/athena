@@ -47,6 +47,9 @@ namespace G4UA
       /// Configuration parameters
       AthenaStackingAction::Config m_config;
 
+      /// Use the debug version of the stacking action
+      bool m_useDebugAction;
+
   }; // class AthenaStackingActionTool
 
 } // namespace G4UA

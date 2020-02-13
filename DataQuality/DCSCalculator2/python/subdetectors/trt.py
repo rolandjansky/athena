@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from DCSCalculator2.lib import DCSC_Subdetector, DCSC_Variable
 from DQUtils.sugar import IOVSet
@@ -48,9 +48,9 @@ class TRT(DCSC_Subdetector):
     folder_base = "/TRT/DCS"
     
     mapping = {        
-        121: range(1, BAR_MAX_ID + 1 - BAR_REMOVED_IDS),
-        124: range(1 + BAR_MAX_ID, 1 + BAR_MAX_ID + ECA_MAX_ID),
-        125: range(1 + BAR_MAX_ID + ECA_MAX_ID, 1 + BAR_MAX_ID + ECA_MAX_ID + ECC_MAX_ID),
+        121: list(range(1, BAR_MAX_ID + 1 - BAR_REMOVED_IDS)),
+        124: list(range(1 + BAR_MAX_ID, 1 + BAR_MAX_ID + ECA_MAX_ID)),
+        125: list(range(1 + BAR_MAX_ID + ECA_MAX_ID, 1 + BAR_MAX_ID + ECA_MAX_ID + ECC_MAX_ID)),
     }
 
     variables = [

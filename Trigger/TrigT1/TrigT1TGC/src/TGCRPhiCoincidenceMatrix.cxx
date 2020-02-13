@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCRPhiCoincidenceMatrix.hh"
@@ -72,22 +72,41 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
   for( int j=m_nPhiHit-1; j>=0; j-=1){     // left half-SSC has priority when both output same pT
     int subsector;
     int ptOut = -99;
+    int chargeOut = 2;
+    int CoincidenceTypeOut=-1;
+    bool isgoodMFOut=false;
+
     if(m_sectorLogic->getRegion()==Endcap){
       subsector = 4*(2*m_SSCId+m_r-1)+m_phi[j];
     } else {
       subsector = 4*(2*m_SSCId+m_r)+m_phi[j];
     }
     
+
     int type = m_map->getMapType(m_ptR, m_ptPhi[j]);
-    for( int pt=NumberOfPtLevel-1; pt>=0; pt-=1){
-      if(m_map->test(m_sectorLogic->getOctantID(),m_sectorLogic->getModuleID(),subsector,
-		   type, pt,
-		   m_dR,m_dPhi[j])) {
-	ptOut = pt;
-	break;
-      }
-    } // loop pt
-      
+    // calculate pT of muon candidate
+    if(tgcArgs()->useRun3Config()){
+      //Algorithm for Run3
+      /*int pt=map->test_Run3(sectorLogic->getOctantID(),sectorLogic->getModuleID(),
+	subsector,type,dR,dPhi[j]); // this function will be implemented. 
+	ptOut = std::abs(pt)-1;
+	chargeOut = pt<0 ? 0:1;
+	//isgoodMFOut : will be set.
+      */
+      CoincidenceTypeOut=(type==0);
+    }
+    else{
+      for( int pt=NumberOfPtLevel-1; pt>=0; pt-=1){
+	if(m_map->test(m_sectorLogic->getOctantID(),m_sectorLogic->getModuleID(),subsector,
+		       type, pt,
+		       m_dR,m_dPhi[j])) {
+	  ptOut = pt;
+	  break;
+	}
+      } // loop pt
+    }
+
+
     if (tgcArgs()->OUTCOINCIDENCE()) {
       TGCCoincidence * coin
 	= new TGCCoincidence(m_sectorLogic->getBid(), m_sectorLogic->getId(), m_sectorLogic->getModuleID(), 
@@ -106,6 +125,10 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
       out->setPhi(m_phi[j]);
       out->setDR(m_dR);
       out->setDPhi(m_dPhi[j]);
+      out->setRoI(subsector);
+      out->setCharge(chargeOut);
+      out->setCoincidenceType(CoincidenceTypeOut);
+      out->setGoodMFFlag(isgoodMFOut);
       j0 = j;
     }
   }

@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkSegment
                           PRIVATE
                           DetectorDescription/Identifier
+                          DetectorDescription/GeoModel/GeoModelUtilities
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODTrigger
                           GaudiKernel
@@ -37,7 +38,7 @@ atlas_add_component( MdtRawDataMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringLib EventInfo MuonIdHelpersLib MuonPrepRawData MuonDQAUtilsLib TrkSegment Identifier xAODEventInfo xAODTrigger GaudiKernel MdtCalibFitters MuonCalibIdentifier MuonReadoutGeometry MuonRIO_OnTrack MuonSegment AnalysisTriggerEvent LWHists TrkEventPrimitives )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringLib EventInfo MuonIdHelpersLib MuonPrepRawData MuonDQAUtilsLib TrkSegment Identifier xAODEventInfo xAODTrigger GaudiKernel MdtCalibFitters MuonCalibIdentifier MuonReadoutGeometry MuonRIO_OnTrack MuonSegment AnalysisTriggerEvent LWHists TrkEventPrimitives GeoModelUtilities )
 
 # Install files from the package:
 atlas_install_headers( MdtRawDataMonitoring )

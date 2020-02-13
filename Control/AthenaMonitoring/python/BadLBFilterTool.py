@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from PyUtils.Decorators import memoize
+from functools import reduce
 
 def _resolve_db_tag(origDbTag):
     from AthenaCommon.GlobalFlags  import globalflags

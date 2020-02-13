@@ -11,8 +11,6 @@
 #include "MuonTGC_CnvTools/ITGC_RodDecoder.h"
 #include "MuonRDO/TgcRdoContainer.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
@@ -26,7 +24,6 @@ Muon::TGC_RawDataProviderToolCore::TGC_RawDataProviderToolCore(
 						       const std::string& n,
 						       const IInterface*  p) :
   AthAlgTool(t, n, p),
-  m_muonMgr(0),
   m_decoder("Muon::TGC_RodDecoderReadout/TGC_RodDecoderReadout", this),
   m_cabling(0),
   m_robDataProvider("ROBDataProviderSvc",n) 
@@ -47,10 +44,7 @@ StatusCode Muon::TGC_RawDataProviderToolCore::initialize()
 
   if(sc.isFailure()) return sc;
 
-  if(detStore()->retrieve(m_muonMgr).isFailure()) {
-    ATH_MSG_WARNING( "Cannot retrieve MuonDetectorManager" );
-    return StatusCode::SUCCESS;
-  }
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   if(m_decoder.retrieve().isFailure()) {
     ATH_MSG_FATAL( "Failed to retrieve tool " << m_decoder );
@@ -67,7 +61,7 @@ StatusCode Muon::TGC_RawDataProviderToolCore::initialize()
     ATH_MSG_INFO( "Retrieved service " << m_robDataProvider );
   }
 
-  m_maxhashtoUse = m_muonMgr->tgcIdHelper()->module_hash_max();  
+  m_maxhashtoUse = m_idHelperSvc->tgcIdHelper().module_hash_max();  
 
   ATH_CHECK(m_rdoContainerKey.initialize());
 
@@ -146,15 +140,14 @@ std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> Muon::TGC_RawDataPr
     }
   }
 
-  const TgcIdHelper* idHelper = m_muonMgr->tgcIdHelper();
-  IdContext tgcContext = idHelper->module_context();
+  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
   
   std::vector<uint32_t> robIds;
 
   unsigned int size = rdoIdhVect.size();
   for(unsigned int i=0; i<size; ++i) {
     Identifier Id;
-    if(idHelper->get_id(rdoIdhVect[i], Id, &tgcContext)) {
+    if(m_idHelperSvc->tgcIdHelper().get_id(rdoIdhVect[i], Id, &tgcContext)) {
       ATH_MSG_WARNING( "Unable to get TGC Identifier from collection hash id " );
       continue;
     }

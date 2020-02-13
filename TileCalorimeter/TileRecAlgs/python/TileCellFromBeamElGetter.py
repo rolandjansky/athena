@@ -23,7 +23,7 @@ class TileCellFromBeamElGetter ( Configured )  :
             theTileCellFromBeamElGetter=TileCellFromBeamElGetter()
         except Exception:
             mlog.error("could not get handle to TileCellFromBeamElGetter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theTileCellFromBeamElGetter.usable():
@@ -38,7 +38,7 @@ class TileCellFromBeamElGetter ( Configured )  :
             from TileRecAlgs.TileRecAlgsConf import TileBeamElemToCell                
         except Exception:
             mlog.error("could not import TileRecAlgs.TileBeamElemToCell")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theTileBeamElemToCell=TileBeamElemToCell()

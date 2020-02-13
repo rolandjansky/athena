@@ -31,6 +31,8 @@
 
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
 
+#include "AthenaMonitoringKernel/Monitored.h"
+
 class ITrigL2LayerNumberTool;
 class ITrigL2LayerSetPredictorTool;
 class ITrigSpacePointConversionTool;
@@ -52,8 +54,6 @@ namespace Trk {
   class ITrackSummaryTool;
   class SpacePoint;
 }
-
-class IFTK_DataProviderSvc;
 
 class TrigL2LayerSetLUT;
 class TrigSpacePointStorage;
@@ -83,6 +83,9 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
   double trackQuality(const Trk::Track* Tr);
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT);
 
+  virtual bool isClonable() const override { return true; }
+  virtual unsigned int cardinality() const override { return 0; }//Mark as re-entrant
+
 protected: 
 
   void updateClusterMap(long int, const Trk::Track*, std::map<Identifier, std::vector<long int> >&);
@@ -107,8 +110,7 @@ protected:
   ToolHandle<ITrigInDetTrackFitter> m_trigInDetTrackFitter;
   ToolHandle<ITrigZFinder> m_trigZFinder;
   ToolHandle< Trk::ITrackSummaryTool > m_trackSummaryTool;
-  ServiceHandle<IFTK_DataProviderSvc > m_ftkDataProviderSvc;
-  std::string m_ftkDataProviderSvcName;
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
   //DataHandles
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
@@ -122,13 +124,9 @@ protected:
   // Control flags
 
   bool m_doCloneRemoval;
-  bool m_ftkMode;//If True: Retrieve FTK tracks
-  bool m_ftkRefit;//If True: Refit FTK tracks
   bool m_useBeamSpot; 
   bool m_vertexSeededMode;
   bool m_doZFinder;
-  bool m_doFTKZFinder;
-  bool m_doFTKFastVtxFinder;
   bool m_doFastZVseeding;
   bool m_doResMonitoring;
 

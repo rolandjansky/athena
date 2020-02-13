@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 from PyCool import cool
 from re import match
@@ -82,12 +83,12 @@ def connect( connectString, verbose = False):
         # frontier/logical cannot do update connections - only real dbs
         if ('oracle' in connectString or 'mysql' in connectString or 'sqlite' in connectString): readonly=False
         db=AtlCoolLib.indirectOpen(connectString,readonly,forceoracle,debug)
-    except Exception, e:
+    except Exception as e:
         if 'The database does not exist' in str(e):
-            print "Creating new database"
+            print ("Creating new database")
             db = dbSvc.createDatabase( connectString )
         else:
-            if verbose: print 'Error while connecting:', str(e)
+            if verbose: print ('Error while connecting:', str(e))
             db = None
     return db, connectString
 
@@ -132,11 +133,11 @@ class Info(dict):
     can both query for the inspected object's information:
     
       res = tool.ls( '/a' )
-      print res['name']
+      print (res['name'])
       
     as well as obtain a standard printout of the information:
     
-      print res
+      print (res)
     
     """
     def __init__( self, format = None ):
@@ -269,8 +270,8 @@ class AtlCoolTool:
             try:
                 retcode=self.db.dropNode(node)
                 res.append('Folder dropped with return code '+str(retcode))
-            except Exception, e:
-                print e
+            except Exception as e:
+                print (e)
                 res.append('Could not drop folder')
         else:
             res.append('Folder '+node+' does not exist')
@@ -314,7 +315,7 @@ class AtlCoolTool:
                     restag=self.curtag
                     res.append('Using tag selection: %s' % self.curtag)
             coolvec=(fdesc.find('CondAttrListVec')>=0 and fdesc.find('coracool')<0)
-            if coolvec: print "Folder has CoolVector payload"
+            if coolvec: print ("Folder has CoolVector payload")
             objs = f.browseObjects( limmin,limmax,chansel,restag )
             while objs.goToNext():
                 if (more):
@@ -349,10 +350,10 @@ class AtlCoolTool:
         if istime:
             if (value==cool.ValidityKeyMin):
                 return "ValidityKeyMin"
-            elif (cool.ValidityKeyMax-value<1000000000L):
+            elif (cool.ValidityKeyMax-value<1000000000):
                 return "ValidityKeyMax"
             else:
-                stime=int(value/1000000000L)
+                stime=int(value/1000000000)
                 return time.asctime(time.gmtime(stime))+" UTC"
         else:
             return "[%i,%i%s" % (value >> 32, value & 0xFFFFFFFF,trail)
@@ -557,14 +558,14 @@ class AtlCoolTool:
         if f is not None:
             # check tag exists, confirm action if not
             if tag1 not in f.listTags():
-                print "WARNING: Tag %s does not exist in node %s" % (tag1,node)
+                print ("WARNING: Tag %s does not exist in node %s" % (tag1,node))
                 chk=raw_input("Do you want to proceed anyway (y/n)")
                 if (chk.upper()!="Y"):
                     raise Exception('ABORTED - Tag %s does not exist' % tag1)
             try:
                 f.createTagRelation(tag2,tag1)
-            except Exception,e:
-                print e
+            except Exception as e:
+                print (e)
                 res.append('createTagRelation fails')
         else:
             raise Exception("Node '%s' does not exist" % node)
@@ -654,9 +655,9 @@ class AtlCoolTool:
             except ValueError:
                 try:
                     ts=time.strptime(args[i]+'/UTC','%Y-%m-%d:%H:%M:%S/%Z')
-                    self.curtimes[i]=int(calendar.timegm(ts))*1000000000L
+                    self.curtimes[i]=int(calendar.timegm(ts))*1000000000
                 except ValueError:
-                    print "ERROR in time specification, use e.g. 2007-05-25:14:01:00"
+                    print ("ERROR in time specification, use e.g. 2007-05-25:14:01:00")
                     
 
     def rmtag(self,argumentString):
@@ -685,15 +686,15 @@ class AtlCoolTool:
                 try:
                     f.deleteTag(tag1)
                     res.append('Removal of leaf tag '+tag1+' succeeded')
-                except Exception,e:
-                    print
+                except Exception as e:
+                    print (e)
                     res.append('deleteTag fails')
             else:
                 # tag1 is a tag relation to a parent
                 try:
                     f.deleteTagRelation(tag1)
-                except Exception,e:
-                    print e
+                except Exception as e:
+                    print (e)
                     res.append('deleteTagRelation fails')
         else:
             raise Exception("Node '%s' does not exist" % node)
@@ -716,8 +717,8 @@ class AtlCoolTool:
             res.append('Applying tag '+tag+' to HEAD of folder '+node)
             try:
                 f.tagCurrentHead(tag,"AtlCoolConsole tag")
-            except Exception,e:
-                print e
+            except Exception as e:
+                print (e)
                 res.append('tagCurrentHead fails')
         else:
             raise Exception("Node '%s' does not exist" % node)
@@ -850,7 +851,7 @@ class AtlCoolTool:
             try:
                 f.cloneTagAsUserTag(tag1,tag2)
                 res.append('All done')
-            except Exception, e:
+            except Exception as e:
                 res.append('cloneTagAsUserTag failed with error %s' % e)
         elif self.db.existsFolderSet(node) :  #clone tags in folderset mantaining tags hierarchy
             addedtag = []
@@ -875,8 +876,8 @@ class AtlCoolTool:
                                 if  rtag not in addedtag :
                                     addedtag.append(rtag)
                                     subf.createTagRelation(tag2,rtag)
-                            except Exception,e:
-                                print e
+                            except Exception as e:
+                                print (e)
                                 res.append('createTagRelation failed with error %s' %e)
                         except:
                             res.append('Folder %s : no tag selected' % inode)
@@ -922,8 +923,8 @@ class AtlCoolTool:
                 res.append('Set folder description to: %s' % desc)
                 try:
                     f.setDescription(desc)
-                except Exception, e:
-                    print e
+                except Exception as e:
+                    print (e)
                     res.append('Set folder description failed')
         else:
             raise Exception("Node '%s' does not exist" % node)

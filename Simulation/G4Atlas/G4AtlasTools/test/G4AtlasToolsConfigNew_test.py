@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  ConfigFlags.Sim.ISF.Run = True
+  ConfigFlags.Sim.ISFRun = True
 
   #Provide input
   from AthenaConfiguration.TestDefaults import defaultTestFiles

@@ -6,8 +6,9 @@ Elmar Ritsch, 27/09/2013
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-from SubDetectorEnvelopes.SubDetectorEnvelopesConf import DetDescrDBEnvelopeSvc
+DetDescrDBEnvelopeSvc=CompFactory.DetDescrDBEnvelopeSvc
 
 def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     result = ComponentAccumulator()

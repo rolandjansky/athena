@@ -6,7 +6,7 @@
 #define TRIGBPHYSMONITORING_TRIGBPHYSMONITORALGORITHM_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "xAODTrigBphys/TrigBphysContainer.h" 
 #include "xAODTrigBphys/TrigBphys.h"

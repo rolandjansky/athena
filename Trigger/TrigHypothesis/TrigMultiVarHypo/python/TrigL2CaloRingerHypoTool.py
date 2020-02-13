@@ -1,4 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 import re
 
 _pattern = "(?P<mult>\d*)(e(?P<threshold1>\d+))(e(?P<threshold2>\d+))*"
@@ -52,7 +55,7 @@ def _HypoTool(name, cand, threshold, sel):
   from TriggerJobOpts.TriggerFlags import TriggerFlags
   if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
   
-    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
     monTool = GenericMonitoringTool('MonTool'+name)
     monTool.Histograms = [
       defineHistogram( "TIME_total", path='EXPERT',title="Total Time;time[ms]",xbins=50, xmin=0,xmax=5,type='TH1F'),
@@ -89,7 +92,7 @@ def _AlgTool(name):
 
 def decodeThreshold( threshold ):
     """ decodes the thresholds of the form e10, 2e10, e10e15, ... """
-    print "TrigL2CaloHypoToolFromName: decoding threshold ", threshold
+    print ("TrigL2CaloHypoToolFromName: decoding threshold ", threshold)
     if threshold[0].isdigit(): # is if the from NeX, return as list [X,X,X...N times...]
         assert threshold[1] == 'e', "Two digit multiplicity not supported"
         return [ threshold[2:] ] * int( threshold[0] )
@@ -118,7 +121,7 @@ def createRingerDecisions( name, chains, ClustersKey="CaloClusters",RingerKey="C
 
     hypotools = []
     for c in chains:
-      #print "Configuring ", name
+      #print ("Configuring ", name)
       bname = c.split('_')
       threshold = bname[1]
       sel = bname[2]

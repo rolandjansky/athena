@@ -12,7 +12,8 @@
  * @brief Forward iterator to traverse the main components of the trigger configuration
  */
 
-#include "CxxUtils/checker_macros.h"
+#include "TrigConfData/TSCheckMacros.h"
+
 #include <iostream>
 #include <functional>
 

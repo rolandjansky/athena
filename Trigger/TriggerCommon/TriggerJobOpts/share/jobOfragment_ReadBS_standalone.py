@@ -21,9 +21,10 @@ svcMgr.ByteStreamCnvSvc.InitCnvs += [ "EventInfo",
 # -------------------------------------------------------------
 # RIO Convertors
 # -------------------------------------------------------------
-ByteStreamAddressProviderSvc = Service( "ByteStreamAddressProviderSvc" )
+from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
+bssvc = ByteStreamAddressProviderSvc( "ByteStreamAddressProviderSvc" )
 if TriggerFlags.doEF() or TriggerFlags.doHLT():
-    ByteStreamAddressProviderSvc.TypeNames += [ 
+    bssvc.TypeNames += [ 
         "TileCellIDC/TileCellIDC",
         "MdtDigitContainer/MDT_DIGITS",
         "RpcDigitContainer/RPC_DIGITS",
@@ -37,7 +38,7 @@ if TriggerFlags.doEF() or TriggerFlags.doHLT():
 # RDO Convertors
 # -------------------------------------------------------------
 #include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
-ByteStreamAddressProviderSvc.TypeNames += [ 
+bssvc.TypeNames += [ 
     "LArRawChannelContainer/LArRawChannels", 
     "TileRawChannelContainer/TileRawChannelCnt", 
     "MuCTPI_RDO/MUCTPI_RDO",        

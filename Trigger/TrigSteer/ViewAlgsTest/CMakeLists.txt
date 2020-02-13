@@ -34,8 +34,8 @@ atlas_install_python_modules( python/*.py )
 
 atlas_add_test( creatingEVTest 
                 SCRIPT athena --threads=1 ViewAlgsTest/EVTest.py
-                EXTRA_PATTERNS "-s EMViewsMaker|algInView|'start processing'" )
+                LOG_SELECT_PATTERN "EMViewsMaker|algInView|start processing" )
 
 atlas_add_test( mergingEVTest 
 		        SCRIPT athena --threads=1 -c "doMerging=True" ViewAlgsTest/EVTest.py
-                EXTRA_PATTERNS "-s EMViewsMaker|algInView|'start processing'" )
+                LOG_SELECT_PATTERN "EMViewsMaker|algInView|start processing" )

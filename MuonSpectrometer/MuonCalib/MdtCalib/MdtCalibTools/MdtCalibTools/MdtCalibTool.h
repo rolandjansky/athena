@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,14 +29,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include "MuonCalibITools/IMuonCalibTool.h"
 #include "MuonCalibITools/IRegionSelectorTool.h"
 
 #include <map>
-
-
-class MdtIdHelper;
 
 namespace MuonCalib {
 
@@ -113,10 +112,8 @@ namespace MuonCalib {
   /** RegionSelector initialization */
   ToolHandle<IRegionSelectorTool> m_regionSelector; //!< RegionSelector ToolHandle
    
-  const MdtIdHelper* m_mdtIdHelper; //!< pointer to MdtIdHelper
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-  /** maximum number of iterations */
-  unsigned int m_maxIterations;
   };
 
 }

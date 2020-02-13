@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import stomp
 import socket
@@ -104,7 +104,7 @@ class ATLASDQMListener(object):
         for conn in self.conns:
             try:
                 conn.disconnect()
-            except Exception, e:
+            except Exception as e:
                 print('Exception closing connections:' + repr(e))
                 pass
         return False

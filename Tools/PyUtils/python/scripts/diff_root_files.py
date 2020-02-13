@@ -222,7 +222,6 @@ def main(args):
         n_good = 0
         n_bad = 0
         import collections
-        from itertools import izip
         summary = collections.defaultdict(int)
 
         if args.order_trees:
@@ -245,7 +244,7 @@ def main(args):
             keep_reading = True
             while keep_reading:
                 try:
-                    entry = dump_iter.next()
+                    entry = next(dump_iter)
                 except StopIteration:
                     return None
                 entry[2][0] = entry[2][0].rstrip('.\0')  # clean branch name

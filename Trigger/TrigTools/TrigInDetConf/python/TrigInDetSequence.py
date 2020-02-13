@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 #
 #  provisionally a copy of InDetRecExample
@@ -134,7 +136,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
 
   def generatePyCode(self, algos):
     #create python code to be executed
-    alglist = "algseq = ["
+    alglist = "["
     for i in algos:
       #self.__algos__.append(i)
       algline = self._item_line(i[0], i[1])
@@ -148,18 +150,18 @@ class TrigInDetSequence(TrigInDetSequenceBase):
     if not ( TriggerFlags.doEF() or TriggerFlags.doHLT() ) or not TriggerFlags.doFEX():
       from TrigSteeringTest.TrigSteeringTestConf import PESA__dummyAlgo as dummyAlgo_disabledByTriggerFlags_EFID
       dummyAlgEFID = dummyAlgo_disabledByTriggerFlags_EFID("doEF_or_doFEX_False_no_EFID")
-      alglist = 'algseq = [dummyAlgEFID]'
+      alglist = '[dummyAlgEFID]'
 
     algseq = []
     try:
-      exec alglist
+      algseq = eval (alglist)
     except:
       from sys import exc_info
       (a,reason,c) = exc_info()
-      print reason
+      print (reason)
       log.error("Cannot create ID tracking sequence %s, leaving empty" % alglist)
       import traceback
-      print traceback.format_exc()
+      traceback.print_exc()
 
       #raise Exception
 
@@ -310,15 +312,15 @@ class TrigInDetSequence(TrigInDetSequenceBase):
       pass
 
     log.debug("Full sequence has %d items" % len(fullseq) )
-    #print fullseq
+    #print (fullseq)
     #log.info("generate python now")
 
     for i in fullseq:
-      #print i
-      #print 'next item ', i
+      #print (i)
+      #print ('next item ', i)
       if self.__step__:
         self.__signature__ = self.__step__.pop()
       self.generatePyCode(i)
-      #print self.__sequence__
+      #print (self.__sequence__)
 
 

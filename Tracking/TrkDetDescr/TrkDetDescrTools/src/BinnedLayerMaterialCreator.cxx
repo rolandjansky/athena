@@ -50,7 +50,7 @@ StatusCode Trk::BinnedLayerMaterialCreator::finalize()
     return StatusCode::SUCCESS;
 }
 
-const Trk::LayerMaterialProperties* Trk::BinnedLayerMaterialCreator::createLayerMaterial(const Trk::LayerMaterialRecord& lmr) const
+Trk::LayerMaterialProperties* Trk::BinnedLayerMaterialCreator::createLayerMaterial(const Trk::LayerMaterialRecord& lmr) const
 {
   // get the material matrix and copy 
   const Trk::MaterialPropertiesMatrix& mpm = lmr.associatedLayerMaterial();
@@ -60,7 +60,7 @@ const Trk::LayerMaterialProperties* Trk::BinnedLayerMaterialCreator::createLayer
   return new Trk::BinnedLayerMaterial(*cbinutil,mpm);
 }    
 
-const Trk::LayerMaterialProperties* Trk::BinnedLayerMaterialCreator::convertLayerMaterial(const Trk::LayerMaterialProperties& lmProperties) const
+Trk::LayerMaterialProperties* Trk::BinnedLayerMaterialCreator::convertLayerMaterial(const Trk::LayerMaterialProperties& lmProperties) const
 {
     // the return object
     Trk::LayerMaterialProperties* bLayerMaterial = nullptr;

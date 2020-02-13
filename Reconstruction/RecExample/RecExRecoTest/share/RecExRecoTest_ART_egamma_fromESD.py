@@ -157,6 +157,9 @@ except Exception:
 
 include( "McParticleAlgs/TruthParticleBuilder_jobOptions.py" )
 
+include( "TrackToCalo/CaloExtensionBuilderAlg_jobOptions.py" )
+CaloExtensionBuilder("TightPrimary", 500.) 
+
 from egammaRec.egammaRecFlags import jobproperties
 
 include( "egammaRec/egammaRec_jobOptions.py" )

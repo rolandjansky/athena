@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/share/PhysicalConstants.py
 # Author: Wim Lavrijsen (LBNL, WLavrijsen@lbl.gov)
@@ -43,7 +43,7 @@
 
 from __future__ import print_function
 
-from SystemOfUnits import henry, eplus, MeV, joule, s, m, kelvin, atmosphere, g, mg, cm3, mole
+from .SystemOfUnits import henry, eplus, MeV, joule, s, m, kelvin, atmosphere, g, mg, cm3, mole
 
 #
 #

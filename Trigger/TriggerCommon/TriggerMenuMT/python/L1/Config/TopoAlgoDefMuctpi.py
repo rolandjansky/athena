@@ -23,24 +23,26 @@ class TopoAlgoDefMuctpi:
         ]
 
         for x in listofalgos:
+            class d:
+                pass
             for k in x:
-                exec("%s = x[k]" % k)
+                setattr (d, k, x[k])
 
-            obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist)    # noqa: F821
-            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)                                    # noqa: F821
-            toponame = "%iDR%i-%s%s%s"  % (minDr, maxDr, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2)  # noqa: F821
+            obj1 = "%s%s%s%s" % ((str(d.mult) if d.mult>1 else ""), d.otype1, str(d.ocut1), d.olist)
+            obj2 = "-%s%s%s" % (d.otype2, str(d.ocut2), d.olist)
+            toponame = "%iDR%i-%s%s%s"  % (d.minDr, d.maxDr, "ONEBARREL-" if d.onebarrel==1 else "", obj1, "" if d.mult>1 else obj2)
 
             log.debug("Define %s", toponame)
 
-            inputList = [otype1 + olist] if (mult>1 or otype1==otype2) else [otype1 + olist, otype2 + olist]    # noqa: F821
-            algoname = AlgConf.DeltaRSqrIncl1 if (mult>1 or otype1==otype2) else AlgConf.DeltaRSqrIncl2         # noqa: F821
+            inputList = [d.otype1 + d.olist] if (d.mult>1 or d.otype1==d.otype2) else [d.otype1 + d.olist, d.otype2 + d.olist]
+            algoname = AlgConf.DeltaRSqrIncl1 if (d.mult>1 or d.otype1==d.otype2) else AlgConf.DeltaRSqrIncl2
             alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
             currentAlgoId += 1
  
-            if (mult>1 or otype1==otype2):  # noqa: F821
+            if (d.mult>1 or d.otype1==d.otype2):
                 alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
                 alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
-                alg.addgeneric('RequireOneBarrel', onebarrel)  # noqa: F821
+                alg.addgeneric('RequireOneBarrel', d.onebarrel)
             else:
                 alg.addgeneric('InputWidth1', HW.OutputWidthSelectMU)
                 alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU) 
@@ -49,8 +51,8 @@ class TopoAlgoDefMuctpi:
 
 
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET1', ocut1)            # noqa: F821
-            alg.addvariable('MinET2', ocut2)            # noqa: F821
-            alg.addvariable('DeltaRMin', minDr*minDr)   # noqa: F821
-            alg.addvariable('DeltaRMax', maxDr*maxDr)   # noqa: F821
+            alg.addvariable('MinET1', d.ocut1)
+            alg.addvariable('MinET2', d.ocut2)
+            alg.addvariable('DeltaRMin', d.minDr*d.minDr)
+            alg.addvariable('DeltaRMax', d.maxDr*d.maxDr)
             tm.registerTopoAlgo(alg)

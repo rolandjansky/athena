@@ -1,7 +1,7 @@
 
 def SpCountMonitoring():
 
-    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
     monTool.defineHistogram('totNumPixCL_1', path='EXPERT', type='TH1I', title='totNumPixCL_1',xbins=100, xmin=-0, xmax=2000)
     monTool.defineHistogram('totPixBeforeCuts', path='EXPERT', type='TH1I', title='totPixBeforeCuts', xbins = 250, xmin=-0.5, xmax=4999.5)

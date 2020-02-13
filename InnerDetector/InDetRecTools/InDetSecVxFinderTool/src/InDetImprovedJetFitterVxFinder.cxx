@@ -361,7 +361,7 @@ namespace InDet
 
   } 
 
-  const Trk::VxSecVertexInfo* 
+  Trk::VxSecVertexInfo*
   InDetImprovedJetFitterVxFinder::findSecVertex(const xAOD::Vertex & primaryVertex,
      const TLorentzVector & jetMomentum,
      const std::vector<const xAOD::IParticle*> & inputTracks) const{
@@ -401,7 +401,7 @@ namespace InDet
       }
     }
     Trk::RecVertex dummy;
-    const Trk::VxSecVertexInfo* secVxInfo=doTheFinding(primaryVertex,
+    Trk::VxSecVertexInfo* secVxInfo=doTheFinding(primaryVertex,
                                                        jetMomentum,
                                                        selectedTracks);
 
@@ -409,7 +409,7 @@ namespace InDet
   }
   
   
-  const Trk::VxSecVertexInfo* InDetImprovedJetFitterVxFinder::findSecVertex(const Trk::RecVertex & primaryVertex,
+  Trk::VxSecVertexInfo* InDetImprovedJetFitterVxFinder::findSecVertex(const Trk::RecVertex & primaryVertex,
                                                                             const TLorentzVector & jetMomentum,
                                                                             const std::vector<const Trk::TrackParticleBase*> & myTracks) const {
     if (msgLvl(MSG::VERBOSE)) msg() << " Starting findSecVertex " << endmsg;
@@ -440,7 +440,7 @@ namespace InDet
   
 
   
-  const Trk::VxSecVertexInfo* InDetImprovedJetFitterVxFinder::doTheFinding(const xAOD::Vertex & primaryVertex, //const Trk::RecVertex & /* primaryVertex */,
+  Trk::VxSecVertexInfo* InDetImprovedJetFitterVxFinder::doTheFinding(const xAOD::Vertex & primaryVertex, //const Trk::RecVertex & /* primaryVertex */,
                                                                             const TLorentzVector & jetMomentum,
                                                                            const std::vector<const Trk::ITrackLink*> & myTracks) const
   {

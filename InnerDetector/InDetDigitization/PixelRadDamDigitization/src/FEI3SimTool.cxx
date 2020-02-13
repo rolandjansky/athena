@@ -86,40 +86,44 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     }
   }
 
-  for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
+  for (SiChargedDiodeOrderedIterator i_chargedDiode=chargedDiodes.orderedBegin(); i_chargedDiode!=chargedDiodes.orderedEnd(); ++i_chargedDiode)
+  {
+    SiChargedDiode& diode = **i_chargedDiode;
 
-    Identifier diodeID = chargedDiodes.getId((*i_chargedDiode).first);
-    double charge = (*i_chargedDiode).second.charge();
+    Identifier diodeID = chargedDiodes.getId(diode.diode());
+    double charge = diode.charge();
 
     int circ = m_pixelCabling->getFE(&diodeID,moduleID);
     int type = m_pixelCabling->getPixelType(diodeID);
 
-    // Apply analogu threshold, timing simulation
+    // Apply analog threshold, timing simulation
     double th0 = calibData->getAnalogThreshold((int)moduleHash, circ, type);
     double ith0 = calibData->getInTimeThreshold((int)moduleHash, circ, type);
 
-    double threshold = th0+calibData->getAnalogThresholdSigma((int)moduleHash,circ,type)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine)+calibData->getAnalogThresholdNoise((int)moduleHash, circ, type)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+    double thrand1 = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+    double thrand2 = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+    double threshold = th0+calibData->getAnalogThresholdSigma((int)moduleHash,circ,type)*thrand1+calibData->getAnalogThresholdNoise((int)moduleHash, circ, type)*thrand2;
     double intimethreshold = (ith0/th0)*threshold;
 
     if (charge>threshold) {
       int bunchSim;
-      if ((*i_chargedDiode).second.totalCharge().fromTrack()) {
-        if (m_timingTune==2015) { bunchSim = relativeBunch2015((*i_chargedDiode).second.totalCharge(),barrel_ec,layerIndex,moduleIndex); }
-        else                    { bunchSim = relativeBunch2009(threshold,intimethreshold,(*i_chargedDiode).second.totalCharge()); }
+      if (diode.totalCharge().fromTrack()) {
+        if (m_timingTune==2015) { bunchSim = relativeBunch2015(diode.totalCharge(),barrel_ec,layerIndex,moduleIndex); }
+        else                    { bunchSim = relativeBunch2009(threshold,intimethreshold,diode.totalCharge()); }
       } 
       else {
         bunchSim = CLHEP::RandFlat::shootInt(m_rndmEngine,m_timeBCN);
       }
 
-      if (bunchSim<0 || bunchSim>m_timeBCN) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-      else                                  { SiHelper::SetBunch((*i_chargedDiode).second,bunchSim); }
+      if (bunchSim<0 || bunchSim>m_timeBCN) { SiHelper::belowThreshold(diode,true,true); }
+      else                                  { SiHelper::SetBunch(diode,bunchSim); }
     } 
     else {
-      SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
+      SiHelper::belowThreshold(diode,true,true);
     }
 
-    if (barrel_ec==0 && charge<m_BarrelAnalogthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-    if (barrel_ec!=0 && charge<m_EndcapAnalogthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (barrel_ec==0 && charge<m_BarrelAnalogthreshold.at(layerIndex)) { SiHelper::belowThreshold(diode,true,true); }
+    if (barrel_ec!=0 && charge<m_EndcapAnalogthreshold.at(layerIndex)) { SiHelper::belowThreshold(diode,true,true); }
 
     // charge to ToT conversion
     double tot    = calibData->getToT((int)moduleHash, circ, type, charge);
@@ -128,25 +132,25 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
     if (nToT<1) { nToT=1; }
 
-    if (barrel_ec==0 && nToT<=m_BarrelToTthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-    if (barrel_ec!=0 && nToT<=m_EndcapToTthreshold.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (barrel_ec==0 && nToT<=m_BarrelToTthreshold.at(layerIndex)) { SiHelper::belowThreshold(diode,true,true); }
+    if (barrel_ec!=0 && nToT<=m_EndcapToTthreshold.at(layerIndex)) { SiHelper::belowThreshold(diode,true,true); }
 
-    if (barrel_ec==0 && nToT>=m_BarrelLatency.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-    if (barrel_ec!=0 && nToT>=m_EndcapLatency.at(layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (barrel_ec==0 && nToT>=m_BarrelLatency.at(layerIndex)) { SiHelper::belowThreshold(diode,true,true); }
+    if (barrel_ec!=0 && nToT>=m_EndcapLatency.at(layerIndex)) { SiHelper::belowThreshold(diode,true,true); }
 
     // Filter events
-    if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 
-    if (SiHelper::isDisabled((*i_chargedDiode).second)) { continue; } 
+    if (SiHelper::isMaskOut(diode))  { continue; } 
+    if (SiHelper::isDisabled(diode)) { continue; } 
 
     if (!m_pixelConditionsTool->isActive(moduleHash,diodeID)) {
-      SiHelper::disabled((*i_chargedDiode).second,true,true);
+      SiHelper::disabled(diode,true,true);
       continue;
     }
 
-    int flag  = (*i_chargedDiode).second.flag();
+    int flag  = diode.flag();
     int bunch = (flag>>8)&0xff;
 
-    InDetDD::SiReadoutCellId cellId=(*i_chargedDiode).second.getReadoutCell();
+    InDetDD::SiReadoutCellId cellId=diode.getReadoutCell();
     const Identifier id_readout = chargedDiodes.element()->identifierFromCellId(cellId);
 
     // Front-End simulation

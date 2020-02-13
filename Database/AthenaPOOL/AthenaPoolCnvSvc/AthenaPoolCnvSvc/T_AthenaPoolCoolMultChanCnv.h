@@ -59,7 +59,7 @@ protected:
     /// @param obj          [IN]  pointer to the collection of objects.
     /// @param attrListColl [OUT] CondAttrListCollection filled with tokens
     /// @param token        [OUT] Token from writing out CondMultChanCollImpl
-    StatusCode objectToAttrListColl(COLL_T* obj, 
+    StatusCode objectToAttrListColl(COLL_T* obj, IOpaqueAddress*& pAddr,
 				    CondAttrListCollection*& attrListColl,
 				    Token*& token);
 

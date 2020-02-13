@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -433,7 +433,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
 
 
-   const Trk::VxSecVertexInfo* InDetVKalVxInJetTool::findSecVertex(const xAOD::Vertex & PrimVrt,
+   Trk::VxSecVertexInfo* InDetVKalVxInJetTool::findSecVertex(const xAOD::Vertex & PrimVrt,
 							           const TLorentzVector & JetDir,
 						 	           const std::vector<const xAOD::IParticle*> & IInpTrk)
     const  {
@@ -508,7 +508,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
 
 
-   const Trk::VxSecVertexInfo* InDetVKalVxInJetTool::findSecVertex(const Trk::RecVertex & PrimVrt,
+   Trk::VxSecVertexInfo* InDetVKalVxInJetTool::findSecVertex(const Trk::RecVertex & PrimVrt,
 							           const TLorentzVector & JetDir,
 						 	           const std::vector<const Trk::TrackParticleBase*> & InpTrkBase)
     const  {

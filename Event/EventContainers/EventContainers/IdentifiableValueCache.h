@@ -47,8 +47,14 @@ public:
    ///Retrieve the Value stored in that hash
    T retrieve(size_t i){   return m_vec.at(i).load(); }
 
+   /// As above, but no cache extension
+   T retrieve(size_t i) const {  return i < maxSize() ? static_cast<T>(m_vec[i]) : emptyValue() ; }
+
    ///Returns true if the value is set to anything but the emptyValue
    bool present(size_t i){  return m_vec.at(i).load() != emptyValue();   }
+
+   /// As above, but no cache extension
+   bool present(size_t i) const {  return  i < maxSize() and m_vec[i] != emptyValue() ? true : false; }
 
    ///Set the given hash to the value
    bool setOrDrop(size_t i, const T &value);

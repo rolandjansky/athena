@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -39,12 +39,11 @@ EgammaHitsShowerDepth::EgammaHitsShowerDepth  (const CaloRec::Array<2>& sampling
                             const float& start_crack,                  
                             const float& end_crack,                    
                             const float& etamax,                       
-                            MsgStream* log)
+                            MsgStream* /*log*/)
     : m_sampling_depth (sampling_depth),
       m_start_crack (start_crack),
       m_end_crack (end_crack),
-      m_etamax (etamax),
-      m_log(log)
+      m_etamax (etamax)
 {
 }
 
@@ -86,10 +85,6 @@ float EgammaHitsShowerDepth::depth (const float &aeta,
     return 0;
 
   float depth = rsum / esum;
-
-#ifndef NDEBUG
-  (*m_log) << MSG::DEBUG << "Shower barycenter ---->> " << depth << endmsg;
-#endif
 
   return depth;
 }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of tools for Moore muon reconstruction"""
 
@@ -29,12 +29,12 @@ from IOVDbSvc.CondDB import conddb
 
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
 
-from MuonRecTools import MuonExtrapolator, MuonChi2TrackFitter, MdtDriftCircleOnTrackCreator, MuonRK_Propagator
-from MuonRecUtils import logMuon,ConfiguredBase,ExtraFlags
+from .MuonRecTools import MuonExtrapolator, MuonChi2TrackFitter, MdtDriftCircleOnTrackCreator, MuonRK_Propagator
+from .MuonRecUtils import logMuon,ConfiguredBase,ExtraFlags
 
 
-from MuonRecFlags import muonRecFlags
-from MuonStandaloneFlags import muonStandaloneFlags
+from .MuonRecFlags import muonRecFlags
+from .MuonStandaloneFlags import muonStandaloneFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 #==============================================================
 
@@ -346,8 +346,6 @@ def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
 
 
 def MuonRefitTool(name,**kwargs):
-    if not muonRecFlags.doCSCs():
-        kwargs["CscRotCreator"] = ""	   
     # To activate the tuning of meas. errors using alignment constants from DB
     # kwargs.setdefault("AlignmentErrorTool", getPublicTool("MuonAlignmentErrorTool"))
     # kwargs.setdefault("DeweightBEE", False)
@@ -364,8 +362,6 @@ def MuonErrorOptimisationTool(name,extraFlags=None,**kwargs):
     fitter=getattr(extraFlags,"Fitter",None)
     if fitter is not None:
         cloneArgs["Fitter"] = fitter
-    if not MuonGeometryFlags.hasCSC():
-        cloneArgs["CscRotCreator"] = ""
     if "RefitTool" not in kwargs:
         if namePrefix or namePostfix:
             cloneName = namePrefix+"MuonRefitTool"+namePostfix

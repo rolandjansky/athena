@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.ath_dump
 # @purpose entry point for ath-dump command, the dump-athfile cousin
 # @author Sebastien Binet
 # @date January 2010
+
+from __future__ import print_function
 
 __version__ = "$Revision: 279982 $"
 __author__ = "Sebastien Binet"
@@ -47,32 +49,34 @@ def main(args):
             msg.info(':'*80)
             msg.info('::::: summary :::::')
             fmt = ' - %-15s: %s'
-            print fmt % ('file md5',       f.infos['file_md5sum'])
-            print fmt % ('file name',      f.infos['file_name'])
-            print fmt % ('file type',      f.infos['file_type'])
-            print fmt % ('file guid',      f.infos['file_guid'])
-            print fmt % ('nentries',       f.infos['nentries'])
-            print fmt % ('run number',     f.infos['run_number'])
-            print fmt % ('run type',       f.infos['run_type'])
-            print fmt % ('evt number',     f.infos['evt_number'])
-            print fmt % ('evt type',       f.infos['evt_type'])
-            print fmt % ('lumi block',     f.infos['lumi_block'])
-            print fmt % ('beam energy',    f.infos['beam_energy'])
-            print fmt % ('beam type',      f.infos['beam_type'])
-            print fmt % ('stream tags',    f.infos['stream_tags'])
-            print fmt % ('stream names',   f.infos['stream_names'])
-            print fmt % ('geometry',       f.infos['geometry'])
-            print fmt % ('conditions tag', f.infos['conditions_tag'])
+            print (fmt % ('file md5',       f.infos['file_md5sum']))
+            print (fmt % ('file name',      f.infos['file_name']))
+            print (fmt % ('file type',      f.infos['file_type']))
+            print (fmt % ('file guid',      f.infos['file_guid']))
+            print (fmt % ('nentries',       f.infos['nentries']))
+            print (fmt % ('run number',     f.infos['run_number']))
+            print (fmt % ('run type',       f.infos['run_type']))
+            print (fmt % ('evt number',     f.infos['evt_number']))
+            print (fmt % ('evt type',       f.infos['evt_type']))
+            print (fmt % ('lumi block',     f.infos['lumi_block']))
+            print (fmt % ('beam energy',    f.infos['beam_energy']))
+            print (fmt % ('beam type',      f.infos['beam_type']))
+            print (fmt % ('stream tags',    f.infos['stream_tags']))
+            print (fmt % ('stream names',   f.infos['stream_names']))
+            print (fmt % ('geometry',       f.infos['geometry']))
+            print (fmt % ('conditions tag', f.infos['conditions_tag']))
             _metadata = f.infos['metadata']
             _metadata = _metadata.keys() if isinstance(_metadata,dict) else None
-            print fmt % ('meta data',      _metadata)
+            print (fmt % ('meta data',      _metadata))
 
             msg.info(':'*80)
-        except Exception, e:
+        except Exception as e:
             msg.error("Caught exception [%s] !!", str(e.__class__))
             msg.error("What:\n%s\n%s\n%s",e,
                       sys.exc_info()[0],
                       sys.exc_info()[1])
+            import traceback
+            traceback.print_exc()
             exitcode = 1
             pass
 
@@ -82,7 +86,7 @@ def main(args):
             exitcode = 10
             pass
         if len(fnames) > 1:
-            print ""
+            print ("")
         pass # loop over fileNames
     
     if args.output:

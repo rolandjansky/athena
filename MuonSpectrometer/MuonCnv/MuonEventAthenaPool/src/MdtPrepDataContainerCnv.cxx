@@ -16,7 +16,6 @@
 // Id includes
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
 

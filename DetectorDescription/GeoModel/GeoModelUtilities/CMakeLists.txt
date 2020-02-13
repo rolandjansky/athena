@@ -19,14 +19,14 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( Eigen )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
-find_package( GeoModel )
+find_package( GeoModelCore )
 
 # Component(s) in the package:
 atlas_add_library( GeoModelUtilities
                    src/*.cxx
                    PUBLIC_HEADERS GeoModelUtilities
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps SGTools 
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps SGTools 
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 
 atlas_add_test( GeoGetIds_test
@@ -45,7 +45,7 @@ if(BUILDVP1LIGHT)
                           
 # External dependencies:
 find_package( CLHEP )
-find_package( GeoModel )
+find_package( GeoModelCore )
 find_package( Eigen )
 
 file(GLOB SOURCES src/GeoMPVEntry.cxx
@@ -63,6 +63,6 @@ file(GLOB SOURCES src/GeoMPVEntry.cxx
 atlas_add_library( GeoModelUtilities
                    ${SOURCES}
                    PUBLIC_HEADERS GeoModelUtilities
-                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} )
+                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} )
 endif()

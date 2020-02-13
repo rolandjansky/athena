@@ -69,7 +69,7 @@ if doTileDigitsFromPulse:
 
     except:
         mlog.error("could not import TileSimAlgs.TileDigitsFromPulse")
-        print traceback.format_exc()
+        traceback.print_exc()
 
 
 if doTileDigitToRawChannel:
@@ -107,7 +107,7 @@ if doTileDigitToRawChannel:
                     pat=digitizationFlags.BeamIntensityPattern.get_Value()
                     if len(pat)>1:
                         filled=0
-                        for p in xrange(len(pat)):
+                        for p in range(len(pat)):
                             if float(pat[p]) > 0.0:
                                 if filled > 0:
                                     halfBS/=2.
@@ -209,8 +209,8 @@ if not globalflags.isOverlay():
 include( "TileSimAlgs/TileSamplingFraction_jobOptions.py" )
 
 if jobproperties.TileRecFlags.doTileMF():
-    print  TileRawChannelBuilderMF
+    mlog.info (TileRawChannelBuilderMF)
 if jobproperties.TileRecFlags.doTileOptATLAS():
-    print  TileRawChannelBuilderOptATLAS
+    mlog.info (TileRawChannelBuilderOptATLAS)
 if jobproperties.TileRecFlags.doTileOpt2():
-    print  TileRawChannelBuilderOpt2Filter
+    mlog.info (TileRawChannelBuilderOpt2Filter)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef MUON_MUONPATTERNCALIBRATION_H
 #define MUON_MUONPATTERNCALIBRATION_H
@@ -9,8 +9,8 @@
 #include <vector>
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "MuonSegmentMakerToolInterfaces/IMuonPatternCalibration.h"
 
@@ -20,29 +20,11 @@
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombination.h"
 
-#include "Identifier/Identifier.h"
-
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-
-class StoreGate;
-class MsgStream;
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class MdtPrepData;
-
-class RpcIdHelper;
-class MdtIdHelper;
-class CscIdHelper;
-class TgcIdHelper;
-class StoreGateSvc;
-class Identifier;
-
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 namespace Trk {
   class RIO_OnTrack;
@@ -110,7 +92,6 @@ namespace Muon {
     virtual ~MuonPatternCalibration();
 
     virtual StatusCode initialize();
-    virtual StatusCode finalize();
 
     void calibrate( const MuonPatternCombination& pat, IMuonPatternCalibration::ROTsPerRegion& hitsPerRegion) const;
     int  getRegionId( const Identifier& id ) const ;
@@ -140,17 +121,7 @@ namespace Muon {
     ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreator; //<! pointer to mdt rio ontrack creator
     ToolHandle<IMuonClusterOnTrackCreator>    m_clusterCreator;  //<! pointer to muon cluster rio ontrack creator
     ToolHandle<MuonEDMPrinterTool>            m_printer;         //<! tool to print EDM objects
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"}; //<! tool to interpret and print Identifiers
-    StoreGateSvc*       m_storeGate;                //!< Pointer to store gate
-
-  
-    const MuonGM::MuonDetectorManager*  m_detMgr;
-
-
-    MsgStream* m_log;       //<! pointer to message stream
-    bool m_debug; 
-    bool m_verbose;
+    ServiceHandle<Muon::IMuonIdHelperSvc>     m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
     bool m_doMultiAnalysis; //<! use neighbouring chambers during segment finding
     bool m_doFullFinder; //<! 

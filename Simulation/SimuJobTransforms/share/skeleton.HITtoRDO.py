@@ -418,7 +418,7 @@ include ("Digitization/Digitization.py")
 
 if hasattr(runArgs,"AMITag"):
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag ]
+    svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
 
 #==========================================================
 # Use LZIB for compression of temporary outputs of AthenaMP

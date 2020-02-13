@@ -7,9 +7,14 @@
 # FIXME - in general my impression is that this is overly complicated and needs a huge clean up (the code, not just the configuration)
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from MuonCondSvc.MuonCondSvcConf import MDTCondSummarySvc, RPCCondSummarySvc, CSCCondSummarySvc, \
-    TGCCondSummarySvc, MDT_DCSConditionsRun2Svc, MDT_DCSConditionsSvc
-from MuonCondTool.MuonCondToolConf import MDT_DCSConditionsTool, MDT_DCSConditionsRun2Tool, MDT_MapConversion
+from AthenaConfiguration.ComponentFactory import CompFactory
+
+MDTCondSummarySvc, RPCCondSummarySvc, CSCCondSummarySvc, TGCCondSummarySvc, MDT_DCSConditionsRun2Svc, MDT_DCSConditionsSvc =\
+CompFactory.getComps("MDTCondSummarySvc", "RPCCondSummarySvc", "CSCCondSummarySvc", "TGCCondSummarySvc","MDT_DCSConditionsRun2Svc","MDT_DCSConditionsSvc")
+
+MDT_DCSConditionsTool, MDT_DCSConditionsRun2Tool, MDT_MapConversion=\
+CompFactory.getComps("MDT_DCSConditionsTool","MDT_DCSConditionsRun2Tool","MDT_MapConversion")
+
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders
 
 # def MDT_DCSConditionsSvcCfg(flags, **kwargs):

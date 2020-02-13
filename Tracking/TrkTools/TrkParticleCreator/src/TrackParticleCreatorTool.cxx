@@ -101,10 +101,6 @@ namespace Trk
     : base_class(t,n,p),
       m_detID(nullptr),
       m_pixelID(nullptr),
-      m_trackSummaryTool    ("Trk::TrackSummaryTool/AtlasTrackSummaryTool"),
-      m_extrapolator        ("Trk::Extrapolator/AtlasExtrapolator"),
-      m_trackToVertex       ("Reco::TrackToVertex/TrackToVertex"),
-      m_hitSummaryTool      ("Muon::MuonHitSummaryTool/MuonHitSummaryTool"),
       m_magFieldSvc         ("AtlasFieldSvc", n),
       m_IBLParameterSvc("IBLParameterSvc",n),
       m_copyExtraSummaryName {"eProbabilityComb","eProbabilityHT","TRTTrackOccupancy","TRTdEdx","TRTdEdxUsedHits"},
@@ -122,13 +118,9 @@ namespace Trk
       m_expressPerigeeToBeamSpot(true),
       m_perigeeExpression("BeamLine")
     {
-      declareProperty("TrackSummaryTool",       m_trackSummaryTool );
-      declareProperty("MuonSummaryTool",       m_hitSummaryTool );
       declareProperty("ForceTrackSummaryUpdate",  m_forceTrackSummaryUpdate );
       declareProperty("ComputeAdditionalInfo",  m_computeAdditionalInfo);
       declareProperty("UpdateTrack",  m_updateTrack=true );
-      declareProperty("Extrapolator",   m_extrapolator );
-      declareProperty("TrackToVertex",            m_trackToVertex );
       declareProperty("MagFieldSvc",              m_magFieldSvc);
       declareProperty("UseTrackSummaryTool" , m_useTrackSummaryTool);
       declareProperty("UseMuonSummaryTool" , m_useMuonSummaryTool);

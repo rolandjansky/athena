@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinNegativeEnergyNeutralPFOsAlg.cxx
@@ -21,8 +21,10 @@
 #include <algorithm> 
 
 // FrameWork includes
+#include "StoreGate/ThinningHandle.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 ///////////////////////////////////////////////////////////////////
 // Public methods:
@@ -33,23 +35,10 @@
 ThinNegativeEnergyNeutralPFOsAlg::ThinNegativeEnergyNeutralPFOsAlg( const std::string& name,
                                              ISvcLocator* pSvcLocator ) :
 ::AthAlgorithm( name, pSvcLocator ),
-m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
-m_doThinning(true),
-m_neutralPFOsKey("JetETMissNeutralParticleFlowObjects"),
 m_nEventsProcessed(0),
 m_nNeutralPFOsProcessed(0),
 m_nNeutralPFOsThinned(0)
 {
-    
-    declareProperty("ThinningSvc",          m_thinningSvc,
-                    "The ThinningSvc instance for a particular output stream" );
-    
-    declareProperty("ThinNegativeEnergyNeutralPFOs", m_doThinning,
-                    "Should the thinning of negative energy neutral PFOs be run?");
-   
-    declareProperty("NeutralPFOsKey", m_neutralPFOsKey,
-                    "StoreGate key for the PFOContainer to be thinned");
-
 }
 
 // Destructor
@@ -64,7 +53,7 @@ StatusCode ThinNegativeEnergyNeutralPFOsAlg::initialize()
     ATH_MSG_DEBUG ("Initializing " << name() << "...");
     
     // Print out the used configuration
-    ATH_MSG_DEBUG ( " using = " << m_thinningSvc );
+    ATH_MSG_DEBUG ( " using = " << m_streamName );
 
     // Is truth thinning required?
     if (!m_doThinning) {
@@ -73,6 +62,11 @@ StatusCode ThinNegativeEnergyNeutralPFOsAlg::initialize()
         ATH_MSG_INFO("Negative energy NeutralPFOs will be thinned");
     }
 
+    if (m_doThinning && m_streamName.empty()) {
+      ATH_MSG_ERROR( "StreamName property has not been initialized." );
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK( m_neutralPFOsKey.initialize (m_streamName, m_doThinning) );
     
     // Initialize the counters to zero
     m_nEventsProcessed = 0;
@@ -104,17 +98,12 @@ StatusCode ThinNegativeEnergyNeutralPFOsAlg::execute()
     // Is truth thinning required?
     if (!m_doThinning) {
         return StatusCode::SUCCESS;
-    } 
+    }
+
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     
     // Retrieve the container
-    const xAOD::PFOContainer* neutralPFOs(0);
-    if (evtStore()->contains<xAOD::PFOContainer>(m_neutralPFOsKey)) {
-        CHECK( evtStore()->retrieve( neutralPFOs , m_neutralPFOsKey ) );
-    } else {
-        ATH_MSG_INFO("No PFOContainer with key "+m_neutralPFOsKey+" found. Thinning cannot be applied to this container");
-        m_doThinning = false;
-        return StatusCode::SUCCESS;
-    }
+    SG::ThinningHandle<xAOD::PFOContainer> neutralPFOs (m_neutralPFOsKey, ctx);
 
     // Set up masks
     std::vector<bool> mask;
@@ -131,10 +120,7 @@ StatusCode ThinNegativeEnergyNeutralPFOsAlg::execute()
     }
 
     // Apply masks to thinning service
-    if (m_thinningSvc->filter(*neutralPFOs, mask, IThinningSvc::Operator::Or).isFailure()) {
-        ATH_MSG_ERROR("Application of thinning service failed for NeutralPFOs! ");
-        return StatusCode::FAILURE;
-    }
+    neutralPFOs.keep (mask);
     
     return StatusCode::SUCCESS;
 }

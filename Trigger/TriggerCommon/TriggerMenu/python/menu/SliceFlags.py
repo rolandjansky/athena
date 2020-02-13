@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 import TriggerMenu.egamma.EgammaSliceFlags
 import TriggerMenu.jet.JetSliceFlags
@@ -16,6 +16,6 @@ import TriggerMenu.calibcosmicmon.StreamingSliceFlags
 import TriggerMenu.calibcosmicmon.MonitorSliceFlags
 import TriggerMenu.calibcosmicmon.BeamspotSliceFlags
 import TriggerMenu.calibcosmicmon.EnhancedBiasSliceFlags
-import TriggerMenu.test.TestSliceFlags
+import TriggerMenu.test.TestSliceFlags # noqa: F401
 
 

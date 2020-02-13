@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def CaloRecoCfg(configFlags):
     
@@ -51,10 +52,10 @@ if __name__=="__main__":
     acc.merge(CaloRecoCfg(ConfigFlags))
 
 
-    from CaloRec.CaloRecConf import CaloCellDumper
+    CaloCellDumper=CompFactory.CaloCellDumper
     acc.addEventAlgo(CaloCellDumper())
 
-    from xAODCaloEventCnv.xAODCaloEventCnvConf import ClusterDumper
+    ClusterDumper=CompFactory.ClusterDumper
     acc.addEventAlgo(ClusterDumper("TopoDumper",ContainerName="CaloCalTopoClusters",FileName="TopoCluster.txt"))
 
     f=open("CaloRec.pkl","wb")

@@ -11,10 +11,12 @@ DQTLumiMonAlg::DQTLumiMonAlg(const std::string& name, ISvcLocator* pSvcLocator)
 DQTLumiMonAlg::~DQTLumiMonAlg() {}
 
 StatusCode DQTLumiMonAlg::initialize(){
+    // need to do this first, else we don't get environment() set up properly!
+    ATH_CHECK( AthMonitorAlgorithm::initialize() );
     ATH_CHECK( m_VertexContainerKey.initialize() );
-    ATH_CHECK( m_PixelClustersKey.initialize() );
+    ATH_CHECK( m_PixelClustersKey.initialize( environment() != Environment_t::AOD ) );
     ATH_CHECK( m_PixelIDKey.initialize() );
-    return AthMonitorAlgorithm::initialize();
+    return StatusCode::SUCCESS;
 }
 
 StatusCode DQTLumiMonAlg::fillHistograms(const EventContext& ctx) const {
@@ -59,13 +61,16 @@ StatusCode DQTLumiMonAlg::fillHistograms(const EventContext& ctx) const {
         ATH_MSG_WARNING("Could not retrieve Vertex Container.");
     }
 
+    fill(group,lumiBlock,avgMu,avgMuInverse,avgLumi,avgIntPerXing,lumiPerBCID,intPerXing,
+         duration,avgLiveFrac,liveFracPerBCID,lumiWeight,nVtxLoose,nVtxTight);
+
     auto nClustersAll = Scalar<int>("nClustersAll",0);
     auto nClustersECA = Scalar<int>("nClustersECA",0);
     auto nClustersECC = Scalar<int>("nClustersECC",0);
     auto nClustersB0 = Scalar<int>("nClustersB0",0);
     auto nClustersB1 = Scalar<int>("nClustersB1",0);
     auto nClustersB2 = Scalar<int>("nClustersB2",0);
-    if ( m_environment==Environment_t::tier0Raw ) {
+    if ( m_environment!=Environment_t::AOD ) {
         RH<InDet::PixelClusterContainer> pixelClusters(m_PixelClustersKey,ctx);
         RH<PixelID> pixelID(m_PixelIDKey,ctx);
         if ( !pixelClusters.isValid() ) {
@@ -91,12 +96,10 @@ StatusCode DQTLumiMonAlg::fillHistograms(const EventContext& ctx) const {
                 }
                 ATH_MSG_DEBUG("nClustersAll is " << nClustersAll);
             }
+	    fill("pixel",lumiBlock,avgMu,nClustersAll,nClustersECA,nClustersECC,
+		 nClustersB0,nClustersB1,nClustersB2,avgMuInverse);
         }
     }
-
-    fill(group,lumiBlock,avgMu,avgMuInverse,avgLumi,avgIntPerXing,lumiPerBCID,intPerXing,
-         duration,avgLiveFrac,liveFracPerBCID,lumiWeight,nVtxLoose,nVtxTight,nClustersAll,
-         nClustersECA,nClustersECC,nClustersB0,nClustersB1,nClustersB2);
 
     return StatusCode::SUCCESS;
 }

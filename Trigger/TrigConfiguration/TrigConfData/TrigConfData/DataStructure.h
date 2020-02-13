@@ -169,11 +169,15 @@ namespace TrigConf {
 
 }
 
-#include "AthenaKernel/CLASS_DEF.h"
+#ifndef TRIGCONF_STANDALONE
+
+#include "AthenaKernel/CLASS_DEF.h" 
 CLASS_DEF( TrigConf::DataStructure , 98904516 , 1 )
 
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( TrigConf::DataStructure , 265887802 );
+
+#endif
 
 
 #endif

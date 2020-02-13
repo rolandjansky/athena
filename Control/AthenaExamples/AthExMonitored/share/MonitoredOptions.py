@@ -7,7 +7,7 @@ job = AlgSequence()
 from AthExMonitored.AthExMonitoredConf import MonitoredAlg
 job += MonitoredAlg('MonAlg')
 
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
 monTool = GenericMonitoringTool('MonTool')
 

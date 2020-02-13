@@ -17,8 +17,8 @@
 export EVENTS=1000
 export THREADS=1
 export SLOTS=1
-export INPUT="run2mc_ttbar"
-export JOBOPTION="TrigUpgradeTest/full_menu.py"
+export INPUT="ttbar"
+export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
 export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
 export EXTRA="doL1Sim=True;doEmptyMenu=True;doMuonSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"
 

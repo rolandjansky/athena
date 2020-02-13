@@ -41,7 +41,7 @@ SolenoidalIntersector::SolenoidalIntersector (const std::string&	type,
 					      const IInterface*		parent)
     :	base_class			(type, name, parent),
 	m_magFieldSvc			("MagField::AtlasFieldSvc/AtlasFieldSvc", name),
-	m_rungeKuttaIntersector		("Trk::RungeKuttaIntersector/RungeKuttaIntersector"),
+	m_rungeKuttaIntersector		("Trk::RungeKuttaIntersector/RungeKuttaIntersector", this),
 	m_deltaPhiTolerance		(0.01),	// upper limit for small angle approx
 	m_surfaceTolerance		(2.0*Gaudi::Units::micrometer),
 	m_countExtrapolations		(0),

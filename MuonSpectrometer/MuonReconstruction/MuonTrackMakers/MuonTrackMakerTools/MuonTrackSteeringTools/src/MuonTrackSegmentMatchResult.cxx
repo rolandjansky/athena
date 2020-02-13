@@ -28,7 +28,7 @@ namespace Muon {
   TrackSegmentMatchResult::~TrackSegmentMatchResult() {
     clear();
   }
-  
+
   void TrackSegmentMatchResult::clear() {
     localPosXDiff = 0.0;
     localPosYDiff = 0.0;
@@ -55,7 +55,7 @@ namespace Muon {
     segmentChamberId = Identifier();
     predictionCovariance.setZero();
     measuredCovariance.setZero();
-    totalCovariance.setZero(); 
+    totalCovariance.setZero();
     diffVector.setZero();
     track = 0;
     segment = 0;
@@ -72,59 +72,90 @@ namespace Muon {
     reason = Unknown;
   }
 
-  
+
   std::string TrackSegmentMatchResult::cutString( CutType cut ) {
-    static const char* cutStrings[NumberOfCutTypes] = {};
-    static bool initList = false;
-    if (!initList) {
-      initList = true;
-      cutStrings[PosXCut] = "PosXCut";
-      cutStrings[PosYCut] = "PosYCut";
-      cutStrings[AngXCut] = "AngleXCut";
-      cutStrings[AngYCut] = "AngleYCut";
-      cutStrings[PosXPullCut] = "PosXPullCut";
-      cutStrings[PosYPullCut] = "PosYPullCut";
-      cutStrings[AngXPullCut] = "AngleXPullCut";
-      cutStrings[AngYPullCut] = "AngleYPullCut";
-      cutStrings[MatchChiSquaredCut] = "ChiSquaredMatchCut";
+    if (static_cast<int>(cut) < 0 || static_cast<int>(cut) >= static_cast<int>(NumberOfCutTypes)) {
+      return "CutTypeOutOfRange";
     }
-    if ( (int)cut < 0 || (int)cut >= (int)NumberOfCutTypes ) return "CutTypeOutOfRange";
-    const char* str = cutStrings[cut];
-    if ( !str ) return "CutTypeNotInList";
-    return str;
+
+    switch (cut)
+    {
+      case PosXCut:
+        return "PosXCut";
+      case PosYCut:
+        return "PosYCut";
+      case AngXCut:
+        return "AngleXCut";
+      case AngYCut:
+        return "AngleYCut";
+      case PosXPullCut:
+        return "PosXPullCut";
+      case PosYPullCut:
+        return "PosYPullCut";
+      case AngXPullCut:
+        return "AngleXPullCut";
+      case AngYPullCut:
+        return "AngleYPullCut";
+      case MatchChiSquaredCut:
+        return "ChiSquaredMatchCut";
+    default:
+      return "CutTypeNotInList";
+    }
+
+    return "";
   }
-    
+
 
   std::string TrackSegmentMatchResult::reasonString( Reason r ) {
-    static const char* reasonStrings[NumberOfReasons] = {};
-    static bool initList = false;
-    if (!initList) {
-      initList = true;
-      reasonStrings[Unknown] = "Unknown";
-      reasonStrings[NoCutsApplied] = "NoCutsApplied";
-      reasonStrings[PassedAllCuts] = "PassedAllCuts";
-      reasonStrings[PassedMatchChiSquaredCut] = "PassedMatchChiSquaredCut";
-      reasonStrings[PassedPosAngleCuts] = "PassedPosAngleCuts";
-      reasonStrings[FailedCuts] = "FailedCuts";
-      reasonStrings[SegmentMatching] = "SegmentMatching";
-      reasonStrings[NoSegmentPointer] = "NoSegmentPointer";
-      reasonStrings[StereoAngleWithoutPhi] = "StereoAngleWithoutPhi";
-      reasonStrings[NoClosestPars] = "NoClosestPars";
-      reasonStrings[FieldNotOk] = "FieldNotOk";
-      reasonStrings[NoClosestSegment] = "NoClosestSegment";
-      reasonStrings[SegmentMatch] = "SegmentMatch";
-      reasonStrings[NoMomentumWithMagField] = "NoMomentumWithMagField";
-      reasonStrings[ExtrapolFailed] = "ExtrapolationFailed";
-      reasonStrings[ExtrapolNoErrors] = "ExtrapolationNoErrors";
-      reasonStrings[NoMeasErrors] = "NoMeasErrors";
-      reasonStrings[AngleMeasErrFailed] = "AngleMeasErrFailed";
-      reasonStrings[AnglePredErrFailed] = "AnglePredErrFailed";
-      reasonStrings[LocalDirFailed] = "LocalDirFailed";
+    if (static_cast<int>(r) < 0 || static_cast<int>(r) >= static_cast<int>(NumberOfReasons)) {
+      return "ReasonOutOfRange";
     }
-    if ( (int)r < 0 || (int)r >= NumberOfReasons ) return "ReasonOutOfRange";
-    const char* str = reasonStrings[r];
-    if ( !str ) return "ReasonNotInList";
-    return str;
+    switch (r)
+    {
+      case Unknown:
+        return "Unknown";
+      case NoCutsApplied:
+        return "NoCutsApplied";
+      case PassedAllCuts:
+        return "PassedAllCuts";
+      case PassedMatchChiSquaredCut:
+        return "PassedMatchChiSquaredCut";
+      case PassedPosAngleCuts:
+        return "PassedPosAngleCuts";
+      case FailedCuts:
+        return "FailedCuts";
+      case SegmentMatching:
+        return "SegmentMatching";
+      case NoSegmentPointer:
+        return "NoSegmentPointer";
+      case StereoAngleWithoutPhi:
+        return "StereoAngleWithoutPhi";
+      case NoClosestPars:
+        return "NoClosestPars";
+      case FieldNotOk:
+        return "FieldNotOk";
+      case NoClosestSegment:
+        return "NoClosestSegment";
+      case SegmentMatch:
+        return "SegmentMatch";
+      case NoMomentumWithMagField:
+        return "NoMomentumWithMagField";
+      case ExtrapolFailed:
+        return "ExtrapolationFailed";
+      case ExtrapolNoErrors:
+        return "ExtrapolationNoErrors";
+      case NoMeasErrors:
+        return "NoMeasErrors";
+      case AngleMeasErrFailed:
+        return "AngleMeasErrFailed";
+      case AnglePredErrFailed:
+        return "AnglePredErrFailed";
+      case LocalDirFailed:
+        return "LocalDirFailed";
+
+      default:
+        return "ReasonNotInList";
+    }
   }
 
 
@@ -140,8 +171,8 @@ namespace Muon {
     }
     return failedStr;
   }
-  
-  
+
+
   /** String with all cuts that were applied and passed */
   std::string TrackSegmentMatchResult::passedCutsString() const {
     std::string passedStr;
@@ -188,5 +219,5 @@ namespace Muon {
     cutOnMatchChiSquared = false;
   }
 
-  
+
 } // namespace Muon

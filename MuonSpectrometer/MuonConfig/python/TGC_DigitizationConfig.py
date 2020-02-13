@@ -3,10 +3,11 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-from TGC_Digitization.TGC_DigitizationConf import TgcDigitizationTool, TGCDigitizer
-from PileUpComps.PileUpCompsConf import PileUpXingFolder
+TgcDigitizationTool, TGCDigitizer=CompFactory.getComps("TgcDigitizationTool","TGCDigitizer",)
+PileUpXingFolder=CompFactory.PileUpXingFolder
 from MuonConfig.MuonByteStreamCnvTestConfig import TgcDigitToTgcRDOCfg, TgcOverlayDigitToTgcRDOCfg
 from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg

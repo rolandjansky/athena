@@ -3,8 +3,9 @@
 __doc__ = "Configure the electron and photon selectors."
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaTools.egammaToolsConf import EMConversionBuilder
+EMConversionBuilder=CompFactory.EMConversionBuilder
 from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCfg
 
 

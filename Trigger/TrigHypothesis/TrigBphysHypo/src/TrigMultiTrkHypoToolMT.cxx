@@ -24,7 +24,7 @@
 #include "xAODTrigBphys/TrigBphys.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "DecisionHandling/TrigCompositeUtils.h"
 
@@ -90,7 +90,8 @@ bool TrigMultiTrkHypoToolMT::decideOnSingleObject( const xAOD::TrigBphys* trigBp
   auto mon_fitChi2    = Monitored::Scalar<float>("FitChi2",-1.);
   auto mon_vtxMass   = Monitored::Scalar<float>("VertexMass",-1.);
   auto mon_trkPts     = Monitored::Collection("trackPts", ini_trkPts);
-  auto mon = Monitored::Group( m_monTool, mon_cutCounter, mon_fitChi2, mon_vtxMass, mon_trkPts);
+  auto mon_totCharge  = Monitored::Scalar<int>("totCharge", -9);
+  auto mon = Monitored::Group( m_monTool, mon_cutCounter, mon_fitChi2, mon_vtxMass, mon_trkPts, mon_totCharge);
 
   mon_cutCounter = 0;
         
@@ -112,16 +113,19 @@ bool TrigMultiTrkHypoToolMT::decideOnSingleObject( const xAOD::TrigBphys* trigBp
         return false;
       }
       //std::vector<bool> tracksPass; tracksPass.assign(nTrk, false);
+      int totq = 0;
       std::vector<float> trackPts;
       for(unsigned int i=0; i < nTrk; i++ ){
+          const auto tp = trigBphys->trackParticle(i);
           ATH_MSG_DEBUG("Track pt/eta/phi/charge: " << 
             trigBphys->trackParticle(i)->pt() << ", " <<
             trigBphys->trackParticle(i)->eta() << ", " << 
             trigBphys->trackParticle(i)->phi() << ", " << 
             trigBphys->trackParticle(i)->charge());
-            
-          trackPts.push_back(trigBphys->trackParticle(i)->pt());
+          totq += (tp->qOverP() > 0) ? 1 : ((tp->qOverP() < 0) ? -1 : 0);
+          trackPts.push_back(tp->pt());
       }
+      mon_totCharge = totq;
       std::sort(trackPts.rbegin(), trackPts.rend()); //reverse sort the list
       unsigned int nTrk_pass = 0;
       for(unsigned int i=0; i < nTrk; i++ ){

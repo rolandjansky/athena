@@ -7,20 +7,14 @@
 PixelConditionsSummaryTool::PixelConditionsSummaryTool(const std::string& type, const std::string& name, const IInterface* parent)
   :AthAlgTool(type, name, parent),
   m_pixelID(nullptr),
-  m_useDCSState(false),
-  m_useByteStream(false),
-  m_useTDAQ(false),
-  m_useDeadMap(true)
+  m_useByteStream(false)
 {
   m_isActiveStatus.push_back("OK");
   m_isActiveStates.push_back("READY");
 
   declareProperty("IsActiveStatus", m_isActiveStatus);
   declareProperty("IsActiveStates", m_isActiveStates);
-  declareProperty("UseDCSState", m_useDCSState, "Switch for usage of DCS");
   declareProperty("UseByteStream", m_useByteStream, "Switch for usage of the ByteStream error service");
-  declareProperty("UseTDAQ", m_useTDAQ, "Switch for usage of TDAQ");
-  declareProperty("UseDeadMap", m_useDeadMap, "Switch for usage of dead map");
 }
 
 PixelConditionsSummaryTool::~PixelConditionsSummaryTool(){}
@@ -30,10 +24,8 @@ StatusCode PixelConditionsSummaryTool::initialize(){
 
   ATH_CHECK(setProperties());
 
-  if (m_useDCSState) {
-    ATH_CHECK(m_condDCSStateKey.initialize());
-    ATH_CHECK(m_condDCSStatusKey.initialize());
-  }
+  ATH_CHECK(m_condDCSStateKey.initialize());
+  ATH_CHECK(m_condDCSStatusKey.initialize());
 
 #ifndef SIMULATIONBASE
   if (m_useByteStream) { ATH_CHECK(m_BSErrContReadKey.initialize()); }
@@ -41,17 +33,16 @@ StatusCode PixelConditionsSummaryTool::initialize(){
 
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
 
-  if (m_useTDAQ) { ATH_CHECK(m_condTDAQKey.initialize()); }
-
-  if (m_useDeadMap) { ATH_CHECK(m_condDeadMapKey.initialize()); }
+  ATH_CHECK(m_condTDAQKey.initialize());
+  ATH_CHECK(m_condDeadMapKey.initialize());
 
   for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
-    if      (m_isActiveStates[istate]=="READY")      { m_activeState.push_back(PixelModuleData::DCSModuleState::READY); }
-    else if (m_isActiveStates[istate]=="ON")         { m_activeState.push_back(PixelModuleData::DCSModuleState::ON); }
-    else if (m_isActiveStates[istate]=="UNKNOWN")    { m_activeState.push_back(PixelModuleData::DCSModuleState::UNKNOWN); }
-    else if (m_isActiveStates[istate]=="TRANSITION") { m_activeState.push_back(PixelModuleData::DCSModuleState::TRANSITION); }
-    else if (m_isActiveStates[istate]=="UNDEFINED")  { m_activeState.push_back(PixelModuleData::DCSModuleState::UNDEFINED); }
-    else if (m_isActiveStates[istate]=="NOSTATE")    { m_activeState.push_back(PixelModuleData::DCSModuleState::NOSTATE); }
+    if      (m_isActiveStates[istate]=="READY")      { m_activeState.push_back(PixelDCSStateData::DCSModuleState::READY); }
+    else if (m_isActiveStates[istate]=="ON")         { m_activeState.push_back(PixelDCSStateData::DCSModuleState::ON); }
+    else if (m_isActiveStates[istate]=="UNKNOWN")    { m_activeState.push_back(PixelDCSStateData::DCSModuleState::UNKNOWN); }
+    else if (m_isActiveStates[istate]=="TRANSITION") { m_activeState.push_back(PixelDCSStateData::DCSModuleState::TRANSITION); }
+    else if (m_isActiveStates[istate]=="UNDEFINED")  { m_activeState.push_back(PixelDCSStateData::DCSModuleState::UNDEFINED); }
+    else if (m_isActiveStates[istate]=="NOSTATE")    { m_activeState.push_back(PixelDCSStateData::DCSModuleState::NOSTATE); }
     else {
       ATH_MSG_ERROR("No matching DCS state " << m_isActiveStates[istate] << " in DCSModuleState");
       return StatusCode::FAILURE;
@@ -59,11 +50,11 @@ StatusCode PixelConditionsSummaryTool::initialize(){
   }
 
   for (unsigned int istatus=0; istatus<m_isActiveStatus.size(); istatus++) {
-    if      (m_isActiveStatus[istatus]=="OK")       { m_activeStatus.push_back(PixelModuleData::DCSModuleStatus::OK); }
-    else if (m_isActiveStatus[istatus]=="WARNING")  { m_activeStatus.push_back(PixelModuleData::DCSModuleStatus::WARNING); }
-    else if (m_isActiveStatus[istatus]=="ERROR")    { m_activeStatus.push_back(PixelModuleData::DCSModuleStatus::ERROR); }
-    else if (m_isActiveStatus[istatus]=="FATAL")    { m_activeStatus.push_back(PixelModuleData::DCSModuleStatus::FATAL); }
-    else if (m_isActiveStatus[istatus]=="NOSTATUS") { m_activeStatus.push_back(PixelModuleData::DCSModuleStatus::NOSTATUS); }
+    if      (m_isActiveStatus[istatus]=="OK")       { m_activeStatus.push_back(PixelDCSStatusData::DCSModuleStatus::OK); }
+    else if (m_isActiveStatus[istatus]=="WARNING")  { m_activeStatus.push_back(PixelDCSStatusData::DCSModuleStatus::WARNING); }
+    else if (m_isActiveStatus[istatus]=="ERROR")    { m_activeStatus.push_back(PixelDCSStatusData::DCSModuleStatus::ERROR); }
+    else if (m_isActiveStatus[istatus]=="FATAL")    { m_activeStatus.push_back(PixelDCSStatusData::DCSModuleStatus::FATAL); }
+    else if (m_isActiveStatus[istatus]=="NOSTATUS") { m_activeStatus.push_back(PixelDCSStatusData::DCSModuleStatus::NOSTATUS); }
     else {
       ATH_MSG_ERROR("No matching DCS status " << m_isActiveStatus[istatus] << " in DCSModuleStatus");
       return StatusCode::FAILURE;
@@ -131,41 +122,34 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash & moduleHash) con
 
   if (m_useByteStream && !isBSActive(moduleHash)) { return false; }
 
-  if (m_useDCSState) {
-    SG::ReadCondHandle<PixelModuleData> dcsstate_data(m_condDCSStateKey);
-    bool isDCSActive = false;
-    for (unsigned int istate=0; istate<m_activeState.size(); istate++) {
-      if (m_activeState[istate]==dcsstate_data->getModuleStatus(moduleHash)) { isDCSActive=true; }
-    }
-    if (!isDCSActive) { return false; }
+  SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey);
+  bool isDCSActive = false;
+  for (unsigned int istate=0; istate<m_activeState.size(); istate++) {
+    if (m_activeState[istate]==dcsstate_data->getModuleStatus(moduleHash)) { isDCSActive=true; }
   }
+  if (!isDCSActive) { return false; }
 
-  if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
+  if (SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
-  if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
-//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+  if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
 
-bool PixelConditionsSummaryTool::isActive(const IdentifierHash & moduleHash,
-                                          const Identifier & /*elementId*/) const
-{
+bool PixelConditionsSummaryTool::isActive(const IdentifierHash & moduleHash, const Identifier & /*elementId*/) const {
+
   if (m_useByteStream && !isBSActive(moduleHash)) { return false; }
 
-  if (m_useDCSState) {
-    SG::ReadCondHandle<PixelModuleData> dcsstate_data(m_condDCSStateKey);
-    bool isDCSActive = false;
-    for (unsigned int istate=0; istate<m_activeState.size(); istate++) {
-      if (m_activeState[istate]==dcsstate_data->getModuleStatus(moduleHash)) { isDCSActive=true; }
-    }
-    if (!isDCSActive) { return false; }
+  SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey);
+  bool isDCSActive = false;
+  for (unsigned int istate=0; istate<m_activeState.size(); istate++) {
+    if (m_activeState[istate]==dcsstate_data->getModuleStatus(moduleHash)) { isDCSActive=true; }
   }
+  if (!isDCSActive) { return false; }
 
-  if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
+  if (SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
-  if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
-//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+  if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
@@ -185,26 +169,23 @@ bool PixelConditionsSummaryTool::isGood(const Identifier & elementId,
 
   if (m_useByteStream && !isBSError(moduleHash)) { return false; }
 
-  if (m_useDCSState) {
-    SG::ReadCondHandle<PixelModuleData> dcsstate_data(m_condDCSStateKey);
-    bool isDCSActive = false;
-    for (unsigned int istate=0; istate<m_activeState.size(); istate++) {
-      if (m_activeState[istate]==dcsstate_data->getModuleStatus(moduleHash)) { isDCSActive=true; }
-    }
-    if (!isDCSActive) { return false; }
-
-    SG::ReadCondHandle<PixelModuleData> dcsstatus_data(m_condDCSStatusKey);
-    bool isDCSGood = false;
-    for (unsigned int istatus=0; istatus<m_activeStatus.size(); istatus++) {
-      if (m_activeStatus[istatus]==dcsstatus_data->getModuleStatus(moduleHash)) { isDCSGood=true; }
-    }
-    if (!isDCSGood) { return false; }
+  SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey);
+  bool isDCSActive = false;
+  for (unsigned int istate=0; istate<m_activeState.size(); istate++) {
+    if (m_activeState[istate]==dcsstate_data->getModuleStatus(moduleHash)) { isDCSActive=true; }
   }
+  if (!isDCSActive) { return false; }
 
-  if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
+  SG::ReadCondHandle<PixelDCSStatusData> dcsstatus_data(m_condDCSStatusKey);
+  bool isDCSGood = false;
+  for (unsigned int istatus=0; istatus<m_activeStatus.size(); istatus++) {
+    if (m_activeStatus[istatus]==dcsstatus_data->getModuleStatus(moduleHash)) { isDCSGood=true; }
+  }
+  if (!isDCSGood) { return false; }
 
-  if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
-//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+  if (SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
+
+  if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
@@ -213,26 +194,23 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash) const
 
   if (m_useByteStream && !isBSError(moduleHash)) { return false; }
 
-  if (m_useDCSState) {
-    SG::ReadCondHandle<PixelModuleData> dcsstate_data(m_condDCSStateKey);
-    bool isDCSActive = false;
-    for (unsigned int istate=0; istate<m_activeState.size(); istate++) {
-      if (m_activeState[istate]==dcsstate_data->getModuleStatus(moduleHash)) { isDCSActive=true; }
-    }
-    if (!isDCSActive) { return false; }
-
-    SG::ReadCondHandle<PixelModuleData> dcsstatus_data(m_condDCSStatusKey);
-    bool isDCSGood = false;
-    for (unsigned int istatus=0; istatus<m_activeStatus.size(); istatus++) {
-      if (m_activeStatus[istatus]==dcsstatus_data->getModuleStatus(moduleHash)) { isDCSGood=true; }
-    }
-    if (!isDCSGood) { return false; }
+  SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey);
+  bool isDCSActive = false;
+  for (unsigned int istate=0; istate<m_activeState.size(); istate++) {
+    if (m_activeState[istate]==dcsstate_data->getModuleStatus(moduleHash)) { isDCSActive=true; }
   }
+  if (!isDCSActive) { return false; }
 
-  if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
+  SG::ReadCondHandle<PixelDCSStatusData> dcsstatus_data(m_condDCSStatusKey);
+  bool isDCSGood = false;
+  for (unsigned int istatus=0; istatus<m_activeStatus.size(); istatus++) {
+    if (m_activeStatus[istatus]==dcsstatus_data->getModuleStatus(moduleHash)) { isDCSGood=true; }
+  }
+  if (!isDCSGood) { return false; }
 
-  if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
-//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+  if (SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
+
+  if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
@@ -240,28 +218,26 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash) const
 bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash,
                                         const Identifier & /*elementId*/) const
 {
+
   if (m_useByteStream && !isBSError(moduleHash)) { return false; }
 
-  if (m_useDCSState) {
-    SG::ReadCondHandle<PixelModuleData> dcsstate_data(m_condDCSStateKey);
-    bool isDCSActive = false;
-    for (unsigned int istate=0; istate<m_activeState.size(); istate++) {
-      if (m_activeState[istate]==dcsstate_data->getModuleStatus(moduleHash)) { isDCSActive=true; }
-    }
-    if (!isDCSActive) { return false; }
-
-    SG::ReadCondHandle<PixelModuleData> dcsstatus_data(m_condDCSStatusKey);
-    bool isDCSGood = false;
-    for (unsigned int istatus=0; istatus<m_activeStatus.size(); istatus++) {
-      if (m_activeStatus[istatus]==dcsstatus_data->getModuleStatus(moduleHash)) { isDCSGood=true; }
-    }
-    if (!isDCSGood) { return false; }
+  SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey);
+  bool isDCSActive = false;
+  for (unsigned int istate=0; istate<m_activeState.size(); istate++) {
+    if (m_activeState[istate]==dcsstate_data->getModuleStatus(moduleHash)) { isDCSActive=true; }
   }
+  if (!isDCSActive) { return false; }
 
-  if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
+  SG::ReadCondHandle<PixelDCSStatusData> dcsstatus_data(m_condDCSStatusKey);
+  bool isDCSGood = false;
+  for (unsigned int istatus=0; istatus<m_activeStatus.size(); istatus++) {
+    if (m_activeStatus[istatus]==dcsstatus_data->getModuleStatus(moduleHash)) { isDCSGood=true; }
+  }
+  if (!isDCSGood) { return false; }
 
-  if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
-//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+  if (SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
+
+  if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
@@ -270,28 +246,26 @@ double PixelConditionsSummaryTool::goodFraction(const IdentifierHash & moduleHas
                                                 const Identifier & /*idStart*/,
                                                 const Identifier & /*idEnd*/) const
 {
+
   if (m_useByteStream && !isBSError(moduleHash)) { return false; }
 
-  if (m_useDCSState) {
-    SG::ReadCondHandle<PixelModuleData> dcsstate_data(m_condDCSStateKey);
-    bool isDCSActive = false;
-    for (unsigned int istate=0; istate<m_activeState.size(); istate++) {
-      if (m_activeState[istate]==dcsstate_data->getModuleStatus(moduleHash)) { isDCSActive=true; }
-    }
-    if (!isDCSActive) { return false; }
-
-    SG::ReadCondHandle<PixelModuleData> dcsstatus_data(m_condDCSStatusKey);
-    bool isDCSGood = false;
-    for (unsigned int istatus=0; istatus<m_activeStatus.size(); istatus++) {
-      if (m_activeStatus[istatus]==dcsstatus_data->getModuleStatus(moduleHash)) { isDCSGood=true; }
-    }
-    if (!isDCSGood) { return 0.0; }
+  SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey);
+  bool isDCSActive = false;
+  for (unsigned int istate=0; istate<m_activeState.size(); istate++) {
+    if (m_activeState[istate]==dcsstate_data->getModuleStatus(moduleHash)) { isDCSActive=true; }
   }
+  if (!isDCSActive) { return false; }
 
-  if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return 1.0; }
+  SG::ReadCondHandle<PixelDCSStatusData> dcsstatus_data(m_condDCSStatusKey);
+  bool isDCSGood = false;
+  for (unsigned int istatus=0; istatus<m_activeStatus.size(); istatus++) {
+    if (m_activeStatus[istatus]==dcsstatus_data->getModuleStatus(moduleHash)) { isDCSGood=true; }
+  }
+  if (!isDCSGood) { return 0.0; }
 
-  if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return 1.0; }
-//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return 1.0; }
+  if (SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return 1.0; }
+
+  if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return 1.0; }
 
   // TODO!!!  Calculate active fraction from dead map.
 

@@ -3,10 +3,11 @@
 __doc__ = "Configure the AsgElectronIsEMSelector with the quality cuts and allow for (re-)setting of all provided cuts."
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # Import the needed stuff specific to the ElectronPhotonSelectorTools
-from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronIsEMSelector
+AsgElectronIsEMSelector=CompFactory.AsgElectronIsEMSelector
 from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEMMap, electronPIDmenu
 
 

@@ -63,38 +63,32 @@ namespace xAODMaker {
      std::vector< float > diagVecCompr;
 
      for( unsigned int i = 0; i < diagVec.size(); ++i ) {
-       const xAOD::FloatCompressor& fc = *m_diagCovMatrixCompressor;
-       diagVecCompr.push_back(fc.reduceFloatPrecision( diagVec[i] ));
+       diagVecCompr.push_back(m_diagCovMatrixCompressor->reduceFloatPrecision( diagVec[i] ));
      }
 
      tp.setDefiningParametersCovMatrixDiagVec( diagVecCompr );
 
-     const std::vector< float > offDiagVec = tp.definingParametersCovMatrixOffDiagVec();
-     float det = -1.;
-     int offDiagComprBits = m_offDiagCovMatrixBits;
-
-     // Compress off-diagonal terms as much as possible, as long as the determinant stays positive
-     while(det<=0. && offDiagComprBits<=m_diagCovMatrixBits){
-
-       const xAOD::FloatCompressor& fc = xAOD::FloatCompressor( offDiagComprBits);
-
+     auto compressOffDiag = []( const std::vector< float >& offDiagVec, int bits ) -> std::vector< float > {
+       xAOD::FloatCompressor fc( bits );
        std::vector< float > offDiagVecCompr;
-       for( unsigned int i = 0; i < offDiagVec.size(); ++i ) {
-	 offDiagVecCompr.push_back(fc.reduceFloatPrecision( offDiagVec[i] ));
+       offDiagVecCompr.reserve( offDiagVec.size() );
+       for( float element : offDiagVec ) {
+         offDiagVecCompr.push_back( fc.reduceFloatPrecision( element ) );
        }
+       return offDiagVecCompr;
+     };
 
-       tp.setDefiningParametersCovMatrixOffDiagVec( offDiagVecCompr );
+     const std::vector< float >& offDiagVec = tp.definingParametersCovMatrixOffDiagVec();
+     tp.setDefiningParametersCovMatrixOffDiagVec( compressOffDiag( offDiagVec, m_offDiagCovMatrixBits ) );
+     int offDiagComprBits = m_offDiagCovMatrixBits-1;
 
-       covMatrixCompr = tp.definingParametersCovMatrix();
-       det = covMatrixCompr.determinant();
-
-       offDiagComprBits++;
-
+     while( ( tp.definingParametersCovMatrix().determinant() <= 0.0 ) &&
+	    ( ++offDiagComprBits <= m_diagCovMatrixBits ) ) {
+       tp.setDefiningParametersCovMatrixOffDiagVec( compressOffDiag( offDiagVec, offDiagComprBits ) );
      }
 
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
+     // Return gracefully:
+     return StatusCode::SUCCESS;
    }
 
 } // namespace xAODMaker

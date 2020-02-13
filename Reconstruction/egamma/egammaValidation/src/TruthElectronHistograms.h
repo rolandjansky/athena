@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
 */
@@ -7,13 +7,11 @@
 #ifndef EGAMMAVALIDATION_TRUTHELECTRONHISTOGRAMS_H
 #define EGAMMAVALIDATION_TRUTHELECTRONHISTOGRAMS_H
 
-#include "xAODTracking/TrackParticle.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
-
-#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
-
+#include "xAODTruth/TruthParticle.h" //typedef
+#include "xAODEgamma/Electron.h" //typedef
 #include "ParticleHistograms.h"
-#include "TH1.h"
+
+class StatusCode;
 
 namespace egammaMonitoring {
 
@@ -30,6 +28,7 @@ namespace egammaMonitoring {
     using ParticleHistograms::fill;
     
     void fill(const xAOD::TruthParticle* truth, const xAOD::Electron* el = nullptr) ;
+    virtual ~TruthElectronHistograms(){};
 
   private:    
 

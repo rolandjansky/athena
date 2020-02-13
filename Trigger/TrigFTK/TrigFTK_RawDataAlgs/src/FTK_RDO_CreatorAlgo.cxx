@@ -33,7 +33,6 @@ FTK_RDO_CreatorAlgo::FTK_RDO_CreatorAlgo(const std::string& name, ISvcLocator* p
   AthAlgorithm(name, pSvcLocator),
   m_ftktrack_paths_merged(0),
   m_mergedtracks_chain(nullptr),
-  m_mergedtracks_tree(nullptr),
   m_mergedtracks_stream(nullptr),
   m_mergedtracks_bname("FTKBankMerged"), /* Old standalone name is FTKBankMerged, prdosys FTKMergedTracksStream */
   m_mergedtracks_iev(0),

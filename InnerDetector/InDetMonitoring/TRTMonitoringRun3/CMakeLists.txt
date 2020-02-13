@@ -51,11 +51,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Event/EventInfo
                           AtlasTest/TestTools)
-                         
+
 
 # External dependencies:
 find_package( Eigen )
-find_package( GeoModel )
+find_package( GeoModelCore )
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Tree Hist RIO pthread MathCore Core Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11)
@@ -63,16 +63,16 @@ find_package( ROOT COMPONENTS Tree Hist RIO pthread MathCore Core Graf Graf3d Gp
 atlas_add_library( TRTMonitoringRun3Lib
                    src/*.cxx
                    PUBLIC_HEADERS TRTMonitoringRun3
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaBaseComps xAODEventInfo InDetPrepRawData GaudiKernel TRT_ConditionsServicesLib InDetReadoutGeometry InDetRawData TrkTrack TrkToolInterfaces AthenaMonitoringLib CommissionEvent TrkSpacePoint
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps xAODEventInfo InDetPrepRawData GaudiKernel TRT_ConditionsServicesLib InDetReadoutGeometry InDetRawData TrkTrack TrkToolInterfaces AthenaMonitoringLib CommissionEvent TrkSpacePoint
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel SGTools SGAudCore AthenaPoolUtilities LumiBlockCompsLib EventInfo LWHists TrkTrackSummary InDetRIO_OnTrack InDetIdentifier TrkRIO_OnTrack TrkParameters TrkMeasurementBase TrkEventUtils TrkSurfaces PathResolver EventPrimitives Identifier AtlasDetDescr AthContainers )
                    
 atlas_add_component( TRTMonitoringRun3
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} TRTMonitoringRun3Lib AthenaMonitoringLib SGAudCore SGTools AthenaPoolUtilities GaudiKernel EventInfo InDetRawData InDetPrepRawData LumiBlockCompsLib CommissionEvent AthContainers AtlasDetDescr Identifier xAODEventInfo EventPrimitives TRT_ConditionsServicesLib InDetReadoutGeometry InDetRIO_OnTrack LWHists TrkTrack TrkTrackSummary TrkToolInterfaces AthenaKernel InDetIdentifier MagFieldInterfaces PathResolver TrkSurfaces TrkEventUtils TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkSpacePoint)
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} TRTMonitoringRun3Lib AthenaMonitoringLib SGAudCore SGTools AthenaPoolUtilities GaudiKernel EventInfo InDetRawData InDetPrepRawData LumiBlockCompsLib CommissionEvent AthContainers AtlasDetDescr Identifier xAODEventInfo EventPrimitives TRT_ConditionsServicesLib InDetReadoutGeometry InDetRIO_OnTrack LWHists TrkTrack TrkTrackSummary TrkToolInterfaces AthenaKernel InDetIdentifier MagFieldInterfaces PathResolver TrkSurfaces TrkEventUtils TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkSpacePoint)
                    
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -62,10 +62,3 @@ StatusCode TBBPCRawContCnv::PoolToDataObject(DataObject*& pObj,
 
   return StatusCode::SUCCESS; 
 }
-
-StatusCode TBBPCRawContCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBBPCRawContCnv::DataObjectToPool" );
-  
-  return TBBPCRawContCnvBase::DataObjectToPool( pObj, tname) ;
-}

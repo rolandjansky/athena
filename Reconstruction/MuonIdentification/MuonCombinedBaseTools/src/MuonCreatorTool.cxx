@@ -27,9 +27,8 @@
 #include "MuonCombinedEvent/StacoTag.h"
 #include "MuonCombinedEvent/CombinedFitTag.h"
 #include "MuonCombinedEvent/SegmentTag.h"
-#include "MuonCombinedEvent/MuGirlTag.h"
-#include "MuonCombinedEvent/MuGirlLowBetaTag.h"
 #include "MuonCombinedEvent/CaloTag.h"
+#include "MuonCombinedEvent/MuGirlLowBetaTag.h"
 
 #include "MuonSegment/MuonSegment.h"
 #include "TrkTrack/Track.h"
@@ -48,8 +47,6 @@
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
 #include "xAODMuonCnv/IMuonSegmentConverterTool.h"
-#include "MuGirlTagTool.h"
-#include "MuGirlInterfaces/CandidateSummary.h"
 
 #include "MuonCombinedToolInterfaces/IMuonMeanMDTdADCFiller.h"
 

@@ -48,6 +48,9 @@
 #ifndef SG_BASES3
 #   define SG_BASES3( D, B1, B2, B3 ) class xAODCoreDummy
 #endif // not SG_BASES3
+#ifndef SG_BASES4
+#   define SG_BASES4( D, B1, B2, B3, B4 ) class xAODCoreDummy
+#endif // not SG_BASES4
 #ifndef SG_ADD_BASE
 #   define SG_ADD_BASE( D, B ) class xAODCoreDummy
 #endif // not SG_ADD_BASE

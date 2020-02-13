@@ -61,7 +61,8 @@ namespace LVL1TGCTrigger {
    * 
    */
   class TGCSector;
-  class TGCSLSelectorOut;
+  class TGCSLSelectorOut;//for Run2
+  class TGCTrackSelectorOut;//for Run3
   class TGCElectronicsSystem;
   class TGCTimingManager;
   class TGCDatabaseManager;
@@ -121,8 +122,7 @@ namespace LVL1TGCTrigger {
 			     const TGCSLSelectorOut *selectorOut,
 			     unsigned int subsystem);
     void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sldata,
-			     const TGCSLSelectorOut *selectorOut,
-			     unsigned int subsystem);
+			     const TGCTrackSelectorOut *trackSelectorOut);
     
     
     // Properties

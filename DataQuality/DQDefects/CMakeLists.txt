@@ -19,7 +19,7 @@ atlas_install_scripts( share/*.py share/*.sh )
 
 # Add tests
 atlas_add_test( DQDefects SCRIPT test/DQDefects_test.sh
-                EXTRA_PATTERNS "^Ran .* tests in"
+                LOG_IGNORE_PATTERN "^Ran .* tests in"
                 PROPERTIES TIMEOUT 300 )
 		
 # Code quality check

@@ -12,7 +12,6 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
@@ -988,9 +987,10 @@ namespace Muon {
 
       MuonStationIndex::ChIndex chIndex = !pseudo ? m_idHelper->chamberIndex(id) : MuonStationIndex::ChUnknown;
       
-      // pointer to resPull
-      std::unique_ptr<Trk::ResidualPull> resPull=std::make_unique<Trk::ResidualPull>(*m_pullCalculator->residualPull( meas, pars, (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ? 
-														     Trk::ResidualPull::Unbiased : Trk::ResidualPull::Biased ));
+      // pointer to resPull: workaround because a const pointer is returned
+      const Trk::ResidualPull* tempPull=m_pullCalculator->residualPull( meas, pars, (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ? Trk::ResidualPull::Unbiased : Trk::ResidualPull::Biased );
+      std::unique_ptr<Trk::ResidualPull> resPull=std::make_unique<Trk::ResidualPull>(*tempPull);
+      delete tempPull;
       if( !resPull ) {
 	ATH_MSG_DEBUG(" calculation of residual/pull failed !!!!! " );
 	continue;

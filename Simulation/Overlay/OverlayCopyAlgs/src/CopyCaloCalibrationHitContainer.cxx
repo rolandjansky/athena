@@ -6,7 +6,7 @@
 
 
 CopyCaloCalibrationHitContainer::CopyCaloCalibrationHitContainer(const std::string &name, ISvcLocator *pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator) { }
+  : AthReentrantAlgorithm(name, pSvcLocator) { }
 
 StatusCode CopyCaloCalibrationHitContainer::initialize()
 {
@@ -27,14 +27,14 @@ StatusCode CopyCaloCalibrationHitContainer::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CopyCaloCalibrationHitContainer::execute()
+StatusCode CopyCaloCalibrationHitContainer::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute() begin");
 
   // Reading the input containers
   ATH_MSG_VERBOSE("Retrieving input containers");
 
-  SG::ReadHandle<CaloCalibrationHitContainer> signalContainer(m_signalInputKey);
+  SG::ReadHandle<CaloCalibrationHitContainer> signalContainer(m_signalInputKey, ctx);
   if (!signalContainer.isValid()) {
     ATH_MSG_ERROR("Could not get signal CaloCalibrationHitContainer container " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
@@ -42,7 +42,7 @@ StatusCode CopyCaloCalibrationHitContainer::execute()
   ATH_MSG_DEBUG("Found signal CaloCalibrationHitContainer container " << signalContainer.name() << " in store " << signalContainer.store());
 
   // Creating output RDO container
-  SG::WriteHandle<CaloCalibrationHitContainer> outputContainer(m_outputKey);
+  SG::WriteHandle<CaloCalibrationHitContainer> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<CaloCalibrationHitContainer>(m_collectionName)));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output CaloCalibrationHitContainer container " << outputContainer.name() << " to store " << outputContainer.store());

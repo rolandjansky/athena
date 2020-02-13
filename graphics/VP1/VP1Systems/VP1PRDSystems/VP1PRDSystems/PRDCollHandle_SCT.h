@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PRDCOLLHANDLE_SCT_H
@@ -25,13 +25,13 @@ public slots:
 
 protected:
   virtual PRDHandleBase * addPRD(const Trk::PrepRawData*) override;
-  bool cut(PRDHandleBase*);
+  virtual bool cut(PRDHandleBase*) override;
 
-  void eraseEventDataSpecific();
-  void postLoadInitialisation();
-  void setupSettingsFromControllerSpecific(PRDSystemController*);
-  float lodArea() const { return 800.0f*800.0f; }
-  QColor defaultColor() const;
+  virtual void eraseEventDataSpecific() override;
+  virtual void postLoadInitialisation() override;
+  virtual void setupSettingsFromControllerSpecific(PRDSystemController*) override;
+  virtual float lodArea() const override { return 800.0f*800.0f; }
+  virtual QColor defaultColor() const override;
 
 private:
 

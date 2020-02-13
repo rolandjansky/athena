@@ -49,6 +49,10 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
 
   /// counts valid input decisions
   size_t countInputHandles( const EventContext& context ) const;
+
+    // setting strategy for output creation: merged means one decision per ROI
+  Gaudi::Property<bool>  m_mergeOutputs { this, "mergeOutputs", true, "true=outputs are merged, false=one output per input" };
+
   
  private:
   
@@ -58,8 +62,6 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
   /// output decisions
   SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "InputMakerOutputDecisions", {}, "Ouput Decisions" };
 
-  // setting strategy for output creation: merged means one decision per ROI
-  Gaudi::Property<bool>  m_mergeOutputs { this, "mergeOutputs", true, "true=outputs are merged, false=one output per input" };
   
   
 };

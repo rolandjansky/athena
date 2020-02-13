@@ -22,9 +22,19 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
-#include "AthenaMonitoringKernel/IMonitoredVariable.h"
-#include "AthenaMonitoringKernel/HistogramDef.h"
-#include "AthenaMonitoringKernel/HistogramFiller.h"
+/**
+ * Here, by forward declaring these two classes, which appear as parameters and values
+ * in GenericMonitoringTool functions only as pointers (not as the objects themselves),
+ * we can avoid including those class headers here, moving them to the implementation
+ * file instead. This prevents external dependancy of the public-facing tool on the
+ * internals of AthenaMonitoringKernel.
+ */
+namespace Monitored {
+  /** Forward declaration of HistogramFiller for pointers in GenericMonitoringTool functions */
+  class HistogramFiller;
+  /** Forward declaration of IMonitoredVariable for pointers in GenericMonitoringTool functions */
+  class IMonitoredVariable;
+}
 
 /**
  * @brief Generic monitoring tool for athena components

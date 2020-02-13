@@ -11,6 +11,7 @@
 '''
 
 if __name__=='__main__':
+    import sys
     from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument('--preExec', help='Code to execute before locking configs')
@@ -43,7 +44,7 @@ if __name__=='__main__':
         from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
         allSteeringFlagsOff()
     ConfigFlags.fillFromArgs(args.flags)
-    isReadingRaw = (GetFileMD(ConfigFlags.Input.Files).get('file_type', 'POOL') == 'RAW')
+    isReadingRaw = (GetFileMD(ConfigFlags.Input.Files).get('file_type', 'POOL') == 'BS')
     if isReadingRaw:
         if ConfigFlags.DQ.Environment not in ('tier0', 'tier0Raw', 'online'):
             log.warning('Reading RAW file, but DQ.Environment set to %s',
@@ -88,14 +89,13 @@ if __name__=='__main__':
 
     # Force loading of conditions in MT mode
     if ConfigFlags.Concurrency.NumThreads > 0:
-        if ConfigFlags.DQ.Steering.doTRTMon:
-            from AthenaMonitoring.AthenaMonitoringConf import ForceIDConditionsAlg
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        if len([_ for _ in cfg._conditionsAlgs if _.getName()=="PixelDetectorElementCondAlg"]) > 0:
             beginseq = cfg.getSequence("AthBeginSeq")
-            beginseq += ForceIDConditionsAlg("ForceIDConditionsAlg")
-        if ConfigFlags.DQ.Steering.doMuonMon:
-            from AthenaMonitoring.AthenaMonitoringConf import ForceMSConditionsAlg
+            beginseq += CompFactory.ForceIDConditionsAlg("ForceIDConditionsAlg")
+        if len([_ for _ in cfg._conditionsAlgs if _.getName()=="MuonAlignmentCondAlg"]) > 0:
             beginseq = cfg.getSequence("AthBeginSeq")
-            beginseq += ForceMSConditionsAlg("ForceMSConditionsAlg")
+            beginseq += CompFactory.ForceMSConditionsAlg("ForceMSConditionsAlg")
     
     # any last things to do?
     if args.postExec:
@@ -106,4 +106,5 @@ if __name__=='__main__':
     # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
     cfg.printConfig(withDetails=False) # set True for exhaustive info
 
-    cfg.run(args.maxEvents, args.loglevel)
+    sc = cfg.run(args.maxEvents, args.loglevel)
+    sys.exit(0 if sc.isSuccess() else 1)

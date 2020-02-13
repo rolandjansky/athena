@@ -5,6 +5,7 @@
 # @date September 2009
 # @author Sebastien Binet <binet@cern.ch>
 from __future__ import print_function
+import six
 
 __version__ = "$Revision$"
 __author__  = "Sebastien Binet <binet@cern.ch>"
@@ -316,7 +317,7 @@ class Registry(object):
         # build reverse dict too
         from collections import defaultdict
         d2a = defaultdict(list)
-        for alg_name, domain_name in a2d.iteritems():
+        for alg_name, domain_name in six.iteritems (a2d):
             d2a[domain_name].append(alg_name)
         self._d2a_db = dict(d2a)
         

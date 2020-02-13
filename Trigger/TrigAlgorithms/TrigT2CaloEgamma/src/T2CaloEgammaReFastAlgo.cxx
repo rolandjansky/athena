@@ -20,7 +20,7 @@
 #include "TrigT2CaloCommon/phiutils.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 class ISvcLocator;
 

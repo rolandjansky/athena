@@ -9,8 +9,8 @@ def LArRODMonConfig(inputFlags, cellDebug=False, dspDebug=False):
 
     from LArMonitoring.GlobalVariables import lArDQGlobals
 
-    from LArMonitoring.LArMonitoringConf import LArRODMonAlg
-    larRODMonAlg = helper.addAlgorithm(LArRODMonAlg,'larRODMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    larRODMonAlg = helper.addAlgorithm(CompFactory.LArRODMonAlg,'larRODMonAlg')
 
     GroupName="RODMon"
     nslots=[]

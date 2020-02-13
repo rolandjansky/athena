@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTGRecTools/MuonTGHitNtuple.h"
@@ -44,7 +44,6 @@ Muon::MuonTGHitNtuple::MuonTGHitNtuple(const std::string &name, ISvcLocator *pSv
   m_rpcHelper(0),
   m_cscHelper(0),
   m_tgcHelper(0),
-  m_muonMgr(0),
   m_holesTool("Muon::MuonHolesOnTrackTool/MuonHolesOnTrackTool"),
   m_measTool("Muon::MuonTGMeasurementTool/MuonTGMeasurementTool"),
   m_trackingGeometry(0),
@@ -90,7 +89,7 @@ Muon::MuonTGHitNtuple::MuonTGHitNtuple(const std::string &name, ISvcLocator *pSv
 StatusCode Muon::MuonTGHitNtuple::initialize() 
 {
   ATH_MSG_INFO("MuonTGHitNtuple::initialize()");
- 
+
   StatusCode sc;
 
   // create new root file
@@ -177,7 +176,7 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
   m_cscHelper = CscHitIdHelper::GetHelper();
   m_tgcHelper = TgcHitIdHelper::GetHelper();
 
-  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
   // get holes-on-track tool
   if (m_processHoles) {
@@ -223,8 +222,15 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
 StatusCode Muon::MuonTGHitNtuple::execute()
 {
   ATH_MSG_INFO("filling ntuple");
+
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE; 
+  } 
   
-  fillSimNtuple();
+  fillSimNtuple(MuonDetMgr);
 
   if (m_processFatras) {
     // get input fatras tracks 
@@ -239,7 +245,7 @@ StatusCode Muon::MuonTGHitNtuple::execute()
       m_inputFatrasTracks = 0;
     }
 
-    fillFatras();
+    fillFatras(MuonDetMgr);
     
   } 
   
@@ -257,17 +263,17 @@ StatusCode Muon::MuonTGHitNtuple::execute()
   
   if (m_inputTracks) {
     
-    fillRecNtuple(m_inputTracks);
+    fillRecNtuple(m_inputTracks, MuonDetMgr);
     
-    if (m_processHoles) fillHoles(m_inputTracks);
+    if (m_processHoles) fillHoles(m_inputTracks, MuonDetMgr);
     
   } else if (!m_inputTracks && m_processHoles)  {
     
-    m_inputTracks = holesFromSim();
+    m_inputTracks = holesFromSim(MuonDetMgr);
     
     if (m_inputTracks) {
       
-      fillRecNtuple(m_inputTracks);
+      fillRecNtuple(m_inputTracks, MuonDetMgr);
       
       // record the new track collection
       StatusCode sc = m_StoreGate->record(m_inputTracks,"HolesFromSim");
@@ -295,7 +301,7 @@ StatusCode Muon::MuonTGHitNtuple::finalize()
   return StatusCode::SUCCESS;
 }
 
-void Muon::MuonTGHitNtuple::fillFatras() const 
+void Muon::MuonTGHitNtuple::fillFatras(const MuonGM::MuonDetectorManager* MuonDetMgr) const 
 {
   //  
   Trk::Perigee* peri = 0;
@@ -353,7 +359,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
 	// extrapolate gen. track to get residual
 	if (peri) { 
 	  // destination surface
-	  const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(iMdt);
+	  const MuonGM::MdtReadoutElement* mdtROE = MuonDetMgr->getMdtReadoutElement(iMdt);
 	  if ( mdtROE ) { 
 	    const Trk::TrackParameters* trPar = m_extrapolator->extrapolate(*peri,mdtROE->surface(iMdt),
 									    Trk::alongMomentum,false,Trk::muon) ;
@@ -392,7 +398,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
 	// extrapolate gen. track to get residual
 	if (peri) { 
 	  // destination surface
-	  const MuonGM::RpcReadoutElement* rpcROE = m_muonMgr->getRpcReadoutElement(iRpc);
+	  const MuonGM::RpcReadoutElement* rpcROE = MuonDetMgr->getRpcReadoutElement(iRpc);
 	  if ( rpcROE ) { 
 	    const Trk::TrackParameters* trPar = m_extrapolator->extrapolate(*peri,rpcROE->surface(iRpc),
 									    Trk::alongMomentum,false,Trk::muon) ;
@@ -454,7 +460,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
       m_fsim_hit_station_phi[m_nFSim] = -1;
       //for (unsigned int i=0;i<3;i++) m_fsim_hit_pos[m_nFSim][i] = (*ci)->localPosition()[i]; 
       //std::cout << "fatras tgc sim hit time:position:dir:"<<iTgc<<","<<(*ci)->globalTime()<<","<< (*ci)->localPosition() << ","<< (*ci)->localDireCos() << std::endl; 
-      //std::cout << "number of gas gaps :"<<m_muonMgr->getTgcReadoutElement(iTgc)->Ngasgaps()<< std::endl;
+      //std::cout << "number of gas gaps :"<<MuonDetMgr->getTgcReadoutElement(iTgc)->Ngasgaps()<< std::endl;
 
       m_fsim_hit_residual[m_nFSim] = 10000.; 
 
@@ -490,7 +496,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
           // calculate residual as distance of layer intersection from tube/strip center ( check of nearest detEl identification )
           m_fhit_residual[m_nFHit] = 10000.;  // dummy default
           if (m_fhit_techn[m_nFHit]==0) {
-	    const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(dig_id);
+	    const MuonGM::MdtReadoutElement* mdtROE = MuonDetMgr->getMdtReadoutElement(dig_id);
 	    if (mdtROE){      
 	      const Amg::Vector3D tubeposition=mdtROE->globalToLocalCoords(mdtROE->tubePos(dig_id), dig_id );
 	      const Amg::Vector3D localhit=mdtROE->globalToLocalCoords((*iter)->trackParameters()->position(), dig_id);    
@@ -498,7 +504,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
 	    }
 	  }
           if (m_fhit_techn[m_nFHit]==1 || m_fhit_techn[m_nFHit]==11) {      // rpc hits
-	    const MuonGM::RpcReadoutElement* rpcROE = m_muonMgr->getRpcReadoutElement(dig_id);
+	    const MuonGM::RpcReadoutElement* rpcROE = MuonDetMgr->getRpcReadoutElement(dig_id);
 	    if (rpcROE){      
 	      const Amg::Vector3D stripposition=rpcROE->surface(dig_id).transform().inverse()*rpcROE->stripPos(dig_id);
 	      const Amg::Vector3D localhit=rpcROE->surface(dig_id).transform().inverse()*(*iter)->trackParameters()->position();    
@@ -507,7 +513,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
 	    }
 	  }
           if (m_fhit_techn[m_nFHit]==2 || m_fhit_techn[m_nFHit]==12) {      // tgc hits
-	    const MuonGM::TgcReadoutElement* tgcROE = m_muonMgr->getTgcReadoutElement(dig_id);
+	    const MuonGM::TgcReadoutElement* tgcROE = MuonDetMgr->getTgcReadoutElement(dig_id);
 	    if (tgcROE){      
 	      const Amg::Vector3D stripposition=tgcROE->surface(dig_id).transform().inverse()*tgcROE->channelPos(dig_id);
 	      const Amg::Vector3D localhit=tgcROE->surface(dig_id).transform().inverse()*(*iter)->trackParameters()->position(); 
@@ -522,7 +528,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
 	    }
 	  }
           if (m_fhit_techn[m_nFHit]==3 || m_fhit_techn[m_nFHit]==13) {      // csc hits
-	    const MuonGM::CscReadoutElement* cscROE = m_muonMgr->getCscReadoutElement(dig_id);
+	    const MuonGM::CscReadoutElement* cscROE = MuonDetMgr->getCscReadoutElement(dig_id);
 	    if (cscROE){      
 	      const Amg::Vector3D stripposition=cscROE->surface(dig_id).transform().inverse()*cscROE->stripPos(dig_id);
 	      const Amg::Vector3D localhit=cscROE->surface(dig_id).transform().inverse()*(*iter)->trackParameters()->position();    
@@ -537,7 +543,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
   }
 }
 
-void Muon::MuonTGHitNtuple::fillRecNtuple(const TrackCollection* tracks ) const 
+void Muon::MuonTGHitNtuple::fillRecNtuple(const TrackCollection* tracks, const MuonGM::MuonDetectorManager* MuonDetMgr ) const 
 {
 
   m_nRec = 0;
@@ -622,7 +628,7 @@ void Muon::MuonTGHitNtuple::fillRecNtuple(const TrackCollection* tracks ) const
             m_hole_residual[m_nHole] = 10000.;
 	    for (int is=0; is < m_nSimHit; is++) {
               Identifier sim_id(m_sim_hit_id[is]);
-	      if ( m_sim_hit_techn[is]==m_hole_techn[m_nHole] && layerMatch(sim_id,dig_id) ) { 
+	      if ( m_sim_hit_techn[is]==m_hole_techn[m_nHole] && layerMatch(sim_id,dig_id,MuonDetMgr) ) { 
 		m_hole_match[m_nHole] = is;
 		m_sim_hole_match[is] = m_nHole;
 		if (m_hole_techn[m_nHole]==0 && layer && holeLayer) m_hole_residual[m_nHole] =
@@ -665,7 +671,7 @@ void Muon::MuonTGHitNtuple::fillRecNtuple(const TrackCollection* tracks ) const
   ATH_MSG_DEBUG("number of unmatched simHit, recHits, holes, in this event:" << unmatched_sim <<","<< unmatched_hit<<"," << unmatched_hole );
 }
 
-void Muon::MuonTGHitNtuple::fillSimNtuple() const
+void Muon::MuonTGHitNtuple::fillSimNtuple(const MuonGM::MuonDetectorManager* MuonDetMgr) const
 {      
   m_nSim = 0;
   const McEventCollection* McEventCollection = 0;
@@ -770,7 +776,7 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
 	m_sim_hit_residual[m_nSimHit] = 10000.; 
 	if (peri) { 
 	  // destination surface
-	  const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(iMdt);
+	  const MuonGM::MdtReadoutElement* mdtROE = MuonDetMgr->getMdtReadoutElement(iMdt);
 	  if ( mdtROE ) { 
 	    const Trk::TrackParameters* trPar = m_extrapolator->extrapolate(*peri,mdtROE->surface(iMdt),
 									    Trk::alongMomentum,false,Trk::muon) ;
@@ -809,7 +815,7 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
 	m_sim_hit_residual[m_nSimHit] = 10000.; 
 	if (peri) { 
 	  // destination surface
-	  const MuonGM::RpcReadoutElement* rpcROE = m_muonMgr->getRpcReadoutElement(iRpc);
+	  const MuonGM::RpcReadoutElement* rpcROE = MuonDetMgr->getRpcReadoutElement(iRpc);
 	  if ( rpcROE ) { 
 	    const Trk::TrackParameters* trPar = m_extrapolator->extrapolate(*peri,rpcROE->surface(iRpc),
 									    Trk::alongMomentum,false,Trk::muon) ;
@@ -843,7 +849,7 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
       m_sim_hit_station_phi[m_nSimHit] = -1;
       //for (unsigned int i=0;i<3;i++) m_sim_hit_pos[m_nSimHit][i] = (*ci)->localPosition()[i]; 
       //if (barcode>0) std::cout << "tgc sim hit time:position:dir:"<< iTgc<< ","<<(*ci)->globalTime()<<","<<(*ci)->localPosition()<<","<< (*ci)->localDireCos() << std::endl; 
-      //const MuonGM::TgcReadoutElement* tgcROE = m_muonMgr->getTgcReadoutElement(iTgc);
+      //const MuonGM::TgcReadoutElement* tgcROE = MuonDetMgr->getTgcReadoutElement(iTgc);
       //if (tgcROE) std::cout << "number of gas gaps :"<<tgcROE->Ngasgaps()<< std::endl;
       //else std::cout << "tgc ROE not found!" <<  std::endl; 
 
@@ -884,7 +890,7 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
   if(peri) { delete peri; peri = NULL; }
 }
  
-void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
+void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks, const MuonGM::MuonDetectorManager* MuonDetMgr) const
 {
 
   if (!tracks) return;
@@ -916,7 +922,7 @@ void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
 	  m_hole_station_phi[m_nHole] = m_muonIdHelperTool->mdtIdHelper().stationPhi(idh);
 	  for (int is=0; is < m_nSimHit; is++) {
 	    Identifier ids(m_sim_hit_id[is]);
-	    if ( m_sim_hit_techn[is]==m_hole_techn[m_nHole] && layerMatch(ids,idh) ) { 
+	    if ( m_sim_hit_techn[is]==m_hole_techn[m_nHole] && layerMatch(ids,idh,MuonDetMgr) ) { 
 	      m_hole_match[m_nHole] = is;
 	      m_sim_hole_match[is] = m_nHole;
 	    }
@@ -986,7 +992,7 @@ void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
 
 }
 
-const TrackCollection* Muon::MuonTGHitNtuple::holesFromSim() const
+const TrackCollection* Muon::MuonTGHitNtuple::holesFromSim(const MuonGM::MuonDetectorManager* MuonDetMgr) const
 {
 
   TrackCollection* htracks = 0;
@@ -1014,7 +1020,7 @@ const TrackCollection* Muon::MuonTGHitNtuple::holesFromSim() const
       if (m_sim_pdg[isim]<0) q=-q;
       Trk::Perigee* peri = new Trk::Perigee(pos,mom,q,origin);
       // get ordered sim layers
-      const std::vector<std::pair< const Trk::Layer*,std::vector<Identifier> > >* simLayers = getOrderedSimLayers(m_sim_index[isim],mom);
+      const std::vector<std::pair< const Trk::Layer*,std::vector<Identifier> > >* simLayers = getOrderedSimLayers(m_sim_index[isim],mom,MuonDetMgr);
       std::vector<std::pair< const Trk::Layer*,std::vector<Identifier> > >::const_iterator sIter = simLayers->begin();
 
       DataVector<const Trk::TrackStateOnSurface>*  holes= new DataVector<const Trk::TrackStateOnSurface>;
@@ -1120,7 +1126,7 @@ const Trk::TrackStateOnSurface* Muon::MuonTGHitNtuple::createHole(const Trk::Tra
   return hole;
 }
 
-bool Muon::MuonTGHitNtuple::layerMatch(Identifier id1, Identifier id2) const
+bool Muon::MuonTGHitNtuple::layerMatch(Identifier id1, Identifier id2, const MuonGM::MuonDetectorManager* MuonDetMgr) const
 {  
   if (   m_muonIdHelperTool->mdtIdHelper().stationName(id1) ==   m_muonIdHelperTool->mdtIdHelper().stationName(id2)
       && m_muonIdHelperTool->mdtIdHelper().stationEta(id1)  ==   m_muonIdHelperTool->mdtIdHelper().stationEta(id2)
@@ -1146,7 +1152,7 @@ bool Muon::MuonTGHitNtuple::layerMatch(Identifier id1, Identifier id2) const
     if (    m_muonIdHelperTool->tgcIdHelper().is_tgc(id1) == m_muonIdHelperTool->tgcIdHelper().is_tgc(id2) ) {
       if (  m_muonIdHelperTool->tgcIdHelper().gasGap(id1) == m_muonIdHelperTool->tgcIdHelper().gasGap(id2)
 	    && m_muonIdHelperTool->tgcIdHelper().isStrip(id1) == m_muonIdHelperTool->tgcIdHelper().isStrip(id2)
-            && m_muonMgr->getTgcReadoutElement(id1) == m_muonMgr->getTgcReadoutElement(id2) )  
+            && MuonDetMgr->getTgcReadoutElement(id1) == MuonDetMgr->getTgcReadoutElement(id2) )  
 	return true;
       else 
         return false;
@@ -1155,7 +1161,8 @@ bool Muon::MuonTGHitNtuple::layerMatch(Identifier id1, Identifier id2) const
   return false;
 }
 
-const std::vector<std::pair<const Trk::Layer*,std::vector<Identifier> > >* Muon::MuonTGHitNtuple::getOrderedSimLayers(int index, Amg::Vector3D mom) const
+const std::vector<std::pair<const Trk::Layer*,std::vector<Identifier> > >* Muon::MuonTGHitNtuple::getOrderedSimLayers(int index, Amg::Vector3D mom,
+														      const MuonGM::MuonDetectorManager* MuonDetMgr) const
 {
   const std::vector<std::pair<const Trk::Layer*,std::vector<Identifier> > >* simLayers = 0;
 
@@ -1168,7 +1175,7 @@ const std::vector<std::pair<const Trk::Layer*,std::vector<Identifier> > >* Muon:
      
       if (m_muonIdHelperTool->mdtIdHelper().is_mdt(ids)) { 
 	//Get the MdtReadoutElement and the tube position from it
-	const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(ids);			
+	const MuonGM::MdtReadoutElement* mdtROE = MuonDetMgr->getMdtReadoutElement(ids);			
 	Amg::Vector3D pos = mdtROE->tubePos(ids);
         // associated MTG layer
         const Trk::Layer* lay = m_trackingGeometry->associatedLayer(pos);
@@ -1194,7 +1201,7 @@ const std::vector<std::pair<const Trk::Layer*,std::vector<Identifier> > >* Muon:
      
       if (m_muonIdHelperTool->rpcIdHelper().is_rpc(ids)) { 
 	//Get the RpcReadoutElement and the strip position from it
-	const MuonGM::RpcReadoutElement* rpcROE = m_muonMgr->getRpcReadoutElement(ids);			
+	const MuonGM::RpcReadoutElement* rpcROE = MuonDetMgr->getRpcReadoutElement(ids);			
 	Amg::Vector3D pos = rpcROE->stripPos(ids);
         // associated MTG layer
         const Trk::Layer* lay = m_trackingGeometry->associatedLayer(pos);
@@ -1220,7 +1227,7 @@ const std::vector<std::pair<const Trk::Layer*,std::vector<Identifier> > >* Muon:
      
       if (m_muonIdHelperTool->tgcIdHelper().is_tgc(ids)) { 
 	//Get the TgcReadoutElement and the strip position from it
-	const MuonGM::TgcReadoutElement* tgcROE = m_muonMgr->getTgcReadoutElement(ids);			
+	const MuonGM::TgcReadoutElement* tgcROE = MuonDetMgr->getTgcReadoutElement(ids);			
 	Amg::Vector3D pos = tgcROE->channelPos(ids);
         // associated MTG layer
         const Trk::Layer* lay = m_trackingGeometry->associatedLayer(pos);

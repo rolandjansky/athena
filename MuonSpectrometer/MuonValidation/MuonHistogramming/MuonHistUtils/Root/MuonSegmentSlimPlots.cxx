@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHistUtils/MuonSegmentSlimPlots.h"
@@ -137,7 +137,7 @@ void MuonSegmentSlimPlots::fill(const xAOD::MuonSegment& muSeg)
   float eta = globalDir.eta();
   //if (globalDir.z() != 0 ) eta = atan2(globalDir.perp(), globalDir.z());//fix the global eta direction
   float phi = globalDir.phi();
-  if (phi>myPi) phi-=2*myPi;
+  if (phi>M_PI) phi-=2*M_PI;
   etadir->Fill(eta);
   phidir->Fill(phi);
   etaphidir->Fill(eta,phi);

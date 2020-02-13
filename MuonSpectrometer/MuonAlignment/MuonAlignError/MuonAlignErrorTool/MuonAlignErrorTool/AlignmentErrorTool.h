@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONALIGNERRORTOOL_ALIGNMENTERRORTOOL_H
@@ -12,8 +12,10 @@
 #include "TrkToolInterfaces/ITrkAlignmentDeviationTool.h"
 #include "MuonAlignErrorBase/AlignmentDeviation.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include <boost/regex.hpp>
 #include <iosfwd>
@@ -21,10 +23,6 @@
 
 namespace Trk {
   class RIO_OnTrack;
-}
-
-namespace Muon {
-  class MuonIdHelperTool;
 }
 
 namespace MuonAlign {
@@ -42,7 +40,7 @@ namespace MuonAlign {
     private:
 
       ToolHandle<MuonCalib::IIdToFixedIdTool> m_idTool;
-      ToolHandle<Muon::MuonIdHelperTool>  m_idHelper; //<! muon id helper
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
       // Struct for per-Station Deviations Information //
       struct deviationSummary_t {

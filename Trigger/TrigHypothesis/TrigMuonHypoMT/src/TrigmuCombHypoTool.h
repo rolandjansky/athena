@@ -10,7 +10,7 @@
 
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 class StoreGateSvc;
 

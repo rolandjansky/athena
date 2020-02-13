@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 
@@ -144,7 +144,7 @@ class LArExtendedSubDetGrouping:
                     series=False
                 else:
                     retVal+=","+str(c2)
-#            print "c1=",c1,"c2=",c2,"sep=",sep
+#            print ("c1=",c1,"c2=",c2,"sep=",sep)
             c1=c2
         if series: retVal+=":"+str(c1)
         return retVal

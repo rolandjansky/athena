@@ -454,8 +454,8 @@ typedef class TrigTrackSeedGenerator {
   ~TrigTrackSeedGenerator(); 
 
   void loadSpacePoints(const std::vector<TrigSiSpacePointBase>&);
-  void createSeeds();
-  void createSeedsZv();
+  void createSeeds(const IRoiDescriptor*);
+  void createSeedsZv(const IRoiDescriptor*);
   void getSeeds(std::vector<TrigInDetTriplet*>&);
 
 private:
@@ -463,10 +463,10 @@ private:
   //bool validateLayerPair(int, int, float, float, float); 
   bool validateLayerPairNew(int, int, float, float); 
   bool getSpacepointRange(int, const std::vector<const TrigSiSpacePointBase*>&, SP_RANGE&);
-  int processSpacepointRange(int, float, float, bool, const SP_RANGE&);
+  int processSpacepointRange(int, float, float, bool, const SP_RANGE&, const IRoiDescriptor*);
   int processSpacepointRangeZv(float, float, bool, const SP_RANGE&);
-  void createTriplets(const TrigSiSpacePointBase*, int, int, INTERNAL_TRIPLET_BUFFER&);
-  void createTripletsNew(const TrigSiSpacePointBase*, int, int, INTERNAL_TRIPLET_BUFFER&);
+  void createTriplets(const TrigSiSpacePointBase*, int, int, INTERNAL_TRIPLET_BUFFER&, const IRoiDescriptor*);
+  void createTripletsNew(const TrigSiSpacePointBase*, int, int, INTERNAL_TRIPLET_BUFFER&, const IRoiDescriptor*);
   void storeTriplets(INTERNAL_TRIPLET_BUFFER&);
 
   const TrigCombinatorialSettings& m_settings;

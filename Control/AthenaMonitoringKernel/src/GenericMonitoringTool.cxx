@@ -11,11 +11,10 @@
 #include <TProfile.h>
 #include <TProfile2D.h>
 
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
-
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthenaMonitoringKernel/HistogramDef.h"
+#include "AthenaMonitoringKernel/HistogramFiller.h"
+#include "AthenaMonitoringKernel/IMonitoredVariable.h"
 
 #include "HistogramFiller/HistogramFillerFactory.h"
 

@@ -1,10 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+from AthenaConfiguration.ComponentFactory import CompFactory
+from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
 # import the FullLinearizedTrackFactory configurable
-from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
+Trk__FullLinearizedTrackFactory=CompFactory.Trk__FullLinearizedTrackFactory
 
 def BTagFullLinearizedTrackFactoryCfg(flags, name = 'FullLinearizedTrackFactory', useBTagFlagsDefaults = True, **options ):
     """Sets up a BTagFullLinearizedTrackFactory tool and returns it.

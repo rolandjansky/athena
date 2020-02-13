@@ -7,6 +7,7 @@
 
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -25,7 +26,7 @@ def BunchGroupCondAlgCfg (configFlags):
         result.merge (addFolders (configFlags, folder, 'TRIGGER', tag='HEAD',
                                   className='AthenaAttributeList'))
 
-    from CoolLumiUtilities.CoolLumiUtilitiesConf import BunchGroupCondAlg
+    BunchGroupCondAlg=CompFactory.BunchGroupCondAlg
     alg = BunchGroupCondAlg (name,
                              BunchGroupFolderInputKey = folder,
                              BunchGroupOutputKey = 'BunchGroupCondData')

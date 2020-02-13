@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
 // L1EtTools.cxx,  
@@ -22,7 +22,7 @@ L1EtTools::L1EtTools(const std::string& t,
   :
   AthAlgTool(t,n,p),
   m_TEMasks(0),
-  m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", n)
+  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", n)
 {
   declareInterface<IL1EtTools>(this);
 
@@ -54,9 +54,7 @@ StatusCode L1EtTools::initialize()
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() );
   }
-  
   /** Fill map of JE masked out of TE trigger */
-  
   ATH_MSG_INFO( "Initialization completed" );
   
   return sc;

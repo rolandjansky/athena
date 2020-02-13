@@ -37,7 +37,6 @@ namespace Muon {
   
   MuonTrackToSegmentTool::MuonTrackToSegmentTool(const std::string& t,const std::string& n,const IInterface* p)  :  
     AthAlgTool(t,n,p),
-    m_detMgr(0),
     m_intersectSvc("MuonStationIntersectSvc", name()),
     m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
@@ -57,7 +56,7 @@ namespace Muon {
   }
   
   StatusCode MuonTrackToSegmentTool::initialize() {
-    ATH_CHECK( detStore()->retrieve(m_detMgr,"Muon") );
+    ATH_CHECK(m_DetectorManagerKey.initialize());
     ATH_CHECK( m_propagator.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
@@ -271,7 +270,15 @@ namespace Muon {
       dbData=readHandle.cptr();
     }
     else dbData=nullptr; //for online running
-    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack( chid, pars.position(), pars.momentum().unit(), dbData, m_detMgr );
+
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      // return; 
+    } 
+
+    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack( chid, pars.position(), pars.momentum().unit(), dbData, MuonDetMgr );
 
 
     // set to identify the hit on the segment
@@ -292,7 +299,7 @@ namespace Muon {
       if( hitsOnSegment.count(tint.tubeId) ) continue;
 
       // if track goes through a tube which did not have a hit count as hole
-      if( fabs(tint.rIntersect) < m_detMgr->getMdtReadoutElement(tint.tubeId)->innerTubeRadius() && tint.xIntersect < -200. ) {
+      if( fabs(tint.rIntersect) < MuonDetMgr->getMdtReadoutElement(tint.tubeId)->innerTubeRadius() && tint.xIntersect < -200. ) {
 	holes.push_back( tint.tubeId );
       }
     }

@@ -65,10 +65,11 @@ namespace NSWL1 {
                         const IInterface* parent);
         virtual ~PadTriggerLogicOfflineTool();
         virtual StatusCode initialize() override;
-        virtual void handle (const Incident& inc);
+        virtual void handle (const Incident& inc) override;
         /// Log a message using the Athena controlled logging system
-        
-        StatusCode compute_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads, std::vector<std::unique_ptr<PadTrigger>> &triggers);
+
+        virtual
+        StatusCode compute_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads, std::vector<std::unique_ptr<PadTrigger>> &triggers) override;
 
 
         int ROI2BandId(const float &EtaTrigAtCenter, const int &SectorType);//Recipe From Y.R (based on eta slicing of triggering bands see the implementation) 

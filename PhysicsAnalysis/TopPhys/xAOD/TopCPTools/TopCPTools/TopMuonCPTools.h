@@ -18,8 +18,8 @@
 // Muon include(s):
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 
 namespace top {
 

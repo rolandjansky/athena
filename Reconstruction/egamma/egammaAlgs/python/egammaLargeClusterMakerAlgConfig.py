@@ -4,9 +4,10 @@ __doc__ = "Configure egammaLargeClusterMaker, which chooses cells to store in th
 __author__ = "Jovan Mitrevski"
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from egammaTools.egammaLargeClusterMakerConfig import egammaLargeClusterMakerCfg
 from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections
-from CaloRec.CaloRecConf import CaloClusterMaker
+CaloClusterMaker=CompFactory.CaloClusterMaker
 
 def egammaLargeClusterMakerAlgCfg(flags, name = "egammaLargeClusterMaker", **kwargs):
 

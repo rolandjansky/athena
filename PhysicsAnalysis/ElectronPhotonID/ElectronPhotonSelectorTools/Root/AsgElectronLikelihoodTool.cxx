@@ -56,6 +56,7 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("useCaloSumsContainer", m_useCaloSumsCont=true, "Whether to use the CaloSums container");
   declareProperty("fcalEtDefault", m_fcalEtDefault = 0, "The default FCal sum ET");
   declareProperty("CaloSumsContainer", m_HIESContKey="CaloSums", "The CaloSums container name" );
+  declareProperty("skipDeltaPoverP", m_skipDeltaPoverP=false, "If true, it wil skip the check of deltaPoverP" );
 
 
 
@@ -616,7 +617,7 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
         trans_TRT_PID = - log(1.0/pid_tmp - 1.0)*(1./double(tau));
 
         unsigned int index;
-        if( t->indexOfParameterAtPosition(index, xAOD::LastMeasurement) ) {
+        if(  t->indexOfParameterAtPosition(index, xAOD::LastMeasurement) ) {
 	
 	  double refittedTrack_LMqoverp  = 
 	    t->charge() / sqrt(std::pow(t->parameterPX(index), 2) +
@@ -625,10 +626,11 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
 	
 	  dpOverp = 1 - trackqoverp/(refittedTrack_LMqoverp);
         }
-        else{
-          allFound = false; 
-          notFoundList += "deltaPoverP ";
-        }
+	else if (!m_skipDeltaPoverP){
+	    allFound = false; 
+	    notFoundList += "deltaPoverP ";
+	}
+ 
       
       }
     else

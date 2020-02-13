@@ -396,7 +396,10 @@ class MdtDriftCircleOnTrack;
 
 
     /** pointers to IdHelpers */
-    const MuonGM::MuonDetectorManager* m_detMgr;       //<! pointer to detector manager
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
+
     ServiceHandle<MuonStationIntersectSvc> m_intersectSvc; //<! pointer to hole search service
 
     ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreator;         //<! mdt rio ontrack creator

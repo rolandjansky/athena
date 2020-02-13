@@ -342,14 +342,14 @@ ActsTrackingGeometrySvc::makeSCTTRTAssembly(const Acts::GeometryContext& gctx,
   Acts::CylinderVolumeBuilder::Config cvbCfg;
   Acts::CylinderVolumeBuilder cvb(cvbCfg, makeActsAthenaLogger(this, "SCTTRTCVB", "ActsTGSvc"));
 
-  Acts::VolumeConfig sctNegEC = cvb.analyzeLayers(gctx, sct_lb.negativeLayers(gctx));
-  Acts::VolumeConfig sctPosEC = cvb.analyzeLayers(gctx, sct_lb.positiveLayers(gctx));
-  Acts::VolumeConfig sctBrl = cvb.analyzeLayers(gctx, sct_lb.centralLayers(gctx));
+  Acts::VolumeConfig sctNegEC = cvb.analyzeContent(gctx, sct_lb.negativeLayers(gctx), {});
+  Acts::VolumeConfig sctPosEC = cvb.analyzeContent(gctx, sct_lb.positiveLayers(gctx), {});
+  Acts::VolumeConfig sctBrl = cvb.analyzeContent(gctx, sct_lb.centralLayers(gctx), {});
 
 
-  Acts::VolumeConfig trtNegEC = cvb.analyzeLayers(gctx, trt_lb.negativeLayers(gctx));
-  Acts::VolumeConfig trtPosEC = cvb.analyzeLayers(gctx, trt_lb.positiveLayers(gctx));
-  Acts::VolumeConfig trtBrl = cvb.analyzeLayers(gctx, trt_lb.centralLayers(gctx));
+  Acts::VolumeConfig trtNegEC = cvb.analyzeContent(gctx, trt_lb.negativeLayers(gctx), {});
+  Acts::VolumeConfig trtPosEC = cvb.analyzeContent(gctx, trt_lb.positiveLayers(gctx), {});
+  Acts::VolumeConfig trtBrl = cvb.analyzeContent(gctx, trt_lb.centralLayers(gctx), {});
   
 
   
@@ -421,6 +421,7 @@ ActsTrackingGeometrySvc::makeSCTTRTAssembly(const Acts::GeometryContext& gctx,
   auto makeTVol = [&](const auto& vConf, const auto& name) {
     return cvh.createTrackingVolume(gctx, 
                                     vConf.layers,
+                                    {},
                                     nullptr, // no material
                                     vConf.rMin,
                                     vConf.rMax,
@@ -452,8 +453,10 @@ ActsTrackingGeometrySvc::makeSCTTRTAssembly(const Acts::GeometryContext& gctx,
   if(pixel) {
     auto containerBounds = dynamic_cast<const Acts::CylinderVolumeBounds*>(&container->volumeBounds());
     auto pixelBounds = dynamic_cast<const Acts::CylinderVolumeBounds*>(&pixel->volumeBounds());
+  std::vector<std::shared_ptr<Acts::TrackingVolume>> noVolumes;
   
     auto posGap = cvh.createGapTrackingVolume(gctx, 
+                                              noVolumes,
                                               nullptr, // no material,
                                               pixelBounds->innerRadius(),
                                               pixelBounds->outerRadius(),
@@ -463,6 +466,7 @@ ActsTrackingGeometrySvc::makeSCTTRTAssembly(const Acts::GeometryContext& gctx,
                                               true, // cylinder
                                               "Pixel::PositiveGap");
     auto negGap = cvh.createGapTrackingVolume(gctx,
+                                              noVolumes,
                                               nullptr, // no material,
                                               pixelBounds->innerRadius(),
                                               pixelBounds->outerRadius(),

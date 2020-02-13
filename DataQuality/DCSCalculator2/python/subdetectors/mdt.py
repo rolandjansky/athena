@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from pkg_resources import resource_string
 
 from ..lib import (DCSC_DefectTranslate_Subdetector,
                    DCSC_Variable_With_Mapping,
                    make_multi_mapping)
+import six
 
 MDTBA, MDTBC, MDTEA, MDTEC = 302, 303, 304, 305
 
@@ -19,7 +20,7 @@ def generate_mdt_mappings():
         hv, lv, jtag, name, output_channel = line.split()
         return int(hv), int(lv), int(jtag), name, int(output_channel)
 
-    mdtcodes = resource_string("DCSCalculator2.subdetectors.data", "mdt_codes.dat").strip().split("\n")
+    mdtcodes = resource_string("DCSCalculator2.subdetectors.data", "mdt_codes.dat").decode().strip().split("\n")
 
     lines = [line for line in [fix_line(raw_line) for raw_line in mdtcodes if raw_line] if line]
 
@@ -90,7 +91,7 @@ class MDT(DCSC_DefectTranslate_Subdetector):
         # save the reverse mapping, too
         self.input_to_output_map = name_to_output
         self.mapping = {}
-        for key, value in self.input_to_output_map.iteritems():
+        for key, value in six.iteritems(self.input_to_output_map):
             self.mapping.setdefault(value, []).append(key)
 
         self.set_input_mapping("HV",     hv_to_name)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    TGC_RegionSelectorTable.cxx         
@@ -174,17 +174,6 @@ StatusCode TGC_RegionSelectorTable::createTable() {
 	 etamax = -etamax;
       }
 
-
-      // caliculation based on max/min channels in a module
-      //	  const Identifier chId1  = p_IdHelper -> channelID(Id,2,1,1);
-      //	  chmax = p_IdHelper -> channelMax(chId1);
-      //	  chmin = p_IdHelper -> channelMin(chId1);
-      //	  posmin = tgc->channelPos(2,1,chmin);
-      //	  posmax = tgc->channelPos(2,1,chmax);
-      //	  phimin = atan2f(posmin.y(),posmin.x());
-      //	  phimax = atan2f(posmax.y(),posmax.x());
-      //	  if (phimin < 0) phimin += 2.*3.141592653589793238;
-      //	  if (phimax < 0) phimax += 2.*3.141592653589793238;
 
       // caliculation based on active sensitive area
       double activelongside = tgc->longWidth()-tgc->frameXwidth()*2.;

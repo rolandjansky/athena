@@ -227,7 +227,7 @@ public:
 
   /// Disconnect output files from the service.
   virtual
-  StatusCode disconnectOutput();
+  StatusCode disconnectOutput(const std::string& output);
 
   /// @name @c IAddressCreator interface implementation
   //@{

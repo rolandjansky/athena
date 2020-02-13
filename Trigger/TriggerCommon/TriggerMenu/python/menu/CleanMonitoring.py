@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 def KeepMonitoring(chainName, ChainsToKeepMonitoring, strictComparison = False):
@@ -11,14 +11,14 @@ def KeepMonitoring(chainName, ChainsToKeepMonitoring, strictComparison = False):
     if ( retval ) : break
   return retval
 
-def DisableMonitoringButValAndTime(list):
+def DisableMonitoringButValAndTime(list_in):
    list_output=[]
-   for item in list:
+   for item in list_in:
       target = item.target()
-      if ( type(target) is type("") ) :
+      if ( isinstance (target, str) ) :
         if ( (target == "Validation") or (target == "Time") ):
           list_output+=[item]
-      elif ( type(target) is type([]) ):
+      elif ( isinstance (target, list) ):
         for t in target:
             if ( (t == "Validation") or (t == "Time") ):
                list_output+=[item]

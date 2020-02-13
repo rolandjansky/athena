@@ -484,19 +484,17 @@ const ISF::ConstISFParticleVector& ISF::ParticleBrokerDynamicOnReadIn::popVector
   // if there are particles in the queue
   if ( m_particles.size() ) {
 
-    ParticleOrder returnOrder = m_particles.top()->getOrder();
-    SimSvcID      returnID    = m_particles.top()->nextSimID();
+    SimSvcID returnID = m_particles.top()->nextSimID();
 
     // loop as long as we have particles in the m_particles queue
     do {
       // get the next particle from the ordered queue
       const ISFParticle *curParticle = m_particles.top();
-      ParticleOrder      curOrder    = curParticle->getOrder();
       SimSvcID           curID       = curParticle->nextSimID();
 
-      // if this particle has a different order or SimID, or the maximum size of the return vector is reached
+      // if this particle has a different SimID, or the maximum size of the return vector is reached
       //   -> don't add any more particles to the m_popParticles std::vector
-      if ( curID != returnID || ( m_hasOrderingTool && ( curOrder != returnOrder ) ) || m_popParticles.size() >= maxVectorSize ) break;
+      if ( curID != returnID || m_popParticles.size() >= maxVectorSize ) break;
 
       // add this particle to the, later returned, m_popParticles std::vector
       m_popParticles.push_back( curParticle );

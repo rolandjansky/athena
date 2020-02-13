@@ -40,10 +40,10 @@ namespace Trk {
       static const InterfaceID& interfaceID() { return IID_ILayerMaterialCreator; }
       
       /** process the material properties */
-      virtual const LayerMaterialProperties* createLayerMaterial(const LayerMaterialRecord& lmr) const = 0;
+      virtual LayerMaterialProperties* createLayerMaterial(const LayerMaterialRecord& lmr) const = 0;
       
       /** create layer material properties from layer material properties */
-      virtual const LayerMaterialProperties* convertLayerMaterial(const LayerMaterialProperties& lmr) const = 0;
+      virtual LayerMaterialProperties* convertLayerMaterial(const LayerMaterialProperties& lmr) const = 0;
       
       /** the name of the created material map */
       const std::string& layerMaterialName() const { m_layerMaterialFullName=(m_layerMaterialDirectory+m_layerMaterialName); return m_layerMaterialFullName; }

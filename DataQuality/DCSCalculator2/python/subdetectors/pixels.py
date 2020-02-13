@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from DCSCalculator2.lib import DCSC_Variable, GoodIOV, OUT_OF_CONFIG, DCSC_DefectTranslate_Subdetector
 
@@ -77,11 +77,11 @@ class Pixels(DCSC_DefectTranslate_Subdetector):
     cid_endcapa, cid_endcapb = 104, 105
 
     mapping = {
-        101: range( 722, 1892),
-        102: range( 436,  722),
-        103: range( 156,  436),
-        104: range(1892, 2036),
-        105: range(   12, 156),
+        101: list(range( 722, 1892)),
+        102: list(range( 436,  722)),
+        103: list(range( 156,  436)),
+        104: list(range(1892, 2036)),
+        105: list(range(   12, 156)),
     }
 
     variables = [

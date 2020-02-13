@@ -33,7 +33,6 @@ namespace LVL1 {
 
       ServiceHandle<ITHistSvc> m_histSvc;
 
-      const DataHandle< xAOD::EnergySumRoI >    m_gFEXMET;        //!< MET from gFEX (will make it an array later)
       StringProperty m_gFEXMETLoc;    //!<  EnergyROI SG key
 
       TH1I * m_hPt {nullptr};

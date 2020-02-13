@@ -102,7 +102,6 @@ private:
   int      m_ScanIter;
   int      m_FitTrial;
   int      m_UpdatedTemplates; //::: How many times have we recaclulated the templates?
-  bool     m_DumpFlag;
   TRandom3 m_Random;
   //:::
   std::vector< Tools::Info >* m_DataSingleInfo;
@@ -148,7 +147,6 @@ private:
   std::string m_ParNames[ Par::N ];
   int         m_Splitting;
   float       m_NumRandomValues;
-  float       m_MinMuonsPt;
   float       m_MinMuonsPtForJpsi;
   float       m_MaxMuonsPtForJpsi;
   float       m_MinLeadingMuonPtForZ;

@@ -24,7 +24,6 @@
 #include "TrkSurfaces/SurfaceBounds.h"
 
 #include "CLHEP/Geometry/Vector3D.h"
-#include "CLHEP/Units/PhysicalConstants.h" // for M_PI
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
@@ -726,15 +725,14 @@ namespace InDetDD {
     m_surface = std::make_unique<Trk::PlaneSurface>(*this);
   }
 
-  /*
-   * update cache
-   * This is supposed to be called inside a block
-   * like
-   * std::lock_guard< ... >
-   * if (!cacheValid) {
-   *  updateCache()
-   * }
-   */
+  // update cache
+  // This is supposed to be called inside a block like
+  //
+  // if (!m_cacheValid) {
+  //   std::lock_guard<std::mutex> lock(m_mutex);
+  //   if (!m_cacheValid) updateCache();
+  // }
+  //
   void
   SiDetectorElement::updateCache() const
   {

@@ -10,7 +10,6 @@
 #include "TrigT1NSWSimTools/PadOfflineData.h"
 
 
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -24,6 +23,8 @@
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/EventContext.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
@@ -231,16 +232,10 @@ namespace NSWL1 {
       // No sector implemented yet!!!
      
       // retrieve the current run number and event number
-      const DataHandle<EventInfo> pevt; 
+      const EventContext& ctx = Gaudi::Hive::currentContext();
 
-      if ( ! (StatusCode::SUCCESS==evtStore()->retrieve(pevt) ) ) {
-        ATH_MSG_WARNING( "Could not retrieve the EventInfo, so cannot associate run and event number to the current STRIP cache" ); 
-        m_strip_cache_runNumber   = -1;
-        m_strip_cache_eventNumber = -1;
-      } else {
-        m_strip_cache_runNumber = pevt->event_ID()->run_number();
-        m_strip_cache_eventNumber = pevt->event_ID()->event_number();
-      }
+      m_strip_cache_runNumber = ctx.eventID().run_number();
+      m_strip_cache_eventNumber = ctx.eventID().event_number();
 
       if (m_strip_cache_status==CLEARED) {
         // renew the STRIP cache if this is the next event

@@ -4,7 +4,6 @@
 
 #include "MDT_RawDataProviderToolCore.h"
 #include "MuonRDO/MdtCsmContainer.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
@@ -16,7 +15,6 @@ Muon::MDT_RawDataProviderToolCore::MDT_RawDataProviderToolCore(const std::string
   :
   AthAlgTool(t,n,p),
   m_decoder("MdtROD_Decoder/MdtROD_Decoder", this),
-  m_muonMgr(0),
   m_robDataProvider ("ROBDataProviderSvc",n)
 { 
   //  template for property declaration
@@ -29,7 +27,7 @@ Muon::MDT_RawDataProviderToolCore::~MDT_RawDataProviderToolCore()
 
 StatusCode Muon::MDT_RawDataProviderToolCore::initialize()
 {    
-    ATH_MSG_VERBOSE("Starting init");
+  ATH_MSG_VERBOSE("Starting init");
 
   ATH_MSG_VERBOSE("Getting m_robDataProvider");  
   
@@ -40,15 +38,9 @@ StatusCode Muon::MDT_RawDataProviderToolCore::initialize()
   } else
     ATH_MSG_INFO("Retrieved service " << m_robDataProvider);
   
-  ATH_MSG_VERBOSE("Getting MuonDetectorManager");  
+  ATH_CHECK(m_idHelperSvc.retrieve());
   
-  if (detStore()->retrieve(m_muonMgr).isFailure())
-    {
-      ATH_MSG_ERROR("Cannot retrieve MuonDetectorManager");
-      return StatusCode::FAILURE;
-    }
-  
-    ATH_MSG_VERBOSE("Getting m_decoder");  
+  ATH_MSG_VERBOSE("Getting m_decoder");  
   
   // Retrieve decoder
   if (m_decoder.retrieve().isFailure()) {
@@ -58,8 +50,8 @@ StatusCode Muon::MDT_RawDataProviderToolCore::initialize()
     ATH_MSG_INFO("Retrieved tool " << m_decoder);
   
   
-  m_maxhashtoUse = m_muonMgr->mdtIdHelper()->stationNameIndex("BME") != -1 ?
-    m_muonMgr->mdtIdHelper()->detectorElement_hash_max() : m_muonMgr->mdtIdHelper()->module_hash_max();
+  m_maxhashtoUse = m_idHelperSvc->mdtIdHelper().stationNameIndex("BME") != -1 ?
+    m_idHelperSvc->mdtIdHelper().detectorElement_hash_max() : m_idHelperSvc->mdtIdHelper().module_hash_max();
 
   ATH_CHECK( m_rdoContainerKey.initialize() );
   ATH_CHECK( m_readKey.initialize() );  

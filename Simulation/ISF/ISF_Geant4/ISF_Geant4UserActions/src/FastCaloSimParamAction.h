@@ -144,7 +144,6 @@ namespace G4UA{
     ILArCalculatorSvc *m_current_calculator;
     ITileCalculator *m_current_calculator_Tile;
 
-    G4VSolid *m_current_solid;
     G4AffineTransform *m_current_transform;
 
     // helper

@@ -38,33 +38,28 @@ class  ConfiguredNewTrackingTRTExtension:
          if doPhase:
 
            from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionToolCosmics
-           InDetTRTExtensionToolPhase = InDet__TRT_TrackExtensionToolCosmics(name                  = 'InDetTRT_ExtensionToolPhase',
-                                                                             Propagator            = InDetPropagator,
-                                                                             Extrapolator          = InDetExtrapolator,
-                                                                             TRT_ClustersContainer = InDetKeys.TRT_DriftCirclesUncalibrated(),
-                                                                             SearchNeighbour       = False, #needs debugging!!!
-                                                                             RoadWidth             = 20.)
+           InDetTRTExtensionToolPhase = TrackingCommon.getInDetTRT_ExtensionToolPhase()
 
-           ToolSvc += InDetTRTExtensionToolPhase
-      
 
            from TRT_TrackExtensionAlg.TRT_TrackExtensionAlgConf import InDet__TRT_TrackExtensionAlg
            InDetTRTExtensionPhase    = InDet__TRT_TrackExtensionAlg (name                   = 'InDetTRT_ExtensionPhase'+NewTrackingCuts.extension(),
                                                                      InputTracksLocation    = SiTrackCollection,
                                                                      ExtendedTracksLocation = OutputExtendedTracks,
                                                                      TrackExtensionTool     = InDetTRTExtensionToolPhase)
-           
+
            topSequence += InDetTRTExtensionPhase
            if (InDetFlags.doPrintConfigurables()):
             print InDetTRTExtensionPhase
-           
-         #
-         else: 
+
+         else:
+          cuts_args = {}
+          if NewTrackingCuts is not None :
+             cuts_args={'TrackingCuts': NewTrackingCuts}
           from TRT_TrackExtensionAlg.TRT_TrackExtensionAlgConf import InDet__TRT_TrackExtensionAlg
-          InDetTRTExtension    = InDet__TRT_TrackExtensionAlg (name                   = 'InDetTRT_Extension'+NewTrackingCuts.extension(),
-                                                              InputTracksLocation    = SiTrackCollection,
-                                                              ExtendedTracksLocation = OutputExtendedTracks,
-                                                              TrackExtensionTool     = InDetTRTExtensionTool)
+          InDetTRTExtension = InDet__TRT_TrackExtensionAlg(name                   = 'InDetTRT_Extension'+NewTrackingCuts.extension(),
+                                                           InputTracksLocation    = SiTrackCollection,
+                                                           ExtendedTracksLocation = OutputExtendedTracks,
+                                                           TrackExtensionTool     = TrackingCommon.getInDetTRT_ExtensionTool(**cuts_args))
           #InDetTRTExtension.OutputLevel = VERBOSE
           topSequence += InDetTRTExtension
           if (InDetFlags.doPrintConfigurables()):

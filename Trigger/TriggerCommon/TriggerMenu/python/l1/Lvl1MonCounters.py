@@ -34,6 +34,11 @@ class Lvl1MonCounter(object):
         if(self.name!=o.name):
             return cmp(self.name,o.name)
         return cmp(self.multiplicity,o.multiplicity)
+
+    def __lt__(self, o):
+        if(self.name!=o.name):
+            return self.name < o.name
+        return self.multiplicity < o.multiplicity
     
 class Lvl1CtpinCounter(Lvl1MonCounter):
 

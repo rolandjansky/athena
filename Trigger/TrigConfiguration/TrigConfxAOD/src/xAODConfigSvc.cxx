@@ -14,9 +14,6 @@
 #include "TrigConfL1Data/BunchGroup.h"
 #include "TrigConfHLTData/HLTSequenceList.h"
 
-// xAOD include(s):
-#include "xAODTrigger/TrigConfKeys.h"
-
 // Local include(s):
 #include "xAODConfigSvc.h"
 #include "TrigConfxAOD/tools/prepareTriggerMenu.h"
@@ -27,17 +24,10 @@ namespace TrigConf {
    xAODConfigSvc::xAODConfigSvc( const std::string& name, ISvcLocator* svcLoc )
       : AthService( name, svcLoc ),
         m_stopOnFailure( true ), m_isInFailure( false ),
-        m_tmc( 0 ), m_menu( 0 ),
-        m_ctpConfig(), m_chainList(),
-        m_eventStore( "StoreGateSvc", name ),
+        m_tmcAux( nullptr ), m_tmc( nullptr ), m_menu(),
+        m_ctpConfig(), m_chainList(), m_sequenceList(), m_bgSet(),
         m_metaStore( "InputMetaDataStore", name ) {
 
-      declareProperty( "StopOnFailure", m_stopOnFailure = true );
-
-      declareProperty( "EventObjectName", m_eventName = "TrigConfKeys" );
-      declareProperty( "MetaObjectName", m_metaName = "TriggerMenu" );
-
-      declareProperty( "MetaDataStore", m_metaStore );
    }
 
    StatusCode xAODConfigSvc::initialize() {
@@ -46,8 +36,10 @@ namespace TrigConf {
       ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
 
       // Retrieve the needed service(s):
-      CHECK( m_eventStore.retrieve() );
       CHECK( m_metaStore.retrieve() );
+
+      // Register read handle key
+      CHECK( m_eventKey.initialize() );
 
       // Set up the callbacks for the service:
       ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
@@ -56,6 +48,10 @@ namespace TrigConf {
                            m_stopOnFailure );
       incSvc->addListener( this, IncidentType::BeginInputFile, 0,
                            m_stopOnFailure );
+
+      m_tmcAux = std::make_unique<xAOD::TriggerMenuAuxContainer>();
+      m_tmc    = std::make_unique<xAOD::TriggerMenuContainer>();
+      m_tmc->setStore( m_tmcAux.get() );
 
       // Reset the internal flag:
       m_isInFailure = false;
@@ -81,8 +77,8 @@ namespace TrigConf {
                                StatusCode::FAILURE );
       }
 
-      // Return the pointer:
-      return &m_ctpConfig;
+      // Return the slot-specific pointer:
+      return m_ctpConfig.get();
    }
 
    const BunchGroupSet* xAODConfigSvc::bunchGroupSet() const {
@@ -96,14 +92,14 @@ namespace TrigConf {
                                StatusCode::FAILURE );
       }
 
-      // Return the pointer:
-      return &m_bgSet;
+      // Return the slot-specific pointer:
+      return m_bgSet.get();
    }
 
    uint32_t xAODConfigSvc::lvl1PrescaleKey() const {
 
       // Check that we know the configuration already:
-      if( ! m_menu ) {
+      if( ! m_menu.get()->m_ptr ) {
          REPORT_MESSAGE( MSG::ERROR )
             << "Trigger menu not yet known. Configuration key not returned.";
          throw GaudiException( "Service not initialised correctly",
@@ -112,8 +108,8 @@ namespace TrigConf {
          return 0;
       }
 
-      // Return the key from the metadata object:
-      return m_menu->l1psk();
+      // Return the key from the slot-specific metadata object:
+      return m_menu.get()->m_ptr->l1psk();
    }
 
    const HLTChainList* xAODConfigSvc::chainList() const {
@@ -127,8 +123,8 @@ namespace TrigConf {
                                StatusCode::FAILURE );
       }
 
-      // Return the pointer:
-      return &m_chainList;
+      // Return the slot-specific pointer:
+      return m_chainList.get();
    }
 
    const HLTChainList& xAODConfigSvc::chains() const {
@@ -142,8 +138,8 @@ namespace TrigConf {
                                StatusCode::FAILURE );
       }
 
-      // Return the object:
-      return m_chainList;
+      // Return the slot-specifc object:
+      return *(m_chainList.get());
    }
 
    const HLTSequenceList* xAODConfigSvc::sequenceList() const {
@@ -157,8 +153,8 @@ namespace TrigConf {
                                StatusCode::FAILURE );
       }
 
-      // Return the pointer:
-      return &m_sequenceList;
+      // Return the slot-specific pointer:
+      return m_sequenceList.get();
    }
 
    const HLTSequenceList& xAODConfigSvc::sequences() const {
@@ -172,14 +168,14 @@ namespace TrigConf {
                                StatusCode::FAILURE );
       }
 
-      // Return the object:
-      return m_sequenceList;
+      // Return the slot-specific object:
+      return *(m_sequenceList.get());
    }
 
    uint32_t xAODConfigSvc::masterKey() const {
 
       // Check that we know the configuration already:
-      if( ! m_menu ) {
+      if( ! m_menu.get()->m_ptr ) {
          REPORT_MESSAGE( MSG::FATAL )
             << "Trigger menu not yet known. Configuration key not returned.";
          throw GaudiException( "Service not initialised correctly",
@@ -188,14 +184,14 @@ namespace TrigConf {
          return 0;
       }
 
-      // Return the key from the metadata object:
-      return m_menu->smk();
+      // Return the key from the slot-specific metadata object:
+      return m_menu.get()->m_ptr->smk();
    }
 
    uint32_t xAODConfigSvc::hltPrescaleKey() const {
 
       // Check that we know the configuration already:
-      if( ! m_menu ) {
+      if( ! m_menu.get()->m_ptr ) {
          REPORT_MESSAGE( MSG::FATAL )
             << "Trigger menu not yet known. Configuration key not returned.";
          throw GaudiException( "Service not initialised correctly",
@@ -204,8 +200,8 @@ namespace TrigConf {
          return 0;
       }
 
-      // Return the key from the metadata object:
-      return m_menu->hltpsk();
+      // Return the key from the slot-specific metadata object:
+      return m_menu.get()->m_ptr->hltpsk();
    }
 
    StatusCode xAODConfigSvc::queryInterface( const InterfaceID& riid,
@@ -249,8 +245,8 @@ namespace TrigConf {
    void xAODConfigSvc::handle( const Incident& inc ) {
 
       // Tell the user what we're doing:
-      ATH_MSG_DEBUG( "Callback received with incident: "
-                     << inc.type() );
+      REPORT_MESSAGE( MSG::DEBUG ) << "Callback received with incident: "
+                     << inc.type() << endmsg;
 
       // If it's a file-beginning incident, let's read in the
       // metadata object:
@@ -281,8 +277,8 @@ namespace TrigConf {
       }
       // We got some strange incident...
       else {
-         ATH_MSG_WARNING( "Unknown incident type received: "
-                          << inc.type() );
+         REPORT_MESSAGE( MSG::WARNING ) << "Unknown incident type received: "
+                          << inc.type() << endmsg;
          return;
       }
 
@@ -293,8 +289,8 @@ namespace TrigConf {
    StatusCode xAODConfigSvc::readMetadata() {
 
       // Read the metadata object...
-      m_tmc = 0; m_menu = 0;
-      if( m_metaStore->retrieve( m_tmc, m_metaName ).isFailure() ) {
+      const xAOD::TriggerMenuContainer* input = nullptr;
+      if( m_metaStore->retrieve( input, m_metaName ).isFailure() ) {
          // Update the internal flag:
          m_isInFailure = true;
          // Decide what to do:
@@ -303,26 +299,45 @@ namespace TrigConf {
                << "Couldn't retrieve xAOD::TriggerMenuContainer";
             return StatusCode::FAILURE;
          } else {
-            ATH_MSG_INFO( "Couldn't retrieve xAOD::TriggerMenuContainer" );
+            REPORT_MESSAGE( MSG::INFO ) << "Couldn't retrieve xAOD::TriggerMenuContainer" << endmsg;
             return StatusCode::SUCCESS;
          }
       }
 
       // Let the user know what happened:
-      ATH_MSG_DEBUG( "Loaded trigger configuration metadata container" );
+      REPORT_MESSAGE( MSG::DEBUG ) << "Loaded trigger configuration metadata container"  << endmsg;
 
       // A little sanity check:
-      if( ! m_tmc->size() ) {
-         ATH_MSG_WARNING( "No trigger configurations are available on "
-                          "the input" );
+      if( ! input->size() ) {
+         REPORT_MESSAGE( MSG::WARNING ) << "No trigger configurations are available on the input" << endmsg;
          return StatusCode::SUCCESS;
       }
 
-      // Point the menu pointer to the first element by default:
-      m_menu = m_tmc->at( 0 );
-      // Cache the menu's configuration:
-      CHECK( prepareTriggerMenu( m_menu, m_ctpConfig, m_chainList, m_sequenceList,
-                                 m_bgSet, msg() ) );
+      // Only one thread at a time is allowed to extend m_tmc, 
+      // and this should only happen when it is not being iterated over
+      // as part of the BeginEvent indicent.
+      std::unique_lock lockUnique(m_sharedMutex);
+
+      // Copy in new menus
+      for ( const xAOD::TriggerMenu* inputMenu : *input ) {
+         bool alreadyHave = false;
+         for( const xAOD::TriggerMenu* existingMenu : *m_tmc ) {
+            if (xAODKeysMatch(inputMenu, existingMenu)) {
+               alreadyHave = true;
+               break;
+            }
+         }
+         if (alreadyHave) {
+            continue;
+         }
+         // Copy this menu into the service's internal cache of all menus
+         xAOD::TriggerMenu* newMenu = new xAOD::TriggerMenu();
+         m_tmc->push_back( newMenu ); // Note: 'newMenu' is now memory managed by m_tmc
+         *newMenu = *inputMenu;
+         REPORT_MESSAGE( MSG::DEBUG ) << "Imported new configuration: SMK = " << newMenu->smk()
+            << ", L1PSK = " << newMenu->l1psk()
+            << ", HLTPSK = " << newMenu->hltpsk() << endmsg;
+      }
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -330,9 +345,12 @@ namespace TrigConf {
 
    StatusCode xAODConfigSvc::prepareEvent() {
 
+      // Can the incident service provide this to us?
+      const EventContext context = Gaudi::Hive::currentContext();
+
       // Read the current event's trigger keys:
-      const xAOD::TrigConfKeys* keys = 0;
-      if( m_eventStore->retrieve( keys, m_eventName ).isFailure() ) {
+      SG::ReadHandle<xAOD::TrigConfKeys> keys(m_eventKey, context);
+      if( !keys.isValid() ) {
          // Update the internal flag:
          m_isInFailure = true;
          // Decide what to do:
@@ -341,27 +359,43 @@ namespace TrigConf {
                << "Coudln't retrieve xAOD::TrigConfKeys";
             return StatusCode::FAILURE;
          } else {
-            ATH_MSG_DEBUG( "Coudln't retrieve xAOD::TrigConfKeys" );
+            REPORT_MESSAGE( MSG::DEBUG ) << "Coudln't retrieve xAOD::TrigConfKeys" << endmsg;
             return StatusCode::SUCCESS;
          }
       }
 
+      const xAOD::TriggerMenu* loadedMenuInSlot = m_menu.get(context)->m_ptr;
+
       // Check if we have the correct menu already:
-      if( m_menu && xAODKeysMatch( keys, m_menu ) ) {
+      if( loadedMenuInSlot != nullptr && xAODKeysMatch( keys.cptr(), loadedMenuInSlot ) ) {
          return StatusCode::SUCCESS;
       }
 
       // If not, let's look for the correct configuration:
+      // Open a shared lock. OK for multiple events to search at the same time,
+      // but prevent the extension of m_tmc from a BeginInputFile incident.  
+      std::shared_lock lockShared(m_sharedMutex);
+
       xAOD::TriggerMenuContainer::const_iterator menu_itr = m_tmc->begin();
       xAOD::TriggerMenuContainer::const_iterator menu_end = m_tmc->end();
       for( ; menu_itr != menu_end; ++menu_itr ) {
          // Check if this is the menu we're looking for:
-         if( ! xAODKeysMatch( keys, *menu_itr ) ) continue;
+         if( ! xAODKeysMatch( keys.cptr(), *menu_itr ) ) continue;
          // Remember it's pointer:
-         m_menu = *menu_itr;
-         // Cache the menu's configuration:
-         CHECK( prepareTriggerMenu( m_menu, m_ctpConfig, m_chainList, m_sequenceList,
-                                    m_bgSet, msg() ) );
+         loadedMenuInSlot = *menu_itr;
+         m_menu.get(context)->m_ptr = loadedMenuInSlot;
+         // Cache the menu's configuration.
+         CTPConfig& ctpConfig = *(m_ctpConfig.get(context));
+         HLTChainList& chainList = *(m_chainList.get(context));
+         HLTSequenceList& sequenceList = *(m_sequenceList.get(context));
+         BunchGroupSet& bgSet = *(m_bgSet.get(context));
+         CHECK( prepareTriggerMenu( loadedMenuInSlot, ctpConfig, 
+                                    chainList, sequenceList,
+                                    bgSet, msg() ) );
+         REPORT_MESSAGE( MSG::DEBUG ) << "ctpConfig.menu().size() = " << ctpConfig.menu().size()
+            << " chainList.size() = " << chainList.size()
+            << " sequenceList.size() = " << sequenceList.size()
+            << " bgSet.bunchGroups().size() = " << bgSet.bunchGroups().size() << endmsg;
          // We're done:
          return StatusCode::SUCCESS;
       }

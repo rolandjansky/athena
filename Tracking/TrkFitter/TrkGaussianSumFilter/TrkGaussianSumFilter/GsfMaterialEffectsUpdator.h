@@ -15,9 +15,7 @@ decription           : Material effects for the GsfExtrapolator. It is an Alg
 #ifndef TrkGsfMaterialEffectsUpdator_H
 #define TrkGsfMaterialEffectsUpdator_H
 
-#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -44,40 +42,45 @@ public:
   StatusCode finalize();
 
   /** Method for updating the state with material effects provided by the layer object */
-  virtual std::unique_ptr<Trk::SimpleMultiComponentState> updateState(const ComponentParameters&,
-                                                 const Layer&,
-                                                 PropDirection direction = anyDirection,
-                                                 ParticleHypothesis particleHypothesis = nonInteracting) const;
+  virtual std::unique_ptr<Trk::MultiComponentState> updateState(
+    const ComponentParameters&,
+    const Layer&,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Method for updating the state with material effects provided by a material properties object and a pathlength */
-  virtual std::unique_ptr<Trk::SimpleMultiComponentState> updateState(const ComponentParameters&,
-                                                 const MaterialProperties&,
-                                                 double,
-                                                 PropDirection direction = anyDirection,
-                                                 ParticleHypothesis particleHypothesis = nonInteracting) const;
+  virtual std::unique_ptr<Trk::MultiComponentState> updateState(
+    const ComponentParameters&,
+    const MaterialProperties&,
+    double,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Method for the state with material effects provided by the layer object prior to propagation */
-  virtual std::unique_ptr<Trk::SimpleMultiComponentState> preUpdateState(const ComponentParameters&,
-                                                    const Layer&,
-                                                    PropDirection direction = anyDirection,
-                                                    ParticleHypothesis particleHypothesis = nonInteracting) const;
+  virtual std::unique_ptr<Trk::MultiComponentState> preUpdateState(
+    const ComponentParameters&,
+    const Layer&,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Method for the state with material effects provided by the layer object after propagation */
-  virtual std::unique_ptr<Trk::SimpleMultiComponentState> postUpdateState(const ComponentParameters&,
-                                                     const Layer&,
-                                                     PropDirection direction = anyDirection,
-                                                     ParticleHypothesis particleHypothesis = nonInteracting) const;
+  virtual std::unique_ptr<Trk::MultiComponentState> postUpdateState(
+    const ComponentParameters&,
+    const Layer&,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const;
 
 private:
   /** Method to perform centralised calculation of updated state */
-  std::unique_ptr<Trk::SimpleMultiComponentState>  compute(const ComponentParameters&,
-                                     const MaterialProperties&,
-                                     double,
-                                     PropDirection direction = anyDirection,
-                                     ParticleHypothesis particleHypothesis = nonInteracting) const;
+  std::unique_ptr<Trk::MultiComponentState>  compute(
+    const ComponentParameters&,
+    const MaterialProperties&,
+    double,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Method to calculate the updated momentum based on material effects */
-  bool updateP(Amg::VectorX&, double) const;
+  bool updateP(AmgVector(5)&, double) const;
 
 private:
   ToolHandle<IMultiStateMaterialEffects>

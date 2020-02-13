@@ -8,7 +8,7 @@ USER root
 WORKDIR /root
 
 # Install some additional packages.
-RUN yum -y install which sclo-git25 wget tar atlas-devel libuuid-devel texinfo       \
+RUN yum -y install which sclo-git25 wget tar atlas-devel libuuid-devel texinfo python2-pip \
            redhat-lsb-core libX11-devel libXpm-devel libXft-devel             \
            libXext-devel openssl-devel glibc-devel rpm-build libcurl-devel && \
     yum clean all
@@ -22,6 +22,10 @@ RUN echo '%wheel	ALL=(ALL)	NOPASSWD: ALL' >> /etc/sudoers && \
 COPY atlas_prompt.sh setup_atlas.sh enable_sclo_git25.sh /etc/profile.d/
 # Add the message of the day instructions for the image.
 COPY motd /etc/
+
+# Install flake8 python linter
+RUN pip install flake8 six
+RUN scl enable sclo-git25 'pip install git+https://:@gitlab.cern.ch:8443/atlas/atlasexternals.git#subdirectory=External/flake8_atlas'
 
 # Switch to the ATLAS account.
 USER atlas

@@ -11,8 +11,10 @@
 
 #include "CSC_RawDataProviderToolCore.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "MuonRDO/CscRawDataCollection_Cache.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace Muon
 {
@@ -53,6 +55,8 @@ private:
 
   /// CSC container cache key
   SG::UpdateHandleKey<CscRawDataCollection_Cache> m_rdoContainerCacheKey ;
+
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
 };
 } // end of namespace

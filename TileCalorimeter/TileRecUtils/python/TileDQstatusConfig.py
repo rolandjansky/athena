@@ -3,6 +3,7 @@
 """Define method to construct configured Tile DQ status tool and algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileDQstatusToolCfg(flags, **kwargs):
     """Return component accumulator with configured private Tile DQ status tool
@@ -21,7 +22,7 @@ def TileDQstatusToolCfg(flags, **kwargs):
         badChanTool = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
         kwargs['TileBadChanTool'] = badChanTool
 
-    from TileRecUtils.TileRecUtilsConf import TileDQstatusTool
+    TileDQstatusTool=CompFactory.TileDQstatusTool
     acc.setPrivateTools( TileDQstatusTool(**kwargs) )
 
     return acc
@@ -48,7 +49,7 @@ def TileDQstatusAlgCfg(flags, **kwargs):
     name = kwargs['TileDQstatus'] + 'Alg'
     kwargs.setdefault('name', name)
 
-    if not (flags.Input.isMC or flags.Overlay.DataOverlay):
+    if not (flags.Input.isMC or flags.Overlay.DataOverlay or flags.Input.Format.lower() == 'pool'):
         if flags.Tile.RunType == 'PHY':
             beamElemContainer = ""
         else:
@@ -74,7 +75,7 @@ def TileDQstatusAlgCfg(flags, **kwargs):
         tileDQstatusTool = acc.popToolsAndMerge( TileDQstatusToolCfg(flags) )
         kwargs['TileDQstatusTool'] = tileDQstatusTool
 
-    from TileRecUtils.TileRecUtilsConf import TileDQstatusAlg
+    TileDQstatusAlg=CompFactory.TileDQstatusAlg
     acc.addEventAlgo(TileDQstatusAlg(**kwargs), primary = True)
 
     return acc
@@ -108,7 +109,7 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileDQstatus.pkl','w') )
+    acc.store( open('TileDQstatus.pkl','wb') )
 
     sc = acc.run(maxEvents = 3)
 

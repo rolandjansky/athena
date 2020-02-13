@@ -72,7 +72,7 @@ atlas_install_runtime( share/pt_barrel.lut share/pt_barrelSP.lut share/pt_barrel
 atlas_add_test( MdtDataPreparator_test
                 SCRIPT python -m TrigL2MuonSA.MdtDataPreparator_test
                 PROPERTIES TIMEOUT 600
-                EXTRA_PATTERNS "-s dead tube" )
+                LOG_SELECT_PATTERN "dead tube" )
 
 atlas_add_test( flake8
                 SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/python

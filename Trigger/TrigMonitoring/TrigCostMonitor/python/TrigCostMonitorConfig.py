@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from TrigCostMonitor.TrigCostMonitorConf import *
 from AthenaCommon.Logging import logging
 
@@ -387,7 +389,7 @@ def setupCostExtras(config = ''):
         svcMgr.TrigTimerSvc.OutputLevel = 4
         
         log.info('Setup detailed timing:')
-        print svcMgr.TrigTimerSvc    
+        print (svcMgr.TrigTimerSvc    )
 
 #----------------------------------------------------------------------
 # Configure TrigSteering algorithm
@@ -514,7 +516,7 @@ def setupCostDebug(option = "cost"):
 
     from AthenaCommon.AlgSequence import AlgSequence    
     topSeq = AlgSequence()    
-    print topSeq
+    print (topSeq)
 
     setSteerDebug('TrigSteer_L2', option, log)
     setSteerDebug('TrigSteer_EF', option, log)

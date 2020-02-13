@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: Analyzer.py
 # @purpose: a set of classes to analyze data from a perfmon tuple
 # @author: Sebastien Binet <binet@cern.ch>
+
+from __future__ import print_function
 
 """ A set of classes to analyze data from a perfmon tuple
 """
@@ -20,13 +22,13 @@ from PerfMonAna.PyRootLib import importRoot
 def getAnalyzer(monVarName, monName):
     Klass = NoopAnalyzer
     if monVarName == 'cpu':
-        from CpuAnalyzer import CpuAnalyzer
+        from .CpuAnalyzer import CpuAnalyzer
         Klass = CpuAnalyzer
     elif monVarName == 'mem':
-        from MemAnalyzer import MemAnalyzer
+        from .MemAnalyzer import MemAnalyzer
         Klass = MemAnalyzer
     elif monVarName == 'io':
-        from IoAnalyzer import IoAnalyzer
+        from .IoAnalyzer import IoAnalyzer
         Klass = IoAnalyzer
     elif (monVarName.count('.') > 0 or monVarName.count('/')>0):
         Klass = None
@@ -125,7 +127,7 @@ def make_canvas(name, title, items, shape=None):
             for ipad in xrange(self._shape[0]*self._shape[1]):
                 pad = self.cd(ipad+1)
                 stack = self._stacks[ipad]
-                print "-->",ipad,self.GetName(),stack.GetName()
+                print ("-->",ipad,self.GetName(),stack.GetName())
                 stack.Draw("nostack")
                 for gr in stack._graphs: gr.Draw("SAME")
             return

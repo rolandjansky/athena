@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -19,7 +19,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 
 
@@ -107,13 +106,14 @@ class CscCalibMonToolSlope: public CscCalibMonToolBase
         int m_slopeBadBin, m_interceptBadBin, m_chi2BadBin, m_peaktBadBin, m_fracBadBin, 
             m_deadBadBin,m_missingBadBin;
 
-        int m_totalLiveBin, m_totalDeadBin, m_newLiveBin, m_newDeadBin,m_h_slopeMissingBadBin;
+        int m_totalLiveBin, m_totalDeadBin, m_newLiveBin, m_newDeadBin;
         /**Stores number of channels that are bad in several categories*/
         TH1I *m_h_numBad;
         
         /**Histograms that simply histogram all entries for a value*/
         TH1F *m_h_slopeCompareOverview, *m_h_interceptOverview,*m_h_chi2Overview, 
-             *m_h_peaktCompareOverview, *m_h_slopeMissingChans;
+             *m_h_slopeMissingChans;
+        //TH1F* m_h_peaktCompareOverview;
         
         /**Overview of dead channels and changes*/
         TH1F *m_h_deadOverview;
@@ -143,9 +143,6 @@ class CscCalibMonToolSlope: public CscCalibMonToolBase
         /**Dead channel finding user defined parameters*/
         int m_deadPulserLevelCutoff, m_deadADCCutoff;
         
-        /** Muon Detector Descriptor*/
-        const MuonGM::MuonDetectorManager * m_muon_mgr;
-
         unsigned int m_expectedChamberLayer;
         /**Hash Ids one would expect to be in calibration data*/
         //std::set<int> m_expectedHashIdsAll, m_expectedHashIdsPrec;

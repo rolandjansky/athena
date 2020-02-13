@@ -3,6 +3,7 @@
 """Define methods to construct configured Tile bad channels"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 _validSources = ['COOL','FILE']
 
@@ -57,8 +58,8 @@ def TileBadChannelsCondAlgCfg(flags, **kwargs):
         offlineBadChannelsProxy = TileCondProxyFileBch('TileCondProxyFile_OflBch', Source = 'TileDefault.oflBch')
         
 
-    from TileConditions.TileConditionsConf import TileCondIdTransforms
-    from TileConditions.TileConditionsConf import TileBadChannelsCondAlg
+    TileCondIdTransforms=CompFactory.TileCondIdTransforms
+    TileBadChannelsCondAlg=CompFactory.TileBadChannelsCondAlg
     badChannelsCondAlg = TileBadChannelsCondAlg( name = name,
                                                  OnlBchProxy = onlineBadChannelsProxy,
                                                  OflBchProxy = offlineBadChannelsProxy,
@@ -96,7 +97,7 @@ def TileBadChanToolCfg(flags, **kwargs):
     from TileConditions.TileBadChannelsConfig import TileBadChannelsCondAlgCfg
     acc.merge( TileBadChannelsCondAlgCfg(flags, **kwargs) )
 
-    from TileConditions.TileConditionsConf import TileBadChanTool
+    TileBadChanTool=CompFactory.TileBadChanTool
     acc.setPrivateTools( TileBadChanTool(name, TileBadChannels = badChannels) )
 
     return acc
@@ -124,6 +125,6 @@ if __name__ == "__main__":
 
     acc.printConfig(withDetails = True, summariseProps = True)
     print(acc.getService('IOVDbSvc'))
-    acc.store( open('TileBadChannels.pkl','w') )
+    acc.store( open('TileBadChannels.pkl','wb') )
 
     print('All OK')

@@ -7,6 +7,7 @@
 # If you create a grid version, check art-output in existing grid tests.
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
+from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 
 ex = ExecStep.ExecStep()
 ex.type = 'Reco_tf'
@@ -19,6 +20,7 @@ test = Test.Test()
 test.art_type = 'build'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
+add_analysis_steps(test, input_file='RDO_TRIG.pool.root')
 
 # Overwrite default RegTest settings
 regtest = test.get_step('RegTest')

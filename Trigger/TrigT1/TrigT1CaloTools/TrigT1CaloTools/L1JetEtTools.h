@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
 // L1JetEtTools.h, 
@@ -15,7 +15,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigT1CaloToolInterfaces/IL1JetEtTools.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 namespace LVL1 
 {
@@ -63,7 +63,7 @@ namespace LVL1
     private:
 
       /** pointer to LVL1ConfigSvc */
-      ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
            
     }; 
 } // end of namespace

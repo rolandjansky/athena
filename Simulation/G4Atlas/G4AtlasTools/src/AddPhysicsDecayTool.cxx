@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Include files
@@ -76,7 +76,7 @@ void AddPhysicsDecayTool::ConstructProcess()
   while( (*PARTICLEITERATOR)() )
     {
       G4ParticleDefinition *particle = PARTICLEITERATOR->value();
-      if (m_ParticleName== particle->GetParticleName())
+      if (m_ParticleName== static_cast<const std::string&>(particle->GetParticleName()))
         {
 
           G4DecayTable *table = particle->GetDecayTable();

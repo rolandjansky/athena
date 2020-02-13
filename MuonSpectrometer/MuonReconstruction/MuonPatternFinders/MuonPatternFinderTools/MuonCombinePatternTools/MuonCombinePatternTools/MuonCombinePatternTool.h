@@ -12,6 +12,8 @@
 #include "MuonHoughPatternEvent/MuonHoughMathUtils.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
+#include <cmath>
+
 namespace MuonGM {
      class MuonDetectorManager;
 }
@@ -98,7 +100,7 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
   double* updateParametersForCosmics(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern)const;
 
   /** calculate phi and r0 for cosmic patterns, phi estimate needs to be given */
-  std::pair<double,double> calculateR0Phi(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern, double phi_estimate=-MuonHough::Pi/2.)const;
+  std::pair<double,double> calculateR0Phi(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern, double phi_estimate=-M_PI_2)const;
 
   /** calculate rz0 for cosmic pattern */
   double calculateRz0(const Muon::MuonPrdPattern* pattern, double phi, double theta)const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRKMUIDTOOLS_TRACKDEPOSITINCALOTOOL_H
@@ -205,6 +205,7 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
     TH2F* m_hEMB2vsdEta{};
     TH2F* m_hEMB3vsdEta{};
 
+    const Trk::ParticleMasses m_particlemasses;
 };
     
  

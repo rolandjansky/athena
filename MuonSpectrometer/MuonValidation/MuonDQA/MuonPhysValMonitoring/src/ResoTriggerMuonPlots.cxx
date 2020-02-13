@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ResoTriggerMuonPlots.h"
@@ -41,10 +41,10 @@ ResoTriggerMuonPlots::ResoTriggerMuonPlots(PlotBase* pParent, std::string sDir, 
                                     m_etaBins.size()-1 ,&m_etaBins[0], 100,-0.25,0.25));
      Res_pT_vs_phi.push_back(Book2D("Res"+m_sType+"_pT_vs_phi_from"+m_pt_slices[i]+"_to"+m_pt_slices[i+1]+"GeV",
                                     "Res"+m_sType+"_pT vs phi from "+m_pt_slices[i]+" GeV to "+m_pt_slices[i+1]+" GeV;phi;(1/pT-1/RECOpT)/(1/RECOpT)",
-                                    96,-3.14159,3.14159, 100,-0.25,0.25));	
+                                    96,-M_PI,M_PI, 100,-0.25,0.25));	
      Res_phi_vs_phi.push_back(Book2D("Res"+m_sType+"_phi_vs_phi_from"+m_pt_slices[i]+"_to"+m_pt_slices[i+1]+"GeV",
                                      "Res"+m_sType+"_phi vs phi from "+m_pt_slices[i]+" GeV to "+m_pt_slices[i+1]+" GeV;phi;(1/pT-1/RECOpT)/(1/RECOpT)",
-                                     96,-3.14159,3.14159, 100,-0.25,0.25));	
+                                     96,-M_PI,M_PI, 100,-0.25,0.25));	
      Res_eta_vs_eta.push_back(Book2D("Res"+m_sType+"_eta_vs_eta_from"+m_pt_slices[i]+"_to"+m_pt_slices[i+1]+"GeV",
                                      "Res"+m_sType+"_eta vs eta from "+m_pt_slices[i]+" GeV to "+m_pt_slices[i+1]+" GeV;eta;eta-RECOeta",
                                      m_etaBins.size()-1 ,&m_etaBins[0], 100,-0.25,0.25));	

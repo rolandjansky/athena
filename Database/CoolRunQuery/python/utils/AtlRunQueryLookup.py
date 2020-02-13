@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ----------------------------------------------------------------
 # Script : AtlRunQueryLookup.py
@@ -16,6 +16,7 @@
 # Implementation:
 #   http://alxr.usatlas.bnl.gov/lxr/source/atlas/DetectorDescription/DetDescrCond/DetectorStatus/python/DetStatusLib.py
 
+from __future__ import print_function
 DQChannelDict = {'PIXB':101,'PIX0':102,'PIXEA':104,'PIXEC':105,
                  'SCTB':111,'SCTEA':114,'SCTEC':115,
                  'TRTB':121,'TRTEA':124,'TRTEC':125,'TRTTR':126,
@@ -415,7 +416,7 @@ def LArConfig(type):
     elif 'format' in type.lower():
         return {0:'Transparent', 1:'Format 1', 2:'Format 2'}
     else:
-        print 'ERROR in LArconfig: unknown type %s' % type
+        print ('ERROR in LArconfig: unknown type %s' % type)
         sys.exit()
              
 

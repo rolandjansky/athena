@@ -14,10 +14,11 @@ namespace Muon
 			      const std::vector<Identifier>& rdoList,
 			      const Amg::MatrixX* locErrMat,
 			      const MuonGM::sTgcReadoutElement* detEl,
-                              const int charge,
-                              const short int time, 
+            const int charge,
+            const short int time, 
 			      const uint16_t bcBitMap,
 			      const std::vector<uint16_t>& stripNumbers,
+			      const std::vector<short int>& stripTimes, 
 			      const std::vector<int>& stripCharges ) :
     MuonCluster(RDOId, idDE, locpos, rdoList, locErrMat), //call base class constructor
     m_detEl(detEl),
@@ -25,6 +26,7 @@ namespace Muon
     m_time(time),
     m_bcBitMap(bcBitMap),
     m_stripNumbers(stripNumbers),
+    m_stripTimes(stripTimes),
     m_stripCharges(stripCharges)
   { }
 
@@ -43,6 +45,7 @@ namespace Muon
     m_time(time),
     m_bcBitMap(bcBitMap),
     m_stripNumbers(),
+    m_stripTimes(),
     m_stripCharges()
   { }
 
@@ -61,6 +64,7 @@ namespace Muon
     m_time(0),
     m_bcBitMap(0),
     m_stripNumbers(),
+    m_stripTimes(),
     m_stripCharges()
   { }
 
@@ -72,6 +76,7 @@ namespace Muon
     m_time(RIO.m_time),
     m_bcBitMap( RIO.m_bcBitMap ),
     m_stripNumbers(RIO.m_stripNumbers),
+    m_stripTimes(RIO.m_stripTimes),
     m_stripCharges(RIO.m_stripCharges)
   { }
 
@@ -83,6 +88,7 @@ namespace Muon
     m_time(RIO.m_time),
     m_bcBitMap( RIO.m_bcBitMap ),
     m_stripNumbers(RIO.m_stripNumbers),
+    m_stripTimes(RIO.m_stripTimes),
     m_stripCharges(RIO.m_stripCharges)
   { }
 

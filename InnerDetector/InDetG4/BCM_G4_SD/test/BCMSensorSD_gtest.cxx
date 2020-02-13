@@ -103,9 +103,9 @@ TEST_F( BCMSensorSDtest, ProcessHits )
   ASSERT_EQ(a->begin()->energyLoss(), 3.0);
   ASSERT_EQ(a->begin()->meanTime(), 0.5);
   ASSERT_EQ(a->begin()->particleLink(), plink);
-  ASSERT_EQ(a->begin()->identify(),8497524);
+  ASSERT_EQ(a->begin()->identify(),8497524u);
 
-  ASSERT_EQ(a->size(), 1); //test the size of the Hit container, and it should be 1 since just 1 Hit was stored in it
+  ASSERT_EQ(a->size(), 1u); //test the size of the Hit container, and it should be 1 since just 1 Hit was stored in it
 
 }
 
@@ -153,9 +153,9 @@ TEST_F( BCMSensorSDtest, AddHit )
   ASSERT_EQ(a->begin()->energyLoss(), 2.0);
   ASSERT_EQ(a->begin()->meanTime(), 1.0);
   ASSERT_EQ(a->begin()->particleLink(), plink);
-  ASSERT_EQ(a->begin()->identify(), 10245);
+  ASSERT_EQ(a->begin()->identify(), 10245u);
 
-  ASSERT_EQ(a->size(), 1); //test the size of the Hit container, and it should be 1 since only 1 Hit was stored in it
+  ASSERT_EQ(a->size(), 1u); //test the size of the Hit container, and it should be 1 since only 1 Hit was stored in it
 
 }
 

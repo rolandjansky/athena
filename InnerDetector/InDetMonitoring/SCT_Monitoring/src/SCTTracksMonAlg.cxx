@@ -1,7 +1,7 @@
 
 
 #include "SCTTracksMonAlg.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "SCT_NameFormatter.h"
 
 #include "AthContainers/DataVector.h"

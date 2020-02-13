@@ -18,6 +18,35 @@ theDataPreparator.MDTDataPreparator = MuonSA.TrigL2MuonSA__MdtDataPreparator(Dec
 theDataPreparator.TGCDataPreparator = MuonSA.TrigL2MuonSA__TgcDataPreparator(DecodeBS = DetFlags.readRDOBS.TGC_on())
 theDataPreparator.CSCDataPreparator = MuonSA.TrigL2MuonSA__CscDataPreparator(DecodeBS = DetFlags.readRDOBS.CSC_on())
 
+#Need different PRD collection names to run offline and Run 2 trigger in same job
+if not TriggerFlags.doMT():
+    from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
+    MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigMdtRdoToPrepDataTool",OutputCollection="TrigMDT_DriftCircles")
+    ToolSvc += MdtRdoToMdtPrepDataTool
+    theDataPreparator.MDTDataPreparator.MdtPrepDataProvider =  MdtRdoToMdtPrepDataTool
+    theDataPreparator.MDTDataPreparator.MDTPrepDataContainer = MdtRdoToMdtPrepDataTool.OutputCollection
+
+    from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
+    CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name = "TrigCscRdoToPrepDataTool", OutputCollection="TrigCSC_Measurements")
+    ToolSvc += CscRdoToCscPrepDataTool
+    theDataPreparator.CSCDataPreparator.CscPrepDataProvider =  CscRdoToCscPrepDataTool
+    theDataPreparator.CSCDataPreparator.CSCPrepDataContainer = CscRdoToCscPrepDataTool.OutputCollection
+
+    from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
+    TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name = "TrigTgcRdoToPrepDataTool",OutputCollection="TrigTGC_Measurements",OutputCoinCollection="TrigerT1CoinDataCollection")
+    ToolSvc += TgcRdoToTgcPrepDataTool
+    theDataPreparator.TGCDataPreparator.TgcPrepDataProvider =  TgcRdoToTgcPrepDataTool
+    theDataPreparator.TGCDataPreparator.TGCPrepDataContainer = TgcRdoToTgcPrepDataTool.OutputCollection
+
+    from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
+    #InputCollection is really the output RPC coin collection...
+    RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "TrigRpcRdoToPrepDataTool", TriggerOutputCollection="TrigRPC_Measurements", InputCollection="TrigRPC_triggerHits")
+    ToolSvc += RpcRdoToRpcPrepDataTool
+    theDataPreparator.RPCDataPreparator.RpcPrepDataProvider =  RpcRdoToRpcPrepDataTool
+    theDataPreparator.RPCDataPreparator.RpcPrepDataContainer = RpcRdoToRpcPrepDataTool.TriggerOutputCollection
+
+
+
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
 ToolSvc += MuonBackExtrapolatorForMisalignedDet()
 ToolSvc += MuonBackExtrapolatorForData()

@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file    PyDumper.SgDumpLib
 # @purpose API for the sg-dump script
 # @author  Sebastien Binet <binet@cern.ch>
 # @date    August 2009
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 import sys
 import os
 
@@ -245,7 +245,7 @@ def _run_jobo(job, msg, options):
                 else:
                     msg.warning ("don't know what kind of stuff this is: %s",
                                  item)
-            except Exception, err:
+            except Exception as err:
                 errors.append ("%s"%err)
                 pass
         if len(errors)>0:
@@ -342,8 +342,8 @@ def _run_jobo(job, msg, options):
         from cStringIO import StringIO
         err = StringIO()
         for l in logfile:
-            print l,
-            print >> err, l,
+            print (l, end='')
+            print (l, end='', file=err)
         msg.error ('='*80)
         msg.error ('problem running jobo')
         return sc, err.getvalue()
@@ -353,7 +353,7 @@ def _run_jobo(job, msg, options):
     out = StringIO()
     for l in logfile:
         if pat.match(l):
-            print >> out, l,
+            print (l, end='', file=out)
     return sc, out.getvalue()
 
 def run_sg_dump(files, output,
@@ -451,7 +451,7 @@ def run_sg_dump(files, output,
         try:
             with open(dump_jobo, 'w') as f:
                 f.write(jobo)
-        except Exception, err:
+        except Exception as err:
             msg.warning('problem while dumping joboption file to [%s]:\n%s',
                         dump_jobo, err)
 
@@ -472,10 +472,10 @@ def run_sg_dump(files, output,
         try:
             with open('%s.log'%output, 'w') as f:
                 for l in out.splitlines():
-                    print >> f, l
-                print >> f, "### EOF ###"
+                    print (l, file=f)
+                print ("### EOF ###", file=f)
             
-        except Exception, err:
+        except Exception as err:
             msg.warning('problem writing out logfile [%s.log]:\n%s',
                         output, err)
 

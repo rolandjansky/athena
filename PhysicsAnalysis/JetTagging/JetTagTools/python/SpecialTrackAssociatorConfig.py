@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the TrackToVertexIPEstimator configurable
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
+CP__TrackVertexAssociationTool=CompFactory.CP__TrackVertexAssociationTool
 
 def SpecialTrackAssociatorCfg( name = 'SpecialTrackAssociator', useBTagFlagsDefaults = True, **options ):
     """Sets up a SpecialTrackAssociator tool and returns it.

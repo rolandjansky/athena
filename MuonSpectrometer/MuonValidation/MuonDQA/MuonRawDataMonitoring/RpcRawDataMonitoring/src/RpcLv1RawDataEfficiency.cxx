@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,6 @@ StatusCode RpcLv1RawDataEfficiency::initialize()
   ATH_MSG_INFO( "In initializing 'RpcLv1RawDataEfficiency'"  );
   ATH_MSG_INFO( "Package version = "<< PACKAGE_VERSION  );
   
-  m_muonMgr  = 0 ;
   m_trigtype  = 0 ;
   m_event  = 0 ;
   m_lumiblock  = 0 ;
@@ -79,7 +78,8 @@ StatusCode RpcLv1RawDataEfficiency::initialize()
   m_rpclv1_sectorhits_all[5]= 0 ;
   
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
-  ATH_CHECK(  detStore()->retrieve(m_muonMgr) );
+// MuonDetectorManager from the conditions store
+  ATH_CHECK(m_DetectorManagerKey.initialize());
   ATH_MSG_DEBUG( "Found the MuonDetectorManager from detector store."  );
 
   ATH_CHECK(m_rpcCoinKey.initialize());
@@ -107,6 +107,13 @@ StatusCode RpcLv1RawDataEfficiency::readRpcCoinDataContainer()
   double  x_atlas, y_atlas, z_atlas, phi_atlas, eta_atlas;
   int irpcstationEta; // for the switch of the eta in the coin matrix
     
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE; 
+  } 
 
 
   for( it_container = rpc_coin_container->begin(); it_container != rpc_coin_container->end(); ++it_container ) {
@@ -116,7 +123,7 @@ StatusCode RpcLv1RawDataEfficiency::readRpcCoinDataContainer()
       CoincidenceData* coindata = new CoincidenceData;
       coindata->SetThresholdLowHigh(int((*it_collection)->threshold()), int((*it_collection)->isLowPtCoin()), int((*it_collection)->isHighPtCoin()));
       prdcoll_id   = (*it_collection)->identify();
-      descriptor_Atl = m_muonMgr->getRpcReadoutElement( prdcoll_id );
+      descriptor_Atl = MuonDetMgr->getRpcReadoutElement( prdcoll_id );
       irpcstationEta = int(m_muonIdHelperTool->rpcIdHelper().stationEta(prdcoll_id));
       x_atlas = descriptor_Atl->stripPos(prdcoll_id ).x();
       y_atlas = descriptor_Atl->stripPos(prdcoll_id ).y();

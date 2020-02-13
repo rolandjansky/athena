@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the MuonCalibrationAndSmearingTool configurable
-from MuonMomentumCorrections.MuonMomentumCorrectionsConf import CP__MuonCalibrationAndSmearingTool
+CP__MuonCalibrationAndSmearingTool=CompFactory.CP__MuonCalibrationAndSmearingTool
 
 def MuonCorrectionsToolCfg( name = 'MuonCorrectionsTool', **options):
     """Sets up the CP MuonCorrection tool and returns it."""

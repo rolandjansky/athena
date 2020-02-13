@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibTools/MdtCalibTool.h"
@@ -18,7 +18,6 @@
 #include "MdtCalibEventLoop/MdtCalibEventLoop.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include <algorithm>
 #include <fstream>
@@ -68,20 +67,8 @@ namespace MuonCalib {
       log << MSG::INFO << "Retrieved" << m_regionSelector << endmsg;
     }
 
+    ATH_CHECK(m_idHelperSvc.retrieve());
 
-    const MuonGM::MuonDetectorManager* detMgr;
-    // initialize MuonGeoModel access
-    sc = detStore()->retrieve( detMgr );
-    if (!sc.isSuccess()) {
-      log << MSG::ERROR << "Can't retrieve MuonDetectorManager" << endmsg;
-      return sc;
-    }
-   
-    // initialize MuonIdHelpers
-    if(detMgr) {
-      m_mdtIdHelper = detMgr->mdtIdHelper();
-    }  
-  
     log << MSG::INFO << "Initialization ended     " << endmsg;
     return StatusCode::SUCCESS;
   

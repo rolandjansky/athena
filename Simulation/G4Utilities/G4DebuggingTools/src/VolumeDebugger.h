@@ -41,7 +41,7 @@ namespace G4UA
     struct Config
     {
       std::string path="./test_volume.gdml";
-      std::string targetVolume="CALO::CALO";
+      std::string targetVolume=""; // By default targetVolume is empty => dump the whole Atlas::Atlas geometry
       int res=1000000;
       bool verbose=true;
       float tol=0.000001;

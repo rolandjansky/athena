@@ -8,13 +8,12 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
-ex.job_options = 'TrigUpgradeTest/full_menu.py'
+ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.forks = 2
 ex.threads = 1
 ex.concurrent_events = 1
 ex.args = '--stdcmalloc -c "doEmptyMenu=True;doJetSlice=True;"'
-ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()
 test.art_type = 'build'

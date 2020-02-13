@@ -1,7 +1,7 @@
 #!/bin/bash
 # art-description: Standard test for Run2 with ttbar input
 # art-type: grid
-# art-include: 22.0/Athena
+# art-include: master/Athena
 # art-output: *.root
 # art-output: *.xml
 # art-output: dcube*

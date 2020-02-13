@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # MagFieldUtils.py
 # Routines to read magnetic field information from COOL
 # Richard Hawkings 25/9/08
+
+from __future__ import print_function
 
 from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
@@ -49,7 +51,7 @@ def getFieldForRun(run,readOracle=True,quiet=False,lumiblock=None):
     # and get the filename tag
     newdb=(run>=236107)
     if not quiet:
-        print "Reading magnetic field for run %i, forceOracle %s CONDBR2 %s" % (run,readOracle,newdb)
+        print ("Reading magnetic field for run %i, forceOracle %s CONDBR2 %s" % (run,readOracle,newdb))
     # setup appropriate connection and folder parameters
     if newdb:
         dbname='CONDBR2'
@@ -62,7 +64,7 @@ def getFieldForRun(run,readOracle=True,quiet=False,lumiblock=None):
 
     tdaqDB=indirectOpen('COOLONL_TDAQ/%s' % dbname,oracle=readOracle)
     if (tdaqDB is None):
-        print "MagFieldUtils.getFieldForRun ERROR: Cannot connect to COOLONL_TDAQ/%s" % dbname
+        print ("MagFieldUtils.getFieldForRun ERROR: Cannot connect to COOLONL_TDAQ/%s" % dbname)
         return None
     sortime=0
     try:
@@ -72,31 +74,31 @@ def getFieldForRun(run,readOracle=True,quiet=False,lumiblock=None):
         payload=obj.payload()
         sortime=payload['SORTime']
         fnt=payload[fntname]
-    except Exception,e:
-        print "MagFieldUtils.getFieldForRun ERROR accessing folder %s" % sorfolder
-        print e
+    except Exception as e:
+        print ("MagFieldUtils.getFieldForRun ERROR accessing folder %s" % sorfolder)
+        print (e)
     tdaqDB.closeDatabase()
     
     # if lumiblock is specifed, actually want the start time of the LB
     if lumiblock is not None:
         if not quiet:
-            print "Reading specific timestamp for lumiblock %i" % lumiblock
+            print ("Reading specific timestamp for lumiblock %i" % lumiblock)
         
         lbtime=getTimeForLB(run,lumiblock,readOracle)
         if (lbtime==0 and lumiblock>1):
             # sometimes fails as last LB is missing in LBLB - try previous
-            print "MagFieldUtils.getFieldForRun WARNING: Cannot find LB %i, trying %i" % (lumiblock,lumiblock-1)
+            print ("MagFieldUtils.getFieldForRun WARNING: Cannot find LB %i, trying %i" % (lumiblock,lumiblock-1))
             lbtime=getTimeForLB(run,lumiblock-1,readOracle)
         if (lbtime==0):
-            print "MagFieldUtils.getFieldForRun WARNING: Cannot find LB %i, fall back on SOR time" % lumiblock
+            print ("MagFieldUtils.getFieldForRun WARNING: Cannot find LB %i, fall back on SOR time" % lumiblock)
         if (lbtime>0):
             # use this time instead of SORtime
             if not quiet:
-                print "Lumiblock starts %i seconds from start of run" % int((lbtime-sortime)/1.E9)
+                print ("Lumiblock starts %i seconds from start of run" % int((lbtime-sortime)/1.E9))
             sortime=lbtime
         else:
-            print "MagFieldUtils.getFieldForRun ERROR accessing /TRIGGER/LUMI/LBLB"
-            print "Fall back on SOR time from %s" % sorfolder
+            print ("MagFieldUtils.getFieldForRun ERROR accessing /TRIGGER/LUMI/LBLB")
+            print ("Fall back on SOR time from %s" % sorfolder)
             lbtime=sortime
     
     # if we do not have a valid time, exit
@@ -105,7 +107,7 @@ def getFieldForRun(run,readOracle=True,quiet=False,lumiblock=None):
     # now having got the start of run timestamp, lookup the field info in DCS
     dcsDB=indirectOpen('COOLOFL_DCS/%s' % dbname,oracle=readOracle)
     if (dcsDB is None):
-        print "MagFieldUtils.getFieldForRun ERROR: Cannot connect to COOLOFL_DCS/%s" % dbname
+        print ("MagFieldUtils.getFieldForRun ERROR: Cannot connect to COOLOFL_DCS/%s" % dbname)
         return None
     data=None
     try:
@@ -122,9 +124,9 @@ def getFieldForRun(run,readOracle=True,quiet=False,lumiblock=None):
             channame=dcsfolder.channelName(chan)
             if channame in currentmap.keys():
                 data[currentmap[channame]]=obj.payload()['value']
-    except Exception,e:
-        print "MagFieldUtils.getFieldForRun ERROR accessing /EXT/DCS/MAGNETS/SENSORDATA"
-        print e
+    except Exception as e:
+        print ("MagFieldUtils.getFieldForRun ERROR accessing /EXT/DCS/MAGNETS/SENSORDATA")
+        print (e)
     dcsDB.closeDatabase()
     # if problem accessing folder, exit
     if data is None:
@@ -137,7 +139,7 @@ def getTimeForLB(run,LB,readOracle=False):
     runiov=(run << 32)+LB
 
     if _timeForLB.has_key(runiov):
-        print "getTimeForLB: Returning cached time for run %i, LumiBlock %i " % (run,LB)
+        print ("getTimeForLB: Returning cached time for run %i, LumiBlock %i " % (run,LB))
         return _timeForLB[runiov]
 
     if (run>=236107):
@@ -145,12 +147,12 @@ def getTimeForLB(run,LB,readOracle=False):
     else:
         dbname="COMP200"
 
-    #print "Querying DB for time of run %i LB %i" % (run,LB)
+    #print ("Querying DB for time of run %i LB %i" % (run,LB))
 
     try:
         trigDB=indirectOpen('COOLONL_TRIGGER/%s' % dbname,oracle=readOracle)
         if (trigDB is None):
-            print "MagFieldUtils.getTimeForLB ERROR: Cannot connect to COOLONL_TDAQ/%s" % dbname
+            print ("MagFieldUtils.getTimeForLB ERROR: Cannot connect to COOLONL_TDAQ/%s" % dbname)
             return 0
 
         lblbfolder=trigDB.getFolder('/TRIGGER/LUMI/LBLB')
@@ -160,9 +162,9 @@ def getTimeForLB(run,LB,readOracle=False):
         _timeForLB[runiov]=lbtime
         trigDB.closeDatabase()
         return lbtime
-    except Exception,e:
-        print "MagFieldUtils.getTimeForLB WARNING: accessing /TRIGGER/LUMI/LBLB for run %i, LB %i" % (run,LB)
-        print e
+    except Exception as e:
+        print ("MagFieldUtils.getTimeForLB WARNING: accessing /TRIGGER/LUMI/LBLB for run %i, LB %i" % (run,LB))
+        print (e)
         return 0
 
 
@@ -170,17 +172,17 @@ def getTimeForLB(run,LB,readOracle=False):
 if __name__=='__main__':
     import sys
     if len(sys.argv)<2:
-        print "Syntax",sys.argv[0],'<run>'
+        print ("Syntax",sys.argv[0],'<run>')
         sys.exit(-1)
     run=int(sys.argv[1])
     lumiblock=None
     if len(sys.argv)>2:
         lumiblock=int(sys.argv[2])
     magfield=getFieldForRun(run,lumiblock=lumiblock)
-    print "Magnetic field information for run %i" % run
+    print ("Magnetic field information for run %i" % run)
     if (magfield is not None):
-        print "Solenoid current %8.2f (requested %8.2f)" % (magfield.solenoidCurrent(),magfield.solenoidSetCurrent())
-        print "Toroid   current %8.2f (requested %8.2f)" % (magfield.toroidCurrent(),magfield.toroidSetCurrent())
-        print "Filename Tag: %s" % (magfield.fileNameTag())
+        print ("Solenoid current %8.2f (requested %8.2f)" % (magfield.solenoidCurrent(),magfield.solenoidSetCurrent()))
+        print ("Toroid   current %8.2f (requested %8.2f)" % (magfield.toroidCurrent(),magfield.toroidSetCurrent()))
+        print ("Filename Tag: %s" % (magfield.fileNameTag()))
     else:
-        print "Not available"
+        print ("Not available")

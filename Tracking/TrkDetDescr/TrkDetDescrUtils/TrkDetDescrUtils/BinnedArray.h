@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,37 +30,37 @@ namespace Trk {
    */
 
 template<class T>
-class BinnedArray
+class BinnedArrayT
 {
 
 public:
   /**Default Constructor - needed for inherited classes */
-  BinnedArray() {}
+  BinnedArrayT() {}
 
   /**Virtual Destructor*/
-  virtual ~BinnedArray() {}
+  virtual ~BinnedArrayT() {}
 
   /** Implicit constructor */
-  virtual BinnedArray* clone() const = 0;
+  virtual BinnedArrayT* clone() const = 0;
 
-  /** Returns the pointer to the templated class object from the BinnedArray,
+  /** Returns the pointer to the templated class object from the BinnedArrayT,
       it returns 0 if not defined, takes local position */
-  virtual const T* object(const Amg::Vector2D& lp) const = 0;
+  virtual T* object(const Amg::Vector2D& lp) const = 0;
 
-  /** Returns the pointer to the templated class object from the BinnedArray
+  /** Returns the pointer to the templated class object from the BinnedArrayT
       it returns 0 if not defined, takes global position */
-  virtual const T* object(const Amg::Vector3D& gp) const = 0;
+  virtual T* object(const Amg::Vector3D& gp) const = 0;
 
-  /** Returns the pointer to the templated class object from the BinnedArray - entry point*/
-  virtual const T* entryObject(const Amg::Vector3D&) const = 0;
+  /** Returns the pointer to the templated class object from the BinnedArrayT - entry point*/
+  virtual T* entryObject(const Amg::Vector3D&) const = 0;
 
-  /** Returns the pointer to the templated class object from the BinnedArray, takes 3D position & direction */
-  virtual const T* nextObject(const Amg::Vector3D& gp,
+  /** Returns the pointer to the templated class object from the BinnedArrayT, takes 3D position & direction */
+  virtual T* nextObject(const Amg::Vector3D& gp,
                               const Amg::Vector3D& mom,
                               bool associatedResult = true) const = 0;
 
   /** Return all objects of the Array */
-  virtual const std::vector<const T*>& arrayObjects() const = 0;
+  virtual const std::vector<T*>& arrayObjects() const = 0;
 
   /** Number of Entries in the Array */
   virtual unsigned int arrayObjectsNumber() const = 0;
@@ -70,7 +70,8 @@ public:
 
 private:
 };
-
+template<class T>
+using BinnedArray=BinnedArrayT<const T>;
 } // end of namespace Trk
 
 #endif // TRKDETDESCRUTILS_BINNEDARRAY_H

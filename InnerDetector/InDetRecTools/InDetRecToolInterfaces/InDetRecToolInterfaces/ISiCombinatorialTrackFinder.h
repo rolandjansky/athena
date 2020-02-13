@@ -5,10 +5,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //  Header file for class ISiCombinatorialTrackFinder
 /////////////////////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-/////////////////////////////////////////////////////////////////////////////////
-//  Base class for combinatorial track-finding in Pixels and SCT
-/////////////////////////////////////////////////////////////////////////////////
 // Version 1.0 06/04/2007 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +32,20 @@ namespace InDet {
   class SiCombinatorialTrackFinderData_xk;
   class TrackQualityCuts;
 
+  /**
+   * @class ISiCombinatorialTrackFinder
+   *
+   * Base class for combinatorial track-finding in Pixels and SCT
+   *
+   * In AthenaMT, event dependent cache inside ISiCombinatorialTrackFinder
+   * is not preferred. SiCombinatorialTrackFinderData_xk class holds
+   * event dependent data for ISiCombinatorialTrackFinder.
+   * An inherit class, ExtendedSiCombinatorialTrackFinderData_xk,
+   * object is a data member of SiTrackMakerEventData_xk.
+   * An inherit class, ExtendedSiTrackMakerEventData_xk, is instantiated
+   * in SiSPSeededTrackFinder::execute.
+   */
+
   class ISiCombinatorialTrackFinder : virtual public IAlgTool 
     {
       ///////////////////////////////////////////////////////////////////
@@ -44,13 +54,15 @@ namespace InDet {
       
     public:
 
-      // InterfaceID
+      /// @name InterfaceID
+      //@{
       DeclareInterfaceID(ISiCombinatorialTrackFinder, 1, 0);
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Main methods for track-finding
+      /// @name Main methods for track-finding
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       
       virtual const std::list<Trk::Track*>& getTracks
 	(SiCombinatorialTrackFinderData_xk& data,
@@ -78,17 +90,20 @@ namespace InDet {
 	 bool) const =0;
 
       virtual void newEvent(SiCombinatorialTrackFinderData_xk& data) const =0;
+
       virtual void newEvent(SiCombinatorialTrackFinderData_xk& data,
                             Trk::TrackInfo, const TrackQualityCuts&) const =0;
 
       virtual void endEvent(SiCombinatorialTrackFinderData_xk& data) const =0;
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Print internal tool parameters and status
+      /// @name Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
-     
+      //@{
       virtual MsgStream& dump(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const=0;
-     
+      //@}     
+
     };
   
   /////////////////////////////////////////////////////////////////////////////////

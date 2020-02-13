@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_TRIGRPCDATARETRIEVER_H
@@ -57,7 +57,9 @@ namespace JiveXML {
     ToolHandle<Muon::IRPC_RDO_Decoder> m_rpcDecoder; 
     
     ///Geo Model
-    const MuonGM::MuonDetectorManager* m_muonMgr;
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
   };
   
 }

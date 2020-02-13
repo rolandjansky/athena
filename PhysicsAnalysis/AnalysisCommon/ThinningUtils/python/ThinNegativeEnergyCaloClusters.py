@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from RecExConfig.Configured import Configured
 from AthenaCommon.Logging import logging
@@ -12,12 +14,14 @@ class ThinNegativeEnergyCaloClusters(Configured):
             from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyCaloClustersAlg
             theNegativeEnergyCaloClustersThinner = ThinNegativeEnergyCaloClustersAlg(
                 "ThinNegativeEnergyCaloClustersAlg",
-                ThinNegativeEnergyCaloClusters = True
+                ThinNegativeEnergyCaloClusters = True,
+                StreamName = 'StreamAOD'
             )
-            print theNegativeEnergyCaloClustersThinner
+            print (theNegativeEnergyCaloClustersThinner)
         except Exception:
             mlog.error("could not get handle to ThinNegativeEnergyCaloClustersAlg")
-            print traceback.format_exc()
+            import traceback
+            traceback.print_exc()
             return False 
         mlog.info("now adding to topSequence")
         from AthenaCommon.AlgSequence import AlgSequence

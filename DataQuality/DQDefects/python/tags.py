@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from logging import getLogger; log = getLogger("DQDefects.tags")
 
@@ -23,14 +23,14 @@ class DefectsDBTagsMixin(object):
         """
         Returns a list of existing logic tags
         """
-        return list(self.defect_logic_folder.listTags())
+        return [t for t in self.defect_logic_folder.listTags()]
 
     @property
     def defects_tags(self):
         """
         Returns a list of existing defect tags
         """
-        return list(self.defects_folder.listTags())
+        return [t for t in self.defects_folder.listTags()]
     
     @property
     def next_logics_tag(self):
@@ -149,7 +149,7 @@ class DefectsDBTagsMixin(object):
         """
         The list of tags which are on the database
         """
-        return list(self.parent_folderset.listTags())
+        return [t.decode() for t in self.parent_folderset.listTags()]
     
     def new_logics_tag(self, description=""):
         """

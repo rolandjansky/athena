@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRKMUIDTOOLS_TRACKENERGYINCALOTOOL_H
@@ -144,7 +144,9 @@ class TrackEnergyInCaloTool: public AthAlgTool,  virtual public ITrackEnergyInCa
   // Pre-configured extrapolator : will be choosen via jobOpt
   ToolHandle<Trk::IExtrapolator>                    m_extrapolator;
   // Defines the surfaces for extrapolation : 
-  ToolHandle<ICaloSurfaceBuilder>                   m_calosurf;        
+  ToolHandle<ICaloSurfaceBuilder>                   m_calosurf;
+
+  const Trk::ParticleMasses m_particlemasses;
 };
 
 

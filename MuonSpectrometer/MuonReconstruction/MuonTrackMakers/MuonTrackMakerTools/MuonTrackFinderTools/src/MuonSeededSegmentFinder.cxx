@@ -19,7 +19,6 @@
 #include <iostream>
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
 
@@ -68,7 +67,7 @@ namespace Muon {
   StatusCode MuonSeededSegmentFinder::initialize()
   {
 
-    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
+    ATH_CHECK(m_DetectorManagerKey.initialize());
     ATH_CHECK( m_segMaker.retrieve() );
     ATH_CHECK( m_segMakerNoHoles.retrieve() );
     ATH_CHECK( m_propagator.retrieve() );
@@ -172,6 +171,14 @@ namespace Muon {
   }
 
   std::vector<const MdtPrepData*> MuonSeededSegmentFinder::extractPrds( const std::set<Identifier>& chIds ) const {
+
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      // return; 
+    } 
+
     // set of IdHashes corresponding to these identifiers
     std::set<IdentifierHash> chIdHs;
 
@@ -185,7 +192,7 @@ namespace Muon {
 	continue;
       }
 
-      const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement(*chit);
+      const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(*chit);
       if ( !detEl ) {
 	ATH_MSG_WARNING(" Requested chamber does not exist in geometry:   " << m_idHelper->toStringChamber(*chit));
 	continue;

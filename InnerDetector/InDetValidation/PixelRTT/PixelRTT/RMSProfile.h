@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RMSProfile_h
@@ -10,6 +10,7 @@
 class RMSProfile: public TProfile{
 private:
 	TProfile *m_rms_graph;
+	TProfile * newRMSProfile() const;
 
 public:
 	RMSProfile();
@@ -26,7 +27,6 @@ public:
 			Int_t nbinsx,const Double_t *xbins,
 			Double_t ylow,Double_t yup, Option_t *option="");
 	RMSProfile(const TProfile &profile);
-//	RMSProfile(const char *u_name,TDirectory * my_dir);
 		
 	virtual ~RMSProfile(){};
 

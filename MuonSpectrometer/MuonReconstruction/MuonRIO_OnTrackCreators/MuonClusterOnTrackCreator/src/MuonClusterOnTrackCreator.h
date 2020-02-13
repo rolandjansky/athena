@@ -1,34 +1,23 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
-//  Header file for class  MuonClusterOnTrackCreator
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 // Interface for MuonClusterOnTrack production
 // (for CSC and RPC technologies)
-///////////////////////////////////////////////////////////////////
-// Version 1.0 20/07/2004 
 ///////////////////////////////////////////////////////////////////
 
 #ifndef MuonClusterOnTrackCreator_H
 #define MuonClusterOnTrackCreator_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 #include "TrkParameters/TrackParameters.h"
-
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
 
 /** @class MuonClusterOnTrackCreator
     This tool creates MuonClusterOnTrack objects using a given
@@ -81,15 +70,7 @@ namespace Muon {
   
   private:
 
-    // /////////////////////////////////////////////////////////////////
-    // Private data:
-    // /////////////////////////////////////////////////////////////////
-
-    ToolHandle<Muon::MuonIdHelperTool>   m_idHelper;
-
-    bool                                 m_doCsc;
-    bool                                 m_doRpc;
-    bool                                 m_doTgc;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     bool                                 m_doFixedErrorTgcEta;
     bool                                 m_doFixedErrorRpcEta;

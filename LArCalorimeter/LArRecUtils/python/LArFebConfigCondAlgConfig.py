@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from IOVDbSvc.IOVDbSvcConfig import addFolders
-from LArRecUtils.LArRecUtilsConf import LArFEBConfigCondAlg
+from AthenaConfiguration.ComponentFactory import CompFactory
+LArFEBConfigCondAlg=CompFactory.LArFEBConfigCondAlg
 
 def LArFebConfigCondAlgCfg(flags, name="LArFEBConfigCondAlg", **kwargs): 
     """Return ComponentAccumulator with configured LArFEBConfigCondAlg"""

@@ -30,8 +30,4 @@ class TFCS2DFunction:public TFCSFunction
   ClassDef(TFCS2DFunction,1)  //TFCS2DFunction
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCS2DFunction+;
-#endif
-
 #endif

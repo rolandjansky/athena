@@ -26,6 +26,7 @@
 #include "MuonCombinedEvent/MuGirlTag.h"
 #include "xAODTracking/Vertex.h"
 
+#include "TrkTrackSummary/MuonTrackSummary.h"
 
 namespace MuonCombined {
 
@@ -40,7 +41,8 @@ namespace MuonCombined {
     m_recoValidationTool(""),
     m_trackFitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"),
     m_trackAmbiguityResolver("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
-    m_layerHashProvider("Muon::MuonLayerHashProviderTool")
+    m_layerHashProvider("Muon::MuonLayerHashProviderTool"),
+    m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool")
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
     declareInterface<MuonInsideOutRecoTool>(this);
@@ -56,6 +58,7 @@ namespace MuonCombined {
     declareProperty("TrackAmbiguityProcessor",m_trackAmbiguityResolver );    
     declareProperty("IDTrackMinPt", m_idTrackMinPt = 2500.0 );
     declareProperty("IgnoreSiAssociatedCandidates", m_ignoreSiAssocated = true );
+    declareProperty("TrackSummeryTool", m_trackSummaryTool );
   }
 
   MuonInsideOutRecoTool::~MuonInsideOutRecoTool() { }
@@ -77,6 +80,7 @@ namespace MuonCombined {
     ATH_CHECK(m_trackAmbiguityResolver.retrieve());
     //trigger does not use primary vertex
     if(!m_vertexKey.empty()) ATH_CHECK(m_vertexKey.initialize());
+    ATH_CHECK(m_trackSummaryTool.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -224,6 +228,14 @@ namespace MuonCombined {
     if( !candidate ){
       ATH_MSG_WARNING("candidate lookup failed, this should not happen");
       return std::pair<std::unique_ptr<const Muon::MuonCandidate>,Trk::Track* >(nullptr,nullptr);
+    }
+    // generate a track summary for this candidate
+    if (m_trackSummaryTool.isEnabled()) {
+       const Trk::TrackSummary* summary = selectedTrack->trackSummary();
+       if( !summary ) {
+          Trk::TrackSummary tmpSummary;
+          m_trackSummaryTool->addDetailedTrackSummary(*selectedTrack,tmpSummary);
+       }
     }
 
     return std::make_pair( std::unique_ptr<const Muon::MuonCandidate>(new Muon::MuonCandidate(*candidate)),

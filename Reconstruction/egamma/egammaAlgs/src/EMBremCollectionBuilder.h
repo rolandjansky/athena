@@ -24,6 +24,8 @@
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "TrkTrack/Track.h"      
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+
 #include <memory>
 class EMBremCollectionBuilder : public AthAlgorithm 
 {
@@ -66,7 +68,6 @@ private:
                                const xAOD::TrackParticleContainer* AllTracks)const;                     
 
   StatusCode createNew(const TrackWithIndex& Info,                                               
-                       bool isSilicon,                                                           
                        TrackCollection* finalTracks,                                             
                        xAOD::TrackParticleContainer* finalTrkPartContainer,                      
                        const xAOD::TrackParticleContainer* AllTracks) const;
@@ -103,28 +104,31 @@ private:
   Gaudi::Property<bool> m_doSCT {this, "useSCT", false, "do SCT"};
 
   /** @brief Option to do truth*/
-  Gaudi::Property<bool> m_doPix {this, "usePixel", false, "do pix"};
+  Gaudi::Property<bool> m_doPix {this, "usePixel", false, "do Pix"};
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
-    "TrackParticleContainerName", "InDetTrackParticles", 
-    "Input InDet TrackParticles"};
+    "TrackParticleContainerName", "InDetTrackParticles", "Input InDet TrackParticles"};
 
   /** @brief Names of input output collections */
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_selectedTrackParticleContainerKey {this,
-    "SelectedTrackParticleContainerName", "egammaSelectedTrackParticles", 
-    "Input of Selected TrackParticles to refit"};
+    "SelectedTrackParticleContainerName", "egammaSelectedTrackParticles", "Input of Selected TrackParticles"};
 
   SG::WriteHandleKey<xAOD::TrackParticleContainer> m_OutputTrkPartContainerKey {this,
-    "OutputTrkPartContainerName", "GSFTrackParticles", 
-    "Output refitted TrackParticles"};
+    "OutputTrkPartContainerName", "GSFTrackParticles", "Output GSF TrackParticles"};
 
   SG::WriteHandleKey<TrackCollection> m_OutputTrackContainerKey {this,
-    "OutputTrackContainerName", "GSFTracks", "Output refitted Trk::Tracks"};
+    "OutputTrackContainerName", "GSFTracks", "Output GSF Trk::Tracks"};
 
   /** @Cut on minimum silicon hits*/
   Gaudi::Property<int> m_MinNoSiHits {this, "minNoSiHits", 4, 
     "Minimum number of silicon hits on track before it is allowed to be refitted"};
 
+  // For P->T converters of ID tracks with Pixel
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, 
+    "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
+  // For P->T converters of ID tracks with SCT
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, 
+    "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   //counters
   mutable std::atomic_uint m_FailedFitTracks{0};
   mutable std::atomic_uint m_RefittedTracks{0};

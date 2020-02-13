@@ -926,6 +926,7 @@ namespace Trk
 
     // perform fit
     MsgStream log(msgSvc(), name());
+    std::scoped_lock lock(m_fitProcedureMutex);
     const FitProcedureQuality& quality = m_fitProcedure->execute(m_asymmetricCaloEnergy,
                                                                  log,
                                                                  measurements,

@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ----------------------------------------------------------------
 # Script : AtlRunQueryRoot.py
@@ -14,6 +14,7 @@
 # ROOT TTree making and plotting
 # ---------------------------------------------------------------------------------------------------
 
+from __future__ import print_function
 import datetime, sys, os
 from array import array
 from CoolRunQuery.utils.AtlRunQueryUtils  import importroot
@@ -91,7 +92,7 @@ def SetStyle( whiteCanvas = False ):
 def SaveGraphsToFile( filename, varnames, xvecs, yvecs, addparamName = None, addparamVal = None ):
     f = TFile.Open( filename, 'RECREATE' )
     if len(xvecs) != len(yvecs) or len(varnames) != len(xvecs):
-        print 'ERROR: wrong dimensions in "AtlRunQueryRoot.SaveGraphsToFile"'
+        print ('ERROR: wrong dimensions in "AtlRunQueryRoot.SaveGraphsToFile"')
         return
     for ik in range(len(xvecs)):
         xv = xvecs[ik]
@@ -117,7 +118,7 @@ def MakePlots( tree, datapath ):
 
     gROOT.SetBatch( 1 )
     if tree == None:
-        print 'ERROR: input tree is None'
+        print ('ERROR: input tree is None')
         return
 
     # style --------------------------------------------
@@ -159,7 +160,7 @@ def MakePlots( tree, datapath ):
     for ref in reflist:
         # sanity check
         if not ref in varlist:
-            print 'Big troubles in "MakePlots" --> reference variable "%s" not in TTree' % ref
+            print ('Big troubles in "MakePlots" --> reference variable "%s" not in TTree' % ref)
             sys.exit(1)
 
         for var in varlist:
@@ -215,7 +216,7 @@ def makeLBPlotSummaryForLHC( xvec, xvecStb, yvec, runNr, datapath, printText = '
 
     SetStyle()    
     name  = 'LHCsummary_vs_lb_run_%i' % (runNr)
-    #print "Attempt printing", name
+    #print ("Attempt printing", name)
     title = 'LHC summary vs. LB for run_%i' % (runNr)
     szescale = 1.2
     c = TCanvas( name, title, 0, 0, int(530*szescale), int(400*szescale) )
@@ -343,7 +344,7 @@ def makeLBPlotSummaryForLHC( xvec, xvecStb, yvec, runNr, datapath, printText = '
     c.Update()
     fnames = '%s/atlrunquery_%s.png' % (datapath, name) 
     c.Print( fnames )
-    #print "Printing",fnames
+    #print ("Printing",fnames)
     
     return fnames
 
@@ -699,14 +700,14 @@ def DurationtypeTrf( tree, var, vlist, value, kcoord ):
             elif len(dur) == 4:
                 d, h, m, s = dur
             else:
-                print 'Unknown format in "DurationtypeTrf:"'
-                print dur
+                print ('Unknown format in "DurationtypeTrf:"')
+                print (dur)
                 sys.exit(1)
                 
             value = str( ( (int(d.replace('d','').strip())*24 + int(h.replace('h','').strip()))*60 + 
                            int(m.replace('m','').strip()) )*60 + int(s.replace('s','').strip()) )
         except:
-            print value
+            print (value)
             sys.exit(1)
             value = 0
     InttypeTrf( tree, var, vlist, value, kcoord )            
@@ -778,7 +779,7 @@ def CreateRootFile( dic ):
     keylist = []
     for data_key in dic:
 
-        #print "DATA_KEY",type(data_key),data_key
+        #print ("DATA_KEY",type(data_key),data_key)
         f.write( 'key: %s \n' % (data_key.ResultKey))
 
         # the actual variable name used in the tree
@@ -830,7 +831,7 @@ def makeRatePlot( v, lbduration, plottriggers, averrate, xtit, ytit, name, title
     ## pf = open( '%s/rates.pickle' % datapath, 'w' )
     ## try: pickle.dump(store, pf)
     ## except:
-    ##     print 'ERROR: could not pickle rates'
+    ##     print ('ERROR: could not pickle rates')
     ##     sys.exit(1)
     ## pf.close()
     
@@ -958,7 +959,7 @@ if __name__=='__main__':
     pf = open( '%s/rates.pickle' % datapath, 'r' )
     try: store = pickle.load(pf)
     except:
-        print 'ERROR: could not load rates'
+        print ('ERROR: could not load rates')
         sys.exit(1)
     pf.close()
 
@@ -972,4 +973,4 @@ if __name__=='__main__':
     #
     #hnames, fnames = MakePlots( tree )
     #htmlstr = MakeHtml( hnames, fnames )
-    #print htmlstr
+    #print (htmlstr)

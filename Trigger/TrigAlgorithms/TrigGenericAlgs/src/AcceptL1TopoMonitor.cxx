@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AcceptL1TopoMonitor.h"
@@ -631,7 +631,7 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
         std::vector<L1Topo::L1TopoTOB> daqTobsBC0; // to compute m_triggerBitsDaqRob, m_overflowBitsDaqRob
         std::vector<uint32_t> tobsbc0SourceIds; // to compute bit indices
         // Retrieve the L1Topo RDOs from the DAQ RODs
-        const DataHandle<L1TopoRDOCollection> rdos = 0;
+        const L1TopoRDOCollection* rdos = 0;
         StatusCode sc = StatusCode::SUCCESS;
         sc = evtStore()->retrieve(rdos);
         if (sc.isFailure() or 0 == rdos) {
@@ -813,7 +813,7 @@ StatusCode AcceptL1TopoMonitor::doSimMon(bool prescalForDAQROBAccess)
                      <<" key '"<<m_simTopoCTPLocation.value()<<"'."
                      <<" Perhaps it was prescaled? Skipping simulation comparison.");
     } else {
-        const DataHandle< LVL1::FrontPanelCTP > simTopoCTP; ///! simulation output
+        const LVL1::FrontPanelCTP* simTopoCTP = nullptr; ///! simulation output
         StatusCode sc = evtStore()->retrieve(simTopoCTP,m_simTopoCTPLocation.value());
         if(sc.isFailure() or !simTopoCTP){
             ATH_MSG_WARNING( "Retrieve of LVL1::FrontPanelCTP failed. Skipping simulation comparison." );
@@ -979,7 +979,7 @@ StatusCode AcceptL1TopoMonitor::doOverflowSimMon()
 {
     ATH_MSG_DEBUG( "doOverflowSimMon" );
     if(evtStore()->contains<LVL1::FrontPanelCTP>(m_simTopoOverflowCTPLocation.value())){
-        const DataHandle< LVL1::FrontPanelCTP > simTopoOverflowCTP;
+        const LVL1::FrontPanelCTP* simTopoOverflowCTP = nullptr;
         if(evtStore()->retrieve(simTopoOverflowCTP, m_simTopoOverflowCTPLocation.value()).isFailure())
             ATH_MSG_DEBUG("Cannot retrieve FrontPanelCTP handle");
         if(simTopoOverflowCTP){

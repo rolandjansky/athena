@@ -67,26 +67,18 @@ def getFastCaloSimPileupOTSvc(name="ISF_FastCaloSimPileupOTSvc", **kwargs):
     return CfgMgr.ISF__FastCaloSimSvcPU(name, **kwargs )
 
 #### FastCaloSimV2
-def getFastCaloSimSvcV2(name="ISF_FastCaloSimSvcV2", **kwargs):
+def getFastCaloSimV2ParamSvc(name="ISF_FastCaloSimV2ParamSvc", **kwargs):
     from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
-
-    kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()   )
-    kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
-    kwargs.setdefault("CaloCellMakerTools_release"       , [ 'ISF_CaloCellContainerFCSFinalizerTool',
-                                                           'ISF_FastHitConvertTool' ])
     kwargs.setdefault("ParamsInputFilename"              , ISF_FastCaloSimFlags.ParamsInputFilename())
     kwargs.setdefault("ParamsInputObject"                , 'SelPDGID')
-    kwargs.setdefault("FastCaloSimCaloExtrapolation"     , 'FastCaloSimCaloExtrapolation')
+    return CfgMgr.ISF__FastCaloSimV2ParamSvc(name, **kwargs )
 
-    # register the FastCaloSim random number streams
-    from G4AtlasApps.SimFlags import simFlags
-    if not simFlags.RandomSeedList.checkForExistingSeed(ISF_FastCaloSimFlags.RandomStreamName()):
-        simFlags.RandomSeedList.addSeed( ISF_FastCaloSimFlags.RandomStreamName(), 98346412, 12461240 )
-
-    kwargs.setdefault("RandomStream"                     , ISF_FastCaloSimFlags.RandomStreamName())
-    kwargs.setdefault("RandomSvc"                        , simFlags.RandomSvc.get_Value() )
-
-    return CfgMgr.ISF__FastCaloSimSvcV2(name, **kwargs )
+def getFastCaloSimSvcV2(name="ISF_FastCaloSimSvcV2", **kwargs):
+    kwargs.setdefault("SimulatorTool",  'ISF_FastCaloSimV2Tool')
+    kwargs.setdefault("Identifier",     'FastCaloSim')
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    kwargs.setdefault("ParticleBroker", ISF_Flags.ParticleBroker())
+    return CfgMgr.ISF__LegacySimSvc(name, **kwargs )
 
 #### DNNCaloSim
 def getDNNCaloSimSvc(name="ISF_DNNCaloSimSvc", **kwargs):

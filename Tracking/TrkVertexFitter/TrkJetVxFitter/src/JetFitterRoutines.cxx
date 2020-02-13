@@ -501,7 +501,7 @@ namespace Trk
       }
     }
 
-    const_cast<Trk::RecVertexPositions&>(myJetCandidate->getRecVertexPositions()).finalizePosition();
+     myJetCandidate->getRecVertexPositions().finalizePosition();
   }
 
  void JetFitterRoutines::smoothAllVertices(VxJetCandidate* myJetCandidate) const {

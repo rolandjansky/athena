@@ -39,10 +39,12 @@ if 'errorScaleDb' in dir() and errorScaleDb!='':
     MdtDriftCircleOnTrackCreator.OutputLevel = align.OutputLevel()
     MdtDriftCircleOnTrackCreator.ErrorScalingTool=muonErrorScalingTool
     
-    CscClusterOnTrackCreator = MuonRecTools.getPublicTool("CscClusterOnTrackCreator")
-    CscClusterOnTrackCreator.DoErrorScaling = True
-    CscClusterOnTrackCreator.OutputLevel = align.OutputLevel()
-    CscClusterOnTrackCreator.ErrorScalingTool=muonErrorScalingTool
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+    if MuonGeometryFlags.hasCSC():
+        CscClusterOnTrackCreator = MuonRecTools.getPublicTool("CscClusterOnTrackCreator")
+        CscClusterOnTrackCreator.DoErrorScaling = True
+        CscClusterOnTrackCreator.OutputLevel = align.OutputLevel()
+        CscClusterOnTrackCreator.ErrorScalingTool=muonErrorScalingTool
     
     MuonClusterOnTrackCreator = MuonRecTools.getPublicTool("MuonClusterOnTrackCreator")
     MuonClusterOnTrackCreator.DoErrorScaling = True

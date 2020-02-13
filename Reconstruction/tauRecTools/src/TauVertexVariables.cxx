@@ -51,8 +51,8 @@ StatusCode TauVertexVariables::initialize() {
   CHECK( m_fitTool.retrieve() );
   CHECK( m_SeedFinder.retrieve() );
 
-  ATH_CHECK(m_vertexInputContainer.initialize() );
-  ATH_CHECK(m_trackPartInputContainer.initialize() );
+  ATH_CHECK(m_vertexInputContainer.initialize(!m_vertexInputContainer.key().empty()) );
+  ATH_CHECK(m_trackPartInputContainer.initialize(!m_trackPartInputContainer.key().empty()) );
 
   return StatusCode::SUCCESS;
 }
@@ -150,7 +150,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
     return StatusCode::SUCCESS;
   }
 
-  if (inTrigger){
+  if (m_vertexInputContainer.key().empty()){
     const xAOD::VertexContainer* vxContainer = 0;
     StatusCode sc=StatusCode::SUCCESS;
     sc = tauEventData()->getObject("VxPrimaryCandidate", vxContainer);
@@ -160,7 +160,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
       return StatusCode::SUCCESS;
     }
   }
-  else {
+  else{
     // retrieve vertex container, exit if not found
     SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
     if (!vertexInHandle.isValid()) {
@@ -168,10 +168,12 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
       return StatusCode::SUCCESS;
     }
     // retrieve track particle container, exit if not found 
-    SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
-    if (!trackPartInHandle.isValid()) {
-      ATH_MSG_WARNING("No track particle container found. Skipping secondary vertex fitting.");
-      return StatusCode::SUCCESS;
+    if(!m_trackPartInputContainer.key().empty()){
+      SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
+      if (!trackPartInHandle.isValid()) {
+        ATH_MSG_WARNING("No track particle container found. Skipping secondary vertex fitting.");
+        return StatusCode::SUCCESS;
+      }
     }
   }
 

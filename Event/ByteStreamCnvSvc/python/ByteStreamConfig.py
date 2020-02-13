@@ -3,6 +3,7 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def ByteStreamReadCfg( inputFlags, typeNames=[] ):
@@ -15,9 +16,9 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
 
     acc = ComponentAccumulator()
     
-    from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamCnvSvc, ByteStreamEventStorageInputSvc, EventSelectorByteStream
+    ByteStreamCnvSvc, ByteStreamEventStorageInputSvc, EventSelectorByteStream=CompFactory.getComps("ByteStreamCnvSvc","ByteStreamEventStorageInputSvc","EventSelectorByteStream",)
 
-    from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoSelectorTool 
+    xAODMaker__EventInfoSelectorTool, =CompFactory.getComps("xAODMaker__EventInfoSelectorTool",)
     xconv = xAODMaker__EventInfoSelectorTool()
 
     eventSelector = EventSelectorByteStream("EventSelector")
@@ -29,7 +30,7 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     bsInputSvc.FullFileName = filenames
     acc.addService( bsInputSvc )
 
-    from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+    EvtPersistencySvc=CompFactory.EvtPersistencySvc
     eventPersistencySvc = EvtPersistencySvc( "EventPersistencySvc" )
     acc.addService( eventPersistencySvc )
     
@@ -38,41 +39,24 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     eventPersistencySvc.CnvServices = [ bsCnvSvc.name() ]
     acc.addService( bsCnvSvc )
 
-    from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderSvc
+    ROBDataProviderSvc=CompFactory.ROBDataProviderSvc
     robDPSvc = ROBDataProviderSvc()
     acc.addService( robDPSvc ) 
 
-    from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
+    ByteStreamAddressProviderSvc=CompFactory.ByteStreamAddressProviderSvc
     bsAddressProviderSvc = ByteStreamAddressProviderSvc(TypeNames=typeNames)
     acc.addService( bsAddressProviderSvc )
-
-    from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
-    iovMetaDataTool = IOVDbMetaDataTool()
-    acc.addPublicTool( iovMetaDataTool )
     
-    from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool
-    bsMetaDataTool = ByteStreamMetadataTool()
-    acc.addPublicTool( bsMetaDataTool )
-    
-    from StoreGate.StoreGateConf import StoreGateSvc
-    from SGComps.SGCompsConf import ProxyProviderSvc
-    metaDataStore = StoreGateSvc("MetaDataStore")   
-    acc.addService( metaDataStore )
-    inputMetaDataStore = StoreGateSvc("InputMetaDataStore")   
-    acc.addService( inputMetaDataStore )
+    ProxyProviderSvc=CompFactory.ProxyProviderSvc
 
-    from AthenaServices.AthenaServicesConf import MetaDataSvc
-    metaDataSvc = MetaDataSvc()
-    acc.addService( metaDataSvc )
-
-    metaDataSvc.MetaDataContainer = "MetaDataHdr"
-    metaDataSvc.MetaDataTools = [ iovMetaDataTool, bsMetaDataTool ]    
+    from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
+    acc.merge(MetaDataSvcCfg(inputFlags, ["IOVDbMetaDataTool", "ByteStreamMetadataTool"]))
     
     proxy = ProxyProviderSvc()
-    proxy.ProviderNames += [ bsAddressProviderSvc.name(), metaDataSvc.name() ]
+    proxy.ProviderNames += [ bsAddressProviderSvc.name() ]
     acc.addService( proxy )
 
-    from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamAttListMetadataSvc
+    ByteStreamAttListMetadataSvc=CompFactory.ByteStreamAttListMetadataSvc
     acc.addService( ByteStreamAttListMetadataSvc() )
     
     bsCnvSvc.InitCnvs += [ "EventInfo",]

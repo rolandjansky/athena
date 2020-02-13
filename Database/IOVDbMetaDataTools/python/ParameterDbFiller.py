@@ -1,14 +1,18 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @author: RD Schaffer <R.D.Schaffer@cern.ch>
 # @date:   May 2008
 #
 #
 
+from __future__ import print_function
+
 __version__ = "$Id: ParameterDbFiller.py,v 1.3 2008-11-13 12:25:23 schaffer Exp $"
 __author__  = "RD Schaffer <R.D.Schaffer@cern.ch>"
 
 import sys, os, string
+import collections
+import six
 from PyCool import cool,coral
 
 class ParameterDbFillerError(Exception):
@@ -29,9 +33,9 @@ class ParameterDbFiller(object):
 
         self.beginRun      = None
         self.endRun        = None
-        self.simParams     = {}
-        self.digitParams   = {}
-        self.digitParams64 = {}
+        self.simParams     = collections.OrderedDict()
+        self.digitParams   = collections.OrderedDict()
+        self.digitParams64 = collections.OrderedDict()
         return
 
     # 
@@ -83,16 +87,16 @@ class ParameterDbFiller(object):
 
         # Do checks
         if self.beginRun == None:
-            raise ParameterDbFillerError, 'Must set begin run number before generating db'
+            raise ParameterDbFillerError ('Must set begin run number before generating db')
         if self.endRun == None:
-            raise ParameterDbFillerError, 'Must set end run number before generating db'
+            raise ParameterDbFillerError ('Must set end run number before generating db')
         if len(params) == 0:
-            raise ParameterDbFillerError, 'No parameters for db ' + dbName
+            raise ParameterDbFillerError ('No parameters for db ' + dbName)
 
         # remove existing db, if any
         try:
             os.remove(dbFileName)
-            print "ParameterDbFiller.genDb:  Removed db", dbFileName
+            print ("ParameterDbFiller.genDb:  Removed db", dbFileName)
         except:
             pass
 
@@ -103,10 +107,10 @@ class ParameterDbFiller(object):
         dbstring="sqlite://;schema=" + dbFileName + ";dbname=" + dbName
         try:
             db=dbSvc.createDatabase(dbstring)
-        except Exception,e:
-            print 'ParameterDbFiller.genDb:  Problem creating database',e
+        except Exception as e:
+            print ('ParameterDbFiller.genDb:  Problem creating database',e)
             sys.exit(-1)
-            print "ParameterDbFiller.genDb:  Created database",dbstring
+            print ("ParameterDbFiller.genDb:  Created database",dbstring)
         
         # setup a folder payload specification
         spec=cool.RecordSpecification()
@@ -129,16 +133,16 @@ class ParameterDbFiller(object):
 
         # now fill in parameters
         data = cool.Record(spec)
-        for k, v in params.iteritems():
+        for k, v in six.iteritems(params):
             data[k] = v
-        for k, v in params64.iteritems():
+        for k, v in six.iteritems(params64):
             data[k] = v
 
-        print "ParameterDbFiller.genDb:  Recording parameters", data
+        print ("ParameterDbFiller.genDb:  Recording parameters", data)
 
         # store object with IOV valid from 0-10, channel 3
         myfolder.storeObject(self.beginRun, self.endRun, data, 0)
-        print "ParameterDbFiller.genDb:  Stored object"
+        print ("ParameterDbFiller.genDb:  Stored object")
 
         # finalize
         db.closeDatabase()
@@ -148,14 +152,14 @@ class ParameterDbFiller(object):
 
     def dumpDb(self, dbstring):
 
-        print "ParameterDbFiller.dumpDb:  Dumping database:", dbstring
+        print ("ParameterDbFiller.dumpDb:  Dumping database:", dbstring)
         # get database service and open database
         dbSvc = cool.DatabaseSvcFactory.databaseService()
         # database accessed via physical name
         try:
             db = dbSvc.openDatabase(dbstring,False)
-        except Exception,e:
-            print 'ParameterDbFiller.dumpDb:  Problem opening database',e
+        except Exception as e:
+            print ('ParameterDbFiller.dumpDb:  Problem opening database',e)
             sys.exit(-1)
 
         # Loop over folders
@@ -166,15 +170,15 @@ class ParameterDbFiller(object):
                 continue
             try:
                 f = db.getFolder(ff)
-                print "ParameterDbFiller.dumpDb:  Dumping folder " + str(ff)
+                print ("ParameterDbFiller.dumpDb:  Dumping folder " + str(ff))
             except:
-                #print "Skipping " + str(ff)
+                #print ("Skipping " + str(ff))
                 continue
 
         # get tags
         # tags  = f.listTags()
-        # print "for tags ",
-        # for tag in tags: print tag
+        # print ("for tags ", end='')
+        # for tag in tags: print (tag)
     
         # for tag in tags:
 
@@ -182,7 +186,7 @@ class ParameterDbFiller(object):
                                 cool.ValidityKeyMax,
                                 cool.ChannelSelection.all())
 
-        print "ParameterDbFiller.dumpDb:  number of IOV payloads", nobjs
+        print ("ParameterDbFiller.dumpDb:  number of IOV payloads", nobjs)
 
         objs = f.browseObjects( cool.ValidityKeyMin,
                                 cool.ValidityKeyMax,
@@ -190,11 +194,11 @@ class ParameterDbFiller(object):
         i = 0
         while objs.goToNext():
             obj = objs.currentRef()
-            print "ParameterDbFiller.dumpDb:  Payload", i,
-            print "since [r,l]: [", obj.since() >> 32,',',obj.since()%0x100000000,']',
-            print "until [r,l]: [", obj.until() >> 32,',',obj.until()%0x100000000,']',
-            print "payload", obj.payload(),
-            print "chan",obj.channelId() 
+            print ("ParameterDbFiller.dumpDb:  Payload", i, end='')
+            print ("since [r,l]: [", obj.since() >> 32,',',obj.since()%0x100000000,']', end='')
+            print ("until [r,l]: [", obj.until() >> 32,',',obj.until()%0x100000000,']', end='')
+            print ("payload", obj.payload(), end='')
+            print ("chan",obj.channelId() )
             i += 1
 
         objs.close()

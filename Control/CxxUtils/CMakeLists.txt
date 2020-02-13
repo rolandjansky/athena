@@ -38,7 +38,7 @@ atlas_add_library( AthDSoCallBacks src/AthDsoCbk.c
 atlas_add_test( read_athena_statm_test
    SOURCES test/read_athena_statm_test.cxx
    LINK_LIBRARIES CxxUtils
-   EXTRA_PATTERNS "read_athena_statm reports process size" )
+   LOG_IGNORE_PATTERN "read_athena_statm reports process size" )
 
 atlas_add_test( PageAccessControl_test
    SOURCES test/PageAccessControl_test.cxx
@@ -48,7 +48,7 @@ atlas_add_test( PageAccessControl_test
 atlas_add_test( SEGVHandler_test
    SOURCES test/SEGVHandler_test.cxx
    LINK_LIBRARIES CxxUtils
-   EXTRA_PATTERNS "page fault|FIXME NOT Freeing memory" )
+   LOG_IGNORE_PATTERN "page fault|FIXME NOT Freeing memory" )
 
 atlas_add_test( procmaps_test
    SOURCES test/procmaps_test.cxx
@@ -100,7 +100,7 @@ endif()
 atlas_add_test( exctrace2_test
    SOURCES test/exctrace2_test.cxx
    LINK_LIBRARIES CxxUtils
-   EXTRA_PATTERNS "no version information available" )
+   LOG_IGNORE_PATTERN "no version information available" )
 
 # Set up the "simple" tests:
 foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
@@ -114,7 +114,7 @@ foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
       restrict_test vectorize_test get_unaligned_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
-      EXTRA_PATTERNS "no version information available"
+      LOG_IGNORE_PATTERN "no version information available"
       LINK_LIBRARIES CxxUtils )
 endforeach()
 # Needed because this executable directly uses multiversioned functions.

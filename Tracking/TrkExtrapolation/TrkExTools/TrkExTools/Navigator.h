@@ -23,7 +23,7 @@
 #include <cstring>
 #include <exception>
 
-#include "GaudiKernel/Counters.h"
+#include <Gaudi/Accumulators.h>
 
 #include "CxxUtils/checker_macros.h"
 namespace Trk {

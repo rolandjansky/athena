@@ -16,7 +16,7 @@ AlgTool inheriting from the IMultiStateExtrapolator class
 #ifndef TrkGsfExtrapolator_H
 #define TrkGsfExtrapolator_H
 
-#include "GaudiKernel/Counters.h"
+#include <Gaudi/Accumulators.h>
 
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExInterfaces/INavigator.h"
@@ -48,7 +48,6 @@ class TrackStateOnSurface;
 class MaterialProperties;
 class IMultiComponentStateMerger;
 class IMaterialMixtureConvolution;
-class IMultiComponentStateCombiner;
 class IMultipleScatteringUpdator;
 /** @struct StateAtBoundarySurface
   - Structure to contain information about a state at the interface between tracking volumes
@@ -311,10 +310,6 @@ private:
     "Trk::GsfMaterialMixtureConvolution/GsfMaterialMixtureConvolution",
     ""
   };
-  ToolHandle<IMultiComponentStateCombiner> m_stateCombiner{ this,
-                                                            "MultiComponentStateCombiner",
-                                                            "Trk::MultiComponentStateCombiner/GsfExtrapolatorCombiner",
-                                                            "" };
   ToolHandle<IMultipleScatteringUpdator> m_msupdators{ this,
                                                        "MultipleScatteringUpdator",
                                                        "Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",

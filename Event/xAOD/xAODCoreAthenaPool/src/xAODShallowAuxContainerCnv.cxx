@@ -29,7 +29,18 @@ xAODShallowAuxContainerCnv::createPersistentWithKey( xAOD::ShallowAuxContainer* 
          size_t size = orig.size();
          std::vector<unsigned char> flags;
          bool thinned = getThinnedFlags (IThinningSvc::instance(), orig, nremaining, flags);
-         const SG::ThinningDecisionBase* dec = SG::getThinningDecision (key);
+
+         std::string key2 = key;
+         if (key2.size() >= 4 && key2.substr (key2.size()-4, 4) == "Aux.")
+         {
+           key2.erase (key2.size()-4, 4);
+         }
+         const SG::ThinningDecisionBase* dec = SG::getThinningDecision (key2);
+
+         if (!thinned && dec) {
+           nremaining = dec->thinnedSize();
+         }
+
          //if there is no thinning to do, then just return a regular copy 
          if(!thinned && !dec) return new xAOD::ShallowAuxContainer(orig);
          xAOD::ShallowAuxContainer* newcont = new xAOD::ShallowAuxContainer; //dont use copy constructor (like copyThinned.h), want it to have it's own internal store

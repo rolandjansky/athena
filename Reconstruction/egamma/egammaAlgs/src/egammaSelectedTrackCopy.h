@@ -26,7 +26,7 @@
 #include "AthContainers/ConstDataVector.h"
 
 #include "egammaInterfaces/IegammaCaloClusterSelector.h"
-#include "GaudiKernel/Counters.h"
+#include <Gaudi/Accumulators.h>
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -56,6 +56,16 @@ private:
   ToolHandle<IEMExtrapolationTools> m_extrapolationTool {this,
     "ExtrapolationTool", "EMExtrapolationTools", "Extrapolation tool"};
 
+  /** @brief Tool for extrapolation */
+  ToolHandle<IEMExtrapolationTools>  m_extrapolationToolCommonCache {this,
+    "ExtrapolationToolCommonCache", "EMExtrapolationToolsCommonCache", 
+    "Extrapolation tool using the ATLAS common cache"};
+
+  /** @brief Tool to filter the calo clusters */
+  ToolHandle<IegammaCaloClusterSelector> m_egammaCaloClusterSelector {this, 
+      "egammaCaloClusterSelector", "egammaCaloClusterSelector",
+      "Tool that makes the cluster selection"};
+
   /** @brief Names of input output collections */
   SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_clusterContainerKey {this,
     "ClusterContainerName", "egammaTopoCluster", "Input calo cluster for seeding"};
@@ -73,12 +83,12 @@ private:
     "Minimum number of silicon hits on track before it is allowed to be refitted"};
 
   /** @brief broad cut on deltaEta*/
-  Gaudi::Property<double> m_broadDeltaEta {this, "broadDeltaEta", 0.1,
-    "Value of broad cut for delta eta, it is mult by 2"};
+  Gaudi::Property<double> m_broadDeltaEta {this, "broadDeltaEta", 0.2,
+    "Value of broad cut for delta eta"};
 
   /** @brief broad cut on deltaPhi*/
-  Gaudi::Property<double> m_broadDeltaPhi {this, "broadDeltaPhi", 0.15,
-    "Value of broad cut for delta phi, it is mult by 2"};
+  Gaudi::Property<double> m_broadDeltaPhi {this, "broadDeltaPhi", 0.3,
+    "Value of broad cut for delta phi"};
 
   /** @narrow windows*/
   Gaudi::Property<double> m_narrowDeltaEta {this, "narrowDeltaEta", 0.05,
@@ -87,7 +97,7 @@ private:
   Gaudi::Property<double> m_narrowDeltaPhi {this, "narrowDeltaPhi", 0.05,
     "Value of narrow cut for delta phi"};
 
-  Gaudi::Property<double> m_narrowDeltaPhiBrem {this, "narrowDeltaPhiBrem", 0.15,
+  Gaudi::Property<double> m_narrowDeltaPhiBrem {this, "narrowDeltaPhiBrem", 0.2,
     "Value of the narrow cut for delta phi in the brem direction"};
 
   Gaudi::Property<double> m_narrowRescale {this, "narrowDeltaPhiRescale", 0.05,
@@ -96,15 +106,12 @@ private:
   Gaudi::Property<double> m_narrowRescaleBrem {this, "narrowDeltaPhiRescaleBrem", 0.1,
     "Value of the narrow cut for delta phi Rescale Brem"};
 
-  /** @brief Tool to filter the calo clusters */
-  ToolHandle<IegammaCaloClusterSelector> m_egammaCaloClusterSelector {this, 
-      "egammaCaloClusterSelector", "egammaCaloClusterSelector",
-      "Tool that makes the cluster selection"};
-
   // For P->T converters of ID tracks with Pixel
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, 
+    "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   // For P->T converters of ID tracks with SCT
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, 
+    "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   
   mutable Gaudi::Accumulators::Counter<unsigned long> m_AllClusters;
   mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedClusters;

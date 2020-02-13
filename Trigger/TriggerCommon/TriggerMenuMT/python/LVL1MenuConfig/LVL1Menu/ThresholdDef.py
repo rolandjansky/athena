@@ -343,7 +343,7 @@ class ThresholdDef(object):
 
         thr_mbtsA = tc.registerThr('MBTS_A', 'MBTS', mapping=0)
         thr_mbtsC = tc.registerThr('MBTS_C', 'MBTS', mapping=1)
-        for x in xrange(16):
+        for x in range(16):
             if tc.getRegisteredThreshold('MBTS_A%i' % x):
                 thr_mbtsA.thresholdValues += [ tc.getRegisteredThreshold('MBTS_A%i' % x).thresholdValues[0] ]
             if tc.getRegisteredThreshold('MBTS_C%i' % x):

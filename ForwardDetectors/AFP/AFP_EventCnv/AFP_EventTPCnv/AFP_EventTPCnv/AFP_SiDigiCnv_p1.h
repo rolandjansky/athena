@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_SiDigiCnv_p1_h
@@ -12,13 +12,17 @@
 
 class MsgStream;
 
-class AFP_SiDigiCnv_p1 : public T_AthenaPoolTPCnvBase< AFP_SiDigi, AFP_SiDigi_p1> 
+class AFP_SiDigiCnv_p1 : public T_AthenaPoolTPCnvConstBase< AFP_SiDigi, AFP_SiDigi_p1> 
 {
 public:
+       using base_class::transToPers;
+       using base_class::persToTrans;
+
+
 	AFP_SiDigiCnv_p1() {}
 
-	virtual void persToTrans( const AFP_SiDigi_p1* persObj, AFP_SiDigi* transObj, MsgStream &log);
-	virtual void transToPers( const AFP_SiDigi* transObj, AFP_SiDigi_p1* persObj, MsgStream &log);
+	virtual void persToTrans( const AFP_SiDigi_p1* persObj, AFP_SiDigi* transObj, MsgStream &log) const override;
+	virtual void transToPers( const AFP_SiDigi* transObj, AFP_SiDigi_p1* persObj, MsgStream &log) const override;
 };
  
  

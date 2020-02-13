@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 SimFlags specific to the old standalone Tile test beams
@@ -18,7 +18,7 @@ __version__ = "$Revision: 793038 $"
 from AthenaCommon.JobProperties import JobProperty
 
 ## Remove and replace the core SimFlags version of CalibrationRun
-import SimFlags
+from . import SimFlags
 from G4AtlasApps.SimFlags import jobproperties
 jobproperties.SimFlags.del_JobProperty(SimFlags.CalibrationRun)
 del SimFlags
@@ -55,12 +55,12 @@ class Eta(JobProperty):
         """
         Ensure that _VALIDATION layout tags get through the first level of checking.
         """
-        #print name, n_value
+        #print (name, n_value)
         if name == "StoredValue":
             if type(n_value) == int or type (n_value) == float:
                 import math
                 if abs(n_value) > 1.1:
-                    raise ValueError,('THE ETA VALUE MUST BE IN [-1.1,1.1]!!! The selected value %s is not in the range.' %n_value)
+                    raise ValueError ('THE ETA VALUE MUST BE IN [-1.1,1.1]!!! The selected value %s is not in the range.' %n_value)
         JobProperty.__setattr__(self, name, n_value)
 
 
@@ -80,12 +80,12 @@ class Theta(JobProperty):
         """
         Ensure that _VALIDATION layout tags get through the first level of checking.
         """
-        #print name, n_value
+        #print (name, n_value)
         if name == "StoredValue":
             if type(n_value) == int or type (n_value) == float:
                 import math
                 if abs(n_value) > 60. and not (abs(abs(n_value)-90.0) < 0.01) :
-                    raise ValueError,('THETA MUST BE IN [-60,60] or +/-90 !!! The selected value %s is not in the range.' %n_value)
+                    raise ValueError ('THETA MUST BE IN [-60,60] or +/-90 !!! The selected value %s is not in the range.' %n_value)
         JobProperty.__setattr__(self, name, n_value)
 
 
@@ -118,12 +118,12 @@ class Phi(JobProperty):
         """
         Ensure that _VALIDATION layout tags get through the first level of checking.
         """
-        #print name, n_value
+        #print (name, n_value)
         if name == "StoredValue":
             if type(n_value) == int or type (n_value) == float:
                 import math
                 if math.fabs(n_value) > 8.5:
-                    raise ValueError,('THE PHI VALUE MUST BE IN [-8.5,8.5]!!! The selected value %s not in range.' %n_value)
+                    raise ValueError ('THE PHI VALUE MUST BE IN [-8.5,8.5]!!! The selected value %s not in range.' %n_value)
         JobProperty.__setattr__(self, name, n_value)
 
 
@@ -140,11 +140,11 @@ class Y(JobProperty):
         """
         Ensure that _VALIDATION layout tags get through the first level of checking.
         """
-        #print name, n_value
+        #print (name, n_value)
         if name == "StoredValue":
             if type(n_value) == int or type (n_value) == float:
                 if abs(n_value) > 600:
-                    raise ValueError,('THE Y VALUE MUST BE IN [-600,600] !!! The selected value %s is not in the range.' %n_value)
+                    raise ValueError ('THE Y VALUE MUST BE IN [-600,600] !!! The selected value %s is not in the range.' %n_value)
         JobProperty.__setattr__(self, name, n_value)
 
 

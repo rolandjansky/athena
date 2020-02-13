@@ -41,13 +41,14 @@ std::pair<std::string, bool> PyGetString (PyObject* s)
 {
   std::string sout;
   bool flag = false;
+  bool own_s = false;
   if (s) {
 
     // Convert a unicode object to a (byte)string.
     if (PyUnicode_Check (s)) {
       PyObject* o = PyCodec_Encode (s, "utf-8", nullptr);
-      Py_XDECREF (s);
       s = o;
+      own_s = true;
     }
 
 #if PY_VERSION_HEX < 0x03000000
@@ -72,6 +73,9 @@ std::pair<std::string, bool> PyGetString (PyObject* s)
 #endif
   }
 
+  if (own_s) {
+    Py_XDECREF (s);
+  }
   return std::make_pair (sout, flag);
 }
 

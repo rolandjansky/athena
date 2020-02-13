@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from PrescaleHelper import getCutFromPrescale, getPrescaleFromCut
-from Lvl1MenuUtil import oldStyle
+from .PrescaleHelper import getCutFromPrescale, getPrescaleFromCut
+from .Lvl1MenuUtil import oldStyle
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("LVL1MenuItem")
@@ -93,7 +93,7 @@ class LVL1MenuItem(object):
 
 
     def binary_trigger_type(self, width=8):
-        from Lvl1MenuUtil import binstr
+        from .Lvl1MenuUtil import binstr
         return binstr(self.trigger_type, width=width)
 
 
@@ -144,7 +144,7 @@ class LVL1MenuItems(object):
 
     def xml(self, ind=1, step=2):
 
-        self.items.sort( lambda x,y: cmp(x.ctpid,y.ctpid) )
+        self.items.sort( key = lambda x: x.ctpid )
 
         s = ind * step * ' ' + '<TriggerMenu name="%s" phase="lumi">\n' % self.menuName
         for i in self.items:
@@ -175,14 +175,14 @@ class PrescaleHandler(object):
             self.itemsByPartition.setdefault(item.partition,[]).append(item)
 
         for itemList in self.itemsByPartition.values():
-            itemList.sort(lambda x,y: cmp(x.ctpid,y.ctpid))
+            itemList.sort(key = lambda x: x.ctpid)
 
     def xml(self, ind=1, step=2):
         # write prescales (only prescales for which an item is defined)
         # write one set per defined partition
         s = ind * step * ' ' + '<PrescaleSet name="%s" type="%s" menuPartition="0">\n' % (self.name, self.psType)
 
-        from Limits import Limits
+        from .Limits import Limits
         cuts = [ getCutFromPrescale(-1) ] * Limits.MaxTrigItems
         
         for item in self.items:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,9 +26,9 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
@@ -73,9 +73,6 @@ public:
 
 private:
   
-  // Muon Detector Manager
-  const MuonGM::MuonDetectorManager* m_muonMgr = nullptr;
-  
   // Tool for TGC Id Helper
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
@@ -94,6 +91,11 @@ private:
   SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrepDataNextContainerName{this,"TgcPrepDataNextContainer","TGC_MeasurementsNextBC","next BC TGC PRD"};
   SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_outputCoinCollectionLocation{this,"OutputCoinCollection","TrigT1CoinDataCollection","TGC T1 coincidences"};
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","EventInfo"};
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
   
   // Enum style indexes
   static const int PREV=0, CURR=1, NEXT=2, TOTA=3; //PCNT index

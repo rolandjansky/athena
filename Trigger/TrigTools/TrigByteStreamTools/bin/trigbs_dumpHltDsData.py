@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 import eformat
@@ -85,9 +85,9 @@ def ds_dump(bsfile):
           if (args.verbosity >= 2):           
             print_all_navigation(res)
           for feature in res.nav_payload:
-	    key = feature[0]+'#'+feature[1]
-	    if key not in featureSizes:
-	      featureSizes[key] = 0
+            key = feature[0]+'#'+feature[1]
+            if key not in featureSizes:
+              featureSizes[key] = 0
             featureSizes[key] += feature[2]
         except Exception as ex:
           print('... **** problems in analyzing payload', ex)

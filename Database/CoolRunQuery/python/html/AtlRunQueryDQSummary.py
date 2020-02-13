@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 import sys, time, math
 import operator
 
@@ -81,7 +82,7 @@ def GetLBLumi(dic,run):
             scale = 0.001
             if usenb: scale = 1.
             lumiperlb[lb] = float(item.value)*(lbtime[lb]-lbtime[lb-1])*0.001*scale # output in nb-1/pb-1
-            #print "DEBUG",run,lb,float(item.value),lbtime[lb]-lbtime[lb-1]
+            #print ("DEBUG",run,lb,float(item.value),lbtime[lb]-lbtime[lb-1])
     return lumiperlb
 
 def GetLBLiveFraction(dic,run):
@@ -95,7 +96,7 @@ def GetLBLiveFraction(dic,run):
             livefraction[lb]= 0.
             if tbp != 0: livefraction[lb] = float(tav)/tap
     except:
-        print "%s trigger not found - no live fraction computation" % livetrigger
+        print ("%s trigger not found - no live fraction computation" % livetrigger)
     return livefraction
 
 def GetLBReady(dic,run):
@@ -163,7 +164,7 @@ def MakePlot_SummaryLumiLoss(loss,colors,dicsum,name):
         h1_lumi[-1].SetFillColor(colors[sys])
         if sys == '_TOTAL': h1_lumi[-1].SetFillStyle(3244)
         ibin = h1_lumi[-1].GetXaxis().FindBin(sys)
-        #print sys,ibin,colors[sys],lumi[sys]/TotalLumi,h1_lumi[-1].GetName()
+        #print (sys,ibin,colors[sys],lumi[sys]/TotalLumi,h1_lumi[-1].GetName())
         h1_lumi[-1].SetBinContent(ibin,lumi[sys])
         if lumi[sys] > 0. :
             text_lumi.append(TText(lumi[sys]*1.1,ibin-1,"%.2f %%"%(100*lumi[sys]/TotalLumi)))
@@ -322,7 +323,7 @@ def MakePlot_DefectsPerSystem(sys,intolerable,tolerable,dic,run):
     gStyle.SetTitleAlign(23);
 
     lbrange = readylb[-1]-readylb[0] # can be disconnected !
-    #print run,len(readylb),lbrange
+    #print (run,len(readylb),lbrange)
     
     ## Intolerable ##
     if len(intolerable) > 0 :
@@ -578,12 +579,12 @@ class DQSummary:
                     continue
 
                 ## Correct lumi per LB with live fraction
-                #print 'DEBUG',run,len(lumiperlb),len(livefrac),len(readylb)
+                #print ('DEBUG',run,len(lumiperlb),len(livefrac),len(readylb))
                 for l in lumiperlb:
                     # IF statement used when len(lumiperlb)!= len(livefrac)
                     if l not in readylb: continue
                     if l not in livefrac:
-                        print "--> Warning: live fraction not available for LB %i. Setting live fraction to 1."%l
+                        print ("--> Warning: live fraction not available for LB %i. Setting live fraction to 1."%l)
                     else:
                         lumiperlb[l]*=livefrac[l]
 
@@ -710,14 +711,14 @@ class DQSummary:
 
                     ## Some cross-checks 
                     if system =='':
-                        print 'run %s: this defect is fishy %s '%(run,defect)
+                        print ('run %s: this defect is fishy %s '%(run,defect))
                         continue
 
                     ## Some cross-checks 
                     word = defect.split('_'); cpdet = word[0]
                     if word[0]=='MS' :cpdet += "_"+word[1] # MS systems
                     if not cpdet in detectors and not cpdet in performances:
-                        print 'This system is not included: %s (%s)'%(cpdet,defect)
+                        print ('This system is not included: %s (%s)'%(cpdet,defect))
                         continue
 
                     ## Store intolerable defects if in ATLAS Ready LBs only
@@ -923,7 +924,7 @@ class DQSummary:
         ## debug ##
         #s = "<div>%s</div>" % '<br>'.join([ "%s: %s" % (k.ResultKey,v) for k,v in dicsum.items()])
         #s = "<div>%s</div>" % '<br>'.join([ "%s: %s" % (k.ResultKey,v) for k,v in dic.items()])
-        #print s
+        #print (s)
 
         ###########################
         ## Print Summary numbers ##
@@ -934,12 +935,12 @@ class DQSummary:
         lumiLossFraction = (100. * totalLumiLoss / totalLumiRecorded) if totalLumiRecorded > 0 else 0
 
 
-        print '+++++++++++++++++++++++++ Summary +++++++++++++++++++'
-        print '  Total Ready Recorded Luminosity: %.2f %s-1' % ( totalLumiRecorded, unit )
-        print '  Total Luminosity Loss (ATLAS Ready) : %.2f %s-1' % ( totalLumiLoss, unit )
-        print '  Total Global Not Ready (Stable Beams): %.2f %s-1'%(dicsum[DataKey('TotalNotReady')],unit)
-        print '  Total Global Busy (Stable Beams): %.2f %s-1'%(dicsum[DataKey('TotalBusy')],unit)
-        print '+++++++++++++++++++++++++++++++++++++++++++++++++++++'
+        print ('+++++++++++++++++++++++++ Summary +++++++++++++++++++')
+        print ('  Total Ready Recorded Luminosity: %.2f %s-1' % ( totalLumiRecorded, unit ))
+        print ('  Total Luminosity Loss (ATLAS Ready) : %.2f %s-1' % ( totalLumiLoss, unit ))
+        print ('  Total Global Not Ready (Stable Beams): %.2f %s-1'%(dicsum[DataKey('TotalNotReady')],unit))
+        print ('  Total Global Busy (Stable Beams): %.2f %s-1'%(dicsum[DataKey('TotalBusy')],unit))
+        print ('+++++++++++++++++++++++++++++++++++++++++++++++++++++')
 
         global lumifolder
 

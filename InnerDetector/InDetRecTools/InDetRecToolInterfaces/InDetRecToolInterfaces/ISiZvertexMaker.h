@@ -7,18 +7,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //  Header file for class ISiZvertexMaker
 /////////////////////////////////////////////////////////////////////////////////
-//
-//  Base class for primary vertices z-coordinates generation
-//
-//  Example implementation
-//
-//  zvertexmaker->newEvent();  
-//  std::list<Trk::Vertex> VZ = m_zvertexmaker->getVertices(); 
-//  for(std::list<Trk::Vertex>::const_iterator v=VZ.begin(); v!=VZ.end(); ++v) {
-//    do some method with this veretx
-//  }
-//
-/////////////////////////////////////////////////////////////////////////////////
 // Version 1.0 3/10/2004 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +25,30 @@ namespace InDet{
 
   class SiSpacePointsSeedMakerEventData;
 
+  /**
+   * @class ISiZvertexMaker
+   *
+   * Base class for primary vertices z-coordinates generation
+   *
+   * In AthenaMT, event dependent cache inside ISiZvertexMaker is not
+   * preferred. SiSpacePointsSeedMakerEventData class holds event dependent
+   * data for ISiZvertexMaker and ISiSpacePointsSeedMaker.
+   * Its object is instantiated in SiSPSeededTrackFinder::execute.
+   *
+   * Example implementation
+   * @code {.cpp}
+   *
+   * SiSpacePointsSeedMakerEventData seedEventData;
+   * std::list<Trk::Vertex> VZ = zvertexmaker->newEvent(seedEventData);
+   * for (std::list<Trk::Vertex>::const_iterator v=VZ.begin(); v!=VZ.end(); ++v) {
+   *     do some method with this veretx
+   * }
+   *
+   * @endcode
+   */
+
+/////////////////////////////////////////////////////////////////////////////////
+
   class ISiZvertexMaker : virtual public IAlgTool 
     {
       ///////////////////////////////////////////////////////////////////
@@ -45,27 +57,33 @@ namespace InDet{
       
     public:
 
-      // InterfaceID
+      /// @name InterfaceID
+      //@{
       DeclareInterfaceID(ISiZvertexMaker, 1, 0);
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Methods to initialize tool for new event or region
+      /// @name Methods to initialize tool for new event or region and return vertex list
       ///////////////////////////////////////////////////////////////////
-
+      //@{
       virtual std::list<Trk::Vertex> newEvent(SiSpacePointsSeedMakerEventData& data) const =0;
-      virtual std::list<Trk::Vertex> newRegion
-      (SiSpacePointsSeedMakerEventData& data,
-       const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&) const =0;
-      virtual std::list<Trk::Vertex> newRegion
-      (SiSpacePointsSeedMakerEventData& data,
-       const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&,
-       const IRoiDescriptor&) const =0;
+
+      virtual std::list<Trk::Vertex> newRegion(SiSpacePointsSeedMakerEventData& data,
+                                               const std::vector<IdentifierHash>&,
+                                               const std::vector<IdentifierHash>&) const =0;
+
+      virtual std::list<Trk::Vertex> newRegion(SiSpacePointsSeedMakerEventData& data,
+                                               const std::vector<IdentifierHash>&,
+                                               const std::vector<IdentifierHash>&,
+                                               const IRoiDescriptor&) const =0;
+      //@}
 
       ///////////////////////////////////////////////////////////////////
-      // Print internal tool parameters and status
+      /// @name Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
-     
+      //@{
       virtual MsgStream& dump(MsgStream& out) const=0;
+      //@}
     };
  
 } // end of name space

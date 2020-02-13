@@ -4,80 +4,91 @@
 
 #include "RatesAnalysis/RatesHistoBase.h"
 
-uint32_t RatesHistoBase::m_histoID = 0;
+#include "GaudiKernel/ITHistSvc.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 
 RatesHistoBase::RatesHistoBase(const std::string& name, const MsgStream& log, const bool doHistograms) : 
   m_name(name),
   m_doHistograms(doHistograms), m_rateVsMu(nullptr), m_rateVsTrain(nullptr), m_data(nullptr),
-  m_givenRateVsMu(false), m_givenRateVsTrain(false), m_givenData(false),
+  m_rateVsMuCachedPtr(nullptr), m_rateVsTrainCachedPtr(nullptr), m_dataCachedPtr(nullptr),
   m_log(log)
 {
-  if (m_doHistograms) {
-    m_rateVsMu = new TH1D(TString(std::to_string(m_histoID++)),TString(name + ";#mu;Rate / Unit #mu [Hz]"),226,-.5,225.5) ;
-    m_rateVsMu->SetName("rateVsMu");
+  if (doHistograms) {
+    m_rateVsMu = std::make_unique<TH1D>("",TString(name + ";#mu;Rate / Unit #mu [Hz]"),226,-.5,225.5);
     m_rateVsMu->Sumw2(true);
+    m_rateVsMuCachedPtr = m_rateVsMu.get();
 
-    m_rateVsTrain = new TH1D(TString(std::to_string(m_histoID++)),TString(name + ";Distance Into Train;Rate / BCID [Hz]"),100,-0.5,99.5) ;
-    m_rateVsTrain->SetName("rateVsTrainPosition");
+    m_rateVsTrain = std::make_unique<TH1D>("",TString(name + ";Distance Into Train;Rate / BCID [Hz]"),100,-0.5,99.5);
     m_rateVsTrain->Sumw2(true);
+    m_rateVsTrainCachedPtr = m_rateVsTrain.get();
 
-    m_data = new TH1D(TString(std::to_string(m_histoID++)),TString(";Variable;Raw Data"), RatesBinIdentifier_t::kNRATES_BINS, -.5, RatesBinIdentifier_t::kNRATES_BINS - .5) ;
-    m_data->SetName("data");
+    m_data =  std::make_unique<TH1D>("",TString(";Variable;Raw Data"), RatesBinIdentifier_t::kNRATES_BINS, -.5, RatesBinIdentifier_t::kNRATES_BINS - .5);
     m_data->Sumw2(true);
+    m_dataCachedPtr = m_data.get();
 
-    m_log << MSG::DEBUG << " For " << name << "(" << this << ") I have made histograms " 
-      << (uint64_t) m_rateVsMu << " " << m_rateVsMu->GetName() << " and " 
-      << (uint64_t) m_rateVsTrain << " " << m_rateVsTrain->GetName() << " and " 
-      << (uint64_t) m_data << " "  << m_data->GetName() << endmsg; 
   }
 }
+
 
 RatesHistoBase::~RatesHistoBase() {
-  m_log << MSG::DEBUG << "Deleting " << m_name << " (" << this << ")" << endmsg;
-  if (m_doHistograms) {
-    if (!m_givenData) {
-      delete m_data;
-      m_data = nullptr;
-    }
-    if (!m_givenRateVsMu) {
-      delete m_rateVsMu;
-      m_rateVsMu = nullptr;
-    }
-    if (!m_givenRateVsTrain) {
-      delete m_rateVsTrain;
-      m_rateVsTrain = nullptr;
-    }
-  }
 }
 
-TH1D* RatesHistoBase::getMuHist(bool clientIsTHistSvc) { 
-  if (!m_doHistograms) { 
-    m_log << MSG::ERROR << "RatesHistoBase::getTrainHist Warning requested histograms when histograming is OFF here." << endmsg;
-    return nullptr;
+StatusCode RatesHistoBase::giveMuHist(const ServiceHandle<ITHistSvc>& svc, const std::string& name) { 
+  if (!m_rateVsMu.get()) { 
+    m_log << MSG::ERROR << "RatesHistoBase::giveMuHist Warning requested histograms when histograming is OFF here." << endmsg;
+    return StatusCode::FAILURE;
   }
-  if (clientIsTHistSvc) m_givenRateVsMu = true;
-  return m_rateVsMu; 
-}
-
-TH1D* RatesHistoBase::getTrainHist(bool clientIsTHistSvc) { 
-  if (!m_doHistograms) {
-    m_log << MSG::ERROR << "RatesHistoBase::getTrainHist Warning requested histograms when histograming is OFF here." << endmsg;
-    return nullptr;
-  }
-  if (clientIsTHistSvc) m_givenRateVsTrain = true;
-  return m_rateVsTrain;
-}
-
-TH1D* RatesHistoBase::getDataHist(bool clientIsTHistSvc) { 
-  if (clientIsTHistSvc) m_givenData = true;
-  return m_data; // Do not flag an errors about nullptr here as this is fetched by the unique rates groups on their trigger
+  ATH_CHECK( svc->regHist(name, std::move(m_rateVsMu), m_rateVsMuCachedPtr) );
+  m_log << MSG::DEBUG << "For " << m_name << "(" << this << ") m_rateVsMuCachedPtr is updated to " << (uint64_t) m_rateVsMuCachedPtr << endmsg; 
+  return StatusCode::SUCCESS;
 }
 
 
-void RatesHistoBase::normaliseHist(const double ratesDenominator) {
-  if (m_doHistograms) {
-    m_rateVsMu->Scale(1. / ratesDenominator);
-    m_rateVsTrain->Scale(1. / ratesDenominator);
-    //m_data does not get scaled as it contains raw data
+StatusCode RatesHistoBase::giveTrainHist(const ServiceHandle<ITHistSvc>& svc, const std::string& name) { 
+  if (!m_rateVsTrain.get()) {
+    m_log << MSG::ERROR << "RatesHistoBase::giveTrainHist Warning requested histograms when histograming is OFF here." << endmsg;
+    return StatusCode::FAILURE;
   }
+  ATH_CHECK( svc->regHist(name, std::move(m_rateVsTrain), m_rateVsTrainCachedPtr) );
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode RatesHistoBase::giveDataHist(const ServiceHandle<ITHistSvc>& svc, const std::string& name) { 
+  if (!m_data.get()) {
+    m_log << MSG::ERROR << "RatesHistoBase::giveDataHist Warning requested histograms when histograming is OFF here." << endmsg;
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK( svc->regHist(name, std::move(m_data), m_dataCachedPtr) );
+  return StatusCode::SUCCESS;
+}
+
+
+void RatesHistoBase::clearTrainHist() {
+  m_rateVsTrain.reset();
+  m_rateVsTrainCachedPtr = nullptr;
+}
+
+
+TH1* RatesHistoBase::getDataHist() {
+  return m_dataCachedPtr; // Caller must be able to deal with nullptr (e.g unique rates groups calling on their trigger)
+}
+
+
+const std::string& RatesHistoBase::getExtrapolationFactorString(ExtrapStrat_t strat) const {
+  static const std::vector<std::string> values{"LINEAR_L","LINEAR_BUNCH_EXPO_MU","LINEAR_BUNCHES","LINEAR_MU","NONE"};
+  return values.at(static_cast<size_t>(strat)); 
+}
+
+
+double RatesHistoBase::getExtrapolationFactor(const WeightingValuesSummary_t& weights, const ExtrapStrat_t strat) const {
+  switch (strat) {
+    case kLINEAR: return weights.m_linearLumiFactor;
+    case kEXPO_MU: return weights.m_expoMuFactor;
+    case kBUNCH_SCALING: return weights.m_bunchFactor;
+    case kMU_SCALING: return weights.m_muFactor;
+    case kNONE: return weights.m_noScaling;
+    default: m_log << MSG::ERROR << "Error in getExtrapolationFactor. Unknown ExtrapStrat_t ENUM supplied " << strat << endmsg;
+  }
+  return 0.;
 }

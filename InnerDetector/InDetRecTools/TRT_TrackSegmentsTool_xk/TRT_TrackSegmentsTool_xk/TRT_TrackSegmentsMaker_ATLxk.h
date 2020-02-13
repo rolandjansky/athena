@@ -61,8 +61,8 @@ namespace InDet{
       TRT_TrackSegmentsMaker_ATLxk
 	(const std::string&,const std::string&,const IInterface*);
       virtual ~TRT_TrackSegmentsMaker_ATLxk();
-      virtual StatusCode               initialize();
-      virtual StatusCode               finalize  ();
+      virtual StatusCode               initialize() override;
+      virtual StatusCode               finalize  () override;
 
       ///////////////////////////////////////////////////////////////////
       // Methods to initialize tool for new event or region
@@ -89,8 +89,8 @@ namespace InDet{
       // Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
 
-      MsgStream&    dump          (MsgStream   & out) const;
-      std::ostream& dump          (std::ostream& out) const;
+      virtual MsgStream&    dump          (MsgStream   & out) const override;
+      virtual std::ostream& dump          (std::ostream& out) const override;
 
     protected:
 

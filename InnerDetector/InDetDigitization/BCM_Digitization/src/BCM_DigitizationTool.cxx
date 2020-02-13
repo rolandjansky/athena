@@ -14,8 +14,6 @@
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "InDetBCM_RawData/BCM_RawData.h"
 #include "InDetBCM_RawData/BCM_RDO_Collection.h"
-#include "InDetSimEvent/SiHitCollection.h"
-#include "PileUpTools/PileUpMergeSvc.h"
 #include "xAODEventInfo/EventInfo.h"             // NEW EDM
 #include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
 
@@ -25,24 +23,11 @@
 // Constructor with parameters:
 //----------------------------------------------------------------------
 BCM_DigitizationTool::BCM_DigitizationTool(const std::string &type, const std::string &name, const IInterface *parent) :
-  PileUpToolBase(type,name,parent),
-  m_mipDeposit(0.0f),
-  m_effPrmDistance(0.0f),
-  m_effPrmSharpness(0.0f),
-  m_timeDelay(0.0f),
-  m_rdoContainer(NULL),
-  m_simDataCollMap(NULL),
-  m_mergeSvc(NULL) //("PileUpMergeSvc",name)
+  PileUpToolBase(type,name,parent)
 {
-  //declareProperty("PileupMergeSvc", m_mergeSvc, "Pileup merging service");
-  declareProperty("HitCollName", m_hitCollName="BCMHits", "Input simulation hits collection name");
   declareProperty("ModNoise", m_modNoise, "RMS noise averaged over modules");
   declareProperty("ModSignal", m_modSignal, "Average MIP signal in modules");
   declareProperty("NinoThr", m_ninoThr, "NINO threshold voltage");
-  declareProperty("MIPDeposit", m_mipDeposit, "Most probable MIP deposit in BCM pad");
-  declareProperty("EffDistanceParam", m_effPrmDistance, "Distance parameter for efficiency calculation");
-  declareProperty("EffSharpnessParam", m_effPrmSharpness, "Sharpness parameter for efficiency calculation");
-  declareProperty("TimeDelay", m_timeDelay, "Pulse time delay");
 }
 
 //----------------------------------------------------------------------
@@ -52,8 +37,21 @@ StatusCode BCM_DigitizationTool::initialize()
 {
   ATH_MSG_VERBOSE ( "initialize()");
 
+  ATH_CHECK(m_mergeSvc.retrieve());
+
   // get random service
   ATH_CHECK(m_rndmGenSvc.retrieve());
+
+  // check the input object name
+  if (m_hitsContainerKey.key().empty()) {
+    ATH_MSG_FATAL("Property InputObjectName not set !");
+    return StatusCode::FAILURE;
+  }
+  if(m_onlyUseContainerName) m_inputObjectName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container : '" << m_inputObjectName << "'");
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   // Write handle keys
   ATH_CHECK( m_outputKey.initialize() );
@@ -167,43 +165,47 @@ StatusCode BCM_DigitizationTool::processAllSubEvents()
 {
   ATH_MSG_DEBUG ( "processAllSubEvents()" );
 
-
-  if(!m_mergeSvc) {
-    //locate the PileUpMergeSvc
-    const bool CREATEIF(true);
-    if(!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
-       !m_mergeSvc) {
-      ATH_MSG_FATAL("processAllSubEvents(): Could not find PileUpMergeSvc");
-      return StatusCode::FAILURE;
-    }
-    else ATH_MSG_DEBUG("processAllSubEvents(): retrieved PileUpMergeSvc");
-  }
-  else ATH_MSG_DEBUG("processAllSubEvents(): PileUpMergeSvc already available");
-
-  CHECK(createOutputContainers());
+  ATH_CHECK(createOutputContainers());
 
   // Fetch SiHitCollections for this bunch crossing
-  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
-  TimedHitCollList hitCollList;
-  if (!(m_mergeSvc->retrieveSubEvtsData(m_hitCollName, hitCollList).isSuccess()) && hitCollList.size()==0) {
-    ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ( hitCollList.size() << " SiHitCollections with key " << m_hitCollName << " found" );
-  }
-
-  // Store hit info in vectors and fill SDO map
-  TimedHitCollList::iterator iColl(hitCollList.begin());
-  TimedHitCollList::iterator endColl(hitCollList.end());
-  for (; iColl != endColl; ++iColl) {
-    const SiHitCollection* tmpColl(iColl->second);
-    HepMcParticleLink::index_type evtIndex = (iColl->first).index();
-    ATH_MSG_DEBUG ( "SiHitCollection found with " << tmpColl->size() << " hits" );
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get BCM SiHitCollection container " << hitCollection.name() <<
+                    " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+    const unsigned int evtIndex = 0;
+    const double time = 0.0;
+    ATH_MSG_DEBUG ( "SiHitCollection found with " << hitCollection->size() << " hits" );
     // Read hits from this collection
-    SiHitCollection::const_iterator i = tmpColl->begin();
-    SiHitCollection::const_iterator e = tmpColl->end();
-    for (; i!=e; ++i) {
-      processSiHit(*i, (iColl->first).time(), evtIndex);
+    for (const auto& siHit : *hitCollection) {
+      processSiHit(siHit, time, evtIndex);
+    }
+
+  }
+  else {
+    typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+    TimedHitCollList hitCollList;
+    if (!(m_mergeSvc->retrieveSubEvtsData(m_inputObjectName, hitCollList).isSuccess()) && hitCollList.size()==0) {
+      ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG ( hitCollList.size() << " SiHitCollections with key " << m_inputObjectName << " found" );
+    }
+
+    // Store hit info in vectors and fill SDO map
+    TimedHitCollList::iterator iColl(hitCollList.begin());
+    TimedHitCollList::iterator endColl(hitCollList.end());
+    for (; iColl != endColl; ++iColl) {
+      const SiHitCollection* tmpColl(iColl->second);
+      const unsigned int evtIndex = (iColl->first).index();
+      const double time = (iColl->first).time();
+      ATH_MSG_DEBUG ( "SiHitCollection found with " << tmpColl->size() << " hits" );
+      // Read hits from this collection
+      for (const auto& siHit : *tmpColl) {
+        processSiHit(siHit, time, evtIndex);
+      }
     }
   }
 
@@ -231,7 +233,7 @@ StatusCode BCM_DigitizationTool::processBunchXing(int bunchXing,
                       << " run number : " << iEvt->ptr()->runNumber()
                       );
     const SiHitCollection* seHitColl = 0;
-    CHECK(seStore.retrieve(seHitColl,m_hitCollName));
+    CHECK(seStore.retrieve(seHitColl,m_inputObjectName));
     ATH_MSG_DEBUG ( "SiHitCollection found with " << seHitColl->size() << " hits" );
     SiHitCollection::const_iterator i = seHitColl->begin();
     SiHitCollection::const_iterator e = seHitColl->end();

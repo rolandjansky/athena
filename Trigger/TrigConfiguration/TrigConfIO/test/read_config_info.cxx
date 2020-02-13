@@ -36,13 +36,13 @@ int main() {
    TrigConf::L1TopoMenu l1topomenu;
    TrigConf::L1Menu l1menu;
    TrigConf::HLTMenu hltmenu;
-   bool loadTestL1Topo = fileLoader.loadFile( l1topofn, l1topomenu ).isSuccess();
+   bool loadTestL1Topo = fileLoader.loadFile( l1topofn, l1topomenu );
    cout << "Test loading of L1Topo file      ... " << ( loadTestL1Topo ? "passed" : "failed" ) << endl;
 
-   bool loadTestL1 = fileLoader.loadFile( l1fn, l1menu ).isSuccess();
+   bool loadTestL1 = fileLoader.loadFile( l1fn, l1menu );
    cout << "Test loading of L1 file          ... " << ( loadTestL1 ? "passed" : "failed" ) << endl;
 
-   bool loadTestHLT = fileLoader.loadFile( hltfn, hltmenu ).isSuccess();
+   bool loadTestHLT = fileLoader.loadFile( hltfn, hltmenu );
    cout << "Test loading of HLT file         ... " << ( loadTestHLT ? "passed" : "failed" ) << endl;
    
    if ( ( loadTestL1Topo && loadTestL1 && loadTestHLT ) == false ) return 1; // can't not continue with the other tests

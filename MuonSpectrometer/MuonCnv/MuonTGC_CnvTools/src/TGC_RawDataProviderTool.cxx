@@ -9,7 +9,6 @@
 #include "TGC_RawDataProviderTool.h"
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonRDO/TgcRdoContainer.h"
 
 //================ Constructor =================================================

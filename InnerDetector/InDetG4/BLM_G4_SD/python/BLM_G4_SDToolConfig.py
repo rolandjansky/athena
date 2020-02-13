@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
 
-from BLM_G4_SD.BLM_G4_SDConf import BLMSensorSDTool
+BLMSensorSDTool=CompFactory.BLMSensorSDTool
 
 
 def BLMSensorSDCfg(ConfigFlags, name="BLMSensorSD", **kwargs):

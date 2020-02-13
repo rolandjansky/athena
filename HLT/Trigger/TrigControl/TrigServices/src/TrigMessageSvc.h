@@ -11,19 +11,21 @@
 #include <mutex>
 #include <set>
 #include <string>
+#include <thread>
 #include <vector>
+
+#include "tbb/concurrent_queue.h"
 
 #include <TH1I.h>
 #include <TH2I.h>
 
 #include "CxxUtils/checker_macros.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/Message.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/StatusCode.h"
-
-#include "TrigKernel/ITrigMessageSvc.h"
 
 // Helper to mark some virtual methods as not supported
 #define NOTSUPPORTED                                                                               \
@@ -51,7 +53,7 @@ class TH2I;
  *
  * @author    Iain Last, Werner Wiedenmann, Frank Winklmeier
  */
-class TrigMessageSvc : public extends<Service, IMessageSvc, ITrigMessageSvc> {
+class TrigMessageSvc : public extends<Service, IMessageSvc, IIncidentListener> {
 public:
   typedef std::map<std::string, int> ThresholdMap;
 
@@ -62,6 +64,7 @@ public:
   virtual StatusCode start() override;
   virtual StatusCode stop() override;
   virtual StatusCode finalize() override;
+  virtual void handle( const Incident& incident ) override;
 
   virtual void reportMessage(const Message& message) override;
   virtual void reportMessage(const Message& msg, int outputLevel) override;
@@ -75,7 +78,6 @@ public:
 
   virtual void setDefaultStream(std::ostream* stream) override
   {
-    std::unique_lock<std::recursive_mutex> lock(m_reportMutex);
     m_defaultStream = stream;
   }
 
@@ -84,7 +86,6 @@ public:
   virtual void setOutputLevel(int new_level) override;
   virtual void setOutputLevel(const std::string& source, int new_level) override;
   virtual int messageCount(MSG::Level logLevel) const override;
-  virtual void resetOutputLevels() override;
 
   virtual bool useColor() const override { return m_color; }
   virtual std::string getLogColor(int) const override { return ""; }
@@ -187,14 +188,18 @@ private:
   TH1I* m_msgCountHist{nullptr};    ///< Message counting per level histogram
   TH2I* m_msgCountSrcHist{nullptr}; ///< Message counting per message source
 
-  mutable std::recursive_mutex m_reportMutex;       ///< mutex for printing
   mutable std::recursive_mutex m_thresholdMapMutex; /// (@see MsgStream::doOutput).
+
+  bool m_asyncReporting{false};     ///< Async reporting active
+  std::thread m_thread;             ///< Thread for asynchronous reporting
+  tbb::concurrent_bounded_queue<std::function<void()>> m_messageActionsQueue;
 
   void setupLimits(Gaudi::Details::PropertyBase& prop);
   void setupThreshold(Gaudi::Details::PropertyBase& prop);
   bool passErsFilter(const std::string& source, const std::vector<std::string>& filter) const;
   void i_reportMessage(const Message& msg, int outputLevel);
   void i_reportERS(const Message& msg) const;
+  void asyncReporting();
   void bookHistograms();
 };
 

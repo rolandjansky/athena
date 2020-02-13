@@ -14,7 +14,6 @@
 // Id includes
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 
 

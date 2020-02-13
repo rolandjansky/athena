@@ -14,18 +14,9 @@
 #include <CoolKernel/IFolder.h>
 #include <CoolKernel/IDatabase.h>
 
-using cool::IFolderPtr;
-using cool::IDatabasePtr;
-using cool::ChannelSelection;
-using cool::ValidityKey;
-
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeListSpecification.h"
-
-using coral::Attribute;
-using coral::AttributeSpecification;
-using coral::AttributeList;
 
 #include <CoraCool/CoraCoolDatabaseSvcFactory.h>
 #include <CoraCool/CoraCoolDatabaseSvc.h>
@@ -36,7 +27,6 @@ using coral::AttributeList;
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-using boost::bind;
 
 #include <string>
 #include <iostream>
@@ -44,6 +34,15 @@ using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
+
+using boost::bind;
+using cool::IFolderPtr;
+using cool::IDatabasePtr;
+using cool::ChannelSelection;
+using cool::ValidityKey;
+using coral::Attribute;
+using coral::AttributeSpecification;
+using coral::AttributeList;
 
 typedef boost::function<PyObject* (const AttributeList&)> 
     coral_attribute_fetcher_t;

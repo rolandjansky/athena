@@ -27,10 +27,6 @@ class TFile;
 class MuonHoughHitContainer;
 class IMuonHoughPatternTool;
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
 namespace Muon {
   class MuonEDMPrinterTool;
 }

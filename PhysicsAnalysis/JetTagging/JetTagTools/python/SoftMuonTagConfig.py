@@ -1,13 +1,14 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.BTagTrackToVertexIPEstimatorConfig import BTagTrackToVertexIPEstimatorCfg
 from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
 from JetTagTools.MuonSelectorToolConfig import MuonSelectorToolCfg
 
 # import the SoftMuonTag configurable
-from JetTagTools.JetTagToolsConf import Analysis__SoftMuonTag
+Analysis__SoftMuonTag=CompFactory.Analysis__SoftMuonTag
 
 def SoftMuonTagCfg( flags, name = 'SoftMu', useBTagFlagsDefaults = True, **options ):
     """Sets up a SoftMuonTag tool and returns it.

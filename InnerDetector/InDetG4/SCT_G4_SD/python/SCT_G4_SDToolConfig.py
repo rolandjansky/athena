@@ -1,10 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
 
-from SCT_G4_SD.SCT_G4_SDConf import SctSensorSDTool
-from SCT_G4_SD.SCT_G4_SDConf import SctSensor_CTBTool
+SctSensorSDTool=CompFactory.SctSensorSDTool
+SctSensor_CTBTool=CompFactory.SctSensor_CTBTool
 
 
 def SctSensorSDCfg(ConfigFlags, name="SctSensorSD", **kwargs):

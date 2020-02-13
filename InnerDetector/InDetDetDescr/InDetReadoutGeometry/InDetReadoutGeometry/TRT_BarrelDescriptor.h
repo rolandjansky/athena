@@ -5,8 +5,6 @@
 ///////////////////////////////////////////////////////////////////
 // TRT_BarrelDescriptor.h
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef TRT_BarrelDescriptor_h
 #define TRT_BarrelDescriptor_h 1
@@ -33,6 +31,8 @@ namespace InDetDD {
                             /   \    /                         
                            /  o  \  /                          
                           /_______\/                                        
+
+          Objects of this class are owned by TRT_DetectorManager.
                                                                
        */
   

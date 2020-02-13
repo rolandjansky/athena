@@ -9,7 +9,7 @@
 #include <list>
 #include <queue>
 #include <functional>
-#include "RPCcablingInterface/CMAparameters.h"
+#include "RPC_CondCabling/CMAparameters.h"
 
 #include "TrigT1RPClogic/bitPATTERN.h"
 #include "TrigT1RPClogic/CMAtrigger.h"

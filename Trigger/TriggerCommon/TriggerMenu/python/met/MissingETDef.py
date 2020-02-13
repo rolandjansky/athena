@@ -395,7 +395,8 @@ class L2EFChain_met(L2EFChainDef):
 
 
         elif EFrecoAlg=='pufittrack':
-            makelist = lambda x: x if isinstance(x, list) else [x]
+            def makelist(x):
+                return x if isinstance(x, list) else [x]
             self.EFsequenceList += [ [ x['input'], makelist(x['algorithm']), x['output'] ] for x in bjet_chain_def.sequenceList[:-2] ]
 #            for x in bjet_chain_def.sequenceList[:-2]:
 #                print (x)

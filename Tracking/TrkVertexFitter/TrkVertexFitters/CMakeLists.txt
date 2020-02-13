@@ -41,10 +41,10 @@ atlas_install_joboptions( share/*.py )
 atlas_add_test( AdaptiveVertexFitter_test
                 SCRIPT athena.py TrkVertexFitters/AdaptiveVertexFitter_test.py
                 PROPERTIES TIMEOUT 300
-                EXTRA_PATTERNS " INFO |WARNING |found service|Adding private|^ +[+]|HepPDT Version|^indet|^pixel|^phi|^eta|^GEOPIXEL|in material|no dictionary|^subdet|^part|^barrel_endcap|^layer|^sct|^bec|^side0|^strip0|^lay_disk|TrackingGeometrySvc|^PixelID" )
+                LOG_IGNORE_PATTERN " INFO |WARNING |found service|Adding private|^ +[+]|HepPDT Version|^indet|^pixel|^phi|^eta|^GEOPIXEL|in material|no dictionary|^subdet|^part|^barrel_endcap|^layer|^sct|^bec|^side0|^strip0|^lay_disk|TrackingGeometrySvc|^PixelID" )
 
 
 atlas_add_test( AdaptiveMultiVertexFitter_test
                 SCRIPT athena.py TrkVertexFitters/AdaptiveMultiVertexFitter_test.py
                 PROPERTIES TIMEOUT 300
-                EXTRA_PATTERNS " INFO |WARNING |found service|Adding private|^ +[+]|HepPDT Version|^indet|^pixel|^phi|^eta|^GEOPIXEL|in material|no dictionary|^subdet|^part|^barrel_endcap|^layer|^sct|^bec|^side0|^strip0|^lay_disk|TrackingGeometrySvc|^PixelID" )
+                LOG_IGNORE_PATTERN " INFO |WARNING |found service|Adding private|^ +[+]|HepPDT Version|^indet|^pixel|^phi|^eta|^GEOPIXEL|in material|no dictionary|^subdet|^part|^barrel_endcap|^layer|^sct|^bec|^side0|^strip0|^lay_disk|TrackingGeometrySvc|^PixelID" )

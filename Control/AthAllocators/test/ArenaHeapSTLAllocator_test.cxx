@@ -211,7 +211,7 @@ void test2()
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 1000);
 
-  int* p = a4.allocate (2, nullptr);
+  int* p = a4.allocate (2);
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 1000);
 

@@ -109,7 +109,7 @@ double Trk::ConeLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm
 
 void Trk::ConeLayer::moveLayer(Amg::Transform3D& shift)  {
   Amg::Transform3D transf = shift * (*m_transform);
-  Trk::ConeSurface::m_transform.store(std::make_unique<Amg::Transform3D>(transf)) ;
+  Trk::ConeSurface::m_transform=std::make_unique<Amg::Transform3D>(transf) ;
   m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation()));
   m_normal.store(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
 }

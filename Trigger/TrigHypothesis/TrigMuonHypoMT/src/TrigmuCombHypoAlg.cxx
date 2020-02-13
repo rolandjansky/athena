@@ -68,26 +68,28 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
     ATH_CHECK( muCombHandle.isValid() );
     ATH_MSG_DEBUG( "Muinfo handle size: " << muCombHandle->size() << "...");
 
-    auto muCombEL = ViewHelper::makeLink( *viewEL, muCombHandle, 0 );
-    ATH_CHECK( muCombEL.isValid() );
-    const xAOD::L2CombinedMuon* muComb = *muCombEL;
+    // make a link to the first entry of the container, if there is one
+    if ( muCombHandle->size() ) {
+      auto muCombEL = ViewHelper::makeLink( *viewEL, muCombHandle, 0 );
+      ATH_CHECK( muCombEL.isValid() );
+      const xAOD::L2CombinedMuon* muComb = *muCombEL;
     
-    // create new decisions
-    auto newd = newDecisionIn( decisions );
+      // create new decisions
+      auto newd = newDecisionIn( decisions );
 
-    toolInput.emplace_back( TrigmuCombHypoTool::CombinedMuonInfo{ newd, muComb, muFast, previousDecision} );
+      toolInput.emplace_back( TrigmuCombHypoTool::CombinedMuonInfo{ newd, muComb, muFast, previousDecision} );
 
-    // set objectLink
-    newd->setObjectLink( featureString(), muCombEL );
-    newd->setObjectLink( viewString(), viewEL);
-    TrigCompositeUtils::linkToPrevious( newd, previousDecision, context);
+      // set objectLink
+      newd->setObjectLink( featureString(), muCombEL );
+      TrigCompositeUtils::linkToPrevious( newd, previousDecision, context);
 
-    // DEBUG
-    ATH_MSG_DEBUG("REGTEST: muCBTrack pt in " << m_muCombKey.key() << " = " << (*muCombEL)->pt() << " GeV");
-    ATH_MSG_DEBUG("REGTEST: muCBTrack eta/phi in " << m_muCombKey.key() << " = " << (*muCombEL)->eta() << "/" << (*muCombEL)->phi());
-    ATH_MSG_DEBUG("Added view, features, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
+      // DEBUG
+      ATH_MSG_DEBUG("REGTEST: muCBTrack pt in " << m_muCombKey.key() << " = " << (*muCombEL)->pt() << " GeV");
+      ATH_MSG_DEBUG("REGTEST: muCBTrack eta/phi in " << m_muCombKey.key() << " = " << (*muCombEL)->eta() << "/" << (*muCombEL)->phi());
+      ATH_MSG_DEBUG("Added view, features, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
 
-    counter++;
+      counter++;
+    }
   }
   for ( auto & tool: m_hypoTools ) {
     ATH_MSG_DEBUG("Go to " << tool);

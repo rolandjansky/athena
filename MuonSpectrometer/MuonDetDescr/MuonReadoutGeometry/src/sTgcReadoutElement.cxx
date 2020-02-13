@@ -218,7 +218,8 @@ namespace MuonGM {
       int chMax =  manager()->stgcIdHelper()->channelMax(id);
       if (chMax<0) chMax = 350;*/
 
-      m_etaDesign[il].type=0;
+      m_etaDesign[il].type=MuonChannelDesign::Type::etaStrip;
+      m_etaDesign[il].detType=MuonChannelDesign::DetType::STGC;
 
       m_etaDesign[il].yCutout=yCutout;
       m_etaDesign[il].firstPitch=roParam.firstStripWidth[il];
@@ -269,7 +270,8 @@ namespace MuonGM {
 
     for (int il=0; il<m_nlayers; il++) {
 
-      m_phiDesign[il].type=1;
+      m_phiDesign[il].type=MuonChannelDesign::Type::phiStrip;
+      m_phiDesign[il].detType=MuonChannelDesign::DetType::STGC;
 
       m_phiDesign[il].xSize    = length - ysFrame - ylFrame;
       m_phiDesign[il].minYSize = roParam.sPadWidth;

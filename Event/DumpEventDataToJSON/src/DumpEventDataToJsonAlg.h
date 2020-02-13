@@ -12,6 +12,7 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "TrkTrack/TrackCollection.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkExInterfaces/IExtrapolationEngine.h"
 #include <nlohmann/json.hpp>
@@ -28,7 +29,7 @@ class DumpEventDataToJsonAlg : public AthAlgorithm
   /// Algorithm constructor
   DumpEventDataToJsonAlg(const std::string& name, ISvcLocator* pService);
 
-  virtual ~DumpEventDataToJsonAlg();
+  virtual ~DumpEventDataToJsonAlg() = default;
 
   /// inherited from Algorithm
   virtual StatusCode initialize() override;
@@ -61,11 +62,16 @@ class DumpEventDataToJsonAlg : public AthAlgorithm
    SG::ReadHandleKeyArray<xAOD::CaloClusterContainer>      m_caloClustersKeys
    { this, "CaloClusterContainerKeys", {"CaloCalTopoClusters"}, "Keys for CaloClusters Containers" };
    
-   std::string                                            m_outputJSON_Name   {"EventData.json"};
-   nlohmann::json                                         m_eventData; 
+   SG::ReadHandleKeyArray<TrackCollection>                m_trackCollectionKeys
+   { this, "TrackCollectionKeys", {"Tracks"}, "Keys for Track Containers" };
+  
+   Gaudi::Property<bool>                                  m_extrapolateTrackParticless 
+     {this, "ExtrapolateTrackParticles", false, "If true, attempt to extrapolate tracks and add additional positions."};
    
-   Gaudi::Property<bool>                                  m_extrapolateTracks 
-     {this, "ExtrapolateTracks", false, "If true, attempt to extrapolate tracks and add additional positions."};
    ToolHandle<Trk::IExtrapolationEngine>                  m_extrapolator { this, "Extrapolator","Trk::ExtrapolationEngine/AtlasExtrapolation"};
+   
+   Gaudi::Property<std::string>                           m_outputJSON_Name 
+     {this, "OutputLocation", "EventData.json", "Default filename for "};
+  nlohmann::json                                         m_eventData;  
 };
 #endif

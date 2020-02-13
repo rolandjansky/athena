@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1PRDSystems/PRDHandle_MDT.h"
@@ -121,7 +121,7 @@ QString PRDHandle_MDT::driftCircleStatus() const
       status+="After Spectrum";
       break;
     default:
-      status+=" Unknown with value = "+m_driftcircle->status();
+      status+=QString((" Unknown with value = "+std::to_string(m_driftcircle->status())).c_str());
   }
   return status;
 }

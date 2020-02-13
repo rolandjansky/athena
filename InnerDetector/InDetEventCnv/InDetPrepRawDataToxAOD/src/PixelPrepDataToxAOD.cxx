@@ -173,9 +173,9 @@ StatusCode PixelPrepDataToxAOD::execute()
   // Loop over the container
   unsigned int counter(0);
  
-  SG::ReadCondHandle<PixelModuleData> dcsState(m_condDCSStateKey);
-  SG::ReadCondHandle<PixelModuleData> dcsHV(m_readKeyHV);
-  SG::ReadCondHandle<PixelModuleData> dcsTemp(m_readKeyTemp);
+  SG::ReadCondHandle<PixelDCSStateData> dcsState(m_condDCSStateKey);
+  SG::ReadCondHandle<PixelDCSHVData> dcsHV(m_readKeyHV);
+  SG::ReadCondHandle<PixelDCSTempData> dcsTemp(m_readKeyTemp);
 
   for( const auto& clusterCollection : * PixelClusterContainer ){
 

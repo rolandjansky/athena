@@ -81,11 +81,11 @@ class AODFix_base(object):
                 if excl in metadataList:
                     metadataList.remove(excl)
 
-            str = "AODFix_" + "-".join(metadataList) + suffix
+            metastr = "AODFix_" + "-".join(metadataList) + suffix
 
-            logAODFix.info("executing addMetaData, will add as AODFixVersion %s" % str)
+            logAODFix.info("executing addMetaData, will add as AODFixVersion %s" % metastr)
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-            svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AODFixVersion", str]
+            svcMgr.TagInfoMgr.ExtraTagValuePairs["AODFixVersion"]=metastr
 
     def willDoAODFix(self):
         '''Returns a boolean on whether AOD to AOD fix will be performed'''

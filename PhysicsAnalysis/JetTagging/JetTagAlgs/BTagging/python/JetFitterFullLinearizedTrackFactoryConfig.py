@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
+Trk__FullLinearizedTrackFactory=CompFactory.Trk__FullLinearizedTrackFactory
 
 def JetFitterFullLinearizedTrackFactoryCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterFullLinearizedTrackFactory tool and returns it.

@@ -579,7 +579,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::EventData::buildFrameWork(double r_r
 void InDet::TRT_SeededSpacePointFinder_ATL::fillLists(std::vector< std::vector<const Trk::SpacePoint*> > &r_Sorted,
                                                       InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data) const
 {
-  assert( event_data.m_r_size == r_Sorted.size());
+  assert( static_cast<size_t>(event_data.m_r_size) == r_Sorted.size());
   const double pi2 = 2.*M_PI;
 
   for(int i=0; i!= event_data.m_r_size;  ++i) {

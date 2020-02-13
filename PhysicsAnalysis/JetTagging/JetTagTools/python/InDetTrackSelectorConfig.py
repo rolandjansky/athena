@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the TrackToVertexIPEstimator configurable
-from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+InDet__InDetTrackSelectionTool=CompFactory.InDet__InDetTrackSelectionTool
 
 def InDetTrackSelectorCfg( name = 'InDetTrackSelector', useBTagFlagsDefaults = True, **options ):
     """Sets up a InDetTrackSelector tool and returns it.

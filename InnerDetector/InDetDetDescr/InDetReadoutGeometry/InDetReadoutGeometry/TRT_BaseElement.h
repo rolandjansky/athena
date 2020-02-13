@@ -34,6 +34,7 @@ namespace Trk {
 
 
 class TRT_ID;
+class GeoAlignmentStore;
 
 namespace InDetDD {
 
@@ -59,11 +60,13 @@ namespace InDetDD {
     enum Type {BARREL, ENDCAP};
 
     /** Constructor: */
-    TRT_BaseElement(const GeoVFullPhysVol *volume, const Identifier& id, const TRT_ID* idHelper, const TRT_Conditions* conditions);
+    TRT_BaseElement(const GeoVFullPhysVol *volume, const Identifier& id, const TRT_ID* idHelper, const TRT_Conditions* conditions, const GeoAlignmentStore* geoAlignStore=nullptr);
+
+    TRT_BaseElement(const TRT_BaseElement&right, const GeoAlignmentStore* geoAlignStore);
     
     /** Destructor: */
     virtual ~TRT_BaseElement();
-    
+
     /** Type information: returns BARREL or ENDCAP */
     virtual TRT_BaseElement::Type type() const = 0; 
 
@@ -230,8 +233,8 @@ namespace InDetDD {
     const TRT_Conditions*                               m_conditions;
     
     // Amg cache for the straw surfaces 
-    mutable std::atomic<std::vector<Trk::StraightLineSurface*>*> m_strawSurfaces;
-    mutable std::atomic<std::vector<SurfaceCache*>*> m_strawSurfacesCache;
+    mutable std::atomic<std::vector<Trk::StraightLineSurface*>*> m_strawSurfaces{};
+    mutable std::atomic<std::vector<SurfaceCache*>*> m_strawSurfacesCache{};
     
     //!< helper element surface for the cache   
     CxxUtils::CachedUniquePtr<SurfaceCache> m_surfaceCache;
@@ -240,6 +243,9 @@ namespace InDetDD {
     mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
     mutable std::mutex m_mutex;
+
+    const GeoAlignmentStore* m_geoAlignStore{};
+
   };
     
 }

@@ -75,7 +75,6 @@ std::string chamber(int istation, int zsec, int phi) {
 Csc2dSegmentMaker::
 Csc2dSegmentMaker(const std::string& type, const std::string& aname, const IInterface* parent)
   : AthAlgTool(type, aname, parent),
-    m_pgm(0), m_phelper(0),
     m_segmentTool("CscSegmentUtilTool/CscSegmentUtilTool", this),
     m_cscClusterOnTrackCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", this),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
@@ -106,13 +105,7 @@ StatusCode Csc2dSegmentMaker::initialize(){
   ATH_MSG_DEBUG ( "  SegmentTool: " << m_segmentTool.typeAndName() );
   ATH_MSG_DEBUG ( "  Input cscdig key: " << m_cscdig_sg_inkey );
 
-  // Retrieve the detector descriptor.
-  if ( detStore()->retrieve(m_pgm).isFailure() ) {
-    ATH_MSG_FATAL ( " Cannot retrieve MuonReadoutGeometry " );
-    return StatusCode::FAILURE;
-  }
-
-  m_phelper = m_pgm->cscIdHelper();
+  ATH_CHECK(m_idHelperSvc.retrieve());
   
   if ( m_segmentTool.retrieve().isFailure() ) {
     ATH_MSG_ERROR ( "Unable to retrieve CscSegmentUtilTool " << m_segmentTool );
@@ -222,10 +215,10 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
       //ATH_MSG_DEBUG("get hashes for "<<detEl->maxNumberOfStrips(iPhi)<<" strips ");
       for(int iStrip=0;iStrip<detEl->maxNumberOfStrips(iPhi);iStrip++){
 	ATH_MSG_DEBUG("get strip quality for "<<isPhi<<" layer "<<iLay<<" strip "<<iStrip);
-	Identifier stripId=m_phelper->channelID(redName,stationEta,stationPhi,chamberLayer,iLay+1,iPhi,iStrip+1);
-	//ATH_MSG_DEBUG("just-constructed id corresponds to chamberLayer "<<m_phelper->chamberLayer(stripId)<<", wire layer "<<m_phelper->wireLayer(stripId)<<", strip "<<m_phelper->strip(stripId));
+	Identifier stripId=m_idHelperSvc->cscIdHelper().channelID(redName,stationEta,stationPhi,chamberLayer,iLay+1,iPhi,iStrip+1);
+	//ATH_MSG_DEBUG("just-constructed id corresponds to chamberLayer "<<m_idHelperSvc->cscIdHelper().chamberLayer(stripId)<<", wire layer "<<m_idHelperSvc->cscIdHelper().wireLayer(stripId)<<", strip "<<m_idHelperSvc->cscIdHelper().strip(stripId));
 	IdentifierHash hashID;
-	m_phelper->get_channel_hash(stripId,hashID);
+	m_idHelperSvc->cscIdHelper().get_channel_hash(stripId,hashID);
 	//ATH_MSG_DEBUG("get strip status with hash "<<hashID);
 	if(!m_segmentTool->isGood(hashID)){
 	  ATH_MSG_DEBUG("bad strip");
@@ -243,11 +236,11 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
   for ( CscPrepDataCollection::const_iterator iclu=clus.begin(); iclu!=clus.end(); ++iclu ) {
     const CscPrepData* pclu = *iclu;
     Identifier id = pclu->identify();
-    int station = m_phelper->stationName(id) - 49;
-    int eta = m_phelper->stationEta(id);
-    int phisec = m_phelper->stationPhi(id);
-    int iwlay = m_phelper->wireLayer(id);
-    bool measphi = m_phelper->measuresPhi(id);
+    int station = m_idHelperSvc->cscIdHelper().stationName(id) - 49;
+    int eta = m_idHelperSvc->cscIdHelper().stationEta(id);
+    int phisec = m_idHelperSvc->cscIdHelper().stationPhi(id);
+    int iwlay = m_idHelperSvc->cscIdHelper().wireLayer(id);
+    bool measphi = m_idHelperSvc->cscIdHelper().measuresPhi(id);
     
     if ( iclu == clus.begin() ) {
       col_station = station;

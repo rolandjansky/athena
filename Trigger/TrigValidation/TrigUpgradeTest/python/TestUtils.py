@@ -2,9 +2,12 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+from __future__ import print_function
+import six
+
 def writeEmulationFiles(data):
     """ Writes emulation files. key in the dict is a file name (+.dat), list which is value of each dict el is enetered into the file, one el. per line"""
-    for name, d in data.iteritems():
+    for name, d in six.iteritems (data):
         with open(name+".dat", "w") as f:
             for event in d:
                 f.write(event)
@@ -53,7 +56,7 @@ class L1EmulationTest(L1Decoder):
                                                     OutputTrigRoIs = mapThresholdToL1RoICollection("EM"),
                                                     OutputLevel = self.getDefaultProperty("OutputLevel"))
             self.roiUnpackers += [emUnpacker]
-            print emUnpacker
+            print (emUnpacker)
 
 
         # MU unpacker

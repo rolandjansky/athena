@@ -3,9 +3,10 @@
 __doc__ = "Instantiate the two supercluster builders with default configuration"
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaAlgs.egammaAlgsConf import topoEgammaBuilder
-from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import EGammaAmbiguityTool
+topoEgammaBuilder=CompFactory.topoEgammaBuilder
+EGammaAmbiguityTool=CompFactory.EGammaAmbiguityTool
 
 
 def topoEgammaBuilderCfg(flags, name='topoEgammaBuilder', **kwargs):

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaHeapAllocator.cxx 470529 2011-11-24 23:54:22Z ssnyder $
 /**
  * @file  AthAllocators/src/ArenaHeapAllocator.cxx
  * @author scott snyder
@@ -52,6 +50,8 @@ ArenaHeapAllocator::ArenaHeapAllocator
     : ArenaBlockAllocatorBase (std::move (other)),
       m_freeptr (other.m_freeptr)
 {
+  // False positives
+  // cppcheck-suppress useInitializationList
   other.m_freeptr = nullptr;
 }
 

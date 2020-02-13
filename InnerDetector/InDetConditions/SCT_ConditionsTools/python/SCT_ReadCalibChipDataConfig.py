@@ -3,10 +3,11 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ReadCalibChipDataTool
-from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibChipNoiseCondAlg
-from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibChipGainCondAlg
+SCT_ReadCalibChipDataTool=CompFactory.SCT_ReadCalibChipDataTool
+SCT_ReadCalibChipNoiseCondAlg=CompFactory.SCT_ReadCalibChipNoiseCondAlg
+SCT_ReadCalibChipGainCondAlg=CompFactory.SCT_ReadCalibChipGainCondAlg
 
 def SCT_ReadCalibChipDataToolCfg(flags, name="InDetSCT_ReadCalibChipDataTool", **kwargs):
     """Return a ReadCalibChipDataTool configured for SCT"""

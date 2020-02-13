@@ -24,7 +24,6 @@
 #include "TrkParameters/TrackParameters.h"
 
 #include <iterator>
-#include <cmath>
 
 double rotatePhi( double phi, double rotationFraction ) {
   // check whether we rotate to a large value than pi, if so add additional rotation by -2pi
@@ -895,8 +894,8 @@ std::vector <std::pair<Muon::MuonPrdPattern*, Muon::MuonPrdPattern*> > MuonCombi
   Muon::MuonPrdPattern* etapattern1 = new Muon::MuonPrdPattern(etapattern->globalPosition(),dir1); // "lower" pattern (y<0)
 
   if (m_flipdirectionforcosmics == true) {
-    const double newphi = phi + MuonHough::Pi;
-    const double newtheta = MuonHough::Pi - etapattern->globalDirection().theta();
+    const double newphi = phi + M_PI;
+    const double newtheta = M_PI - etapattern->globalDirection().theta();
     CxxUtils::sincos scnewphi(newphi);
     CxxUtils::sincos scnewtheta(newtheta);
     
@@ -980,8 +979,8 @@ std::vector <std::pair<Muon::MuonPrdPattern*, Muon::MuonPrdPattern*> > MuonCombi
 
   if (m_flipdirectionforcosmics == true) {
 
-    const double newphi = phi + MuonHough::Pi;
-    const double newtheta = MuonHough::Pi - theta;
+    const double newphi = phi + M_PI;
+    const double newtheta = M_PI - theta;
 
     CxxUtils::sincos scnewphi(newphi);
     CxxUtils::sincos scnewtheta(newtheta);
@@ -1344,7 +1343,7 @@ double* MuonCombinePatternTool::updateParametersForCosmics(const Muon::MuonPrdPa
 
   double theta = std::atan2(sumr,sumz);
 
-  if (theta < 0) theta += MuonHough::Pi;
+  if (theta < 0) theta += M_PI;
 
   double rz0 = calculateRz0(etapattern,phi,theta);
 
@@ -1547,7 +1546,7 @@ std::pair<double,double> MuonCombinePatternTool::calculateR0Phi(const Muon::Muon
   }
 
   double phi_fit = std::atan2(sumy,sumx);
-  if (phi_fit > 0) phi_fit -= MuonHough::Pi; // phi between 0,-Pi for cosmics! 
+  if (phi_fit > 0) phi_fit -= M_PI; // phi between 0,-Pi for cosmics! 
   CxxUtils::sincos scphi(phi_fit);
   const double r0_fit = scphi.apply(av_x,-av_y); // av_x * scphi.sn - av_y * scphi.cs;
 

@@ -14,8 +14,8 @@ def LArHVCorrMonConfig(inputFlags):
     from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
     acc.merge(LArHVScaleCfg(inputFlags))
 
-    from LArMonitoring.LArMonitoringConf import LArHVCorrectionMonAlg
-    larHVCorrAlg = helper.addAlgorithm(LArHVCorrectionMonAlg,'larHVCorrMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    larHVCorrAlg = helper.addAlgorithm(CompFactory.LArHVCorrectionMonAlg,'larHVCorrMonAlg')
 
     #define the group names here, as you'll use them multiple times
     hvCorrGroupName="LArHVCorrMonGroup"

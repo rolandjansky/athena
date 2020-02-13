@@ -145,13 +145,21 @@ StatusCode HypoBase::validateLogicalFlow(const ElementLink<DecisionContainer>& d
   const ElementLinkVector<DecisionContainer> seeds = (*dEL)->objectCollectionLinks<DecisionContainer>(seedString());
   for (const DecisionID id : decisionIDSet) {
     // For each chain that I'm passing, check how many of my parents were also passing the chain
-    size_t parentsWithDecision = 0;
+    size_t parentsWithDecision = 0;  
     for (const ElementLink<DecisionContainer>& seed : seeds) {
       ATH_CHECK( seed.isValid() );
       DecisionIDContainer seedIDSet;
       decisionIDs(*seed, seedIDSet);
       if (passed(id, seedIDSet)) {
         ++parentsWithDecision;
+      }
+      else{ //adding also Ids from the legs
+	for (auto sid: seedIDSet){
+	  if (TrigCompositeUtils::getIDFromLeg(sid).numeric() == id){
+	    ++parentsWithDecision;
+	    break;
+	  }
+	}
       }
     }
     if (mode == kRequireOne && parentsWithDecision == 0) {

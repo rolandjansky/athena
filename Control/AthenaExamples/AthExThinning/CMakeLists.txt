@@ -74,11 +74,11 @@ atlas_install_runtime( test/*.ref )
 atlas_add_test( test_thinning
                 SCRIPT test/test_thinning.sh
                 PROPERTIES TIMEOUT 900
-                EXTRA_PATTERNS ":::running" )
+                LOG_IGNORE_PATTERN ":::running" )
 
 atlas_add_test( test_pythinning
                 SCRIPT test/test_pythinning.sh
                 PROPERTIES TIMEOUT 900
-                EXTRA_PATTERNS ":::running" )
+                LOG_IGNORE_PATTERN ":::running" )
 set_tests_properties( AthExThinning_test_pythinning_ctest
                       PROPERTIES DEPENDS AthExThinning_test_thinning_ctest )

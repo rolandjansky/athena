@@ -119,15 +119,15 @@ class PropertyProxy( object ):
 
     # locked configurables return copies to prevent modifications
       if obj.isLocked():
-         import __builtin__
-         if __builtin__.type( value ) is dict:
+         import builtins
+         if builtins.type( value ) is dict:
             from ctypes import pythonapi, py_object
             from _ctypes import PyObj_FromPtr
             PyDictProxy_New = pythonapi.PyDictProxy_New
             PyDictProxy_New.argtypes = (py_object,)
             PyDictProxy_New.rettype = py_object
             value = PyObj_FromPtr( PyDictProxy_New( value ) )
-         elif __builtin__.type( value ) is list:
+         elif builtins.type( value ) is list:
             value = tuple( value )      # point being that tuple is read-only
          else:
             import copy

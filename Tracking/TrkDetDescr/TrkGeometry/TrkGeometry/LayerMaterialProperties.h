@@ -111,7 +111,7 @@ namespace Trk {
       virtual const BinUtility* binUtility() const = 0;
             
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
-      virtual void updateBinning(BinUtility* bu) const = 0;
+      virtual void updateBinning(BinUtility* bu) = 0;
 
       /** Output Method for MsgStream, to be overloaded by child classes */
       virtual MsgStream& dump(MsgStream& sl) const = 0;

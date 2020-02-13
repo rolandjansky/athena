@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from Gaudi.Configuration import *
 from AthenaCommon.DetFlags import DetFlags
@@ -39,7 +41,7 @@ class iGeant4:
     Geant4SimService = iGeant4__Geant4SimSvc('ISFG4SimSvc', **kwargs)
 
     # DEBUG: dump Geant4SimService
-    print Geant4SimService
+    print (Geant4SimService)
 
     svcMgr += Geant4SimService
     self.__simSvc__ = Geant4SimService

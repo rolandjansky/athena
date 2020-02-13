@@ -294,13 +294,13 @@ from PrimaryDPDMaker import PrimaryDPD_OutputDefinitions as dpdOutput
 # build a new container with cells in big-clusters around egamma candidates and 
 # add it to the output
 
-from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
-DESDM_EGAMMACaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["EgammaDummyClustersEl","EgammaDummyClustersPh","egammaClusters"],
-                                                inputCellKey="AllCalo",
-                                                outputCellKey="DESDMEGAMMACellContainer")
+from DerivationFrameworkCalo.CaloCellDFGetter import thinCaloCellsForDF
+thinCaloCellsForDF (inputClusterKeys = ["EgammaDummyClustersEl","EgammaDummyClustersPh","egammaClusters"],
+                    streamName = StreamDESDM_EGAMMA.Name,
+                    outputCellKey = "DESDMEGAMMACellContainer")
+
 
 StreamDESDM_EGAMMA.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")
-StreamDESDM_EGAMMA.AddItem("CaloCellContainer#DESDMEGAMMACellContainer")
    
 # remove un-necessary containers from the output ( note that I remove the original calo
 # cells container

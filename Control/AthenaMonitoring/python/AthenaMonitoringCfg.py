@@ -20,8 +20,8 @@ def AthenaMonitoringCfg(flags):
 
     if flags.DQ.Steering.doTRTMon:
         info('Set up TRT monitoring')
-        from TRTMonitoringRun3.TRTMonitoringRun3_Tool import TRTMonitoringRun3_ToolConfig
-        result.merge(TRTMonitoringRun3_ToolConfig(flags))
+        from TRTMonitoringRun3.TRTMonitoringRun3Config import TRTMonitoringRun3Cfg
+        result.merge(TRTMonitoringRun3Cfg(flags))
 
     if flags.DQ.Steering.doLArMon:
         info('Set up LAr monitoring')

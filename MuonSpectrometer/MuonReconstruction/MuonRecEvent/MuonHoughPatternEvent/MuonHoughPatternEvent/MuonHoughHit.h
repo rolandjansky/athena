@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHHIT_H
@@ -12,13 +12,12 @@
 
 namespace MuonHough
 {
-  const double Pi=3.14159265358979; 
   /** enum to identify the muondetectortechnology */
   enum DetectorTechnology { MDT, CSC, RPC, TGC };
   /** number of phi sectors */
   const int phisectors = 16;
   /** angle of half a sector in rad */
-  const double half_phisector = Pi/phisectors;
+  const double half_phisector = M_PI/phisectors;
 }
 
 namespace Trk{class PrepRawData;}

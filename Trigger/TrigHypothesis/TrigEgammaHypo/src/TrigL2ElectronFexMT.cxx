@@ -23,7 +23,7 @@
 #include "TrigL2ElectronFexMT.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 class ISvcLocator;
 
 template <class SRC>

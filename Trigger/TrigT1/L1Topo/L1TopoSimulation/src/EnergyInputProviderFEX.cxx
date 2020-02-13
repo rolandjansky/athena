@@ -73,8 +73,9 @@ EnergyInputProviderFEX::handle(const Incident& incident) {
 StatusCode
 EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
+  const xAOD::EnergySumRoI* gFEXMET = nullptr; // MET from gFEX (will make it an array later)
   if(  evtStore()->contains< xAOD::EnergySumRoI >(m_gFEXMETLoc)  ) {
-    CHECK ( evtStore()->retrieve( m_gFEXMET, m_gFEXMETLoc ) );
+    CHECK ( evtStore()->retrieve( gFEXMET, m_gFEXMETLoc ) );
     ATH_MSG_DEBUG( "Retrieved gFEX MET '" << m_gFEXMETLoc << "'");
   }
   else {
@@ -83,13 +84,13 @@ EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) cons
   }
 
   ATH_MSG_DEBUG( "EnergyTopoData" << dec
-		 << ": Ex = "   << m_gFEXMET->energyX()
-		 << ", Ey = "   << m_gFEXMET->energyY()
-		 << ", Et = "   << m_gFEXMET->energyT()
+		 << ": Ex = "   << gFEXMET->energyX()
+		 << ", Ey = "   << gFEXMET->energyY()
+		 << ", Et = "   << gFEXMET->energyT()
 		 );
 
   //doing this differently compared to what mentioned in the twiki https://twiki.cern.ch/twiki/bin/viewauth/Atlas/L1CaloUpgradeSimulation
-  TCS::MetTOB met( -(m_gFEXMET->energyX()/Gaudi::Units::GeV), -(m_gFEXMET->energyY()/Gaudi::Units::GeV), m_gFEXMET->energyT()/Gaudi::Units::GeV );
+  TCS::MetTOB met( -(gFEXMET->energyX()/Gaudi::Units::GeV), -(gFEXMET->energyY()/Gaudi::Units::GeV), gFEXMET->energyT()/Gaudi::Units::GeV );
   inputEvent.setMET( met );
   m_hPt->Fill(met.Et());
   m_hPhi->Fill( atan2(met.Ey(),met.Ex()) );

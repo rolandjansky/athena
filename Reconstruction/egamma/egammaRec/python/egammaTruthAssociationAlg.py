@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from RecExConfig.Configured import Configured
 from egammaRec import egammaKeys
@@ -7,7 +9,7 @@ from egammaRec.Factories import ToolFactory, PublicToolFactory, AlgFactory, FcnW
 from AthenaCommon.BeamFlags import jobproperties
 from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
-from egammaTools.InDetTools import egammaCaloExtrapolator
+from egammaTools.egammaExtrapolators import egammaCaloExtrapolator
 from MCTruthClassifier import MCTruthClassifierConf
 import AthenaCommon.CfgMgr as CfgMgr
 
@@ -20,7 +22,7 @@ def getSimBarcodeOffset():
     return int(metadata['SimBarcodeOffset'])
 
   except:
-    print 'Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k'
+    print ('Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k')
   return int(offset)
 
 def getSimBarcodeOffset1():
@@ -65,7 +67,7 @@ class egammaTruthAssociationGetter ( Configured ) :
         except Exception:
             mlog.error("could not get handle to egammaTruthAssociation")
             import traceback
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         return True
 

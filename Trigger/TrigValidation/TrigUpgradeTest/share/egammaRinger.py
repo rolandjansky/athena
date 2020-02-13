@@ -7,7 +7,9 @@ from AthenaCommon.CFElements import seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 isData = False

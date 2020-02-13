@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -15,8 +15,8 @@
 //                                                             //
 /////////////////////////////////////////////////////////////////
 
-#ifndef TRTDIGSETTINGS_H
-#define TRTDIGSETTINGS_H
+#ifndef TRT_DIGITIZATION_TRTDIGSETTINGS_H
+#define TRT_DIGITIZATION_TRTDIGSETTINGS_H
 
 #include <vector>
 #include <map>
@@ -34,7 +34,7 @@ namespace InDetDD { class TRT_DetectorManager; }
  */
 class TRTDigSettings {
 
- public:
+public:
 
   /** Parameters and settings for TRT digitization */
   TRTDigSettings();
@@ -234,7 +234,7 @@ class TRTDigSettings {
   //Delta-ray suppression switch
   double TrtRangeCutProperty() const;
 
- private:
+private:
   //==============================================================//
   //                           Private                            //
   //==============================================================//
@@ -264,7 +264,7 @@ class TRTDigSettings {
   double m_timeInterval;             /**< Time interval covered by each digit*/
   unsigned int m_numberOfBins;        /**< No. bins used internally */
   unsigned int m_numberOfBinsInEncodingBin;  /**< No. internal bins for each
-					      *   readout bit */
+                                              *   readout bit */
   double m_minDiscriminatorWidth;     /**< Min. discriminator width */
   double m_discriminatorSettlingTime; /**< Discriminator settling time */
   double m_discriminatorDeadTime;     /**< Discriminator dead time */
@@ -320,7 +320,7 @@ class TRTDigSettings {
   bool m_timeCorrection; /**< Corrrect for flight and wire propagation delays*/
 
   unsigned int m_numberOfCrossingsBeforeMain; /**< For pileup: BCs before main
-					       *   event */
+                                               *   event */
   double m_pileUpSDOsMinEkin;      /**< Min. Ekin for pileup particle to appear in MC-truth */
   double m_maxVertexDisplacement;  /**< Max. vertex displacement */
   double m_timeOffsetCalcVertexX;  /**< x-coord. of point where particle is assumed to originate */
@@ -373,31 +373,31 @@ class TRTDigSettings {
 
   /** Define new double variable */
   void defineNewVariable(std::string name,
-			 double * datamember,
-			 std::string description,
-			 std::string unitname,
-			 double unitval,
-			 double lowrange,
-			 double highrange);
+                         double * datamember,
+                         std::string description,
+                         std::string unitname,
+                         double unitval,
+                         double lowrange,
+                         double highrange);
 
   /** Define new unsigned int variable */
   void defineNewUIntVariable(std::string name,
-			     unsigned int * datamember,
-			     std::string description,
-			     unsigned int lowrange,
-			     unsigned int highrange);
+                             unsigned int * datamember,
+                             std::string description,
+                             unsigned int lowrange,
+                             unsigned int highrange);
 
   /** Define new int variable */
   void defineNewIntVariable(std::string name,
-			    int * datamember,
-			    std::string description,
-			    int lowrange,
-			    int highrange);
+                            int * datamember,
+                            std::string description,
+                            int lowrange,
+                            int highrange);
 
   /** Define new bool variable */
   void defineNewBoolVariable(std::string name,
-			     bool * datamember,
-			     std::string description);
+                             bool * datamember,
+                             std::string description);
 
   /** Settable parameter, double */
   struct doubleparameter {

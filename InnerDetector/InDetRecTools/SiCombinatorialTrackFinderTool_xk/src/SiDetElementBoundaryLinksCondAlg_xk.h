@@ -16,6 +16,17 @@
 
 namespace InDet {
 
+  /**
+   * @class SiDetElementBoundaryLinksCondAlg_xk
+   *
+   * Prepare a condition object Pixel/SCT_DetElementBoundaryLinks_xk
+   * from a condition object Pixel/SCT_DetectorElementCollection
+   * for SiCombinatorialTrackFinder_xk and stores it in condition
+   * store using ReadCondHandle and WriteCondHandle.
+   * In AthenaMT, detector elements are condition objects and
+   * this condition algorithm is necessary.
+   */
+
   class SiDetElementBoundaryLinksCondAlg_xk : public AthReentrantAlgorithm {
   public:
     SiDetElementBoundaryLinksCondAlg_xk(const std::string& name, ISvcLocator* pSvcLocator);
@@ -28,7 +39,9 @@ namespace InDet {
     virtual bool isClonable() const override { return true; };
 
   private:
+    /** Input condition object, detector elements of Pixel or SCT in condition store. */
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_readKey{this, "ReadKey", "SCT_DetectorElementCollection", "Key of input SiDetectorElementCollection"};
+    /** Output condition object for SiCombinatorialTrackFinder_xk */
     SG::WriteCondHandleKey<InDet::SiDetElementBoundaryLinks_xk> m_writeKey{this, "WriteKey", "SCT_DetElementBoundaryLinks_xk", "Key of output SiDetElementBoundaryLinks_xk"};
 
     ServiceHandle<ICondSvc> m_condSvc;

@@ -182,3 +182,48 @@ int BunchCrossingCondData::gapAfterTrain( bcid_type bcid,
 
  return result;
 }
+
+BunchCrossingCondData::BunchCrossingType BunchCrossingCondData::bcType(const bcid_type bcid ) const {
+  // First the obvious check:
+  if (!isFilled(bcid))
+  {
+    // Check if it's an unpaired bunch:
+    if (isUnpaired(bcid))
+    {
+      return Unpaired;
+    }
+    // If the previous bunch crossing is the tail of a bunch train:
+    if (!distanceFromTail(bcid - 1, BunchCrossings))
+    {
+      return FirstEmpty;
+    }
+    // Check if it's in the middle of a bunch train:
+    if (findTrain(bcid) != nullptr) {
+      return MiddleEmpty;
+    }
+    // If none of the above are true, it has to be a "simple" empty bunch:
+    return Empty;
+  }
+
+  // Now we know that the bunch has to be a filled one...
+
+  // If it's not in a train, it has to be a single filled bunch:
+  if (!isInTrain(bcid))
+    return Single;
+
+  // Let's check if it is close to the front of a bunch train:
+  int distance = distanceFromFront(bcid, NanoSec);
+  if ((distance >= 0) && (distance <= m_headTailLength))
+  {
+    return Front;
+  }
+  // Now let's check if it's close to the tail of a bunch train:
+  distance = distanceFromTail(bcid, NanoSec);
+  if ((distance >= 0) && (distance <= m_headTailLength))
+  {
+    return Tail;
+  }
+
+  // If none of the above are true, it has to be in the middle of a train:
+  return Middle;
+}

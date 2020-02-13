@@ -3,6 +3,7 @@
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/AthenaJobConfigRun3
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def SCT_TestCablingAlgCfg(configFlags):
@@ -21,7 +22,7 @@ def SCT_TestCablingAlgCfg(configFlags):
     SCT_CablingTool.DataSource = "COOLVECTOR"
     SCT_CablingTool.OutputLevel = INFO
 
-    from SCT_Cabling.SCT_CablingConf import SCT_TestCablingAlg
+    SCT_TestCablingAlg=CompFactory.SCT_TestCablingAlg
     testAlg = SCT_TestCablingAlg(SCT_CablingTool = SCT_CablingTool,
                                  OutputLevel = INFO)
     cfg.addEventAlgo(testAlg)

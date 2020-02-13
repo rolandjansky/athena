@@ -95,10 +95,6 @@ namespace InDet {
 
       const Trk::SegmentCollection      *m_Segments{}         ;  //!< TRT segments to use
 
-      /**Tracks that will be passed out of AmbiProcessor. 
-	 Recreated anew each time process() is called*/ 
-      TrackCollection* m_finalTracks{};
-
       /** Global Counters for final algorithm statistics */
       int m_nTrtSeg{}          ;  //!< Number of TRT segments to be investigated per event
       int m_nTrtSegGood {}     ;  //!< Number of TRT segments that will be investigated per event

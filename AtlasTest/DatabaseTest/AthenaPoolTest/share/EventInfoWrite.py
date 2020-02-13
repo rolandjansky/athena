@@ -104,7 +104,7 @@ topSequence += EventInfoWriter( "EventInfoWriter" )
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 
-print fullItemList
+printfunc (fullItemList)
 
 # Stream's output file
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
@@ -120,7 +120,8 @@ svcMgr.MessageSvc.debugLimit  = 100000
 #rds svcMgr.ClassIDSvc = Service( "ClassIDSvc" )
 #rds svcMgr.ClassIDSvc.OutputLevel = 3
 
-AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
+from AthenaServices import AthenaServicesConf
+AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()
 AthenaEventLoopMgr.OutputLevel = INFO
 
 svcMgr.TagInfoMgr.OutputLevel = DEBUG

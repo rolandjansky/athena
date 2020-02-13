@@ -89,6 +89,7 @@ void Muon::MMPrepDataContainerCnv_p1::transToPers(const Muon::MMPrepDataContaine
   int numColl = transCont->numberOfCollections();
   persCont->m_collections.resize(numColl);
   log << MSG::DEBUG<< " Preparing " << persCont->m_collections.size() << "collections" <<endmsg;
+
   for (unsigned int pcollIndex = 0; it_Coll != it_CollEnd; ++pcollIndex, it_Coll++) {
     const Muon::MMPrepDataCollection& collection = (**it_Coll);
     log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collection.identifyHash()<<endmsg;

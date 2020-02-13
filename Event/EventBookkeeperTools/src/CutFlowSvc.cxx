@@ -127,40 +127,6 @@ CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
 
 
 
-
-CutIdentifier CutFlowSvc::registerCut( const std::string& name,
-                                       const std::string& description,
-                                       CutIdentifier originCutID )
-{
-  ATH_MSG_DEBUG("calling registerCut(" << name << ", " << description
-                << ", " << originCutID << ")" );
-
-  // Get the CutBookkeeper of the origin Filter Algorithm/Tool
-  xAOD::CutBookkeeper *originEBK = this->getCutBookkeeper(originCutID);
-  if ( !originEBK ) {
-    ATH_MSG_ERROR( "(file: " __FILE__ << ", line: " << __LINE__ << ") "
-                   << "Couldn't find CutBookkeeper with cutID " << originCutID );
-    return 0;
-  }
-
-  // Call the registerFilter method and get the correct CutBookkeeper
-  // from the returned cutID
-  CutIdentifier cutID = this->registerFilter( name, description );
-  xAOD::CutBookkeeper* ebk = this->getCutBookkeeper(cutID);
-  if ( !ebk ) {
-    ATH_MSG_ERROR( "(file: " __FILE__ << ", line: " << __LINE__ << ") "
-                   << "Couldn't find CutBookkeeper with cutID " << cutID );
-    return 0;
-  }
-  // TODO: this does not work!
-  // originEBK->addUsedOther( ebk );
-
-  return cutID;
-}
-
-
-
-
 // This method is probably only called by the DecionsSvc
 CutIdentifier CutFlowSvc::registerTopFilter( const std::string& name,
                                              const std::string& description,
@@ -187,62 +153,6 @@ CutIdentifier CutFlowSvc::registerTopFilter( const std::string& name,
 
   return cutID;
 }
-
-
-
-CutIdentifier CutFlowSvc::declareUsedOtherFilter( const std::string& name,
-                                                  CutIdentifier originCutID )
-{
-  ATH_MSG_DEBUG("calling declareUsedOtherFilter(" << name << ", " << originCutID << ")" );
-
-  // Get the CutBookkeeper of the origin cut
-  xAOD::CutBookkeeper *originEBK = this->getCutBookkeeper(originCutID);
-  if ( !originEBK ) {
-    ATH_MSG_ERROR( "(file: " << __FILE__ << ", line: " << __LINE__ << ") "
-                   << "Couldn't find CutBookkeeper with cutID " << originCutID );
-    return 0;
-  }
-
-  // Create a temporary CutBookkeeper object
-  // *FIXME* This should probably be a unique_ptr, but requires changes in xAODCutFlow as well
-  xAOD::CutBookkeeper* tmpEBK = new xAOD::CutBookkeeper();
-  tmpEBK->setName(name);
-  tmpEBK->setInputStream(m_inputStream);
-  tmpEBK->setCycle(m_skimmingCycle);
-  CutIdentifier cutID = tmpEBK->uniqueIdentifier();
-
-  xAOD::CutBookkeeperContainer* fileBook = nullptr;
-  if (m_outMetaDataStore->retrieve(fileBook,m_fileCollName).isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve handle to cutflowsvc bookkeeper");
-    return 0;
-  }
-
-  // See if the CutBookkeeper already exists or not
-  bool existsAlready = false;
-  for ( std::size_t i=0; i<fileBook->size(); ++i ) {
-    xAOD::CutBookkeeper* ebk = fileBook->at(i);
-    if( tmpEBK->isEqualTo( ebk ) ) {
-      originEBK->addUsedOther( ebk );
-      cutID = ebk->uniqueIdentifier();
-      existsAlready = true;
-    }
-  }
-
-  // If this CutBookkeeper already exists, delete the temporary
-  // and return the existing cutID
-  if ( existsAlready ) {
-    delete tmpEBK;
-    return cutID;
-  }
-
-  // Otherwise, add the new one to the collection
-  tmpEBK->setDescription( "Registered by origin filter" );
-  originEBK->addUsedOther( tmpEBK );
-  fileBook->push_back( tmpEBK );
-
-  return cutID;
-}
-
 
 
 void

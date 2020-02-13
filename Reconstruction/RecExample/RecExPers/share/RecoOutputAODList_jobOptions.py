@@ -331,5 +331,5 @@ for k in CILMergeAOD('DataVector<INavigable4Momentum>'):
 StreamAOD.ItemList = CILMergeAOD()
 
 if rec.OutputLevel() <= DEBUG:
-    print "RecoOutputESDList_jobOptions:: AOD Output list is :"
-    print StreamAOD.ItemList
+    printfunc ("RecoOutputESDList_jobOptions:: AOD Output list is :")
+    printfunc (StreamAOD.ItemList)

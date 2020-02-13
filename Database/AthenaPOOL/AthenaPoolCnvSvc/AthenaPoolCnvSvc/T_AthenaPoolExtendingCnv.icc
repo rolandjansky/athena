@@ -89,13 +89,13 @@ poolReadObject( TopLevelTPCnvBase& tlp_converter )
 
 template <class TRANS, class PERS>
 const Token *
-T_AthenaPoolExtendingCnv< TRANS, PERS >::writeObject(const std::string& /* key */)
+T_AthenaPoolExtendingCnv< TRANS, PERS >::writeObject(const std::string& key, const std::string& output)
 {
    Token* pTok = 0;
    PERS *persObj = reinterpret_cast<PERS*>( getTopLevelTPCnv()->getTLPersObjectAsVoid() );
    if( persObj ) {
       //MN - do not pass SG key - this will put the object in a separate container
-      if( !baseAthenaPoolCnv()->objectToPool( persObj, pTok /*, key */ ).isSuccess() ) {
+      if( !baseAthenaPoolCnv()->objectToPool( persObj, pTok, key, output ).isSuccess() ) {
 	 throw std::runtime_error("Component persistent object write failed");
       }
       getTopLevelTPCnv()->clearTLPersObject();

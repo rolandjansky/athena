@@ -280,5 +280,5 @@ objKeyStore.addManyTypesStreamESD(CILMergeESDNoWild())
 
 
 if rec.OutputLevel() <= DEBUG:
-    print "RecoOutputESDList_jobOptions:: ESD Output list is :"
-    print CILMergeESD()
+    printfunc ("RecoOutputESDList_jobOptions:: ESD Output list is :")
+    printfunc (CILMergeESD())

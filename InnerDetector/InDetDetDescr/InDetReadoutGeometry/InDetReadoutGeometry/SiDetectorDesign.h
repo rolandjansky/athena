@@ -5,8 +5,6 @@
 ///////////////////////////////////////////////////////////////////
 // SiDetectorDesign.h
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef INDETREADOUTGEOMETRY_SIDETECTORDESIGN_H
 #define INDETREADOUTGEOMETRY_SIDETECTORDESIGN_H
@@ -47,6 +45,7 @@ enum DetectorShape {
    Base class for the detector design classes for Pixel and SCT.
    These hold the local description of the detector elements which are
    shared by a number of detector elements.
+   Objects are owned by SiDetectorManager.
 
     @author A. Calvet, Grant Gorfine
  */

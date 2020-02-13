@@ -19,12 +19,11 @@ namespace Muon
   /** 
   We don't write out (from Trk::PrepRawData) 
      * m_indexAndHash (can be recomputed), 
-     * m_clusId (can be recomputed - well, it's basically stored in Muon::MdtPRD_Container_p1).
   */
     class sTgcPrepData_p1
     {
     public:
-        sTgcPrepData_p1() : m_locX(0.0), m_errorMat(0.0), m_id(0) {}
+    sTgcPrepData_p1() : m_locX(0.0), m_errorMat(0.0), m_charge(0), m_time(0) {}
         
         std::vector< signed char > 	m_rdoList; //!< Store offsets
         
@@ -33,7 +32,14 @@ namespace Muon
         float               m_locX; //!< Equivalent to localPosition (locX) in the base class.
         float               m_errorMat; //!< 1-d ErrorMatrix in the base class.
         //@}
-        unsigned int        m_id; //!< FIXME! Remove this eventually
+	int                 m_charge;
+	short int           m_time;
+	uint16_t            m_bcBitMap;
+
+	/// cluster quantities
+	std::vector<uint16_t> m_stripNumbers;
+	std::vector<short int> m_stripTimes;
+	std::vector<int>      m_stripCharges;
         
         /// @name Data from Muon::sTgcPrepData
         //@{

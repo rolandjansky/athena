@@ -24,6 +24,9 @@ namespace SG {
 ThinningDecision::ThinningDecision (const DataLink<SG::AuxVectorBase>& link)
   : m_link (link)
 {
+  if (!m_link.isValid()) {
+    throw SG::ExcInvalidThinningTarget (link.classID(), link.dataID());
+  }
   resize (m_link->size_v());
 }
 
@@ -35,9 +38,8 @@ ThinningDecision::ThinningDecision (const DataLink<SG::AuxVectorBase>& link)
  * Initialized with all elements kept.
  */
 ThinningDecision::ThinningDecision (const std::string& key)
-  : m_link (key)
+  : ThinningDecision (DataLink<SG::AuxVectorBase> (key))
 {
-  resize (m_link->size_v());
 }
 
 

@@ -13,17 +13,14 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/IMuonTrackQuery.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "TrkFitterInterfaces/ITrackFitter.h"
 
-namespace Muon
-{
-    class IMdtDriftCircleOnTrackCreator;
-    class MuonIdHelperTool;
-}
 namespace Trk
 {
     class ITrackingGeometrySvc;
-    class ITrackFitter;
 }
 namespace Rec
 {
@@ -117,12 +114,13 @@ namespace Rec
 	const Trk::TrackParameters*	flippedParameters (const Trk::TrackParameters& params) const;
 
 	// tools and services
-	ToolHandle<Trk::ITrackFitter>       		m_fitter;
+	ToolHandle<Trk::ITrackFitter>       		m_fitter {this, "Fitter", "", "Track fitter tool"};
 	ServiceHandle<Muon::IMuonEDMHelperSvc>		m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" }; 
-	ToolHandle<Muon::MuonIdHelperTool>		m_idHelper;
-	ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>	m_mdtRotCreator;
+	ServiceHandle<Muon::IMuonIdHelperSvc> m_muonIdHelperSvc{this, "idHelper", 
+      "Muon::MuonIdHelperSvc/MuonIdHelperSvc", "Handle to the service providing the IMuonIdHelperSvc interface"};
+	ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>	m_mdtRotCreator {this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", "MdtDriftCircleOnTrackCreator tool"};
         ServiceHandle<Trk::ITrackingGeometrySvc>        m_trackingGeometrySvc;
 	
     };

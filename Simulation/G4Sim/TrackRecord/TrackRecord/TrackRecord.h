@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrackRecord_H
@@ -14,7 +14,7 @@ public:
   /** @brief Default destructor */ 
   virtual ~TrackRecord() {}
   /** @brief Constructor */ 
-  TrackRecord(int pdg, double e, CLHEP::Hep3Vector& p, CLHEP::Hep3Vector& x, double t, int bc, std::string vn)
+  TrackRecord(int pdg, double e, const CLHEP::Hep3Vector& p, const CLHEP::Hep3Vector& x, double t, int bc, std::string vn)
     : m_PDG_code(pdg), m_Energy(e), m_Momentum(p), m_Position(x), m_Time(t), m_barCode(bc), m_volName(vn) {}
   /** @brief Constructor */ 
   TrackRecord(const TrackRecord& trc):m_PDG_code(trc.m_PDG_code), m_Energy(trc.m_Energy), 

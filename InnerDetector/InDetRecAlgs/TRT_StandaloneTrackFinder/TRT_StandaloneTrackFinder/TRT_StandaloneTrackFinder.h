@@ -16,7 +16,9 @@
 
 #include <array>
 #include <string>
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include <mutex>
+
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 ///Track Collection to store the tracks
@@ -42,7 +44,7 @@ namespace InDet {
 
   class ITRT_SegmentToTrackTool;
 
-  class TRT_StandaloneTrackFinder : public AthAlgorithm 
+  class TRT_StandaloneTrackFinder : public AthReentrantAlgorithm
     {
     
       ///////////////////////////////////////////////////////////////////
@@ -58,7 +60,7 @@ namespace InDet {
       TRT_StandaloneTrackFinder(const std::string &name, ISvcLocator *pSvcLocator);
       virtual ~TRT_StandaloneTrackFinder();
       StatusCode initialize();
-      StatusCode execute();
+      StatusCode execute(const EventContext& ctx) const;
       StatusCode finalize();
 
       ///////////////////////////////////////////////////////////////////
@@ -106,7 +108,8 @@ namespace InDet {
 
       typedef std::array<int,kNCounter> Counter_t;
 
-      Counter_t m_total {};
+      mutable std::mutex m_statMutex ATLAS_THREAD_SAFE;
+      mutable Counter_t  m_total     ATLAS_THREAD_SAFE {};
       MsgStream& dumpContainerNames(MsgStream& out) const;
       MsgStream& dumpevent(MsgStream&, const InDet::TRT_StandaloneTrackFinder::Counter_t&);
       friend MsgStream& operator<< (MsgStream&, const InDet::TRT_StandaloneTrackFinder::Counter_t&);      

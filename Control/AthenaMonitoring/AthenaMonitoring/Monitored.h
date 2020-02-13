@@ -1,1 +1,0 @@
-#include "AthenaMonitoringKernel/Monitored.h"

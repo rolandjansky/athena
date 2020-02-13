@@ -21,7 +21,7 @@ class TrigDataAccess(_TrigDataAccess):
 
         from RecExConfig.RecFlags import rec
         transientBS = (rec.readRDO() and not globalflags.InputFormat()=='bytestream')
-        if ( transientBS or TriggerFlags.writeBS() ):
+        if ( transientBS or TriggerFlags.doTransientByteStream() ):
             if ( not hasattr(svcMgr.ToolSvc,'LArRawDataContByteStreamTool') ):
                 from LArByteStream.LArByteStreamConfig import LArRawDataContByteStreamToolConfig
                 svcMgr.ToolSvc += LArRawDataContByteStreamToolConfig()
@@ -64,6 +64,8 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
                     condSequence = AthSequencer("AthCondSeq")
                     from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArOFCFlat_ as LArOFCCondAlg
                     condSequence += LArOFCCondAlg (ReadKey="/LAR/ElecCalibFlat/OFC", WriteKey='LArOFC')
+                    from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+                    LuminosityCondAlgOnlineDefault()
                     from CaloRec.CaloBCIDAvgAlgDefault import CaloBCIDAvgAlgDefault
                     CaloBCIDAvgAlgDefault()
                     from AthenaCommon.AlgSequence import AlgSequence

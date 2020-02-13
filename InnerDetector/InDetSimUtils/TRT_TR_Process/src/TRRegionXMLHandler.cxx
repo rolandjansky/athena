@@ -92,7 +92,7 @@ void TRRegionXMLHandler::Process(const std::string& name)
       G4LogicalVolumeStore *g4lvs = G4LogicalVolumeStore::GetInstance();
       unsigned int numberOfVolumes = 0;
       for (const auto log_vol : *g4lvs){
-        if (volName==log_vol->GetName()){
+        if (volName == static_cast<const std::string&>(log_vol->GetName())) {
           TRTRadiatorParameters rad( log_vol,
                                      foilThickness,gasThickness,
                                      (BEflag)regionFlag );

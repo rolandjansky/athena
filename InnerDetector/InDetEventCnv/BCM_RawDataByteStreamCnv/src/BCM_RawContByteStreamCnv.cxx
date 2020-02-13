@@ -27,8 +27,7 @@
 ////////////////////////
 BCM_RawContByteStreamCnv::BCM_RawContByteStreamCnv(ISvcLocator* svcloc):Converter(storageType(), classID(),svcloc),
   m_BCMRawContBSTool{},
-  m_ByteStreamEventAccess{},
-  m_StoreGate{}
+  m_ByteStreamEventAccess{}
 {
 }
 

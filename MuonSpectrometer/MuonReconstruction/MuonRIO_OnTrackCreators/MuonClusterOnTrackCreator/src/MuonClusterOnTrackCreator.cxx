@@ -1,23 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
-//   Implementation file for class MuonClusterOnTrackCreator
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 // AlgTool used for MuonClusterOnTrack object production
-///////////////////////////////////////////////////////////////////
-// Version 1.0 20/07/2004
 ///////////////////////////////////////////////////////////////////
 
 #include "MuonClusterOnTrackCreator.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkSurfaces/Surface.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
 
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonPrepRawData/TgcPrepData.h"
@@ -32,8 +23,6 @@
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 #include <sstream>
 
-using std::atan2;
-
 #define SIG_VEL 4.80000  // ns/m
 #define C_VEL   3.33564  // ns/m
 
@@ -41,17 +30,12 @@ namespace Muon {
 
   MuonClusterOnTrackCreator::MuonClusterOnTrackCreator
   (const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa),
-      m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+    : AthAlgTool(ty,na,pa)
   {
     // algtool interface - necessary!
     declareInterface<IMuonClusterOnTrackCreator>(this);
     declareInterface<IRIO_OnTrackCreator>(this);
 
-    // --- some job options here.
-    declareProperty("doCSC",  m_doCsc = true);
-    declareProperty("doRPC",  m_doRpc = true);
-    declareProperty("doTGC",  m_doTgc = true);
     declareProperty("DoFixedErrorTgcEta", m_doFixedErrorTgcEta = false );
     declareProperty("DoFixedErrorRpcEta", m_doFixedErrorRpcEta = false );
     declareProperty("DoFixedErrorCscEta", m_doFixedErrorCscEta = false );
@@ -78,12 +62,7 @@ namespace Muon {
       return StatusCode::FAILURE;
     } 
     
-    // Get DetectorStore service
-    //
-    if ( m_idHelper.retrieve().isFailure() ) {
-      ATH_MSG_ERROR ( " Cannot retrieve  " << m_idHelper );
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_idHelperSvc.retrieve());
 
     return StatusCode::SUCCESS;
   }
@@ -115,7 +94,7 @@ namespace Muon {
 
     if (RIO.localCovariance().cols()!=RIO.localCovariance().rows()){
       ATH_MSG_WARNING ( "Rows and colums not equal!");
-      if (m_idHelper->isRpc(RIO.identify())){
+      if (m_idHelperSvc->isRpc(RIO.identify())){
         std::stringstream ss;
         ss << "RPC hit with (r,c)="<<RIO.localCovariance().rows()<<","<<RIO.localCovariance().cols();
         ATH_MSG_WARNING(ss.str().c_str() );
@@ -123,12 +102,12 @@ namespace Muon {
     }
 
     if (RIO.localCovariance().cols() > 1 || 
-	(m_idHelper->isTgc(RIO.identify()) && m_idHelper->measuresPhi(RIO.identify()))) {
-      ATH_MSG_VERBOSE ( "Making 2-dim local parameters: " << m_idHelper->toString(RIO.identify()) );
+	(m_idHelperSvc->isTgc(RIO.identify()) && m_idHelperSvc->measuresPhi(RIO.identify()))) {
+      ATH_MSG_VERBOSE ( "Making 2-dim local parameters: " << m_idHelperSvc->toString(RIO.identify()) );
     } else {
       Trk::DefinedParameter  radiusPar(RIO.localPosition().x(),Trk::locX);
       locpar = Trk::LocalParameters(radiusPar);
-      ATH_MSG_VERBOSE ( "Making 1-dim local parameters: "  << m_idHelper->toString(RIO.identify()) );
+      ATH_MSG_VERBOSE ( "Making 1-dim local parameters: "  << m_idHelperSvc->toString(RIO.identify()) );
     }
 
     
@@ -149,7 +128,7 @@ namespace Muon {
     Amg::MatrixX loce = RIO.localCovariance();
     ATH_MSG_DEBUG ( "All: new err matrix is " << loce );
   
-    if(  m_idHelper->isRpc(RIO.identify()) ){
+    if(  m_idHelperSvc->isRpc(RIO.identify()) ){
       
       // cast to RpcPrepData
       const RpcPrepData* MClus   = dynamic_cast<const RpcPrepData*> (&RIO);
@@ -158,7 +137,7 @@ namespace Muon {
 	return 0;
       }
         
-      bool measphi = m_idHelper->measuresPhi(RIO.identify());
+      bool measphi = m_idHelperSvc->measuresPhi(RIO.identify());
       
       double fixedError = 1.;
       bool scale = false;
@@ -203,7 +182,7 @@ namespace Muon {
       ATH_MSG_DEBUG (" correct_time_along_strip " << correct_time_along_strip<<" av_correct_time_along_strip " << av_correct_time_along_strip<<" real_TOF_onRPCgap " << real_TOF_onRPCgap<<" nominal_TOF_onRPCgap " << nominal_TOF_onRPCgap<<" MClus->time() " << MClus->time()<<" correct_time_tot " <<correct_time_tot );
 
 
-    }else if( m_idHelper->isTgc(RIO.identify()) ){
+    }else if( m_idHelperSvc->isTgc(RIO.identify()) ){
 
       // cast to TgcPrepData
       const TgcPrepData* MClus   = dynamic_cast<const TgcPrepData*> (&RIO);
@@ -213,11 +192,11 @@ namespace Muon {
       }
 
       // calculation of 2D error matrix for TGC phi strips
-      if ( m_idHelper->measuresPhi(RIO.identify()) ){
+      if ( m_idHelperSvc->measuresPhi(RIO.identify()) ){
 
-	int stationeta=m_idHelper->stationEta(RIO.identify());
-	int stripNo = m_idHelper->tgcIdHelper().channel(RIO.identify());
-	int gasGap = m_idHelper->tgcIdHelper().gasGap(RIO.identify());
+	int stationeta=m_idHelperSvc->stationEta(RIO.identify());
+	int stripNo = m_idHelperSvc->tgcIdHelper().channel(RIO.identify());
+	int gasGap = m_idHelperSvc->tgcIdHelper().gasGap(RIO.identify());
 
 	const MuonGM::TgcReadoutElement *ele= MClus->detectorElement();
 
@@ -232,8 +211,8 @@ namespace Muon {
 	}
 	Amg::MatrixX mat(2,2);
 	
-	double phistereo=atan2(localX2-localX1,stripLength); 
-	double Sn      = sin(phistereo); 
+	double phistereo=std::atan2(localX2-localX1,stripLength); 
+	double Sn      = std::sin(phistereo); 
 	double Sn2     = Sn*Sn;
 	double Cs2     = 1.-Sn2;
 	
@@ -241,7 +220,7 @@ namespace Muon {
 	if( m_doFixedErrorTgcPhi ) V0 = m_fixedErrorTgcPhi*m_fixedErrorTgcPhi;
 	double V1      = stripLength*stripLength/12;
 	mat(0,0)  = (Cs2*V0+Sn2*V1);
-	mat.fillSymmetric(1,0,(Sn*sqrt(Cs2)*(V0-V1)));
+	mat.fillSymmetric(1,0,(Sn*std::sqrt(Cs2)*(V0-V1)));
 	mat(1,1)  = (Sn2*V0+Cs2*V1);
 	loce=mat;
       }else{
@@ -254,16 +233,15 @@ namespace Muon {
           
       MClT = new TgcClusterOnTrack(MClus,locpar,loce,positionAlongStrip);
 
-    }else if( m_idHelper->isCsc(RIO.identify()) ){
+    }else if( m_idHelperSvc->isCsc(RIO.identify()) ){
 
-      // cast to CscPrepData
       const CscPrepData* MClus   = dynamic_cast<const CscPrepData*> (&RIO);
       if (!MClus) {
 	ATH_MSG_WARNING ( "RIO not of type CscPrepData, cannot create ROT" );
 	return 0;
       }
 
-      bool measphi = m_idHelper->measuresPhi(RIO.identify());
+      bool measphi = m_idHelperSvc->measuresPhi(RIO.identify());
       double fixedError = 1.;
       bool scale = false;
       // check whether to scale eta/phi hit
@@ -282,7 +260,7 @@ namespace Muon {
       // current not changing CscClusterStatus but passing status of RIO
       MClT = new CscClusterOnTrack(MClus,locpar,loce,positionAlongStrip,MClus->status(),MClus->timeStatus());
 
-    }else if( m_idHelper->isMM(RIO.identify()) ){
+    }else if( m_idHelperSvc->isMM(RIO.identify()) ){
       // cast to MMPrepData
       const MMPrepData* MClus   = dynamic_cast<const MMPrepData*> (&RIO);
       if (!MClus) {
@@ -331,9 +309,8 @@ namespace Muon {
 
       MClT = new MMClusterOnTrack(MClus,locpar,loce,positionAlongStrip);
 
-    }else if( m_idHelper->issTgc(RIO.identify()) ){
+    }else if( m_idHelperSvc->issTgc(RIO.identify()) ){
 
-      // cast to CscPrepData
       const sTgcPrepData* MClus   = dynamic_cast<const sTgcPrepData*> (&RIO);
       if (!MClus) {
 	ATH_MSG_WARNING ( "RIO not of type MMPrepData, cannot create ROT" );

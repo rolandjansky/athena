@@ -6,7 +6,6 @@
 # @date November 2009
 
 from __future__ import with_statement, print_function
-from past.builtins import xrange
 
 __doc__ = "a few utils to ease the day-to-day work with ROOT"
 __version__ = "$Revision: 739816 $"
@@ -256,7 +255,7 @@ class RootFileDumper(object):
         else:              leaves = [str(b).rstrip('\0') for b in leaves]
         
         # handle itr_entries
-        if isinstance(itr_entries, basestring):
+        if isinstance(itr_entries, str):
             if ':' in itr_entries:
                 def toint(s):
                     if s == '':
@@ -266,7 +265,7 @@ class RootFileDumper(object):
                     except ValueError:
                         return s
                 from itertools import islice
-                itr_entries = islice(xrange(nentries),
+                itr_entries = islice(range(nentries),
                                      *map(toint, itr_entries.split(':')))
             elif ('range' in itr_entries or
                   ',' in itr_entries):
@@ -274,14 +273,14 @@ class RootFileDumper(object):
             else:
                 try:
                     _n = int(itr_entries)
-                    itr_entries = xrange(_n)
+                    itr_entries = range(_n)
                 except ValueError:
                     print ("** err ** invalid 'itr_entries' argument. will iterate over all entries.")
-                    itr_entries = xrange(nentries)
+                    itr_entries = range(nentries)
         elif isinstance(itr_entries, list):
             itr_entries = itr_entries
         else:
-            itr_entries = xrange(itr_entries)
+            itr_entries = range(itr_entries)
                 
         for ientry in itr_entries:
             hdr = ":: entry [%05i]..." % (ientry,)
@@ -329,7 +328,7 @@ class RootFileDumper(object):
                         self.allgood = False
                         print (err)
                     for o in vals:
-                        n = map(str, o[0])
+                        n = list(map(str, o[0]))
                         v = o[1]
                         yield tree_name, ientry, n, v
 

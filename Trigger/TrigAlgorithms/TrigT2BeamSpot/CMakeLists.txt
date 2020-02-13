@@ -31,7 +31,7 @@ atlas_add_component( TrigT2BeamSpot
                      src/*.cxx
                      src/components/TrigT2*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib TrigSteeringEvent TrigInterfacesLib AthContainers EventInfo EventPrimitives GaudiKernel TrkParameters TrkTrack TrkTrackSummary TrigInDetEvent TrigNavigationLib TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringKernelLib TrigSteeringEvent TrigInterfacesLib AthContainers EventInfo EventPrimitives GaudiKernel TrkParameters TrkTrack TrkTrackSummary TrigInDetEvent TrigNavigationLib TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigT2BeamSpot )

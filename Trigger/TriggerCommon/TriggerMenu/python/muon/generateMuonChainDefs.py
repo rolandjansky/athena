@@ -17,7 +17,7 @@ import traceback
 
 try:
     from TriggerMenu.muon.MuonDefIdTest import L2EFChain_mu as L2EFChain_mu_IdTest
-except:
+except Exception:
     log.error('generateMuonChainDefs: Problems when importing MuonDefIdTest.')
     log.info(traceback.print_exc())
 
@@ -93,9 +93,9 @@ def generateChainDefs(chainDict, thisIsBphysChain=False):
         theChainDef = listOfChainDefs[0]
 
     # needed for nscan to replace the placeholder TE with the L2TE of the other chain
-    if (modifyNscanInputTE == True):
+    if modifyNscanInputTE:
         theChainDef = _modifyTEinChainDef(theChainDef,chainDict)
-    if (modifyCalotagInputTE == True):
+    if modifyCalotagInputTE:
         theChainDef = _modifyTEinChainDef(theChainDef, chainDict)
         
     #if chainDict["topo"]:
@@ -105,8 +105,8 @@ def generateChainDefs(chainDict, thisIsBphysChain=False):
         nomucomb_asymmetric = True
         for ii in range(len(listOfChainDicts)):
             if listOfChainDicts[ii]['chainParts']['reccalibInfo']!='nomucomb':nomucomb_asymmetric=False
-        if nomucomb_asymmetric == True:
-            theChainDef = _AsymmChainConfig(theChainDef,chainDict);
+        if nomucomb_asymmetric:
+            theChainDef = _AsymmChainConfig(theChainDef,chainDict)
 
     return theChainDef
 
@@ -208,7 +208,7 @@ def _AsymmChainConfig(theChainDef,chainDict):
     theChainDef.addSignatureL2([L2TEname])
 
     EFTEname = "EF_mutrkmulti_" + idmulti + "_nomucomb_" + chainDict['L1item']
-    theChainDef.addSequence([theTrigMuonIDTrackMultiHypoConfig_Muon],inputTEsEF, EFTEname);
+    theChainDef.addSequence([theTrigMuonIDTrackMultiHypoConfig_Muon],inputTEsEF, EFTEname)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])       
 
 

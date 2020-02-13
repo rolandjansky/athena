@@ -20,7 +20,7 @@ else:            job += arcc.Athena__RootAsciiDumperAlg      ("rootdumper")
 
 
 import os, time
-print 'attach now', os.getpid()
+printfunc ('attach now', os.getpid())
 time.sleep(10)
 
 theApp.initialize()

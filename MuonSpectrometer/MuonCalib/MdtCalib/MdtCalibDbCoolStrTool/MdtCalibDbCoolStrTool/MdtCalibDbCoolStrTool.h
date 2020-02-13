@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTCALIBDB_MDTCALIBCOOLSTRTOOL_H
@@ -13,6 +13,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 //c - c++
 #include "zlib.h"
@@ -25,9 +27,6 @@ class Identifier;
 class IIOVDbSvc;
 class MsgStream;
 class IAtRndmGenSvc;
-namespace MuonGM{
-  class MuonDetectorManager;
-}
 
 namespace coral	{
   class Blob;
@@ -79,7 +78,12 @@ private:
 
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-  const MuonGM::MuonDetectorManager *m_detMgr;
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+
   ToolHandle<IIdToFixedIdTool> m_idToFixedIdTool;
   ServiceHandle<IIOVDbSvc>     m_IOVDbSvc;
   ServiceHandle<MdtCalibrationRegionSvc> m_regionSvc;

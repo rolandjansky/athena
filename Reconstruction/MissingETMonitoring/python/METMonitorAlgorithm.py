@@ -57,8 +57,8 @@ def METMonitoringConfig(inputFlags):
     helper = AthMonitorCfgHelper(inputFlags,'METMonitor') 
  
 
-    from MissingETMonitoring.MissingETMonitoringConf import  METMonitoringAlg     
-    METRefFinal_MonAlg = helper.addAlgorithm(METMonitoringAlg,'METRefFinal_MonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory  
+    METRefFinal_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METRefFinal_MonAlg')
 #    anotherExampleMonAlg = helper.addAlgorithm(METMonitoringExampleAlg,'AnotherExampleMonAlg')
 #    met_types = ["MET_RefEle", "MET_RefGamma"]
 #    met_types = ["MET_RefFinal"]
@@ -75,7 +75,7 @@ def METMonitoringConfig(inputFlags):
         defineHistograms(METRefFinal_MonAlg, group,helper,mets)
 
 
-    METPflow_MonAlg = helper.addAlgorithm(METMonitoringAlg,'METPflow_MonAlg')   
+    METPflow_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METPflow_MonAlg')   
     pfmet_types = ["MET_PFlow","MET_PFlow_RefJet","MET_PFlow_Muon","MET_PFlow_RefEle","MET_PFlow_RefGamma","MET_PFlow_RefTau","MET_PFlow_PVSoftTrk"]
     METPflow_MonAlg.METContainer="MET_Reference_AntiKt4EMPFlow"
     METPflow_MonAlg.metKeys = pfmet_types
@@ -87,7 +87,7 @@ def METMonitoringConfig(inputFlags):
 
 
 
-    METCalo_MonAlg = helper.addAlgorithm(METMonitoringAlg,'METCalo_MonAlg')   
+    METCalo_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METCalo_MonAlg')   
     metcalo_types = [ "PEMB", "EMB", "PEME", "EME", "TILE", "HEC", "FCAL" ]
     METCalo_MonAlg.METContainer="MET_Calo"
     METCalo_MonAlg.METCaloKeys = metcalo_types
@@ -98,7 +98,7 @@ def METMonitoringConfig(inputFlags):
         defineHistogramsCalo(METCalo_MonAlg, group,helper,mets)
 
     
-    METRefFinal_METCut_MonAlg = helper.addAlgorithm(METMonitoringAlg,'METRefFinal_METCut_MonAlg')
+    METRefFinal_METCut_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METRefFinal_METCut_MonAlg')
     METRefFinal_METCut_MonAlg.METContainer="MET_Reference_AntiKt4EMTopo"
     METRefFinal_METCut_MonAlg.metTotalKey="FinalTrk"
     METRefFinal_METCut_MonAlg.metKeys = met_types
@@ -116,7 +116,7 @@ def METMonitoringConfig(inputFlags):
 #    jetCleaningTool.CutLevel = "TightBad"       
     jetCleaningTool.DoUgly = False
     
-    JetCleaning_METMonAlg = helper.addAlgorithm(METMonitoringAlg,'JetCleaning_METMonAlg')    
+    JetCleaning_METMonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'JetCleaning_METMonAlg')    
     JetCleaning_METMonAlg.metKeys = met_types
     JetCleaning_METMonAlg.DoJetCleaning = True
     JetCleaning_METMonAlg.JetCleaningTool = jetCleaningTool
@@ -136,7 +136,7 @@ def METMonitoringConfig(inputFlags):
 #    jetCleaningTool.CutLevel = "TightBad"       
     jetCleaningTool.DoUgly = False
     
-    BadJets_METMonAlg = helper.addAlgorithm(METMonitoringAlg,'BadJets_METMonAlg')    
+    BadJets_METMonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'BadJets_METMonAlg')    
     BadJets_METMonAlg.metKeys = met_types
     BadJets_METMonAlg.DoJetCleaning = True
     BadJets_METMonAlg.alltrigger = True

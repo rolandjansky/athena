@@ -1,13 +1,14 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
 
-def OutputStreamCfg(configFlags, streamName, ItemList=[] ):
-   from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import MakeEventStreamInfo
-   from AthenaServices.AthenaServicesConf import AthenaOutputStream
-   from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
-   from StoreGate.StoreGateConf import StoreGateSvc
+def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False ):
+   MakeEventStreamInfo=CompFactory.MakeEventStreamInfo
+   AthenaOutputStream=CompFactory.AthenaOutputStream
+   AthenaOutputStreamTool=CompFactory.AthenaOutputStreamTool
+   StoreGateSvc=CompFactory.StoreGateSvc
 
    flagName="Output.%sFileName" % streamName
    if configFlags.hasFlag(flagName):
@@ -39,20 +40,30 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[] ):
    outputStream.MetadataStore = result.getService("MetaDataStore")
    outputStream.MetadataItemList = [ "EventStreamInfo#Stream" + streamName, "IOVMetaDataContainer#*" ]
 
+   # Event Tag
+   if not disableEventTag:
+      key = "SimpleTag"
+      outputStream.WritingTool.AttributeListKey=key
+      # build eventinfo attribute list
+      EventInfoAttListTool, EventInfoTagBuilder=CompFactory.getComps("EventInfoAttListTool","EventInfoTagBuilder",)
+      result.addPublicTool(EventInfoAttListTool())
+      tagBuilder = EventInfoTagBuilder(AttributeList=key)
+      result.addEventAlgo(tagBuilder)
+
    # For xAOD output
    if streamName=="xAOD":
-      from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
+      xAODMaker__EventFormatSvc=CompFactory.xAODMaker__EventFormatSvc
       # Simplifies naming 
       result.addService(xAODMaker__EventFormatSvc())
       outputStream.MetadataItemList.append( "xAOD::EventFormat#EventFormat" )
 
-      from xAODMetaDataCnv.xAODMetaDataCnvConf import xAODMaker__FileMetaDataMarkUpTool
+      xAODMaker__FileMetaDataMarkUpTool=CompFactory.xAODMaker__FileMetaDataMarkUpTool
       streamMarkUpTool = xAODMaker__FileMetaDataMarkUpTool( streamName + "_FileMetaDataMarkUpTool" )
       streamMarkUpTool.Key = streamName
       outputStream.HelperTools += [ streamMarkUpTool ]
       outputStream.WritingTool.SubLevelBranchName = "<key>"
 
-      from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+      AthenaPoolCnvSvc=CompFactory.AthenaPoolCnvSvc
       poolcnvsvc = AthenaPoolCnvSvc()
       result.addService(poolcnvsvc)
       poolcnvsvc.PoolAttributes += [ "DatabaseName = '" + fileName + "'; COMPRESSION_LEVEL = '5'" ]

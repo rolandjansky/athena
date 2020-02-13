@@ -2,7 +2,7 @@
 
 def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    from TrigOutputHandlingConf import HLTResultMTMaker
-   from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+   from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
    m = HLTResultMTMaker(name)
 
@@ -64,7 +64,7 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
       self.addCollectionListToResults(typeNameAuxList,moduleIds=[getFullHLTResultID()])
 
    # Add the helper methods to the TriggerEDMSerialiserTool python class
-   from TrigOutputHandlingConf import TriggerEDMSerialiserTool
+   from .TrigOutputHandlingConf import TriggerEDMSerialiserTool
    TriggerEDMSerialiserTool.addCollection = addCollection
    TriggerEDMSerialiserTool.addCollectionToMainResult = addCollectionToMainResult
    TriggerEDMSerialiserTool.addCollectionListToResults = addCollectionListToResults
@@ -96,7 +96,7 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
    serialiser.TruncationThresholds = truncThresholds
 
    # Configure monitoring histograms
-   from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+   from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
    serialiser.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
    serialiser.MonTool.defineHistogram('Truncation_ModuleId', path='EXPERT', type='TH1F',
                                       title='Module IDs of truncated HLT results;Module ID;Num of truncated results',
@@ -114,7 +114,7 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
    return serialiser
 
 def StreamTagMakerToolCfg(name="StreamTagMakerTool"):
-   from TrigOutputHandlingConf import StreamTagMakerTool
+   from .TrigOutputHandlingConf import StreamTagMakerTool
 
    stmaker = StreamTagMakerTool(name)
    # Extra configuration may come here
@@ -123,7 +123,7 @@ def StreamTagMakerToolCfg(name="StreamTagMakerTool"):
 
 
 def TriggerBitsMakerToolCfg(name="TriggerBitsMakerTool"):
-   from TrigOutputHandlingConf import TriggerBitsMakerTool
+   from .TrigOutputHandlingConf import TriggerBitsMakerTool
    from TriggerJobOpts.TriggerFlags import TriggerFlags
 
    bitsmaker = TriggerBitsMakerTool(name)

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyAthenaUtils.cxx 
@@ -145,6 +145,20 @@ void PyAthena::throw_py_exception (bool display)
     PyErr_Restore (pytype, pyvalue, pytrace);
     // and print
     PyErr_Print();
+    {
+      // With py3, need to explicitly flush the python stderr
+      // for the error to be visible.
+      PyObject* f = PySys_GetObject (const_cast<char*>("stderr"));
+#if PY_VERSION_HEX < 0x03000000
+      PyObject* fstr = PyString_FromString ("flush");
+#else
+      PyObject* fstr = PyUnicode_FromString ("flush");
+#endif
+      PyObject* x = PyObject_CallMethodObjArgs (f, fstr, NULL);
+      Py_XDECREF (x);
+      Py_XDECREF (fstr);
+      Py_XDECREF (f);
+    }
   }
   throw PyROOT::TPyException();
 }

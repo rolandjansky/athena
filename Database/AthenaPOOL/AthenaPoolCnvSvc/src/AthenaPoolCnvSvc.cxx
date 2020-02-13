@@ -119,12 +119,9 @@ StatusCode AthenaPoolCnvSvc::initialize() {
       incSvc->addListener(this, "EndEvent", pri);
       ATH_MSG_DEBUG("Subscribed to EndEvent for printing out input file attributes.");
    }
-   pool::DbType dbType = m_dbType;
-   m_dbType = pool::DbType(pool::ROOTTREE_StorageType);
    if (!processPoolAttributes(m_inputAttr, "", IPoolSvc::kInputStream, false, true, true).isSuccess()) {
       ATH_MSG_DEBUG("setInputAttribute failed setting POOL domain attributes.");
    }
-   m_dbType = dbType;
    m_doChronoStat = m_skipFirstChronoCommit.value() ? false : true;
    return(StatusCode::SUCCESS);
 }
@@ -286,44 +283,13 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSpec) {
 // This is called before DataObjects are being converted.
-   // Reset streaming parameters to CnvSvc properties.
-   m_containerPrefix = m_containerPrefixProp.value();
-   m_containerNameHint = m_containerNameHintProp.value();
-   m_branchNameHint = m_branchNameHintProp.value();
-   // Get Technology from m_containerPrefix
-   std::size_t colonPos = m_containerPrefix.find(":");
-   if (colonPos != std::string::npos) {
-      m_dhContainerPrefix = m_containerPrefix.substr(0, colonPos + 1) + "POOLContainer";
-   } else {
-      m_dhContainerPrefix = "POOLContainer";
-   }
-
-   // Override streaming parameters from StreamTool if requested.
-   std::string::size_type pos1 = outputConnectionSpec.find("[");
-   m_outputConnectionSpec = outputConnectionSpec.substr(0, pos1);
-   while (pos1 != std::string::npos) {
-      const std::string::size_type pos2 = outputConnectionSpec.find("=", pos1);
-      const std::string key = outputConnectionSpec.substr(pos1 + 1, pos2 - pos1 - 1);
-      const std::string::size_type pos3 = outputConnectionSpec.find("]", pos2);
-      const std::string value = outputConnectionSpec.substr(pos2 + 1, pos3 - pos2 - 1);
-      if (key == "OutputCollection") {
-         m_dhContainerPrefix = value;
-      } else if (key == "PoolContainerPrefix") {
-         m_containerPrefix = value;
-      } else if (key == "TopLevelContainerName") {
-         m_containerNameHint = value;
-      } else if (key == "SubLevelBranchName") {
-         m_branchNameHint = value;
-      }
-      pos1 = outputConnectionSpec.find("[", pos3);
-   }
-
+   std::string outputConnection = outputConnectionSpec;
    // Extract the technology
-   if (!decodeOutputSpec(m_outputConnectionSpec, m_dbType).isSuccess()) {
+   int tech = m_dbType.type();
+   if (!decodeOutputSpec(outputConnection, tech).isSuccess()) {
       ATH_MSG_ERROR("connectOutput FAILED extract file name and technology.");
       return(StatusCode::FAILURE);
    }
-
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()) {
       return(StatusCode::SUCCESS);
    }
@@ -341,12 +307,7 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       m_streamClientFiles.push_back(outputConnectionSpec);
    }
 
-   m_outputConnectionForSlot[ Gaudi::Hive::currentContext().slot() ] = m_outputConnectionSpec;
-   m_containerPrefixForSlot[ Gaudi::Hive::currentContext().slot() ] = m_containerPrefix;
-   m_containerNameHintForSlot[ Gaudi::Hive::currentContext().slot() ] = m_containerNameHint;
-   m_branchNameHintForSlot[ Gaudi::Hive::currentContext().slot() ] = m_branchNameHint;
-
-   unsigned int contextId = outputContextId();
+   unsigned int contextId = outputContextId(outputConnection);
    try {
       if (!m_poolSvc->connect(pool::ITransaction::UPDATE, contextId).isSuccess()) {
          ATH_MSG_ERROR("connectOutput FAILED to open an UPDATE transaction.");
@@ -358,8 +319,6 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
    }
 
    std::unique_lock<std::mutex> lock(m_mutex);
-   
-   std::string outputConnection = getOutputConnectionSpec();
    if (std::find(m_contextAttr.begin(), m_contextAttr.end(), contextId) == m_contextAttr.end()) {
       m_contextAttr.push_back(contextId);
       // Setting default 'TREE_MAX_SIZE' for ROOT to 1024 GB to avoid file chains.
@@ -557,9 +516,9 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                num = -1;
             }
          }
-         if( dataHeaderSeen ) {
+         if (dataHeaderSeen) {
             // DataHeader was the last object, need to tell the converter there is no DHForm coming
-            GenericAddress address(0,0, "", dataHeaderID);
+            GenericAddress address(0, 0, "", dataHeaderID);
             if( !DHcnv->updateRepRefs( &address, nullptr ).isSuccess() ) {
                ATH_MSG_ERROR("Failed updateRepRefs for DataHeader");
                return abortSharedWrClients(-1);
@@ -590,8 +549,14 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       m_chronoStatSvc->chronoStart("commitOutput");
    }
    std::unique_lock<std::mutex> lock(m_mutex);
-   unsigned int contextId = outputContextId();
-   std::string outputConnection = getOutputConnectionSpec();
+   std::string outputConnection = outputConnectionSpec;
+   // Extract the technology
+   int tech = m_dbType.type();
+   if (!decodeOutputSpec(outputConnection, tech).isSuccess()) {
+      ATH_MSG_ERROR("connectOutput FAILED extract file name and technology.");
+      return(StatusCode::FAILURE);
+   }
+   unsigned int contextId = outputContextId(outputConnection);
    ATH_MSG_DEBUG("file="<< outputConnection <<" context=" << contextId);
    if (!processPoolAttributes(m_domainAttr, outputConnection, contextId).isSuccess()) {
       ATH_MSG_DEBUG("commitOutput failed process POOL domain attributes.");
@@ -646,7 +611,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
 }
 
 //______________________________________________________________________________
-StatusCode AthenaPoolCnvSvc::disconnectOutput() {
+StatusCode AthenaPoolCnvSvc::disconnectOutput(const std::string& outputConnectionSpec) {
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()) {
       return(StatusCode::SUCCESS);
    }
@@ -663,97 +628,16 @@ StatusCode AthenaPoolCnvSvc::disconnectOutput() {
       }
       ATH_MSG_DEBUG("disconnectOutput not SKIPPED for server: " << m_streamServer);
    }
-   /* MN: why is this here?
-   // Setting default 'TREE_MAX_SIZE' for ROOT to 1024 GB to avoid file chains.
-   std::vector<std::string> maxFileSize;
-   maxFileSize.push_back("TREE_MAX_SIZE");
-   maxFileSize.push_back("1099511627776L");
-   m_domainAttr.push_back(maxFileSize);
-   // Extracting OUTPUT POOL ItechnologySpecificAttributes for Domain, Database and Container.
-   extractPoolAttributes(m_poolAttr, &m_containerAttr, &m_databaseAttr, &m_domainAttr);
-   */
-   return m_poolSvc->disconnect( outputContextId() );
+   return m_poolSvc->disconnect(outputContextId(outputConnectionSpec));
 }
 
 //______________________________________________________________________________
-const std::string& AthenaPoolCnvSvc::getOutputConnectionSpec() const
-{
-   auto slot = Gaudi::Hive::currentContext().slot();
-   if( slot == EventContext::INVALID_CONTEXT_ID) return m_outputConnectionSpec;
-
-   auto connection = m_outputConnectionForSlot.find( slot );
-   if( connection == m_outputConnectionForSlot.end() ) return m_outputConnectionSpec;
-   return connection->second;
-}
-
-//______________________________________________________________________________
-unsigned int AthenaPoolCnvSvc::outputContextId() {
+unsigned int AthenaPoolCnvSvc::outputContextId(const std::string& outputConnection) {
    return m_persSvcPerOutput?
-      m_poolSvc->getOutputContext( getOutputConnectionSpec() ) : (unsigned)IPoolSvc::kOutputStream;
+      m_poolSvc->getOutputContext(outputConnection) : (unsigned int)IPoolSvc::kOutputStream;
 }
 
 //______________________________________________________________________________
-std::string AthenaPoolCnvSvc::getOutputContainer(const std::string& typeName,
-		const std::string& key) const {
-   auto slot = Gaudi::Hive::currentContext().slot();
-   std::string containerPrefix = m_containerPrefix;
-   std::string containerNameHint = m_containerNameHint;
-   std::string branchNameHint = m_branchNameHint;
-   if (slot != EventContext::INVALID_CONTEXT_ID) {
-      auto prefix = m_containerPrefixForSlot.find(slot);
-      if (prefix != m_containerPrefixForSlot.end()) containerPrefix = prefix->second;
-      auto container = m_containerNameHintForSlot.find(slot);
-      if (container != m_containerNameHintForSlot.end()) containerNameHint = container->second;
-      auto branch = m_branchNameHintForSlot.find(slot);
-      if (branch != m_branchNameHintForSlot.end()) branchNameHint = branch->second;
-   }
-
-   if (typeName.substr(0, 14) == "DataHeaderForm") {
-      return(m_dhContainerPrefix + "Form" + "(" + typeName + ")");
-   }
-   if (typeName.substr(0, 10) == "DataHeader") {
-      if (key.substr(key.size() - 1) == "/") {
-         return(m_dhContainerPrefix + "(" + key + typeName + ")");
-      }
-      return(m_dhContainerPrefix + "(" + typeName + ")");
-   }
-   if (typeName.substr(0, 13) == "AttributeList") {
-      return(m_collContainerPrefix + "(" + key + ")");
-   }
-   if (key.empty()) {
-      return(containerPrefix + typeName);
-   }
-   const std::string typeTok = "<type>", keyTok = "<key>";
-   std::string ret = containerPrefix + containerNameHint;
-   if (!branchNameHint.empty()) {
-      ret += "(" + branchNameHint + ")";
-   }
-   const std::size_t pos1 = ret.find(typeTok);
-   if (pos1 != std::string::npos) {
-      ret.replace(pos1, typeTok.size(), typeName);
-   }
-   const std::size_t pos2 = ret.find(keyTok);
-   if (pos2 != std::string::npos) {
-      if (key.empty()) {
-         ret.replace(pos2, keyTok.size(), typeName);
-      } else {
-         ret.replace(pos2, keyTok.size(), key);
-      }
-   }
-   return(ret);
-}
-//______________________________________________________________________________
-pool::DbType AthenaPoolCnvSvc::technologyType(const std::string& containerName) const {
-   if (containerName.find("ROOTKEY:") == 0) {
-      return(pool::DbType(pool::ROOTKEY_StorageType));
-   } else if (containerName.find("ROOTTREE:") == 0) {
-      return(pool::DbType(pool::ROOTTREE_StorageType));
-   } else if (containerName.find("ROOTTREEINDEX:") == 0) {
-      return(pool::DbType(pool::ROOTTREEINDEX_StorageType));
-   }
-   return(m_dbType);
-}
-//__________________________________________________________________________
 IPoolSvc* AthenaPoolCnvSvc::getPoolSvc() {
    return(&*m_poolSvc);
 }
@@ -1044,7 +928,31 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
 StatusCode AthenaPoolCnvSvc::convertAddress(const IOpaqueAddress* pAddress,
 		std::string& refAddress) {
    assert(pAddress);
-   refAddress = *pAddress->par();
+   const TokenAddress* tokAddr = dynamic_cast<const TokenAddress*>(pAddress);
+   if (tokAddr != nullptr && tokAddr->getToken() != nullptr) {
+      refAddress = tokAddr->getToken()->toString();
+   } else {
+      refAddress = *pAddress->par();
+   }
+   return(StatusCode::SUCCESS);
+}
+//__________________________________________________________________________
+StatusCode AthenaPoolCnvSvc::decodeOutputSpec(std::string& fileSpec,
+		int& outputTech) const {
+   if (fileSpec.find("oracle") == 0 || fileSpec.find("mysql") == 0) {
+      outputTech = pool::POOL_RDBMS_StorageType.type();
+   } else if (fileSpec.find("ROOTKEY:") == 0) {
+      outputTech = pool::ROOTKEY_StorageType.type();
+      fileSpec.erase(0, 8);
+   } else if (fileSpec.find("ROOTTREE:") == 0) {
+      outputTech = pool::ROOTTREE_StorageType.type();
+      fileSpec.erase(0, 9);
+   } else if (fileSpec.find("ROOTTREEINDEX:") == 0) {
+      outputTech = pool::ROOTTREEINDEX_StorageType.type();
+      fileSpec.erase(0, 14);
+   } else if (outputTech == 0) {
+      outputTech = pool::ROOTTREEINDEX_StorageType.type();
+   }
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
@@ -1067,15 +975,12 @@ StatusCode AthenaPoolCnvSvc::cleanUp() {
 StatusCode AthenaPoolCnvSvc::setInputAttributes(const std::string& fileName) {
    // Set attributes for input file
    m_lastFileName = fileName; // Save file name for printing attributes per event
-   pool::DbType dbType = m_dbType;
-   m_dbType = pool::DbType(pool::ROOTTREE_StorageType);
    if (!processPoolAttributes(m_inputAttr, m_lastFileName, IPoolSvc::kInputStream, false, true, false).isSuccess()) {
       ATH_MSG_DEBUG("setInputAttribute failed setting POOL database/container attributes.");
    }
    if (!processPoolAttributes(m_inputAttr, m_lastFileName, IPoolSvc::kInputStream, true, false).isSuccess()) {
       ATH_MSG_DEBUG("setInputAttribute failed getting POOL database/container attributes.");
    }
-   m_dbType = dbType;
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
@@ -1218,21 +1123,15 @@ StatusCode AthenaPoolCnvSvc::abortSharedWrClients(int client_n)
 //______________________________________________________________________________
 void AthenaPoolCnvSvc::handle(const Incident& incident) {
    if (incident.type() == "EndEvent") {
-      pool::DbType dbType = m_dbType;
-      m_dbType = pool::DbType(pool::ROOTTREE_StorageType);
       if (!processPoolAttributes(m_inputAttrPerEvent, m_lastFileName, IPoolSvc::kInputStream).isSuccess()) {
          ATH_MSG_DEBUG("handle EndEvent failed process POOL database attributes.");
       }
-      m_dbType = dbType;
    }
 }
 //______________________________________________________________________________
 AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLocator) :
 	::AthCnvSvc(name, pSvcLocator, POOL_StorageType),
-	m_dbType(),
-	m_outputConnectionSpec(),
-	m_dhContainerPrefix(),
-	m_collContainerPrefix("ROOTTREE:POOLCollectionTree"),
+	m_dbType(pool::ROOTTREEINDEX_StorageType),
 	m_lastFileName(),
 	m_poolSvc("PoolSvc", name),
 	m_chronoStatSvc("ChronoStatSvc", name),
@@ -1242,9 +1141,6 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	m_outputStreamingTool(this),
 	m_streamServer(0),
 	m_metadataClient(0),
-	m_containerPrefix(),
-	m_containerNameHint(),
-	m_branchNameHint(),
 	m_domainMaxFileSize(15000000000LL),
 	m_doChronoStat(true) {
    declareProperty("UseDetailChronoStat", m_useDetailChronoStat = false);
@@ -1264,24 +1160,6 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 }
 //______________________________________________________________________________
 AthenaPoolCnvSvc::~AthenaPoolCnvSvc() {
-}
-//__________________________________________________________________________
-StatusCode AthenaPoolCnvSvc::decodeOutputSpec(std::string& fileSpec,
-		pool::DbType& outputTech) const {
-   outputTech = pool::ROOTTREE_StorageType;
-   if (fileSpec.find("oracle") == 0 || fileSpec.find("mysql") == 0) {
-      outputTech = pool::POOL_RDBMS_StorageType;
-   } else if (fileSpec.find("ROOTKEY:") == 0) {
-      outputTech = pool::ROOTKEY_StorageType;
-      fileSpec.erase(0, 8);
-   } else if (fileSpec.find("ROOTTREE:") == 0) {
-      outputTech = pool::ROOTTREE_StorageType;
-      fileSpec.erase(0, 9);
-   } else if (fileSpec.find("ROOTTREEINDEX:") == 0) {
-      outputTech = pool::ROOTTREEINDEX_StorageType;
-      fileSpec.erase(0, 14);
-   }
-   return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
 void AthenaPoolCnvSvc::extractPoolAttributes(const StringArrayProperty& property,
@@ -1355,13 +1233,13 @@ StatusCode AthenaPoolCnvSvc::processPoolAttributes(std::vector<std::vector<std::
          std::string data = (*iter)[1];
          if (data == "int" || data == "DbLonglong" || data == "double" || data == "string") {
             if (doGet) {
-               if (!m_poolSvc->getAttribute(opt, data, m_dbType.type(), contextId).isSuccess()) {
+               if (!m_poolSvc->getAttribute(opt, data, pool::DbType(pool::ROOTTREE_StorageType).type(), contextId).isSuccess()) {
                   ATH_MSG_DEBUG("getAttribute failed for domain attr " << opt);
                   retError = true;
                }
             }
          } else if (doSet) {
-            if (m_poolSvc->setAttribute(opt, data, m_dbType.type(), contextId).isSuccess()) {
+            if (m_poolSvc->setAttribute(opt, data, pool::DbType(pool::ROOTTREE_StorageType).type(), contextId).isSuccess()) {
                ATH_MSG_DEBUG("setAttribute " << opt << " to " << data);
                if (doClear) {
                   iter->clear();
@@ -1381,13 +1259,13 @@ StatusCode AthenaPoolCnvSvc::processPoolAttributes(std::vector<std::vector<std::
 		         && file.find("," + fileName + ",") == std::string::npos))) {
             if (data == "int" || data == "DbLonglong" || data == "double" || data == "string") {
                if (doGet) {
-                  if (!m_poolSvc->getAttribute(opt, data, m_dbType.type(), fileName, cont, contextId).isSuccess()) {
+                  if (!m_poolSvc->getAttribute(opt, data, pool::DbType(pool::ROOTTREE_StorageType).type(), fileName, cont, contextId).isSuccess()) {
                      ATH_MSG_DEBUG("getAttribute failed for database/container attr " << opt);
                      retError = true;
                   }
                }
             } else if (doSet) {
-               if (m_poolSvc->setAttribute(opt, data, m_dbType.type(), fileName, cont, contextId).isSuccess()) {
+               if (m_poolSvc->setAttribute(opt, data, pool::DbType(pool::ROOTTREE_StorageType).type(), fileName, cont, contextId).isSuccess()) {
                   ATH_MSG_DEBUG("setAttribute " << opt << " to " << data << " for db: " << fileName << " and cont: " << cont);
                   if (doClear) {
                      if (file.substr(0, 1) == "*" && !m_persSvcPerOutput) {

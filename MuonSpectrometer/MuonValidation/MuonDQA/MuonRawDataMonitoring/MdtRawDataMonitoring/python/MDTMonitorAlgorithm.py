@@ -2,8 +2,7 @@
 #Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration                                                                                           
 #
 
-
-from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
+from AthenaConfiguration.ComponentFactory import CompFactory
 #from MdtRawDataMonitoring.MdtRawMonLabels import *
 from MdtMonUtils import getMDTLabel
 from MDTTubeMax import tubeMax
@@ -30,7 +29,7 @@ def MdtMonitoringConfig(inputFlags):
     result.merge(MuonGeoModelCfg(inputFlags))
 
     # Temporary, until we move to services/private tools-- from MuonSpectrometer/MuonConfig
-    result.addPublicTool( Muon__MuonIdHelperTool() )
+    result.addPublicTool( CompFactory.Muon__MuonIdHelperTool() )
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
@@ -45,9 +44,8 @@ def MdtMonitoringConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the 
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
-    from MdtRawDataMonitoring.MdtRawDataMonitoringConf import MdtRawDataMonAlg
     #MdtRawDataMonAlg.DoMdtEsd = True
-    mdtMonAlg = helper.addAlgorithm(MdtRawDataMonAlg,'MdtMonAlg')
+    mdtMonAlg = helper.addAlgorithm(CompFactory.MdtRawDataMonAlg,'MdtMonAlg')
     mdtMonAlg.DoMdtEsd = True
 
     # You can actually make multiple instances of the same algorithm and give 

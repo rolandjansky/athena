@@ -1,9 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 #
 #the configuration of tools shared between L2 and EF
 #
+
 """
 ___author___ = "Jiri Masik"
 ___version___ = "$Id: $"
@@ -128,5 +131,5 @@ if InDetTrigFlags.InDet25nsec():
 
 
 ToolSvc += InDetTrigTRT_DriftCircleTool
-print InDetTrigTRT_DriftCircleTool
+print (InDetTrigTRT_DriftCircleTool)
 

@@ -49,7 +49,6 @@ long TagInfoMgr_StorageType = 0x50;
 TagInfoMgr::TagInfoMgr(const std::string &name, 
                        ISvcLocator *pSvcLocator) :
         AthCnvSvc(name, pSvcLocator, TagInfoMgr_StorageType),    
-        m_overrideEventInfoTags(true),
         m_storeGate("StoreGateSvc", name),
         m_detStore("DetectorStore", name),
         m_iovDbSvc("IOVDbSvc", name),
@@ -58,11 +57,7 @@ TagInfoMgr::TagInfoMgr(const std::string &name,
         m_conditionsRun(EventIDBase::UNDEFNUM),
         m_newFileIncidentSeen(false),
         m_lastIOVRange(IOVRange(IOVTime(),IOVTime()))
-{
-    declareProperty("OverrideEventInfoTags", m_overrideEventInfoTags);
-    declareProperty("ExtraTagValuePairs",    m_extraTagValuePairs);
-    declareProperty("TagInfoKey",            m_tagInfoKey = "ProcessingTags");
-}
+{}
 
 TagInfoMgr::~TagInfoMgr() 
 {}
@@ -94,8 +89,9 @@ TagInfoMgr::addTag(const std::string& tagName,
     // Add name/value to input vector
     ATH_MSG_DEBUG("addTag - adding name/value pairs: " 
           << tagName << " " << tagValue);
-    m_extraTagValuePairsViaInterface.push_back(tagName);
-    m_extraTagValuePairsViaInterface.push_back(tagValue);
+
+    //FIXME: Add a mutex here! 
+    m_extraTagValuePairsViaInterface[tagName]=tagValue;
     return StatusCode::SUCCESS;
 }
 
@@ -134,32 +130,12 @@ StatusCode TagInfoMgr::initialize()
     ATH_MSG_DEBUG( "OverrideEventInfoTags   " << m_overrideEventInfoTags);
     ATH_MSG_DEBUG( "TagInfoKey              " << m_tagInfoKey);
     
-    // Check that ExtraTagValuePairs is either 0 or an even number
-    std::vector<std::string> valueTagPairs = m_extraTagValuePairs.value();
-    // Add in pairs from interface
-    std::copy(m_extraTagValuePairsViaInterface.begin(), 
-              m_extraTagValuePairsViaInterface.end(),
-              std::back_inserter(valueTagPairs));
-    if ((valueTagPairs.size()%2) != 0) {
-        ATH_MSG_ERROR( "initialize: Non-even number of extra value tag pairs !");
-        return StatusCode::FAILURE;
-    } 
-    else {
-        ATH_MSG_DEBUG( "ExtraTagValuePairs      ");
-        std::vector<std::string>::const_iterator it;
-        std::vector<std::string>::const_iterator it1;
-        std::vector<std::string>::const_iterator it2;
-        std::vector<std::string>::const_iterator itend = valueTagPairs.end();
-        for (it = valueTagPairs.begin(); it != itend; ++it) {
-            it1 = it;
-            ++it;
-            it2 = it;
-            ATH_MSG_DEBUG( " Value/tag pair: " 
-                  << (*it1) << " "
-                  << (*it2));
-        }
+    if (msgLvl(MSG::DEBUG)) {
+      msg(MSG::DEBUG) <<  "ExtraTagValuePairs " << endmsg;
+      for (auto& tv : m_extraTagValuePairs) {
+	msg(MSG::DEBUG) << " Value/tag pair: " << tv.first << " " << tv.second << endmsg;
+      }
     }
-    
 
     // To copy TagInfo to EventInfo, we set listener to the
     // IncidentSvc for BeginEvent and BeginRun
@@ -382,38 +358,26 @@ TagInfoMgr::fillTagInfo(const CondAttrListCollection* tagInfoCond, TagInfo* tagI
 
 
     // Add in any extra tag value pairs if specified
-    std::vector<std::string> valueTagPairs = m_extraTagValuePairs.value();
+    std::map<std::string,std::string> valueTagPairs(m_extraTagValuePairs);//Copy (not sure why)
     // Add in pairs from interface
-    std::copy(m_extraTagValuePairsViaInterface.begin(), 
-              m_extraTagValuePairsViaInterface.end(),
-              std::back_inserter(valueTagPairs));
-    if (valueTagPairs.size()) {
-        
-        std::vector<std::string>::const_iterator it;
-        std::vector<std::string>::const_iterator it1;
-        std::vector<std::string>::const_iterator it2;
-        std::vector<std::string>::const_iterator itend = valueTagPairs.end();
-        for (it = valueTagPairs.begin(); it != itend; ++it) {
-            it1 = it;
-            ++it;
-            it2 = it;
-            ATH_MSG_DEBUG( "fillTagInfo: Adding extra value/tag pair: " 
-                  << (*it1) << " "
-                  << (*it2));
-            if (tagInfo->addTag(EventType::NameTagPair((*it1), (*it2)),
-                                m_overrideEventInfoTags).isFailure()) {
-                ATH_MSG_WARNING( "fillTagInfo: Extra value/tag not added to TagInfo ");
-            }
-        }
-
-        // Dump out contents of TagInfo
-        if( msgLevel() <= MSG::DEBUG ) {
-          MsgStream log1(Athena::getMessageSvc(), "TagInfo");
-          tagInfo->printTags(log1);
-        }
-    
+    for (auto & tv : m_extraTagValuePairsViaInterface) {
+      valueTagPairs[tv.first]=tv.second;
     }
 
+    for (auto& tv : valueTagPairs) {
+      ATH_MSG_DEBUG( "fillTagInfo: Adding extra value/tag pair: " << tv.first << " " << tv.second);
+      if (tagInfo->addTag(EventType::NameTagPair(tv.first,tv.second),
+			  m_overrideEventInfoTags).isFailure()) {
+	ATH_MSG_WARNING( "fillTagInfo: Extra value/tag not added to TagInfo ");
+      }
+    }
+
+    // Dump out contents of TagInfo
+    if( msgLevel() <= MSG::DEBUG ) {
+      MsgStream log1(Athena::getMessageSvc(), "TagInfo");
+      tagInfo->printTags(log1);
+    }
+    
     return StatusCode::SUCCESS;
 
 }

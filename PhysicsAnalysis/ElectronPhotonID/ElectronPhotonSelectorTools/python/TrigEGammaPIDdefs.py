@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 class TrigEgammaIDQuality:
     ElectronIDLoose = 0
@@ -462,19 +464,19 @@ class SelectionDefPhoton:
         PhotonMediumEF = CutDefPhoton.HADLEAKETA_PHOTON_EF | CutDefPhoton.CALO_PHOTON_REAT_WETA2_ERATIO
 
 
-print ""
-print "==============================================================================="
-print "====                       TrigEgamma isEM bit masks                      ====="
-print "====  ElectronLoose1:                              0x%08x              =====" % SelectionDefElectron.ElectronLoose1
-print "====  ElectronMedium1:                             0x%08x              =====" % SelectionDefElectron.ElectronMedium1
-print "====  ElectronTight1:                              0x%08x              =====" % SelectionDefElectron.ElectronTight1
-print "====  ElectronLooseHLT:                            0x%08x              =====" % SelectionDefElectron.ElectronLooseHLT
-print "====  ElectronMediumHLT:                           0x%08x              =====" % SelectionDefElectron.ElectronMediumHLT
-print "====  ElectronTightHLT:                            0x%08x              =====" % SelectionDefElectron.ElectronTightHLT
-print "====  PhotonLoose:                                 0x%08x              =====" % SelectionDefPhoton.PhotonLoose
-print "====  PhotonLooseEF:                               0x%08x              =====" % SelectionDefPhoton.PhotonLooseEF
-print "====  PhotonMedium:                                0x%08x              =====" % SelectionDefPhoton.PhotonMedium
-print "====  PhotonMediumEF:                              0x%08x              =====" % SelectionDefPhoton.PhotonMediumEF
-print "====  PhotonTight:                                 0x%08x              =====" % SelectionDefPhoton.PhotonTight
-print "==============================================================================="
-print ""
+print ("")
+print ("===============================================================================")
+print ("====                       TrigEgamma isEM bit masks                      =====")
+print ("====  ElectronLoose1:                              0x%08x              =====" % SelectionDefElectron.ElectronLoose1)
+print ("====  ElectronMedium1:                             0x%08x              =====" % SelectionDefElectron.ElectronMedium1)
+print ("====  ElectronTight1:                              0x%08x              =====" % SelectionDefElectron.ElectronTight1)
+print ("====  ElectronLooseHLT:                            0x%08x              =====" % SelectionDefElectron.ElectronLooseHLT)
+print ("====  ElectronMediumHLT:                           0x%08x              =====" % SelectionDefElectron.ElectronMediumHLT)
+print ("====  ElectronTightHLT:                            0x%08x              =====" % SelectionDefElectron.ElectronTightHLT)
+print ("====  PhotonLoose:                                 0x%08x              =====" % SelectionDefPhoton.PhotonLoose)
+print ("====  PhotonLooseEF:                               0x%08x              =====" % SelectionDefPhoton.PhotonLooseEF)
+print ("====  PhotonMedium:                                0x%08x              =====" % SelectionDefPhoton.PhotonMedium)
+print ("====  PhotonMediumEF:                              0x%08x              =====" % SelectionDefPhoton.PhotonMediumEF)
+print ("====  PhotonTight:                                 0x%08x              =====" % SelectionDefPhoton.PhotonTight)
+print ("===============================================================================")
+print ("")

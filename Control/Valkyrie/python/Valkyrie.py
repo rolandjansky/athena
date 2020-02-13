@@ -132,7 +132,7 @@ class Valkyrie(object):
         if isinstance(logFile, str):
             try:
                 logFile = open( logFile, "w" )
-            except IOError, err:
+            except IOError as err:
                 print(err)
                 print("Opening /dev/null for logging...")
                 logFile = open( "/dev/null", "w" )

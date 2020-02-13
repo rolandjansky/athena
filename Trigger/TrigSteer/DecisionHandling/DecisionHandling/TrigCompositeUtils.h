@@ -184,6 +184,21 @@ namespace TrigCompositeUtils {
    **/
   HLT::Identifier createLegName(const HLT::Identifier& chainIdentifier, size_t counter);
 
+ /**
+   * @brief Generate the HLT::Identifier which corresponds to the chain name from the leg name. This can be queried for its DecisionID.
+   * @param chainIdentifier The HLT::Identifier corresponding to the specifci leg.
+   * @return HLT::Identifier corresponding to the chain. Call .numeric() on this to get the DecisionID.
+   **/
+  HLT::Identifier getIDFromLeg(const HLT::Identifier& legIdentifier);
+ 
+/**
+   * @brief Recognise whether the chain ID is a leg ID
+   * @param chainIdentifier The HLT::Identifier corresponding to the specifci ID.
+   * @return True if leg-ID, else false
+   **/
+  bool isLegId(const HLT::Identifier& legIdentifier);
+
+    
   /**
    * @brief traverses TC links for another TC fufilling the prerequisite specified by the filter
    * @return matching TC or nullptr
@@ -367,6 +382,8 @@ namespace TrigCompositeUtils {
    **/  
   std::string dump( const xAOD::TrigComposite*  tc, std::function< std::string( const xAOD::TrigComposite* )> printerFnc );
 
+
+  
 
 
 

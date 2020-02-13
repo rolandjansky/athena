@@ -80,8 +80,13 @@ namespace ViewHelper
 
     //Make a context with the view attached
     auto viewContext = std::make_unique< EventContext >( SourceContext );
-    Atlas::setExtendedEventContext (*viewContext,
-                                    Atlas::ExtendedEventContext( view, extendedContext.conditionsRun() ) );
+    if ( view->getROI().isValid() ) {
+      Atlas::setExtendedEventContext (*viewContext,
+                                      Atlas::ExtendedEventContext( view, extendedContext.conditionsRun(), *view->getROI() ) );
+    } else {
+      Atlas::setExtendedEventContext (*viewContext,
+                                      Atlas::ExtendedEventContext( view, extendedContext.conditionsRun() ) );
+    }
 
     //Attach the view to the named node
     StatusCode sc = Scheduler->scheduleEventView( &SourceContext, NodeName, std::move( viewContext ) );

@@ -9,8 +9,8 @@ def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
 
     from LArMonitoring.GlobalVariables import lArDQGlobals
 
-    from LArMonitoring.LArMonitoringConf import LArFEBMonAlg
-    larFEBMonAlg = helper.addAlgorithm(LArFEBMonAlg,'larFEBMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    larFEBMonAlg = helper.addAlgorithm(CompFactory.LArFEBMonAlg,'larFEBMonAlg')
 
     GroupName="FEBMon"
     nslots=[]

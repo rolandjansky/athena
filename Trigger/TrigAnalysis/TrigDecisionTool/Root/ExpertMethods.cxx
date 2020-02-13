@@ -33,7 +33,7 @@
 
 #include "xAODTrigger/TrigDecision.h"
 
-Trig::ExpertMethods::ExpertMethods(Trig::CacheGlobalMemory* cgm) 
+Trig::ExpertMethods::ExpertMethods(SG::SlotSpecificObj<Trig::CacheGlobalMemory>* cgm) 
   : m_cacheGlobalMemory(cgm),
     m_useExperimentalAndExpertMethods(false)   
 {
@@ -93,11 +93,11 @@ const HLT::TrigNavStructure* Trig::ExpertMethods::getNavigation() const
 
 Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
   if ( ! onlyConfig ) {
-    if ( !const_cast<Trig::CacheGlobalMemory*>(m_cacheGlobalMemory)->assert_decision() ) {
+    if ( !const_cast<Trig::CacheGlobalMemory*>(m_cacheGlobalMemory->get())->assert_decision() ) {
       ATH_MSG_WARNING("TDT has not ben able to unpack trigger decision");    
     } 
   } 
-  return m_cacheGlobalMemory; 
+  return m_cacheGlobalMemory->get(); 
 }
 
 

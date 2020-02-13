@@ -21,9 +21,6 @@ class TgcIdHelper;
 class TileID;
 class TTree;
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 namespace LVL1 {
   class RecMuonRoiSvc;
 }

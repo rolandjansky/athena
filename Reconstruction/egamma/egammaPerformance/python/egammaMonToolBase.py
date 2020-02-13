@@ -45,7 +45,7 @@ class egammaMonToolBase ( egammaMonTool ) :
 
 		except Exception:
 			mlog.error("could not initialize egammaMonTool/%s" % name)
-			print traceback.format_exc()
+			print(traceback.format_exc())
 			return False
 		
 		# get a handle on the top sequence of algorithms

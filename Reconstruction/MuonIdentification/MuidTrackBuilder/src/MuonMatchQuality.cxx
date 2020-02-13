@@ -10,9 +10,7 @@
 #include <cmath>
 #include <iomanip>
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
-#include "MuidInterfaces/IMuonTrackQuery.h"
 #include "MuidTrackBuilder/MuonMatchQuality.h"
-#include "MuonCombinedToolInterfaces/IMuonTrackTagTool.h"
 #include "TrkTrack/Track.h"
 #include "AthenaKernel/Units.h"
 
@@ -25,8 +23,6 @@ MuonMatchQuality::MuonMatchQuality (const std::string&	type,
 				    const std::string&	name, 
 				    const IInterface*	parent)
     :	AthAlgTool		(type, name, parent),
-	m_tagTool		(""),
-	m_trackQuery		("Rec::MuonTrackQuery/MuonTrackQuery"),
 	m_alignmentUncertainty  (0),
 	m_directionUncertainty	(0.000001),	                // not used anymore angle ID and MS: done by m_addIDMSerrors
 	m_positionUncertainty	(0.01*Units::mm),	// not used anymore shift ID and MS: done by m_addIDMSerrors
@@ -40,8 +36,6 @@ MuonMatchQuality::MuonMatchQuality (const std::string&	type,
 	m_track2		(0)
 {
     declareInterface<IMuonMatchQuality>(this);
-    declareProperty("TagTool",				m_tagTool);
-    declareProperty("TrackQuery",			m_trackQuery);
     declareProperty("ID_MS_DirectionUncertainty",	m_directionUncertainty);
     declareProperty("ID_MS_PositionUncertainty",	m_positionUncertainty);
 }

@@ -47,6 +47,7 @@ monitoring_tau_pp = [
 	'tau25_idperf_tracktwo',
 	'tau25_perf_tracktwo',
 	'tau25_medium1_tracktwo',
+        'tau35_mediumRNN_tracktwoMVA_L1TAU12IM',
 	'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',  #keep this as reference for the L1Topo plots
 	'mu14_iloose_tau25_perf_tracktwo',   # need to move to the ivarloose chain
 	'tau160_idperf_track',

@@ -3,6 +3,7 @@
 """Define method to construct configured private Tile Cell noise filter tool"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def TileCellNoiseFilterCfg(flags, **kwargs):
@@ -20,7 +21,7 @@ def TileCellNoiseFilterCfg(flags, **kwargs):
     from TileGeoModel.TileGMConfig import TileGMCfg
     acc.merge(TileGMCfg(flags))
 
-    from TileRecUtils.TileRecUtilsConf import TileCellNoiseFilter
+    TileCellNoiseFilter=CompFactory.TileCellNoiseFilter
     tileCellNoiseFilter = TileCellNoiseFilter()
 
     from TileConditions.TileEMScaleConfig import TileCondToolEmscaleCfg
@@ -71,4 +72,4 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileCellNoiseFilter.pkl','w') )
+    acc.store( open('TileCellNoiseFilter.pkl','wb') )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ======================================================================
@@ -496,7 +496,7 @@ bool Pythia8B_i::leptonSelect(Pythia8::Event &theEvent, std::vector<double> ptCu
     for (int i = 0; i<theEvent.size(); ++i) {
         Pythia8::Particle theParticle = theEvent[i];
         int id = theParticle.idAbs();
-        if ( (id == type_id) ) { // find lepton flavour requested by user
+        if ( id == type_id ) { // find lepton flavour requested by user
             double pt = theParticle.pT();
             double eta = theParticle.eta();
             ATH_MSG_DEBUG("Lepton of type " << id << " with pt/eta " << pt << "/" << eta);
@@ -679,7 +679,6 @@ bool Pythia8B_i::signalAccept(Pythia8::Event &theEvent, std::vector<int> require
     }
     
     unsigned int goodDecayCounter(0);
-    std::vector<Pythia8::Particle>::iterator pItr;
     for (std::vector<int>::iterator iItr = parentsIndices.begin(); iItr!=parentsIndices.end(); ++iItr) {
         std::vector<Pythia8::Particle> decayMembers;
         descendThroughDecay(theEvent,decayMembers,*iItr);

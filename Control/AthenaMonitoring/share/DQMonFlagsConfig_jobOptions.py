@@ -9,6 +9,9 @@ if not 'DQMonFlags' in dir():
    local_logger.debug("DQMonFlags not yet imported - I import them now")
    from AthenaMonitoring.DQMonFlags import DQMonFlags
 
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.DQ.isReallyOldStyle = True
+
 if not 'rec' in dir():
    from RecExConfig.RecFlags import rec
 

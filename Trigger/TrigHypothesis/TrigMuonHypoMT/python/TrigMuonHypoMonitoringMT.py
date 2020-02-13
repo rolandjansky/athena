@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 class TrigMufastHypoMonitoring(GenericMonitoringTool):
     def __init__ (self, name):

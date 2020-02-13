@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef EGAMMATRACKTOOLS_EMEXTRAPOLATIONTOOLS_H
@@ -9,16 +9,12 @@
   Tools for track extrapolation to the calorimeter
   @author Thomas Koffas, Christos Anastopoulos
   */
-
 /********************************************************************
-
 NAME:     EMExtrapolationTools.h
 PACKAGE:  offline/Reconstruction/egammaTrackTools
 AUTHORS:  T. Koffas, C.Anastopoulos
-PURPOSE:  Tool which propagate track to 
-- calorimeter
-- cluster
- ********************************************************************/
+PURPOSE:  Tool which propagate track and vertices to the calorimeter cluster
+********************************************************************/
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -47,7 +43,7 @@ class INeutralParticleParameterCalculator;
 }
 
 
-class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlgTool {
+class EMExtrapolationTools final : virtual public IEMExtrapolationTools, public AthAlgTool {
 
 public:
 
@@ -66,13 +62,13 @@ public:
   /**   get eta, phi, deltaEta, and deltaPhi at the four calorimeter
    *    layers given the Trk::ParametersBase.  */
   virtual StatusCode getMatchAtCalo (const EventContext&           ctx,
-                                     const xAOD::CaloCluster*      cluster, 
-                                     const xAOD::TrackParticle*    trkPB,
+                                     const xAOD::CaloCluster&      cluster, 
+                                     const xAOD::TrackParticle&    trkPB,
                                      Trk::PropDirection            direction,
-                                     std::vector<double>&          eta,
-                                     std::vector<double>&          phi,
-                                     std::vector<double>&          deltaEta,
-                                     std::vector<double>&          deltaPhi,
+                                     std::array<double,4>&         eta,
+                                     std::array<double,4>&         phi,
+                                     std::array<double,4>&         deltaEta,
+                                     std::array<double,4>&         deltaPhi, 
                                      unsigned int                  extrapFrom = fromPerigee,
                                      Cache* cache=nullptr) const override final;
 
@@ -96,7 +92,8 @@ public:
                                 float *etaAtCalo,
                                 float *phiAtCalo) const override final;
 
-  /** get the momentum of the i-th at the vertex (designed for conversions) **/
+  /** get the momentum of the i-th trackParticle assiciated to the vertex 
+   * at vertex (designed for conversions) **/
   Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, unsigned int) const override final;
 
   /** get sum of the momenta at the vertex (designed for conversions). 
@@ -108,11 +105,10 @@ private:
 
   /** @Helper to get the per Layer Intersections **/ 
   CaloExtensionHelpers::EtaPhiPerLayerVector getIntersections (const Trk::CaloExtension& extension,
-                                                               const xAOD::CaloCluster* cluster) const;
+                                                               const xAOD::CaloCluster& cluster) const;
 
   /** @Perform the Rescaling of the perigee parameters with the cluster energy **/
-  std::unique_ptr<const Trk::TrackParameters>  getRescaledPerigee(const xAOD::TrackParticle* trkPB, 
-                                                                  const xAOD::CaloCluster* cluster) const;
+  Trk::Perigee getRescaledPerigee(const xAOD::TrackParticle& trkPB, const xAOD::CaloCluster& cluster) const;
 
   /** @brief Return +/- 1 (2) if track is in positive/negative TRT barrel (endcap) **/
   int getTRTsection(const xAOD::TrackParticle* trkPB) const;
@@ -126,7 +122,7 @@ private:
   ToolHandle<Trk::IExtrapolator> m_extrapolator {this, 
     "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
 
-  // vertex-to-cluster match cuts
+  // vertex-to-cluster match cuts used in matchesAtCalo
   Gaudi::Property<double> m_narrowDeltaPhi{this, "NarrowDeltaPhi", 0.05};
   Gaudi::Property<double> m_narrowDeltaPhiTRTbarrel{this,
     "NarrowDeltaPhiTRTbarrel", 0.02};
@@ -140,13 +136,16 @@ private:
   const TRT_ID*                         m_trtId;
 
   //Cache collections for GSF Track Particle extrapolation Perigee
-  SG::ReadHandleKey<CaloExtensionCollection>  m_GSFPerigeeCacheKey{this,
-  "GSFPerigeeCache", "GSFPerigeeCaloExtension", "Name of GSF Perigee extrapolation cache"};
-  SG::ReadHandleKey<CaloExtensionCollection>  m_GSFLastCacheKey{this,
-  "GSFLastCache", "GSFLastCaloExtension", "Name of GSF Last measurement extrapolation cache"};
- //Use the a cache for GSF Track Particle extrapolation
-  Gaudi::Property<bool>  m_useCaching {this,"useCaching", false, "Use a CaloExtension Collection as cache"};
+  SG::ReadHandleKey<CaloExtensionCollection>  m_PerigeeCacheKey{this,
+  "PerigeeCache", "PerigeeCaloExtension", "Name of GSF Perigee extrapolation cache"};
+  SG::ReadHandleKey<CaloExtensionCollection>  m_LastCacheKey{this,
+  "LastCache", "LastCaloExtension", "Name of Last measurement extrapolation cache"};
 
+ //Use a cache for Track Particle extrapolation
+  Gaudi::Property<bool>  m_usePerigeeCaching {this,
+    "useCaching", false, "Use a CaloExtension Collection as cache from Perigee"};
+  Gaudi::Property<bool>  m_useLastCaching {this,
+    "useLastCaching", false, "Use a CaloExtension Collection as cache"};
 };
 
 

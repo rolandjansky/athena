@@ -1,6 +1,6 @@
 #!/bin/env
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ----------------------------------------------------------------
 # Script : AtlRunQueryUtils.py
@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------
 #
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 from .AtlRunQueryTimer import timer
 
 from collections import namedtuple, defaultdict
@@ -49,12 +49,12 @@ class Enumerate(object):
 
 def runsOnServer():
     hostname = os.getenv('HOSTNAME')
-    print "Execution on host: %r" % hostname 
+    print ("Execution on host: %r" % hostname )
     if not hostname:
         onserver = False
     else:
         onserver = ( re.match('aiatlas.*\.cern\.ch',hostname) != None )
-    print "Execution on server: %r" % onserver
+    print ("Execution on server: %r" % onserver)
     return onserver
 
 def importroot(batch=True):
@@ -95,7 +95,7 @@ def durationInSeconds( duration_string ):
         elif 'w' in l: sec += int(l.replace('w',''))*3600*24*7
         elif 'y' in l: sec += int(l.replace('y',''))*3600*24*365
         else:
-            print 'Big troubles... in function "AtlRunQueryUtils::durationInSeconds": cannot decode string "%s"' % l
+            print ('Big troubles... in function "AtlRunQueryUtils::durationInSeconds": cannot decode string "%s"' % l)
             sys.exit(1)
     return sec
 
@@ -124,8 +124,9 @@ class DBConnectionController:
                 logging=False
                 from CoolConvUtilities.AtlCoolLib  import indirectOpen
                 self.openConn[(schema,db)] = indirectOpen("%s/%s"%(schema,db),True,readoracle, logging)
-        except Exception, e:
-            print e
+        except Exception:
+            import traceback
+            traceback.print_exc()
             sys.exit(-1)
         return self.openConn[(schema,db)]
 
@@ -134,16 +135,16 @@ class DBConnectionController:
             from os import environ as env
             #lookup = XMLReader(env['CORAL_DBLOOKUP_PATH']+"/dblookup.xml")
             #for s in lookup.servicelist.logicalservices:
-            #    print "Service",s['name']
+            #    print ("Service",s['name'])
             #    for p in s.services:
-            #        print "   name",p['name']
+            #        print ("   name",p['name'])
             auth = XMLReader(env['CORAL_AUTH_PATH']+"/authentication.xml")
             for c in auth.connectionlist.connections:
                 if key!=c['name']: continue
                 self.pw[key] = dict([(p['name'],p['value']) for p in c.parameters])
                 break
             if key not in self.pw:
-                print "Can not authenticate DB",key
+                print ("Can not authenticate DB",key)
                 sys.exit(0)
         return self.pw[key]
 
@@ -264,8 +265,8 @@ def stringToIntOrTime(s):
     # string is meant to be UTC time (hence we need calendar.timegm
     # and not time.mktime to convert the tuple into seconds)
     t = int(1E9*calendar.timegm(time.strptime(s,"%d.%m.%Y")))
-    #print "turning",s,"into time",t
-    #print "cross-check:",time.strftime("%d.%m.%Y %H:%M:%S",time.gmtime(t/1E9))
+    #print ("turning",s,"into time",t)
+    #print ("cross-check:",time.strftime("%d.%m.%Y %H:%M:%S",time.gmtime(t/1E9)))
     return t
 
 def timeStringToSecondsUTC(t):
@@ -337,7 +338,7 @@ def GetRanges(rangestr, intRepFnc=stringToIntOrTime, maxval=1<<30):
         else:
             startend = r.split('-')
             if len(startend)!=2:
-                raise RuntimeError, "Range format error '%s'" % r
+                raise RuntimeError ("Range format error '%s'" % r)
             listOfRanges += [[intRepFnc(x) for x in startend]]
     return MergeRanges(listOfRanges)
 
@@ -381,7 +382,7 @@ def GetTimeRanges(timeranges, intRepFnc=timeStringToSecondsUTC, maxval=1<<30):
             try:
                 start,end = r.split('-')
             except:
-                raise RuntimeError, "Time format '%s' wrong, should be 'from-until'" % r
+                raise RuntimeError ("Time format '%s' wrong, should be 'from-until'" % r)
             start = full_time_string( start, startofday=True )
             end   = full_time_string( end, startofday=False )
 
@@ -410,11 +411,11 @@ def bConvertList(b, nbyte=1, nval=1):
     # routine to store an unsigned int (1, 2, 4 or 8 byte) in a blob
     packopt=dict([[1,'B'],[2,'H'],[4,'f'],[8,'d']])
     if nbyte in packopt:
-        # print 'bConvert - b:[', b[0:nbyte], '] nbyte:', nbyte, ' fmt:', packopt[nbyte], type(b)
+        # print ('bConvert - b:[', b[0:nbyte], '] nbyte:', nbyte, ' fmt:', packopt[nbyte], type(b))
         fmt = '%d%s' % (nval, packopt[nbyte])
         ival=struct.unpack(fmt, b[0:nval*nbyte])
     else:
-        print 'bConvertList: Unrecognized pack option'
+        print ('bConvertList: Unrecognized pack option')
         sys.exit()
     return list(ival)
 
@@ -425,10 +426,10 @@ def unpackRun1BCIDMask(blob, nb1, nb2, nbc):
     beam1 = a[0:nb1]
     beam2 = a[nb1:nb1+nb2]
     coll = a[nb1+nb2:]
-    #print 'unpackRun1BCIDMask found:'
-    #print ' Beam1:', beam1
-    #print ' Beam2:', beam2
-    #print ' Coll: ', coll
+    #print ('unpackRun1BCIDMask found:')
+    #print (' Beam1:', beam1)
+    #print (' Beam2:', beam2)
+    #print (' Coll: ', coll)
     return  beam1, beam2, coll
 
 
@@ -445,10 +446,10 @@ def unpackRun2BCIDMask(blob):
             beam2.append(i)
         if (val & 0x03) == 0x03:
             coll.append(i)
-    #print 'unpackRun2BCIDMask found:'
-    #print ' Beam1:', beam1
-    #print ' Beam2:', beam2
-    #print ' Coll: ', coll
+    #print ('unpackRun2BCIDMask found:')
+    #print (' Beam1:', beam1)
+    #print (' Beam2:', beam2)
+    #print (' Coll: ', coll)
     return beam1, beam2, coll
 
 
@@ -650,7 +651,7 @@ class XMLReader(object):
             return self.tag
         def __getitem__(self,k):
             if not k in self.attributes:
-                raise KeyError, "'%s'. XML element '%s' has attributes %s" % (k,self.tag, self.attributes.keys())
+                raise KeyError ("'%s'. XML element '%s' has attributes %s" % (k,self.tag, self.attributes.keys()))
             return self.attributes[k]
 
         def readchildren(self):
@@ -665,7 +666,7 @@ class XMLReader(object):
                     self.__dict__['%s'%t] = self._childtagdict[t][0]
 
         def __getattr__(self,name):
-            raise AttributeError, "'%s'. XML element '%s' has tags %s" % (name,self.tag, ["%ss" % t for t in self.childtags])
+            raise AttributeError ("'%s'. XML element '%s' has tags %s" % (name,self.tag, ["%ss" % t for t in self.childtags]))
 
 
     def __init__(self,filename):
@@ -677,4 +678,4 @@ class XMLReader(object):
         self.__dict__[root.tag] = root
 
     def __getattr__(self,name):
-        raise AttributeError, "'%s'. XML document '%s' has root tag '%s'" % (name,self.__filename, self.__root.tag)
+        raise AttributeError ("'%s'. XML document '%s' has root tag '%s'" % (name,self.__filename, self.__root.tag))

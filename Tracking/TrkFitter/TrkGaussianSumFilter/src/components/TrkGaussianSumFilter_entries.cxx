@@ -1,7 +1,5 @@
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
 #include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
-#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
-#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/GsfCombinedMaterialEffects.h"
 #include "TrkGaussianSumFilter/GsfMaterialEffectsUpdator.h"
 #include "TrkGaussianSumFilter/MultipleScatteringEffects.h"
@@ -15,8 +13,6 @@
 
 DECLARE_COMPONENT( Trk::QuickCloseComponentsMultiStateMerger )
 DECLARE_COMPONENT( Trk::GsfMaterialMixtureConvolution )
-DECLARE_COMPONENT( Trk::MultiComponentStateAssembler )
-DECLARE_COMPONENT( Trk::MultiComponentStateCombiner )
 DECLARE_COMPONENT( Trk::GsfCombinedMaterialEffects )
 DECLARE_COMPONENT( Trk::GsfMaterialEffectsUpdator )
 DECLARE_COMPONENT( Trk::MultipleScatteringEffects )

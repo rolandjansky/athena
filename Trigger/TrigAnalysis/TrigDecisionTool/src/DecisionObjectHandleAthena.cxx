@@ -9,24 +9,29 @@
 
 using namespace Trig;
 
-DecisionObjectHandleAthena::DecisionObjectHandleAthena( StoreGateSvc* sg, const std::string& key )
-  : m_sg(sg),
-    m_key(key),
+DecisionObjectHandleAthena::DecisionObjectHandleAthena( SG::ReadHandleKey<TrigDec::TrigDecision>* olddeckey )
+  : m_oldDecKey(olddeckey),
     m_object(nullptr)
 {
 }
 
 TrigDec::TrigDecision const * DecisionObjectHandleAthena::getDecision() const {
-  // register handle
-  if ( !isInitialized() ) {
-    if ( m_sg->regHandle(*this, m_key).isFailure() ) {
-      ATH_MSG_INFO("Can't register handle for TrigDecision objects from SG for a key  " << m_key << " (check file with checkSG.py)"); 
-    }
-  }
   
   if ( !m_object ) {
-    m_object = cptr(); 
+    const EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadHandle<TrigDec::TrigDecision> oldDecisionReadHandle = SG::makeHandle(*m_oldDecKey, ctx);
+    if( ! oldDecisionReadHandle.isValid() ) {
+      static bool warningPrinted = false;
+      if( ! warningPrinted ) {
+         ATH_MSG_WARNING( "TrigDec::TrigDecision is not available on the "
+                          "input" );
+         warningPrinted = true;
+      }
+      return nullptr;
+    }
+    m_object = oldDecisionReadHandle.ptr(); 
   }
+  
   return m_object;
 }
 TrigDec::TrigDecision const * DecisionObjectHandleAthena::getNavigation() const {
@@ -36,7 +41,7 @@ TrigDec::TrigDecision const * DecisionObjectHandleAthena::getNavigation() const 
 
 void DecisionObjectHandleAthena::reset (bool hard) {
   DataHandle<TrigDec::TrigDecision>::reset (hard);
-  m_object = 0;
+  m_object = nullptr;
   invalidate();
   ATH_MSG_DEBUG("invalidated decision object");
 }

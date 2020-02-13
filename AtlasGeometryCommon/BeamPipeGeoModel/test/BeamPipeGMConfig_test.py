@@ -19,6 +19,6 @@ if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
     acc = BeamPipeGeometryCfg(ConfigFlags)
-    f=open('BeamPipeGeometryCfg.pkl','w')
+    f=open('BeamPipeGeometryCfg.pkl','wb')
     acc.store(f)
     f.close()

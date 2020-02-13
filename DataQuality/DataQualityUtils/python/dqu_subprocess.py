@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 def _local_apply_core(func, args, q):
     import os
     try:
         q.put(func(*args))
-    except BaseException, e:
+    except BaseException as e:
         q.put(e)
         os._exit(1)
 

@@ -9,6 +9,7 @@
 #include "TString.h"
 
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include <string>
 #include <unordered_map>
@@ -18,6 +19,8 @@
 #include <iostream>
 #include <iomanip>
 #include <memory>
+
+class ITHistSvc; // Forward
 
 /**
  * Extrapolation strategy to apply to each emulated trigger.
@@ -80,11 +83,18 @@ class RatesHistoBase {
   RatesHistoBase(const std::string& name, const MsgStream& log, const bool doHistograms = true);
   virtual ~RatesHistoBase();
 
-  TH1D* getMuHist(bool clientIsTHistSvc = false); //!< @return histogram pointer or nullptr and an error
-  TH1D* getDataHist(bool clientIsTHistSvc = false); //!< @return histogram pointer or nullptr. Does not cause error
-  TH1D* getTrainHist(bool clientIsTHistSvc = false); //!< @return histogram pointer or nullptr and an error
-  virtual void normaliseHist(const double ratesDenominator); //!< Normalise to walltime to get rate.
+  RatesHistoBase(const RatesHistoBase&) = delete;
+
+  RatesHistoBase& operator=(const RatesHistoBase&) = delete;
+
+  StatusCode giveMuHist(const ServiceHandle<ITHistSvc>& svc, const std::string& name); 
+  StatusCode giveTrainHist(const ServiceHandle<ITHistSvc>& svc, const std::string& name); 
+  StatusCode giveDataHist(const ServiceHandle<ITHistSvc>& svc, const std::string& name); 
+  void clearTrainHist(); //!< In some jobs we don't want to do the rates vs. position in train
+  TH1* getDataHist(); //!< @return cached, non-owning, histogram pointer or nullptr. Does not cause error
   bool doHistograms() const { return m_doHistograms; } //!< If histogramming was enabled in this rates object
+  const std::string& getExtrapolationFactorString(ExtrapStrat_t strat) const;
+  double getExtrapolationFactor(const WeightingValuesSummary_t& weights, const ExtrapStrat_t strat) const;
 
   static bool isZero(double v) { return fabs(v) < 1e-10; } //<! Helper fn
 
@@ -92,13 +102,15 @@ class RatesHistoBase {
 
   std::string m_name; //!< My name
   bool m_doHistograms; //!< If histogramming is switched on
-  TH1D* m_rateVsMu; //!< Histogram of rate as a fn. of the input event's mu
-  TH1D* m_rateVsTrain; //!< Histogram of rate as a fn. of position in bunch train
-  TH1D* m_data; //!< Histogram of raw rates quantites, for when we need to normalise offline (e.g. grid processing)
+  std::unique_ptr<TH1> m_rateVsMu; //!< Histogram of rate as a fn. of the input event's mu
+  std::unique_ptr<TH1> m_rateVsTrain; //!< Histogram of rate as a fn. of position in bunch train
+  std::unique_ptr<TH1> m_data;  //!< Histogram of raw rates quantites, for when we need to normalise offline (e.g. grid processing)
+  TH1* m_rateVsMuCachedPtr; //!< Cached, non-owning pointer
+  TH1* m_rateVsTrainCachedPtr;  //!< Cached, non-owning pointer
+  TH1* m_dataCachedPtr; //!< Cached, non-owning pointer
   bool  m_givenRateVsMu; //!< m_rateVsMu has been given to the THistSvc and should not be deleted
   bool  m_givenRateVsTrain; //!< m_rateVsTrain has been given to the THistSvc and should not be deleted
   bool  m_givenData; //!< m_data has been given to the THistSvc and should not be deleted
-  static uint32_t m_histoID; //!< Give every histo a unique name using this
 
   mutable MsgStream m_log; //!< For ATHENA messaging
 };

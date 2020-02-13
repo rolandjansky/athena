@@ -260,9 +260,11 @@ ToolSvc += MUON1ThinningTool2f
 MUON1ThinningTools.append(MUON1ThinningTool2f)
 
 ### cell thinning
-from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
-theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["MuonClusterCollection"],
-                                       outputCellKey="DFMUONCellContainer")
+from DerivationFrameworkCalo.CaloCellDFGetter import thinCaloCellsForDF
+thinCaloCellsForDF (inputClusterKeys = ["MuonClusterCollection"],
+                    streamName = MUON1Stream.Name,
+                    outputCellKey = "DFMUONCellContainer")
+
 #====================================================================
 # JetTagNonPromptLepton decorations
 #====================================================================
@@ -294,8 +296,8 @@ MUON1ThinningTools.append(MUON1Thin_vtxTrk)
 from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__TrackIsolationTool
 from AthenaCommon import CfgMgr
 
-tighttrackvertexassotool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool", dzSinTheta_cut=3, doPV=True) 
-ToolSvc+=tighttrackvertexassotool 
+trackvertexassotool=CfgMgr.CP__TrackVertexAssociationTool("TrackVertexAssociationTool", WorkingPoint='Loose')
+ToolSvc+=trackvertexassotool
 
 from IsolationAlgs.IsolationAlgsConf import IsolationBuilder
 TrackIsolationLoose500 = xAOD__TrackIsolationTool(name = 'TrackIsolationToolLoose500')
@@ -308,13 +310,13 @@ TrackIsolationTight1000 = xAOD__TrackIsolationTool(name = 'TrackIsolationToolTig
 TrackIsolationTight1000.TrackSelectionTool.minPt         = 1000
 TrackIsolationTight1000.TrackSelectionTool.CutLevel      = "Loose"
 TrackIsolationTight1000.UseTTVAtool = True
-TrackIsolationTight1000.TrackVertexAssociationTool = tighttrackvertexassotool
+TrackIsolationTight1000.TrackVertexAssociationTool = trackvertexassotool
 ToolSvc += TrackIsolationTight1000
 TrackIsolationTight500 = xAOD__TrackIsolationTool(name = 'TrackIsolationToolTight500')
 TrackIsolationTight500.TrackSelectionTool.minPt         = 500
 TrackIsolationTight500.TrackSelectionTool.CutLevel      = "Loose"
 TrackIsolationTight500.UseTTVAtool = True
-TrackIsolationTight500.TrackVertexAssociationTool = tighttrackvertexassotool
+TrackIsolationTight500.TrackVertexAssociationTool = trackvertexassotool
 ToolSvc += TrackIsolationTight500
 
 import ROOT, PyCintex

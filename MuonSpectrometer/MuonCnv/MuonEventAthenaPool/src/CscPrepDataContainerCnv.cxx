@@ -17,9 +17,6 @@
 #include "MuonEventTPCnv/CscPrepDataContainerCnv_tlp1.h"
 
 
-// #include "MuonReadoutGeometry/MuonDetectorManager.h"
-// #include "MuonReadoutGeometry/CscReadoutElement.h"
-
 CscPrepDataContainerCnv::CscPrepDataContainerCnv(ISvcLocator* svcloc) :
 CscPrepDataContainerCnvBase(svcloc)
 {

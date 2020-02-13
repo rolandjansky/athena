@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ----------------------------------------------------------------
 # Script : AtlRunQuerySFO.py
@@ -100,7 +100,7 @@
 # (inclusive/exclusive, late, ...)
 #  
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 from utils.AtlRunQueryTimer import timer
 
 from utils.AtlRunQueryCache import Cache
@@ -273,34 +273,34 @@ def GetSFO_lastNruns( cursor, nruns ):
 
 def runInfo(runno, streams):
     if streams==[]:
-        print "No information available for run %i" % runno
+        print ("No information available for run %i" % runno)
         return
 
-    print 'Output for run number: %i' % runno
-    print '--------------------------------------------------------------------------------'
-    print 'Streams:'
-    print streams
-    print ' '
-    print ' '
+    print ('Output for run number: %i' % runno)
+    print ('--------------------------------------------------------------------------------')
+    print ('Streams:')
+    print (streams)
+    print (' ')
+    print (' ')
     for s in streams:
         minlb, maxlb, lbs = GetSFO_LBs( cursor, runno, s )
-        print 'For Stream: %25s: min - max LBs: %i - %i \t(Num: %i)' % (s, minlb, maxlb, lbs)
+        print ('For Stream: %25s: min - max LBs: %i - %i \t(Num: %i)' % (s, minlb, maxlb, lbs))
 
         result = GetSFO_Nevents( cursor, runno, s )
         lbold = -1
         allnev = 0
         for lb,nev in result:
             if lb != lbold:
-                if lbold != -1: print s,'\t',lbold,'\t',allnev
+                if lbold != -1: print (s,'\t',lbold,'\t',allnev)
                 allnev = nev
                 lbold = lb
             else:
                 allnev += nev
             #for lb in range(minlb,maxlb+1):
             #nev = GetSFO_NeventsPerLB( cursor, runno, s, lb )
-            #print '       - LB: %i has %s events' % (lb,nev)
+            #print ('       - LB: %i has %s events' % (lb,nev))
 
-    print ' '
+    print (' ')
     return
     totnf = totsize = totev = 0
     for s in streams:
@@ -308,22 +308,22 @@ def runInfo(runno, streams):
         totnf   += nfiles
         totsize += size
         totev   += events
-        print 'Stream %-25s : %i files, %.2f GB, %i events' % (s, nfiles, size/1.0e9, events)
+        print ('Stream %-25s : %i files, %.2f GB, %i events' % (s, nfiles, size/1.0e9, events))
     
-    print '--------------------------------------------------------------------------------'
-    print 'Total  %-25s : %i files, %.2f GB, %.2f mio events' % (' ', totnf, totsize/1.0e9, totev/1.0e6)
-    print '--------------------------------------------------------------------------------'
+    print ('--------------------------------------------------------------------------------')
+    print ('Total  %-25s : %i files, %.2f GB, %.2f mio events' % (' ', totnf, totsize/1.0e9, totev/1.0e6))
+    print ('--------------------------------------------------------------------------------')
 
-    print 'Check overlaps for stream pairs'
+    print ('Check overlaps for stream pairs')
     for i in range(0,len(streams)):
         nfilesi, sizei, eventsi = GetSFO_files( cursor, runno, streams[i] )
         for j in range(i,len(streams)):
             nfilesj, sizej, eventsj = GetSFO_files( cursor, runno, streams[i] )
             eventsij                = GetSFO_overlap( cursor, runno, streams[i], streams[j] )
             if eventsij:
-                print '   [ %28s, %28s ] = %g' % (streams[i], streams[j], eventsij)
+                print ('   [ %28s, %28s ] = %g' % (streams[i], streams[j], eventsij))
             else:
-                print '   [ %28s, %28s ] = None' % (streams[i], streams[j])
+                print ('   [ %28s, %28s ] = None' % (streams[i], streams[j]))
 
 
 
@@ -352,7 +352,7 @@ def main():
         #from os import environ as env
         #from CoolRunQuery.AtlRunQueryUtils import coolDbConn
         #coolDbConn.get_auth('oracle://atlr/rn_r') # only in /afs/cern.ch/atlas/project/tdaq/databases/.coral/authentication.xml
-        #print coolDbConn.get_auth('oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_TRIGGER')
+        #print (coolDbConn.get_auth('oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_TRIGGER'))
         from CoolRunQuery.AtlRunQuerySFO import SetOKSLinks
         SetOKSLinks([Run(178211)])
 
@@ -363,34 +363,34 @@ def main():
         if len(sys.argv)>1:
             runno = int(sys.argv[1])
 
-        runno = [140541L, 140571L, 140579L, 140592L, 140616L, 140620L,
-        140622L, 140638L, 140670L, 140682L, 140704L, 140737L, 140747L,
-        140748L, 140754L, 140762L, 140765L, 140769L, 140772L, 140776L,
-        140790L, 140794L, 140822L, 140836L, 140842L, 140929L, 140953L,
-        140955L, 140974L, 140975L, 141046L, 141059L, 141066L, 141079L,
-        141109L, 141150L, 141189L, 141192L, 141194L, 141203L, 141209L,
-        141226L, 141234L, 141236L, 141237L, 141238L, 141266L, 141270L,
-        141359L, 141374L, 141387L, 141398L, 141401L, 141403L, 141461L,
-        141473L, 141474L, 141525L, 141527L, 141529L, 141533L, 141534L,
-        141561L, 141562L, 141563L, 141565L, 141599L, 141624L, 141655L,
-        141667L, 141670L, 141688L, 141689L, 141691L, 141695L, 141700L,
-        141702L, 141704L, 141705L, 141706L, 141707L, 141718L, 141721L,
-        141730L, 141746L, 141748L, 141749L, 141755L, 141769L, 141807L,
-        141811L, 141818L, 141841L, 141915L, 141928L, 141976L, 141979L,
-        141994L, 141998L, 141999L, 142042L, 142065L, 142081L, 142091L,
-        142094L, 142111L, 142123L, 142125L, 142128L, 142133L, 142144L,
-        142149L, 142154L, 142155L, 142157L, 142159L, 142161L, 142165L,
-        142166L, 142171L, 142174L, 142183L, 142185L, 142187L, 142189L,
-        142190L, 142191L, 142192L, 142193L, 142194L, 142195L, 142199L,
-        142203L, 142205L, 142210L, 142214L, 142216L, 142240L, 142258L,
-        142259L, 142265L, 142291L, 142301L, 142308L, 142309L, 142310L,
-        142319L, 142356L, 142368L, 142383L, 142390L, 142391L, 142392L,
-        142394L, 142395L, 142397L, 142400L, 142401L, 142402L, 142403L,
-        142404L, 142405L, 142406L, 143019L, 143023L, 143027L, 143033L,
-        143034L, 143131L, 143136L, 143143L, 143163L, 143169L, 143171L,
-        143178L, 143182L, 143185L, 143190L, 143192L, 143198L, 143203L,
-        143204L, 143205L, 143207L, 143210L, 143218L, 143222L, 143225L,
-        143236L, 143242L]
+        runno = [140541, 140571, 140579, 140592, 140616, 140620,
+        140622, 140638, 140670, 140682, 140704, 140737, 140747,
+        140748, 140754, 140762, 140765, 140769, 140772, 140776,
+        140790, 140794, 140822, 140836, 140842, 140929, 140953,
+        140955, 140974, 140975, 141046, 141059, 141066, 141079,
+        141109, 141150, 141189, 141192, 141194, 141203, 141209,
+        141226, 141234, 141236, 141237, 141238, 141266, 141270,
+        141359, 141374, 141387, 141398, 141401, 141403, 141461,
+        141473, 141474, 141525, 141527, 141529, 141533, 141534,
+        141561, 141562, 141563, 141565, 141599, 141624, 141655,
+        141667, 141670, 141688, 141689, 141691, 141695, 141700,
+        141702, 141704, 141705, 141706, 141707, 141718, 141721,
+        141730, 141746, 141748, 141749, 141755, 141769, 141807,
+        141811, 141818, 141841, 141915, 141928, 141976, 141979,
+        141994, 141998, 141999, 142042, 142065, 142081, 142091,
+        142094, 142111, 142123, 142125, 142128, 142133, 142144,
+        142149, 142154, 142155, 142157, 142159, 142161, 142165,
+        142166, 142171, 142174, 142183, 142185, 142187, 142189,
+        142190, 142191, 142192, 142193, 142194, 142195, 142199,
+        142203, 142205, 142210, 142214, 142216, 142240, 142258,
+        142259, 142265, 142291, 142301, 142308, 142309, 142310,
+        142319, 142356, 142368, 142383, 142390, 142391, 142392,
+        142394, 142395, 142397, 142400, 142401, 142402, 142403,
+        142404, 142405, 142406, 143019, 143023, 143027, 143033,
+        143034, 143131, 143136, 143143, 143163, 143169, 143171,
+        143178, 143182, 143185, 143190, 143192, 143198, 143203,
+        143204, 143205, 143207, 143210, 143218, 143222, 143225,
+        143236, 143242]
 
         #runno = range(141000,143000)
 
@@ -403,31 +403,31 @@ def main():
         if False:
             n = 10
             runs = GetSFO_lastNruns( cursor, n )
-            print 'Last %i runs:' % n
+            print ('Last %i runs:' % n)
             for r in runs:
-                print '... %i' % r
+                print ('... %i' % r)
             sys.exit()
 
         # retrieve streams
         if True:
             start = time()
             streams = GetSFO_streamsAll( cursor, runno )
-            print "streams",time()-start
+            print ("streams",time()-start)
             start = time()
             lbs     = GetSFO_LBsAll    ( cursor, runno )
-            print "lbs",time()-start
+            print ("lbs",time()-start)
             start = time()
             nev     = GetSFO_NeventsAll( cursor, runno )
-            print "events",time()-start
+            print ("events",time()-start)
             start = time()
             files   = GetSFO_filesAll  ( cursor, runno )
-            print "files",time()-start
+            print ("files",time()-start)
             start = time()
             over    = GetSFO_overlapAll( cursor, runno )
-            print "overlap",time()-start
+            print ("overlap",time()-start)
 
 
-        print "Query execution time: %f sec" % (time()-start)
+        print ("Query execution time: %f sec" % (time()-start))
 
         cursor.close()
         connection.close()

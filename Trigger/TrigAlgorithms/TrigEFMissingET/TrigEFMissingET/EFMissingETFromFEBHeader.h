@@ -19,11 +19,14 @@ PURPOSE: Data preparation from FEB Headers (Ex/Ey)
 
 #include "TrigEFMissingET/EFMissingETBaseTool.h"
 #include "LArCabling/LArCablingLegacyService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArFebRodMapping.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArReadoutModuleService.h"
 #include "LArRecEvent/LArFebEnergyCollection.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "IRegionSelector/RegSelEnums.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include <vector>
 
 class TrigMissingET;
@@ -93,6 +96,11 @@ class EFMissingETFromFEBHeader : public EFMissingETBaseTool
     const LArOnlineID*       m_LArOnlineID;
     const CaloCell_ID*       m_CaloCell_ID;
     LArReadoutModuleService  m_larROModSvc;
+
+    SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
+    { this, "CablingKey", "LArOnOffIdMap", "SG Key of LArOnOffIdMapping object" };
+    SG::ReadCondHandleKey<LArFebRodMapping> m_febRodKey
+    { this, "FebRodKey", "LArFebRodMap", "SG ROD mapping key" };
 };
 
 #endif // TRIGEFMISSINGET_EFMISSINGETFROMFEBHEADER

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef sTGC_HIT_ANALYSIS_H
@@ -51,9 +51,6 @@ class sTGCHitAnalysis : public AthAlgorithm {
   TH1 *m_h_r_A;
   TH1 *m_h_r_C;
 
-  std::vector<float>* m_hits_x;
-
-  TTree * m_tree;
   std::string m_ntupleFileName;
 
   std::string m_path;

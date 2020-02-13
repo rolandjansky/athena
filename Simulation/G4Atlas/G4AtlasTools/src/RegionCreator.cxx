@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Base class
@@ -49,7 +49,7 @@ StatusCode RegionCreator::initialize()
     for (auto* it: *logStore)
       {
 
-        if (vol==it->GetName())
+        if (vol == static_cast<const std::string&>(it->GetName()))
           {
             nVolumes++;
             it->SetRegion(theRegion);

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthContainers/test/exceptions_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -55,6 +53,7 @@ void test1()
   std::cout << SG::ExcMissingViewVectorCLID(typeid(int)).what() << "\n";
   std::cout << SG::ExcInsertMoveOwnershipMismatch().what() << "\n";
   std::cout << SG::ExcAtomicMismatch(id2, typeid(int)).what() << "\n";
+  std::cout << SG::ExcInvalidThinningTarget(1234, "asd").what() << "\n";
 }
 
 

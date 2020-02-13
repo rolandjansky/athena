@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
 // L1JEMJetTools.h, 
@@ -19,7 +19,7 @@
 #include "TrigT1CaloUtils/JetInputKey.h"
 #include "TrigT1CaloUtils/JEMJetAlgorithm.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "xAODTrigL1Calo/JetElementContainer.h"
 
@@ -91,7 +91,7 @@ namespace LVL1
     private:
       
       /** pointer to LVL1ConfigSvc */
-      ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 
       /** Utility for decoding RoI words */
       JEPRoIDecoder m_conv;

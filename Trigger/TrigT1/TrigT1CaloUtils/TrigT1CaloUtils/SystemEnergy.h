@@ -17,7 +17,7 @@
 
  // Include for the configuration service:
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 
 
@@ -32,11 +32,11 @@ System CMM logic is done in EnergyTrigger*/
 class SystemEnergy {
 
 public:
-  SystemEnergy(const DataVector<CrateEnergy>* crates, ServiceHandle<TrigConf::ITrigConfigSvc> config);
+  SystemEnergy(const DataVector<CrateEnergy>* crates, ServiceHandle<TrigConf::ILVL1ConfigSvc> config);
   SystemEnergy(unsigned int et, unsigned int exTC, unsigned int eyTC,
                unsigned int overflowT, unsigned int overflowX,
 	       unsigned int overflowY, unsigned int restricted,
-	       ServiceHandle<TrigConf::ITrigConfigSvc> config);
+	       ServiceHandle<TrigConf::ILVL1ConfigSvc> config);
   ~SystemEnergy();
 
 public:
@@ -61,7 +61,7 @@ public:
   unsigned int roiWord2();
   
 private:
-  ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   
   int m_systemEx;
   int m_systemEy;

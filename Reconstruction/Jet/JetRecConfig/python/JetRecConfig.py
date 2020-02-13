@@ -123,7 +123,7 @@ def resolveDependencies(jetdef):
     # Need to use a list, as the order matters.
     # The elements of the "final" list are tuples extracting
     # the modifier specification.
-    import JetModConfig
+    from . import JetModConfig
     mods_final, modprereqs = JetModConfig.getFinalModifierListAndPrereqs( mods_initial, jetdef )
 
     # Remove the duplicates in the mod list -- just do this
@@ -196,7 +196,7 @@ def classifyPrereqs(prereqs):
 #
 def expandPrereqs(reqtype,prereqs):
     reqdefs = set()
-    from JetDefinition import JetGhost
+    from .JetDefinition import JetGhost
     for req in prereqs:
         if reqtype=="ghost":
             if req.__class__ == JetGhost:
@@ -417,7 +417,7 @@ def getJetAlgorithm(jetname, jetdef, pjs, modlist):
     finder = getJetFinder(jetname, jetdef)
     finder.JetBuilder = builder
 
-    import JetModConfig
+    from . import JetModConfig
     mods = []
     for moddef,modspec in modlist:
         mod = JetModConfig.getModifier(jetdef,moddef,modspec)

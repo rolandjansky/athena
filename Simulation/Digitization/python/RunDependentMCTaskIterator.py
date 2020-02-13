@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## module RunDependentMCTaskIterator.py
 # defines class taskIterator(runLumiInfo,evtsPerJob)
@@ -97,7 +97,7 @@ def findPlaceInTask(jobnumber,task,maxEvents):
     while True:
         if (i == jobnumber): return jobs
         i += 1
-        jobs.next()
+        next(jobs)
     #exit by exception
 #
 class taskIterator(object):
@@ -130,7 +130,7 @@ class taskIterator(object):
 
     def next(self):
         self.donejob = []
-        if (self.current is None):  self.current = self.taskit.next()
+        if (self.current is None):  self.current = next(self.taskit)
         to_do = self.step
         while True:
             if (to_do == 0) : return self.offset, self.current
@@ -146,7 +146,7 @@ class taskIterator(object):
                 pass
             self.donejob.append( self.current.copy() )
             self.donejob[-1].update({'evts':can_do})
-            self.current = self.taskit.next()
+            self.current = next(self.taskit)
             if self.current.get('force_new',False): to_do = 0
         raise StopIteration
 #

@@ -14,7 +14,7 @@
 #define TRIGEFMISSINGET_FEXBASE_H 1
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "GaudiKernel/Property.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 #include "GaudiKernel/SystemOfUnits.h"

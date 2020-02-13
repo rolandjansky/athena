@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 ###############################################################
 ## @file   TrigPSCPythonDbSetup.py
 ## @brief  Minimal Python setup for running from TrigDB
@@ -10,6 +12,9 @@
 ## switching the OutputLevel in case the "-l" option was used.
 
 ## !!! Do NOT import theApp. It will screw up the configuration !!!
+
+import builtins
+printfunc = getattr(builtins,'print')
 
 def setTHistSvcOutput():
    """Helper to set THistSvc.Output"""
@@ -25,7 +30,6 @@ def setTHistSvcOutput():
 ### logging and messages -----------------------------------------------------
 from AthenaCommon.Logging import *
 from AthenaCommon.Constants import *
-import AthenaCommon.ExitCodes as ExitCodes
 
 from TrigPSC import PscConfig
 logLevel=PscConfig.optmap['LOGLEVEL'].split(',')[0]

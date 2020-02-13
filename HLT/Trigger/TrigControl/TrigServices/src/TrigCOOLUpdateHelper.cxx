@@ -306,7 +306,7 @@ StatusCode TrigCOOLUpdateHelper::scheduleFolderUpdates(const EventContext& ctx)
     // Check if we already have an update for this folder
     std::map<FolderIndex, FolderUpdate>::const_iterator f = m_folderUpdates.find(kv.first);
 
-    // No updates yet or this update superseds the previous one
+    // No updates yet or this update supersedes the previous one
     if (f==m_folderUpdates.end() || (f->second.lumiBlock != kv.second.lumiBlock)) {
       m_folderUpdates[kv.first] = FolderUpdate(kv.second);   // new folder update
       

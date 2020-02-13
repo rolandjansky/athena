@@ -18,7 +18,7 @@ def CollectionMergerCfg(ConfigFlags, bare_collection_name,
          CollectionMerger algorithm to add the mergeable collection to."""
 
   result = ComponentAccumulator()
-  if ConfigFlags.Sim.ISF.Run and ConfigFlags.Sim.ISF.HITSMergingRequired: 
+  if ConfigFlags.Sim.ISFRun and ConfigFlags.Sim.ISF.HITSMergingRequired: 
       mergeable_collection = '{bare}{suffix}'.format(
              bare=bare_collection_name,
              suffix=mergeable_collection_suffix)

@@ -1,7 +1,8 @@
 // -*- mode: c++ -*-
 //
-//  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 //
+
 #ifndef ATHASGEXUNITTEST_MYPACKAGEALG_H
 #define ATHASGEXUNITTEST_MYPACKAGEALG_H 1
 
@@ -20,10 +21,9 @@ public:
   MyPackageAlg( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~MyPackageAlg(); 
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();  
-  virtual StatusCode beginInputFile();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
 private: 
 

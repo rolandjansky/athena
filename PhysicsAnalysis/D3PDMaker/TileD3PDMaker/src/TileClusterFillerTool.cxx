@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -34,7 +34,6 @@ StatusCode TileClusterFillerTool::initialize(){
     ATH_MSG_DEBUG("TileClusterFillerTool::initialize");
 
     CHECK( D3PD::BlockFillerTool<xAOD::CaloCluster>::initialize() );
-    //CHECK( service("StoreGateSvc",m_storeGate));
 
     return StatusCode::SUCCESS;
 } // TileClusterFillerTool::initialize

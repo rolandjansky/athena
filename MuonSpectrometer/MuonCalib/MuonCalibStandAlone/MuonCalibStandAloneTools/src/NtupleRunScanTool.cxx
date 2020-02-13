@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //c - c++
@@ -20,7 +20,6 @@
 #include "MuonCalibEventBase/MuonCalibEvent.h"
 
 // MuonReadoutGeometry //
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
 
@@ -54,8 +53,10 @@ StatusCode NtupleRunScanTool::initialize()
 //get geometry
 	//retrieve mdt id helper
 		ATH_CHECK( m_muonIdHelperTool.retrieve() );
-	//retrieve detector manager
-		ATH_CHECK( detStore()->retrieve( m_detMgr ) );
+
+        //retrieve detector manager from the conditions store
+		ATH_CHECK(m_DetectorManagerKey.initialize());
+
 	p_outfile = new TFile("RunScan.root", "RECREATE");
 	return StatusCode :: SUCCESS;		
 	}
@@ -64,6 +65,13 @@ StatusCode NtupleRunScanTool::initialize()
 StatusCode NtupleRunScanTool::handleEvent(const MuonCalibEvent &event, int /*evnt_nr*/, const std::vector<MuonCalibSegment *> &segments, unsigned int position)
 	{
 //iov
+	  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+	  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+	  if(MuonDetMgr==nullptr){
+	    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+	    return StatusCode::FAILURE; 
+	  } 
+
 	const MuonCalibEventInfo & eventinfo(event.eventInfo());
 	if(eventinfo.timeStamp()<m_time_min)
 		{
@@ -93,7 +101,7 @@ StatusCode NtupleRunScanTool::handleEvent(const MuonCalibEvent &event, int /*evn
 			HitCounter &counter(m_hit_counters[id]);
 			if(!counter.IsInitialized())
 				{
-				if(!id.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), m_detMgr))
+				if(!id.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), MuonDetMgr))
 					{
 					ATH_MSG_FATAL( "Cannot initialize Geometry!" );
 					return StatusCode::FAILURE;

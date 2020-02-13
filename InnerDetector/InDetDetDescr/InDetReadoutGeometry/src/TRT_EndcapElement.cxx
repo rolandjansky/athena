@@ -14,12 +14,15 @@
 
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "CLHEP/Geometry/Transform3D.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
 
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkSurfaces/DiscSurface.h"
 
 #include "TRT_ConditionsData/ExpandedIdentifier.h"
 #include "TRT_ConditionsData/StrawDxContainer.h"
+
+#include "GeoModelUtilities/GeoAlignmentStore.h"
 
 
 namespace InDetDD {
@@ -31,10 +34,11 @@ namespace InDetDD {
                                          unsigned int strawLayIndex, 
                                          unsigned int phiIndex,
                                          const TRT_ID * idHelper,
-                                         const TRT_Conditions * conditions) :
+                                         const TRT_Conditions * conditions,
+                                         const GeoAlignmentStore* geoAlignStore) :
         TRT_BaseElement(volume,
         idHelper->layer_id((isPositive ? 2:-2), phiIndex, wheelIndex, strawLayIndex),
-        idHelper, conditions),
+			idHelper, conditions, geoAlignStore),
         m_code(isPositive,wheelIndex,strawLayIndex,phiIndex),
         m_descriptor(descriptor),
         m_nextInZ(NULL),
@@ -42,10 +46,17 @@ namespace InDetDD {
     {
     }
 
+  TRT_EndcapElement::TRT_EndcapElement(const TRT_EndcapElement &right, const GeoAlignmentStore* geoAlignStore) :
+    TRT_BaseElement(right,geoAlignStore)
+  {   
+    m_code          = right.m_code;
+    m_descriptor    = right.m_descriptor;
+    m_nextInZ       = right.m_nextInZ;
+    m_previousInZ   = right.m_previousInZ;
+  }   
 
     TRT_EndcapElement::~TRT_EndcapElement()
-    {
-    }
+    {}
 
     unsigned int TRT_EndcapElement::nStraws() const
     {

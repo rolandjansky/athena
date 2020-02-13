@@ -14,13 +14,14 @@
 MuonLayerHoughAlg::MuonLayerHoughAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator), 
   m_keyTgc("TGC_Measurements"),
-  m_keyRpc( "RPC_Measurements"),
+  m_keyRpc("RPC_Measurements"),
   m_keyCsc("CSC_Clusters"),
   m_keyMdt("MDT_DriftCircles"),
   m_keysTgc("STGC_Measurements"),
-  m_keyMM("MM_Measurements"), m_combis("MuonLayerHoughCombis"),
+  m_keyMM("MM_Measurements"),
+  m_combis("MuonLayerHoughCombis"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-  m_layerTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool")
+  m_layerTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool", this)
 {
 
   declareProperty("CscPrepDataContainer", m_keyCsc);
@@ -42,6 +43,10 @@ MuonLayerHoughAlg::~MuonLayerHoughAlg()
 
 StatusCode MuonLayerHoughAlg::initialize()
 {
+  if (m_layerTool.empty()) {
+    ATH_MSG_ERROR("MuonLayerScanTool property is empty");
+    return StatusCode::FAILURE;
+  }
   ATH_CHECK( m_layerTool.retrieve() );
   ATH_CHECK( m_printer.retrieve() );
 
@@ -95,6 +100,8 @@ StatusCode MuonLayerHoughAlg::execute()
     ATH_MSG_VERBOSE("HoughDataPerSectorVec "<<m_houghDataPerSectorVecKey<<" is empty, recording");
     ATH_CHECK(handle.record(std::make_unique<Muon::MuonLayerHoughTool::HoughDataPerSectorVec>()));
   }
+
+  m_layerTool->reset();
 
   return StatusCode::SUCCESS;
 } // execute

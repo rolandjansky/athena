@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -66,7 +66,7 @@ StatusCode ReadMdtDigit::execute()
   ATH_MSG_DEBUG( "in execute()"  );
 
   std::string	key = "MDT_DIGITS";
-  const DataHandle<MdtDigitContainer> mdt_container;
+  const MdtDigitContainer* mdt_container = nullptr;
   ATH_CHECK( (*m_activeStore)->retrieve(mdt_container, key) );
  
   ATH_MSG_DEBUG("****** mdt->size() : " << mdt_container->size() );

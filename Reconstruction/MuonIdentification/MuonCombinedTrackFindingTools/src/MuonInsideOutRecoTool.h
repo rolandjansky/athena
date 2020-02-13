@@ -10,6 +10,7 @@
 #include "MuonPrepRawDataProviderTools/MuonLayerHashProviderTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "xAODTracking/VertexContainer.h"
+#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
 #include <vector>
 
@@ -96,6 +97,8 @@ namespace MuonCombined {
     ToolHandle<Rec::ICombinedMuonTrackBuilder>       m_trackFitter;
     ToolHandle<Trk::ITrackAmbiguityProcessorTool>    m_trackAmbiguityResolver;
     ToolHandle<Muon::MuonLayerHashProviderTool>      m_layerHashProvider;
+    ToolHandle<Trk::ITrackSummaryHelperTool>         m_trackSummaryTool; 
+
     /** id pt cut */
     double m_idTrackMinPt;
     bool m_ignoreSiAssocated;

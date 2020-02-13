@@ -37,10 +37,9 @@ namespace {
 
 namespace Trig {
 
-  DecisionUnpackerStandalone::
-  DecisionUnpackerStandalone( EventPtr_t sg, const std::string& deckey,
-			      const std::string& navikey)
-    : m_handle( new DecisionObjectHandleStandalone( sg, deckey, navikey ) )
+  DecisionUnpackerStandalone::DecisionUnpackerStandalone( SG::ReadHandleKey<xAOD::TrigDecision>* deckey,
+                                                          SG::ReadHandleKey<xAOD::TrigNavigation>* navikey)
+    : m_handle( new DecisionObjectHandleStandalone( deckey, navikey ) )
   {
   }
   
@@ -143,7 +142,7 @@ namespace Trig {
       HLT::NavigationCore* fullNav = dynamic_cast<HLT::NavigationCore*>(nav);
       
       if(!fullNav){
-	ATH_MSG_WARNING("downcast failed");
+        ATH_MSG_WARNING("downcast failed");
       }
       
       fullNav->reset();

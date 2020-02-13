@@ -3,14 +3,15 @@
 #
 
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TRT_GeometryCfg( flags ):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     acc = GeoModelCfg( flags )
     geoModelSvc=acc.getPrimary()
-    from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
+    GeometryDBSvc=CompFactory.GeometryDBSvc
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-    from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
+    TRT_DetectorTool=CompFactory.TRT_DetectorTool
     trtDetectorTool = TRT_DetectorTool()
     trtDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
     geoModelSvc.DetectorTools += [ trtDetectorTool ]
@@ -30,7 +31,7 @@ def TRT_GeometryCfg( flags ):
         # Argon straw list
         acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer'))
     # TRT Condition Algorithm
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTAlignCondAlg
+    TRTAlignCondAlg=CompFactory.TRTAlignCondAlg
     TRTAlignCondAlg = TRTAlignCondAlg(name = "TRTAlignCondAlg",
                                       UseDynamicFolders = flags.GeoModel.Align.Dynamic)
     if flags.GeoModel.Align.Dynamic:

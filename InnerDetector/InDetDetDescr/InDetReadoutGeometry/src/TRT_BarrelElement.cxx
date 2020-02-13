@@ -17,6 +17,9 @@
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
+#include "GeoModelUtilities/GeoAlignmentStore.h"
+
+
 namespace InDetDD {
 
 TRT_BarrelElement::TRT_BarrelElement(const GeoVFullPhysVol *volume, 
@@ -26,25 +29,38 @@ TRT_BarrelElement::TRT_BarrelElement(const GeoVFullPhysVol *volume,
 				     unsigned int phiIndex, 
 				     unsigned int strawLayIndex, 
 				     const TRT_ID * idHelper,
-				     const TRT_Conditions * conditions)
+				     const TRT_Conditions * conditions,
+                                     const GeoAlignmentStore* geoAlignStore)
   :
   TRT_BaseElement(volume, 
 		  idHelper->layer_id((isPositive ? 1:-1), phiIndex, modIndex, strawLayIndex),
-		  idHelper, conditions),
+		  idHelper, conditions, geoAlignStore),
   m_code(isPositive,modIndex,phiIndex,strawLayIndex),
   m_descriptor(descriptor),
   m_nextInPhi(NULL),
   m_previousInPhi(NULL),
   m_nextInR(NULL),
   m_previousInR(NULL)
+
 {
 }
+
+
+  TRT_BarrelElement::TRT_BarrelElement(const TRT_BarrelElement &right, const GeoAlignmentStore* geoAlignStore) :
+    TRT_BaseElement(right,geoAlignStore)
+{   
+  m_code          = right.m_code;
+  m_descriptor    = right.m_descriptor;
+  m_nextInPhi     = right.m_nextInPhi;
+  m_previousInPhi = right.m_previousInPhi;
+  m_nextInR       = right.m_nextInR;
+  m_previousInR   = right.m_previousInR;
+  }
 
 
 TRT_BarrelElement::~TRT_BarrelElement()
 {
 }
-
 
 const TRT_BarrelConditions * TRT_BarrelElement::getConditionsData() const
 {

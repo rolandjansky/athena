@@ -21,5 +21,4 @@ atlas_add_library( AsgTestingLib
 atlas_add_test( gt_UnitTest_test
    SOURCES test/gt_UnitTest_test.cxx
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTestingLib
-   EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)|functionFailure" )
+   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTestingLib )

@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "xAODTrigL1Calo/CPMTower.h"
 #include "xAODTrigL1Calo/CPMTobRoI.h"
@@ -45,7 +45,7 @@ The CPMTobAlgorithm:<br>
 class CPMTobAlgorithm {
 public: 
   
-  CPMTobAlgorithm(double eta, double phi, const xAOD::CPMTowerMap_t* ttContainer, ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice = -1);
+  CPMTobAlgorithm(double eta, double phi, const xAOD::CPMTowerMap_t* ttContainer, ServiceHandle<TrigConf::ILVL1ConfigSvc> config, int slice = -1);
 
   ~CPMTobAlgorithm();
   
@@ -84,7 +84,7 @@ public:
 private: //atribs
   double m_refEta;
   double m_refPhi;
-  ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 
   /** Algorithm results */
   double m_eta;

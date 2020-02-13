@@ -50,13 +50,13 @@ atlas_install_joboptions( share/*.txt )
 # Test(s) in the package:
 atlas_add_test( getMessageSvc_test
    SOURCES test/getMessageSvc_test.cxx
-   LINK_LIBRARIES GaudiKernel TestTools AthenaKernel
-   EXTRA_PATTERNS "^=========+|^ApplicationMgr +SUCCESS|^HistogramPersis.*INFO.*CnvServices|^StatusCodeSvc +INFO initialize|^ *Welcome to ApplicationMgr|^ *running on|^Wall clock time" )
+   LOG_IGNORE_PATTERN "^Wall clock time"
+   LINK_LIBRARIES GaudiKernel TestTools AthenaKernel )
 
 atlas_add_test( MsgStreamMember_test
    SOURCES test/MsgStreamMember_test.cxx
-   LINK_LIBRARIES TestTools AthenaKernel
-   EXTRA_PATTERNS "^=========+|^ApplicationMgr +SUCCESS|^HistogramPersis.*INFO.*CnvServices|^StatusCodeSvc +INFO initialize|^ *Welcome to ApplicationMgr|^ *running on|^Wall clock time |ref count" )
+   LOG_IGNORE_PATTERN "^Wall clock time |ref count"
+   LINK_LIBRARIES TestTools AthenaKernel )
 
 atlas_add_test( AthenaPackageInfo_test
    SOURCES test/AthenaPackageInfo_test.cxx
@@ -73,8 +73,7 @@ atlas_add_test( Chrono_test
 
 atlas_add_test( errorcheck_test
    SOURCES test/errorcheck_test.cxx
-   LINK_LIBRARIES GaudiKernel TestTools AthenaKernel
-   EXTRA_PATTERNS "^=========+|^ApplicationMgr +SUCCESS|^HistogramPersis.*INFO.*CnvServices|^StatusCodeSvc +INFO initialize|^ *Welcome to ApplicationMgr|^ *running on|^Wall clock time" )
+   LINK_LIBRARIES GaudiKernel TestTools AthenaKernel )
 
 atlas_add_test( type_tools_test
    SOURCES test/type_tools_test.cxx
@@ -122,8 +121,7 @@ atlas_add_test( DataBucket_test
                SOURCES
                test/DataBucket_test.cxx
                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-               LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools 
-               EXTRA_PATTERNS "^HistogramPersis.* INFO" )
+               LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools )
 
 atlas_add_test( RCUUpdater_test
    SOURCES test/RCUUpdater_test.cxx

@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # RunLister.py
+
+from __future__ import print_function
 
 import sys
 import time
@@ -11,7 +13,7 @@ from DetectorStatus.DetStatusCoolLib import statusCutsToRange
 def timeRep(value):
     """Utility function to turn COOL 63bit time into string, or unknown"""
     if (value is not None):
-        stime=int(value/1000000000L)
+        stime=int(value/1000000000)
         return time.strftime('%F:%T',time.gmtime(stime))
     else:
         return 'unknown'
@@ -166,33 +168,33 @@ class coolRunLister:
         debug=(loglevel>1)
         try:
             self.cooldb=indirectOpen(cooltdaqdbconn,True,oracle,debug)
-            if (loglevel>=1):print "Connected to",cooltdaqdbconn,"for RunControl data"
-        except Exception,e:
-            print e
+            if (loglevel>=1):print ("Connected to",cooltdaqdbconn,"for RunControl data")
+        except Exception as e:
+            print (e)
             sys.exit(-1)
         if (len(cooltrigdbconn)>0):
             try:
                 self.cooltrigdb=indirectOpen(cooltrigdbconn,True,oracle,debug)
-                if (loglevel>=1): print "Connected to",cooltrigdbconn,"for CTP data"
+                if (loglevel>=1): print ("Connected to",cooltrigdbconn,"for CTP data")
                 self.usetrig=True
-            except Exceptioe,e:
-                print e
+            except Exception as e:
+                print (e)
                 sys.exit(-1)
         else:
             self.usetrig=False
         if (len(coolstatusdbconn)>0):
             try:
                 self.coolstatusdb=indirectOpen(coolstatusdbconn,True,oracle,debug)
-                if (loglevel>=1): print "Connected to",coolstatusdbconn,"for detector status data"
-            except Exception,e:
-                print e
+                if (loglevel>=1): print ("Connected to",coolstatusdbconn,"for detector status data")
+            except Exception as e:
+                print (e)
                 sys.exit(-1)
         
         # store other parameters
         self.loglevel=loglevel
         self.coolpath='/TDAQ/RunCtrl'
         self.cooltlbpath='/TRIGGER/LUMI'
-        self.nowtime=time.time()*1000000000L
+        self.nowtime=time.time()*1000000000
         # no restriction on initial selection
         self.onlyRec=False
         self.mask=0
@@ -228,13 +230,13 @@ class coolRunLister:
         self.mintime=cool.ValidityKeyMax
         self.maxtime=cool.ValidityKeyMin
         for (run,value) in self.lbrunmap.items():
-            if (self.loglevel>1): print "listFromTime: Process run",run
+            if (self.loglevel>1): print ("listFromTime: Process run",run)
             if (run<self.minrun): self.minrun=run
             if (run>self.maxrun): self.maxrun=run
             if (value.start<self.mintime): self.mintime=value.start
             if (value.stop>self.maxtime and value.stop<cool.ValidityKeyMax): self.maxtime=value.stop
         if (self.loglevel>0):
-            print "Run range [%i,%i] times (%s,%s)" % (self.minrun,self.maxrun,timeRep(self.mintime),timeRep(self.maxtime))
+            print ("Run range [%i,%i] times (%s,%s)" % (self.minrun,self.maxrun,timeRep(self.mintime),timeRep(self.maxtime)))
         # now get the runmap
         self.runmap=self.runsFromSEOR(self.minrun,self.maxrun)
         # add in the time/LB information and check consistency
@@ -296,7 +298,7 @@ class coolRunLister:
         # store last run
         if (srun>-1):
             runlist[srun]=LBParams(srun,slbmax,sstart,send)
-        if (self.loglevel>0): print "Run list from LB_Params has %i entries" % len(runlist)
+        if (self.loglevel>0): print ("Run list from LB_Params has %i entries" % len(runlist))
         return runlist
 
     def runsFromSEOR(self,run1=0,run2=(1 << 31)-1):
@@ -309,7 +311,7 @@ class coolRunLister:
         if (iov2>cool.ValidityKeyMax): iov2=cool.ValidityKeyMax
         if (self.detstatus!=""):
             if (self.loglevel>0):
-                print "Applying detector status cuts: %s" % self.detstatus
+                print ("Applying detector status cuts: %s" % self.detstatus)
             gooddetstatus=statusCutsToRange(self.coolstatusdb,'/GLOBAL/DETSTATUS/LBSUMM',iov1,iov2,self.detstatustag,self.detstatus)
         else:
             gooddetstatus=RangeList(iov1,iov2)
@@ -326,7 +328,7 @@ class coolRunLister:
                 runlist[run]=RunParams(run,payload['SORTime'],payload['RunType'],payload['DAQConfiguration'],payload['DetectorMask'],payload['FilenameTag'],payload['RecordingEnabled'],payload['DataSource'])
         itr.close()
         if (self.loglevel>0):
-            print "SOR_Params has data for %i runs" % len(runlist)
+            print ("SOR_Params has data for %i runs" % len(runlist))
 
         # now query EOR_Params and fill in missing info
         neor=0
@@ -346,7 +348,7 @@ class coolRunLister:
                 runlist[run].updateEORInfo(payload['DAQConfiguration'])
                 neor+=1
         if (self.loglevel>0):
-            print "EOR_Params has data for %i runs" % neor
+            print ("EOR_Params has data for %i runs" % neor)
         itr.close()
         
         # now query FinalSFOStats and fill in event counts
@@ -362,7 +364,7 @@ class coolRunLister:
                 nsfo+=1
         itr.close()
         if (self.loglevel>0):
-            print "FinalSFOStat has data for %i runs" % nsfo
+            print ("FinalSFOStat has data for %i runs" % nsfo)
 
         # now query EventCounters and fill in trigger counts/partition name
         nevc=0
@@ -377,7 +379,7 @@ class coolRunLister:
                 nevc+=1
         itr.close()
         if (self.loglevel>0):
-            print "EventCounters has data for %i runs" % nevc
+            print ("EventCounters has data for %i runs" % nevc)
 
         return runlist
 
@@ -436,7 +438,7 @@ class coolRunLister:
         if (srun>-1):
             self.triglbmap[srun]=TrigLBParams(srun,slbmax,sstart,send)
         if (self.loglevel>0):
-            print "Trigger LB map has data for %i runs" % len(self.triglbmap)
+            print ("Trigger LB map has data for %i runs" % len(self.triglbmap))
         
         # now loop through primary run list and add trigger information
         nbad=0
@@ -447,25 +449,25 @@ class coolRunLister:
                 triglb=self.triglbmap[run]
                 if (runp.stop is None):
                     if (self.loglevel>1):
-                        print "Trigger end time will substitute %i %i" % (run,triglb.stop)
+                        print ("Trigger end time will substitute %i %i" % (run,triglb.stop))
                     runp.patchEndTime(triglb.stop)
                     npatch+=1
             else:
                 nbad+=1
         if (self.loglevel>0):
-            print "Missing trigger information for %i runs, patched EOR for %i" % (nbad,npatch)
+            print ("Missing trigger information for %i runs, patched EOR for %i" % (nbad,npatch))
 
     def listErrors(self):
         "List runs which have errors to text output"
         nerr=0
         for runp in self.runmap.values():
             if (runp.errcode>0):
-                print runp.decodeErr()
+                print (runp.decodeErr())
                 if (len(runp.errlist)>0):
                     for i in runp.errlist:
-                        print "Run %i %s" % (runp.run,i)
+                        print ("Run %i %s" % (runp.run,i))
                 nerr+=1
-        print "Total of %i runs with errors" % nerr
+        print ("Total of %i runs with errors" % nerr)
 
     def listRuns(self,format="",lastfirst=False):
         "List run details to text output"
@@ -483,7 +485,7 @@ class coolRunLister:
                 title+=' RunType                  DetectorMask'
             if ('d' in format):
                 title+=' DAQConfiguration     PartitionName    FilenameTag         '
-            print title
+            print (title)
         runkeys=self.runmap.keys()
         runkeys.sort(reverse=lastfirst)
         for irun in runkeys:
@@ -501,7 +503,7 @@ class coolRunLister:
                 line+=' %-20s %16x' % (runp.runtype,runp.detmask)
             if ('d' in format):
                 line+=' %-20s %-16s %-20s' % (runp.daqconfig,noneStr(runp.partname),runp.filetag)
-            print line
+            print (line)
 
         
 

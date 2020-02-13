@@ -7,6 +7,7 @@
 
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -25,7 +26,7 @@ def OnlineLumiCalibrationCondAlgCfg (configFlags):
     result.merge (addFolders (configFlags, folder, 'TDAQ',
                               className='CondAttrListCollection'))
 
-    from CoolLumiUtilities.CoolLumiUtilitiesConf import OnlineLumiCalibrationCondAlg
+    OnlineLumiCalibrationCondAlg=CompFactory.OnlineLumiCalibrationCondAlg
     alg = OnlineLumiCalibrationCondAlg (name,
                                         CalibrationFolderInputKey = folder,
                                         LumiCalibOutputKey = 'OnlineLumiCalibrationCondData')

@@ -6,7 +6,7 @@
 #define TRIGEFTAUMVHYPOTOOL_H
 
 #include "TrigInterfaces/HypoAlgo.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "ITrigEFTauMVHypoTool.h"

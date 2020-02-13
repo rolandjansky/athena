@@ -124,7 +124,7 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
             gscDepth = "trackWIDTH"
 
         calibSpec = ":".join( [calibContext, dataSource, calibSeq, rhoKey, gscDepth] )
-        from TriggerJetMods import ConstitFourMom_copy
+        from .TriggerJetMods import ConstitFourMom_copy
         if jetalg=="a4":
             calibMods = [(ConstitFourMom_copy,""),
                          getModSpec("CaloEnergies"), # Needed for GSC

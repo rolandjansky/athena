@@ -14,8 +14,8 @@ def TgcRawDataMonitoringConfig(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'TgcRawDataMonitorCfg')
 
-    from TgcRawDataMonitoring.TgcRawDataMonitoringConf import TgcRawDataMonitorAlgorithm
-    tgcRawDataMonAlg = helper.addAlgorithm(TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg')
 
     tgcRawDataMonAlg.TagAndProbe = False
 

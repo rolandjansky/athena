@@ -4,7 +4,6 @@
 
 #include "MuonGMNtupleWriter.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h" 
 #include "MuonReadoutGeometry/MdtReadoutElement.h" 
 #include "MuonReadoutGeometry/RpcReadoutElement.h" 
 #include "MuonReadoutGeometry/TgcReadoutElement.h" 
@@ -20,8 +19,7 @@ namespace MuonGM {
     AthAlgorithm(name,pSvcLocator),
     //m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_tree(0),
-    m_nevents(0),
-    m_detMgr(NULL)
+    m_nevents(0)
   {
     declareProperty("NtupleFileName",       m_ntupleFileName = "MuonGMNtuple");
     declareProperty("NtupleDirectoryName",  m_ntupleDirName  = "MuonGM");
@@ -36,10 +34,8 @@ namespace MuonGM {
 
   StatusCode MuonGMNtupleWriter::initialize() {
 
-    if (detStore()->retrieve( m_detMgr ).isFailure()){
-      ATH_MSG_ERROR("Cannot retrieve MuonDetectorManager");
-      return StatusCode::FAILURE;
-    }
+    // MuonDetectorManager from the conditions store
+    ATH_CHECK(m_DetectorManagerKey.initialize());
 
     std::string streamName = "/"+m_ntupleFileName+"/"+m_ntupleDirName;
     std::string treeName = m_ntupleTreeName;
@@ -79,9 +75,17 @@ namespace MuonGM {
        
   void MuonGMNtupleWriter::fillNtuple() {
     
+    // MuonDetectorManager from the conditions store
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return; 
+    } 
+
     std::ofstream* fout = 0;
     if( m_outputToTextFile ){
-      std::string gVersion = m_detMgr->geometryVersion();
+      std::string gVersion = MuonDetMgr->geometryVersion();
       std::string fileName = "muon_current_"+gVersion;
       fout = new std::ofstream(fileName.c_str());
     }
@@ -94,12 +98,12 @@ namespace MuonGM {
       for( int i2 = 0;i2<MuonDetectorManager::NMdtStatEta; ++i2 ){
 	for( int i3 = 0;i3<MuonDetectorManager::NMdtStatPhi; ++i3 ){
 	  for( int i4 = 0;i4<MuonDetectorManager::NMdtMultilayer; ++i4 ){
-	    const MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement(i1,i2,i3,i4);
+	    const MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(i1,i2,i3,i4);
 	    if( !detEl ) continue;
 	    ++nmdt;
 	    if( fout ) {
 	      (*fout) << " New MDT ReadoutElement " << detEl->identify().get_compact() 
-		      << " " << m_detMgr->mdtIdHelper()->print_to_string(detEl->identify()) // m_idHelper->toStringDetEl(detEl->identify() ) 
+		      << " " << MuonDetMgr->mdtIdHelper()->print_to_string(detEl->identify()) // m_idHelper->toStringDetEl(detEl->identify() ) 
 		      << " nlayers " << detEl->getNLayers() << " ntubes " << detEl->getNtubesperlayer() << std::endl
 		      << Amg::toString( detEl->transform(),6 ) << std::endl;
 	    }
@@ -125,13 +129,13 @@ namespace MuonGM {
 	for( int i3 = 0;i3<MuonDetectorManager::NRpcStatPhi; ++i3 ){
 	  for( int i4 = 0;i4<MuonDetectorManager::NDoubletR; ++i4 ){
 	    for( int i5 = 0;i5<MuonDetectorManager::NDoubletZ; ++i5 ){
-	      const RpcReadoutElement* detEl = m_detMgr->getRpcReadoutElement(i1,i2,i3,i4,i5);
+	      const RpcReadoutElement* detEl = MuonDetMgr->getRpcReadoutElement(i1,i2,i3,i4,i5);
 	      if( !detEl ) continue;
 	      ++nrpc;
 
 	      if( fout ) {
 		(*fout) << " New RPC ReadoutElement " << detEl->identify().get_compact() 
-			<< " " << m_detMgr->rpcIdHelper()->print_to_string(detEl->identify()) // m_idHelper->toStringDetEl(detEl->identify() ) 
+			<< " " << MuonDetMgr->rpcIdHelper()->print_to_string(detEl->identify()) // m_idHelper->toStringDetEl(detEl->identify() ) 
 			<< "  NphiStripPanels " << detEl->NphiStripPanels() << std::endl
 			<< Amg::toString( detEl->transform(),6 ) << std::endl;
 	      }
@@ -157,13 +161,13 @@ namespace MuonGM {
       for( int i2 = 0;i2<MuonDetectorManager::NTgcStatEta; ++i2 ){
 	for( int i3 = 0;i3<MuonDetectorManager::NTgcStatPhi; ++i3 ){
 
-	  const TgcReadoutElement* detEl = m_detMgr->getTgcReadoutElement(i1,i2,i3);
+	  const TgcReadoutElement* detEl = MuonDetMgr->getTgcReadoutElement(i1,i2,i3);
 	  if( !detEl ) continue;
 	  ++ntgc;
 	      
 	  if( fout ) {
 	    (*fout) << " New TGC ReadoutElement " << detEl->identify().get_compact() 
-		    << " " << m_detMgr->tgcIdHelper()->print_to_string(detEl->identify()) << std::endl 
+		    << " " << MuonDetMgr->tgcIdHelper()->print_to_string(detEl->identify()) << std::endl 
 		    << Amg::toString( detEl->transform(),6 ) << std::endl;
 	  }
 
@@ -183,13 +187,13 @@ namespace MuonGM {
     for( int i1 = 0;i1<MuonDetectorManager::NCscStatType; ++i1 ){
       for( int i2 = 0;i2<MuonDetectorManager::NCscStatEta; ++i2 ){
 	for( int i3 = 0;i3<MuonDetectorManager::NCscStatPhi; ++i3 ){
-	  const CscReadoutElement* detEl = m_detMgr->getCscReadoutElement(i1,i2,i3,1);
+	  const CscReadoutElement* detEl = MuonDetMgr->getCscReadoutElement(i1,i2,i3,1);
 	  if( !detEl ) continue;
 	  ++ncsc;
 	      
 	  if( fout ) {
 	    (*fout) << " New CSC ReadoutElement " << detEl->identify().get_compact() 
-		    << " " << m_detMgr->cscIdHelper()->print_to_string(detEl->identify()) << std::endl 
+		    << " " << MuonDetMgr->cscIdHelper()->print_to_string(detEl->identify()) << std::endl 
 		    << Amg::toString( detEl->transform(),6 ) << std::endl;
 	  }
 

@@ -10,6 +10,8 @@ import sys
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, LBexceptions, TriggerRenaming
 from TriggerMenu.api.TriggerPeriodData import TriggerPeriodData
 
+import six
+
 def getRunLBFromU64(runlb):
     run = runlb >> 32
     lb = runlb & ((1<<32)-1)
@@ -168,7 +170,7 @@ def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
 
     items = getL1Items('TRIGGERDB', info['smk']) # returs map item name => CTP ID
     chainsHLT = getChainsWithL1seed('TRIGGERDB', info['smk']) # returns map HLT ID => (HLT name, L1 seed)
-    chainsHLT = {k:v for (k,v) in chainsHLT.iteritems() if "L1" in v[1]}
+    chainsHLT = {k:v for (k,v) in six.iteritems (chainsHLT) if "L1" in v[1]}
 
     tmphltList = []
     for lbrange in info['hltpsk']:
@@ -182,7 +184,7 @@ def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
         lbstart, lbend = lbrange[2], lbrange[4]
         if lbend ==-1: lbend = 2000
         l1psname, l1prescales = getL1Prescales('TRIGGERDB', lbrange[0])
-        l1prescales    = {l1name: l1prescales[int(l1id)] for (l1name, l1id) in items.iteritems()}
+        l1prescales    = {l1name: l1prescales[int(l1id)] for (l1name, l1id) in six.iteritems (items)}
         tmpl1List.append(( lbstart, lbend,l1prescales) )
 
     #merge the lb ranges of HLT and L1
@@ -215,7 +217,7 @@ def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
 
         #print ("Accepted:",(lboverlap, lbstart, lbend, grlblocks))
         lbCount += lboverlap
-        for hltid, (hltps, hltrerun) in hltprescales.iteritems():
+        for hltid, (hltps, hltrerun) in six.iteritems (hltprescales):
             if hltid not in chainsHLT: continue
             if hltps < 1: hltps = 1e99
             l1seeds = chainsHLT[hltid][1]
@@ -234,7 +236,7 @@ def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
             if not chainsHLT[hltid][0] in hltMap: hltMap[chainsHLT[hltid][0]] = [l1seeds, 0, hltrerun>0]
             hltMap[chainsHLT[hltid][0]][1] += efflb
     
-    for hlt,(l1,efflb,rerun) in hltMap_prev.iteritems():
+    for hlt,(l1,efflb,rerun) in six.iteritems (hltMap_prev):
         if hlt in hltMap: 
             hltMap[hlt][1] += efflb
             hltMap[hlt][2] |= rerun
@@ -357,7 +359,7 @@ def getHLTlist(period, customGRL, release):
 def cleanHLTmap(hltmap, totalLB):
 
     from copy import deepcopy
-    for  name, (l1seed, activeLB, hasRerun) in deepcopy(hltmap).iteritems(): #since it will modify on the fly
+    for  name, (l1seed, activeLB, hasRerun) in six.iteritems (deepcopy(hltmap)): #since it will modify on the fly
         for pair in TriggerRenaming.pairs:
             if name==pair[0] and     pair[1] in hltmap: hltmap[pair[1]][1] += activeLB
             #if name==pair[0] and not pair[1] in hltmap: hltmap[pair[1]]     = [l1seed, activeLB, hasRerun]
@@ -365,7 +367,7 @@ def cleanHLTmap(hltmap, totalLB):
             #if name==pair[1] and not pair[0] in hltmap: hltmap[pair[0]]     = [l1seed, activeLB, hasRerun]
 
     vetoes = ['calib','noise','noalg','satmon','peb']
-    hltlist = [(name, l1seed, activeLB/totalLB, activeLB, hasRerun) for name, (l1seed, activeLB, hasRerun) in hltmap.iteritems() if not any(v in name for v in vetoes)]
+    hltlist = [(name, l1seed, activeLB/totalLB, activeLB, hasRerun) for name, (l1seed, activeLB, hasRerun) in six.iteritems (hltmap) if not any(v in name for v in vetoes)]
     return hltlist
 
 def test():

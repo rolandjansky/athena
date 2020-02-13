@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
@@ -24,34 +24,48 @@ def generateL1DecoderAndChains():
     AlgScheduler.ShowDataFlow( True )
 
     # 4 events
-    data = {'noreco': [';', ';', ';',';']}  # in the lists there are the events
-
-    data['emclusters'] = [ ';',
-                        'eta:1,phi:1,et:180000; eta:1,phi:-1.2,et:35000;',
-                        'eta:0.5,phi:0,et:120000; eta:1,phi:-1.2,et:65000;',
-                        'eta:-0.6,phi:1.7,et:9000;']
-
-    data['msmu']  = [';',
-                     ';',
-                     'eta:-1.2,phi:0.7,pt:6500,pt2:8500; eta:-1.1,phi:0.6,pt:8500,pt2:8500;',
-                     'eta:-1.7,phi:-0.2,pt:29500,pt2:8500;']
-
-    #data['ctp'] = [ 'HLT_e20 HLT_e5_e8 HLT_e5 HLT_e8 HLT_e5v22 HLT_g5',
-    data['ctp'] = [ 'HLT_e20_L1EM10 HLT_e5_e8_L1EM3_EM5 HLT_e5_L1EM7 HLT_e8_L1EM7 HLT_g5_EM7',
-                    'HLT_e20_L1EM10 HLT_e5_e8_L1EM3_EM5 HLT_e5_L1EM7 HLT_e8_L1EM7 HLT_g5_L1EM7 HLT_e5_v3_L1EM7',
-                    'HLT_mu6_L1MU6 HLT_mu8_L1MU10 HLT_mu10_L1MU10 HLT_mu8_1step_L1MU6 HLT_e20_L1EM10 HLT_e8_L1EM7 HLT_mu8_e8_L1MU6_EM7 HLT_e3_e5_L1EM3_EM5 HLT_2mu6_L12MU6 HLT_2mu6Comb_L12MU6 HLT_2mu4_bDimu_L12MU4',
-                    'HLT_mu20_L1MU10 HLT_mu10_L1MU10 HLT_mu8_L1MU10 HLT_mu8_1step_L1MU6 HLT_2mu8 HLT_e8_L1EM7' ]
+    data = {
+        'noreco': [';', ';', ';',';'],
+        'emclusters': [';', ';', ';',';'],
+        'msmu': [';', ';', ';',';'],
+        'ctp': [';', ';', ';',';'],
+        'l1emroi': [';', ';', ';',';'],
+        'l1muroi': [';', ';', ';',';']
+        }  # in the lists there are the events
 
 
-    data['l1emroi'] = [ ';',
-                        '1,1,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.2,0,EM3,EM7',
-                        '-0.6,0.2,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM7,EM15,EM20,EM50',
-                        '-0.6,1.5,0,EM3,EM7,EM7']
+    
+    # event 0: empty
+    data['ctp'] [0]      =  'HLT_e20_L1EM10 HLT_e5_e8_L1EM3_EM5 HLT_e5_L1EM7 HLT_e8_L1EM7 HLT_g5_EM7'
+    data['l1emroi'][0]   = ';'
+    data['emclusters'][0]= ';'
+    data['l1muroi'][0]   = ';'
+    data['msmu'][0]      = ';'
 
-    data['l1muroi'] = [';',
-                       '0,0,0,MU0;',
-                       '-1,0.5,0,MU6,MU8; 1,0.5,0,MU6,MU8,MU10',
-                       '-1.5,-0.1,0,MU6,MU8,MU10']
+
+    #event 1: 3e (1 not passing at L1, 1 not passing at step1) + 2mu (2 not passing) - HLT_e5_e8_L1EM3_EM5 HLT_2mu6_L12MU6
+    data['ctp'] [1]      =  'HLT_e20_L1EM10 HLT_e5_L1EM7 HLT_e8_L1EM7 HLT_g5_L1EM7 HLT_e5_v3_L1EM7 HLT_e5_e8_L1EM3_EM5 HLT_mu8_e8_L1MU6_EM7 HLT_2mu6_L12MU6'
+    data['l1emroi'][1]   =  '1,1,0,EM3,EM5,EM7,EM20,EM50,EM100; 2.,-1.2,0,EM3,EM5; 3.,0.2,0,EM3;'
+    data['emclusters'][1]=  'eta:1,phi:1,et:180000; eta:1,phi:-1.2,et:6000; eta:0.5,phi:-1.2,et:3000;'
+    data['l1muroi'][1]   =  '2,0.5,0,MU6; 3,0.5,0,MU6;'
+    #data['l1muroi'][1]   =  '0,0,0,MU0;'
+    data['msmu'][1]      = 'eta:-1.2,phi:0.7,pt:1500,pt2:1500; eta:-1.1,phi:0.6,pt:1500,pt2:1500;'
+ 
+    # event 2: 2e+ 2mu : HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6, HLT_mu6_e8_L1MU6_EM5
+    data['ctp'] [2]      =  'HLT_mu6_L1MU6 HLT_mu8_L1MU10 HLT_mu10_L1MU10 HLT_mu8_1step_L1MU6 HLT_e20_L1EM10 HLT_e8_L1EM7 HLT_mu6_e8_L1MU6_EM5 HLT_mu6Comb_e8_L1MU6_EM5 HLT_e3_e5_L1EM3_EM5 HLT_2mu6_L12MU6 HLT_2mu6Comb_L12MU6 HLT_2mu4_bDimu_L12MU4 HLT_e5_e8_L1EM3_EM5 HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6 HLT_mu6_mu6noL1_L1MU6'
+    data['l1emroi'][2]   =  '1,0.2,0,EM3,EM5, EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM5,EM7,EM15,EM20,EM50;'
+    data['emclusters'][2]=  'eta:0.5,phi:0,et:120000; eta:1,phi:-1.2,et:65000;'
+    data['l1muroi'][2]   =  '2,0.5,0,MU6,MU8; 3,0.5,0,MU6,MU8,MU10;'
+    data['msmu'][2]      =  'eta:-1.2,phi:0.7,pt:6500,pt2:8500; eta:-1.1,phi:0.6,pt:8500,pt2:8500;'
+
+    #event 3: 1e + 1mu - HLT_mu6_e8_L1MU6_EM5
+    data['ctp'] [3]      =  'HLT_mu20_L1MU10 HLT_mu10_L1MU10 HLT_mu8_L1MU10 HLT_mu8_1step_L1MU6 HLT_2mu8 HLT_e8_L1EM7 HLT_mu6_e8_L1MU6_EM5 HLT_mu6Comb_e8_L1MU6_EM5'
+    data['l1emroi'][3]   =  '1,1.5,0,EM3,EM5,EM7;'
+    data['emclusters'][3]=  'eta:-0.6,phi:1.7,et:9000;'
+    data['l1muroi'][3]   =  '2,-0.1,0,MU6,MU8,MU10;'
+    data['msmu'][3]      =  'eta:-1.7,phi:-0.2,pt:29500,pt2:8500;'
+
+    # otehr vectors
 
     data['tracks'] = ['eta:1,phi:1,pt:120000; eta:1,phi:-1.2,et:32000;',
                       'eta:1,phi:1,pt:120000; eta:1,phi:-1.2,et:32000;',
@@ -80,21 +94,19 @@ def generateL1DecoderAndChains():
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
 
-    doMuon=True
-    doElectron=True
-    doCombo=True
+    doMuon     = True
+    doElectron = True
+    doCombo    = True
 
     HLTChains = []
-    #EnabledElChains = []
-    #EnabledMuChains = []
-    #EnabledMuComboChains = []
-    #EnabledElComboChains = []
 
     # muon chains
     if doMuon:
         from TrigUpgradeTest.HLTSignatureConfig import  muMenuSequence
         #step1
         mu11 = muMenuSequence(step="1",reconame="v1", hyponame="v1")
+        mu12 = muMenuSequence(step="1",reconame="v2", hyponame="v2")
+                    
         #step2
         mu21 = muMenuSequence(step="2",reconame="v1", hyponame="v1")
         mu22 = muMenuSequence(step="2",reconame="v2", hyponame="v2")
@@ -104,12 +116,12 @@ def generateL1DecoderAndChains():
         #step4
         mu41 = muMenuSequence(step="4",reconame="v1", hyponame="v1")
 
-        step_mu11  = ChainStep("Step_mu11", [mu11])
-        step_mu21  = ChainStep("Step_mu21", [mu21] )
-        step_mu22  = ChainStep("Step_mu22", [mu22] )
-        step_mu31  = ChainStep("Step_mu31", [mu31] )
-        step_mu32  = ChainStep("Step_mu32", [mu32] )
-        step_mu41  = ChainStep("Step_mu41", [mu41] )
+        step_mu11  = ChainStep("Step1_mu11", [mu11])
+        step_mu21  = ChainStep("Step2_mu21", [mu21] )
+        step_mu22  = ChainStep("Step2_mu22", [mu22] )
+        step_mu31  = ChainStep("Step3_mu31", [mu31] )
+        step_mu32  = ChainStep("Step3_mu32", [mu32] )
+        step_mu41  = ChainStep("Step4_mu41", [mu41] )
         
         step_empy= ChainStep("Step_empty")
 
@@ -164,6 +176,7 @@ def generateL1DecoderAndChains():
             from TrigUpgradeTest.HLTSignatureConfig import muMenuSequence
             #step1
             mu11 = muMenuSequence(step="1",reconame="v1", hyponame="v1")
+            mu12 = muMenuSequence(step="1",reconame="v2", hyponame="v2")
             #step2
             mu21 = muMenuSequence(step="2",reconame="v1", hyponame="v1")
             mu22 = muMenuSequence(step="2",reconame="v2", hyponame="v2")
@@ -174,7 +187,7 @@ def generateL1DecoderAndChains():
             mu41 = muMenuSequence(step="4",reconame="v1", hyponame="v1")
 
            
-            step_mu22  = ChainStep("Step_mu22", [mu22] )
+           
            
 
             
@@ -182,19 +195,35 @@ def generateL1DecoderAndChains():
         # multiplicity here indicates the number of objects to be combined:
         # for the chain dictionary, get the sum of the multiplicity in the multiplicy array
         # in symmetric chains, multiplicity=2 but only one sequence is used
-        
+
+
+     
         CombChains =[
-            makeChain(name='HLT_mu8_e8_L1MU6_EM7',  L1Thresholds=["MU6","EM7"], ChainSteps=[ ChainStep("Step1_mu_em", [mu11, el11], multiplicity=[1,1]),
-                                                             ChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1])] ),
-            makeChain(name='HLT_e5_e8_L1EM3_EM5',   L1Thresholds=["EM3","EM5"], ChainSteps=[ ChainStep("Step1_2em",   [el11, el11], multiplicity=[1,1]),
-                                                             ChainStep("Step2_2em",   [el21, el21], multiplicity=[1,1]) ]),
+
+            makeChain(name='HLT_mu6_e8_L1MU6_EM5',  L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu_em", [mu11, el11], multiplicity=[1,1]),
+                                                                                             ChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1])] ),
+
+            makeChain(name='HLT_mu6Comb_e8_L1MU6_EM5', L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu2_em", [mu12, el11], multiplicity=[1,1]),
+                                                                                                ChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1])] ),
+
+            makeChain(name='HLT_e5_e8_L1EM3_EM5',   L1Thresholds=["EM3","EM5"], ChainSteps=[ ChainStep("Step1_2emAs",   [el11, el11], multiplicity=[1,1]),
+                                                                                             ChainStep("Step2_2emAs",   [el21, el21], multiplicity=[1,1]) ]),
+            makeChain(name='HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6',   L1Thresholds=["EM3","EM5","MU6"],
+                                                                                ChainSteps=[ChainStep("Step1_2em_2mu",   [el11,el11,mu11], multiplicity=[1,1,2]),
+                                                                                            ChainStep("Step2_2em_2mu",   [el21,el21,mu21], multiplicity=[1,1,2]) ]),
             makeChain(name='HLT_2mu6_L12MU6',       L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2mu",   [mu11], multiplicity=[2]),
-                                                             ChainStep("Step2_2mu",   [mu21], multiplicity=[2]) ]),
-            makeChain(name='HLT_2mu6Comb_L12MU6',   L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2mu_empty",     multiplicity=[2]),
-                                                             ChainStep("Step2_2mu",   [mu21], multiplicity=[2]) ]),
-            makeChain(name='HLT_2mu4_bDimu_L12MU4', L1Thresholds=["MU4"], ChainSteps=[ ChainStep("Step1_2mu",   [mu11], multiplicity=[2]),
-                                                                                  step_mu22,
-                                                                                  ChainStep("Step3_2mu",   [mu31], multiplicity=[2])] )
+                                                                                       ChainStep("Step2_2mu",   [mu21], multiplicity=[2]) ]),
+
+            makeChain(name='HLT_2mu6Comb_L12MU6',   L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2mu_empty",  multiplicity=[2]),
+                                                                                       ChainStep("Step2_2mu", [mu21], multiplicity=[2]) ]),
+                                                                                       
+            makeChain(name='HLT_2mu4_bDimu_L12MU4', L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2mu",  [mu11], multiplicity=[2]),
+                                                                                       ChainStep("Step2_2mu22",[mu22], multiplicity=[2]),
+                                                                                       ChainStep("Step3_2mu",  [mu31], multiplicity=[2])] ),
+                                                                                       
+            makeChain(name='HLT_mu6_mu6noL1_L1MU6', L1Thresholds=["MU6", "FSNOSEED"], ChainSteps=[ ChainStep("Step1_2muAs",   [mu11, mu11], multiplicity=[1,1]),
+                                                                                           ChainStep("Step2_2muAs",   [mu21, mu21], multiplicity=[1,1]) ])
+                                                                              
             ]
 
 
@@ -207,7 +236,7 @@ def generateL1DecoderAndChains():
 
     L1UnpackingSeq = parOR("L1UnpackingSeq")
 
-    l1Decoder = L1Decoder( RoIBResult="" )
+    l1Decoder = L1Decoder( RoIBResult="", L1TriggerResult="" )
     l1Decoder.prescaler.EventInfo=""
     l1Decoder.L1DecoderSummaryKey = "L1DecoderSummary"
 

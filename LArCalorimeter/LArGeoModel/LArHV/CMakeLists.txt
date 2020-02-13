@@ -27,13 +27,13 @@ atlas_depends_on_subdirs( PUBLIC
                           ${extra_dep} )
 
 # External dependencies:
-find_package( GeoModel )
+find_package( GeoModelCore )
 
 # Component(s) in the package:
 atlas_add_library( LArHV
                    src/*.cpp
                    PUBLIC_HEADERS LArHV
-		   INCLUDE_DIRS ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel IOVSvcLib StoreGateLib SGtests LArCablingLib ${extra_lib}
+		   INCLUDE_DIRS ${GEOMODELCORE_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaKernel IOVSvcLib StoreGateLib SGtests LArCablingLib ${extra_lib}
                    PRIVATE_LINK_LIBRARIES AthenaPoolUtilities Identifier GaudiKernel LArIdentifier )
 

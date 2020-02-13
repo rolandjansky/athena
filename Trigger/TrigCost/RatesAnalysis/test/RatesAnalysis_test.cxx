@@ -14,11 +14,11 @@ int main() {
 
   MsgStream log(nullptr, "RatesAnalysis_test");
 
-  RatesTrigger* triggerA1 = new RatesTrigger("TriggerA1", log, 1, 1, "SeedA", 2);
-  RatesTrigger* triggerA2 = new RatesTrigger("TriggerA2", log, 2, 1, "SeedA", 2);
+  RatesTrigger* triggerA1 = new RatesTrigger("TriggerA1", log, /*prescale*/1, /*XpressPrescale*/1, "SeedA", /*seedPrescale*/2);
+  RatesTrigger* triggerA2 = new RatesTrigger("TriggerA2", log, /*prescale*/2, /*XpressPrescale*/1, "SeedA", /*seedPrescale*/2);
 
-  RatesTrigger* triggerB1 = new RatesTrigger("TriggerB1", log, 3, 1, "SeedB", 4);
-  RatesTrigger* triggerB2 = new RatesTrigger("TriggerB2", log, 4, 1, "SeedB", 4);
+  RatesTrigger* triggerB1 = new RatesTrigger("TriggerB1", log, /*prescale*/3, /*XpressPrescale*/1, "SeedB", /*seedPrescale*/4);
+  RatesTrigger* triggerB2 = new RatesTrigger("TriggerB2", log, /*prescale*/4, /*XpressPrescale*/1, "SeedB", /*seedPrescale*/4);
 
   WeightingValuesSummary_t wvs;
   wvs.m_enhancedBiasWeight = 5000;

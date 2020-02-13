@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 #
@@ -32,7 +34,7 @@ InDetTrigAmbiTrackSelectionToolFTK = \
 ToolSvc += InDetTrigAmbiTrackSelectionToolFTK
 
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigAmbiTrackSelectionToolFTK
+  print (InDetTrigAmbiTrackSelectionToolFTK)
 
 
 from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
@@ -51,7 +53,7 @@ InDetTrigPixelClusterOnTrackToolFTK = \
   
 ToolSvc += InDetTrigPixelClusterOnTrackToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigPixelClusterOnTrackToolFTK
+  print (InDetTrigPixelClusterOnTrackToolFTK)
   
 # SiLorentzAngleTool for SCT
 from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
@@ -63,7 +65,7 @@ InDetTrigSCT_ClusterOnTrackToolFTK = FTK_SCTClusterOnTrackTool("InDetTrigSCT_Clu
                                                                     LorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 ToolSvc += InDetTrigSCT_ClusterOnTrackToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigSCT_ClusterOnTrackToolFTK
+  print (InDetTrigSCT_ClusterOnTrackToolFTK)
   
   
 from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
@@ -73,7 +75,7 @@ InDetTrigRotCreatorFTK = Trk__RIO_OnTrackCreator(name            = 'InDetTrigRot
                                                  Mode            = 'indet')
 ToolSvc += InDetTrigRotCreatorFTK
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigRotCreatorFTK
+  print (InDetTrigRotCreatorFTK)
   
 
 InDetTrigTrackFitterFTK = Trk__GlobalChi2Fitter(name = "InDetTrigTrackFitterFTK",
@@ -100,7 +102,7 @@ InDetTrigTrackFitterFTK = Trk__GlobalChi2Fitter(name = "InDetTrigTrackFitterFTK"
 
 ToolSvc += InDetTrigTrackFitterFTK
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigTrackFitterFTK
+  print (InDetTrigTrackFitterFTK)
 
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator,InDetTrigHoleSearchTool,InDetTrigPrdAssociationTool 
@@ -120,7 +122,7 @@ InDetTrigTrackSummaryHelperToolFTK = InDet__InDetTrackSummaryHelperTool(name = "
 
 ToolSvc += InDetTrigTrackSummaryHelperToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigTrackSummaryHelperToolFTK
+  print (InDetTrigTrackSummaryHelperToolFTK)
         
 
 
@@ -132,7 +134,7 @@ InDetTrigTrackSummaryToolFTK = Trk__TrackSummaryTool(name = "InDetTrigTrackSumma
                                                  TRT_ElectronPidTool    = None)
 ToolSvc += InDetTrigTrackSummaryToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigTrackSummaryToolFTK
+  print (InDetTrigTrackSummaryToolFTK)
 
 
 from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
@@ -146,14 +148,14 @@ InDetTrigTrackParticleCreatorToolFTK = Trk__TrackParticleCreatorTool( name = "In
         
 ToolSvc += InDetTrigTrackParticleCreatorToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigTrackParticleCreatorToolFTK
+  print (InDetTrigTrackParticleCreatorToolFTK)
 
 
 from FTK_DataProviderSvc.FTK_DataProviderSvcConf import FTK_UncertaintyTool
 TrigFTK_UncertaintyTool= FTK_UncertaintyTool(name="FTK_UncertaintyTool")
 ToolSvc+=TrigFTK_UncertaintyTool
 if (InDetTrigFlags.doPrintConfigurables()):
-  print TrigFTK_UncertaintyTool
+  print (TrigFTK_UncertaintyTool)
 
 from TrigInDetConf.TrigInDetRecVtxTools import InDetTrigVxEdmCnv  
 from FTK_RecTools.FTK_RecToolsConf import FTK_VertexFinderTool
@@ -161,13 +163,13 @@ TrigFTK_RawVertexFinderTool=  FTK_VertexFinderTool(name="FTK_RawVertexFinderTool
                                                    VertexInternalEdmFactory=InDetTrigVxEdmCnv)
 ToolSvc+=TrigFTK_RawVertexFinderTool
 if (InDetTrigFlags.doPrintConfigurables()):
-  print TrigFTK_RawVertexFinderTool
+  print (TrigFTK_RawVertexFinderTool)
 
 from TrkVertexWeightCalculators.TrkVertexWeightCalculatorsConf import Trk__SumPtVertexWeightCalculator
 TrigFTK_VertexWeightCalculator = Trk__SumPtVertexWeightCalculator(name = "TrigFTK_SumPtVertexWeightCalculator",
                                                                   DoSumPt2Selection = True)
 if (InDetTrigFlags.doPrintConfigurables()):
-  print TrigFTK_VertexWeightCalculator 
+  print (TrigFTK_VertexWeightCalculator )
  
 
 ToolSvc += TrigFTK_VertexWeightCalculator 
@@ -177,7 +179,7 @@ TrigFTK_VertexCollectionSortingTool = Trk__VertexCollectionSortingTool(name     
                                                                        VertexWeightCalculator = TrigFTK_VertexWeightCalculator)
 ToolSvc += TrigFTK_VertexCollectionSortingTool
 if (InDetTrigFlags.doPrintConfigurables()):
-  print TrigFTK_VertexCollectionSortingTool
+  print (TrigFTK_VertexCollectionSortingTool)
 
 from FTK_RecTools.FTK_RecToolsConf import FTK_HashIDTool
 TrigFTK_HashIDTool = FTK_HashIDTool("TrigFTK_HashIDTool")

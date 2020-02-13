@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStreamCnvTest/ReadTgcDigit.h"
@@ -56,7 +56,7 @@ StatusCode ReadTgcDigit::execute()
 
   // get TGC digit container
   const std::string key = "TGC_DIGITS";
-  const DataHandle<TgcDigitContainer> tgc_container;
+  const TgcDigitContainer* tgc_container = nullptr;
   ATH_CHECK( (*m_activeStore)->retrieve(tgc_container, key) );
  
   ATH_MSG_DEBUG("****** tgc->size() : " << tgc_container->size() );

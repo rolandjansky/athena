@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TriggerMenu.menu.MenuUtil import applyHLTPrescale, resetAllPrescales
@@ -188,7 +188,7 @@ def applyPrescales(triggerPythonConfig, HLTPrescales):
     #    log.warning('Cannot find L1 prescale set %s, not explicitly setting them' % \
     #                TriggerFlags.L1PrescaleSet())
     #    L1Prescales = {}
-    if HLTPrescales==None and TriggerFlags.HLTPrescaleSet()!='':
+    if HLTPrescales is None and TriggerFlags.HLTPrescaleSet()!='':
         log.warning('Cannot find HLT prescale set %s, not explicitly setting them' % \
                     TriggerFlags.HLTPrescaleSet())
         HLTPrescales = {}

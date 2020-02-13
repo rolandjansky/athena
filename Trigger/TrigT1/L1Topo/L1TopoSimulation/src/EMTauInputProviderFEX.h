@@ -40,7 +40,6 @@ namespace LVL1 {
 
       ServiceHandle<ITHistSvc> m_histSvc;
 
-      const DataHandle< xAOD::TrigEMClusterContainer > m_eFEXCluster; //!< cluster from eFEX
       StringProperty m_eFEXClusterLoc;
 
       TH1I * m_hEMEt {nullptr};

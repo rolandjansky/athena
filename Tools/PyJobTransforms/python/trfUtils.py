@@ -6,9 +6,10 @@ from builtins import object
 from future import standard_library
 standard_library.install_aliases()
 from builtins import map
+import six
 
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfUtils
 # @brief Transform utility functions
@@ -319,7 +320,8 @@ def shQuoteStrings(strArray = sys.argv):
 #  @note This is useful so that multiple parts of code can co-operatively take lines from the file
 def lineByLine(filename, strip=True, removeTimestamp=True, substepName=None):
     linecounter = 0
-    f = open(filename, 'r')
+    encargs = {} if six.PY2 else {'encoding' : 'utf8'}
+    f = open(filename, 'r', **encargs)
     for line in f:
         linecounter += 1
         if substepName and isinstance(substepName, basestring):    # Remove substepName only if caller provides that string.

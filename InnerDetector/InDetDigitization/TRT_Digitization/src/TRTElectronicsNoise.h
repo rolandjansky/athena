@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRTELECTRONICSNOISE_H
-#define TRTELECTRONICSNOISE_H
+#ifndef TRT_DIGITIZATION_TRTELECTRONICSNOISE_H
+#define TRT_DIGITIZATION_TRTELECTRONICSNOISE_H
 
 #include <vector>
 
@@ -23,7 +23,7 @@ public:
    * Constructor: Calls tabulateNoiseSignalShape()
    */
   TRTElectronicsNoise( const TRTDigSettings*,
-		       CLHEP::HepRandomEngine *rndmEngine );
+                       CLHEP::HepRandomEngine *rndmEngine );
   /** Destructor */
   ~TRTElectronicsNoise();
 
@@ -41,7 +41,7 @@ public:
   bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
   void getSamplesOfMaxLTOverNoiseAmp(std::vector<float>& maxLTOverNoiseAmp,
-				     unsigned long nsamplings,
+                                     unsigned long nsamplings,
                                      CLHEP::HepRandomEngine *rndmEngine);
 
   /**
@@ -61,7 +61,7 @@ public:
    *                              noise for
    */
   void reinitElectronicsNoise(const unsigned int& numberOfDigitLengths
-			      /*number of 75ns timeslices*/,
+                              /*number of 75ns timeslices*/,
                               CLHEP::HepRandomEngine *rndmEngine);
 
   /** Set electronics noise amplitude */
@@ -76,7 +76,7 @@ public:
    * @param noiseamplitude: noise amplitude
    */
   void addElectronicsNoise(std::vector<double>& signal,
-			   const double& noiseamplitude /*= 1.0*/,
+                           const double& noiseamplitude /*= 1.0*/,
                            CLHEP::HepRandomEngine *rndmEngine);
 
 private:
@@ -98,8 +98,8 @@ private:
    * @param binsinwindow: number of bins in window, where maximum is searched
    */
   double getMax(unsigned int firstbinslowsignal,
-		unsigned int firstbinfastsignal,
-		const unsigned int& binsinwindow );
+                unsigned int firstbinfastsignal,
+                const unsigned int& binsinwindow );
 
   std::vector<double> m_noiseSignalShape; /**< Tabulated noise signal shape */
 

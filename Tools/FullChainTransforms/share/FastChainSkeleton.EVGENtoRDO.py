@@ -906,7 +906,7 @@ if 'AthSequencer/EvgenGenSeq' in topSequence.getSequence():
 ## Add AMITag MetaData to TagInfoMgr
 if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":
-        svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
+        svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag":runArgs.AMITag})
 
 from ISF_Example.ISF_Metadata import patch_mc_channel_numberMetadata
 patch_mc_channel_numberMetadata()

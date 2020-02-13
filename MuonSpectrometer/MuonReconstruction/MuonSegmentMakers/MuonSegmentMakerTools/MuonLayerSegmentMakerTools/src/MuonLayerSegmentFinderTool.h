@@ -80,7 +80,6 @@ namespace Muon {
     ToolHandle<ICscSegmentFinder>                     m_csc4dSegmentFinder;
     ToolHandle<IMuonClusterSegmentFinder>             m_clusterSegmentFinder;
     ToolHandle<IMuonClusterSegmentFinderTool>         m_clusterSegMakerNSW;
-    ToolHandle<MuonLayerHoughTool>                    m_layerHoughTool;
     mutable ToolHandle<IMuonRecoValidationTool>               m_recoValidationTool;
     MuonSectorMapping                                 m_muonSectorMapping;
   };

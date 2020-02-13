@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Common configuration functions setting up common tools
 # These tools are used by virtually all other tools, be careful
@@ -80,7 +80,7 @@ def toolBTagJetTruthMatching(name, useBTagFlagsDefaults = True, **options):
         del options['subtype']
         return toolJetTrackTruthMatching('BTagJetTruthMatching', useBTagFlagsDefaults = useBTagFlagsDefaults, **options)
     else:
-        raise NotImplementedError, 'Unimplemented request for BTagJetTruthMatching sub-type: '+options['subtype']
+        raise NotImplementedError ('Unimplemented request for BTagJetTruthMatching sub-type: '+options['subtype'])
 
 def toolJetQuarkLabel(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetQuarkLabel tool and returns it.

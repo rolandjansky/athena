@@ -12,7 +12,7 @@
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
-
+#include "ISF_Event/ISFParticleOrderedQueue.h"
 
 #include "AtlasDetDescr/AtlasRegionHelper.h"
 
@@ -40,15 +40,17 @@ ISF::SimKernelMT::~SimKernelMT() {
 StatusCode ISF::SimKernelMT::initialize() {
 
   ATH_CHECK( m_simulationTools.retrieve() );
-  for (auto& curSimTool: m_simulationTools) {
-    if ( curSimTool ) {
+  for ( auto& curSimTool : m_simulationTools )
+  {
+    if ( curSimTool )
+    {
       const auto flavor = curSimTool->simFlavor();
       auto itr = m_simToolMap.find(flavor);
       if (itr != m_simToolMap.end() )
-        {
-          ATH_MSG_FATAL("Two ISimulatorTool instances (" << itr->second->name() << "," << curSimTool->name() << ") with the same flavor in this job!\n Check your configuration!");
-          return StatusCode::FAILURE;
-        }
+      {
+        ATH_MSG_FATAL("Two ISimulatorTool instances (" << itr->second->name() << "," << curSimTool->name() << ") with the same flavor in this job!\n Check your configuration!");
+        return StatusCode::FAILURE;
+      }
       // New flavour add it to the map.
       m_simToolMap[flavor] = &*curSimTool;
     }
@@ -56,44 +58,50 @@ StatusCode ISF::SimKernelMT::initialize() {
   ATH_CHECK( m_particleKillerTool.retrieve() );
   const ISF::SimulationFlavor pkFlavor = m_particleKillerTool->simFlavor();
   if ( m_simToolMap.find(pkFlavor) == m_simToolMap.end() )
-    {
-      m_simToolMap[pkFlavor] = &*m_particleKillerTool;
-    }
+  {
+    m_simToolMap[pkFlavor] = &*m_particleKillerTool;
+  }
   else
-    {
-      ATH_MSG_WARNING("Two ISimulatorTool instances (" << m_simToolMap.find(ISF::ParticleKiller)->second->name() << "," << m_particleKillerTool->name() << ") with the same flavor in this job!\n Check your configuration!");
-    }
+  {
+    ATH_MSG_WARNING("Two ISimulatorTool instances (" << m_simToolMap.find(ISF::ParticleKiller)->second->name() << "," << m_particleKillerTool->name() << ") with the same flavor in this job!\n Check your configuration!");
+  }
 
   ATH_MSG_INFO("The following Simulators will be used in this job: \t" << m_simulationTools << "\n" << m_particleKillerTool);
   // retrieve simulation selectors (i.e. the "routing chain")
-  for ( auto& selectorsToolHandleArray: m_simSelectors ) {
+  for ( auto& selectorsToolHandleArray: m_simSelectors )
+  {
     ATH_CHECK( selectorsToolHandleArray.retrieve() );
   }
 
   // info screen output
-  ATH_MSG_INFO("The following routing chains are defined:");
-  for ( short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions ; ++geoID) {
+  ATH_MSG_INFO( "The following routing chains are defined:" );
+  for ( short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions; ++geoID )
+  {
     auto& localSelectors = m_simSelectors[geoID];
-    ATH_MSG_INFO( AtlasDetDescr::AtlasRegionHelper::getName(geoID)
-                  << " (GeoID=" << geoID << "): \t" << localSelectors);
-    for (auto& selector: localSelectors)
+    ATH_MSG_INFO( AtlasDetDescr::AtlasRegionHelper::getName(geoID) << " (GeoID=" << geoID << "): \t" << localSelectors );
+
+    for ( auto& selector : localSelectors )
+    {
+      const auto flavor = selector->simFlavor();
+      auto itr = m_simToolMap.find(flavor);
+      if (itr == m_simToolMap.end() )
       {
-        const auto flavor = selector->simFlavor();
-        auto itr = m_simToolMap.find(flavor);
-        if (itr == m_simToolMap.end() )
-          {
-            ATH_MSG_WARNING("Map from SimulationFlavor to SimulatorTool:");
-            for(auto& entry: m_simToolMap)
-              {
-                ATH_MSG_WARNING("SimulationFlavor: " << entry.first << ", SimulatorTool Name: "<< entry.second->name());
-              }
-            ATH_MSG_FATAL("No SimulationTool with flavor " << flavor << " expected by " << selector->name() << " found in this job!\n Check your configuration!");
-            return StatusCode::FAILURE;
-          }
+        ATH_MSG_WARNING( "Map from SimulationFlavor to SimulatorTool:" );
+        for ( auto& entry : m_simToolMap )
+        {
+          ATH_MSG_WARNING( "SimulationFlavor: " << entry.first << ", SimulatorTool Name: " << entry.second->name() );
+        }
+        ATH_MSG_FATAL( "No SimulationTool with flavor " << flavor << " expected by " << selector->name() << " found in this job!\n Check your configuration!" );
+        return StatusCode::FAILURE;
       }
+    }
   }
 
   ATH_CHECK( m_entryLayerTool.retrieve() );
+
+  if ( not m_orderingTool.empty() ) {
+    ATH_CHECK( m_orderingTool.retrieve() );
+  }
 
   ATH_CHECK( m_inputEvgenKey.initialize() );
   ATH_CHECK( m_outputTruthKey.initialize() );
@@ -106,8 +114,8 @@ StatusCode ISF::SimKernelMT::initialize() {
 
   ATH_CHECK ( m_truthRecordSvc.retrieve() );
 
-  if(!m_qspatcher.empty()) {
-    ATH_CHECK(m_qspatcher.retrieve());
+  if ( not m_qspatcher.empty() ) {
+    ATH_CHECK( m_qspatcher.retrieve() );
   }
 
   ATH_CHECK( m_geoIDSvc.retrieve() );
@@ -137,7 +145,7 @@ StatusCode ISF::SimKernelMT::execute() {
   outputTruth = std::make_unique<McEventCollection>(*inputEvgen);
 
   // Apply QS patch if required
-  if(!m_qspatcher.empty()) {
+  if ( not m_qspatcher.empty() ) {
     for (const auto& currentGenEvent : *outputTruth ) {
       ATH_CHECK(m_qspatcher->applyWorkaround(*currentGenEvent));
     }
@@ -158,64 +166,83 @@ StatusCode ISF::SimKernelMT::execute() {
   ATH_CHECK(m_entryLayerTool->registerTrackRecordCollection(muonExitLayer.ptr(), fAtlasMuonExit));
 
   // read and convert input
-  ISFParticleContainer simParticles; // particles for ISF simulation
+  ISFParticleContainer simParticles;
   ATH_CHECK( m_inputConverter->convert(*outputTruth, simParticles, HepMcParticleLink::find_enumFromKey(outputTruth.name())) );
 
+  // create an ordered queue of particles
+  ISFParticleOrderedQueue particleQueue;
+  for ( auto& particle : simParticles ) {
+
+    if ( m_orderingTool.empty() ) {
+      // Without a defined ordering, preserve old FIFO behaviour
+      particle->setOrder( -particleQueue.size() );
+    } else {
+      m_orderingTool->setOrder( *particle );
+    }
+
+    particleQueue.push( particle );
+  }
+
   // loop until there are no more particles to simulate
-  while (simParticles.size() ) {
-    ISF::ConstISFParticleVector particles{};
-    const ISimulatorTool* lastSimulator{};
-    while ( simParticles.size() ) {
-      auto particlePtr =  simParticles.front();
-      ISFParticle& curParticle(*particlePtr);
-      simParticles.pop_front();
+  ISF::ConstISFParticleVector particles{};
+  const ISimulatorTool* lastSimulator{};
+  ISFParticleContainer newSecondaries{};
+  while ( particleQueue.size() ) {
 
-      // Get the geo ID for the particle (should happen in inputConverter really)
-      /*AtlasDetDescr::AtlasRegion geoID =*/ m_geoIDSvc->identifyAndRegNextGeoID(curParticle);
+    // Create a vector of particles with the same simulator
+    while ( particleQueue.size() ) {
+      auto particlePtr = particleQueue.top();
+      ISFParticle& curParticle( *particlePtr );
+      particleQueue.pop();
 
-      const auto& simTool = identifySimulator(curParticle);
-      if (&simTool==lastSimulator){ particles.push_back(particlePtr); }
-      else {
-        if (not particles.empty()) {
-          ISFParticleContainer newSecondaries;
-          //ATH_CHECK( simTool.simulate( std::move(curParticle), newSecondaries ) );
-          ATH_CHECK( simTool.simulateVector( particles, newSecondaries, outputTruth.ptr() ) );
-          // register returned particles with the entry layer tool
-          for ( auto* secondary : newSecondaries ) {
-            m_entryLayerTool->registerParticle( *secondary );
-          }
-          // add any returned ISFParticles to the list of particles to be simulated
-          simParticles.splice( end(simParticles), std::move(newSecondaries) );
-          // delete simulated particles
-          for (auto usedParticle: particles) {
-            ISF::ISFParticle *curPart = const_cast<ISF::ISFParticle*>(usedParticle); //FIXME const_cast badness
-            delete curPart;
-          }
-          particles.clear();
-        }
+      // Get the geo ID for the particle
+      m_geoIDSvc->identifyAndRegNextGeoID(curParticle);
+
+      // Get the simulator using the GeoID
+      auto& simTool = identifySimulator(curParticle);
+
+      // Fill the vector
+      if ( particles.empty() ) {
+        // First particle in the vector defines the simulator
         particles.push_back(particlePtr);
         lastSimulator=&simTool;
       }
-    }
-    //clean-up unsimulated particles
-    if (not particles.empty()) {
-      ISFParticleContainer newSecondaries;
-      if(!lastSimulator) { ATH_MSG_FATAL("Particles with no assigned simulator. Bail!"); return StatusCode::FAILURE; }
-      ATH_CHECK( lastSimulator->simulateVector( particles, newSecondaries, outputTruth.ptr() ) );
-      // register returned particles with the entry layer tool
-      for ( auto* secondary : newSecondaries ) {
-        m_entryLayerTool->registerParticle( *secondary );
+      else if (&simTool==lastSimulator) {
+        particles.push_back(particlePtr);
       }
-      // add any returned ISFParticles to the list of particles to be simulated
-      simParticles.splice( end(simParticles), std::move(newSecondaries) );
-      // delete simulated particles
-      for (auto usedParticle: particles) {
-        ISF::ISFParticle *curPart = const_cast<ISF::ISFParticle*>(usedParticle); //FIXME const_cast badness
-        delete curPart;
+      else {
+        // Change of simulator, end the current vector
+        particleQueue.push(particlePtr);
+        break;
       }
-      particles.clear();
     }
+
+    // Run the simulation
+    ATH_CHECK( lastSimulator->simulateVector( particles, newSecondaries, outputTruth.ptr() ) );
+
+    // Register returned particles with the entry layer tool, set their order and enqueue them
+    for ( auto* secondary : newSecondaries ) {
+      m_entryLayerTool->registerParticle( *secondary );
+
+      if ( m_orderingTool.empty() ) {
+        // Without a defined ordering, preserve old FIFO behaviour
+        secondary->setOrder( -particleQueue.size() );
+      } else {
+        m_orderingTool->setOrder( *secondary );
+      }
+
+      particleQueue.push( secondary );
+    }
+    newSecondaries.clear();
+
+    // Delete simulated particles
+    for ( auto usedParticle : particles ) {
+      ISF::ISFParticle *curPart = const_cast<ISF::ISFParticle*>(usedParticle); //FIXME const_cast badness
+      delete curPart;
+    }
+    particles.clear();
   }
+
   // Release the event from all simulators (TODO: make the tools do this)
   for (auto& curSimTool: m_simulationTools) {
     if ( curSimTool ) {

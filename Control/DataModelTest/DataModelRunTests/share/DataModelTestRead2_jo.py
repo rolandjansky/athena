@@ -46,21 +46,7 @@ from DataModelTestDataRead.DataModelTestDataReadConf import DMTest__DMTestRead
 topSequence += DMTest__DMTestRead ("DMTestRead")
 
 
-#--------------------------------------------------------------
-# Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
-#--------------------------------------------------------------
-svcMgr.MessageSvc.OutputLevel = 3
-svcMgr.MessageSvc.debugLimit  = 100000
-svcMgr.ClassIDSvc.OutputLevel = 3
-
-# No stats printout
-ChronoStatSvc = Service( "ChronoStatSvc" )
-ChronoStatSvc.ChronoPrintOutTable = FALSE
-ChronoStatSvc.PrintUserTime       = FALSE
-ChronoStatSvc.StatPrintOutTable   = FALSE
-
-#svcMgr.ExceptionSvc.Catch = "None"
-
 # Avoid races when running tests in parallel.
 FILECATALOG = 'DataModelTestRead2_catalog.xml'
-include ('DataModelRunTests/setCatalog.py')
+
+include ('DataModelRunTests/commonTrailer.py')

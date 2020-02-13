@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -18,6 +18,7 @@
 
 // Atlas includes
 #include "StoreGate/ReadHandle.h"
+#include "CxxUtils/StrFormat.h"
 
 #include "boost/date_time/local_time/local_time.hpp"
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -28,10 +29,9 @@
 
 using xAOD::EventInfo;
 
-static const char * drwname(int id) {
-  static char name[5][6] = { "", "LBA", "LBC", "EBA", "EBC" };
-  sprintf(name[0], "%s%2.2d", name[id >> 8], id % 0x100 + 1);
-  return name[0];
+static std::string drwname(int id) {
+  static const char name[5][6] = { "", "LBA", "LBC", "EBA", "EBC" };
+  return CxxUtils::strformat ("%s%2.2d", name[id >> 8], id % 0x100 + 1);
 }
 
 TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLocator)

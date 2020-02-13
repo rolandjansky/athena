@@ -3,9 +3,11 @@
 __doc__ = "Configure cluster correction"
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaTools.egammaToolsConf import egammaSwTool
+egammaSwTool=CompFactory.egammaSwTool
 
+import six
 
 def _configureClusterCorrections(swTool, flags):
     "Add attributes ClusterCorrectionToolsXX to egammaSwTool object"
@@ -19,7 +21,7 @@ def _configureClusterCorrections(swTool, flags):
       Econv35='gam35_conv', Econv55='gam55_conv', Econv37='gam37_conv'
     )
 
-    for attrName, clName in clusterTypes.iteritems():
+    for attrName, clName in six.iteritems (clusterTypes):
         x = 'ClusterCorrectionTools' + attrName
         if not hasattr(swTool, x) or getattr(swTool, x):
             continue
@@ -30,7 +32,7 @@ def _configureClusterCorrections(swTool, flags):
 
     # Super cluster position only corrections
     if flags.Egamma.doSuperclusters:
-        for attrName, clName in clusterTypes.iteritems():
+        for attrName, clName in six.iteritems (clusterTypes):
             n = 'ClusterCorrectionToolsSuperCluster' + attrName
             if not hasattr(swTool, n) or getattr(swTool, n):
                 continue

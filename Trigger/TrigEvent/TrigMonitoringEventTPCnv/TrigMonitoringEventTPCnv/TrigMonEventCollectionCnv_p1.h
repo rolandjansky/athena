@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMON_EVENT_COLLECTIONCNV_P1_H
@@ -12,9 +12,9 @@
 #include "TrigMonitoringEventTPCnv/TrigMonEventCnv_p1.h"
  
 class TrigMonEventCollectionCnv_p1 
-   : public T_AthenaPoolTPPtrVectorCnv<TrigMonEventCollection, 
-				       TrigMonEventCollection_p1,
-				       TrigMonEventCnv_p1>
+   : public T_AthenaPoolTPPtrVectorCnvConst<TrigMonEventCollection, 
+                                            TrigMonEventCollection_p1,
+                                            TrigMonEventCnv_p1>
 { 
  public:
 

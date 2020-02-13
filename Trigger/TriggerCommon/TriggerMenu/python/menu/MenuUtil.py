@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging        import logging
+
+import six
 
 
 log = logging.getLogger('TriggerMenu.menu.MenuUtil.py')
@@ -10,7 +12,7 @@ log = logging.getLogger('TriggerMenu.menu.MenuUtil.py')
 
 def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
     list=[]
-    for item, prescales in HLTPrescale.iteritems():
+    for item, prescales in six.iteritems (HLTPrescale):
         # prescales is a list of 3 integers [HLT_prescale, HLT_pass_through, rerun_prescale]
         if item not in triggerPythonConfig.allChains.keys():
             log.debug('Signature %s not registered to TriggerPythonConfig' % item)
@@ -33,7 +35,7 @@ def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
 
 
 def applyHLTPrescale(triggerPythonConfig, HLTPrescale):
-    for item, prescales in HLTPrescale.iteritems():
+    for item, prescales in six.iteritems (HLTPrescale):
         # prescales is a list of 3 integers [HLT_prescale, HLT_pass_through, rerun_prescale]
         if item not in triggerPythonConfig.allChains.keys():
             if triggerPythonConfig.signaturesOverwritten:
@@ -116,7 +118,6 @@ def checkStreamConsistency(triggerPythonConfig):
     """
     menu_name = TriggerFlags.triggerMenuSetup()
     log.info( "Menu: " + menu_name)
-    CheckGroups=False
 
     from TriggerMenu.menu.StreamInfo       import getAllStreams
 
@@ -232,11 +233,11 @@ def findL1TT(chain, triggerPythonConfig):
     if chain.level == 'EF':
         l2_chain_name = chain.lower_chain_name
         l2_chain = triggerPythonConfig.getHLTChain(l2_chain_name)
-    if l2_chain == None:
+    if l2_chain is None:
         return -2
     l1_item_name = l2_chain.lower_chain_name
     l1_item = triggerPythonConfig.getLvl1Item(l1_item_name)
-    if l1_item==None:
+    if l1_item is None:
         return -1
     return l1_item.trigger_type
 

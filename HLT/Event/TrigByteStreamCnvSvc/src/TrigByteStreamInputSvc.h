@@ -9,7 +9,7 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
 #include "AthenaKernel/SlotSpecificObj.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include <memory.h>
 
 // Forward declarations

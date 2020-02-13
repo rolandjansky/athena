@@ -44,7 +44,7 @@ atlas_add_test( remap_test
                 test/remap_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel GaudiKernel TestTools AthenaBaseComps AthenaKernel DataModelRoot PathResolver TrigSerializeResultLib
-                EXTRA_PATTERNS ".*" )
+                POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
 atlas_install_runtime( share/bs-streamerinfos*.root )

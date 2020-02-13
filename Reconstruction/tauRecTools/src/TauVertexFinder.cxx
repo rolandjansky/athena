@@ -167,13 +167,6 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
       assocTracks.push_back(trackParticle);
     }
     ATH_MSG_DEBUG("TrackContainer for online TJVA with size "<< assocTracks.size()); 
-   
-    // convert TrackParticleContainer in std::vector<const xAOD::TrackParticle*>
-    for (xAOD::TrackParticleContainer::const_iterator tpcItr = trackParticleCont->begin(); tpcItr != trackParticleCont->end(); ++tpcItr) {
-      const xAOD::TrackParticle *trackParticle = *tpcItr;
-      assocTracks.push_back(trackParticle);
-    }
-    ATH_MSG_DEBUG("TrackContainer for online TJVA with size "<< assocTracks.size()); 
   }
   else {    
     if (! pJetSeed->getAssociatedObjects(m_assocTracksName, assocTracks)) {

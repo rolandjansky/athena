@@ -38,27 +38,31 @@ StatusCode RoRSeqFilter::initialize()
   CHECK( m_outputKeys.initialize() );
 
   renounceArray(m_inputKeys);
-  // is this needed? renounceArray(m_outputKeys); // TimM - I don't think so
 
-  ATH_MSG_DEBUG("Will consume implicit ReadDH:" );
-  for (auto& input: m_inputKeys){  
-    ATH_MSG_DEBUG(" - "<<input.key());
+  if (msgLvl(MSG::DEBUG)){
+    ATH_MSG_DEBUG("Will consume implicit ReadDH:" );
+    for (auto& input: m_inputKeys){  
+      ATH_MSG_DEBUG(" - "<<input.key());
+    }
+    ATH_MSG_DEBUG("Will produce WriteDH: ");
+    for (auto& output: m_outputKeys){  
+      ATH_MSG_DEBUG(" - "<<output.key());
+    }
   }
-  ATH_MSG_DEBUG("Will produce implicit WriteDH: ");
-  for (auto& output: m_outputKeys){  
-    ATH_MSG_DEBUG(" - "<<output.key());
-  }
-
+  
   CHECK( not m_chainsProperty.empty() );
   
   for ( const std::string& el: m_chainsProperty ) 
     m_chains.insert( HLT::Identifier( el ).numeric() );
 
-  for ( const HLT::Identifier& id: m_chains )
-    ATH_MSG_DEBUG( "Configured to require chain " << id );
+  if (msgLvl(MSG::DEBUG)){
+    ATH_MSG_DEBUG( "Configured to require these chains: ");
+    for ( const HLT::Identifier& id: m_chains )
+      ATH_MSG_DEBUG( " - " << id );
+    
+    ATH_MSG_DEBUG( "mergeInputs is " << m_mergeInputs);
+  }
   
-  ATH_MSG_DEBUG( "mergeInputs is " << m_mergeInputs);
-
   if ( not m_monTool.name().empty() ) {
     ATH_CHECK( m_monTool.retrieve() );
   }
@@ -71,20 +75,22 @@ StatusCode RoRSeqFilter::execute() {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
   auto inputStat = Monitored::Scalar("counts", 0 ); // n-inputs + 1 for execution counter
-  auto mon = Monitored::Group( m_monTool, inputStat );
+  auto inputName = Monitored::Scalar<std::string>("inputName", "");
+  auto inputPresent = Monitored::Scalar("inputPresent", 0);
+  auto mon = Monitored::Group( m_monTool, inputStat, inputPresent, inputName );
   mon.fill();
   auto inputHandles  = m_inputKeys.makeHandles();
   auto outputHandles = m_outputKeys.makeHandles();
-  //std::vector<SG::ReadHandle<DecisionContainer>> inputHandles;
-  //std::vector<SG::WriteHandle<DecisionContainer>> outputHandles;
-
   bool validInputs=false;
   int counter = 1; // entries from 2 (note ++ below) used for inputs
   for ( auto inputHandle: inputHandles ) {
     counter++;
+    inputName = inputHandle.name();
+    inputPresent = 0;
     if( inputHandle.isValid() ) {// this is because input is implicit
       validInputs = true;
       inputStat = counter;
+      inputPresent = 1;
       mon.fill();
     }
   }
@@ -128,7 +134,7 @@ StatusCode RoRSeqFilter::execute() {
       } else if ( inputHandle->empty() ) {
         ATH_MSG_DEBUG( "InputHandle "<< inputKey.key() <<" contains all rejected decisions, skipping" );
       } else {
-        ATH_MSG_DEBUG( "Checking inputHandle "<< inputKey.key() <<" with " << inputHandle->size() <<" elements");
+        ATH_MSG_DEBUG( "Checking inputHandle: "<< inputKey.key() <<" has " << inputHandle->size() <<" elements");
         createAndStore(outputHandles[outputIndex]);
         DecisionContainer* output = outputHandles[outputIndex].ptr();
         passCounter += copyPassing( *inputHandle, *output );  
@@ -141,8 +147,10 @@ StatusCode RoRSeqFilter::execute() {
 
   setFilterPassed( passCounter != 0 );
   ATH_MSG_DEBUG( "Filter " << ( filterPassed() ? "passed" : "rejected") <<"; creating "<< outputIndex<<" valid outDecisions DH:");
-  for (auto output: outputHandles){
-    if( output.isValid() ) ATH_MSG_DEBUG(" "<<output.key());
+  if (msgLvl(MSG::DEBUG)){
+    for (auto output: outputHandles){
+      if( output.isValid() ) ATH_MSG_DEBUG(" "<<output.key());
+    }
   }
 
   
@@ -152,18 +160,13 @@ StatusCode RoRSeqFilter::execute() {
 size_t RoRSeqFilter::copyPassing( const DecisionContainer& input, 
                                   DecisionContainer& output ) const {
   size_t passCounter = 0;
-  ATH_MSG_DEBUG( "Input size " << input.size() );
   for (size_t i = 0; i < input.size(); ++i) {
     const Decision* inputDecision = input.at(i);
 
     DecisionIDContainer objDecisions;      
     decisionIDs( inputDecision, objDecisions );
 
-    ATH_MSG_DEBUG("Number of positive decisions for this input: " << objDecisions.size() );
-
-    for ( DecisionID id : objDecisions ) {
-      ATH_MSG_DEBUG( " -- Positive decision " << HLT::Identifier( id ) );
-    }
+    ATH_MSG_DEBUG("Number of positive decisions for this input is " << objDecisions.size() <<". Now Filtering...." );
 
     DecisionIDContainer intersection;
     std::set_intersection( m_chains.begin(), m_chains.end(),
@@ -177,14 +180,18 @@ size_t RoRSeqFilter::copyPassing( const DecisionContainer& input,
       // Copy accross only the DecisionIDs which have passed through this Filter for this Decision object. 
       // WARNING: Still need to 100% confirm if the correct set to propagate forward is objDecisions or intersection.
       // Tim M changing this from objDecisions (all IDs) -> intersection (only passed IDs) Feb 19
-      insertDecisionIDs(intersection, decisionCopy);
-
+      insertDecisionIDs(intersection, decisionCopy);     
       passCounter ++;
-      ATH_MSG_DEBUG("Input satisfied at least one active chain");
+      ATH_MSG_DEBUG("Input satisfied at least one filtering chain. Chain(s) passing:");
+      if (msgLvl(MSG::DEBUG)){
+	for ( DecisionID id : intersection ) {
+	  ATH_MSG_DEBUG( " -- " << HLT::Identifier( id ) );
+	}
+      }
+      
     } else {
-      ATH_MSG_DEBUG("No Input decisions requested by active chains");
+      ATH_MSG_DEBUG("No Input decisions requested by filtering chains");
     }
   }
-  ATH_MSG_DEBUG( "Output size " << output.size() );
   return passCounter;  
 }

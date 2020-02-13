@@ -12,7 +12,6 @@
 #include "RPCcablingInterface/IRPCcablingSvc.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonDigitContainer/RpcDigit.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonRDO/RpcFiredChannel.h"
 
@@ -34,35 +33,27 @@ StatusCode Muon::RpcRDO_Decoder::initialize()
   ATH_MSG_DEBUG ( "initialize"); 
   
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
-  // Get MuonDetectorManager
-  if (detStore()->retrieve( m_muonMgr ).isFailure())
-  {
-      msg(MSG::ERROR) << "Can't retrieve MuonGM::MuonDetectorManager" 
-		      << endmsg;
-  }
-  else msg(MSG::DEBUG) << "Found MuonGM::MuonDetectorManager "<<endmsg;
       
-    // get RPC cablingSvc
-    const IRPCcablingServerSvc* RpcCabGet = 0;
-    StatusCode sc = service("RPCcablingServerSvc", RpcCabGet);
-    if (sc.isFailure()) {
-	msg (MSG::FATAL) << "Could not get RPCcablingServerSvc !" << endmsg;
-	return StatusCode::FAILURE;
-    }
-    else msg (MSG::VERBOSE) << " RPCcablingServerSvc retrieved" << endmsg;
+  // get RPC cablingSvc
+  const IRPCcablingServerSvc* RpcCabGet = 0;
+  StatusCode sc = service("RPCcablingServerSvc", RpcCabGet);
+  if (sc.isFailure()) {
+    msg (MSG::FATAL) << "Could not get RPCcablingServerSvc !" << endmsg;
+    return StatusCode::FAILURE;
+  }
+  else msg (MSG::VERBOSE) << " RPCcablingServerSvc retrieved" << endmsg;
   
-    sc = RpcCabGet->giveCabling(m_cablingSvc);
-    if (sc.isFailure()) {
-	msg (MSG::FATAL) << "Could not get RPCcablingSvc from the Server !" << endmsg;
-	m_cablingSvc = 0;
-	return StatusCode::FAILURE;
-    } 
-    else {
-	msg (MSG::VERBOSE) << " RPCcablingSvc obtained " << endmsg;
-    }
-
-    return sc;
+  sc = RpcCabGet->giveCabling(m_cablingSvc);
+  if (sc.isFailure()) {
+    msg (MSG::FATAL) << "Could not get RPCcablingSvc from the Server !" << endmsg;
+    m_cablingSvc = 0;
+    return StatusCode::FAILURE;
+  } 
+  else {
+    msg (MSG::VERBOSE) << " RPCcablingSvc obtained " << endmsg;
+  }
+  
+  return sc;
   
 }
 

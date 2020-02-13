@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDALG_MUONALIGNMENTCONDALG_H
@@ -74,7 +74,7 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
                                                                                   "Key of output muon alignment MDT/AsBuilt condition data"};
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-  const MuonGM::MuonDetectorManager* m_muonMgr;
+  const MuonGM::MuonDetectorManager* m_muonDetMgrDS;
   ServiceHandle<ICondSvc> m_condSvc;
   std::string m_geometryVersion;
 
@@ -84,6 +84,8 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
   bool m_dumpILines;
   bool m_ILinesFromDb;
   
+  bool m_AsBuiltRequested = false;
+  bool m_ILineRequested = false;
   std::string m_aLinesFile;
   std::string m_asBuiltFile;
 

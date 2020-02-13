@@ -3,11 +3,12 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import (
     MdtRdoToMdtDigit, RpcRdoToRpcDigit, TgcRdoToTgcDigit, STGC_RdoToDigit, MM_RdoToDigit, 
     MdtDigitToMdtRDO, RpcDigitToRpcRDO, TgcDigitToTgcRDO, STGC_DigitToRDO, MM_DigitToRDO, CscDigitToCscRDO
 )
-from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import CscDigitToCscRDOTool
+CscDigitToCscRDOTool=CompFactory.CscDigitToCscRDOTool
 from MuonConfig.MuonCalibConfig import CscCalibToolCfg
 
 def MdtRdoToMdtDigitCfg(flags, name="MdtRdoToMdtDigitAlg", **kwargs):

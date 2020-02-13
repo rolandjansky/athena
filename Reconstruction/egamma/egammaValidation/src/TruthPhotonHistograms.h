@@ -5,12 +5,12 @@
 #ifndef EGAMMAVALIDATION_TRUTHPHOTONHISTOGRAMS_H
 #define EGAMMAVALIDATION_TRUTHPHOTONHISTOGRAMS_H
 
-#include "xAODEgamma/Photon.h"
-#include "xAODEgamma/PhotonContainer.h"
-
+//#include "xAODEgamma/Photon.h"
+//#include "xAODEgamma/PhotonContainer.h"
 #include "ParticleHistograms.h"
-
-#include "TH1.h"
+namespace xAOD{
+  class IParticle;
+}
 
 namespace egammaMonitoring {
 

@@ -46,24 +46,18 @@ def run_all_dicts(silent,
     else:
         print ('processsing all %d dicts' % len(dicts))
     
-    devnull = open(os.devnull, 'w')
-    old_out = sys.stdout
-    old_err = sys.stderr
-    
     result = []
     ndicts = 0
-    toSkip = (
-        'j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY',
-        'j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO',
-        )
+    #toSkip = (
+    #    'j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY',
+    #    'j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO',
+    #    )
     for d in dicts:
         # if d['chainName'] in toSkip or '_PS_' in d['chainName']:
         #    print (d['chainName'])
         #    continue
         
         if printChains: print (ndicts, d['chainName'])
-        # sys.stdout = devnull
-        # sys.stderr = devnull
         try:
             result.append(_generate(d, silent))
         except Exception:
@@ -72,8 +66,6 @@ def run_all_dicts(silent,
             traceback.print_exc()
             assert False
         ndicts += 1
-        # sys.stdout = old_out
-        # sys.stderr = old_err
 
     print ('have [%d] chainDefs' % len(result))
     return result
@@ -129,7 +121,6 @@ def usage():
 
 if __name__ == '__main__':
     import getopt, sys, os
-    from exc2string import exc2string2 
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'htasm:nl:e', [])
@@ -173,8 +164,6 @@ if __name__ == '__main__':
             sys.exit(0)
 
     print ('importing modules (slow!)')
-    from AthenaCommon.Include import include
-    from AthenaCommon.OldStyleConfig import  Service
     # from StdOutController import StdOutController
     # import importlib
 

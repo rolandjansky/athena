@@ -150,7 +150,6 @@ StatusCode MdtRawDataMonAlg::initialize()
 {
 
   //initialize to stop coverity bugs
-   p_MuonDetectorManager=0;
    //mdtevents_RPCtrig = 0;
    //mdtevents_TGCtrig=0;
    //   m_time = 0;
@@ -171,15 +170,8 @@ StatusCode MdtRawDataMonAlg::initialize()
   //If online monitoring turn off chamber by chamber hists
   if(m_isOnline) m_doChamberHists = false;
 
-  std::string managerName="Muon";
-  sc = detStore()->retrieve(p_MuonDetectorManager);
-  if (sc.isFailure()) {
-    ATH_MSG_INFO("Could not find the MuonGeoModel Manager: " << managerName << " ! " );
-    return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_DEBUG(" Found the MuonGeoModel Manager " );
-  }
+// MuonDetectorManager from the conditions store
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
   sc = m_muonIdHelperTool.retrieve();
   if (sc.isFailure()) {
@@ -216,13 +208,23 @@ StatusCode MdtRawDataMonAlg::initialize()
     //conflict 
     // m_BMGid = m_mdtIdHelper->stationNameIndex("BMG");
     m_BMGid = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG");
+
+  // MuonDetectorManager from the Detector Store
+    std::string managerName="Muon";
+    const MuonGM::MuonDetectorManager* MuonDetMgrDS;
+    sc = detStore()->retrieve(MuonDetMgrDS);
+    if (sc.isFailure()) {
+      ATH_MSG_INFO("Could not find the MuonGeoModel Manager: " << managerName << " from the Detector Store! " );
+      return StatusCode::FAILURE;
+    } else { ATH_MSG_DEBUG(" Found the MuonGeoModel Manager from the Detector Store" );}
+
     for(int phi=6; phi<8; phi++) { // phi sectors
       for(int eta=1; eta<4; eta++) { // eta sectors
         for(int side=-1; side<2; side+=2) { // side
-          if( !p_MuonDetectorManager->getMuonStation("BMG", side*eta, phi) ) continue;
-          for(int roe=1; roe<=( p_MuonDetectorManager->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
+          if( !MuonDetMgrDS->getMuonStation("BMG", side*eta, phi) ) continue;
+          for(int roe=1; roe<=( MuonDetMgrDS->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
             const MuonGM::MdtReadoutElement* mdtRE =
-                  dynamic_cast<const MuonGM::MdtReadoutElement*> ( ( p_MuonDetectorManager->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
+                  dynamic_cast<const MuonGM::MdtReadoutElement*> ( ( MuonDetMgrDS->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
             if(mdtRE) initDeadChannels(mdtRE);
           }
         }
@@ -638,7 +640,15 @@ StatusCode MdtRawDataMonAlg::fillMDTOverviewHistograms( const Muon::MdtPrepData*
   std::string hardware_name = getChamberName( mdtCollection );
   bool isNoisy = m_masked_tubes->isNoisy( mdtCollection );
 
-  const MuonGM::MdtReadoutElement* pReadoutElementMDT = p_MuonDetectorManager->getMdtReadoutElement(digcoll_id);
+// MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE; 
+  } 
+
+  const MuonGM::MdtReadoutElement* pReadoutElementMDT = MuonDetMgr->getMdtReadoutElement(digcoll_id);
   const Amg::Vector3D mdtgPos = pReadoutElementMDT->tubePos(digcoll_id); //global position of the wire                  
   float mdt_tube_eta   = mdtgPos.eta();     
 
@@ -1034,6 +1044,14 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
   std::set<monAlg::TubeTraversedBySegment, monAlg::TubeTraversedBySegment_cmp> store_effTubes;
   std::set<Identifier> store_ROTs;
 
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE; 
+  } 
+
   // LOOP OVER SEGMENTS  
   for (Trk::SegmentCollection::const_iterator s = segms->begin(); s != segms->end(); ++s) {
     const Muon::MuonSegment* segment = dynamic_cast<const Muon::MuonSegment*>(*s);
@@ -1174,7 +1192,7 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
         std::string hardware_name = getChamberName(station_id); 
 
         // SEGMENT track
-        const MuonGM::MdtReadoutElement* detEl = p_MuonDetectorManager->getMdtReadoutElement(station_id);
+        const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(station_id);
         Amg::Transform3D gToStation = detEl->GlobalToAmdbLRSTransform();
         Amg::Vector3D  segPosG(segment->globalPosition());
         Amg::Vector3D  segDirG(segment->globalDirection());
@@ -1192,7 +1210,7 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
           CorrectLayerMax(hardware_name, tubeLayerMax);
           for(int i_tube=m_muonIdHelperTool->mdtIdHelper().tubeMin(newId); i_tube<=tubeMax; i_tube++) {
             for(int i_layer=m_muonIdHelperTool->mdtIdHelper().tubeLayerMin(newId); i_layer<=tubeLayerMax; i_layer++) {
-              const MuonGM::MdtReadoutElement* MdtRoEl = p_MuonDetectorManager->getMdtReadoutElement( newId );
+              const MuonGM::MdtReadoutElement* MdtRoEl = MuonDetMgr->getMdtReadoutElement( newId );
 	      if(m_BMGpresent && m_muonIdHelperTool->mdtIdHelper().stationName(newId) == m_BMGid ) {
                 std::map<Identifier, std::vector<Identifier> >::const_iterator myIt = m_DeadChannels.find(MdtRoEl->identify());
                 if( myIt != m_DeadChannels.end() ){

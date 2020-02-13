@@ -36,7 +36,6 @@ public:
 
 private:
   std::shared_ptr<MsgStream> m_msg;
-  MSG::Level m_currentLevel;
 };
 
 

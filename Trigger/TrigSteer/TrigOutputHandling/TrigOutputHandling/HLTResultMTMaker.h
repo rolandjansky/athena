@@ -11,7 +11,7 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "StoreGate/WriteHandle.h"
 
 // Forward declarations

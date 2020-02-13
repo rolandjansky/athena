@@ -3,7 +3,7 @@
 */
 
 #include "TrigOutputHandling/HLTResultMTMaker.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include <sstream>
 

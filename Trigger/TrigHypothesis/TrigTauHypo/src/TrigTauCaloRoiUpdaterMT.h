@@ -33,9 +33,9 @@ class TrigTauCaloRoiUpdaterMT : public AthAlgorithm {
   Gaudi::Property< float > m_dRForCenter {this,"dRForCenter",0.2,"Delta R from the center of ROI"};
 
   //SG::ReadHandleKey< xAOD::JetContainer > m_jetInputKey {this,"JetInputKey","TrigJetRec","Input Jet Collection Key, retrieved from reconstructed jets"};
-  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey {this,"RoIInputKey","Undefined",""};
-  SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey { this, "CaloClustersKey", "Undefined", "caloclusters in view" };
-  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_roIOutputKey {this,"RoIOutputKey","TauViewRoIs","Output RoI Collection Key"};
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey {this,"RoIInputKey","InputRoI","RoI input collection key"};
+  SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey { this, "CaloClustersKey", "CaloClusters", "caloclusters in view key" };
+  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_roIOutputKey {this,"RoIOutputKey","TauViewRoIs","Output RoI collection key"};
 };
  
 

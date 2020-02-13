@@ -162,7 +162,7 @@ StatusCode TriggerEDMSerialiserTool::makeHeader(const Address& address, std::vec
 
   std::vector<uint32_t> serializedLabel;
   StringSerializer ss;
-  std::vector<std::string> descr({address.transType, address.persType, address.key});
+  std::vector<std::string> descr({address.persType, address.key});
   ss.serialize( descr, serializedLabel );
   buffer.push_back( serializedLabel.size() );
   buffer.insert( buffer.end(), serializedLabel.begin(), serializedLabel.end() ); // plain SG key

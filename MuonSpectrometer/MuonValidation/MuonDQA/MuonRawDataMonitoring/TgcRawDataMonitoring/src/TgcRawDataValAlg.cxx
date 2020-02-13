@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,8 +26,6 @@
 #include "MuonRDO/TgcRdo.h"
 #include "MuonRDO/TgcRdoIdHash.h"
 #include "MuonRDO/TgcRdoContainer.h"
-
-#include "MuonDigitContainer/TgcDigitContainer.h"
 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
@@ -73,9 +71,8 @@ TgcRawDataValAlg::initialize(){
 
   ATH_CHECK( ManagedMonitorToolBase::initialize() );
   
-  // Retrieve the MuonDetectorManager  
-  ATH_CHECK(  detStore()->retrieve(m_muonMgr) );
-  ATH_MSG_DEBUG( " Found the MuonDetectorManager from detector store. "  );
+// MuonDetectorManager from the conditions store
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
 

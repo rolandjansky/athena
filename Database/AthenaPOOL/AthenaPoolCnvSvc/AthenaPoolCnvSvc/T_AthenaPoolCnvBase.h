@@ -34,13 +34,11 @@ protected:
 
    /// Convert an object into Persistent.
    /// @param pObj [IN] pointer to the transient object.
-   /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
-   virtual StatusCode DataObjectToPers(DataObject* pObj, const std::string& key);
+   virtual StatusCode DataObjectToPers(DataObject* pObj, IOpaqueAddress*& pAddr);
 
    /// Write an object into POOL.
    /// @param pObj [IN] pointer to the transient object.
-   /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
-   virtual StatusCode DataObjectToPool(DataObject* pObj, const std::string& key);
+   virtual StatusCode DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pObj);
 
    /// Read an object from POOL.
    /// @param pObj [OUT] pointer to the transient object.
@@ -50,7 +48,7 @@ protected:
                                        const std::string& key);
 
    /// Set POOL placement.
-   virtual void setPlacement(const std::string& key = "");
+   virtual void setPlacement(const std::string& key, const std::string& output);
 
 public:
    /// @return class ID.

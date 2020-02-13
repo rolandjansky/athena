@@ -14,15 +14,12 @@
 #include "TGC_Hid2RESrcID.h"
 #include "ByteStreamData/RawEvent.h" 
 #include "Identifier/IdentifierHash.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class TgcRdoContainer;
 class IROBDataProviderSvc;
 class ITGCcablingSvc;
-
-namespace MuonGM
-{
-  class MuonDetectorManager;
-}
 
 namespace Muon
 {
@@ -56,8 +53,8 @@ namespace Muon
       /** Function to get the ROB data from a vector of IdentifierHash **/
       std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> getROBData(const std::vector<IdentifierHash>& rdoIdhVect);
 
-      /** MuonDectorManager is used to get tgcIdHelper */
-      const MuonGM::MuonDetectorManager*  m_muonMgr;
+      /** Get tgcIdHelper */
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       /** Decoder for ROB fragment RDO conversion */
       ToolHandle<ITGC_RodDecoder>         m_decoder;
       /** RDO container key */

@@ -131,7 +131,7 @@ TrigCountSpacePointsMT                     8   0   DEBUG REGTEST : Formed  4772 
 TrigCountSpacePointsMT                     8   0   DEBUG REGTEST : Formed  8584 sct Barr spacepoints in total.
 TrigCountSpacePointsMT                     8   0   DEBUG REGTEST : Formed  5210 sct ECA spacepoints in total.
 SPCountHypoAlgMT.HLT_mb_sptrk_L1RD0_F...   8   0   DEBUG REGTEST event accepted
-TrackCountHypoAlgMT.HLT_mb_sptrk_L1RD...   8   0   DEBUG REGTEST found 792 tracks for  'min_pt':0.100000
+TrackCountHypoAlgMT.HLT_mb_sptrk_L1RD...   8   0   DEBUG REGTEST found 791 tracks for  'min_pt':0.100000
 TrackCountHypoAlgMT.HLT_mb_sptrk_L1RD...   8   0   DEBUG REGTEST event accepted
 TrigCountSpacePointsMT                     9   0   DEBUG REGTEST : Formed  2048 pixel spacepoints in total before cuts.
 TrigCountSpacePointsMT                     9   0   DEBUG REGTEST : 3560 have cl size == 1 in total.

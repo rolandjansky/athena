@@ -3,6 +3,7 @@
 """Define methods to construct configured Tile integrator conditions tool and algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileIntegratorCondAlgCfg(flags, **kwargs):
     """Return component accumulator with configured Tile integrator conditions algorithm
@@ -74,7 +75,7 @@ def TileCondToolIntegratorCfg(flags, **kwargs):
 
     acc.merge( TileIntegratorCondAlgCfg(flags, **kwargs) )
 
-    from TileConditions.TileConditionsConf import TileCondToolIntegrator
+    TileCondToolIntegrator=CompFactory.TileCondToolIntegrator
     acc.setPrivateTools( TileCondToolIntegrator(name, TileIntegrator = integrator) )
 
     return acc
@@ -102,6 +103,6 @@ if __name__ == "__main__":
 
     acc.printConfig(withDetails = True, summariseProps = True)
     print(acc.getService('IOVDbSvc'))
-    acc.store( open('TileIntegrator.pkl','w') )
+    acc.store( open('TileIntegrator.pkl','wb') )
 
     print('All OK')

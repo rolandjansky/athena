@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @package DQHanConfMaker.hanwriter
 # Module containing the tools to write a DQConfiguration in han format.
@@ -14,6 +14,7 @@ from __future__ import print_function
 import DQHanConfMaker
 from DQConfMakerBase.Helpers import BaseException, toList
 from DQConfMakerBase.DQElements import DQBase
+from functools import reduce
 
 # Writing exception
 # Han exception
@@ -656,7 +657,7 @@ def _hanAddDQParameter(handocument, dqparameter, output=DQHanConfMaker._default_
                 node = HanCompositeAlgorithm(name=compalg.id, subalgnames=compalg.getSubAlgNames(),
                                              libnames=compalg.getLibNames())
                 handocument.appendChild(node)
-    except Exception, msg:
+    except Exception as msg:
         raise HanCannotCreateConf(
             "Object: "+str(dqparameter)+" is not a valid DQParameter. Reason: "+str(msg))
 

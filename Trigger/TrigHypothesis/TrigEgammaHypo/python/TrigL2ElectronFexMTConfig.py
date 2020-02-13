@@ -3,7 +3,7 @@
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronFexMT
 from AthenaCommon.SystemOfUnits import GeV, mm
 
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator

@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file MuonCombinedRecExample/python/MuonCombinedKeys.py
 ## @brief Python module to hold uniform collection names for muon combined reconstruction
 ##
+
+from __future__ import print_function
 
 """ MuonCombinedContainerKeys
     Python module to hold storegate keys of MuonCombined objects.

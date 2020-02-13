@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -107,7 +107,7 @@ namespace InDet
      return StatusCode::SUCCESS;
   } 
 
-  const Trk::VxSecVertexInfo* 
+  Trk::VxSecVertexInfo*
   InDetJetFitterVxFinder::findSecVertex(const Trk::RecVertex & primaryVertex,
    const TLorentzVector & jetMomentum,
    const std::vector<const Trk::TrackParticleBase*> & myTracks) const {
@@ -181,7 +181,7 @@ namespace InDet
     
   }
 
-  const Trk::VxSecVertexInfo* 
+  Trk::VxSecVertexInfo*
   InDetJetFitterVxFinder::findSecVertex(const Trk::RecVertex & primaryVertex,
                                                                     const TLorentzVector & jetMomentum,
                                                                     const std::vector<const Trk::TrackParticleBase*> & firstInputTracks,

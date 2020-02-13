@@ -62,7 +62,7 @@ def patch_mc_channel_numberMetadata(addToFile=True):
                 # Initialize tag info management
                 import EventInfoMgt.EventInfoMgtInit
                 from AthenaCommon.AppMgr import ServiceMgr
-                ServiceMgr.TagInfoMgr.ExtraTagValuePairs += ["mc_channel_number", str(mc_channel_number)]
+                ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update({"mc_channel_number": str(mc_channel_number)})
         return mc_channel_number
     else:
         simMDlog.info("No input Evgen MetaData object available so skipping patch of mc_channel_number metadata.")

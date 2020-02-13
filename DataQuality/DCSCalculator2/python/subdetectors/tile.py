@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from logging import getLogger; log = getLogger("DCSCalculator2.tile")
 from ..lib import (DCSC_DefectTranslate_Subdetector, DCSC_Variable, 
@@ -50,7 +50,8 @@ def decode_status(chan, calib_blob):
     probs = {}
     
     decoder = TileBchDecoder(bch.getBitPatternVersion())
-    chn_adcs = product(xrange(TileCalibUtils.max_chan()), xrange(TileCalibUtils.max_gain()))
+    chn_adcs = product(list(range(TileCalibUtils.max_chan())),
+                       list(range(TileCalibUtils.max_gain())))
     # Stolen from near
     # http://alxr.usatlas.bnl.gov/lxr/source/atlas/TileCalorimeter/TileCalib/
     #     TileCalibBlobPython/python/TileBchTools.py#072
@@ -142,25 +143,26 @@ class Tile(DCSC_DefectTranslate_Subdetector):
     # The channels in the next mapping, mapping2.
     # I'm not a big fan of the way this is done, so I should
     # come up with a better solution.  I at least need to clean it up
+    def lrange(a, b): return list(range(a,b))
     mapping = {
-        TILBA: range(49, 52) + [65] + [55] + range(61, 64) + [16] + 
-               range(1, 16) + range(17, 49) + range(52, 55) + range(56, 61),
+        TILBA: lrange(49, 52) + [65] + [55] + lrange(61, 64) + [16] + 
+               lrange(1, 16) + lrange(17, 49) + lrange(52, 55) + lrange(56, 61),
 
-        TILBC: range(114, 118) + [121] + range(127, 130) +  [81] + range(66, 81) + 
-               range(82, 114) + range(118, 121) + range( 122, 127),
+        TILBC: lrange(114, 118) + [121] + lrange(127, 130) +  [81] + lrange(66, 81) + 
+               lrange(82, 114) + lrange(118, 121) + lrange( 122, 127),
 
-        TIEBA: range(241, 245) + [248] + range(254, 257) + [208] + range(193, 208) + 
-               range(209, 241) + range(245, 248) + range(249, 254),
+        TIEBA: lrange(241, 245) + [248] + lrange(254, 257) + [208] + lrange(193, 208) + 
+               lrange(209, 241) + lrange(245, 248) + lrange(249, 254),
 
-        TIEBC: range(177, 181) + [184] + range(190, 193) + [145] + range(131, 134) + 
-               [64] + range(134, 145) + range(146, 163) + [130] + range(163, 177) + 
-               range(181, 184) + range(185, 190)
+        TIEBC: lrange(177, 181) + [184] + lrange(190, 193) + [145] + lrange(131, 134) + 
+               [64] + lrange(134, 145) + lrange(146, 163) + [130] + lrange(163, 177) + 
+               lrange(181, 184) + lrange(185, 190)
     }
 
-    mapping2 = dict( zip(range( 20,  84), mapping[TILBA]) +
-                     zip(range( 84, 148), mapping[TILBC]) +
-                     zip(range(148, 212), mapping[TIEBA]) +
-                     zip(range(212, 276), mapping[TIEBC])
+    mapping2 = dict( list(zip(range( 20,  84), mapping[TILBA])) +
+                     list(zip(range( 84, 148), mapping[TILBC])) +
+                     list(zip(range(148, 212), mapping[TIEBA])) +
+                     list(zip(range(212, 276), mapping[TIEBC]))
                    )
 
     variables = [

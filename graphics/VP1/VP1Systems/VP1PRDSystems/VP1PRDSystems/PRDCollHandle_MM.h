@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PRDCOLLHANDLE_MM_H
@@ -42,13 +42,13 @@ protected:
 
   virtual DETAIL defaultDetailLevel() const override { return DETAILED; }
 
-  bool cut(PRDHandleBase*);
+  virtual bool cut(PRDHandleBase*) override;
 
-  void eraseEventDataSpecific();
-  void postLoadInitialisation();
-  void setupSettingsFromControllerSpecific(PRDSystemController*);
-  float lodArea() const { return 600.0f*600.0f; }
-  QColor defaultColor() const;
+  virtual void eraseEventDataSpecific() override;
+  virtual void postLoadInitialisation() override;
+  virtual void setupSettingsFromControllerSpecific(PRDSystemController*) override;
+  virtual float lodArea() const override { return 600.0f*600.0f; }
+  virtual QColor defaultColor() const override;
 
 private:
 

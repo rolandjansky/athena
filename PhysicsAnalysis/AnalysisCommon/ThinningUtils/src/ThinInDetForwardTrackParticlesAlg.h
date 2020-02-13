@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,8 +19,11 @@
 // FrameWork includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODMuon/MuonContainer.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthenaKernel/IThinningSvc.h"
+#include "StoreGate/ThinningHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class ThinInDetForwardTrackParticlesAlg
 : public ::AthAlgorithm
@@ -44,11 +47,18 @@ public:
     
 private:
 
-    /// Pointer to IThinningSvc
-    ServiceHandle<IThinningSvc> m_thinningSvc;
+    StringProperty m_streamName
+    { this, "StreamName", "", "Stream for which to thin" };
+
+    SG::ThinningHandleKey<xAOD::TrackParticleContainer> m_tracksKey
+    { this, "TracksKey", "InDetForwardTrackParticles", "Tracks to thin" };
+
+    SG::ReadHandleKey<xAOD::MuonContainer> m_muonsKey
+    { this, "MuonsKey", "Muons", "Muons to use for thinning" };
     
     /// Should the thinning run?
-    bool m_doThinning;
+    BooleanProperty m_doThinning
+    { this, "ThinInDetForwardTrackParticles", true, "Should the InDetForwardTrackParticles thinning be run?" };
    
     /// Counters
     unsigned long m_nEventsProcessed;

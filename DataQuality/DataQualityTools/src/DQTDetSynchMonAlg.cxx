@@ -26,7 +26,7 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
 #include "TProfile.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
 #   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)

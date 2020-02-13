@@ -7,7 +7,7 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
 
 from AthenaCommon.CfgGetter import getPublicTool,getService,getPrivateTool,getAlgorithm
-from MuonRecFlags import muonRecFlags
+from MuonRecExample.MuonRecFlags import muonRecFlags
 muonRecFlags.setDefaults()
 
 if muonRecFlags.doCSCs():

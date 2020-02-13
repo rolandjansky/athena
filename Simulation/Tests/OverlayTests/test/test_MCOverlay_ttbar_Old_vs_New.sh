@@ -12,7 +12,7 @@
 
 Overlay_tf.py \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
---inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v1/RDO.merged-pileup-MT.100events.pool.root \
+--inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root \
 --outputRDOFile MC_plus_MC.NEW.RDO.pool.root \
 --maxEvents 10 --skipEvents 10 --digiSeedOffset1 511 --digiSeedOffset2 727 \
 --conditionsTag OFLCOND-MC16-SDR-20 \
@@ -25,7 +25,7 @@ echo "art-result: $rc overlay_tf"
 
 OverlayPool_tf.py \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
---inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v1/RDO.merged-pileup.100events.pool.root \
+--inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup.100events.pool.root \
 --outputRDOFile MC_plus_MC.OLD.RDO.pool.root \
 --maxEvents 10 --skipEvents 10 --digiSeedOffset1 511 --digiSeedOffset2 727 \
 --conditionsTag OFLCOND-MC16-SDR-20 \
@@ -40,7 +40,14 @@ echo "art-result: $rc2 overlaypool_tf"
 rc3=-9999
 if [ $rc2 -eq 0 ]
 then
-    acmd.py diff-root MC_plus_MC.OLD.RDO.pool.root MC_plus_MC.NEW.RDO.pool.root --mode=semi-detailed
+    acmd.py diff-root MC_plus_MC.OLD.RDO.pool.root MC_plus_MC.NEW.RDO.pool.root \
+        --mode=semi-detailed \
+        --ignore-leaves index_ref \
+            RecoTimingObj_p1_HITStoRDO_timings.timings \
+            RecoTimingObj_p1_EVNTtoHITS_timings.timings \
+            xAOD::EventAuxInfo_v1_EventInfoAuxDyn.subEventIndex \
+            xAOD::EventAuxInfo_v1_EventInfoAuxDyn.subEventTime \
+            xAOD::EventAuxInfo_v1_EventInfoAuxDyn.subEventType
     rc3=$?
 fi
 echo "art-result: $rc3 comparison"

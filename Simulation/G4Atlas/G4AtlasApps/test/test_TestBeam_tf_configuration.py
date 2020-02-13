@@ -26,7 +26,7 @@ class TestTestBeam(unittest.TestCase):
         ]
         subprocess.check_call(command)
 
-        with open(config_picklefilename) as picklefile:
+        with open(config_picklefilename, 'rb') as picklefile:
             job_config_dict = pickle.load(picklefile)
 
         cls._job_config_dict = job_config_dict

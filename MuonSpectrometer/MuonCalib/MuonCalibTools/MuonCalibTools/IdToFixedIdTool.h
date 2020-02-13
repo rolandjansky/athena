@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -18,15 +18,11 @@
 
 // other packages
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 // this package
 #include "MuonCalibITools/IIdToFixedIdTool.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "Identifier/Identifier.h"
-
-namespace Muon {
-    class MuonIdHelperTool;
-}
 
 namespace MuonCalib {
 
@@ -58,7 +54,7 @@ class IdToFixedIdTool : public AthAlgTool, virtual public MuonCalib::IIdToFixedI
     Identifier regionKeyToId(std::string region) const;   //!< Returns an ATHENA Identifier for a given Region key. 
 
  private:
-    ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     int                                 m_print_level; //!< Sets printlevel of output
 };

@@ -22,7 +22,7 @@ from AthenaCommon.GlobalFlags import globalflags
 globalflags.DataSource.set_Value_and_Lock('geant4')
 globalflags.DetGeo.set_Value_and_Lock('atlas')
 include ("AtlasGeoModel/SetGeometryVersion.py")
-include ("AtlasGeoModel/GeoModelInit.py")
+from AtlasGeoModel import GeoModelInit
 include ("LArRawConditions/LArIdMap_ATLAS_jobOptions.py")
 
 # Other LAr related 

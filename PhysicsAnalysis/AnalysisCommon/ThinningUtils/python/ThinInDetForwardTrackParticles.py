@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from RecExConfig.Configured import Configured
 from AthenaCommon.Logging import logging
@@ -12,13 +14,15 @@ class ThinInDetForwardTrackParticles(Configured):
             from ThinningUtils.ThinningUtilsConf import ThinInDetForwardTrackParticlesAlg
             theInDetFwdThinner = ThinInDetForwardTrackParticlesAlg(
                 "ThinInDetForwardTrackParticlesAlg",
-                ThinInDetForwardTrackParticles = True
+                ThinInDetForwardTrackParticles = True,
+                StreamName = 'StreamAOD'
             )
-            print theInDetFwdThinner
+            print (theInDetFwdThinner)
         except Exception:
+            import traceback
             mlog.error("could not get handle to ThinInDetForwardTrackParticlesAlg")
-            print traceback.format_exc()
-            return False 
+            traceback.print_exc()
+            return False
         mlog.info("now adding to topSequence")
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()

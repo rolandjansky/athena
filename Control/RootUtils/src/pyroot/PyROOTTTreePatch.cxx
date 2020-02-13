@@ -675,7 +675,7 @@ void installMethod (PyObject* pyclass,
 
   PyObject* func = PyCFunction_New (&pdef, 0);
 #if PY_VERSION_HEX >= 0x03000000
-  PyObject* method = PyMethod_New (func, pyclass);
+  PyObject* method = PyInstanceMethod_New (func);
 #else
   PyObject* method = PyMethod_New (func, 0, pyclass);
 #endif

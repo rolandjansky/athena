@@ -89,13 +89,13 @@ class LArCellConditionsAlg(PyAthena.Alg):
         self.class_larBCBitPacking=cppyy.makeClass("LArBadChanBitPacking")
         self.bc_packing=self.class_larBCBitPacking()
 
-        self.noisepattern=long(0)
+        self.noisepattern=0
         for n in ("lowNoiseHG","highNoiseHG","unstableNoiseHG","lowNoiseMG","highNoiseMG","unstableNoiseMG","lowNoiseLG","highNoiseLG","unstableNoiseLG","sporadicBurstNoise"):
             stat=self.bc_packing.enumName(n)
             if stat[0]:
                 self.noisepattern |= 1<<stat[1]
 
-        self.deadpattern=long(0)
+        self.deadpattern=0
         for n in ("deadReadout","deadPhys","almostDead"):
             stat=self.bc_packing.enumName(n)
             if stat[0]:
@@ -133,59 +133,66 @@ class LArCellConditionsAlg(PyAthena.Alg):
         if self.includeConditions:
             try:
                 self.larPedestal=self._detStore.retrieve("ILArPedestal","Pedestal")
-            except Exception as e:
-                print("WARNING: Failed to retrieve Pedestal from DetStore")
-                print(e)
+            except Exception:
+                print ("WARNING: Failed to retrieve Pedestal from DetStore")
+                import traceback
+                traceback.print_exc()
                 self.larPedestal=None
                 
             try:
                 self.larMphysOverMcal=self._detStore.retrieve("ILArMphysOverMcal","LArMphysOverMcal")
-            except Exception as e:
-                print("WARNING: Failed to retrieve MphysOverMcal from DetStore")
-                print(e)
+            except Exception:
+                print ("WARNING: Failed to retrieve MphysOverMcal from DetStore")
+                import traceback
+                traceback.print_exc()
                 self.larMphysOverMcal=None
 
             try:
                 self.larRamp=self._detStore.retrieve("ILArRamp","LArRamp")
-            except Exception as e:
+            except Exception:
                 print ("WARNING: Failed to retrieve LArRamp from DetStore")
-                print(e)
+                import traceback
+                traceback.print_exc()
                 self.larRamp=None
                 
             try:
                 self.larDAC2uA=self._detStore.retrieve("ILArDAC2uA","LArDAC2uA")
-            except Exception as e:
+            except Exception:
                 print ("WARNING: Failed to retrieve LArDAC2uA from DetStore")
-                print(e)
+                import traceback
+                traceback.print_exc()
                 self.larDAC2uA=None
 
             try:
                 self.laruA2MeV=self._detStore.retrieve("ILAruA2MeV","LAruA2MeV")
-            except Exception as e:
-                print("WARNING: Failed to retrieve LAruA2MeV from DetStore")
-                print(e)
+            except Exception:
+                print ("WARNING: Failed to retrieve LAruA2MeV from DetStore")
+                import traceback
+                traceback.print_exc()
                 self.laruA2MeV=None
 
             try:
                 self.larhvScaleCorr=self._detStore.retrieve("ILArHVScaleCorr","LArHVScaleCorr")
-            except Exception as e:
-                print("WARNING: Failed to retrieve LArHVScaleCorr from DetStore")
-                print(e)
+            except Exception:
+                print ("WARNING: Failed to retrieve LArHVScaleCorr from DetStore")
+                import traceback
+                traceback.print_exc()
                 self.larhvScaleCorr=None
                 
         if self.includeDSPTh:
             try:
                 self.larDSPThr=self._detStore.retrieve("LArDSPThresholdsComplete","LArDSPThresholds")
-            except Exception as e:
-                print("WARNING: Failed to retrieve LArDPSThresholds from DetStore")
-                print(e)
+            except Exception:
+                print ("WARNING: Failed to retrieve LArDPSThresholds from DetStore")
+                import traceback
+                traceback.print_exc()
                 self.larDSPThr=None   
             
 
         if self.nEvts==0:
             self.nEvts+=1
             #Process one 'dummy' event to make sure all DB connections get closed
-            #print "Dummy event..."
+            #print ("Dummy event...")
             return StatusCode.Success
 
         self.onlineID.set_do_checks(True)
@@ -195,7 +202,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             id=None
             chid=None
             rep_in=self.readInput() #"Enter Id >").upper().strip()
-            #print "User Input..."
+            #print ("User Input...")
             #rep_in="EMBA 0 0 60 2"
             rep=rep_in.upper()
             
@@ -446,7 +453,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         
     def getOfflineIDFromString(self,input):
         self._oflErrStr=""
-        ###print "offline id input=[%s]" % input
+        ###print ("offline id input=[%s]" % input)
         upInput=input.upper().strip()
         if upInput.startswith('0X'):
             #hex-input
@@ -540,7 +547,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self._oflErrStr="Not-numerical input for region, eta or phi"
                 return None
 
-            #print "Got",subcalo,bepn,layer,region,eta,phi
+            #print ("Got",subcalo,bepn,layer,region,eta,phi)
             #self.offlineID.set_do_checks(True)
             try: #Build Region ID
                 regid=self.offlineID.region_id(subcalo,bepn,layer,region)
@@ -574,7 +581,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             
             
     def getOnlineIDFromString(self,input):
-        #print "onfline id input=[%s]" % input
+        #print ("onfline id input=[%s]" % input)
         self._onlErrStr=""
         upInput=input.upper().strip()
         if upInput.startswith('0X'):
@@ -691,7 +698,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         side=None
         ft=None
         slot=None
-        bctypes=long(0)
+        bctypes=0
         outname=None
         outfile=None
         layer=None
@@ -826,9 +833,10 @@ class LArCellConditionsAlg(PyAthena.Alg):
         if outname is not None:
             try:
                 outfile=open(outname,"w")
-            except IOError as e:
-                print("ERROR failed to open file",outname)
-                print(e)
+            except IOError:
+                print ("ERROR failed to open file",outname)
+                import traceback
+                traceback.print_exc()
                 outfile=None
                 outname=None
                 
@@ -838,7 +846,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             idHash=IdentifierHash(idH)
             chid=self.larCablingSvc.createSignalChannelIDFromHash(idHash)
             
-            #print "Loop hash=%i , on: %x , off: %x" % (idH, chid.get_identifier32().get_compact(), self.offlineID.cell_id(idHash).get_identifier32().get_compact())
+            #print ("Loop hash=%i , on: %x , off: %x" % (idH, chid.get_identifier32().get_compact(), self.offlineID.cell_id(idHash).get_identifier32().get_compact()))
 
                     
             #Check Online Id
@@ -858,8 +866,10 @@ class LArCellConditionsAlg(PyAthena.Alg):
                         
                     if not keep: continue
                                         
-                except Exception as e:
-                    print("Failed to get calib line:",e)
+                except Exception:
+                    print ("Failed to get calib line:")
+                    import traceback
+                    traceback.print_exc()
                     continue
 
             #Check geometrical location

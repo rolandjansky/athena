@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 Various utilities not used in production
@@ -18,18 +20,18 @@ def tooldiff():
     toolitems = i.configurables.items()
     if toolmap.has_key(tooltype):
       if toolmap[tooltype]!=toolitems:
-        print '%s seen before' % tooltype,
-        print ' and differs'
-        print 'previous contents: ', toolmap[tooltype]
-        print 'new contents: ', toolitems
+        print ('%s seen before' % tooltype, end='')
+        print (' and differs')
+        print ('previous contents: ', toolmap[tooltype])
+        print ('new contents: ', toolitems)
     else:
       toolmap[tooltype] =toolitems
 
   for i in toolmap.keys():
-    print ' ';    print ' '
-    print '******************************************************************************'
-    print 'toolmap key ', i
-    print '******************************************************************************'
+    print (' ');    print (' ')
+    print ('******************************************************************************')
+    print ('toolmap key ', i)
+    print ('******************************************************************************')
     if len(toolmap[i])>1:
       firsttool = toolmap[i][1]
       prop = firsttool[1].getProperties()
@@ -38,9 +40,9 @@ def tooldiff():
       diffvals = dict()
       diffvals[firsttool] = prop 
       for j in toolmap[i]:
-        print 'toolmap item ', j
-        print j[1]
-        print '    '
+        print ('toolmap item ', j)
+        print (j[1])
+        print ('    ')
         if prop != j[1].getProperties():
           prop_differ=True
           jprop = j[1].getProperties()
@@ -49,13 +51,13 @@ def tooldiff():
             if prop[p]!=jprop[p]:
               diff_list.append(p)
       if prop_differ:
-        print 'Properties differ in ', set(diff_list)
+        print ('Properties differ in ', set(diff_list))
         for kk in diffvals.keys():
-          print kk, diffvals[kk]
+          print (kk, diffvals[kk])
 
     else:
-      print 'single item'
-    print '******************************************************************************'
+      print ('single item')
+    print ('******************************************************************************')
   
 
 def debuglevel(level=2):
@@ -73,11 +75,11 @@ def debuglevel(level=2):
       try:
         algname = alg.name()
       except:
-        print 'No algname for ', alg
+        print ('No algname for ', alg)
         algname=''
 
       if exp.search(algname):
-        print algname
+        print (algname)
         try:
           alg.OutputLevel=level
           pokus=alg
@@ -89,7 +91,7 @@ def debuglevel(level=2):
         if hasattr(type(ab),'__name__'):
           nm = type(ab).__name__
           if nm.find('ToolHandle')>-1 and nm.find('ToolHandleArray')==-1:
-            print nm
+            print (nm)
             reftoconf.append(ab)
             reftoname.append(ab.getName())
    
@@ -100,8 +102,8 @@ def debuglevel(level=2):
           try:
             t.OutputLevel=level
           except:
-            print 'Setting of outputlevel failed for ', t
-          #print t
+            print ('Setting of outputlevel failed for ', t)
+          #print (t)
 
 
 def muondebugoff():

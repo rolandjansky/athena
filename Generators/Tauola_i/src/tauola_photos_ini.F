@@ -639,9 +639,10 @@ c
       DOUBLE PRECISION v(4),p(4),q(4),pp(4),vv(4)  
       save
 !
-      do 1 i=1,4
-      v(i)=vv(i)
- 1    p(i)=pp(i)
+      do i=1,4
+        v(i)=vv(i)
+        p(i)=pp(i)
+      enddo
       amv=(v(4)**2-v(1)**2-v(2)**2-v(3)**2)
 
 c jk on behalf of bk see savannah bug report 33058

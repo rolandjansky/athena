@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -45,7 +45,7 @@ TileGeoG4LookupBuilder::TileGeoG4LookupBuilder(StoreGateSvc* pDetStore, const in
     m_isE5(false),
     m_verboseLevel(verboseLevel) {
 
-  const DataHandle<GeoModelExperiment> theExpt;
+  const GeoModelExperiment* theExpt = nullptr;
   StatusCode sc = pDetStore->retrieve(theExpt, "ATLAS");
   if (sc.isFailure()) {
     G4cout << "ERROR: Unable to retrieve GeoModelExperiment from DetectorStore" << G4endl;

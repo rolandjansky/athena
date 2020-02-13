@@ -27,14 +27,20 @@ class MockITHistSvc : public ITHistSvc {
     StatusCode terminate() override { return StatusCode::SUCCESS; }
     StatusCode deReg(TObject*) override { return StatusCode::SUCCESS; }
     StatusCode deReg(const std::string&) override { return StatusCode::SUCCESS; }
+    StatusCode getEfficiency(const std::string&, TEfficiency*&) const override { return StatusCode::SUCCESS; }
     StatusCode getGraph(const std::string&, TGraph*&) const override { return StatusCode::SUCCESS; }
     StatusCode getHist(const std::string&, TH1*&, size_t) const override { return StatusCode::SUCCESS; }
     StatusCode getHist(const std::string&, TH2*&, size_t) const override { return StatusCode::SUCCESS; }
     StatusCode getHist(const std::string&, TH3*&, size_t) const override { return StatusCode::SUCCESS; }
+    StatusCode getShared(const std::string&, LockedHandle<TEfficiency>&) const override { return StatusCode::SUCCESS; }
     StatusCode getShared(const std::string&, LockedHandle<TGraph>&) const override { return StatusCode::SUCCESS; }
     StatusCode getShared(const std::string&, LockedHandle<TH1>&) const override { return StatusCode::SUCCESS; }
     StatusCode getShared(const std::string&, LockedHandle<TH2>&) const override { return StatusCode::SUCCESS; }
     StatusCode getShared(const std::string&, LockedHandle<TH3>&) const override { return StatusCode::SUCCESS; }
+    StatusCode getTEfficiencies(TDirectory*, TList&, bool) const override { return StatusCode::SUCCESS; }
+    StatusCode getTEfficiencies(TDirectory*, TList&, bool, bool) override { return StatusCode::SUCCESS; }
+    StatusCode getTEfficiencies(const std::string&, TList&, bool) const override { return StatusCode::SUCCESS; }
+    StatusCode getTEfficiencies(const std::string&, TList&, bool, bool) override { return StatusCode::SUCCESS; }
     StatusCode getTHists(TDirectory*, TList&, bool) const override { return StatusCode::SUCCESS; }
     StatusCode getTHists(TDirectory*, TList&, bool, bool) override { return StatusCode::SUCCESS; }
     StatusCode getTHists(const std::string&, TList&, bool) const override { return StatusCode::SUCCESS; }
@@ -46,6 +52,9 @@ class MockITHistSvc : public ITHistSvc {
     StatusCode getTree(const std::string&, TTree*&) const override { return StatusCode::SUCCESS; }
     StatusCode merge(TObject*) override { return StatusCode::SUCCESS; }
     StatusCode merge(const std::string&) override { return StatusCode::SUCCESS; }
+    StatusCode regEfficiency(const std::string&) override { return StatusCode::SUCCESS; }
+    StatusCode regEfficiency(const std::string&, TEfficiency*) override { return StatusCode::SUCCESS; }
+    StatusCode regEfficiency(const std::string&, std::unique_ptr<TEfficiency>) override { return StatusCode::SUCCESS; }
     StatusCode regGraph(const std::string&) override { return StatusCode::SUCCESS; }
     StatusCode regGraph(const std::string&, TGraph*) override { return StatusCode::SUCCESS; }
     StatusCode regGraph(const std::string&, std::unique_ptr<TGraph>) override { return StatusCode::SUCCESS; }
@@ -53,6 +62,7 @@ class MockITHistSvc : public ITHistSvc {
     StatusCode regHist(const std::string&, TH1*) override { return StatusCode::SUCCESS; }
     StatusCode regHist(const std::string&, std::unique_ptr<TH1>) override { return StatusCode::SUCCESS; }
     StatusCode regHist(const std::string&, std::unique_ptr<TH1>, TH1*) override { return StatusCode::SUCCESS; }
+    StatusCode regShared(const std::string&, std::unique_ptr<TEfficiency>, LockedHandle<TEfficiency>&) override { return StatusCode::SUCCESS; }
     StatusCode regShared(const std::string&, std::unique_ptr<TGraph>, LockedHandle<TGraph>&) override { return StatusCode::SUCCESS; }
     StatusCode regShared(const std::string&, std::unique_ptr<TH1>, LockedHandle<TH1>&) override { return StatusCode::SUCCESS; }
     StatusCode regShared(const std::string&, std::unique_ptr<TH2>, LockedHandle<TH2>&) override { return StatusCode::SUCCESS; }
@@ -61,8 +71,13 @@ class MockITHistSvc : public ITHistSvc {
     StatusCode regTree(const std::string&, TTree*) override { return StatusCode::SUCCESS; }
     StatusCode regTree(const std::string&, std::unique_ptr<TTree>) override { return StatusCode::SUCCESS; }
     bool exists(const std::string&) const override { return false; }
+    bool existsHist(const std::string&) const override { return false; }
+    bool existsTree(const std::string&) const override { return false; }
+    bool existsGraph(const std::string&) const override { return false; }
+    bool existsEfficiency(const std::string&) const override { return false; }
     long unsigned int addRef() override { return 0; }
     long unsigned int release() override { return 0; }
+    std::vector<std::string> getEfficiencies() const override { return {}; }
     std::vector<std::string> getGraphs() const override { return {}; }
     std::vector<std::string> getHists() const override { return {}; }
     std::vector<std::string> getTrees() const override { return {}; }

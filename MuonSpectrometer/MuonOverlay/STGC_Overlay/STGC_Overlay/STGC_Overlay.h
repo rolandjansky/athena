@@ -34,7 +34,6 @@ private:
   SG::ReadHandleKey<sTgcDigitContainer> m_signalInputKey{this, "SignalInputKey", "Sig_sTGC_DIGITS", "ReadHandleKey for Signal Input sTgcDigitContainer"};
   SG::WriteHandleKey<sTgcDigitContainer> m_outputKey{this, "OutputKey", "sTGC_DIGITS", "WriteHandleKey for Output sTgcDigitContainer"};
 
-  BooleanProperty m_includeBkg { this, "includeBkg", true, "Include Background RDO Container" };
   FloatProperty m_timeIntegrationWindow { this, "IntegrationWindow", 50.0, "Time Integration Window" };
 
 };

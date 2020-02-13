@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file : iobench.py
 # @author: Sebastien Binet <binet@cern.ch>
@@ -6,6 +6,8 @@
 #
 # @date: July 2006
 #
+
+from __future__ import print_function
 
 """
 A set of python objects to measure the I/O performances of an application.
@@ -116,11 +118,11 @@ class Bench(object):
             mean += d
             pass
 
-        print ""
-        print "## stats : (nbenchs = %i)" % self.nTimes
-        print " time<User> = %8.3f s" % ( mean.user() /  float( self.nTimes ) )
-        print " time<Sys > = %8.3f s" % ( mean.sys()  /  float( self.nTimes ) )
-        print " time<Real> = %8.3f s" % ( mean.real() /  float( self.nTimes ) )
+        print ("")
+        print ("## stats : (nbenchs = %i)" % self.nTimes)
+        print (" time<User> = %8.3f s" % ( mean.user() /  float( self.nTimes ) ))
+        print (" time<Sys > = %8.3f s" % ( mean.sys()  /  float( self.nTimes ) ))
+        print (" time<Real> = %8.3f s" % ( mean.real() /  float( self.nTimes ) ))
         
         return
 
@@ -142,8 +144,8 @@ class Bench(object):
 ##
 
 import os
-import ConfigParser
-class ChronoStatsOutputParser( ConfigParser.ConfigParser ):
+from configparser import ConfigParser
+class ChronoStatsOutputParser( ConfigParser ):
     """Subclass and specialize ConfigParser to make it case-sensitive
     """
     def optionxform( self, optionStr ):
@@ -248,9 +250,9 @@ class ChronoStatReport(object):
         else:
             pass
 
-        if not self.stats.has_key( ioKey ):
-            print "Warning: no such key [%s] in stats !" % ioKey
-            print "Available keys:",self.stats.keys()
+        if ioKey not in self.stats:
+            print ("Warning: no such key [%s] in stats !" % ioKey)
+            print ("Available keys:",self.stats.keys())
             pass
         return self.stats[ ioKey ]
 
@@ -266,7 +268,7 @@ class ChronoStatReport(object):
 def workDir( fileName ):
     """Function to provide an automatic work dir, compatible with ATN tests
     """
-    if os.environ.has_key('ATN_WORK_AREA'):
+    if 'ATN_WORK_AREA' in os.environ:
         workArea = os.environ['ATN_WORK_AREA']
     else:
         workArea = "/tmp"
@@ -293,16 +295,16 @@ def doValidation( dbFiles, key ):
     """
     import commands
     from TestTools.iobench import ScOutput
-    print "## Validation of ASCII files [%s]:" % key
-    print "## %15s : %s" % ( 'ref', dbFiles[key]['ref'] )
-    print "## %15s : %s" % ( 'chk', dbFiles[key]['chk'] )
+    print ("## Validation of ASCII files [%s]:" % key)
+    print ("## %15s : %s" % ( 'ref', dbFiles[key]['ref'] ))
+    print ("## %15s : %s" % ( 'chk', dbFiles[key]['chk'] ))
     sc,out = commands.getstatusoutput( "diff %s %s" %
                                        ( dbFiles[key]['ref'],
                                          dbFiles[key]['chk'] ) )
     if sc == 0 and len(out) == 0:
-        print "==> Validation [OK]"
+        print ("==> Validation [OK]")
     else:
-        print "==> Validation [ERROR]"
+        print ("==> Validation [ERROR]")
         pass
     return ScOutput(sc,out)
 
@@ -310,16 +312,16 @@ def doValidation( dbFiles, key ):
 ## Little helper to validate output of jobs
 def doPostCheck( validationName, refFileName, chkFileName, chkFilter ):
     import commands
-    print "## Validation of [%s]" % validationName
-    print "## ref:    %s"   % refFileName
-    print "## chk:    %s"   % chkFileName
-    print "## filter: [%s]" % chkFilter
+    print ("## Validation of [%s]" % validationName)
+    print ("## ref:    %s"   % refFileName)
+    print ("## chk:    %s"   % chkFileName)
+    print ("## filter: [%s]" % chkFilter)
     sc, out = commands.getstatusoutput( "cat %s | %s | diff -u %s -" % \
                                         ( chkFileName, chkFilter,
                                           refFileName ) )
-    if sc == 0 and len(out) == 0: print "==> Validation [OK]"
-    else:                         print "==> Validation [ERROR]\n",\
-                                        "*"*80,out,"*"*80
+    if sc == 0 and len(out) == 0: print ("==> Validation [OK]")
+    else:                         print ("==> Validation [ERROR]\n",
+                                         "*"*80,out,"*"*80)
     return ScOutput(sc, out)
 
 ###-----------------------------------------------------
@@ -371,13 +373,13 @@ class AthBench(object):
         elif keyType == ChronoStatReport.ReadKeyHdr:  keyType = "[READ]"
         else:
             pass
-        print ""
-        print "## stats : [%s] (nbenchs = %i) %s" % (title,
-                                                     self.nTimes,
-                                                     keyType)
-        print " time<User> = %12.3f %s" % (res.user() / float(self.nTimes), u)
-        print " time<Sys > = %12.3f %s" % (res.sys()  / float(self.nTimes), u)
-        print " time<Real> = %12.3f %s" % (res.real() / float(self.nTimes), u)
+        print ("")
+        print ("## stats : [%s] (nbenchs = %i) %s" % (title,
+                                                      self.nTimes,
+                                                      keyType))
+        print (" time<User> = %12.3f %s" % (res.user() / float(self.nTimes), u))
+        print (" time<Sys > = %12.3f %s" % (res.sys()  / float(self.nTimes), u))
+        print (" time<Real> = %12.3f %s" % (res.real() / float(self.nTimes), u))
         
     def ioStats(self, ioKeys = [], ioMode = "r"):
 
@@ -445,9 +447,9 @@ class BenchSequence(object):
     def __iadd__(self, rhs):
         if not isinstance( rhs, ScOutput ) and \
            not isinstance( rhs, list ):
-            raise Exception, \
-                  "attempt to add a '%s' to the BenchSuite !" % \
-                  type(rhs).__name__
+            raise Exception (
+                  "attempt to add a '%s' to the BenchSuite !" % 
+                  type(rhs).__name__)
         
         if isinstance( rhs, ScOutput ):
             self.benchs.append( rhs )
@@ -470,8 +472,8 @@ class BenchSequence(object):
         return sc == 0
 
     def printStatus(self):
-        if self.status(): print "## [All tests SUCCESSFULLY completed]"
-        else:             print "## [ERROR in at least one test !!]"
+        if self.status(): print ("## [All tests SUCCESSFULLY completed]")
+        else:             print ("## [ERROR in at least one test !!]")
         return
     
     pass # BenchSequence

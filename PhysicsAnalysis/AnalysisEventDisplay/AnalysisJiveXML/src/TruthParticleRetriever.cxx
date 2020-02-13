@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AnalysisJiveXML/TruthParticleRetriever.h"
@@ -78,7 +78,7 @@ namespace JiveXML {
      samePdgIdFlag = false;
      initialProcessFlag = false;
      protectedParticleFlag = false;
-     statusList += (*mcpartItr)->status() + "_";
+     statusList += std::to_string((*mcpartItr)->status()) + "_";
 
      if ( (*mcpartItr)->et()/CLHEP::GeV < m_truthPtCut ){ continue; }
 /*

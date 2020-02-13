@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from DCSCalculator2.lib import DCSC_DefectTranslate_Subdetector, DCSC_Variable, DCSC_Global_Variable
 
@@ -9,8 +9,8 @@ class CSC(DCSC_DefectTranslate_Subdetector):
     folder_base = "/CSC/DCS"
     
     mapping = {
-        CSCEA: range(  1,  65),
-        CSCEC: range( 65, 129),
+        CSCEA: list(range(  1,  65)),
+        CSCEC: list(range( 65, 129)),
     }
 
     variables = [

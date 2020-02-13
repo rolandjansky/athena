@@ -7,6 +7,7 @@
 
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
@@ -43,9 +44,9 @@ def CaloEstimatedGainToolCfg (configFlags):
     result.merge (LArADC2MeVCondAlgCfg (configFlags))
     adc2mev = result.getCondAlgo ('LArADC2MeVCondAlg')
 
-    from TileConditions.TileConditionsConf import TileCondIdTransforms
+    TileCondIdTransforms=CompFactory.TileCondIdTransforms
 
-    from CaloTools.CaloToolsConf import CaloEstimatedGainTool
+    CaloEstimatedGainTool=CompFactory.CaloEstimatedGainTool
     tool = CaloEstimatedGainTool ('CaloEstimatedGainTool',
                                   ADC2MeVKey = adc2mev.LArADC2MeVKey,
                                   TileCondIdTransforms = TileCondIdTransforms(),

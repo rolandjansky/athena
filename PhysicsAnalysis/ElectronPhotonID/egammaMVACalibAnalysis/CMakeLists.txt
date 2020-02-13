@@ -67,7 +67,7 @@ endif()
 # Not working now because egammaMVACalibDict was removed.
 #atlas_add_test( mem_test SCRIPT test/mem_test.py
 #                PROPERTIES TIMEOUT 300
-#                EXTRA_PATTERNS " GB$" )
+#                LOG_IGNORE_PATTERN " GB$" )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

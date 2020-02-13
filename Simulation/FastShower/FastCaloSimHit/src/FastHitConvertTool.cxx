@@ -35,8 +35,6 @@ FastHitConvertTool::FastHitConvertTool(const std::string& type,
                                        const IInterface*  parent )
   :
   base_class(type,name,parent),
-  m_fastHitContainer(nullptr),
-  m_fastTileHits(nullptr),
   m_embHitContainer("LArHitEMB"),
   m_emecHitContainer("LArHitEMEC"),
   m_fcalHitContainer("LArHitFCAL"),

@@ -24,6 +24,5 @@ atlas_add_library( HitManagement
 atlas_add_test( TimedHitPtrCollection_test
                 SOURCES
                 test/TimedHitPtrCollection_test.cxx
-                LINK_LIBRARIES AthContainers AthenaKernel EventInfo GaudiKernel TestTools HitManagement
-                EXTRA_PATTERNS "^Warning in <TEnvRec::ChangeValue>: duplicate entry" )
+                LINK_LIBRARIES AthContainers AthenaKernel EventInfo GaudiKernel TestTools HitManagement )
 

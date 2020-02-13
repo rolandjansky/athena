@@ -66,6 +66,7 @@ namespace Trk {
 
      @author Andreas.Salzburger@cern.ch
    
+    Athena MT  Christos Anastopoulos 
   */
 
   class Layer {
@@ -221,26 +222,29 @@ namespace Trk {
    void setLayerType(int identifier);
 
     /** set the Layer coding */
-    void setLayerType ATLAS_NOT_THREAD_SAFE (int identifier) const;
+    void setLayerType ATLAS_NOT_CONST_THREAD_SAFE (int identifier) const;
 
 
     /** boolean method to check if the layer needs a LayerMaterialProperties */
     bool needsMaterialProperties() const;
     
-    /** assignMaterialPropeties - \todo make method private */
-    void assignMaterialProperties(const LayerMaterialProperties&, double scale=1.0) const;    
+    /** assignMaterialPropeties */
+    void assignMaterialProperties(const LayerMaterialProperties&, double scale = 1.0);
+
+    void assignMaterialProperties ATLAS_NOT_CONST_THREAD_SAFE(const LayerMaterialProperties&,
+                                                              double scale = 1.0) const;
 
     /** move the Layer */
     virtual void moveLayer( Amg::Transform3D& ) {};
 
     /** move the Layer */
-    virtual void moveLayer ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D& ) const {};
+    virtual void moveLayer ATLAS_NOT_CONST_THREAD_SAFE ( Amg::Transform3D& ) const {};
 
     /**register Volume associated to the layer */
     void registerRepresentingVolume(const Volume *theVol);
   
     /**register Volume associated to the layer */
-    void registerRepresentingVolume ATLAS_NOT_THREAD_SAFE (const Volume *theVol) const;
+    void registerRepresentingVolume ATLAS_NOT_CONST_THREAD_SAFE (const Volume *theVol) const;
     
     /** get the Volume associated to the layer */
     const Volume* representingVolume() const;
@@ -249,7 +253,7 @@ namespace Trk {
    void setRef(double );
 
     /** set the reference measure */
-    void setRef ATLAS_NOT_THREAD_SAFE (double ) const;
+    void setRef ATLAS_NOT_CONST_THREAD_SAFE (double ) const;
 
 
     /** get the reference measure */
@@ -267,9 +271,11 @@ namespace Trk {
                                                      const ICompatibilityEstimator* ice = 0) const;
 
     void compactify(size_t& cSurfaces, size_t& tSurfaces) const;                    //!< propagate TrackingGeometry owner downstream
-      
-    void registerLayerIndex(const LayerIndex& lIdx) const;                          //!< register layer index for material map registration
     
+    //!< register layer index for material map registration
+    void registerLayerIndex(const LayerIndex& lIdx);
+    void registerLayerIndex ATLAS_NOT_CONST_THREAD_SAFE(const LayerIndex& lIdx) const;
+
     /** private method to set enclosing TrackingVolume, called by friend class only
         optionally, the layer can be resized to the dimensions of the TrackingVolume
         - Bounds of the Surface are resized
@@ -277,10 +283,10 @@ namespace Trk {
         - SubSurface array boundaries are NOT resized
     */
     void encloseTrackingVolume  (const TrackingVolume& tvol) ;
-    void encloseTrackingVolume ATLAS_NOT_THREAD_SAFE (const TrackingVolume& tvol) const;
-    
-    void encloseDetachedTrackingVolume(const DetachedTrackingVolume& tvol) ;   //!< private method to set the enclosed detached TV
-    void encloseDetachedTrackingVolume ATLAS_NOT_THREAD_SAFE (const DetachedTrackingVolume& tvol) const;   //!< private method to set the enclosed detached TV
+    void encloseTrackingVolume ATLAS_NOT_CONST_THREAD_SAFE (const TrackingVolume& tvol) const;
+    //!< private method to set the enclosed detached TV
+    void encloseDetachedTrackingVolume(const DetachedTrackingVolume& tvol) ;  
+    void encloseDetachedTrackingVolume ATLAS_NOT_CONST_THREAD_SAFE (const DetachedTrackingVolume& tvol) const;
 
   protected:
 
@@ -288,7 +294,7 @@ namespace Trk {
     virtual void resizeLayer  (const VolumeBounds&, double) {}
 
     /** resize layer to the TrackingVolume dimensions const not thread safe */
-    virtual void resizeLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds&, double) const {}
+    virtual void resizeLayer ATLAS_NOT_CONST_THREAD_SAFE (const VolumeBounds&, double) const {}
 
     /** resize and reposition layer : dedicated for entry layers */
     virtual void resizeAndRepositionLayer (const VolumeBounds& vBounds, 
@@ -296,14 +302,14 @@ namespace Trk {
                                                                  double envelope=1.) = 0;
 
     /** resize and reposition layer : dedicated for entry layers */
-    virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds& vBounds, 
+    virtual void resizeAndRepositionLayer ATLAS_NOT_CONST_THREAD_SAFE (const VolumeBounds& vBounds, 
                                                                  const Amg::Vector3D& vCenter, 
                                                                  double envelope=1.) const = 0;
 
     SurfaceArray*                                   m_surfaceArray;              //!< SurfaceArray on this layer Surface
-    mutable SharedObject<LayerMaterialProperties>   m_layerMaterialProperties;   //!< MaterialPoperties of this layer Surface
+    SharedObject<LayerMaterialProperties>           m_layerMaterialProperties;   //!< MaterialPoperties of this layer Surface
+    
     double                                          m_layerThickness;            //!< thickness of the Layer
-
     OverlapDescriptor*                              m_overlapDescriptor;         //!< descriptor for overlap/next surface
       
     // These are stored by pointers and never deleted as they belong to the Volume
@@ -312,15 +318,10 @@ namespace Trk {
     mutable const BinUtility*                       m_binUtility;                //!< BinUtility for next/previous decission
                                                     
     const TrackingVolume*                           m_enclosingTrackingVolume;   //!< Enclosing TrackingVolume
-                                                    
     const DetachedTrackingVolume*                   m_enclosingDetachedTrackingVolume; //!< Enclosing DetachedTrackingVolume   
-                                                    
-    mutable LayerIndex                              m_index;                     //!< LayerIndex
-                                                    
+    LayerIndex                                      m_index;                     //!< LayerIndex
     int                                             m_layerType;                 //!< active passive layer
-                                                    
     const Volume*                                   m_representingVolume;        //!< Representing Volume
-                                                    
     double                                          m_ref;                       //!< reference measure for local coordinate convertors
   };
 
@@ -439,67 +440,126 @@ namespace Trk {
 
   inline const LayerMaterialProperties* Layer::layerMaterialProperties() const{ return m_layerMaterialProperties.get(); }
 
-  inline const OverlapDescriptor* Layer::overlapDescriptor() const 
-    {
-     return m_overlapDescriptor;
-    }
+  inline const OverlapDescriptor*
+  Layer::overlapDescriptor() const
+  {
+    return m_overlapDescriptor;
+  }
 
-  inline const TrackingVolume* Layer::enclosingTrackingVolume() const 
-    { return m_enclosingTrackingVolume; }
+  inline const TrackingVolume*
+  Layer::enclosingTrackingVolume() const
+  {
+    return m_enclosingTrackingVolume;
+  }
 
-  inline void Layer::encloseTrackingVolume(const TrackingVolume& tvol)  
-    { 
-     m_enclosingTrackingVolume = &(tvol); 
-    }
-  inline void Layer::encloseTrackingVolume(const TrackingVolume& tvol) const 
-    { 
-     const_cast<Layer*>(this)->encloseTrackingVolume(tvol); 
-    }
+  inline void
+  Layer::encloseTrackingVolume(const TrackingVolume& tvol)
+  {
+    m_enclosingTrackingVolume = &(tvol);
+  }
+  inline void
+  Layer::encloseTrackingVolume ATLAS_NOT_CONST_THREAD_SAFE (const TrackingVolume& tvol) const
+  {
+    const_cast<Layer*>(this)->encloseTrackingVolume(tvol);
+  }
 
-  inline const DetachedTrackingVolume* Layer::enclosingDetachedTrackingVolume() const 
-    { return m_enclosingDetachedTrackingVolume; }
+  inline const DetachedTrackingVolume*
+  Layer::enclosingDetachedTrackingVolume() const
+  {
+    return m_enclosingDetachedTrackingVolume;
+  }
 
-  inline void Layer::encloseDetachedTrackingVolume(const DetachedTrackingVolume& tvol)
-    { m_enclosingDetachedTrackingVolume = &(tvol); }
+  inline void
+  Layer::encloseDetachedTrackingVolume(const DetachedTrackingVolume& tvol)
+  {
+    m_enclosingDetachedTrackingVolume = &(tvol);
+  }
 
-  inline void Layer::encloseDetachedTrackingVolume(const DetachedTrackingVolume& tvol) const 
-    { const_cast<Layer*>(this)->encloseDetachedTrackingVolume(tvol); }
+  inline void
+  Layer::encloseDetachedTrackingVolume ATLAS_NOT_CONST_THREAD_SAFE (const DetachedTrackingVolume& tvol) const
+  {
+    const_cast<Layer*>(this)->encloseDetachedTrackingVolume(tvol);
+  }
 
-  inline const LayerIndex& Layer::layerIndex() const
-    { return m_index; }
+  inline const LayerIndex&
+  Layer::layerIndex() const
+  {
+    return m_index;
+  }
 
-  inline int Layer::layerType() const
-    { return m_layerType; }
+  inline int
+  Layer::layerType() const
+  {
+    return m_layerType;
+  }
 
-  inline void Layer::setLayerType( int id ) 
-    { m_layerType = id; }
+  inline void
+  Layer::setLayerType(int id)
+  {
+    m_layerType = id;
+  }
 
-  inline void Layer::setLayerType( int id ) const
-    { const_cast<Layer*>(this)->setLayerType(id); }
+  inline void 
+  Layer::setLayerType ATLAS_NOT_CONST_THREAD_SAFE(int id) const
+  {
+    const_cast<Layer*>(this)->setLayerType(id);
+  }
 
+  inline void
+  Layer::assignMaterialProperties ATLAS_NOT_CONST_THREAD_SAFE (const LayerMaterialProperties& layerMaterialProp,
+                                                               double scale) const
+  {
+    const_cast<Layer*>(this)->assignMaterialProperties(layerMaterialProp, scale);
+  }
+  inline const Volume*
+  Layer::representingVolume() const
+  {
+    return m_representingVolume;
+  }
 
-  inline const Volume* Layer::representingVolume() const
-    { return m_representingVolume; }
+  inline void
+  Layer::registerRepresentingVolume(const Volume* theVol)
+  {
+    m_representingVolume = theVol;
+  }
 
-  inline void Layer::registerRepresentingVolume(const Volume *theVol)
-    { m_representingVolume = theVol; }
- 
-  inline void Layer::registerRepresentingVolume(const Volume *theVol) const
-    { const_cast<Layer*>(this)->registerRepresentingVolume(theVol); }
-  
-   inline void Layer::registerLayerIndex(const LayerIndex& lIdx) const
-    { m_index = lIdx; }  
-    
-  inline double Layer::getRef() const
-    { return m_ref; }
-  
-  inline void Layer::setRef(double x)
-    { m_ref = x; }
- 
-  inline void Layer::setRef(double x) const
-    { const_cast<Layer*>(this)->setRef(x); }
-  
-} // end of namespace
+  inline void
+  Layer::registerRepresentingVolume ATLAS_NOT_CONST_THREAD_SAFE (const Volume* theVol) const
+  {
+    const_cast<Layer*>(this)->registerRepresentingVolume(theVol);
+  }
+
+  inline void
+  Layer::registerLayerIndex (const LayerIndex& lIdx)
+  {
+    m_index = lIdx;
+  }
+
+  inline void
+  Layer::registerLayerIndex ATLAS_NOT_CONST_THREAD_SAFE (const LayerIndex& lIdx) const
+  {
+    const_cast<Layer*>(this)->registerLayerIndex(lIdx);
+  }
+
+  inline double
+  Layer::getRef() const
+  {
+    return m_ref;
+  }
+
+  inline void
+  Layer::setRef(double x)
+  {
+    m_ref = x;
+  }
+
+  inline void
+  Layer::setRef ATLAS_NOT_CONST_THREAD_SAFE (double x) const
+  {
+    const_cast<Layer*>(this)->setRef(x);
+  }
+
+  } // end of namespace
 
 #endif // TRKGEOMETRY_LAYER_H
 

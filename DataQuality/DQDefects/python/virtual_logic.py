@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from DQDefects import DEFECT_IOV
+from functools import reduce
 
 class DefectLogic(object):
     def __init__(self, defect_iov):
@@ -57,7 +58,7 @@ class DefectLogic(object):
             return None
         return DEFECT_IOV(None, None, self.name,
             present    =reduce(bool.__or__,  (op(i.present)     for op, i in inputs), False) or len(uninverted),
-            recoverable=reduce(bool.__and__, (i.recoverable for op, i in inputs
+            recoverable=reduce(bool.__and__, (not not i.recoverable for op, i in inputs
                                               if op(i.present)), False),
             user="sys:virtual",
             comment=" ".join(sorted([(('!' if op == not_ else '') + i.channel) for op, i in inputs if op(i.present)]

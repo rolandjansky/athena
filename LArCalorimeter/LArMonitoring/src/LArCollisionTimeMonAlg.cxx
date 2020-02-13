@@ -19,9 +19,6 @@
 #include "LArCollisionTimeMonAlg.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
-
-
 using namespace std;
 
 
@@ -30,12 +27,7 @@ using namespace std;
 /*---------------------------------------------------------*/
 LArCollisionTimeMonAlg::LArCollisionTimeMonAlg( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
-  ,m_LArCollisionTimeKey("LArCollisionTime")
-  ,m_bunchCrossingTool("BunchCrossingTool")
-{
-  declareProperty( "Key"                ,      m_LArCollisionTimeKey);
-  declareProperty( "BunchCrossingTool"  ,      m_bunchCrossingTool); 
-}
+{}
 
 /*---------------------------------------------------------*/
 LArCollisionTimeMonAlg::~LArCollisionTimeMonAlg()
@@ -47,6 +39,7 @@ LArCollisionTimeMonAlg::initialize() {
 
   //init handlers
   ATH_CHECK( m_LArCollisionTimeKey.initialize() );
+  ATH_CHECK( m_bcKey.initialize() );
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -85,13 +78,13 @@ LArCollisionTimeMonAlg::fillHistograms( const EventContext& ctx ) const
   // luminosity block number
   lumi_block = event_info->lumiBlock();
 
-
-  if(m_bunchCrossingTool->bcType(bunch_crossing_id) == Trig::IBunchCrossingTool::Empty) {
+  SG::ReadCondHandle<BunchCrossingCondData> bcData(m_bcKey, ctx);
+  if(bcData->bcType(bunch_crossing_id) == BunchCrossingCondData::Empty) {
     ATH_MSG_INFO("BCID: "<<bunch_crossing_id<<" empty ? not filling the coll. time" );
     return StatusCode::SUCCESS; // not filling anything in empty bunches
   }
   
-  int bcid_distance = m_bunchCrossingTool->distanceFromFront(bunch_crossing_id, Trig::IBunchCrossingTool::BunchCrossings);
+  int bcid_distance = bcData->distanceFromFront(bunch_crossing_id, BunchCrossingCondData::BunchCrossings);
   ATH_MSG_DEBUG("BCID distance: "<<bcid_distance );
 
   // Retrieve LArCollision Timing information

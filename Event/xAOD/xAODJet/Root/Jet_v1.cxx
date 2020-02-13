@@ -134,8 +134,8 @@ namespace xAOD {
   static const SG::AuxElement::Accessor< int > constitScaleAcc( "ConstituentScale" );
 
   JetConstitScale Jet_v1::getConstituentsSignalState() const {
-    if( constitScaleAcc.isAvailable(*this) ) return (JetConstitScale)constitScaleAcc(*this) ;
-    return CalibratedJetConstituent; // default value
+    if( constitScaleAcc.isAvailable(*this) ) return (JetConstitScale)constitScaleAcc(*this);
+    return UnknownConstitScale; 
   }
 
   void Jet_v1::setConstituentsSignalState( JetConstitScale t){

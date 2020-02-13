@@ -1,18 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef MMPREPDATA_p1_TRK_H
 #define MMPREPDATA_p1_TRK_H
 
-//-----------------------------------------------------------------------------
-//
-// file:   MMPrepData_p1.h
-//
-//-----------------------------------------------------------------------------
 #include "AthenaPoolUtilities/TPObjRef.h"
 #include "Identifier/IdentifierHash.h"
+#include "EventPrimitives/EventPrimitives.h" // for Amg::MatrixX
 
 namespace Muon
 {
@@ -33,11 +28,20 @@ namespace Muon
         float               m_locX; //!< Equivalent to localPosition (locX) in the base class.
         float               m_errorMat; //!< 1-d ErrorMatrix in the base class.
 
-	int                 m_time;      // for single-strip PRD, that's the time measured
+	short int           m_time;      // for single-strip PRD, that's the time measured
 	int                 m_charge;    // for single-strip PRD, that's the charge measured
+	float               m_driftDist;    // for single-strip PRD, that's the calibrated drift distance
 
 	float               m_angle;          ///
 	float               m_chisqProb;      /// these are the parameters of the muTPC reconstruction
+
+	/// information about clusters strips
+	std::vector<uint16_t>  m_stripNumbers;
+	std::vector<short int> m_stripTimes;
+	std::vector<int>       m_stripCharges;
+
+	std::vector<float>        m_stripDriftDist;
+	std::vector<Amg::MatrixX> m_stripDriftErrors;
         
         //@}
         

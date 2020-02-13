@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # *************************************************
 # Python to create RPC SQLite Folder to be filled with RPC alibration results
@@ -19,11 +19,11 @@ def createRPCDQMFDB():
     if os.access('RPCDQMFOFFLINE.db', os.R_OK):
         try:
             os.unlink('RPCDQMFOFFLINE.db')
-        except Exception, e:
+        except Exception as e:
             print('Unable to remove existing db file, reason', e)
     try:
         db = dbSvc.createDatabase(dbstring)
-    except Exception, e:
+    except Exception as e:
         print('Problem creating database', e)
         return
     print("Created database", dbstring)
@@ -60,11 +60,11 @@ def createRPCConditionDB():
     if os.access('RPCConditionDB.db', os.R_OK):
         try:
             os.unlink('RPCConditionDB.db')
-        except Exception, e:
+        except Exception as e:
             print('Unable to remove existing db file, reason', e)
     try:
         db = dbSvc.createDatabase(dbstring)
-    except Exception, e:
+    except Exception as e:
         print('Problem creating database', e)
         return
     print("Created database", dbstring)

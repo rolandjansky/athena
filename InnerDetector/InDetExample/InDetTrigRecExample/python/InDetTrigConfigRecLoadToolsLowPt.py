@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 """ Instantiates tools for LowPt tracking
 """
 
@@ -148,7 +150,7 @@ if InDetTrigFlags.doAmbiSolving():
    
   ToolSvc += InDetTrigAmbiTrackSelectionToolLowPt
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigAmbiTrackSelectionToolLowPt
+    print (InDetTrigAmbiTrackSelectionToolLowPt)
 
 
   from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
@@ -188,7 +190,7 @@ if InDetTrigFlags.doAmbiSolving():
                                             )
   ToolSvc += InDetTrigAmbiguityProcessorLowPt
   if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigAmbiguityProcessorLowPt
+    print (InDetTrigAmbiguityProcessorLowPt)
   
 
 #indetambiscoringtool lowpt

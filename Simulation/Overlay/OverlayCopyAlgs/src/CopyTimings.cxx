@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CopyTimings.h"
 
 CopyTimings::CopyTimings(const std::string &name, ISvcLocator *pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator) {}
+  : AthReentrantAlgorithm(name, pSvcLocator) {}
 
 StatusCode CopyTimings::initialize()
 {
@@ -22,7 +22,7 @@ StatusCode CopyTimings::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CopyTimings::execute()
+StatusCode CopyTimings::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("execute() begin");
 
@@ -31,7 +31,7 @@ StatusCode CopyTimings::execute()
 
   const RecoTimingObj *bkgContainerPtr = nullptr;
   if (!m_bkgInputKey.key().empty()) {
-    SG::ReadHandle<RecoTimingObj> bkgContainer(m_bkgInputKey);
+    SG::ReadHandle<RecoTimingObj> bkgContainer(m_bkgInputKey, ctx);
     if (!bkgContainer.isValid()) {
       ATH_MSG_ERROR("Could not get background timings container " << bkgContainer.name() << " from store " << bkgContainer.store());
       return StatusCode::FAILURE;
@@ -41,7 +41,7 @@ StatusCode CopyTimings::execute()
     ATH_MSG_DEBUG("Found background timings container " << bkgContainer.name() << " in store " << bkgContainer.store());
   }
 
-  SG::ReadHandle<RecoTimingObj> signalContainer(m_signalInputKey);
+  SG::ReadHandle<RecoTimingObj> signalContainer(m_signalInputKey, ctx);
   if (!signalContainer.isValid()) {
     ATH_MSG_ERROR("Could not get signal timings container " << signalContainer.name() << " from store " << signalContainer.store());
     return StatusCode::FAILURE;
@@ -49,7 +49,7 @@ StatusCode CopyTimings::execute()
   ATH_MSG_DEBUG("Found signal timings container " << signalContainer.name() << " in store " << signalContainer.store());
 
   // Creating output timings container
-  SG::WriteHandle<RecoTimingObj> outputContainer(m_outputKey);
+  SG::WriteHandle<RecoTimingObj> outputContainer(m_outputKey, ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<RecoTimingObj>()));
   if (!outputContainer.isValid()) {
     ATH_MSG_ERROR("Could not record output timings container " << outputContainer.name() << " to store " << outputContainer.store());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,10 +40,10 @@ namespace Trk {
         virtual ~PlanarModuleStepper();
 
         /** AlgTool initialize method */
-        StatusCode initialize();
+        StatusCode initialize() override;
         
         /** AlgTool finalize method */
-        StatusCode finalize();
+        StatusCode finalize() override;
         
         /** calculate the steps caused by this track - full simulation interface */
         std::vector<DigitizationStep> cellSteps(const DigitizationModule& dmodule,

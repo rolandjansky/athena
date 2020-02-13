@@ -13,7 +13,7 @@ ex.type = 'athenaHLT'
 ex.job_options = 'AthExHelloWorld/HelloWorldOptions.py'
 ex.input = 'data'
 ex.args = '-M'
-ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
+ex.perfmon = False # perfmon currently not fully supported with athenaHLT -M
 
 test = Test.Test()
 test.art_type = 'build'

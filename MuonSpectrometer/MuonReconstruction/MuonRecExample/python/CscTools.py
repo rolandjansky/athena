@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of tools for CSC reconstruction"""
 
@@ -24,7 +24,7 @@ from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicT
 
 from AthenaCommon.ConfiguredFactory import getProperty
 
-from MuonRecUtils import logMuon,ConfiguredBase,ExtraFlags
+from MuonRecExample.MuonRecUtils import logMuon,ConfiguredBase,ExtraFlags
 from MuonRecExample.MuonAlignFlags import muonAlignFlags
 
 from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm, \

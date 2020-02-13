@@ -30,12 +30,10 @@ def generateChainConfigs( chainDict ):
     # FIXME: Check that all jet reco configs are identical
     if len(listOfChainDefs)>1:
         # Add reco consistency checking between all 
-        log.warning("Multiple jet chainParts detected; reco consistency checks not yet implemented")
+        log.warning("Multiple jet chainParts detected; reco consistency checks not yet implemented. Forcing chain to be single-object")
         theChainDef = listOfChainDefs[0] #needs to be implemented properly
     else:
         theChainDef = listOfChainDefs[0]
-
-    log.debug("theChainDef %s" , theChainDef)
 
 
     return theChainDef

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -14,7 +14,6 @@
 #include "GaudiKernel/MsgStream.h"
 
 // MuonDetDesc
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
@@ -51,6 +50,14 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
   ATH_MSG_DEBUG("inside correlation" );
   //StatusCode sc=StatusCode::SUCCESS;
 
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return;
+  } 
+
   //loop over TGC RoI container
   Muon::TgcCoinDataContainer::const_iterator it_end=tgccontainer->end();
   for( Muon::TgcCoinDataContainer::const_iterator it=tgccontainer->begin();
@@ -82,7 +89,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
 
       //int tgcMdtSector=roiphi2mdtSector(roiphi,ef);
 
-      const MuonGM::TgcReadoutElement*  pReadoutElementTGC = m_muonMgr->getTgcReadoutElement(tgcid);
+      const MuonGM::TgcReadoutElement*  pReadoutElementTGC = MuonDetMgr->getTgcReadoutElement(tgcid);
       const Amg::Vector3D pos = pReadoutElementTGC->channelPos(tgcid);
 
       float tgcEta = abs(pos.eta());
@@ -199,7 +206,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
 
           if(adc < m_MdtAdcCut )continue;
 
-          const MuonGM::MdtReadoutElement*  pReadoutElementMDT = m_muonMgr->getMdtReadoutElement(mdt_id2);
+          const MuonGM::MdtReadoutElement*  pReadoutElementMDT = MuonDetMgr->getMdtReadoutElement(mdt_id2);
           const Amg::Vector3D mdtgPos = pReadoutElementMDT->tubePos(mdt_id2); //global position of the wire
           float mdtEta = abs(mdtgPos.eta());
           float mdtPhi = mdtgPos.phi();

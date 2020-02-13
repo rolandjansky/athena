@@ -6,8 +6,9 @@ KG Tan, 17/06/2012
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenericTruthStrategy, ISF__GenParticleFinalStateFilter, ISF__GenParticlePositionFilter, ISF__GenParticleGenericFilter, ISF__GenParticleInteractingFilter
+ISF__GenericTruthStrategy, ISF__GenParticleFinalStateFilter, ISF__GenParticlePositionFilter, ISF__GenParticleGenericFilter, ISF__GenParticleInteractingFilter=CompFactory.getComps("ISF__GenericTruthStrategy","ISF__GenParticleFinalStateFilter","ISF__GenParticlePositionFilter","ISF__GenParticleGenericFilter","ISF__GenParticleInteractingFilter",)
 
 from AthenaCommon.SystemOfUnits import MeV, mm
 
@@ -20,10 +21,8 @@ from AthenaCommon.SystemOfUnits import MeV, mm
 
 def ParticleFinalStateFilterCfg(ConfigFlags, name="ISF_ParticleFinalStateFilter", **kwargs):
     result = ComponentAccumulator()
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    G4NotInUse = not ISF_Flags.UsingGeant4.get_Value()
-    from G4AtlasApps.SimFlags import simFlags
-    G4NotInUse = G4NotInUse and simFlags.ISFRun.get_Value()
+    G4NotInUse = not ConfigFlags.Sim.UsingGeant4
+    G4NotInUse = G4NotInUse and ConfigFlags.Sim.ISFRun
     # use CheckGenInteracting==False to allow GenEvent neutrinos to propagate into the simulation
     kwargs.setdefault("CheckGenSimStable", G4NotInUse)
     kwargs.setdefault("CheckGenInteracting", G4NotInUse)

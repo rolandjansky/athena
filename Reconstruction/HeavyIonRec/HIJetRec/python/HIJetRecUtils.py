@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from HIJetRec.HIJetRecFlags import HIJetFlags
+from AthenaConfiguration.ComponentFactory import CompFactory
 from HIJetRec.HIJetRecTools import jtm
 from JetRec.JetRecFlags import jetFlags
 
@@ -48,7 +49,7 @@ def HIClusterGetter(tower_key="CombinedTower", cell_key="AllCalo", cluster_key="
 
     if cluster_key == "" : cluster_key=HIJetFlags.HIClusterKey()
 
-    from HIJetRec.HIJetRecConf import HIClusterMaker
+    HIClusterMaker=CompFactory.HIClusterMaker
     theAlg=HIClusterMaker()
     theAlg.InputTowerKey=tower_key
     theAlg.CaloCellContainerKey=cell_key
@@ -81,15 +82,15 @@ def AddPtAssociationTools(R, doTracks=True) :
     if doTracks and jetFlags.useTracks(): 
         cname=HIJetFlags.TrackJetContainerName()
         tname='hitrackassoc_04'
-        if not tname in jtm.tools:
-            from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
+        if tname not in jtm.tools:
+            JetPtAssociationTool=CompFactory.JetPtAssociationTool
             jtm.add(JetPtAssociationTool(tname, InputContainer=cname, AssociationName="GhostTrack"))
         tlist += [ jtm.tools[tname] ]
     if jetFlags.useTruth(): 
         cname='AntiKt%dTruthJets' % int(10*R)
         tname='truthassoc_0%d' % int(10*R)
-        if not tname in jtm.tools:
-            from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
+        if tname not in jtm.tools:
+            JetPtAssociationTool=CompFactory.JetPtAssociationTool
             jtm.add(JetPtAssociationTool(tname, InputContainer=cname, AssociationName="GhostTruth"))
         tlist += [ jtm.tools[tname] ]
     return tlist
@@ -106,7 +107,7 @@ def MakeModulatorTool(mod_key, **kwargs) :
     if(len(harmonics)==0) : return GetNullModulator()
     if hasattr(jtm,tname) : return getattr(jtm,tname)
 
-    from HIJetRec.HIJetRecConf import HIUEModulatorTool
+    HIUEModulatorTool=CompFactory.HIUEModulatorTool
     mod=HIUEModulatorTool(tname)
     mod.EventShapeKey=mod_key
     for n in [2,3,4] :
@@ -118,9 +119,9 @@ def MakeModulatorTool(mod_key, **kwargs) :
     return mod
 
 def MakeSubtractionTool(shapeKey, moment_name='', momentOnly=False, **kwargs) : 
-    from HIJetRec.HIJetRecConf import HIJetConstituentSubtractionTool
+    HIJetConstituentSubtractionTool=CompFactory.HIJetConstituentSubtractionTool
     suffix=shapeKey
-    if momentOnly : suffix+='_'+moment_name;
+    if momentOnly : suffix+='_'+moment_name
 
     if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
     else : mod_tool=GetNullModulator()
@@ -147,7 +148,7 @@ def ApplySubtractionToClusters(**kwargs) :
     if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
     else : mod_tool=GetNullModulator()
 
-    from HIJetRec.HIJetRecConf import HIClusterSubtraction
+    HIClusterSubtraction=CompFactory.HIClusterSubtraction
     toolName='HIClusterSubtraction'
     if 'name' in kwargs.keys() : toolName = kwargs['name']
     theAlg=HIClusterSubtraction(toolName)
@@ -159,7 +160,7 @@ def ApplySubtractionToClusters(**kwargs) :
     do_cluster_moments=False
     if 'CalculateMoments' in kwargs.keys() : do_cluster_moments=kwargs['CalculateMoments']
     if do_cluster_moments :
-        from CaloRec.CaloRecConf import CaloClusterMomentsMaker
+        CaloClusterMomentsMaker=CompFactory.CaloClusterMomentsMaker
         from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
         theCaloNoiseTool = CaloNoiseToolDefault()
         from AthenaCommon.AppMgr import ToolSvc
@@ -215,12 +216,12 @@ def AddIteration(seed_container,shape_name, **kwargs) :
     if remodulate :
         if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
         else : 
-            mod_shape_name=BuildHarmonicName(out_shape_name,**kwargs)
+            mod_shape_key=BuildHarmonicName(out_shape_name,**kwargs)
             mod_tool=MakeModulatorTool(mod_shape_key,**kwargs)
 
  
     assoc_name=jtm.HIJetDRAssociation.AssociationName
-    from HIJetRec.HIJetRecConf import HIEventShapeJetIteration
+    HIEventShapeJetIteration=CompFactory.HIEventShapeJetIteration
     iter_tool=HIEventShapeJetIteration('HIJetIteration_%s' % out_shape_name )
     
     iter_tool.InputEventShapeKey=shape_name
@@ -247,11 +248,11 @@ def JetAlgFromTools(rtools, suffix="HI",persistify=True) :
     #if jetFlags.useCells():  HIJet_exe_tools += [jtm.missingcells]
     if HIJetFlags.UseHITracks() : HIJet_exe_tools += [jtm.tracksel_HI,jtm.gtracksel_HI,jtm.tvassoc_HI]
     rtools=HIJet_exe_tools+rtools
-    from JetRec.JetRecConf import JetToolRunner
+    JetToolRunner=CompFactory.JetToolRunner
     runner=JetToolRunner("jetrun"+suffix, Tools=rtools, Timer=jetFlags.timeJetToolRunner())
     jtm.add(runner)
     
-    from JetRec.JetRecConf import JetAlgorithm
+    JetAlgorithm=CompFactory.JetAlgorithm
     theAlg=JetAlgorithm("jetalg"+suffix)
     theAlg.Tools = [runner]
     from AthenaCommon.AlgSequence import AlgSequence
@@ -293,7 +294,7 @@ def BuildHarmonicName(shape_key, **kwargs) :
 def GetNullModulator() :
     tname='NullUEModulator'
     if hasattr(jtm,tname) : return getattr(jtm,tname)
-    from HIJetRec.HIJetRecConf import HIUEModulatorTool
+    HIUEModulatorTool=CompFactory.HIUEModulatorTool
     mod=HIUEModulatorTool(tname)
     mod.EventShapeKey='NULL'
     for n in [2,3,4] : setattr(mod,'DoV%d' % n,False)
@@ -335,12 +336,12 @@ def GetSubtractorTool(**kwargs) :
 
     if useClusters : 
         if not hasattr(jtm,"HIJetClusterSubtractor") : 
-            from HIJetRec.HIJetRecConf import HIJetClusterSubtractorTool
+            HIJetClusterSubtractorTool=CompFactory.HIJetClusterSubtractorTool
             jtm.add(HIJetClusterSubtractorTool("HIJetClusterSubtractor"))
         return jtm.HIJetClusterSubtractor
     else:
         if not hasattr(jtm,"HIJetCellSubtractor") : 
-            from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
+            HIJetCellSubtractorTool=CompFactory.HIJetCellSubtractorTool
             jtm.add(HIJetCellSubtractorTool("HIJetCellSubtractor"))
         return jtm.HIJetCellSubtractor
 

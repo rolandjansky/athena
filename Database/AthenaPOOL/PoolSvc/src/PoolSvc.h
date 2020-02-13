@@ -13,6 +13,7 @@
 #include "PoolSvc/IPoolSvc.h"
 #include "GaudiKernel/IIoComponent.h"
 #include "AthenaBaseComps/AthService.h"
+#include "PersistentDataModel/Guid.h"
 
 #include <string>
 #include <vector>
@@ -25,7 +26,6 @@ namespace pool {
    class IDatabase;
    class IPersistencySvc;
 }
-class Guid;
 
 template <class TYPE> class SvcFactory;
 
@@ -175,51 +175,52 @@ public: // Non-static members
    StatusCode setFrontierCache(const std::string& conn) const;
 
    /// Standard Service Constructor
-   PoolSvc(const std::string& name, ISvcLocator* pSvcLocator);
+   using AthService::AthService;
+   //PoolSvc(const std::string& name, ISvcLocator* pSvcLocator);
    /// Destructor
    virtual ~PoolSvc();
 
 private: // data
    typedef std::recursive_mutex CallMutex;
    mutable CallMutex                                 m_pool_mut;
-   coral::Context*                                   m_context;
-   pool::IFileCatalog*                               m_catalog;
+   coral::Context*                                   m_context{nullptr};
+   pool::IFileCatalog*                               m_catalog{nullptr};
    std::vector<pool::IPersistencySvc*>               m_persistencySvcVec;
    mutable std::vector<CallMutex*>                   m_pers_mut;
    std::map<std::string, unsigned int>               m_contextLabel;
-   std::string                                       m_mainOutputLabel;
+   std::string                                       m_mainOutputLabel{};
    std::map<unsigned int, unsigned int>              m_contextMaxFile;
    // Cache for open file guids for each m_persistencySvcVec member, protected by m_pers_mut
    mutable std::map<unsigned int, std::list<Guid> >  m_guidLists;
 
 private: // properties
    /// FileOpen, the open mode for the file ("append" or "overwrite").
-   StringProperty  m_fileOpen;
+   StringProperty  m_fileOpen{this,"FileOpen","overwrite"};
    /// MaxFilesOpen, option to have PoolSvc limit the number of open Input Files: default = 0
    ///  (No files are closed automatically)
-   IntegerProperty m_dbAgeLimit;
+   IntegerProperty m_dbAgeLimit{this,"MaxFilesOpen",0};
    /// WriteCatalog, the file catalog to be used to register output files (also default input catalog):
    ///	default = "" (use POOL default).
-   StringProperty m_writeCatalog;
+   StringProperty m_writeCatalog{this,"WriteCatalog","xmlcatalog_file:PoolFileCatalog.xml"};
    /// ReadCatalog, the list of additional POOL input file catalogs to consult: default = empty vector.
-   StringArrayProperty m_readCatalog;
+   StringArrayProperty m_readCatalog{this,"ReadCatalog",{},"List of catalog files to read from"};
    /// Use ROOT Implicit MultiThreading, default = true.
-   BooleanProperty m_useROOTIMT;
+   BooleanProperty m_useROOTIMT{this,"UseROOTImplicitMT",true};
    /// AttemptCatalogPatch, option to create catalog: default = false.
-   BooleanProperty m_attemptCatalogPatch;
+   BooleanProperty m_attemptCatalogPatch{this,"AttemptCatalogPatch",true};
    /// ConnectionRetrialPeriod, retry period for CORAL Connection Service: default = 30 seconds
-   IntegerProperty m_retrialPeriod;
+   IntegerProperty m_retrialPeriod{this,"ConnectionRetrialPeriod",300};
    /// ConnectionRetrialTimeOut, the retrial time out for CORAL Connection Service: default = 300 seconds
-   IntegerProperty m_retrialTimeOut;
+   IntegerProperty m_retrialTimeOut{this,"ConnectionRetrialTimeOut",3600};
    /// ConnectionTimeOut, the time out for CORAL Connection Service: default = 5 seconds
-   IntegerProperty m_timeOut;
+   IntegerProperty m_timeOut{this,"ConnectionTimeOut",5};
    /// ConnectionCleanUp - whether to use CORAL connection management thread: default = false.
-   BooleanProperty m_connClean;
+   BooleanProperty m_connClean{this,"ConnectionCleanUp",false};
    /// Frontier proprties, compression level and list of schemas to be refreshed: default = 5
-   IntegerProperty m_frontierComp;
-   StringArrayProperty m_frontierRefresh;
+   IntegerProperty m_frontierComp{this,"FrontierCompression",5};
+   StringArrayProperty m_frontierRefresh{this,"FrontierRefreshSchema",{}};
    /// Use DBReplicaSvc to sort database connections, default = true.
-   BooleanProperty m_sortReplicas;
+   BooleanProperty m_sortReplicas{this,"SortReplicas",true};
 
 private: // internal helper functions
    pool::IFileCatalog* createCatalog();

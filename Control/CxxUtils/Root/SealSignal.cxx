@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -237,10 +237,10 @@ Signal::handler (int sig, sigset_t *mask /* = 0 */)
     {
 	if (mask)
 	    *mask = old.sa_mask;
-	return (HandlerType) old.sa_handler;
+	return (HandlerType) (void*) old.sa_handler;
     }
     else
-	return (HandlerType) SIG_ERR;
+      return (HandlerType) (void*)SIG_ERR;
 #else // ! HAVE_POSIX_SIGNALS
     HandlerType old = (HandlerType) signal (sig, SIG_DFL);
     signal (sig, (DummyHandlerType) old);
@@ -305,7 +305,7 @@ Signal::handle (int sig, HandlerType handler, const sigset_t *blockMask /*=0*/)
     // called in all sorts fragile places like signal handlers, and
     // those are not the place for throwing exceptions or asserting.
     if (sigaction (sig, &act, &old) == -1)
-	return (HandlerType) SIG_ERR;
+      return (HandlerType) (void*)SIG_ERR;
     oldhandler = (HandlerType) old.sa_sigaction;
 #else // ! HAVE_POSIX_SIGNALS
     (HandlerType) ::signal (sig, (DummyHandlerType) handler);
@@ -316,12 +316,12 @@ Signal::handle (int sig, HandlerType handler, const sigset_t *blockMask /*=0*/)
 /** Revert the signal number @a sig back to its default behaviour.  */
 void
 Signal::revert (int sig)
-{ handle (sig, (HandlerType) SIG_DFL); }
+{ handle (sig, (HandlerType) (void*)SIG_DFL); }
 
 /** Ignore the signal number @a sig.  */
 void
 Signal::ignore (int sig)
-{ handle (sig, (HandlerType) SIG_IGN); }
+{ handle (sig, (HandlerType) (void*)SIG_IGN); }
 
 /** Block or unblock the signal number @a sig.  The signal is blocked
     if @a sense is @c true, unblocked otherwise.  This function is

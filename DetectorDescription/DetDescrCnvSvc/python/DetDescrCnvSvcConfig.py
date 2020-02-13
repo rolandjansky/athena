@@ -1,10 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def DetDescrCnvSvcCfg(configFlags):
-    from DetDescrCnvSvc.DetDescrCnvSvcConf import DetDescrCnvSvc
-    from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+    DetDescrCnvSvc=CompFactory.DetDescrCnvSvc
+    EvtPersistencySvc=CompFactory.EvtPersistencySvc
     acc=ComponentAccumulator()
     # Specify primary Identifier dictionary to be use
     detDescrCnvSvc=DetDescrCnvSvc(IdDictName = "IdDictParser/ATLAS_IDS.xml",

@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # specifies standard (supercluster) egamma.
 from AthenaCommon.Logging import logging
@@ -65,9 +67,9 @@ class topoEgammaGetter ( Configured ) :
         except Exception:
             mlog.error("could not get handle to egammaRecBuilder")
             import traceback
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
-        print self._egammaRecBuilder
+        print (self._egammaRecBuilder)
 
         # the supercluster builders
         from egammaAlgs.egammaSuperClusterBuilder import \
@@ -80,10 +82,10 @@ class topoEgammaGetter ( Configured ) :
         except Exception:
             mlog.error("could not get handle to supcluster builders")
             import traceback
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
-        print self._electronSuperClusterBuilder
-        print self._photonSuperClusterBuilder
+        print (self._electronSuperClusterBuilder)
+        print (self._photonSuperClusterBuilder)
 
         # the topoEgammaBuilder (the part that puts everything together
         from egammaAlgs.topoEgammaBuilder import topoEgammaBuilder
@@ -98,9 +100,9 @@ class topoEgammaGetter ( Configured ) :
         except Exception:
             mlog.error("could not get handle to topoEgammaBuilder")
             import traceback
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
-        print self._topoEgammaBuilder
+        print (self._topoEgammaBuilder)
 
         # the egammaLargeClusterMaker (Which chooses the cells to store in the AOD)
         from egammaAlgs.egammaLargeClusterMakerAlg import egammaLargeClusterMakerAlg
@@ -109,9 +111,9 @@ class topoEgammaGetter ( Configured ) :
         except Exception:
             mlog.error("could not get handle to egammaLargeClusterMaker")
             import traceback
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
-        print self._egammaLargeClusterMaker
+        print (self._egammaLargeClusterMaker)
 
         return True
 

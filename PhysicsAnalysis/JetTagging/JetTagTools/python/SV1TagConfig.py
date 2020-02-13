@@ -1,11 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
 
 # import the SVTag configurable
-from JetTagTools.JetTagToolsConf import Analysis__SVTag
+Analysis__SVTag=CompFactory.Analysis__SVTag
 
 def SV1TagCfg( flags, name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a SV1Tag tool and returns it.

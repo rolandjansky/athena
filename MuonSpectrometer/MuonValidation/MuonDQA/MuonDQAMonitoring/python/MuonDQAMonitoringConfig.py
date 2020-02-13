@@ -8,10 +8,13 @@ def MuonDQAMonitoringConfig(flags):
     result = ComponentAccumulator()
 
     if flags.DQ.Steering.Muon.doRawMon:
+        # do not run in RAW->ESD, or AOD-only
+        if flags.DQ.Environment not in ('tier0Raw', 'AOD'):
+            from MdtRawDataMonitoring.MDTMonitorAlgorithm import MdtMonitoringConfig
+            result.merge(MdtMonitoringConfig(flags))
+
         from TgcRawDataMonitoring.TgcRawDataMonitorAlgorithm import TgcRawDataMonitoringConfig
-        from MdtRawDataMonitoring.MDTMonitorAlgorithm import MdtMonitoringConfig
     
         result.merge(TgcRawDataMonitoringConfig(flags))
-        result.merge(MdtMonitoringConfig(flags))
         
     return result

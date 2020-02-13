@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.AppMgr import ServiceMgr
@@ -20,7 +20,7 @@ if DetFlags.readRDOBS.Muon_on():
 
 def MdtROD_Decoder(name="MdtROD_Decoder",**kwargs):
     # setup cabling service needed by this tool
-    import MuonCablingConfig
+    from . import MuonCablingConfig
     return CfgMgr.MdtROD_Decoder(name,**kwargs)
 
 
@@ -37,7 +37,7 @@ def MdtRawDataProviderTool(name="MdtRawDataProviderTool",**kwargs):
     
 def RpcROD_Decoder(name="RpcROD_Decoder",**kwargs):
     # setup cabling service needed by this tool
-    import MuonCablingConfig
+    from . import MuonCablingConfig
     return CfgMgr.Muon__RpcROD_Decoder(name,**kwargs)
 
 
@@ -54,7 +54,7 @@ def RpcRawDataProviderTool(name = "RpcRawDataProviderTool",**kwargs):
 
 def TgcROD_Decoder(name = "TgcROD_Decoder",**kwargs):
     # setup cabling service needed by this tool
-    import MuonCablingConfig
+    from . import MuonCablingConfig
     return CfgMgr.Muon__TGC_RodDecoderReadout(name,**kwargs)
 
 

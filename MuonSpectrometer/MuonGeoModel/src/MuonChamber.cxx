@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -109,14 +109,12 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
   //MDT* mdtobj = (MDT*)mysql->GetATechnology("MDT0");
   //double halfpitch = (mdtobj->pitch)/2.;
   double halfpitch = m_station->mdtHalfPitch();
-    
   std::string stName = m_station->GetName();
   const MdtIdHelper* mdt_id  = manager->mdtIdHelper();
   int stationType = mdt_id->stationNameIndex(stName.substr(0,3));
   bool is_barrel = (stName.substr(0,1)=="B");
 
   std::string geometry_version=manager->geometryVersion();    
-    
   double extratop    = m_station->GetExtraTopThickness();
   double extrabottom = m_station->GetExtraBottomThickness();
   double totthick =  thickness + extratop + extrabottom;
@@ -168,6 +166,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
     strd = &(strd->subtract( (*box) << GeoTrf::Translate3D(cxpos, 0., cypos) ) );
     box->unref();
   }
+
 
   if (m_enableFineClashFixing > 0) {
     // Mother volume modifications for specific chambers
@@ -273,7 +272,6 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       amdbOrigine_along_length += halfpitch;
     }
   }
-
   if (verbose) log << MSG::VERBOSE <<"amdb origine: in the length direction = "
                      << amdbOrigine_along_length<<" in the thickness direction = "
                      << amdbOrigine_along_thickness << endmsg;
@@ -392,7 +390,6 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
   if (verbose) log << MSG::VERBOSE << " Station Name = " << stName 
                      << " fi/zi " << fi << "/" << zi
                      <<" defining the n. of DoubletR to ";
-
   for (int j = 0; j < m_station->GetNrOfComponents(); j++) {
     StandardComponent* d = (StandardComponent*)m_station->GetComponent(j);
     std::string cn = (d->name).substr(0,3);
@@ -442,7 +439,6 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
     if (numLB > 0) break;   // only 2 LBs per chamber
   }
                              
-                                                                                            
   for (int i = 0; i < m_station->GetNrOfComponents(); i++) {
     StandardComponent* c = (StandardComponent*)m_station->GetComponent(i);
     std::string cname = (c->name).substr(0,3);
@@ -509,7 +505,6 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 	    << " w, lw " << c->dx1 << " " << c->dx2 << endmsg;
 	log << MSG::VERBOSE <<" Component local (amdb) coords "<<c->posx<<" "<<c->posy<<" "<<c->posz<<endmsg;
     }
-    
 
     ypos = -thickness/2. + c->posz + c->GetThickness()/2.;
     zpos = 0.;
@@ -522,14 +517,14 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
     std::string techname = c->name;
     std::string type = techname.substr(0,3);
             
-    GeoVPhysVol* lv = NULL;
-    GeoVPhysVol* lvd = NULL;
-    GeoVPhysVol* lvs = NULL;
-    GeoVPhysVol* lvo = NULL;
-    GeoFullPhysVol* lvm = NULL;
-    GeoFullPhysVol* lvr = NULL;
-    GeoFullPhysVol* lvt = NULL;
-    GeoFullPhysVol* lvc = NULL;
+    GeoVPhysVol* lv = nullptr;
+    GeoVPhysVol* lvd = nullptr;
+    GeoVPhysVol* lvs = nullptr;
+    GeoVPhysVol* lvo = nullptr;
+    GeoFullPhysVol* lvm = nullptr;
+    GeoFullPhysVol* lvr = nullptr;
+    GeoFullPhysVol* lvt = nullptr;
+    GeoFullPhysVol* lvc = nullptr;
 
     double BeamHeight;            
 
@@ -672,7 +667,6 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                           << stName << " at fi/zi " << fi+1 << "/" 
                           << zi << " has " << ncutouts << " cutouts "
                           << endmsg;
-
     // define here the total transform that will be applied to component:
     GeoTrf::Transform3D htcomponent(GeoTrf::Transform3D::Identity());
     GeoTransform* xfcomponent{nullptr};
@@ -692,7 +686,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
          htcomponent = htcomponent*GeoTrf::RotateX3D(180.*Gaudi::Units::deg);
          htcomponent = htcomponent*GeoTrf::TranslateZ3D(halfpitch);
       }
-          
+         
       // ss - 24-05-2006 I don't really understand if this is needed at all
       //      it was introduced by Isabel T.
       if (zi < 0 && stName.substr(0,3) == "BOG" && is_mirrored) {
@@ -723,8 +717,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         key += "m"+buildString(mysql->allocPosFindSubtype(statType, fi, zi),0)
                +"_"+buildString(mysql->allocPosFindCutout(statType, fi, zi),0);
 
-      FPVMAP* savemem = FPVMAP::GetPointer();
-      GeoVPhysVol* fpv = savemem->GetDetector(key);
+      GeoVPhysVol* fpv = m_FPVMAP->GetDetector(key);
       if (fpv == 0) {
         Mdt* r = new Mdt(c, stName+techname);
         if (debug) log << MSG::DEBUG << " Building an MDT for station "
@@ -736,14 +729,12 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         if ((manager->IncludeCutoutsFlag() && mdtCutoutFlag) ||
             (manager->IncludeCutoutsBogFlag() && stName.substr(0,3) == "BOG"))
         {
-          // std::cout << "Building the Mdt " << techname << " in m_station "
-          //           << stName << " at fi/zi " << fi << "/" << zi << std::endl;
           lvm = r->build(vcutdef);
         } else {
           lvm = r->build();
         }
         //log<<MSG::DEBUG<<" Storing in FPVMAP with key "<<key<<endmsg;
-        savemem->StoreDetector(lvm, key);
+        m_FPVMAP->StoreDetector(lvm, key);
         delete r;
         r = 0;
 
@@ -776,8 +767,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                (manager->IncludeCutoutsBogFlag()&&stName.substr(0,3)=="BOG")) && zi < 0)
         key += "m"+buildString(mysql->allocPosFindSubtype(statType, fi, zi),0) +
                "_"+buildString(mysql->allocPosFindCutout(statType, fi, zi),0);
-      FPVMAP* savemem = FPVMAP::GetPointer();
-      GeoVPhysVol *fpv = savemem->GetDetector(key);
+      GeoVPhysVol *fpv = m_FPVMAP->GetDetector(key);
       if (fpv == 0) {
         Spacer* r = new Spacer(c);
         // log << MSG::DEBUG << " Building a SPA for m_station "
@@ -790,7 +780,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           lv = r->build();
         }
         // log << MSG::DEBUG << " Storing in FPVMAP with key " << key << endmsg;
-        savemem->StoreDetector(lv, key);
+        m_FPVMAP->StoreDetector(lv, key);
         delete r;
         r = 0;
       }
@@ -855,8 +845,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       // log << MSG::DEBUG << " Building a SpacerBeam for m_station "
       //                   << key << " component name is "
       //                   << c->name << endmsg;
-      FPVMAP* savemem = FPVMAP::GetPointer();
-      GeoVPhysVol* fpv = savemem->GetDetector(key);
+      GeoVPhysVol* fpv = m_FPVMAP->GetDetector(key);
       if (fpv == 0 || (stName.substr(0,3) == "BOG" && type == "CMI")) {
         if (stName.substr(0,3)=="BOG")
           if (verbose) log << MSG::VERBOSE << " Building a SpacerBeam for station "
@@ -872,7 +861,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           //     r->height << " length is " << r->length << " width is "
           //			      << r->width << endmsg;
           // log << MSG::DEBUG << " Storing in FPVMAP with key " << key << endmsg;
-        savemem->StoreDetector(lvo, key);
+        m_FPVMAP->StoreDetector(lvo, key);
           // AMDB origin is in bottom centre of bottom cross-piece at
           // end of bar.
           // From centre, it is -height/2 in x, 0 in y, -length/2 in z
@@ -953,8 +942,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                 "_"+buildString(vcutdef.size(),0) +
                 "_"+buildString(rp->iswap,0);
       }
-      FPVMAP* savemem = FPVMAP::GetPointer();
-      GeoVPhysVol* fpv = savemem->GetDetector(key);
+      GeoVPhysVol* fpv = m_FPVMAP->GetDetector(key);
       if (fpv == 0) {
         Rpc* r = new Rpc(c);
         r->setLogVolName(stName+techname);
@@ -969,7 +957,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           lvr = r->build(manager->MinimalGeoFlag());
         }
         // log<<MSG::DEBUG<<" Storing in FPVMAP with key "<<key<<endmsg;
-        savemem->StoreDetector(lvr, key);
+        m_FPVMAP->StoreDetector(lvr, key);
         delete r;
         r = 0;
 
@@ -1006,8 +994,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                "_"+buildString(vcutdef.size(),0);
       }
       key += buildString(int(c->dy),0) + "_" + buildString(int(c->dx1),0);
-      FPVMAP* savemem = FPVMAP::GetPointer();
-      GeoVPhysVol* fpv = savemem->GetDetector(key);
+      GeoVPhysVol* fpv = m_FPVMAP->GetDetector(key);
 
       if (fpv == 0) {
         Ded* r = new Ded(c);
@@ -1021,7 +1008,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         }
           //   log<<MSG::DEBUG<<" Storing in FPVMAP with key "
           //   <<key<<endmsg;
-        savemem->StoreDetector(lvd, key);
+        m_FPVMAP->StoreDetector(lvd, key);
         delete r;
         r = 0;
 
@@ -1060,8 +1047,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                  && zi < 0)
           key += "m"+buildString(mysql->allocPosFindSubtype(statType, fi, zi),0) +
                  "_"+buildString(mysql->allocPosFindCutout(statType, fi, zi),0);
-        FPVMAP* savemem = FPVMAP::GetPointer();
-        GeoVPhysVol* fpv = savemem->GetDetector(key);
+        GeoVPhysVol* fpv = m_FPVMAP->GetDetector(key);
         if (fpv == 0) {
           // log<<MSG::DEBUG<<" definig ypos, from thickness & c->posz = "
           // <<-thickness/2.<<" "<<c->posz<<endmsg;
@@ -1070,7 +1056,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           //   log<<MSG::DEBUG<<" a pointer to a sup " <<lvs
           // <<" is now available in the m_station "<<endmsg;
           // log<<MSG::DEBUG<<" Storing in FPVMAP with key "<<key<<endmsg;
-          savemem->StoreDetector(lvs, key);
+          m_FPVMAP->StoreDetector(lvs, key);
         } else {
           lvs = fpv;
         }
@@ -1104,8 +1090,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       sprintf(chswidth,"%i",int(10*c->dx1));
       key += chswidth;
 
-      FPVMAP* savemem = FPVMAP::GetPointer();
-      GeoVPhysVol* fpv = savemem->GetDetector(key);
+      GeoVPhysVol* fpv = m_FPVMAP->GetDetector(key);
       if (fpv == 0) {
         Tgc* t = new Tgc(c);
         t->setLogVolName(stName+techname);
@@ -1114,7 +1099,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         } else {
           lvt = t->build(manager->MinimalGeoFlag());
         }
-        savemem->StoreDetector(lvt, key);
+        m_FPVMAP->StoreDetector(lvt, key);
         delete t;
         t = 0;
       } else {
@@ -1135,9 +1120,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
          && zi < 0)
         key += "m" + buildString(mysql->allocPosFindSubtype(statType, fi, zi),0)+
                "_" + buildString(mysql->allocPosFindCutout(statType, fi, zi),0);
-      FPVMAP* savemem = FPVMAP::GetPointer();
 
-      GeoVPhysVol* fpv = savemem->GetDetector(key);
+      GeoVPhysVol* fpv = m_FPVMAP->GetDetector(key);
       if (fpv == 0) {
         Csc* t = new Csc(c);
         t->setLogVolName(stName+techname);
@@ -1149,7 +1133,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           lvc = t->build(manager->MinimalGeoFlag());
         }
         // log<<MSG::DEBUG<<" Storing in FPVMAP with key "<<key<<endmsg;
-        savemem->StoreDetector(lvc, key);
+        m_FPVMAP->StoreDetector(lvc, key);
         delete t;
         t = 0;
       } else {

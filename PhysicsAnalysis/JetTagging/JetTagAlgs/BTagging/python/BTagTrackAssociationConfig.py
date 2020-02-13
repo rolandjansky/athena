@@ -1,11 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTagTrackToJetAssociatorConfig import BTagTrackToJetAssociatorCfg
 from BTagging.BTagMuonToJetAssociatorConfig import BTagMuonToJetAssociatorCfg
 from BTagging.BTaggingFlags import BTaggingFlags
 
-from BTagging.BTaggingConf import Analysis__BTagTrackAssociation
+Analysis__BTagTrackAssociation=CompFactory.Analysis__BTagTrackAssociation
 
 def BTagTrackAssociationCfg(flags, name, JetCollection, TaggerList, options={}):
 

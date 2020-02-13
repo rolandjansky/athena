@@ -52,7 +52,7 @@ namespace xAODMaker {
       CHECK( m_xaodKey.initialize() );
 
       /// FIXME: Should do this only if we have a PileUpEventInfo.
-      CHECK( m_pileupKey.initialize() );
+      CHECK( m_pileupKey.initialize(!m_pileupKey.key().empty()) );
 
       // Return gracefully:
       return StatusCode::SUCCESS;

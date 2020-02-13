@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __author__  = 'J.Alison M.Backes, C.Bernius'
 __doc__="Definition of bjet chains" 
@@ -571,7 +571,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
         allChainParts = chainDict['chainName'].split('_')
         muonthr=-1
         for cp in allChainParts:
-            if 'mu' in cp and not 'antimatch' in cp:
+            if 'mu' in cp and 'antimatch' not in cp:
                 muonthr = cp.split('mu')[-1] # assume the last bit is the threshold
                 break
         #print 'muon thr for antimatch:' + str(muonthr) 

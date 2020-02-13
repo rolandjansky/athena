@@ -10,6 +10,7 @@
 
 // STL includes
 #include <string>
+#include <utility>  
 
 /**
  * @class ComboHypo for combined hypotheses required only counting (multiplicity requirements)
@@ -30,9 +31,9 @@ public:
   virtual StatusCode execute(const EventContext& context) const override;
   virtual StatusCode finalize() override;
 
+
 private:
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs { this, "HypoInputDecisions", {}, "Input Decisions" };
-  /// output decisions
   SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "HypoOutputDecisions", {}, "Ouput Decisions" };
 
   typedef std::map<std::string, std::vector<int>> MultiplicityReqMap;
@@ -43,7 +44,8 @@ private:
 
   //!< iterates over all inputs filling the multiplicity map for each input collection
   typedef std::map<TrigCompositeUtils::DecisionID, int> MultiplicityMap;
-  void fillDecisionsMap( std::vector< MultiplicityMap >&  dmap, std::map<TrigCompositeUtils::DecisionID,std::map<int,int>>& featureMap, const EventContext& context) const;
+  typedef std::map<TrigCompositeUtils::DecisionID,  std::vector<std::pair<int,int>>> CombinationMap;
+  void fillDecisionsMap(  CombinationMap &  dmap, std::map<TrigCompositeUtils::DecisionID,std::map<int,int>> & featureMap, const EventContext& context) const;
 
 };
 

@@ -53,6 +53,8 @@ StatusCode Muon::CSC_RawDataProviderToolMT::initialize()
   // Initialise the container cache if available  
   ATH_CHECK( m_rdoContainerCacheKey.initialize( !m_rdoContainerCacheKey.key().empty() ) );
 
+  ATH_CHECK(m_idHelperSvc.retrieve());
+
   return StatusCode::SUCCESS;
 }
 
@@ -61,8 +63,7 @@ StatusCode Muon::CSC_RawDataProviderToolMT::initialize()
 // new one
 StatusCode Muon::CSC_RawDataProviderToolMT::convert(const std::vector<IdentifierHash>& rdoIdhVect){
 
-  const CscIdHelper* idHelper = m_muonMgr->cscIdHelper();
-  IdContext cscContext = idHelper->module_context();
+  IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
 
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
   std::vector< uint32_t > robIds;
@@ -106,7 +107,7 @@ Muon::CSC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs,
   // Split the methods to have one where we use the cache and one where we just setup the container
   const bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
   if(!externalCacheRDO){
-    ATH_CHECK( rdoContainerHandle.record(std::make_unique<CscRawDataContainer>( m_muonMgr->cscIdHelper()->module_hash_max() )));
+    ATH_CHECK( rdoContainerHandle.record(std::make_unique<CscRawDataContainer>( m_idHelperSvc->cscIdHelper().module_hash_max() )));
     ATH_MSG_DEBUG( "Created CSCRawDataContainer" );
   }
   else{

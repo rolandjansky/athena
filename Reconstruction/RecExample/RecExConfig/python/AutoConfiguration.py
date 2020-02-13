@@ -1,5 +1,7 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+
 
 ##=============================================================================
 ## Name:        AutoConfiguration.py
@@ -328,7 +330,7 @@ def GetProjectName():
         project=rec.projectName()
     if not project in KnownProjects:
         logAutoConfiguration.warning("Project '%s' is not part of the KnownProjects list."%project)
-        #print KnownProjects
+        #print(KnownProjects)
 
     return project
 
@@ -589,18 +591,18 @@ def GetDefaultTagRefStream(streams):
         elif 'StreamRAW_ref' in streams:
             return  'StreamRAW_ref'
         else:
-            raise RuntimeError," readRDO locked True and no Stream1 nor StreamRDO nor StreamRAW !"
+            raise RuntimeError(" readRDO locked True and no Stream1 nor StreamRDO nor StreamRAW !")
     if rec.readESD.is_locked() and rec.readESD():
         if 'StreamESD_ref' in streams:
             return  'StreamESD_ref'
         else:
-            raise RuntimeError," readESD locked True and no StreamESD !"
+            raise RuntimeError(" readESD locked True and no StreamESD !")
 
     if rec.readAOD.is_locked() and rec.readAOD():
         if 'StreamAOD_ref' in streams:
             return  'StreamAOD_ref'
         else:
-            raise RuntimeError," readAOD locked True and no StreamAOD !"
+            raise RuntimeError(" readAOD locked True and no StreamAOD !")
 
 
     # now deal with default case    
@@ -615,7 +617,7 @@ def GetDefaultTagRefStream(streams):
     elif 'StreamRAW_ref' in streams:
         return 'StreamRAW_ref'
     else:
-        raise RuntimeError, " no known streams !" 
+        raise RuntimeError(" no known streams !")
 
     return None
 
@@ -854,9 +856,9 @@ def IsInInputFile(collectionname,key=None):
         if metadata['file_type'] == 'POOL':
             try:
                 ItemDic = convert_itemList(layout='dict')
-                if ItemDic.has_key(collectionname):
+                if collectionname in ItemDic:
                     logAutoConfiguration.info("found collection with name %s in input file." % collectionname)
-                    print ItemDic[collectionname]
+                    print(ItemDic[collectionname])
                     if key is None:
                         logAutoConfiguration.info("no explicit storegate key given. Returning True")
                         return True
@@ -870,10 +872,12 @@ def IsInInputFile(collectionname,key=None):
                     return False
             except Exception:
                 logAutoConfiguration.warning("IsInInputFile: Something's wrong. Wrong file:%s ", metadata['file_name'])
+                import traceback
+                logAutoConfiguration.warning(traceback.format_exc())
     except Exception:
         logAutoConfiguration.warning("Could not run IsInInputFile. input file maybe not specified at this point")#
 
-    logAutoConfiguration.info("looks like object of name %s is NOT in input file. Returning False" % object)
+    logAutoConfiguration.info("looks like object of name %s is NOT in input file. Returning False" % key)
     return False
 
 def ConfigureSimulationOrRealData():

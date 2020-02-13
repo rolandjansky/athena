@@ -6,7 +6,6 @@
 #include "../MuonCombinedStacoTagTool.h"
 #include "../MuonCombinedFitTagTool.h"
 #include "../MuonSegmentTagTool.h"
-#include "../MuGirlTagTool.h"
 #include "../MuonCaloTagTool.h"
 #include "../TrackSegmentAssociationTool.h"
 
@@ -20,6 +19,5 @@ DECLARE_COMPONENT( MuonDressingTool )
 DECLARE_COMPONENT( MuonCombinedStacoTagTool )
 DECLARE_COMPONENT( MuonCombinedFitTagTool )
 DECLARE_COMPONENT( MuonSegmentTagTool )
-DECLARE_COMPONENT( MuGirlTagTool )
 DECLARE_COMPONENT( MuonCaloTagTool )
 DECLARE_COMPONENT( TrackSegmentAssociationTool )

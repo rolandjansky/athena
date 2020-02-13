@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Muon_MuonDQAFitFunc_H
@@ -13,10 +13,8 @@
 #include "TH2.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
-#include "GaudiKernel/StatusCode.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
 
 static const InterfaceID IID_MuonDQAFitFunc("Muon::MuonDQAFitFunc",1,0);
 
@@ -36,16 +34,10 @@ namespace Muon {
     //const std::string&,const std::string&,const IInterface*);
 
     /** @brief destructor */
-    virtual ~MuonDQAFitFunc();
-   
-    /** @brief AlgTool initilize */
-    StatusCode initialize();
+    virtual ~MuonDQAFitFunc() {};
 
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MuonDQAFitFunc; }
-    
-    /** @brief AlgTool finalize */
-    StatusCode finalize();
      
     void ZmumuFitHistograms(TH1F* hmass, TH1F* hwidth, TH1F* h1[], int nbins); 
     
@@ -71,17 +63,12 @@ namespace Muon {
     void FillGaussMeanAndWidth(TH1F*, TH1F*, int, float, float) const;
     
   protected:
-
     const static int NBINS=6;
     float m_minMuonEffWindow;
     float m_maxMuonEffWindow;
 
   private:
-
-    //StoreGateSvc* m_storeGate;
-    std::string m_stream;
-    double m_ZmumuPDGmass;  
-    mutable MsgStream  m_log; //!< message log 
+    double m_ZmumuPDGmass;
   };
 } 
 #endif

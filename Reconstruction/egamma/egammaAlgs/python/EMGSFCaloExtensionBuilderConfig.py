@@ -3,9 +3,10 @@
 __doc__ = "Instantiate the EMGSFCaloExtensionBuilder with default configuration"
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
-from egammaAlgs.egammaAlgsConf import EMGSFCaloExtensionBuilder
+EMGSFCaloExtensionBuilder=CompFactory.EMGSFCaloExtensionBuilder
 
 
 def EMGSFCaloExtensionBuilderCfg(flags, name='EMGSFCaloExtensionBuilder', **kwargs):

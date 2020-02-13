@@ -19,8 +19,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 /***** Algorithm AthSequencer/TopAlg ***************************************************************
 |-Atomic                     = False
 |-AuditAlgorithms            = False
-|-AuditBeginRun              = False
-|-AuditEndRun                = False
 |-AuditExecute               = False
 |-AuditFinalize              = False
 |-AuditInitialize            = False
@@ -53,8 +51,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 |-Timeline                   = True
 |=/***** Algorithm TopAlgorithm/TopAlgorithm *********************************************************
 | |-AuditAlgorithms            = False
-| |-AuditBeginRun              = False
-| |-AuditEndRun                = False
 | |-AuditExecute               = False
 | |-AuditFinalize              = False
 | |-AuditInitialize            = False
@@ -197,8 +193,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | \----- (End of Algorithm TopAlgorithm/TopAlgorithm) ------------------------------------------------
 |=/***** Algorithm TopAlgorithm/MyAlg ****************************************************************
 | |-AuditAlgorithms            = False
-| |-AuditBeginRun              = False
-| |-AuditEndRun                = False
 | |-AuditExecute               = False
 | |-AuditFinalize              = False
 | |-AuditInitialize            = False

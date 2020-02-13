@@ -3,17 +3,18 @@
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/AthenaJobConfigRun3
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def McEventSelectorCfg(configFlags):
     cfg=ComponentAccumulator()
 
-    from McEventSelector.McEventSelectorConf import McCnvSvc
+    McCnvSvc=CompFactory.McCnvSvc
     mcCnvSvc = McCnvSvc()
     cfg.addService(mcCnvSvc)
-    from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+    EvtPersistencySvc=CompFactory.EvtPersistencySvc
     cfg.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[mcCnvSvc.getFullJobOptName(),]))
 
-    from McEventSelector.McEventSelectorConf import McEventSelector
+    McEventSelector=CompFactory.McEventSelector
     evSel=McEventSelector("EventSelector")
     rn = configFlags.Input.RunNumber
     if isinstance(rn, type([])):

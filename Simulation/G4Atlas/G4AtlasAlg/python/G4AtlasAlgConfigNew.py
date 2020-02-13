@@ -1,13 +1,14 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg
 from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, GeoIDSvcCfg, InputConverterCfg
+from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg
+from G4AtlasServices.G4AtlasUserActionConfigNew import UserActionSvcCfg
+from G4AtlasApps.G4Atlas_MetadataNew import writeSimulationParametersMetadata
 
 
 #todo - think about the flow, do we need if statements?!
 
 from  G4AtlasAlg.G4AtlasAlgConf import G4AtlasAlg
-
-#to still migrate: getAthenaStackingActionTool, getAthenaTrackingActionTool
 
 def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     #add Services to G4AtlasAlg
@@ -63,6 +64,17 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     result.merge(accInputConverter)
     kwargs.setdefault('InputConverter', result.getService("ISF_InputConverter"))
 
+    #sensitive detector master tool
+    accSensitiveDetector = SensitiveDetectorMasterToolCfg(ConfigFlags)
+    result.merge(accSensitiveDetector)
+    kwargs.setdefault('SenDetMasterTool', result.getPublicTool("SensitiveDetectorMasterTool")) #NOTE - is still a public tool
+
+    #Write MetaData container
+    result.merge(writeSimulationParametersMetadata(ConfigFlags))
+
+    #User action services (Slow...)
+    result.merge( UserActionSvcCfg(ConfigFlags) )
+    kwargs.setdefault('UserActionSvc', result.getService( "G4UA::UserActionSvc") )
 
 
     ## G4AtlasAlg verbosities (available domains = Navigator, Propagator, Tracking, Stepping, Stacking, Event)
@@ -79,61 +91,6 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     kwargs.setdefault("G4Commands", ConfigFlags.Sim.G4Commands)
 
     result.addEventAlgo(G4AtlasAlg(name, **kwargs))
+
     return result
-
-
-
-
-
-
-if __name__ == '__main__':
-  from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-  import os
-
-  # Set up logging and config behaviour
-  from AthenaCommon.Logging import log
-  from AthenaCommon.Constants import DEBUG
-  from AthenaCommon.Configurable import Configurable
-  log.setLevel(DEBUG)
-  Configurable.configurableRun3Behavior = 1
-
-
-  #import config flags
-  from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  
-  from AthenaConfiguration.TestDefaults import defaultTestFiles
-  inputDir = defaultTestFiles.d
-  ConfigFlags.Input.Files = defaultTestFiles.EVNT
-
-  ConfigFlags.Sim.WorldRRange = 15000
-  ConfigFlags.Sim.WorldZRange = 27000 #change defaults?
-  ConfigFlags.Detector.SimulateForward = False
-  # Finalize 
-  ConfigFlags.lock()
-
-  ## Initialize a new component accumulator
-  cfg = MainServicesSerialCfg()
-
-  #add the algorithm
-  cfg.merge(G4AtlasAlgCfg(ConfigFlags))
-
-  # Dump config
-  cfg.getService("StoreGateSvc").Dump = True
-  cfg.getService("ConditionStore").Dump = True
-  cfg.printConfig(withDetails=True, summariseProps = True)
-  ConfigFlags.dump()
-
-
-  # Execute and finish
-  sc = cfg.run(maxEvents=3)
-  # Success should be 0
-  os.sys.exit(not sc.isSuccess())
-
-  #f=open("test.pkl","w")
-  #cfg.store(f) 
-  #f.close()
-
-
-
-  print(cfg._publicTools)
-  print("-----------------finished----------------------")
+    

@@ -12,6 +12,7 @@ TEST SUCCEEDED : e changed as expected
 TEST SUCCEEDED : pt changed as expected
 TEST SUCCEEDED : Pt from JetAssignedScaleMomentum as expected
 TEST SUCCEEDED : JetConstitScaleMomentum retrieve by string identical
+ OK filled jets 19
 
  ---------------- testLink  
 TEST SUCCEEDED : jet retrieved from asso identical
@@ -65,6 +66,7 @@ TEST SUCCEEDED : retrieved vector identical
   --> retrieve 4-momentum
 TEST SUCCEEDED : Scale momentum retrieved as attribute identical to scale
 TEST SUCCEEDED : Scale momentum set as attribute identical when retrived as scale
+ OK filled jets2 19
 
  ---------------- testClusterConstituents  
  contit energy  500  cluster energy 500

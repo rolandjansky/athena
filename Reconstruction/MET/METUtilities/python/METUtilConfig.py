@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 from AthenaCommon import CfgMgr
 
 #################################################################################
@@ -13,7 +14,7 @@ class METUtilConfig:
     def outputContainer(self):
         return 'MET_'+self.outputname
     def __init__(self,suffix,termdict={},inputdict={},outputname=''):
-        print prefix, 'Creating MET config \''+outputname+'\''
+        print (prefix, 'Creating MET config \''+outputname+'\'')
         self.suffix = suffix
         self.outputname = outputname if len(outputname)>0 else 'My'+self.suffix
         self.termdict = termdict
@@ -62,7 +63,7 @@ def getMETUtilAlg(algName='METUtilAlg',configs=[]):
         tool = getMETRebuilder(config)
         ToolSvc += tool
         rebuilders.append(tool)
-        print prefix, 'Added METRebuilder \''+tool.name()+'\' to alg '+algName
+        print (prefix, 'Added METRebuilder \''+tool.name()+'\' to alg '+algName)
 
     utilAlg = CfgMgr.met__METUtilAlg(name=algName,
                                      Rebuilders=rebuilders)

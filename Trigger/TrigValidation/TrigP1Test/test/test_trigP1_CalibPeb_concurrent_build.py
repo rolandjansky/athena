@@ -16,7 +16,6 @@ ex.forks = 2
 ex.threads = 6
 ex.concurrent_events = 2 # three threads per event
 ex.args = '-c \'concurrent=True\''
-ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()
 test.art_type = 'build'

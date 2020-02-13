@@ -1,10 +1,15 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 class Treereader (object):
-    leaftypes = (int, float, long, complex, buffer)
+    leaftypes = (int, float, complex)
+    import builtins
+    if 'long' in builtins.__dict__:
+        leaftypes = leaftypes + (builtins.__dict__['long'],)
+    if 'buffer' in builtins.__dict__:
+        leaftypes = leaftypes + (builtins.__dict__['buffer'],)
     def __init__ (*self):
-        raise Exception, "Use treereader() rather than creating Treereader directly."
+        raise Exception ("Use treereader() rather than creating Treereader directly.")
 
     def real_init (self, tree, parent = None, subpattern = None):
         self.parent = parent

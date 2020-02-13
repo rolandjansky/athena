@@ -495,8 +495,6 @@ SCTCalib.LorentzAngleFile          = 'LorentzAngleFile.xml'          # Summary o
 
 SCTCalib.OutputLevel     = INFO # DEBUG
 SCTCalib.AuditAlgorithms = True # False
-SCTCalib.AuditBeginRun   = True # False
-SCTCalib.AuditEndRun     = True # False
 
 print(SCTCalib)
 

@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaPoolSTLAllocator_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
 /**
  * @file AthAllocators/test/ArenaPoolAllocator_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -18,6 +16,7 @@
 #include <cassert>
 #include <iostream>
 #include <atomic>
+#include <set>
 #include <unordered_map>
 
 
@@ -178,7 +177,7 @@ void test2()
   assert (a3.stats().elts.inuse == 1);
   assert (a3.stats().elts.total == 1000);
 
-  Payload** p = a4.allocate (2, nullptr);
+  Payload** p = a4.allocate (2);
   a4.deallocate (p, 2);
 
   assert (Payload::n == 0);
@@ -234,7 +233,7 @@ void test3()
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 1000);
 
-  int* p = a4.allocate (2, nullptr);
+  int* p = a4.allocate (2);
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 1000);
 
@@ -337,6 +336,15 @@ void test5()
 
   assert (Payload::n == 0);
   assert (Payload::v.size() == 0);
+
+  typedef std::set<int*, std::less<int*>,
+                   SG::ArenaPoolSTLAllocator<int*> > set_t;
+  set_t::allocator_type set_allo (500, "set_allo");
+  set_t set (set_t::key_compare(), set_allo);
+  int ii[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  for (int i = 0; i < 10; i++) {
+    set.insert (&ii[i]);
+  }
 }
 
 

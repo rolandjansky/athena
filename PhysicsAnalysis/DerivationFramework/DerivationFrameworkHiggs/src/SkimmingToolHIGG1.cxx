@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -36,7 +36,6 @@ DerivationFramework::SkimmingToolHIGG1::SkimmingToolHIGG1(const std::string& t,
   m_n_passIsolation(0),
   m_n_passInvariantMass(0),
   m_n_pass(0),
-  m_e_tot(false),
   m_e_passGRL(false),
   m_e_passLArError(false),
   m_e_passTrigger(false),
@@ -48,7 +47,6 @@ DerivationFramework::SkimmingToolHIGG1::SkimmingToolHIGG1(const std::string& t,
   m_e_passQuality(false),
   m_e_passIsolation(false),
   m_e_passInvariantMass(false),
-  m_e_pass(false),
   m_ph_pos_lead(0),
   m_ph_pos_subl(0),
   m_ph_pt_lead(0.),
@@ -61,8 +59,6 @@ DerivationFramework::SkimmingToolHIGG1::SkimmingToolHIGG1(const std::string& t,
   m_ph_e_subl(0.),
   m_ph_tight_lead(0),
   m_ph_tight_subl(0.),
-  m_ph_iso_lead(0),
-  m_ph_iso_subl(0),
   m_e_invariantMass(0.),
   m_e_diphotonZ(0.) 
 {

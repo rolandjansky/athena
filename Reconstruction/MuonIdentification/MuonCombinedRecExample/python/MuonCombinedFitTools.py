@@ -327,8 +327,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
                                                                   "MuonErrorOptimisationTool",
                                                                   PrepareForFit              = False,
                                                                   RecreateStartingParameters = False,
-                                                                  RefitTool = getPublicToolClone("MuidRefitTool", "MuonRefitTool", AlignmentErrors = useAlignErrs, Fitter = getPublicTool("iPatFitter"),
-                                                                                                 CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else ""))
+                                                                  RefitTool = getPublicToolClone("MuidRefitTool", "MuonRefitTool", AlignmentErrors = useAlignErrs, Fitter = getPublicTool("iPatFitter"))
                                                                   ))
 
 
@@ -389,8 +388,7 @@ def OutwardsCombinedMuonTrackBuilder( name = 'OutwardsCombinedMuonTrackBuilder',
     if muonRecFlags.enableErrorTuning():
        kwargs.setdefault("MuonErrorOptimizer", getPublicToolClone("OutwardsErrorOptimisationTool", "MuidErrorOptimisationTool",
                                                                   PrepareForFit=False,RecreateStartingParameters=False,
-                                                                  RefitTool = getPublicToolClone("OutwardsRefitTool", "MuonRefitTool", AlignmentErrors = False, Fitter = getPublicTool("MuonCombinedTrackFitter"), 
-                                                                                                 CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else ""))
+                                                                  RefitTool = getPublicToolClone("OutwardsRefitTool", "MuonRefitTool", AlignmentErrors = False, Fitter = getPublicTool("MuonCombinedTrackFitter"))
                                                                   ))
 
     return CfgMgr.Rec__OutwardsCombinedMuonTrackBuilder(name,**kwargs)

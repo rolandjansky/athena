@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1PRDSystems/PRDHandleBase.h"
@@ -329,7 +329,6 @@ Amg::Transform3D PRDHandleBase::getTransform_CLHEP() const
     //inventor transformation (only loose slight precision in the
     //double->float->double conversions):
     SoTransform * transform = static_cast<SoTransform*>(m_d->sepDetailed->getChild(0));
-    const SbVec3f so_translation(transform->translation.getValue());
     float tx, ty, tz;
     transform->translation.getValue().getValue(tx,ty,tz);
     SbVec3f so_rotaxis;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Takashi Kubota - June 30, 2008 */
@@ -16,10 +16,6 @@
 
 class StoreGateSvc;
 class TgcIdHelper;
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 // the latest persistent representation type of DataCollection:
 typedef  Muon::TgcCoinDataContainer_tlp3  TgcCoinDataContainer_PERS;
@@ -56,8 +52,6 @@ private:
     TgcCoinDataContainerCnv_tlp2    m_TPConverter_tlp2;
     TgcCoinDataContainerCnv_tlp3    m_TPConverter_tlp3;
     
-    //const TgcIdHelper*   m_cscId;
-    //const MuonGM::MuonDetectorManager* m_muonMgr; //!< Muon Detector Manager
 };
 
 #endif

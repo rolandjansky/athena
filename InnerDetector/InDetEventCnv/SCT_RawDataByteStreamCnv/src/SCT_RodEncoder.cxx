@@ -92,32 +92,32 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
                              const std::vector<const SCT_RDORawData*>& vecRDOs) const 
 {
   // Retrieve errors from SCT_ByteStreamErrorsSvc
-  const std::set<IdentifierHash>* timeOutErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::TimeOutError)};
-  const std::set<IdentifierHash>* lvl1IDErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::LVL1IDError)};
-  const std::set<IdentifierHash>* bcIDErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::BCIDError)};
-  const std::set<IdentifierHash>* preambleErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::PreambleError)};
-  const std::set<IdentifierHash>* formatterErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::FormatterError)};
-  const std::set<IdentifierHash>* trailerErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::TrailerError)};
-  const std::set<IdentifierHash>* headerTrailerErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::HeaderTrailerLimitError)};
-  const std::set<IdentifierHash>* trailerOverflowErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::TrailerOverflowError)};
-  const std::set<IdentifierHash>* abcdErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::ABCDError)};
-  const std::set<IdentifierHash>* rawErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::RawError)};
+  const std::set<IdentifierHash> timeOutErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::TimeOutError)};
+  const std::set<IdentifierHash> lvl1IDErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::LVL1IDError)};
+  const std::set<IdentifierHash> bcIDErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::BCIDError)};
+  const std::set<IdentifierHash> preambleErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::PreambleError)};
+  const std::set<IdentifierHash> formatterErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::FormatterError)};
+  const std::set<IdentifierHash> trailerErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::TrailerError)};
+  const std::set<IdentifierHash> headerTrailerErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::HeaderTrailerLimitError)};
+  const std::set<IdentifierHash> trailerOverflowErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::TrailerOverflowError)};
+  const std::set<IdentifierHash> abcdErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::ABCDError)};
+  const std::set<IdentifierHash> rawErrors{m_bsErrTool->getErrorSet(SCT_ByteStreamErrors::RawError)};
 
   std::vector<uint16_t> vec16Data;
   
   // Loop over errors here - just add headers (w/ errors), trailers (w/errors), and raw and abcd errors
-  addHeadersWithErrors(robID, timeOutErrors, TIMEOUT_ERR, vec16Data);
-  addHeadersWithErrors(robID, lvl1IDErrors, L1_ERR, vec16Data);
-  addHeadersWithErrors(robID, bcIDErrors, BCID_ERR, vec16Data);
-  addHeadersWithErrors(robID, preambleErrors, PREAMBLE_ERR, vec16Data);
-  addHeadersWithErrors(robID, formatterErrors, FORMATTER_ERR, vec16Data);
+  addHeadersWithErrors(robID, &timeOutErrors, TIMEOUT_ERR, vec16Data);
+  addHeadersWithErrors(robID, &lvl1IDErrors, L1_ERR, vec16Data);
+  addHeadersWithErrors(robID, &bcIDErrors, BCID_ERR, vec16Data);
+  addHeadersWithErrors(robID, &preambleErrors, PREAMBLE_ERR, vec16Data);
+  addHeadersWithErrors(robID, &formatterErrors, FORMATTER_ERR, vec16Data);
   
-  addTrailersWithErrors(robID, trailerErrors, TRAILER_ERR, vec16Data);
-  addTrailersWithErrors(robID, headerTrailerErrors, HEADER_TRAILER_ERR, vec16Data);
-  addTrailersWithErrors(robID, trailerOverflowErrors, TRAILER_OVFLW_ERR, vec16Data);
+  addTrailersWithErrors(robID, &trailerErrors, TRAILER_ERR, vec16Data);
+  addTrailersWithErrors(robID, &headerTrailerErrors, HEADER_TRAILER_ERR, vec16Data);
+  addTrailersWithErrors(robID, &trailerOverflowErrors, TRAILER_OVFLW_ERR, vec16Data);
   
-  addSpecificErrors(robID, abcdErrors, ABCD_ERR, vec16Data);
-  addSpecificErrors(robID, rawErrors, RAWDATA_ERR, vec16Data);
+  addSpecificErrors(robID, &abcdErrors, ABCD_ERR, vec16Data);
+  addSpecificErrors(robID, &rawErrors, RAWDATA_ERR, vec16Data);
   
   std::vector<bool> vec_isDuplicated(vecRDOs.size(), false);
   

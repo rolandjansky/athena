@@ -7,7 +7,6 @@
 #include "MuonCondTool/CSC_DCSConditionsTool.h"
 #include "MuonCondTool/RPC_DCSConditionsTool.h"
 #include "MuonCondTool/MDT_DQConditionsTool.h"
-#include "MuonCondTool/MuonAlignmentErrorDbTool.h"
 
 DECLARE_COMPONENT( MDT_DCSConditionsTool )
 DECLARE_COMPONENT( CSC_DCSConditionsTool )
@@ -17,5 +16,4 @@ DECLARE_COMPONENT( RpcDetectorStatusDbTool )
 DECLARE_COMPONENT( MDT_DeadTubeConditionsTool )
 DECLARE_COMPONENT( MDT_DQConditionsTool )
 DECLARE_COMPONENT( MDT_MapConversion )
-DECLARE_COMPONENT( MuonAlignmentErrorDbTool )
 DECLARE_COMPONENT( MDT_DCSConditionsRun2Tool )

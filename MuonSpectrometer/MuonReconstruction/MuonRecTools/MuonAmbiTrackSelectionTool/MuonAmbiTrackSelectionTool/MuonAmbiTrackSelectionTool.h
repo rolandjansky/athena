@@ -47,9 +47,9 @@ namespace Muon
     virtual ~MuonAmbiTrackSelectionTool ();
       
     /** standard Athena-Algorithm method */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     /** standard Athena-Algorithm method */
-    virtual StatusCode finalize  ();
+    virtual StatusCode finalize  () override;
 
     virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track,
                                                             const Trk::TrackScore score,

@@ -19,7 +19,6 @@ ex.input = 'data'
 ex.max_events = 20
 ex.args = '--timeout 2000'
 ex.args += ' -o ' + output_name_base
-ex.perfmon = False  # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()
 test.art_type = 'build'
@@ -46,7 +45,8 @@ class TrigBSDumpGrepStep(Step.Step):
     def run(self, dry_run=False):
         if dry_run:
             self.log.info('Skipping %s in dry run', self.name)
-            return 0, '# (internal) {} -> skipped'.format(self.name)
+            self.result = 0
+            return self.result, '# (internal) {} -> skipped'.format(self.name)
         file_name = None
         for ls_file in os.listdir('.'):
             if output_name_base in ls_file:

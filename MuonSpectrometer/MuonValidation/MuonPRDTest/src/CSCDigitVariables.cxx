@@ -16,7 +16,7 @@
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
-StatusCode CSCDigitVariables::fillVariables()
+StatusCode CSCDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr)
 {
   ATH_MSG_DEBUG("do fillCSCDigitVariables()");
 
@@ -73,7 +73,7 @@ StatusCode CSCDigitVariables::fillVariables()
       m_CSC_dig_gas_gap->push_back(gas_gap);
       m_CSC_dig_channel->push_back(channel);
 
-      const MuonGM::CscReadoutElement* rdoEl = m_detManager->getCscReadoutElement(Id);
+      const MuonGM::CscReadoutElement* rdoEl = MuonDetMgr->getCscReadoutElement(Id);
 
       // retrieve the MC truth associated with the digit (means the Geant4 hit information)
       if (csc_SdoContainer) {

@@ -11,6 +11,7 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 
 #include <unordered_map>
+#include <regex>
 
 static const SG::AuxElement::Accessor< std::vector<TrigCompositeUtils::DecisionID> > readWriteAccessor("decisions");
 static const SG::AuxElement::ConstAccessor< std::vector<TrigCompositeUtils::DecisionID> > readOnlyAccessor("decisions");
@@ -156,7 +157,24 @@ namespace TrigCompositeUtils {
     legStringStream << "leg" << std::setfill('0') << std::setw(3) << counter << "_" << chainIdentifier.name();
     return HLT::Identifier( legStringStream.str() );
   }
- 
+
+  
+  HLT::Identifier getIDFromLeg(const HLT::Identifier& legIdentifier) {
+    if (legIdentifier.name().find("HLT_",0)==0 ){
+      return legIdentifier;
+    } else if (isLegId(legIdentifier)){
+      return HLT::Identifier(legIdentifier.name().substr(7));
+    } else{
+      throw GaudiException("legIdentifier '"+legIdentifier.name()+"' does not start with 'HLT_' or 'leg' ",
+        "TrigCompositeUtils::getIDFromLeg", StatusCode::FAILURE);
+    }
+  }
+
+  
+  bool isLegId(const HLT::Identifier& legIdentifier) {
+    return (legIdentifier.name().find("leg",0)==0);
+  }
+  
   
   const Decision* find( const Decision* start, const std::function<bool( const Decision* )>& filter ) {
     if ( filter( start ) ) return start;
@@ -356,6 +374,7 @@ namespace TrigCompositeUtils {
     return ret;
   }
 
+  
   const std::string& initialRoIString() {
     return Decision::s_initialRoIString;
   }

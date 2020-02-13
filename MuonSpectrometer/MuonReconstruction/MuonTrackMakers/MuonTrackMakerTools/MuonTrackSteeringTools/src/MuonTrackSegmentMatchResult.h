@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -25,8 +25,8 @@ namespace Trk {
 namespace Muon {
 
   class MuonSegment;
-  
-  
+
+
   /** Class with matching return information */
   struct TrackSegmentMatchResult {
 
@@ -45,7 +45,7 @@ namespace Muon {
       MatchChiSquaredCut,
       NumberOfCutTypes
     };
-        
+
     /** @brief turn enum CutType into a string */
     static std::string cutString( CutType cut );
 
@@ -77,8 +77,6 @@ namespace Muon {
 
     /** @brief turn enum Reason into a string */
     static std::string reasonString( Reason r );
-
-
 
 
     //
@@ -132,19 +130,19 @@ namespace Muon {
     virtual ~TrackSegmentMatchResult();
 
     virtual void clear();
-      
+
     /** Reset all cuts (applied & passed) */
     void resetCuts() {
       m_failedCuts = 0;
       m_passedCuts = 0;
     }
 
-      
+
     /** Set cut applied and cut passed */
     void setCutPassed( CutType cut ) {
       m_passedCuts |= (1<<cut);
     }
-      
+
     /** Set cut applied, but not cut passed */
     void setCutFailed( CutType cut ) {
       m_failedCuts |= (1<<cut);
@@ -181,19 +179,19 @@ namespace Muon {
 
     /** String with all cuts that were applied and passed */
     std::string passedCutsString() const;
-      
+
     std::string reasonString() const;
-      
+
   private:
     //
     // private data members
     //
     int m_failedCuts; // bitpattern with failed cuts (bits given by enum CutType)
     int m_passedCuts; // bitpattern with passed cuts (bits given by enum CutType)
-      
+
   }; // end of class TrackSegmentMatchResult
 
-    
+
   struct TrackSegmentMatchCuts {
     double posXCut;
     double posYCut;
@@ -216,14 +214,12 @@ namespace Muon {
     bool cutOnMatchChiSquared;
 
     virtual void clear();
-      
+
     TrackSegmentMatchCuts();
     virtual ~TrackSegmentMatchCuts();
-      
+
   };
 
-
-  
 
 } // namespace MUON
 

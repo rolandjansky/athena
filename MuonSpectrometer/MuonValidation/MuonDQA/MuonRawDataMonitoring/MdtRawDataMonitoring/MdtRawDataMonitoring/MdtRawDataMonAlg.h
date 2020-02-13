@@ -17,7 +17,7 @@
 
 //Core Include
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/ToolHandle.h" 
 
 //Helper Includes
@@ -27,6 +27,7 @@
 #include "MdtRawDataMonitoring/MDTChamber.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
 #include "EventInfo/EventInfo.h"
@@ -128,7 +129,11 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
-  const MuonGM::MuonDetectorManager*  p_MuonDetectorManager ; //!< Pointer On MuonDetectorManager
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
 
   virtual StatusCode  fillMDTOverviewHistograms(const Muon::MdtPrepData*, bool &isNoiseBurstCandidate) const;
   virtual StatusCode  fillMDTSummaryHistograms( const Muon::MdtPrepData*, /*std::set<std::string>,*/ bool &isNoiseBurstCandidate, int lb, bool trig_barrel, bool trig_endcap ) const;

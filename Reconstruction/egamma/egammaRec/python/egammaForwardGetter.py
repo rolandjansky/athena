@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # specifies egammaForwardBuilder "standard"
 from AthenaCommon.Logging import logging
@@ -51,7 +51,7 @@ class egammaForwardGetter ( Configured ) :
          self._egammaFwdBuilderHandle = egammaForwardBuilder()
       except Exception:
          mlog.error("could not get handle to egammaForward")
-         print traceback.format_exc()
+         traceback.print_exc()
          return False
       return True
    

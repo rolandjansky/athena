@@ -19,9 +19,16 @@ namespace Muon {
     static const InterfaceID& interfaceID()  {return IID_INSWCalibSmearingTool;}
 
   public:  // interface methods 
+
+    virtual StatusCode  isAccepted(const Identifier id, bool& accepted) = 0;
   
-    virtual StatusCode  smearAndSelect(Identifier id, double& time, double& charge, bool& accepted) = 0;
+    virtual StatusCode  smearTimeAndCharge(const Identifier id, float& time, float& charge, bool& accepted) = 0;
+
+    virtual StatusCode  smearCharge(const Identifier id, float& charge, bool& accepted) = 0;
+
+    virtual StatusCode  getGainFraction(const Identifier id, float& gainFraction) = 0;
     
+
   };
   
 }

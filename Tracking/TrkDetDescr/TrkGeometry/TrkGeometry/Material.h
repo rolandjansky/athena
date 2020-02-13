@@ -118,14 +118,14 @@ namespace Trk {
   class Material {
     public :  
       // standard x0, l0, A, Z, rho description
-      mutable float  X0;
-      mutable float  L0;
-      mutable float  A;
-      mutable float  Z;
-      mutable float  rho;
-      mutable float  dEdX;
-      mutable float  zOaTr;
-      mutable MaterialComposition* composition;
+     float  X0;
+     float  L0;
+     float  A;
+     float  Z;
+     float  rho;
+     float  dEdX;
+     float  zOaTr;
+     MaterialComposition* composition;
 
       /** Default Constructor needed for POOL */
       Material() :
@@ -181,14 +181,14 @@ namespace Trk {
         zOaTr(amc.zOaTr),
         composition(amc.composition)	
       {
-	amc.composition = nullptr;
+        amc.composition = nullptr;
       }
 
 
       /** Destructor - delete the composition if there */
       ~Material() { 
-	if (composition)
-	  delete composition;
+        if (composition)
+          delete composition;
       }
 
       /** Assignment operator */
@@ -207,22 +207,22 @@ namespace Trk {
           return (*this);
       }
 
-	/** Move Assignment operator */
+      /** Move Assignment operator */
       Material& operator=(Material&& amc)
       {
-	X0 = amc.X0;
+        X0 = amc.X0;
         L0 = amc.L0;
         A = amc.A;
         Z = amc.Z;
         rho = amc.rho;
         dEdX = amc.dEdX;
         zOaTr = amc.zOaTr;
-	if(composition && composition != amc.composition){
-	  delete composition;
-	}
-	composition = amc.composition;
-	amc.composition = nullptr;
-	return *this;
+        if(composition && composition != amc.composition){
+          delete composition;
+        }
+        composition = amc.composition;
+        amc.composition = nullptr;
+        return *this;
       }
 
       /** scaling method */
@@ -240,7 +240,6 @@ namespace Trk {
           sout << "(" << X0 << " | " << L0 << " | " << A << " | " << Z << " | " << rho <<")";
           return sout.str();
       }
-
   };
 
   inline Material* Material::scale( float sf) const {

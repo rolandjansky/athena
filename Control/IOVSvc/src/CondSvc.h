@@ -46,6 +46,9 @@ public:
   
   virtual const DataObjIDColl& conditionIDs() const;
 
+  virtual StatusCode validRanges( std::vector<EventIDRange>& ranges,
+                                  const DataObjID& id ) const;
+
   //  virtual void dump() const;
   virtual void dump(std::ostream&) const;
 

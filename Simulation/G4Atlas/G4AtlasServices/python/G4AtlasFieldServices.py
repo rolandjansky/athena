@@ -1,12 +1,13 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from G4AtlasServices.G4AtlasServicesConf import StandardFieldSvc
+from AthenaConfiguration.ComponentFactory import CompFactory
+StandardFieldSvc=CompFactory.StandardFieldSvc
 
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 #to prevent unit tests failing when just running over simulation
 import os
 if "AthSimulation_DIR" not in os.environ:
-    from ForwardRegionMgField.ForwardRegionMgFieldConf import MagField__ForwardRegionFieldSvc
+    MagField__ForwardRegionFieldSvc=CompFactory.MagField__ForwardRegionFieldSvc
 
 def StandardFieldSvcCfg(ConfigFlags,name="StandardField", **kwargs):
     result = ComponentAccumulator()

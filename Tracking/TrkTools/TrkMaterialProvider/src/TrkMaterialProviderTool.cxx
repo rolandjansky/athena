@@ -710,9 +710,9 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 					   const Trk::Surface&		surf,
 					   Trk::PropDirection		dir,
 					   Trk::ParticleHypothesis	mateffects,
-                                           double&                      Eloss,
-                                           double&                      X0ScaleMS,
-                                           double&                      ElossScaleMS,
+             double&                      Eloss,
+             double&                      X0ScaleMS,
+             double&                      ElossScaleMS,
 					   const Trk::TrackParameters*	parms,
 					   bool                         boundaryCheck,
 					   bool                         removeOoC) const 
@@ -734,7 +734,8 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   double pOri  = parm.momentum().mag();
 
   // Get TSOS from extrapolateM (from TG)
-  const std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = m_muonExtrapolator->extrapolateM(parm, surf, dir, boundaryCheck, mateffects);
+  std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = m_muonExtrapolator->extrapolateM(parm, surf, dir, 
+                                                                                            boundaryCheck, mateffects);
   
   ATH_MSG_DEBUG("Retrieved " << caloTSOS->size() << " Calorimeter TSOS from extrapolateM, no-removal");
 
@@ -779,10 +780,10 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   Eloss = ElossCalo;
 
 // remove ID and MS TSOSs
-  if(removeOoC && !caloTSOS->empty()) removeOutOfCalo(const_cast<std::vector<const Trk::TrackStateOnSurface*>*>(caloTSOS));
+  if(removeOoC && !caloTSOS->empty()) removeOutOfCalo(caloTSOS);
   ATH_MSG_DEBUG("Retrieved " << caloTSOS->size() << " Calorimeter TSOS from extrapolateM");
 // remove MS TSOSs
-  if(fremoveMS && !caloTSOS->empty()) removeMS(const_cast<std::vector<const Trk::TrackStateOnSurface*>*>(caloTSOS));
+  if(fremoveMS && !caloTSOS->empty()) removeMS(caloTSOS);
   ATH_MSG_DEBUG("Retrieved " << caloTSOS->size() << " Calorimeter TSOS from extrapolateM");
   
 #ifdef DEBUGON

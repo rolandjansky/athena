@@ -9,7 +9,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonRecToolInterfaces/IMuonTruthSummaryTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
@@ -86,14 +86,13 @@ namespace Muon {
     std::string printSummary( const std::unordered_set<Identifier, IdentifierHash>& truth, 
       const std::unordered_set<Identifier, IdentifierHash>& found );
 
-    ToolHandle<MuonIdHelperTool>                m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<IMuonEDMHelperSvc>            m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<MuonEDMPrinterTool>              m_printer;
     ServiceHandle< IIncidentSvc >               m_incidentSvc;
     mutable std::atomic<bool> m_wasInit;
-    bool m_useNSW;
 
     SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_TruthNames{this,"TruthNames",{"RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"},"truth names"};
 

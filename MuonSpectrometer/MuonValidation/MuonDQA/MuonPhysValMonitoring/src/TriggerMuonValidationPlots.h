@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONPHYSVALMONITORING_TRIGGERMUONVALIDATIONPLOTS_H
@@ -70,7 +70,6 @@ class TriggerMuonValidationPlots:public PlotBase {
     void fillTriggerMuonPlots(const xAOD::L2CombinedMuon& L2CBmu);
     float findTrigTreshold(TString chain);
 
-    bool m_isData;
     bool m_doTrigMuonL1Validation;
     bool m_doTrigMuonL2Validation;
     bool m_doTrigMuonEFValidation;

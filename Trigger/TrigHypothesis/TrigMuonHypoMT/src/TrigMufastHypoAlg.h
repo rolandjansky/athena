@@ -28,6 +28,9 @@ class TrigMufastHypoAlg
     SG::ReadHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastKey{
 	this, "MuonL2SAInfoFromMuFastAlg", "MuonL2SAInfo", "Name of the input data on xAOD::L2StandAloneMuonContainer produced by MuFastSteering"};
 
+    SG::ReadHandleKey<TrigRoiDescriptorCollection> m_forIDKey{
+	this, "forIDFromMuFastAlg", "forID", "Name of the input RoI data on TrigRoiDescriptorCollection produced by MuFastSteering"};
+
 };
 
 #endif

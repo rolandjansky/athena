@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AthenaBarCodeImpl_test.cxx,v 1.2 2008-12-12 05:19:13 ssnyder Exp $
 /**
  * @file Navigation/test/NavigableIterator_test.cxx
  * @author scott snyder <snyder@bnl.gov>

@@ -234,10 +234,14 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<Muon::M
       meanTime/=qtot;
 
 
+      float driftDist = 0.0;
 
       MMPrepData* prdN=new MMPrepData(prdsOfLayer.at(idx).identify(),prdsOfLayer.at(idx).collectionHash(),
-                           localClusterPositionV,stripsOfCluster,covN,prdsOfLayer.at(idx).detectorElement(),(short int) int(meanTime),int(qtot),
-                           stripsOfClusterStripNumber,stripsOfClusterDriftTime,stripsOfClusterCharge);
+				      localClusterPositionV,stripsOfCluster,
+				      covN,prdsOfLayer.at(idx).detectorElement(),
+				      (short int) int(meanTime),int(qtot), driftDist,
+				      stripsOfClusterStripNumber,stripsOfClusterDriftTime,stripsOfClusterCharge);
+
       clustersVect.push_back(prdN);
       ATH_MSG_VERBOSE("pushedBack  prdN");
       return StatusCode::SUCCESS;

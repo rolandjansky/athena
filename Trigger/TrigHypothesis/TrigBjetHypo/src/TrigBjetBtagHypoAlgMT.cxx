@@ -12,11 +12,19 @@ TrigBjetBtagHypoAlgMT::TrigBjetBtagHypoAlgMT( const std::string& name,
 
 StatusCode TrigBjetBtagHypoAlgMT::initialize() {
 
-  ATH_CHECK( m_hypoTools.retrieve() );
-  CHECK( m_bTagKey.initialize() );
-
   ATH_MSG_DEBUG(  "declareProperty review:"   );
   ATH_MSG_DEBUG(  "   " << m_bTagKey          );
+  ATH_MSG_DEBUG(  "   " << m_trackKey         );
+
+  //  ATH_MSG_DEBUG( "    " << m_trackLink        );
+
+  ATH_CHECK( m_hypoTools.retrieve() );
+
+  CHECK( m_bTagKey.initialize() );
+  CHECK( m_trackKey.initialize() );
+
+  renounce( m_bTagKey );
+  renounce( m_trackKey );
 
   renounce( m_bTagKey );
 
@@ -37,7 +45,17 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
 
   // Retrieve b-tagging
   ElementLinkVector< xAOD::BTaggingContainer > btaggingELs;
-  //  CHECK( retrieveBtagging( context,btaggingELs,m_bTagKey,prevDecisionContainer ) ); // TMP
+  // Retrieve b-tagging here
+
+  // Retrive Precision tracks from Event Views. We get them all in this way!
+  ElementLinkVector< xAOD::TrackParticleContainer > trackELs;
+  CHECK( retrieveObjectFromEventView( context,trackELs,m_trackKey,prevDecisionContainer ) );
+  ATH_MSG_DEBUG( "Retrieved " << trackELs.size() << " precision tracks..." );
+
+  for ( const ElementLink< xAOD::TrackParticleContainer >& trackLink : trackELs )
+    ATH_MSG_DEBUG( "   * pt=" << (*trackLink)->p4().Et() << 
+		   " eta=" << (*trackLink)->eta() <<
+		   " phi=" << (*trackLink)->phi() );
 
   // ==========================================================================================================================
   //    ** Prepare Outputs
@@ -46,6 +64,10 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
   // Decisions
   SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle = TrigCompositeUtils::createAndStore( decisionOutput(), context );
   TrigCompositeUtils::DecisionContainer *outputDecisions = handle.ptr();
+
+  // ========================================================================================================================== 
+  //    ** Compute Decisions
+  // ========================================================================================================================== 
   
   const unsigned int nDecisions = prevDecisionContainer->size();
 
@@ -59,17 +81,20 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
     newDecisions.push_back( toAdd );
   }
 
+  // Adding Links
+  //  CHECK( attachLinkToDecisions( context,newDecisions ) );
+
   for ( unsigned int index(0); index<nDecisions; index++ ) {
     // Adding b-tagging links to output decisions // TMP
     // Adding a dummy-link (a link to self) for now to satisfy validation.
     ElementLink<TrigCompositeUtils::DecisionContainer> dummyFeatureLink(*outputDecisions, index, context);
     newDecisions.at( index )->setObjectLink<TrigCompositeUtils::DecisionContainer>(TrigCompositeUtils::featureString(), dummyFeatureLink);
   }
-  ATH_MSG_DEBUG("   ** Added object links to output decision");
 
   // ==========================================================================================================================
   //    ** Prepare input to Hypo Tools  
   // ==========================================================================================================================
+
 
   std::vector< TrigBjetBtagHypoTool::TrigBjetBtagHypoToolInfo > bTagHypoInputs;
 
@@ -93,8 +118,8 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
   // ==========================================================================================================================
 
   // Run on Trigger Chains
-  for ( const ToolHandle< TrigBjetBtagHypoTool >& tool : m_hypoTools ) // TMP
-    CHECK( tool->decide( bTagHypoInputs ) ); // TMP
+  for ( const ToolHandle< TrigBjetBtagHypoTool >& tool : m_hypoTools ) 
+    CHECK( tool->decide( bTagHypoInputs ) ); 
   
   ATH_MSG_DEBUG( "Exiting with " << handle->size() << " decisions" );
   ATH_MSG_DEBUG( "CHECKING OUTPUT DECISION HANDLE" );
@@ -105,19 +130,9 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode TrigBjetBtagHypoAlgMT::retrieveBtagging( const EventContext& context,
-						    ElementLinkVector< xAOD::BTaggingContainer >& btaggingELs,
-						    const SG::ReadHandleKey< xAOD::BTaggingContainer >& inputBtagKey,
-						    const TrigCompositeUtils::DecisionContainer* prevDecisionContainer ) const {
+StatusCode TrigBjetBtagHypoAlgMT::attachLinksToDecision( const EventContext&,
+							 TrigCompositeUtils::Decision&,
+							 int, int ) const {
   
-  CHECK( retrieveObjectFromStoreGate( context,btaggingELs,inputBtagKey,prevDecisionContainer ) );
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TrigBjetBtagHypoAlgMT::attachLinkToDecisions( const EventContext& /*context*/,
-							 const TrigCompositeUtils::DecisionContainer* /*previousDecisions*/,
-							 std::vector< TrigCompositeUtils::Decision* >& /*outputDecisions*/ ) const {
   return StatusCode::SUCCESS;
 }

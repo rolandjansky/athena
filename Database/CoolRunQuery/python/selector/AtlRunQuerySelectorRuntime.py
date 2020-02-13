@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
+from __future__ import print_function
 from time import time
 import sys
 
@@ -40,7 +41,7 @@ class RunTimeSelector(Selector):
         firstRun = self.runranges[0][0]
         start = time()
         folder = coolDbConn.GetDBConn(schema="COOLONL_TRIGGER", db = Selector.condDB(firstRun) ).getFolder('/TRIGGER/LUMI/LBLB')
-        print self,
+        print (self, end='')
         sys.stdout.flush()
         currentRun = None
         for rr in self.runranges:
@@ -66,7 +67,7 @@ class RunTimeSelector(Selector):
         runlist.sort()
 
         duration = time() - start
-        print " ==> %i runs found (%.2f sec)" % (len(runlist),duration)
+        print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
         return runlist
 
     @staticmethod
@@ -97,12 +98,12 @@ class TimeRunSelector(Selector):
         start = time()
         runlist = []
         folder = coolDbConn.GetDBConn(schema="COOLONL_TRIGGER", db=Selector.condDB()).getFolder('/TRIGGER/LUMI/LBTIME')
-        print 'SELOUT Checking for runs in time range "%s"' % self.timelist,
+        print ('SELOUT Checking for runs in time range "%s"' % self.timelist, end='')
         sys.stdout.flush()
         ranges = GetRanges(self.timelist, maxval=long(time()*1E09))
         currentRun = None
         for rr in ranges:
-            objs = folder.browseObjects( rr[0], rr[1]+86400000000000L, cool.ChannelSelection(0))
+            objs = folder.browseObjects( rr[0], rr[1]+86400000000000, cool.ChannelSelection(0))
             while objs.goToNext():
                 obj=objs.currentRef()
                 payload=obj.payload()
@@ -132,6 +133,6 @@ class TimeRunSelector(Selector):
 
         runlist.sort()
         duration = time() - start
-        print " ==> %i runs selected (%g sec)" % (len(runlist), duration)
+        print (" ==> %i runs selected (%g sec)" % (len(runlist), duration))
         return runlist
 

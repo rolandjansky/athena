@@ -3,8 +3,8 @@
 # jopOptions file for selecting  ByteStream events
 #
 #==============================================================
-# Input 
-include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
+# Input
+from ByteStreamCnvSvc import ReadByteStream
 
 svcMgr = theApp.serviceMgr()
 

@@ -79,16 +79,7 @@ public:
    StatusCode commitOutput(const std::string& outputConnectionSpec, bool doCommit);
 
    /// Disconnect to the output connection.
-   StatusCode disconnectOutput();
-
-   /// @return the connection specification from connected stream property.
-   const std::string& getOutputConnectionSpec() const;
-
-   /// @return the pool container to be used.
-   std::string getOutputContainer(const std::string& typeName, const std::string& key = "") const;
-
-   /// Access to the technology type for the current output connection
-   pool::DbType technologyType(const std::string& containerName) const;
+   StatusCode disconnectOutput(const std::string& outputConnectionSpec);
 
    /// @return pointer to PoolSvc instance.
    IPoolSvc* getPoolSvc();
@@ -133,6 +124,10 @@ public:
    /// @param refAddress [OUT] converted string form.
    StatusCode convertAddress(const IOpaqueAddress* pAddress, std::string& refAddress);
 
+   /// Extract/deduce the DB technology from the connection
+   /// string/file specification
+   StatusCode decodeOutputSpec(std::string& connectionSpec, int& outputTech) const;
+
    /// Implement registerCleanUp to register a IAthenaPoolCleanUp to be called during cleanUp.
    StatusCode registerCleanUp(IAthenaPoolCleanUp* cnv);
 
@@ -165,10 +160,6 @@ public:
    virtual ~AthenaPoolCnvSvc();
 
 private: // member functions
-   /// Extract/deduce the DB technology from the connection
-   /// string/file specification
-   StatusCode decodeOutputSpec(std::string& connectionSpec, pool::DbType& outputTech) const;
-
    /// Extract POOL ItechnologySpecificAttributes for Domain, Database and Container from property.
    void extractPoolAttributes(const StringArrayProperty& property,
 	   std::vector<std::vector<std::string> >* contAttr,
@@ -185,9 +176,6 @@ private: // member functions
 
 private: // data
    pool::DbType    m_dbType;
-   std::string     m_outputConnectionSpec;
-   std::string     m_dhContainerPrefix;
-   std::string     m_collContainerPrefix;
    std::string     m_lastFileName;
    ServiceHandle<IPoolSvc>       m_poolSvc;
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
@@ -205,13 +193,10 @@ private: // properties
 
    /// PoolContainerPrefix, prefix for top level POOL container: default = "POOLContainer"
    StringProperty  m_containerPrefixProp;
-   std::string     m_containerPrefix;
    /// TopLevelContainerName, naming hint policy for top level POOL container: default = "<type>"
    StringProperty  m_containerNameHintProp;
-   std::string     m_containerNameHint;
    /// SubLevelBranchName, naming hint policy for POOL branching: default = "" (no branching)
    StringProperty  m_branchNameHintProp;
-   std::string     m_branchNameHint;
 
    /// Output PoolAttributes, vector with names and values of technology specific attributes for POOL
    StringArrayProperty m_poolAttr;
@@ -239,11 +224,7 @@ private: // properties
    /// PersSvcPerOutput,boolean property to use multiple persistency services, one per output stream.
    /// default = false.
    BooleanProperty m_persSvcPerOutput;
-   unsigned outputContextId();
-   std::map< EventContext::ContextID_t, std::string > m_outputConnectionForSlot;
-   std::map< EventContext::ContextID_t, std::string > m_containerPrefixForSlot;
-   std::map< EventContext::ContextID_t, std::string > m_containerNameHintForSlot;
-   std::map< EventContext::ContextID_t, std::string > m_branchNameHintForSlot;
+   unsigned outputContextId(const std::string& outputConnection);
    mutable std::mutex  m_mutex;  // mutable so const functions can lock
   
    /// SkipFirstChronoCommit, boolean property to skip the first commit in the chrono stats so the first

@@ -39,10 +39,6 @@
 
  */
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
 class MuonPrdSelectorAlg : public AthAlgorithm  {
  public:
   MuonPrdSelectorAlg(const std::string &name,ISvcLocator *pSvcLocator); //!< Athena algorithm constructor

@@ -195,7 +195,7 @@ bool Trk::SimplePolygonBrepVolumeBounds::inside(const Amg::Vector3D& pos, double
   return ( m_combinedVolume->inside(pos,tol) ); 
 }
 
-void Trk::SimplePolygonBrepVolumeBounds::processSubVols() const
+void Trk::SimplePolygonBrepVolumeBounds::processSubVols() 
 {
   // translate into prisms (triangulate)
   Trk::Volume* cVol = 0;
@@ -395,9 +395,11 @@ std::vector<std::pair<double,double> > Trk::SimplePolygonBrepVolumeBounds::Trian
 
   return outTriangles;
 
-} 
+}
 
-std::vector<std::pair<double,double> > Trk::SimplePolygonBrepVolumeBounds::TriangulatePolygonCheck(const std::vector<std::pair<double,double> >& Vertices ) const
+std::vector<std::pair<double, double>>
+Trk::SimplePolygonBrepVolumeBounds::TriangulatePolygonCheck(
+  const std::vector<std::pair<double, double>>& Vertices)
 {
 // Perform triangulation. Check the orientation of the verices in the polygon
 // m_ordering   = -1    not set

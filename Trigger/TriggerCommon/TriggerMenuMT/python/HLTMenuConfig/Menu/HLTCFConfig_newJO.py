@@ -38,6 +38,7 @@ def generateDecisionTree(chains):
     printStepsMatrix(chainStepsMatrix)
 
     allCFSequences = []
+    
 
     ## Matrix with steps lists generated. Creating filters for each cell
     for nstep in sorted(chainStepsMatrix.keys()):
@@ -56,6 +57,7 @@ def generateDecisionTree(chains):
 
         CFSequences = []
 
+        chainCounter=0
         for chainName in chainStepsMatrix[nstep]:
             chainsInCell = chainStepsMatrix[nstep][chainName]
 
@@ -65,9 +67,11 @@ def generateDecisionTree(chains):
 
             firstChain = chainsInCell[0]
             if nstep == 0:
-                filter_input = firstChain.group_seed
+                filter_input = firstChain.L1decisions
             else:
-                filter_input = [output for sequence in firstChain.steps[nstep - 1].sequences for output in sequence.outputs]
+                #tmp FP replacement, but it should not work properly
+                #filter_input = [output for sequence in firstChain.steps[nstep - 1].sequences for output in sequence.outputs]
+                filter_input = [output for output in allCFSequences[nstep - 1][chainCounter].decisions]
 
             chainStep = firstChain.steps[nstep]
 
@@ -90,7 +94,8 @@ def generateDecisionTree(chains):
 
             for chain in chainsInCell:
                 step = chain.steps[nstep]
-                CFSeq = CFSequence(step, sfilter, connections=filter_output)
+                CFSeq = CFSequence(step, sfilter)
+                CFSeq.connect(filter_output)
                 if not CFSequenceAdded:
                     CFSequences.append(CFSeq)
                     CFSequenceAdded = True
@@ -104,9 +109,12 @@ def generateDecisionTree(chains):
                 sfilter.setChains(chain.name)
 
             recoAcc.merge(stepsAcc, sequenceName = viewWithFilter.getName())
+            chainCounter+=1
+            
+        for sequence in CFSequences:
+            stepDecisions += sequence.decisions
 
-            for sequence in chainStep.sequences:
-                stepDecisions += sequence.outputs
+
 
         acc.merge(filterAcc, sequenceName = mainSequenceName)
         acc.merge(recoAcc, sequenceName = mainSequenceName)

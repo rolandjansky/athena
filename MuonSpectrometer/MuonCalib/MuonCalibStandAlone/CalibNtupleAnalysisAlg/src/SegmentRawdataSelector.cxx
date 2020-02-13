@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -19,7 +19,6 @@
 
 // MuonReadoutGeometry //
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 // AtlasConditions //
 #include "MuonIdHelpers/MdtIdHelper.h"
@@ -63,8 +62,8 @@ StatusCode SegmentRawdataSelector::initialize(void) {
 // MDT ID helper //
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
-// muon detector manager //
-  ATH_CHECK( detStore()->retrieve(m_detMgr) );
+//retrieve detector manager from the conditions store
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
 // muon fixed id tool //
   ATH_CHECK( toolSvc()->retrieveTool(m_idToFixedIdToolType, m_idToFixedIdToolName, m_id_tool) );
@@ -73,6 +72,14 @@ StatusCode SegmentRawdataSelector::initialize(void) {
 }  //end SegmentRawdataSelector::initialize
 
 void SegmentRawdataSelector::prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> & segments) {
+
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return; 
+  } 
+
 //delete old segments
   for(std::set<MuonCalibSegment *>::iterator it=m_segments.begin(); it!=m_segments.end(); it++) {
     delete (*it);
@@ -94,7 +101,7 @@ void SegmentRawdataSelector::prepareSegments(const MuonCalibEvent *&event, std::
     station_identifier.SetMultilayer(0);
     Identifier station_id = m_id_tool->fixedIdToId(hit->identify());
     const MuonGM::MdtReadoutElement *MdtRoEl =
-      m_detMgr->getMdtReadoutElement(m_muonIdHelperTool->mdtIdHelper().channelID(station_id,
+      MuonDetMgr->getMdtReadoutElement(m_muonIdHelperTool->mdtIdHelper().channelID(station_id,
 	hit->identify().mdtMultilayer(),hit->identify().mdtTubeLayer(),hit->identify().mdtTube()));
 
     if (MdtRoEl==0) {

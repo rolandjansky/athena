@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders
-from LArRecUtils.LArRecUtilsConf import LArOnOffMappingAlg, LArFebRodMappingAlg, LArCalibLineMappingAlg
+LArOnOffMappingAlg, LArFebRodMappingAlg, LArCalibLineMappingAlg=CompFactory.getComps("LArOnOffMappingAlg","LArFebRodMappingAlg","LArCalibLineMappingAlg",)
 
 def _larCablingCfg(configFlags,algo,folder):
     result=ComponentAccumulator()

@@ -1,16 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MSVERTEXTRACKLETTOOL_H
 #define MSVERTEXTRACKLETTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MSVertexToolInterfaces/IMSVertexTrackletTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "Identifier/Identifier.h"
 #include "MSVertexUtils/TrackletSegment.h"
 #include "MSVertexUtils/Tracklet.h"
 #include <utility>
@@ -36,29 +36,21 @@ namespace Muon {
     virtual StatusCode initialize(void) override;
     virtual StatusCode finalize(void) override;
 
+    StatusCode findTracklets(std::vector<Tracklet>& traklets, const EventContext &ctx) const override;
+
   private:
     //tool handles & private data members
 
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     float m_SeedResidual;
     float m_minSegFinderChi2;
     float m_BarrelDeltaAlphaCut;
     float m_maxDeltabCut;
     float m_EndcapDeltaAlphaCut;
-    //float m_DeltabCut; //this variable is not used right now
-    //float m_TrackPhiAngle; //this variable is not used right now
 
     bool m_tightTrackletRequirement;
 
-
-
-  public:
-    StatusCode findTracklets(std::vector<Tracklet>& traklets, const EventContext &ctx) const override;
-    
-  private:
-    //private functions
     int SortMDThits(std::vector<std::vector<const Muon::MdtPrepData*> >& SortedMdt, const EventContext &ctx) const;
     bool SortMDT(Identifier& i1, Identifier& i2) const;    
     std::vector<TrackletSegment> TrackletSegmentFitter(std::vector<const Muon::MdtPrepData*>& mdts) const ;

@@ -2,7 +2,7 @@
 
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoTool
 

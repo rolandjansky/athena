@@ -3,8 +3,8 @@
 
 def L2MuonSAMonConfig(helper):
     
-    from TrigMuonMonitoringMT.TrigMuonMonitoringMTConf import L2MuonSAMonMT
-    monAlg = helper.addAlgorithm(L2MuonSAMonMT,'L2MuonSAMonMT')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    monAlg = helper.addAlgorithm(CompFactory.L2MuonSAMonMT,'L2MuonSAMonMT')
 
 
     histGroup = helper.addGroup(monAlg, 'L2MuonSAMonMT', 'HLT/MuonMon/L2MuonSA')

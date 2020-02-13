@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def LArGMCfg(configFlags):
@@ -9,7 +10,7 @@ def LArGMCfg(configFlags):
 
     doAlignment=configFlags.LAr.doAlign
     
-    from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
+    LArDetectorToolNV=CompFactory.LArDetectorToolNV
     result.getPrimary().DetectorTools += [ LArDetectorToolNV(ApplyAlignments=doAlignment) ]
     if not configFlags.Detector.SimulateCalo:
         result.getPrimary().DetectorTools["LArDetectorToolNV"].GeometryConfig = "RECO"
@@ -35,6 +36,6 @@ if __name__ == "__main__":
     ConfigFlags.lock()
 
     acc = LArGMCfg(ConfigFlags)
-    f=open('LArGMCfg.pkl','w')
+    f=open('LArGMCfg.pkl','wb')
     acc.store(f)
     f.close()

@@ -1,9 +1,9 @@
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaReFastAlgo
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
+T2CaloEgammaReFastAlgo=CompFactory.T2CaloEgammaReFastAlgo
 
 def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
 
@@ -21,7 +21,7 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
     acc.merge( TileBadChannelsCondAlgCfg(flags) )
 
     # configure tools (this can be simplified further,
-    from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReEmEnFex, EgammaReHadEnFex, EgammaReSamp1Fex, EgammaReSamp2Fex
+    EgammaReEmEnFex, EgammaReHadEnFex, EgammaReSamp1Fex, EgammaReSamp2Fex=CompFactory.getComps("EgammaReEmEnFex","EgammaReHadEnFex","EgammaReSamp1Fex","EgammaReSamp2Fex",)
 
     samp2 = EgammaReSamp2Fex(name='FaAlgoSamp2FexConfig', MaxDetaHotCell=0.15, MaxDphiHotCell=0.15)
     acc.addPublicTool( samp2 )

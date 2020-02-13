@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 Tools configurations for ISF
@@ -76,10 +78,10 @@ def getCosmicEventFilterTool(name="ISF_CosmicEventFilter", **kwargs):
         volumeNames=["SCTBarrelEntryLayer"]
     if simFlags.CosmicFilterVolumeName=="Pixel":
         volumeNames=["PixelEntryLayer"]
-    print 'G4CosmicFilter: Filter volume is %s' % volumeNames
+    print ('G4CosmicFilter: Filter volume is %s' % volumeNames)
 
     if simFlags.CosmicFilterVolumeName=="TRT_EC":
-        print 'G4CosmicFilter: adding TRTECBEntryLayer'
+        print ('G4CosmicFilter: adding TRTECBEntryLayer')
         useAndFilter = True
         volumeNames += ["TRTECBEntryLayer"]
 
@@ -136,6 +138,9 @@ def getParticleOrderingTool(name="ISF_ParticleOrderingTool", **kwargs):
     kwargs.setdefault('OrderMS'          , 1           )
     kwargs.setdefault('OrderCavern'      , 1           )
     return CfgMgr.ISF__GenericParticleOrderingTool(name, **kwargs)
+
+def getEnergyParticleOrderingTool(name="ISF_EnergyParticleOrderingTool", **kwargs):
+    return CfgMgr.ISF__EnergyParticleOrderingTool(name, **kwargs)
 
 def getParticleKillerTool(name="ISF_ParticleKillerTool", **kwargs):
     return CfgMgr.ISF__ParticleKillerSimTool(name, **kwargs)

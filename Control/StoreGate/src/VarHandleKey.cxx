@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -254,14 +254,10 @@ void VarHandleKey::parseKey (const std::string& key,
   // we can't be sure that the store has been created when the VHK is
   // constructed.
   //
-  // StoreGateSvc *sgs = dynamic_cast<StoreGateSvc*>( &(*m_storeHandle) );
-  // if (sgs != 0) {
-  //   st = sgs->storeID();
-  // } else {
-    st = StoreID::findStoreID(sn);
-  // }
 
-    if (st != StoreID::CONDITION_STORE && st != StoreID::METADATA_STORE) {
+  st = StoreID::findStoreID(sn);
+
+  if (st != StoreID::CONDITION_STORE && st != StoreID::METADATA_STORE) {
     if (m_sgKey.find("/") != std::string::npos) {
       throw SG::ExcBadHandleKey("key \"" + key 
                                 + "\": keys with \"/\" only allowed for "
@@ -272,8 +268,9 @@ void VarHandleKey::parseKey (const std::string& key,
   } else {
     sp = m_sgKey.rfind("/");
     if (sp != std::string::npos) {
-      if (sp == 0) {
-        // blank key
+      if (sp == 0
+	  && m_sgKey.size() == 1) {
+        // Replace '\' with blank key
         m_sgKey = "";
       } else if ( sp == m_sgKey.length()-1) {
         throw SG::ExcBadHandleKey("key \"" + key 

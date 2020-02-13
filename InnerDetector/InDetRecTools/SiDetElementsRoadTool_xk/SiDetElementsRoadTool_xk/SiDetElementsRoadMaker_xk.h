@@ -8,11 +8,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //  Header file for class SiDetElementsRoadMaker_xk
 /////////////////////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-/////////////////////////////////////////////////////////////////////////////////
-// Class for  InDetDD::SiDetectorElement* collection production
-// for given set golabal positions
-/////////////////////////////////////////////////////////////////////////////////
 // Version 1.0 3/10/2004 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -27,6 +22,7 @@
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayer_xk.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayerVectors_xk.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkSurfaces/CylinderBounds.h"
@@ -64,38 +60,38 @@ namespace InDet{
   public:
       
     ///////////////////////////////////////////////////////////////////
-    // Standard tool methods
+    /// @name Standard tool methods
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     SiDetElementsRoadMaker_xk
       (const std::string&, const std::string&, const IInterface*);
     virtual ~SiDetElementsRoadMaker_xk() = default;
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
+    //@}
 
     ///////////////////////////////////////////////////////////////////
-    // Main methods for road builder
+    /// @name Main methods for road builder
     ///////////////////////////////////////////////////////////////////
-      
-    virtual void detElementsRoad
-      (const std::list<const Trk::SpacePoint*>&,
-       std::list<const InDetDD::SiDetectorElement*>&) const override;
-  
+    //@{ 
     virtual void detElementsRoad
       (std::list<Amg::Vector3D>&, 
-       std::list<const InDetDD::SiDetectorElement*>&) const override;
+       std::list<const InDetDD::SiDetectorElement*>&,
+       bool test) const override;
 
     virtual void detElementsRoad
       (const Trk::TrackParameters&,
        Trk::PropDirection,
        std::list<const InDetDD::SiDetectorElement*>&) const override;
+    //@}
 
     ///////////////////////////////////////////////////////////////////
-    // Print internal tool parameters and status
+    /// @name Print internal tool parameters and status
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     MsgStream&    dump(MsgStream   & out) const override;
     std::ostream& dump(std::ostream& out) const override;
+    //@}
 
   private:
       
@@ -103,46 +99,43 @@ namespace InDet{
     // Protected Data
     ///////////////////////////////////////////////////////////////////
 
+    /// @name Service and tool handles
+    //@{
     ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
     PublicToolHandle<Trk::IPropagator> m_proptool{this, "PropagatorTool",
         "Trk::RungeKuttaPropagator/InDetPropagator", "Propagator tool"};
+    //@}
 
+    /// @name Condition handle
+    //@{
     SG::ReadCondHandleKey<SiDetElementsLayerVectors_xk> m_layerVecKey{this, "LayerVecKey",
         "SiDetElementsLayerVectors_xk", "Key of SiDetElementsLayerVectors_xk"};
+    //!< Created by SiDetElementsRoadCondAlg_xk.
+    //@}
 
+    /// @name Properties
+    //@{
     BooleanProperty m_usePIX{this, "usePixel", true};
     BooleanProperty m_useSCT{this, "useSCT", true};
     FloatProperty m_width{this, "RoadWidth", 20., "Width of the road"};
     DoubleProperty m_step{this, "MaxStep", 40., "Max step allowed"};
-    StringProperty m_pix{this, "PixManagerLocation", "Pixel"};  // PIX manager   location
-    StringProperty m_sct{this, "SCTManagerLocation", "SCT"};  // SCT manager   location
-    StringProperty m_fieldmode{this, "MagneticFieldMode", "MapSolenoid"};  // Mode of magnetic field
+    StringProperty m_pix{this, "PixManagerLocation", "Pixel", "PIX manager location"};
+    StringProperty m_sct{this, "SCTManagerLocation", "SCT", "SCT manager location"};
+    StringProperty m_fieldmode{this, "MagneticFieldMode", "MapSolenoid", "Mode of magnetic field"};
+    //@}
 
-    // Updated only in initialize
+    /// @name Data members, which are updated only in initialize
+    //@{
     Trk::CylinderBounds                  m_bounds{};
-    std::vector<SiDetElementsLayer_xk>   m_layer[3]; // Layers
     Trk::MagneticFieldMode               m_fieldModeEnum{Trk::FullField};
     int                                  m_outputlevel{};
-
-    // This is not set by third detElementsRoad method but used by first detElementsRoad method.
-    // This is not multithread safe.
-    mutable std::atomic_bool m_test{};
-
-    // Cache
-    struct CacheEntry {
-      // Mutex to protect the contents
-      std::mutex m_mutex;
-      EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
-      // std::vector<SiDetElementsLayer_xk> for each layer. This is not const.
-      SiDetElementsLayerVectors_xk m_layerVectors{SiDetElementsLayerVectors_xk(3)};
-    };
-    mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
+    //@}
 
     ///////////////////////////////////////////////////////////////////
     // Methods
     ///////////////////////////////////////////////////////////////////
 
-    void mapDetectorElementsProduction();
+    void computeBounds();
     float stepToDetElement(const InDetDD::SiDetectorElement*&,
                            Amg::Vector3D&, Amg::Vector3D&) const;
 
@@ -150,7 +143,14 @@ namespace InDet{
 
     MsgStream& dumpConditions(MsgStream& out) const;
 
-    std::unique_lock<std::mutex> getLayers(std::vector<SiDetElementsLayer_xk>* (&layer)[3]) const;
+    inline
+    const SiDetElementsLayerVectors_xk *getLayers() const {
+       SG::ReadCondHandle<SiDetElementsLayerVectors_xk> layerVec(m_layerVecKey);
+       if (not layerVec.isValid()) {
+          ATH_MSG_ERROR("Failed to get " << m_layerVecKey.key());
+       }
+       return layerVec.cptr();
+    }
   };
 
   MsgStream&    operator << (MsgStream&   , const SiDetElementsRoadMaker_xk&);

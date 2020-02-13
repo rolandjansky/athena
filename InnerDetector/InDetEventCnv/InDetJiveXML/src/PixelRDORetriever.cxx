@@ -53,7 +53,7 @@ namespace JiveXML {
     }
 
     //retrieve the PixelRDO container
-    const DataHandle<PixelRDO_Container> rdoContainer;
+    const PixelRDO_Container* rdoContainer = nullptr;
     if (evtStore()->retrieve(rdoContainer,m_PixelRDOContainerName).isFailure()) {
       if (msgLvl(MSG::DEBUG)) msg() << "Unable to retrieve PixelRDO_Container with name " << m_PixelRDOContainerName << endmsg;
       return StatusCode::RECOVERABLE;

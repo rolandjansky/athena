@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Algorithm producing truth info for PrepRawData, keeping all MC particles contributed to a PRD.
@@ -11,7 +11,9 @@
 #include <string>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/MuonPrepDataCollection.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
@@ -35,6 +37,7 @@ public:
   virtual StatusCode finalize();
   
 private:
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_MDT_ContainerName;
   SG::ReadHandleKey<Muon::CscPrepDataContainer> m_CSC_ContainerName;
@@ -56,12 +59,6 @@ private:
   SG::WriteHandleKey<PRD_MultiTruthCollection> m_TGC_PRD_TruthName;
   SG::WriteHandleKey<PRD_MultiTruthCollection> m_STGC_PRD_TruthName;
   SG::WriteHandleKey<PRD_MultiTruthCollection> m_MM_PRD_TruthName;
-
-  //flags to determine which technologies to use
-  bool m_useNSW;
-  bool m_useCSC;
-
-  //ToolHandle<InDet::IPRD_MultiTruthBuilder> m_PRDTruthTool;
 
   //----------------------------------------------------------------
   template < class PrepDataContainer, class SIMDATACOLLECTION > 

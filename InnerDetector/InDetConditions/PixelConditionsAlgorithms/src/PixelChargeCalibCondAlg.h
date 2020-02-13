@@ -1,6 +1,12 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
+/**
+ * @file PixelConditionsAlgorithms/PixelChargeCalibCondAlg.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date December, 2019
+ * @brief Store pixel charge calibration constants in PixelChargeCalibCondData.
+ */
 
 #ifndef PIXELCHARGECALIBCONDALG
 #define PIXELCHARGECALIBCONDALG
@@ -27,10 +33,9 @@ class PixelChargeCalibCondAlg : public AthAlgorithm {
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute() override;
-    virtual StatusCode finalize() override;
 
   private:
-    const PixelID* m_pixelID;
+    const PixelID* m_pixelID{nullptr};
 
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey
     {this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
@@ -44,7 +49,7 @@ class PixelChargeCalibCondAlg : public AthAlgorithm {
     SG::WriteCondHandleKey<PixelChargeCalibCondData> m_writeKey
     {this, "WriteKey", "PixelChargeCalibCondData", "Output charge caliblation data"};
 
-    ServiceHandle<ICondSvc> m_condSvc;
+    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 };
 
 #endif

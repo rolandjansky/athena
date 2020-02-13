@@ -30,7 +30,6 @@ ex.job_options = 'TrigP1Test/testHLT_beamspot.py'
 ex.input = ''
 ex.explicit_input = True
 ex.args = '-f ./beamspot._0001.data'
-ex.perfmon = False
 
 test = Test.Test()
 test.art_type = 'build'

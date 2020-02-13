@@ -3,7 +3,6 @@
 from __future__ import print_function
 
 import unittest
-from mock import MagicMock, Mock
 from AlgFactory import Alg
 from jetDefAlgToString import JetDefAlgToStringInstantiator
 

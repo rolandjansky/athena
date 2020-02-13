@@ -1,10 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 
 # import the DL1Tag configurable
-from JetTagTools.JetTagToolsConf import Analysis__DL1Tag
+Analysis__DL1Tag=CompFactory.Analysis__DL1Tag
 
 # define the class
 def DL1TagCfg(flags, name = 'DL1', scheme = '', useBTagFlagsDefaults = True, **options):

@@ -18,6 +18,7 @@ class InDetBSErrContainer_p2
   /// Default constructor
   InDetBSErrContainer_p2 () {};
   friend class InDetBSErrContainerCnv_p2;
+  friend class IDCInDetBSErrContainerCnv;
  private:
   std::vector<std::pair<IdentifierHash, int>> m_bsErrs;
 };

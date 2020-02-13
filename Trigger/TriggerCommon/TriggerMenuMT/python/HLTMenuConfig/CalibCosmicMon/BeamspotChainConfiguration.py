@@ -26,7 +26,7 @@ def allTE_trkfast():
 
         inputMakerAlg = InputMakerForRoI("IM_beamspotInputMaker", mergeOutputs=False)
         inputMakerAlg.RoIs="beamspotInputRoIs"
-        from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+        from TrigInDetConfig.InDetSetup import makeInDetAlgs
         viewAlgs = makeInDetAlgs(whichSignature='FS', rois=inputMakerAlg.RoIs)
         from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE
         T2VertexBeamSpot_activeAllTE.TrackCollections = ["TrigFastTrackFinder_Tracks_FS"]

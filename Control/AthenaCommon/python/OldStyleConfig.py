@@ -5,7 +5,6 @@
 
 from __future__ import print_function
 
-import string
 from AthenaCommon import Logging
 
 
@@ -20,7 +19,7 @@ log = Logging.logging.getLogger( 'OldStyleConfig' )
 
 ### old style configuration is now disallowed; forward if possible, or FATAL
 def _compatLookup( name, klass ):
-   parts = string.split( name, '/' )
+   parts = name.split('/')
    if (len(parts) > 2) :
       msg = 'invalid argument name = "%s", must be of the form "type[/name]"' % name
       log.error( msg )

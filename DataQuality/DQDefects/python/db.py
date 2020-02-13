@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Authors: Peter Waller <peter.waller@cern.ch> and "Peter Onyisi" <peter.onyisi@cern.ch>
@@ -10,7 +10,7 @@ This file defines DefectsDB and some of its public interface.
 To separate out the code into digestable units, this class is split into mixins
 which can be found defined in other files in this directory.
 
-The bulk of the core functionailty is found in this file.
+The bulk of the core functionality is found in this file.
 """
 
 
@@ -29,6 +29,8 @@ from .ids import DefectsDBIDsNamesMixin, choose_new_defect_id
 from .tags import DefectsDBTagsMixin
 from .virtual_mixin import DefectsDBVirtualDefectsMixin
 from .virtual_calculator import calculate_virtual_defects
+
+import six
 
 
 class DefectsDB(DefectsDBVirtualDefectsMixin, 
@@ -81,7 +83,7 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
         self._create = create
         import collections
         tagtype = collections.namedtuple('tagtype', ['defects', 'logic'])
-        if isinstance(tag, basestring):
+        if isinstance(tag, six.string_types):
             self._tag = tagtype(tag, tag) if tag else tagtype("HEAD", "HEAD")
         else:
             try:

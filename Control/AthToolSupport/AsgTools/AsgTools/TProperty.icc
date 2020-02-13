@@ -221,6 +221,7 @@ namespace asg
     };
 
     /// \brief helper class for getting property values from strings
+    // cppcheck-suppress syntaxError
     template<typename T> struct SetStringHelper : SetStringHelperBase<T>
     {
     };

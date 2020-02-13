@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -25,8 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 RpcClusterBuilderPRD::RpcClusterBuilderPRD(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator), m_temp_coll(NULL), m_rpcClusterContainer(NULL),
-  m_muonMgr(NULL), m_rpcId(NULL)
+  AthAlgorithm(name, pSvcLocator), m_temp_coll(nullptr), m_rpcClusterContainer(nullptr)
 {
 
   // Declare the properties
@@ -38,12 +37,12 @@ RpcClusterBuilderPRD::RpcClusterBuilderPRD(const std::string& name, ISvcLocator*
 
 StatusCode RpcClusterBuilderPRD::initialize(){
 
-  ATH_CHECK( detStore()->retrieve( m_muonMgr ) );
+  ATH_CHECK(m_DetectorManagerKey.initialize());
   
-  m_rpcId = m_muonMgr->rpcIdHelper();
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   // Create an empty cluster container
-  //  m_rpcClusterContainer = new  Muon::RpcPrepDataContainer(m_rpcId->module_hash_max()); 
+  //  m_rpcClusterContainer = new  Muon::RpcPrepDataContainer(m_idHelperSvc->rpcIdHelper().module_hash_max()); 
   //  m_rpcClusterContainer->addRef();
 
   return StatusCode::SUCCESS;
@@ -52,7 +51,7 @@ StatusCode RpcClusterBuilderPRD::initialize(){
 
 StatusCode RpcClusterBuilderPRD::execute() {
  
-  m_rpcClusterContainer = new  Muon::RpcPrepDataContainer(m_rpcId->module_hash_max()); 
+  m_rpcClusterContainer = new  Muon::RpcPrepDataContainer(m_idHelperSvc->rpcIdHelper().module_hash_max()); 
 
   //  m_rpcClusterContainer->cleanup();
   ATH_CHECK( evtStore()->record(m_rpcClusterContainer,m_colKey) );
@@ -78,6 +77,13 @@ StatusCode RpcClusterBuilderPRD::finalize() {
 }
 
 StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
+
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE; 
+  } 
 
   const Muon::RpcPrepDataContainer* container;
   StatusCode sc = evtStore()->retrieve(container,m_colKeyIn);
@@ -106,11 +112,11 @@ StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
       
       
       // create temp collection for clusters 	 
-      Identifier elementId = m_rpcId->elementID(theCollection->identify()); 	 
-      IdContext rpcContext = m_rpcId->module_context(); 	 
+      Identifier elementId = m_idHelperSvc->rpcIdHelper().elementID(theCollection->identify()); 	 
+      IdContext rpcContext = m_idHelperSvc->rpcIdHelper().module_context(); 	 
       IdentifierHash rpcHashId; 	 
       
-      if (m_rpcId->get_hash(elementId, rpcHashId, &rpcContext)) { 	 
+      if (m_idHelperSvc->rpcIdHelper().get_hash(elementId, rpcHashId, &rpcContext)) { 	 
 	ATH_MSG_ERROR("Unable to get RPC hash id from CSC PreDataCollection collection id"
 	    << "context begin_index = " << rpcContext.begin_index()
 	    << " context end_index  = " << rpcContext.end_index()
@@ -124,7 +130,7 @@ StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
       
       // build the patterns
       
-      if(buildPatterns(theCollection)) buildClusters(elementId);
+      if(buildPatterns(theCollection)) buildClusters(elementId, MuonDetMgr);
       
     }
     //clear map at each collection
@@ -175,15 +181,15 @@ int RpcClusterBuilderPRD::buildPatterns(const Muon::RpcPrepDataCollection* rpcCo
     if(!(rpcDigit->triggerInfo())){ // remove trigger patterns. temporary
       
       Identifier id=rpcDigit->identify();
-      int nstrip=m_rpcId->strip(id);
-      int doubletZ=m_rpcId->doubletZ(id);
-      int doubletPhi=m_rpcId->doubletPhi(id);
-      int gasGap=m_rpcId->gasGap(id);
-      int measPhi=m_rpcId->measuresPhi(id);
+      int nstrip=m_idHelperSvc->rpcIdHelper().strip(id);
+      int doubletZ=m_idHelperSvc->rpcIdHelper().doubletZ(id);
+      int doubletPhi=m_idHelperSvc->rpcIdHelper().doubletPhi(id);
+      int gasGap=m_idHelperSvc->rpcIdHelper().gasGap(id);
+      int measPhi=m_idHelperSvc->rpcIdHelper().measuresPhi(id);
       
       // use Id of first strip to identify a panel.
       
-      Identifier panelId=m_rpcId->channelID(eleId,doubletZ,doubletPhi,gasGap,measPhi,1);
+      Identifier panelId=m_idHelperSvc->rpcIdHelper().channelID(eleId,doubletZ,doubletPhi,gasGap,measPhi,1);
       
       if(m_digits.find(panelId)==m_digits.end()){ // first hit on this panel
 	
@@ -212,7 +218,7 @@ int RpcClusterBuilderPRD::buildPatterns(const Muon::RpcPrepDataCollection* rpcCo
   
 }
 
-void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
+void RpcClusterBuilderPRD::buildClusters(Identifier elementId, const MuonGM::MuonDetectorManager* MuonDetMgr) {
 
   // loop over existing patterns
 
@@ -222,11 +228,9 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
 
     Identifier panelId=(*patt_it).first; // this is the panel id
 
-    int measphi=m_rpcId->measuresPhi(panelId);
+    int measphi=m_idHelperSvc->rpcIdHelper().measuresPhi(panelId);
 
     //int clusteropen=0;
-    
-    //const RpcReadoutElement* descriptor=m_muonMgr->getRpcReadoutElement(elementId);
     
     std::map<int, Muon::RpcPrepData*, std::less<int> >::iterator dig_it=m_digits[panelId].begin();
 
@@ -244,7 +248,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
     
     for(;dig_it!=m_digits[panelId].end();++dig_it){ // loop over patterns
 
-      const MuonGM::RpcReadoutElement* descriptor=m_muonMgr->getRpcReadoutElement((*dig_it).second->identify());
+      const MuonGM::RpcReadoutElement* descriptor=MuonDetMgr->getRpcReadoutElement((*dig_it).second->identify());
     
       if(lastStrip==-999){ // first hit of a cluster..
 	
@@ -308,9 +312,9 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
 	//	  DV->push_back(digitsInCluster[k]);
 	//	}
 
-	IdContext rpcContext = m_rpcId->module_context();
+	IdContext rpcContext = m_idHelperSvc->rpcIdHelper().module_context();
 	IdentifierHash rpcHashId;
-	m_rpcId->get_hash(elementId, rpcHashId, &rpcContext);
+	m_idHelperSvc->rpcIdHelper().get_hash(elementId, rpcHashId, &rpcContext);
         
 	Amg::Vector2D pointLocPos ;
 	descriptor->surface(panelId).globalToLocal(globalPosition,globalPosition,pointLocPos);
@@ -369,9 +373,9 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
 
 	//	std::cout<<"decision is "<<clusAmbFlag<<std::endl;
 	
-	IdContext rpcContext = m_rpcId->module_context();
+	IdContext rpcContext = m_idHelperSvc->rpcIdHelper().module_context();
 	IdentifierHash rpcHashId;
-	m_rpcId->get_hash(elementId, rpcHashId, &rpcContext);
+	m_idHelperSvc->rpcIdHelper().get_hash(elementId, rpcHashId, &rpcContext);
 	
 	//std::cout<<"    closing2 the cluster "<<std::endl;
 	localPosition=localPosition*(1/(float)theIDs.size());
@@ -424,13 +428,13 @@ void RpcClusterBuilderPRD::push_back(Muon::RpcPrepData *& newCluster){
   m_temp_coll->push_back(newCluster);
 
 
-  //  Identifier elementId = m_rpcId->elementID(newCluster->identify());
-  // IdContext rpcContext = m_rpcId->module_context();
+  //  Identifier elementId = m_idHelperSvc->rpcIdHelper().elementID(newCluster->identify());
+  // IdContext rpcContext = m_idHelperSvc->rpcIdHelper().module_context();
  //  Muon::RpcPrepDataContainer::KEY key = m_rpcClusterContainer->key(elementId);
 
 //    if (!evtStore()->contains<Muon::RpcPrepDataCollection>(key)) {
 //       IdentifierHash rpcHashId;
-//       if (m_rpcId->get_hash(elementId, rpcHashId, &rpcContext)) {
+//       if (m_idHelperSvc->rpcIdHelper().get_hash(elementId, rpcHashId, &rpcContext)) {
 //          ATH_MSG_ERROR("Unable to get RPC hash id from RPC PreDataCollection collection id" 
 // 	     << "context begin_index = " << rpcContext.begin_index()
 // 	     << " context end_index  = " << rpcContext.end_index()
@@ -475,7 +479,7 @@ StatusCode RpcClusterBuilderPRD::retrieve_rpcClusterContainer() const {
           const Muon::RpcPrepData* cluster = *beginCluster;
           Amg::Vector3D position = cluster->globalPosition();
           ATH_MSG_INFO("RPC Cluster ID, Position (mm), size = " 
-	      << m_rpcId->show_to_string(cluster->identify()) << " ["
+	      << m_idHelperSvc->rpcIdHelper().show_to_string(cluster->identify()) << " ["
 	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.x()
 	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.y()
 	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.z()

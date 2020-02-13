@@ -31,8 +31,6 @@ Date:    9 Mar 2007
 
 from __future__ import generators
 
-from past.builtins import basestring
-
 import sys, warnings, os, fnmatch, glob, shutil, codecs
 try:
     from hashlib import md5
@@ -91,7 +89,7 @@ class path(_base):
         if not args:
             return typ(os.curdir)
         for arg in args:
-            if not isinstance(arg, basestring):
+            if not isinstance(arg, str):
                 raise ValueError("%s() arguments must be Path, str or "
                                  "unicode" % typ.__name__)
         if len(args) == 1:
@@ -112,7 +110,7 @@ class path(_base):
         return self.__class__(resultStr)
 
     def __radd__(self, other):
-        if isinstance(other, basestring):
+        if isinstance(other, str):
             return self.__class__(other.__add__(self))
         else:
             return NotImplemented

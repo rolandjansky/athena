@@ -48,7 +48,7 @@ def getFullHLTResultID():
 
 
 def getAllDataScoutingIdentifiers():
-    return DataScoutingIdentifiers.keys()
+    return list(DataScoutingIdentifiers.keys())
 
 
 def getAllPartialEventBuildingIdentifiers():
@@ -56,4 +56,4 @@ def getAllPartialEventBuildingIdentifiers():
 
 
 def getAllEventBuildingIdentifiers():
-    return PartialEventBuildingIdentifiers + DataScoutingIdentifiers.keys()
+    return PartialEventBuildingIdentifiers + list(DataScoutingIdentifiers.keys())

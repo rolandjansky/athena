@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -39,6 +39,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
 class RegionSelectionSvc;
 
 //root 
@@ -46,10 +48,6 @@ class TFile;
 class TNtuple;
 class TH1F;
 class TH1I;
-
-namespace MuonGM{
-class MuonDetectorManager;
-}
 
 namespace MuonCalib {
 
@@ -94,7 +92,12 @@ class NtupleTubeEfficiencyTool : public AthAlgTool, virtual public NtupleCalibra
 
 	ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
                 "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-	const MuonGM::MuonDetectorManager* m_detMgr;
+	
+	// MuonDetectorManager from the conditions store
+	SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	    "MuonDetectorManager", 
+	    "Key of input MuonDetectorManager condition data"};    
+
 	const MuonCalib::IIdToFixedIdTool *m_id_tool;
 
         // ROOT file and analysis ntuples/trees //

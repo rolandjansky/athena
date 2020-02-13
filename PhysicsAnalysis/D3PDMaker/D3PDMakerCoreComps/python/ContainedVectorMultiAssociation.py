@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # $Id: ContainedVectorMultiAssociation.py 526858 2012-11-20 18:13:46Z ssnyder $
 #
@@ -11,7 +11,7 @@
 
 
 import D3PDMakerCoreComps
-from D3PDObject import D3PDObject
+from .D3PDObject import D3PDObject
 
 
 def ContainedVectorMultiAssociation (parent,

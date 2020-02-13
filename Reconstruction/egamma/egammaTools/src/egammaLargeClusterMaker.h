@@ -19,7 +19,6 @@
 #include "xAODCaloEvent/CaloClusterFwd.h" 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-#include "egammaInterfaces/IegammaEnergyPositionAllSamples.h"
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -43,11 +42,6 @@ public:
   /** @brief execute on container */
   virtual StatusCode execute(const EventContext& ctx, xAOD::CaloClusterContainer* collection) const override final;
 private:
-  
-  /** @brief tool to calculate sum of energy in all samples */
-  ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples {this,
-      "egammaEnergyPositionAllSamplesTool", 
-      "egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"};
   
   /** @brief The name of the cluster container for electrons and photons */   
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inputClusterCollection {this,

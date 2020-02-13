@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -36,8 +36,10 @@ def createDQConfigFlags():
     for flag in _steeringFlags + _lowLevelSteeringFlags:
         acf.addFlag('DQ.Steering.' + flag, True)
     # HLT steering ...
-    from TrigHLTMonitoring.TrigHLTMonitorAlgorithm import createHLTDQConfigFlags
-    acf.join(createHLTDQConfigFlags())
+    from PyUtils.moduleExists import moduleExists
+    if moduleExists ('TrigHLTMonitoring'):
+        from TrigHLTMonitoring.TrigHLTMonitorAlgorithm import createHLTDQConfigFlags
+        acf.join(createHLTDQConfigFlags())
     return acf
 
 def createComplexDQConfigFlags():

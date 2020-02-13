@@ -568,6 +568,9 @@
 # ifndef SG_BASES3
 #  define SG_BASES3(A, B, C, D) class ATHCONTAINERS_DUMMY
 # endif // not SG_BASES3
+# ifndef SG_BASES4
+#  define SG_BASES4(A, B, C, D, E) class ATHCONTAINERS_DUMMY
+# endif // not SG_BASES4
 # ifndef SG_VIRTUAL
 #  define SG_VIRTUAL(X) X
 # endif // not SG_VIRTUAL
@@ -725,6 +728,32 @@ SG_BASES3(DataVector<T>, SG_VIRTUAL(DataVector<B1>),        \
                          SG_VIRTUAL(DataVector<B2>),        \
                          SG_VIRTUAL(DataVector<B3>))
 
+
+/**
+ * @brief Declare base class info to @c DataVector.
+ *        Multiple derivation.
+ *
+ * <code>DATAVECTOR_VIRTBASES4(D, B1, B2, B3, B4)</code> says that @c D derives
+ * from all of @c B1, @c B2, @c B3, and @c B4.
+ *
+ * This macro creates an appropriate specialization of @c DataVectorBase.
+ */
+#define DATAVECTOR_VIRTBASES4(T, B1, B2, B3, B4)            \
+DATAVECTOR_VIRTBASES4_FWD(T, B1, B2, B3, B4);               \
+template struct DataVector_detail::DVLEltBaseInit<T>
+
+
+/**
+ * @brief Version of @c DATAVECTOR_VIRTBASES4 that can be used
+ *        in forward declarations.
+ */
+#define DATAVECTOR_VIRTBASES4_FWD(T, B1, B2, B3, B4)            \
+template <> struct DataVectorBase<T>                            \
+{ typedef DataVector_detail::VirtBases<B1, B2, B3, B4> Base; }; \
+SG_BASES4(DataVector<T>, SG_VIRTUAL(DataVector<B1>),            \
+                         SG_VIRTUAL(DataVector<B2>),            \
+                         SG_VIRTUAL(DataVector<B3>),            \
+                         SG_VIRTUAL(DataVector<B4>))
 
 
 /**
@@ -3329,6 +3358,7 @@ struct Bases<DataVector<T, DataModel_detail::NoBase> > {
   typedef SG::AuxVectorBase Base1;
   typedef NoBase Base2;          
   typedef NoBase Base3;      
+  typedef NoBase Base4;      
 };                               
 template <class T>
 struct TopBase<DataVector<T, DataModel_detail::NoBase> > {
@@ -3379,7 +3409,8 @@ struct bases_from_sg
                   DataVector_detail::VirtBases
                     <clean_type<typename SG::Bases<T>::Base1>,
                      clean_type<typename SG::Bases<T>::Base2>,
-                     clean_type<typename SG::Bases<T>::Base3> >
+                     clean_type<typename SG::Bases<T>::Base3>,
+                     clean_type<typename SG::Bases<T>::Base4> >
                  > >::type type;
 };
 #undef if_

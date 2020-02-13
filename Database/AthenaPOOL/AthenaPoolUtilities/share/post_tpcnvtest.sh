@@ -245,6 +245,9 @@ PP="$PP"'| TrackingGeometrySvc '
 # This will be a warning, rather than a failure.
 PP="$PP"'|WARNING: new xAOD variables '
 
+# From MuonCondAlg.
+PP="$PP"'|Empty temporary A-line container'
+
 
 test=$1
 if [ -z "$testStatus" ]; then

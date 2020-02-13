@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 import CVSutil
 CVSkeywords = CVSutil.CVSkeywords( ["$Id: full_trfarg.py,v 1.61 2009-04-17 06:40:35 cote Exp $" ,
@@ -420,7 +420,7 @@ class JobOptionsArg(StringArg):
             # split the comma separated list (outside brackets)
             try:
                 return expandStringToList( valIn, False )
-            except Exception, msg:
+            except Exception as msg:
                 raise TransformDefinitionError( '%s=%s: %s' % ( self.name(), valIn, msg ) )
         else:
             # if we get here, there is problem
@@ -715,7 +715,7 @@ class DBReleaseArg( InputTarFileAndSetupArg ):
         """Install the DBRelease"""
         try:
             InputTarFileAndSetupArg.untarAndSetup(self)
-        except TransformArgumentError,e:
+        except TransformArgumentError as e:
             e.setError('TRF_DBREL_TARFILE')
             raise
         # unset DBRELEASE_REQUESTED to avoid needless crash in check in JobTransform

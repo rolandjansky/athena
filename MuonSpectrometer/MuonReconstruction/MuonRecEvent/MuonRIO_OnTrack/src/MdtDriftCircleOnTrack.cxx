@@ -58,7 +58,7 @@ Muon::MdtDriftCircleOnTrack::MdtDriftCircleOnTrack(
     Amg::setPerp(loc_gDirection,driftRadius());
     float ratio = loc_gDirection.x()/driftRadius();
     float calc_angle = (ratio >= 1.) ?  0. : acos(ratio);
-    m_localAngle = (loc_gDirection.y()<0.) ? 2*3.1415926 - calc_angle : calc_angle;
+    m_localAngle = (loc_gDirection.y()<0.) ? 2*M_PI - calc_angle : calc_angle;
   }
   m_rio.setElement(RIO);
 }

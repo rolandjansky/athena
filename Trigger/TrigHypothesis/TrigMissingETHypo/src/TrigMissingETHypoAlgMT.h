@@ -8,7 +8,7 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "DecisionHandling/HypoBase.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 
 #include "ITrigMissingETHypoToolMT.h"

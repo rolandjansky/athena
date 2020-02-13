@@ -23,7 +23,7 @@ class TileTTL1FromDigitsGetter ( Configured )  :
             theTileTTL1FromDigitsGetter=TileTTL1FromDigitsGetter()
         except Exception:
             mlog.error("could not get handle to TileTTL1FromDigitsGetter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theTileTTL1FromDigitsGetter.usable():
@@ -38,7 +38,7 @@ class TileTTL1FromDigitsGetter ( Configured )  :
             from TileRecAlgs.TileRecAlgsConf import TileDigitsToTTL1                
         except Exception:
             mlog.error("could not import TileRecAlgs.TileDigitsToTTL1")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theTileDigitsToTTL1=TileDigitsToTTL1()

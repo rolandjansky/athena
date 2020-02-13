@@ -34,7 +34,7 @@
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 //using namespace TrigL2MuonSA;
 
 class IRegSelSvc;

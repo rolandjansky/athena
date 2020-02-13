@@ -19,7 +19,22 @@ StatusCode DecisionCollectorTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
+StatusCode DecisionCollectorTool::getSequencesPerEvent( std::set<std::string>& output ) const {
+  for (auto decisionKey: m_decisionsKey) {
+    auto handle = SG::makeHandle( decisionKey );
+    if ( handle.isValid() ) {
+      output.insert(decisionKey.key());
+    }
+  }
+  return StatusCode::SUCCESS;
+}
 
+StatusCode DecisionCollectorTool::getSequencesNames( std::set<std::string>& output ) const {
+  for (auto decisionKey: m_decisionsKey) {
+    output.insert(decisionKey.key());
+  }
+  return StatusCode::SUCCESS;
+}
 
 StatusCode DecisionCollectorTool::getDecisions( std::vector<TrigCompositeUtils::DecisionID>& output ) const {
   for (auto decisionKey: m_decisionsKey ) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RecJiveXML/MissingETRetriever.h"
@@ -72,19 +72,18 @@ namespace JiveXML {
       }
     }
     else {
-      std::vector<std::string>::const_iterator keyIter,endIter;
-      for ( keyIter=m_otherKeys.begin(); keyIter!=m_otherKeys.end(); ++keyIter ){
-        if (!evtStore()->contains<MissingET>(*keyIter)){ continue ; } //skip if not in SG
-        StatusCode sc = evtStore()->retrieve( iterator, (*keyIter) );
+      for(const auto & thisKey: m_otherKeys){
+        if (!evtStore()->contains<MissingET>(thisKey)){ continue ; } //skip if not in SG
+        StatusCode sc = evtStore()->retrieve( iterator, (thisKey) );
         if (sc.isFailure()) {
-          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Data at " << (*keyIter) << " not found in SG " << endmsg;
+          ATH_MSG_WARNING( "Data at " << thisKey << " not found in SG " );
         }else{
           DataMap data = getData(iterator);
-          if ( FormatTool->AddToEvent(dataTypeName(), (*keyIter), &data).isFailure()){
-            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << dataTypeName() << " (" << (*keyIter) << ") getData failed " << endmsg;
+          if ( FormatTool->AddToEvent(dataTypeName(), thisKey, &data).isFailure()){
+            ATH_MSG_WARNING(dataTypeName() << " (" << thisKey << ") getData failed " );
           } 
           else{
-             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endmsg;
+            ATH_MSG_DEBUG(dataTypeName() << " (" << thisKey << ") retrieved" );
           }
         }
       }

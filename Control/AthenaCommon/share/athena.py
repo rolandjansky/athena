@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # athena.py is born as shell script to preload some optional libraries
 #
@@ -149,7 +149,7 @@ fhistory = os.path.expanduser( '~/.athena.history' )
 ## interface setup as appropriate
 if opts.run_batch and not opts.dbg_stage:
  # in batch there is no need for stdin
-   if os.isatty( sys.stdin.fileno() ):
+   if sys.stdin and os.isatty( sys.stdin.fileno() ):
       os.close( sys.stdin.fileno() )
 else:
    # Make sure ROOT gets initialized early, so that it shuts down last.

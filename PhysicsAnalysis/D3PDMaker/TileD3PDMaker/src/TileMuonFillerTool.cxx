@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -103,7 +103,6 @@ StatusCode TileMuonFillerTool::book(){
         CHECK( addVariable("charge",                           m_charge,                           "", m_defaultValue));
         CHECK( addVariable("eta",                              m_eta,                              "", m_defaultValue));
         CHECK( addVariable("phi",                              m_phi,                              "", m_defaultValue));
-        //CHECK( addVariable("beta",                             m_beta,                             "", m_defaultValue));
     } // IF
 
 
@@ -164,33 +163,6 @@ StatusCode TileMuonFillerTool::book2()
         CHECK( addVariable("ptcone20",                         m_ptcone20,                         "", m_defaultValue));
         CHECK( addVariable("ptcone30",                         m_ptcone30,                         "", m_defaultValue));
         CHECK( addVariable("ptcone40",                         m_ptcone40,                         "", m_defaultValue));
-
-/*
-        // ENERGY ISOLATION VARIABLES
-        CHECK( addVariable("E_Tile_cone05",                    m_Tile_cone05,                      "", m_defaultValue));
-        CHECK( addVariable("E_Tile_cone10",                    m_Tile_cone10,                      "", m_defaultValue));
-        CHECK( addVariable("E_Tile_cone20",                    m_Tile_cone20,                      "", m_defaultValue));
-        CHECK( addVariable("E_Tile_cone30",                    m_Tile_cone30,                      "", m_defaultValue));
-        CHECK( addVariable("E_Tile_cone40",                    m_Tile_cone40,                      "", m_defaultValue));
-
-        CHECK( addVariable("E_LAr_cone05",                     m_LAr_cone05,                       "", m_defaultValue));
-        CHECK( addVariable("E_LAr_cone10",                     m_LAr_cone10,                       "", m_defaultValue));
-        CHECK( addVariable("E_LAr_cone20",                     m_LAr_cone20,                       "", m_defaultValue));
-        CHECK( addVariable("E_LAr_cone30",                     m_LAr_cone30,                       "", m_defaultValue));
-        CHECK( addVariable("E_LAr_cone40",                     m_LAr_cone40,                       "", m_defaultValue));
-
-        CHECK( addVariable("E_Tile_iso_cone05",                m_Tile_iso_cone05,                  "", m_defaultValue));
-        CHECK( addVariable("E_Tile_iso_cone10",                m_Tile_iso_cone10,                  "", m_defaultValue));
-        CHECK( addVariable("E_Tile_iso_cone20",                m_Tile_iso_cone20,                  "", m_defaultValue));
-        CHECK( addVariable("E_Tile_iso_cone30",                m_Tile_iso_cone30,                  "", m_defaultValue));
-        CHECK( addVariable("E_Tile_iso_cone40",                m_Tile_iso_cone40,                  "", m_defaultValue));
-
-        CHECK( addVariable("E_LAr_iso_cone05",                 m_LAr_iso_cone05,                   "", m_defaultValue));
-        CHECK( addVariable("E_LAr_iso_cone10",                 m_LAr_iso_cone10,                   "", m_defaultValue));
-        CHECK( addVariable("E_LAr_iso_cone20",                 m_LAr_iso_cone20,                   "", m_defaultValue));
-        CHECK( addVariable("E_LAr_iso_cone30",                 m_LAr_iso_cone30,                   "", m_defaultValue));
-        CHECK( addVariable("E_LAr_iso_cone40",                 m_LAr_iso_cone40,                   "", m_defaultValue));
-*/
     } // IF
 
 
@@ -268,7 +240,6 @@ StatusCode TileMuonFillerTool::fill(const xAOD::Muon& p){
         *m_charge                           = muonPointer->charge();
         *m_eta                              = muonPointer->eta();
         *m_phi                              = muonPointer->phi();
-        //*m_beta                             = muonPointer->beta();
         *m_muonAuthor = muonPointer->author();
         *m_muonType = muonPointer->muonType();
         *m_muonQuality = muonPointer->quality();
@@ -284,32 +255,6 @@ StatusCode TileMuonFillerTool::fill(const xAOD::Muon& p){
         if ( !muonPointer->isolation((*m_ptcone20), Iso::IsolationType::ptcone20 ) ) ATH_MSG_WARNING("No ptcone20 defined");
         if ( !muonPointer->isolation((*m_ptcone30), Iso::IsolationType::ptcone30 ) ) ATH_MSG_WARNING("No ptcone30 defined");
         if ( !muonPointer->isolation((*m_ptcone40), Iso::IsolationType::ptcone40 ) ) ATH_MSG_WARNING("No ptcone40 defined");
-
-/*
-            *m_LAr_iso_cone05 = m_inCalo->getIsolationEnergy(muon_trk,0.05,em1,em3,false);
-            *m_LAr_iso_cone10 = m_inCalo->getIsolationEnergy(muon_trk,0.10,em1,em3,false);
-            *m_LAr_iso_cone20 = m_inCalo->getIsolationEnergy(muon_trk,0.20,em1,em3,false);
-            *m_LAr_iso_cone30 = m_inCalo->getIsolationEnergy(muon_trk,0.30,em1,em3,false);
-            *m_LAr_iso_cone40 = m_inCalo->getIsolationEnergy(muon_trk,0.40,em1,em3,false);
-
-            *m_Tile_iso_cone05 = m_inCalo->getIsolationEnergy(muon_trk,0.05,tile1,tile3,false);
-            *m_Tile_iso_cone10 = m_inCalo->getIsolationEnergy(muon_trk,0.10,tile1,tile3,false);
-            *m_Tile_iso_cone20 = m_inCalo->getIsolationEnergy(muon_trk,0.20,tile1,tile3,false);
-            *m_Tile_iso_cone30 = m_inCalo->getIsolationEnergy(muon_trk,0.30,tile1,tile3,false);
-            *m_Tile_iso_cone40 = m_inCalo->getIsolationEnergy(muon_trk,0.40,tile1,tile3,false);
-
-            *m_LAr_cone05 = m_inCalo->getMeasuredEnergy(muon_trk,0.05,em1,em3,false,false);
-            *m_LAr_cone10 = m_inCalo->getMeasuredEnergy(muon_trk,0.10,em1,em3,false,false);
-            *m_LAr_cone20 = m_inCalo->getMeasuredEnergy(muon_trk,0.20,em1,em3,false,false);
-            *m_LAr_cone30 = m_inCalo->getMeasuredEnergy(muon_trk,0.30,em1,em3,false,false);
-            *m_LAr_cone40 = m_inCalo->getMeasuredEnergy(muon_trk,0.40,em1,em3,false,false);
-
-            *m_Tile_cone05 = m_inCalo->getMeasuredEnergy(muon_trk,0.05,tile1,tile3,false,true);
-            *m_Tile_cone10 = m_inCalo->getMeasuredEnergy(muon_trk,0.10,tile1,tile3,false,true);
-            *m_Tile_cone20 = m_inCalo->getMeasuredEnergy(muon_trk,0.20,tile1,tile3,false,true);
-            *m_Tile_cone30 = m_inCalo->getMeasuredEnergy(muon_trk,0.30,tile1,tile3,false,true);
-            *m_Tile_cone40 = m_inCalo->getMeasuredEnergy(muon_trk,0.40,tile1,tile3,false,true);
-*/
     } // IF
 
     if(m_LevelOfDetails > 1){

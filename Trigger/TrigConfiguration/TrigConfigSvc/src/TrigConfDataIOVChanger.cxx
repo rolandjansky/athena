@@ -111,8 +111,8 @@ TrigConf::TrigConfDataIOVChanger::execute() {
    // (perhaps at some point a forced copy flag
    // will be implemented, but for now...)
    // ----------------------------------------
-   const DataHandle<CondAttrListCollection> listColl;
-   const DataHandle<AthenaAttributeList> attList;
+   const CondAttrListCollection* listColl = nullptr;
+   const AthenaAttributeList* attList = nullptr;
 
    if( detStore()->retrieve(listColl, TRIGGER_CONF_HLTMENU  ).isSuccess() && listColl) {
       ATH_MSG_INFO("Triggered reading of  " << TRIGGER_CONF_HLTMENU);    
@@ -165,8 +165,8 @@ TrigConf::TrigConfDataIOVChanger::execute() {
 
    // Second retrieve all meta data containers from the MetaDataStore
    // (the one that goes out into the ESD/AOD)
-   const DataHandle<IOVMetaDataContainer> cont;
-   const DataHandle<IOVMetaDataContainer> contEnd;
+   SG::ConstIterator<IOVMetaDataContainer> cont;
+   SG::ConstIterator<IOVMetaDataContainer> contEnd;
 
    CHECK(m_metaDataStore->retrieve(cont, contEnd));
 

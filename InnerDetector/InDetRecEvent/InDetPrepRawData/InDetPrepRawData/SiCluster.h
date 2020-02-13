@@ -6,8 +6,6 @@
 // SiCluster.h
 //   Header file for class SiCluster
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 // Class to implement Cluster for Si
 ///////////////////////////////////////////////////////////////////
 // Version 1.0 15/07/2003 Veronique Boisvert
@@ -41,6 +39,10 @@ class SiClusterCnv_p1;
 namespace InDet{
 
 class SiCluster :   public Trk::PrepRawData {
+        /**
+         * @name Friend class declarations
+         */
+        //@{
   	friend class ::PixelClusterContainerCnv;
  	friend class ::SCT_ClusterContainerCnv;
         friend class ::PixelClusterContainerCnv_p2;
@@ -49,32 +51,39 @@ class SiCluster :   public Trk::PrepRawData {
         friend class SCT_ClusterContainerCnv_p1;
         friend class ::SCT_ClusterContainerCnv_p0;
         friend class ::SiClusterCnv_p1;
+        //@}
 
-	///////////////////////////////////////////////////////////////////
-	// Public methods:
-	///////////////////////////////////////////////////////////////////
 	public:
 	
-	/** Public, Copy, operator=, constructor*/
+	/// Constructor without parameter
 	SiCluster();
+        /// Copy constructor
 	SiCluster(const SiCluster &);
+        /// Move constructor
 	SiCluster(SiCluster &&);
+        /// Assignment operator
 	SiCluster &operator=(const SiCluster &);
+        /// Move assignment operator
 	SiCluster &operator=(SiCluster &&);
 	
-        /** Only constructor for SiCluster.
-            Last datamember might not be always filled and will be 0 by default.
-            The others including SiDetectorElement have to be given!
-        */
+        /**
+         * Constructor with parameters using pointer of Amg::MatrixX.
+         * Last parameter might not be always filled and will be nullptr by default.
+         * The others including SiDetectorElement have to be given!
+         */
         SiCluster( 
                   const Identifier& RDOId,
                   const Amg::Vector2D& locpos, 
                   const std::vector<Identifier>& rdoList,
                   const InDet::SiWidth& width,
                   const InDetDD::SiDetectorElement* detEl,
-                  const Amg::MatrixX* locErrMat = 0
+                  const Amg::MatrixX* locErrMat = nullptr
                  );
-
+ 
+        /**
+         * Constructor with parameters using unique_ptr of Amg::MatrixX.
+         * All parameters have to be given!
+         */
         SiCluster( 
                   const Identifier& RDOId,
                   const Amg::Vector2D& locpos, 
@@ -84,36 +93,39 @@ class SiCluster :   public Trk::PrepRawData {
                   std::unique_ptr<const Amg::MatrixX> locErrMat
                  );
 
-        // Destructor:
+        /// Destructor:
 	virtual ~SiCluster();
 	
-	///////////////////////////////////////////////////////////////////
-	// Virtual methods 
-	///////////////////////////////////////////////////////////////////
-	
-	/** return width class reference */
+        /**
+         * @name Virtual methods 
+         */
+	//@{
+	/// return width class reference
 	virtual const InDet::SiWidth&  width()  const;
 	
-	/** return global position reference */
+	/// return global position reference
 	virtual const Amg::Vector3D& globalPosition() const;
 	
-	/** set the flag of this cluster containing a gangedPixel */
+	/// set the flag of this cluster containing a gangedPixel
 	virtual void setGangedPixel(bool ganged);
 	
-	/** return the flag of this cluster containing a gangedPixel */
+	/// return the flag of this cluster containing a gangedPixel
 	virtual bool gangedPixel() const;
 	
-	/** return the detector element corresponding to this PRD
-	The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)*/
+	/// return the detector element corresponding to this PRD
+        /// The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)
 	virtual const InDetDD::SiDetectorElement* detectorElement() const;
 
-	/** dump information about the SiCluster*/
+	/// dump information about the SiCluster
 	virtual MsgStream&    dump( MsgStream&    stream) const;
-	/** dump information about the SiCluster*/
+	/// dump information about the SiCluster
 	virtual std::ostream& dump( std::ostream& stream) const;
+        //@}
 
 	private:
-	InDet::SiWidth m_width; //col, row, and width in mm
+        /// col, row, and width in mm
+	InDet::SiWidth m_width;
+        /// For lazy initialization CxxUtils::CachedUniquePtr is used.
 	CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
 	bool m_gangedPixel;
 	const InDetDD::SiDetectorElement* m_detEl;

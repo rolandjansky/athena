@@ -13,7 +13,7 @@ if( ATLAS_RELEASE_MODE )
 endif()
 
 # Find the necessary externals:
-find_package( PythonInterp )
+find_package( Python COMPONENTS Interpreter )
 
 # The generator used to produce header files:
 set( _generator ${CMAKE_CURRENT_SOURCE_DIR}/scripts/XMLtoHeader.py )
@@ -25,7 +25,7 @@ atlas_install_scripts( ${_generator} )
 add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/L1Common
    COMMAND ${CMAKE_COMMAND} -E make_directory
    ${CMAKE_CURRENT_BINARY_DIR}/L1Common
-   COMMAND ${PYTHON_EXECUTABLE} ${_generator}
+   COMMAND ${Python_EXECUTABLE} ${_generator}
    -o ${CMAKE_CURRENT_BINARY_DIR}/L1Common/L1Common
    -i ${CMAKE_CURRENT_SOURCE_DIR}/schema/L1Specifications.xml
    COMMAND ${CMAKE_COMMAND} -E make_directory

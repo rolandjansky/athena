@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        HelperUtils.py
@@ -10,6 +10,7 @@
 ##
 ##=============================================================================
 
+from __future__ import print_function
 
 def GetTool(theTool):
     """
@@ -35,7 +36,7 @@ def SetToolProperties( theTool, **kw ):
             setattr( theTool, key, kw[key] )
             pass
         else:
-            print "(SetToolProperties) ERROR: Could NOT find property %s for tool with name %s" % (key, theTool.getName())
+            print ("(SetToolProperties) ERROR: Could NOT find property %s for tool with name %s" % (key, theTool.getName()))
             pass
         pass
     pass

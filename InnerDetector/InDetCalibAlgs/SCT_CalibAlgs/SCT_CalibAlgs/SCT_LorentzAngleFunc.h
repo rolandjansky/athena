@@ -5,7 +5,7 @@
 //For SCT Lorentz Angle
 
 #include <cmath>
-#include "TMath.h"
+#include "RtypesCore.h" // for Double_t etc.
 
 Double_t
 LA_func(Double_t* x, Double_t* par) {
@@ -13,13 +13,15 @@ LA_func(Double_t* x, Double_t* par) {
   const Double_t xmin{x[0] - 5.0*par[3]};
   const Double_t xmax{x[0] + 5.0*par[3]};
   const Double_t h{(xmax - xmin)/(n - 1)};
+  const double piOver180 = M_PI/180.;
+  const double piNorm = 1./std::sqrt(2.*M_PI);
   Double_t sum{0.};
   Double_t x_{xmin};
   Double_t LA_sum{0.};
   for (Int_t i{1}; i<n; i++) {
-    LA_sum = par[0]*TMath::Abs(TMath::Tan(x_*M_PI/180.)-TMath::Tan(par[1]*M_PI/180.))+par[2];
-    sum += LA_sum * 0.017455/TMath::Sqrt(2.*M_PI)/(par[3]*M_PI/180.)
-      * TMath::Exp(-(x[0]*M_PI/180. - x_*M_PI/180. )*(x[0]*M_PI/180. - x_*M_PI/180. )/(2*par[3]*M_PI/180.*par[3]*M_PI/180.)) * h;
+    LA_sum = par[0]*std::fabs(std::tan(x_*piOver180)-std::tan(par[1]*piOver180))+par[2];
+    sum += LA_sum * 0.017455 * piNorm/(par[3]*piOver180)
+      * std::exp(-(x[0]*piOver180 - x_*piOver180 )*(x[0]*piOver180 - x_*piOver180 )/(2*par[3]*piOver180*par[3]*piOver180)) * h;
     x_ += h;
   }
   return sum;

@@ -906,3 +906,22 @@ def getLegacyAFIIFastCaloTool(name="ISF_LegacyAFIIFastCaloTool", **kwargs):
     kwargs.setdefault("BatchProcessMcTruth" , True )
     kwargs.setdefault("CaloCellMakerTools_simulate"      , [ 'ISF_LegacyFastShowerCellBuilderTool' ] )
     return getFastCaloToolBase(name, **kwargs)
+
+def getFastCaloSimV2Tool(name="ISF_FastCaloSimV2Tool", **kwargs):
+    from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
+
+    kwargs.setdefault("CaloCellsOutputName"              , ISF_FastCaloSimFlags.CaloCellsName()   )
+    kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
+    kwargs.setdefault("CaloCellMakerTools_release"       , [ 'ISF_CaloCellContainerFCSFinalizerTool',
+                                                           'ISF_FastHitConvertTool' ])
+    kwargs.setdefault("FastCaloSimCaloExtrapolation"     , 'FastCaloSimCaloExtrapolation')
+
+    kwargs.setdefault("ParamSvc", "ISF_FastCaloSimV2ParamSvc")
+    # register the FastCaloSim random number streams
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault("RandomStream"                     , ISF_FastCaloSimFlags.RandomStreamName())
+    kwargs.setdefault("RandomSvc"                        , simFlags.RandomSvcMT())
+    kwargs.setdefault("PunchThroughTool"                 , '') #ISF_PunchThroughTool
+
+    return CfgMgr.ISF__FastCaloSimV2Tool(name, **kwargs )
+

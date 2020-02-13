@@ -12,18 +12,9 @@ namespace Muon {
   unsigned int MuPatSegment::s_numberOfInstantiations = 0;
   unsigned int MuPatSegment::s_numberOfCopies = 0;
 
-  // Static functions
-  void MuPatSegment::resetMaxNumberOfInstantiations() {
-    s_maxNumberOfInstantiations = 0;
-  }
-
-  void MuPatSegment::resetNumberOfCopies() {
-    s_numberOfCopies = 0;
-  }
-
   MuPatSegment::MuPatSegment() : MuPatCandidateBase(), quality(0.0),segQuality(0),segment(0),segPars(0),segmentIndex(-1),usedInFit(0),
-				 chIndex(MuonStationIndex::ChUnknown),stIndex(MuonStationIndex::StUnknown),isEndcap(false),isMdt(false),mboyInfo(0)
-				       
+         chIndex(MuonStationIndex::ChUnknown),stIndex(MuonStationIndex::StUnknown),isEndcap(false),isMdt(false),mboyInfo(0)
+
   {
 #ifdef MCTB_OBJECT_COUNTERS
     addInstance();
@@ -32,7 +23,7 @@ namespace Muon {
     std::cout << " new MuPatSegment() " << this << " , instances " << s_numberOfInstantiations << std::endl;
 #endif
   }
-  
+
   MuPatSegment::~MuPatSegment() {
     delete segPars;
     if (mboyInfo) delete mboyInfo;
@@ -44,7 +35,7 @@ namespace Muon {
 #endif
   }
 
-  MuPatSegment::MuPatSegment( const MuPatSegment& info ) : 
+  MuPatSegment::MuPatSegment( const MuPatSegment& info ) :
     MuPatCandidateBase(info) {
     quality = info.quality;
     segQuality = info.segQuality;
@@ -85,7 +76,7 @@ namespace Muon {
 #endif
   }
 
-  MuPatSegment& MuPatSegment::operator=( const MuPatSegment& info ) { 
+  MuPatSegment& MuPatSegment::operator=( const MuPatSegment& info ) {
     if( &info != this ){
       MuPatCandidateBase::operator=(info);
       quality = info.quality;
@@ -124,7 +115,7 @@ namespace Muon {
       ++s_numberOfCopies;
 #endif
     }
-    return *this; 
+    return *this;
   }
 
 

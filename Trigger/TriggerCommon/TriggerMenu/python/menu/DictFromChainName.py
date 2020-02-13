@@ -13,8 +13,6 @@ __version__=""
 __doc__="Obtaining Dictionaries from Chain Names"
 
 
-import re
-
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 logDict = logging.getLogger('TriggerMenu.menu.DictFromChainName')
@@ -52,7 +50,7 @@ class DictFromChainName(object):
                 mergingInfoFilled = False
                 tsfInfoFilled = False
                 if (type(chainInfo[i]) is list):
-                    if mergingInfoFilled == False:
+                    if mergingInfoFilled is False:
                         m_mergingStrategy = chainInfo[i][0]
                         if not (m_mergingStrategy == "parallel" or m_mergingStrategy == "serial"):
                             logDict.error("Merging strategy %s is not known.", m_mergingStrategy)
@@ -80,7 +78,7 @@ class DictFromChainName(object):
                     else: logDict.error("Something went wrong here....topoStartFrom has already been filled!")                  
 
                 elif (type(chainInfo[i]) is bool):
-                    if tsfInfoFilled == False: 
+                    if tsfInfoFilled is False:
                         chainProp['topoStartFrom'] = chainInfo[i]
                         tsfInfoFilled = True
                     else: logDict.error("Something went wrong here....topoStartFrom has already been filled!")                  
@@ -106,10 +104,9 @@ class DictFromChainName(object):
         are defined in SliceDicts
         The naming convention is defined in this document http://
         """
-        chainName_orig = chainName
 
         # ---- dictionary with all chain properties ----
-        from SignatureDicts import ChainDictTemplate
+        from .SignatureDicts import ChainDictTemplate
         from copy import deepcopy
         genchainDict = deepcopy(ChainDictTemplate)
         genchainDict['chainName'] = chainName
@@ -144,7 +141,7 @@ class DictFromChainName(object):
 
            
         # ---- identify the topo algorithm and add to genchainDict -----
-        from SignatureDicts import AllowedTopos
+        from .SignatureDicts import AllowedTopos
         topo = '';topos=[];toposIndexed={}; topoindex = -5
         for cindex, cpart in enumerate(cparts):
             if  cpart in AllowedTopos:
@@ -169,16 +166,16 @@ class DictFromChainName(object):
         # ---- expected format: <Multiplicity(int)><TriggerType(str)>
         #      <Threshold(int)><isolation,...(str|str+int)> ----
         # EXCEPT FOR CHAINS ...
-        from SignatureDicts import getBasePattern
+        from .SignatureDicts import getBasePattern
         pattern = getBasePattern()
         mdicts=[]
         multichainindex=[]
         signatureNames = []
 
         # ---- obtain dictionary parts for signature defining patterns ----
-        from SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
-            AllowedCalibChainIdentifiers, AllowedStreamingChainIdentifiers, \
-            AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers, AllowedEBChainIdentifiers
+        from .SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
+            AllowedCalibChainIdentifiers, \
+            AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers
             #, AllowedMatchingKeywords
 
         logDict.debug("cparts: %s", cparts)
@@ -191,7 +188,7 @@ class DictFromChainName(object):
                 logDict.debug("Pattern found in this string: %s", cpart)
                 m_groupdict = m.groupdict()
                 # Check whether the extra contains a special keyword
-                skip=False
+#                skip=False
 #                for keyword in AllowedMatchingKeywords :
 #                    if keyword in m_groupdict['extra']: skip=True
 #                if skip: continue
@@ -203,12 +200,12 @@ class DictFromChainName(object):
                     # j45 would be found in [0, 13], and 3j45 in [12]
                     # so need to make sure the multiplicities are considered here!
                     if (theMultiChainIndex != 0) & (chainName[theMultiChainIndex-1] != '_'): continue
-                    skip=False
+#                    skip=False
 #                    for keyword in AllowedMatchingKeywords :
 #                        if chainName[theMultiChainIndex:len(chainName)].startswith(cpart+keyword): skip=True
 #                    if skip: continue
                     
-                    if not theMultiChainIndex in multichainindex:
+                    if theMultiChainIndex not in multichainindex:
                         multichainindex.append(theMultiChainIndex)
 
                 logDict.debug("ChainName: %s", chainName)
@@ -298,7 +295,6 @@ class DictFromChainName(object):
         # ----  ----
         multichainparts=[]
 
-        remainder = chainName
         multichainindex = sorted(multichainindex, key=int)
         cN = chainName
         for i in reversed(multichainindex):
@@ -321,7 +317,7 @@ class DictFromChainName(object):
             logDict.debug('chainparts %s', chainparts)
 
             # ---- check if L1 item is specified in chain Name ----
-            L1itemFromChainName = ''; L1item = ''; 
+            L1item = ''
             chainpartsNoL1 = chainparts
             
             #Checking for L1 item for chain part and overall in the name
@@ -394,7 +390,7 @@ class DictFromChainName(object):
 
             #print 'chainpartsNoL1', chainpartsNoL1
             parts=chainpartsNoL1.split('_')
-            parts = filter(None,parts)
+            parts = list(filter(None,parts))
 
             #print 'parts after L1 string removal = ',parts
             # ---- start with first pattern and write into dict and remove it afterwards ----
@@ -427,14 +423,14 @@ class DictFromChainName(object):
 
 
             #---- Check if topo is a bphsyics topo -> change signature ----            
-            from SignatureDicts import AllowedTopos_bphys
+            from .SignatureDicts import AllowedTopos_bphys
             for t in genchainDict['topo']:
                 if (t in AllowedTopos_bphys):
                     chainProperties['signature'] = 'Bphysics'
 
 
             # ---- import the relevant dictionaries for each part of the chain ---- 
-            from SignatureDicts import getSignatureInformation
+            from .SignatureDicts import getSignatureInformation
             SignatureDefaultValues, allowedSignaturePropertiesAndValues = getSignatureInformation(chainProperties['signature'])
             logDict.debug('SignatureDefaultValues: %s', SignatureDefaultValues)
             
@@ -443,10 +439,8 @@ class DictFromChainName(object):
             result.update(chainProperties)
             chainProperties = result
 
-            # ---- check remaining parts for complete machtes in allowedPropertiesAndValues Dict ----
-            # ---- unmatched = list of tokens that are not found in the allowed values as a whole ----
-            unmatched = [] 
-            parts = filter(None, parts)     #removing empty strings from list
+            # ---- check remaining parts for complete matches in allowedPropertiesAndValues Dict ----
+            parts = [x for x in parts if x]     #removing empty strings from list
 
             matchedparts = []
             for pindex, part in enumerate(parts):

@@ -863,6 +863,7 @@ else:
                                                         RotCreatorTool      = InDetRotCreator,
                                                         BroadRotCreatorTool = BroadInDetRotCreator,
                                                         MinDegreesOfFreedom = 1,
+                                                        MatEffects          =  InDetFlags.materialInteractionsType(), 
                                                         MinSiHits           =  InDetNewTrackingCuts.minClusters() )
         if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
             InDetTruthTrackBuilder.MinSiHitsForward = InDetNewTrackingCutsForwardTracks.minClusters()
@@ -870,18 +871,6 @@ else:
 #        InDetTruthTrackBuilder.OutputLevel = VERBOSE
         ToolSvc += InDetTruthTrackBuilder
         
-        # --- the trajectory manipulator
-        if not InDetFlags.doSLHC():
-            from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectoryManipulatorID
-            InDetTruthTrajectoryManipulator = InDet__PRD_TruthTrajectoryManipulatorID(name='InDetTruthTrajectoryManipulator')
-            ToolSvc += InDetTruthTrajectoryManipulator
-#            InDetTruthTrajectoryManipulator.OutputLevel = VERBOSE
-
-        # --- the trajectory shared cluster hits fixer
-#        from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectorySharedFixerID
-#        InDetTruthTrajectorySharedFixer = InDet__PRD_TruthTrajectorySharedFixerID(name = 'InDetTruthTrajectorySharedFixer' )                       
-#        ToolSvc += InDetTruthTrajectorySharedFixer
-
         # --- the truth PRD trajectory builder
         
         # 
@@ -900,8 +889,19 @@ else:
                                          InDetPRD_Provider               = InDetPRD_Provider,
                                          MinimumPt                       =  InDetNewTrackingCuts.minPT(),
                                          PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter ])
-        if not InDetFlags.doSLHC():
+        if not InDetFlags.doSLHC() and not InDetFlags.doIdealPseudoTracking():
+         # --- the trajectory manipulator
+            from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectoryManipulatorID
+            InDetTruthTrajectoryManipulator = InDet__PRD_TruthTrajectoryManipulatorID(name='InDetTruthTrajectoryManipulator')
+            ToolSvc += InDetTruthTrajectoryManipulator
+
+         # --- the trajectory shared cluster hits fixer
+#           from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectorySharedFixerID
+#           InDetTruthTrajectorySharedFixer = InDet__PRD_TruthTrajectorySharedFixerID(name = 'InDetTruthTrajectorySharedFixer' )                       
+#           ToolSvc += InDetTruthTrajectorySharedFixer
+            
             InDetPRD_TruthTrajectoryBuilder.PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter, InDetTruthTrajectoryManipulator ]
+        
         ToolSvc+=InDetPRD_TruthTrajectoryBuilder
 #        InDetPRD_TruthTrajectoryBuilder.OutputLevel = VERBOSE
 

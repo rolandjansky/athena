@@ -72,10 +72,14 @@ namespace TrigConf {
 
 }
 
+#ifndef TRIGCONF_STANDALONE
+
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( TrigConf::L1Menu , 26419484 , 1 )
 
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( TrigConf::L1Menu , 11747932 );
+
+#endif
 
 #endif

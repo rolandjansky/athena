@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "ToolFactories to instantiate all egammaCaloTools with default configuration"
 __author__ = "Bruno Lenzi"
 
 from egammaRec.Factories import FcnWrapper, ToolFactory
-import egammaCaloToolsConf
+from egammaCaloTools import egammaCaloToolsConf
 from egammaRec import egammaKeys
 
 #---------------------------------------

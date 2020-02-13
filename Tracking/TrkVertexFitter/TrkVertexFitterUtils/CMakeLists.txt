@@ -45,16 +45,16 @@ atlas_add_test( DummyAnnealingMaker_test
                 SOURCES test/DummyAnnealingMaker_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel TrkParameters TrkParametersBase TrkVertexFitterInterfaces MagFieldInterfaces TrkSurfaces TrkEventPrimitives TrkNeutralParameters TrkParticleBase TrkTrack VxVertex TrkExInterfaces TrkExUtils TestTools
-                EXTRA_PATTERNS "AtlasFieldSvc" )
+                LOG_IGNORE_PATTERN "AtlasFieldSvc" )
 
 atlas_add_test( DetAnnealingMaker_test
                 SOURCES test/DetAnnealingMaker_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel TrkParameters TrkParametersBase TrkVertexFitterInterfaces MagFieldInterfaces TrkSurfaces TrkEventPrimitives TrkNeutralParameters TrkParticleBase TrkTrack VxVertex TrkExInterfaces TrkExUtils TestTools
-                EXTRA_PATTERNS "AtlasFieldSvc" )
+                LOG_IGNORE_PATTERN "AtlasFieldSvc" )
 
 atlas_add_test( ImpactPoint3dEstimator_test
                 SOURCES test/ImpactPoint3dEstimator_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel TrkParameters TrkParametersBase TrkVertexFitterInterfaces MagFieldInterfaces TrkSurfaces TrkEventPrimitives TrkNeutralParameters TrkParticleBase TrkTrack VxVertex TrkExInterfaces TrkExUtils TestTools
-                EXTRA_PATTERNS "AtlasFieldSvc" )
+                LOG_IGNORE_PATTERN "AtlasFieldSvc" )

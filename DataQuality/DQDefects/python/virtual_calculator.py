@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from logging import getLogger; log = getLogger("DQDefects.virtual_defect_calculator")
 
@@ -9,6 +9,8 @@ from DQUtils.sugar import IOVSet, RunLumi
 
 from DQDefects import DEFECT_IOV
 
+import six
+
 
 def generate_virtual_defects(by_channel, logics, since_cr, until_cr, ignore):
     """
@@ -17,10 +19,10 @@ def generate_virtual_defects(by_channel, logics, since_cr, until_cr, ignore):
     It also computes the state of the virtual flags for each (since, until)
     region.
     """    
-    all_channels = by_channel.keys() + [l.name for l in logics]
+    all_channels = list(by_channel.keys()) + [l.name for l in logics]
     states = dict((channel, None) for channel in all_channels)
     
-    channels, iovsets = zip(*sorted(by_channel.iteritems()))
+    channels, iovsets = zip(*sorted(six.iteritems(by_channel)))
         
     for since, until, current_iovs, changes in process_iovs_changed(*iovsets):
         # Update things that changed since last iteration in the states dict
@@ -69,7 +71,7 @@ def calculate_virtual_defects(primary_iovs, evaluation_order,
     primary_by_channel = primary_iovs.by_channel
     
     # Copy desired primary channels to the result
-    for primary_channel, primary_iovs in primary_by_channel.iteritems():
+    for primary_channel, primary_iovs in six.iteritems(primary_by_channel):
         if primary_channel in primary_output_channels:
             if ignore and primary_channel in ignore:
                 continue
@@ -94,7 +96,7 @@ def calculate_virtual_defects(primary_iovs, evaluation_order,
     # Sort them by traditional COOL sort ordering (by channelId first, 
     # then by since. `iovs` are already ordered by since.)
     result_list = IOVSet()
-    for channel, iovs in sorted(result.iteritems()):
+    for channel, iovs in sorted(six.iteritems(result)):
         result_list.extend(iovs.solidify(DEFECT_IOV))
         
     return result_list

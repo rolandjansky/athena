@@ -30,13 +30,10 @@
 
 #include "TMath.h"
 #include <set>
-#include "GaudiKernel/IIncidentListener.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODMuon/MuonSegmentContainer.h"
-
-class IIncidentSvc;
 
 namespace Trk{
   class PrepRawData;
@@ -60,7 +57,7 @@ namespace Muon {
   class MuonIdHelperTool;
 
 
-  class MuonLayerHoughTool:  virtual public IMuonHoughPatternFinderTool, virtual public IIncidentListener, public AthAlgTool  {
+  class MuonLayerHoughTool:  virtual public IMuonHoughPatternFinderTool, public AthAlgTool  {
   public:
     
     typedef std::vector<IdentifierHash>   HashVec;
@@ -152,12 +149,6 @@ namespace Muon {
     double rCor( const TgcClusterObj3D& tgc, int val, int sector ) const;
 
     int sublay( const Identifier& id, float z = 0 ) const; // the z value is only used for the tgcs
-
-    //const MuonHough::MuonDetectorHough& houghTransforms() const { return m_detectorHoughTransforms; }
-    //const HoughDataPerSectorVec&        houghData() const { return m_houghDataPerSectorVec; }
-
-    /**  incident service handle for EndEvent */
-    virtual void handle(const Incident& inc) override;// maybe in the future clear per event
 
   private:
 
@@ -269,7 +260,6 @@ namespace Muon {
     unsigned int m_ntechnologies;
     CollectionsPerSectorVec m_collectionsPerSector;
 
-    ServiceHandle< IIncidentSvc >  m_incidentSvc;
     MuonSectorMapping              m_sectorMapping;
   };
 

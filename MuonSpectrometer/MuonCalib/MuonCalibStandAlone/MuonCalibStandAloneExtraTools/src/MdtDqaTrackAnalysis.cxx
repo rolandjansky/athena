@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_TrackAnalysisCXX
@@ -887,38 +887,8 @@ int MdtDqaTrackAnalysis::MDTtiming(const std::vector<const MuonCalibExtendedSegm
       // MDT hits on segment 
       std::vector<MdtCalibHitBase*>::const_iterator aHit_it = (*seg_it)->mdtHOTBegin();
       std::vector<MdtCalibHitBase*>::const_iterator aHit_it_end = (*seg_it)->mdtHOTEnd();
-      //      if (debug_seg){
-      //	cout << " hits on segment " << (*seg_it)->mdtHitsOnTrack() 
-      //	     << " delta hits " << (*seg_it)->deltaHits() << " out of time " << (*seg_it)->outOfTimeHits() 
-      //	     << " empty tubes or Holes " << (*seg_it)->emptyTubes() << " chi2/dof " << (*seg_it)->chi2() << std::endl;
-      //      }
-            //    GLOBAL segment_Phi Vs segment_Eta
-            // 
-      //    float gdirX = (*seg_it)->globalDirection().x();
-      //float gdirY = (*seg_it)->globalDirection().y();
-      //float gdirZ = (*seg_it)->globalDirection().z();
-      //      float globalPhi = atan2(gdirY,gdirX)* 180./3.14159265;
-      //      float globalTheta = acos(gdirZ);
-      //      float globalEta = -log(tan(globalTheta/2.));
-      
-      //double dirY=(*seg_it)->direction().y();
-      //double dirZ=(*seg_it)->direction().z();
-      //double posY=(*seg_it)->position().y();
-      //double posZ=(*seg_it)->position().z();
-      //double aseg=0.;
-      //double bseg=0.;
-      //if (dirZ !=0. ) {
-	//aseg=dirY/dirZ;
-	//bseg= posY - aseg*posZ;
-      //}
-
-      //      if (debug_seg){
-      //	cout << " Global Phi, Theta, Eta : "<<globalPhi<<" "<<globalTheta<<" "<<globalEta
-      //	     << " ------- Segment slope and intercept (a, b ) : "<<aseg<<" "<<bseg<< endl;
-      //      }
 
       float t0refit = (*seg_it)->fittedT0();
-      //      if (debug_seg) cout << " fittedT0 : " << t0refit << endl;
                 
       if (t0refit!= 0.) {
 	int hitCount(0);

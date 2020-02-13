@@ -70,12 +70,6 @@ namespace RCU
     // private interface
     //
 
-    /// description: the location where the message occured
-  private:
-    const char *m_file;
-  private:
-    unsigned m_line;
-
     /// description: the actual message
   private:
     std::string m_message;

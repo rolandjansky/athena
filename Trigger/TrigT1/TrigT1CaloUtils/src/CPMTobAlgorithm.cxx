@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           CPMTobAlgorithm.cxx  -  description
@@ -46,7 +46,7 @@ const unsigned int CPMTobAlgorithm::m_tauLUT_EMIsolNBits = 6;
 const unsigned int CPMTobAlgorithm::m_noIsol = 999;
 
 LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const xAOD::CPMTowerMap_t* ttContainer,
-                                ServiceHandle<TrigConf::ITrigConfigSvc> config, int slice ):
+                                ServiceHandle<TrigConf::ILVL1ConfigSvc> config, int slice ):
   m_configSvc(config),
   m_Core(0),
   m_EMClus(0),

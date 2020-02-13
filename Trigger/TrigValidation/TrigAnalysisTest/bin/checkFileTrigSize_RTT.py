@@ -183,6 +183,7 @@ class checkFileTrigSize_RTT:
         
         emtList = [
             'CaloCompactCellContainer_AODCellContainer',
+            'CaloCompactCellContainer_AllCalo',
             'InDet::Track_tlp1',
             'TPCnv::MuonMeasurements_tlp1',
             'Trk::TrackCollection_tlp1_egammaSlimmedTrackCollection',

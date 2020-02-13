@@ -4,9 +4,7 @@
 */
 
 #include "MuonCombinedInDetCandidateAlg.h"
-#include "TrkToolInterfaces/ITrackSelectorTool.h"
 //#include "MuonCombinedToolInterfaces/IInDetCandidateTool.h"
-#include "MuonRecToolInterfaces/IMuonSystemExtensionTool.h"
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
@@ -14,15 +12,10 @@ using namespace MuonCombined;
 
 MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_doSiliconForwardMuons(false),
-  m_trackSelector("InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool"),
-  m_muonSystemExtensionTool("Muon::MuonSystemExtensionTool/MuonSystemExtensionTool", this)
+  m_doSiliconForwardMuons(false)
 {  
-  declareProperty("TrackSelector", m_trackSelector);
-  declareProperty("InDetForwardTrackSelector", m_forwardTrackSelector);
   declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = {"InDetTrackParticles"});
   declareProperty("ForwardParticleLocation",m_indetForwardTrackParticleLocation = "InDetForwardTrackParticles");
-  declareProperty("MuonSystemExtensionTool",m_muonSystemExtensionTool );
   declareProperty("InDetCandidateLocation", m_candidateCollectionName = "InDetCandidates");
   declareProperty("DoSiliconAssocForwardMuons", m_doSiliconForwardMuons = false);
   declareProperty("ExtensionPtThreshold",m_extThreshold=2500);

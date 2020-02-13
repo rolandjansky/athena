@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file AthenaRootComps/python/ReadAthenaxAOD.py
 # @purpose make the Athena framework read a set of xAOD files to emulate the
@@ -50,7 +50,7 @@ def _configure():
     evtloop = getattr(svcMgr, theApp.EventLoop)
     try:
         evtloop.EventPrintoutInterval = 10000
-    except Exception, err:
+    except Exception as err:
         msg.info('disabling event loop heartbeat... [failed]')
         msg.info('performances might be sub-par... sorry.')
         pass

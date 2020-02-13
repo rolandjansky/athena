@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-#Definitions of the monitoring classes  
+#Definitions of the monitoring classes
+
+from __future__ import print_function
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 
@@ -79,7 +81,7 @@ class TrigCheckForTracksCosmicMonitoring(TrigGenericMonitoringToolConfig):
 
 def setCalibMonTools( algoObject ):
     algoName=algoObject.getName()
-    print "Monitoring for "+algoName
+    print ("Monitoring for "+algoName)
 
     from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
     time = TrigTimeHistToolConfig(algoName+"Time")

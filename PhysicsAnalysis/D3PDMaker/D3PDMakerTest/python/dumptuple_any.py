@@ -1,13 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id$
 #
 # File: D3PDMakerTest/python/dumptuple_any.py
 # Author: snyder@bnl.gov
 # Date: Feb, 2010
 # Purpose: Test D3PD making.
 #
+
+from __future__ import print_function
 
 
 # Always run in batch mode.
@@ -163,18 +163,18 @@ def merge_names (blist):
 def dumptree (tt, by_branch):
     n = tt.GetEntries()
     if tt.GetName().startswith ('dum_') and n > 10000000:
-        print '[Dummy tree skipped]'
+        print ('[Dummy tree skipped]')
         return
     bb = [b.GetName() for b in tt.GetListOfBranches()]
     bb.sort()
     if by_branch:
         bb = merge_names (bb)
-        print '\nBranches'
-        print '-----------'
+        print ('\nBranches')
+        print ('-----------')
         lasttag = ''
         for b in bb:
             if b[0] == ':':
-                print b
+                print (b)
                 lasttag = b[1:]
                 continue
             if b == '$':
@@ -186,21 +186,21 @@ def dumptree (tt, by_branch):
             for i in range(n):
                 br.GetEntry(i)
                 data.append (topy (getattr(tt, bname)))
-            print b, tostr (data)
+            print (b, tostr (data))
     else:
         for i in range(n):
             tt.GetEntry(i)
-            print '\nEvent', i
-            print '-----------'
+            print ('\nEvent', i)
+            print ('-----------')
             for b in bb:
-                print b, tostr (topy (getattr (tt, b)))
+                print (b, tostr (topy (getattr (tt, b))))
     return
 
 
 def dumphist (h):
-    print 'bins: ', [h.GetBinContent(i) for i in range(h.GetSize())]
+    print ('bins: ', [h.GetBinContent(i) for i in range(h.GetSize())])
     if h.GetSumw2N():
-        print 'errs: ', [h.GetBinError(i) for i in range(h.GetSize())]
+        print ('errs: ', [h.GetBinError(i) for i in range(h.GetSize())])
     return
 
 
@@ -214,23 +214,23 @@ def dumpdir (f, by_branch, pref=''):
         if k == 'Schema':
             pass
         elif isinstance (o, ROOT.TTree):
-            print '\n\n\nTree', pref+k
+            print ('\n\n\nTree', pref+k)
             dumptree (o, by_branch)
         elif isinstance (o, ROOT.TH1):
-            print '\n\n\nTH1', pref+k
+            print ('\n\n\nTH1', pref+k)
             dumphist (o)
         elif isinstance (o, ROOT.TDirectory):
             dumpdir (o, by_branch, pref + k + '/')
         elif isinstance (o, ROOT.TObjString):
-            print '\n\n\nString', pref+k
+            print ('\n\n\nString', pref+k)
             if k == '_pickle':
-                print '[pickle data skipped]'
+                print ('[pickle data skipped]')
             else:
-                print o,
-            print '__END_OF_STRING__'
+                print (o, end='')
+            print ('__END_OF_STRING__')
         else:
-            print '\n\n\nKey', pref+k
-            print o
+            print ('\n\n\nKey', pref+k)
+            print (o)
     return
               
 

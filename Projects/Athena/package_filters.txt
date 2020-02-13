@@ -4,6 +4,8 @@
 
 # Technical package(s) that should not show up in packages.txt:
 - Build
+- .devcontainer
+- .vscode
 
 # Ignore the Projects directory:
 - Projects/.*
@@ -16,9 +18,6 @@
 
 # Offload service has build problems
 - Offloading/.*
-
-# Abandoned generator package(s):
-- Generators/Herwigpp_i
 
 # Temporary VP1 compilation issues
 - graphics/VP1/VP1Systems/VP1TriggerSystems

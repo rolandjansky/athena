@@ -18,7 +18,6 @@
 #include "HepMC/GenParticle.h"
 #include "TrackRecord/TrackRecordCollection.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h" 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
@@ -55,9 +54,6 @@ MDTPRDValAlg::MDTPRDValAlg(const std::string& name,
   AthAlgorithm(name, pSvcLocator),
   m_mdttree(0),
   m_event_counter(0),
-  m_histo_flag(false),
-  m_descriptor(0),
-  m_pMuonMgr(0),
   m_log(0),
   m_debug(false),
   m_verbose(false),
@@ -173,13 +169,8 @@ StatusCode MDTPRDValAlg::initialize()
   /**Locate the StoreGateSvc and initialize our local ptr
      intitialize transient event store
   */
-  StatusCode sc = detStore()->retrieve( m_pMuonMgr ); 
-  if (sc.isFailure()){
-    *m_log << MSG::ERROR << "Cannot retrieve MuonDetectorManager" << endmsg;
-    return sc;
-  }
 
-  sc = m_muonIdHelperTool.retrieve();
+  StatusCode sc = m_muonIdHelperTool.retrieve();
   if (sc.isFailure()){
     *m_log << MSG::ERROR << "Cannot retrieve MuonIdHelperTool" << endmsg;
     return sc;

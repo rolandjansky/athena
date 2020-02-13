@@ -10,6 +10,7 @@
 from __future__ import print_function
 
 import os
+import sys
 
 refpaths = [os.environ.get ('ATLAS_REFERENCE_DATA', None),
             '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art',
@@ -26,7 +27,7 @@ def find_file (fname):
 # Find reference and input files.
 RunNumber = 363899
 input_base = 'data18_tilecomm.00363899.calibration_tile.daq.RAW._lb0000._TileREB-ROS._0005-200ev.data'
-if not globals().has_key ('ATLAS_REFERENCE_TAG'):
+if 'ATLAS_REFERENCE_TAG' not in  globals():
     ATLAS_REFERENCE_TAG = os.environ.get ('ATLAS_REFERENCE_TAG',
                                           'TileByteStream-02-00-00')
 from AthenaCommon.Utils.unixtools import find_datafile
@@ -110,5 +111,6 @@ class Finalizer (Alg):
             localdump = os.path.join (dumpdir, os.path.basename (f))
             os.system ('diff -u %s %s' % (f, localdump))
         print ('Finalize: compared %d dumps' % len(dumps))
+        sys.stdout.flush()
         return StatusCode.Success
 topSequence += Finalizer ('Finalizer')

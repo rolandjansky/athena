@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file FTK_RecExample/python/FTKJobProperties.py
@@ -118,22 +118,22 @@ class FTKJobProperties(JobPropertyContainer):
     #Method to do the final setup of the flags according to user input before.
     #This method MUST ONLY BE CALLED once in FTK_RecExample/FTKRec_jobOptions.py!!
     if not self.Enabled:
-      print 'FTKFlags.init(): FTK flags are disabled. Locking container and not doing anything else.'
+      print ('FTKFlags.init(): FTK flags are disabled. Locking container and not doing anything else.')
     else:
-      print 'Initializing FTKJobProperties with DetFlags, GlobalFlags and other high level flags.'
+      print ('Initializing FTKJobProperties with DetFlags, GlobalFlags and other high level flags.')
       # THIS METHOD MUST BE THE FIRST TO BE CALLED. DO NOT MOVE IT OR ADD THINGS IN FRONT
       self.setupDefaults()
       
   def printInfo(self) :
-    print '****** FTK Flags ********************************************************'
+    print ('****** FTK Flags ********************************************************')
     if self.doSmearing() :
-      print '*'
-      print '* --------------------> FTK tracks will be simulated by smearing HLT tracks'
-      print '*'
+      print ('*')
+      print ('* --------------------> FTK tracks will be simulated by smearing HLT tracks')
+      print ('*')
     if self.doTruthSmearing() :
-      print '*'
-      print '* --------------------> FTK tracks will be simulated by smearing truth particles'
-      print '*'
+      print ('*')
+      print ('* --------------------> FTK tracks will be simulated by smearing truth particles')
+      print ('*')
 
      
 ## adding the container to the general top-level container

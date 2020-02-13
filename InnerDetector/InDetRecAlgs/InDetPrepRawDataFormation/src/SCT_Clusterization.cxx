@@ -11,13 +11,12 @@
 #include "InDetPrepRawDataFormation/SCT_Clusterization.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"    
+#include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
-#include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/SCT_RDORawData.h"
-#include "SiClusterizationTool/ISCT_ClusteringTool.h"
 #include "StoreGate/WriteHandle.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 namespace InDet {
   using namespace InDet;
@@ -26,8 +25,7 @@ namespace InDet {
   // Constructor with parameters:
   SCT_Clusterization::SCT_Clusterization(const std::string& name, ISvcLocator* pSvcLocator) :
     AthReentrantAlgorithm(name, pSvcLocator),
-    m_regionSelector{"RegSelSvc", name},
-    m_idHelper{nullptr}
+    m_regionSelector{"RegSelSvc", name}
   {
     // Get parameter values from jobOptions file
     declareProperty("ClusterContainerCacheKey", m_clusterContainerCacheKey="");

@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 class _BTaggingFlags:
 
@@ -492,50 +494,50 @@ class _BTaggingFlags:
 
     def Print (self):
       if not BTaggingFlags.Active:
-        print '#BTAG# b-tagging is OFF'
+        print ('#BTAG# b-tagging is OFF')
         return
-      print '#BTAG# ---------------------------------------------------------------------------------------------'
-      print '#BTAG# BTagging configuration:'
+      print ('#BTAG# ---------------------------------------------------------------------------------------------')
+      print ('#BTAG# BTagging configuration:')
       for attr in self._Outputlevel:
-        print '#BTAG# -> Output level: '+str(getattr(self, attr))
+        print ('#BTAG# -> Output level: '+str(getattr(self, attr)))
       for attr in self._DecorateMvaInputs:
         _tmpdec=getattr(self, attr)
-        print '#BTAG# -> attach MVA inputs to the BTagging object: ', _tmpdec
+        print ('#BTAG# -> attach MVA inputs to the BTagging object: ', _tmpdec)
       for attr in self._mode:
         _tmpmode=getattr(self, attr)
-        print '#BTAG# -> Running in mode: '+_tmpmode
+        print ('#BTAG# -> Running in mode: '+_tmpmode)
         if _tmpmode == 'reference':
           for attr in self._ReferenceType:
-            print '#BTAG#    reference type: '+getattr(self, attr)
+            print ('#BTAG#    reference type: '+getattr(self, attr))
           for attr in self._JetPtMinRef:
-            print '#BTAG#    minimum uncalibrated jet pt for reference in MeV: ', getattr(self, attr)
+            print ('#BTAG#    minimum uncalibrated jet pt for reference in MeV: ', getattr(self, attr))
       for attr in self._AutoInspectInputFile:
-        print '#BTAG# -> Automatic inspection of input file: '+str(getattr(self, attr))
+        print ('#BTAG# -> Automatic inspection of input file: '+str(getattr(self, attr)))
       for attr in self._jetFinderBasedOn:
-        print '#BTAG# -> JetFinder based on: '+getattr(self, attr)
+        print ('#BTAG# -> JetFinder based on: '+getattr(self, attr))
       for attr in self._Jets:
-        print '#BTAG# -> List of jet types considered: '+str(getattr(self, attr))
+        print ('#BTAG# -> List of jet types considered: '+str(getattr(self, attr)))
       for attr in self._JetsWithInfoPlus:
-        print '#BTAG# -> List of jet types with InfoPlus: '+str(getattr(self, attr))
+        print ('#BTAG# -> List of jet types with InfoPlus: '+str(getattr(self, attr)))
       for attr in self._ConvertParticleJets:
         if getattr(self, attr):
-          print '#BTAG# -> Legacy converter for ParticleJets -> Jets is activated'
+          print ('#BTAG# -> Legacy converter for ParticleJets -> Jets is activated')
       for attr in self._JetsForNtuple:
-        print '#BTAG# -> List of jet collections to ntuple: '+str(getattr(self, attr))
+        print ('#BTAG# -> List of jet collections to ntuple: '+str(getattr(self, attr)))
       for attr in self._jetTruthMatching:
-        print '#BTAG# -> TruthMatching algorithm: '+getattr(self, attr)
+        print ('#BTAG# -> TruthMatching algorithm: '+getattr(self, attr))
       for attr in self._PrimaryVertexCollectionName:
-        print '#BTAG# -> Primary vertex collection: '+getattr(self, attr)
+        print ('#BTAG# -> Primary vertex collection: '+getattr(self, attr))
       for attr in self._TrackParticleCollectionName:
-        print '#BTAG# -> TrackParticle collection: '+getattr(self, attr)
+        print ('#BTAG# -> TrackParticle collection: '+getattr(self, attr))
       for attr in self._TrackParticleTruthCollectionName:
-        print '#BTAG# -> TrackParticleTruth collection: '+getattr(self, attr)
+        print ('#BTAG# -> TrackParticleTruth collection: '+getattr(self, attr))
       for attr in self._MuonCollectionName:
-        print '#BTAG# -> Muon collection: '+getattr(self, attr)
+        print ('#BTAG# -> Muon collection: '+getattr(self, attr))
       for attr in self._ElectronCollectionName:
-        print '#BTAG# -> Electron collection: '+getattr(self, attr)
+        print ('#BTAG# -> Electron collection: '+getattr(self, attr))
       for attr in self._PhotonCollectionName:
-        print '#BTAG# -> Photon collection: '+getattr(self, attr)
+        print ('#BTAG# -> Photon collection: '+getattr(self, attr))
       #These will be updated later in BTagCalibrationBroker_xxx_jobOptions.py,
       # no point in showing wrong values now
       #for attr in self._CalibrationFolderRoot:
@@ -544,62 +546,62 @@ class _BTaggingFlags:
       #  print '#BTAG# -> Trigger calibration folder root: '+getattr(self, attr)
       for attr in self._CalibrationSingleFolder:
         if getattr(self, attr):
-          print '#BTAG# -> Calibration schema: single actual DB folder + one shadow folder per tagger'
+          print ('#BTAG# -> Calibration schema: single actual DB folder + one shadow folder per tagger')
         else:
-          print '#BTAG# -> Calibration schema: one actual DB folder per tagger'
+          print ('#BTAG# -> Calibration schema: one actual DB folder per tagger')
       for attr in self._CalibrationFromLocalReplica:
         if getattr(self, attr):
-          print '#BTAG# -> Calibration from local user-defined sqlite replica'
+          print ('#BTAG# -> Calibration from local user-defined sqlite replica')
         else:
-          print '#BTAG# -> Calibration from COOL database',
+          print ('#BTAG# -> Calibration from COOL database',)
           for attr in self._CalibrationFromCERN:
             if getattr(self, attr):
-              print ' (using CERN Oracle DB. ATTENTION: not for production jobs!)'
+              print (' (using CERN Oracle DB. ATTENTION: not for production jobs!)')
             else:
-              print ' (using standard replication mechanism)'
+              print (' (using standard replication mechanism)')
       for attr in self._CalibrationTag:
         if getattr(self, attr) == '':
-          print '#BTAG# -> Calibration tag: automatic'
+          print ('#BTAG# -> Calibration tag: automatic')
         else:
-          print '#BTAG# -> Calibration tag: '+getattr(self,attr)
+          print ('#BTAG# -> Calibration tag: '+getattr(self,attr))
       for attr in self._TrigCalibrationTag:
         if getattr(self, attr) == '':
-          print '#BTAG# -> Trigger calibration tag: automatic'
+          print ('#BTAG# -> Trigger calibration tag: automatic')
         else:
-          print '#BTAG# -> Trigger calibration tag: '+getattr(self,attr)
+          print ('#BTAG# -> Trigger calibration tag: '+getattr(self,attr))
       for attr in self._AODFixCalibrationTag:
         if getattr(self, attr) == '':
-          print '#BTAG# -> AODFix calibration tag: automatic'
+          print ('#BTAG# -> AODFix calibration tag: automatic')
         else:
-          print '#BTAG# -> AODFix calibration tag: '+getattr(self,attr)
+          print ('#BTAG# -> AODFix calibration tag: '+getattr(self,attr))
       for attr in self._CalibrationJetFitterFile:
-        print '#BTAG# -> JetFitter calibration files: '+getattr(self, attr)
+        print ('#BTAG# -> JetFitter calibration files: '+getattr(self, attr))
       for attr in self._CalibrationChannelAliases:
-        print '#BTAG# -> Calibration channel aliases: '+str(getattr(self, attr))
+        print ('#BTAG# -> Calibration channel aliases: '+str(getattr(self, attr)))
       for attr in self._writeSecondaryVertices:
-        print '#BTAG# -> Store secondary vertices: '+str(getattr(self, attr))
+        print ('#BTAG# -> Store secondary vertices: '+str(getattr(self, attr)))
       format = "%25s : %s"
-      print '#BTAG# -> List of active tagger flags: ',
+      print ('#BTAG# -> List of active tagger flags: ', end='')
       for attr in self._tags:
         if getattr(self, attr):
-          print attr,
-      print
-      print '#BTAG# -> List of active trigger tagger flags: ',
+          print (attr, end='')
+      print()
+      print ('#BTAG# -> List of active trigger tagger flags: ', end='')
       for attr in self._TriggerTaggers:
-        print(" ".join([tag for tag in getattr(self, attr) if (tag in self._tags and getattr(self, tag))]))
-      print
+        print((" ".join([tag for tag in getattr(self, attr) if (tag in self._tags and getattr(self, tag))])))
+      print ()
 
-      print
+      print ()
       for attr in self._doJetTagNtuple:
-          print '#BTAG# -> doJetTagNtuple: '+str(getattr(self,attr))
+          print ('#BTAG# -> doJetTagNtuple: '+str(getattr(self,attr)))
       for attr in self._JetTagNtupleName:
-          print '#BTAG# -> JetTagNtupleName: '+str(getattr(self,attr))
+          print ('#BTAG# -> JetTagNtupleName: '+str(getattr(self,attr)))
       for attr in self._doJetTagSlimNtuple:
-          print '#BTAG# -> doJetTagSlimNtuple: '+str(getattr(self,attr))
+          print ('#BTAG# -> doJetTagSlimNtuple: '+str(getattr(self,attr)))
       for attr in self._JetTagSlimNtupleName:
-          print '#BTAG# -> JetTagSlimNtupleName: '+str(getattr(self,attr))
+          print ('#BTAG# -> JetTagSlimNtupleName: '+str(getattr(self,attr)))
       for attr in self._UseLatestJetCollsForNtuple:
-          print '#BTAG# -> Use latest re-tagged jet collections for ntuple: '+str(getattr(self,attr))
+          print ('#BTAG# -> Use latest re-tagged jet collections for ntuple: '+str(getattr(self,attr)))
 
       self.btaggingAODList = list()
       self.btaggingESDList = list()
@@ -618,7 +620,7 @@ class _BTaggingFlags:
                                       "AntiKt4TruthWZ",
                                       ]
 
-      print '#BTAG# ---------------------------------------------------------------------------------------------'
+      print ('#BTAG# ---------------------------------------------------------------------------------------------')
 
     def IsEnabled(self, tagger):
       if ( tagger in self._tags):

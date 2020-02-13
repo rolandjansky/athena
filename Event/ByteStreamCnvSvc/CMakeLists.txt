@@ -62,70 +62,46 @@ atlas_add_executable( AtlListBSEvents test/AtlListBSEvents.cxx
    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES} )
 
-# Function helping to set up the integration tests
-function( _add_test testName toExecute )
-
-   # Look for possible extra arguments:
-   cmake_parse_arguments( ARG "" "POST_EXEC;EXTRA_PATTERNS"
-      "ENVIRONMENT;DEPENDS" ${ARGN} )
-
-   # Create the script that will run the test:
-   configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/test/athenarun_test.sh.in
-      ${CMAKE_CURRENT_BINARY_DIR}/${testName}_test.sh @ONLY )
-
-   # Helper variable setting extra options on the test:
-   set( _options )
-   if( ARG_POST_EXEC )
-      list( APPEND _options POST_EXEC_SCRIPT
-         "${CMAKE_CURRENT_SOURCE_DIR}/${ARG_POST_EXEC} ${testName}" )
-   endif()
-   if( ARG_ENVIRONMENT )
-      list( APPEND _options ENVIRONMENT ${ARG_ENVIRONMENT} )
-   endif()
-   if( ARG_EXTRA_PATTERNS )
-      list( APPEND _options EXTRA_PATTERNS ${ARG_EXTRA_PATTERNS} )
-   endif()
-   if( ARG_DEPENDS )
-      list( APPEND _options PROPERTIES DEPENDS ${ARG_DEPENDS} )
-   endif()
-
-   # Set up the test:
-   atlas_add_test( ${testName}
-      SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/${testName}_test.sh
-      PROPERTIES TIMEOUT 600
-      ${_options} )
-
-endfunction( _add_test )
 
 # Test(s) in the package:
-_add_test( BSEventSelector
-   "athena.py ByteStreamCnvSvc/BSEventSelector_test_jobOptions.py" )
+atlas_add_test( BSEventSelector
+   SCRIPT "athena.py ByteStreamCnvSvc/BSEventSelector_test_jobOptions.py"
+   LOG_SELECT_PATTERN "ByteStream.*Svc" )
 
-_add_test( AtlCopyBSEvent1_test
-   "rm -f test.data; AtlCopyBSEvent -e 186882810,187403142,187404922,187419528 -o test.data /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"
-   DEPENDS ByteStreamCnvSvc_BSEventSelector_ctest )
-_add_test( AtlFindBSEvent2_test
-   "AtlFindBSEvent -e 187403142 /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"
-   DEPENDS ByteStreamCnvSvc_AtlCopyBSEvent1_test_ctest )
-_add_test( AtlCopyBSEvent3_test
-   "rm -f test_defl.data; AtlCopyBSEvent -d -e 186882810,187403142,187419528 -o test_defl.data test.data"
-   DEPENDS ByteStreamCnvSvc_AtlCopyBSEvent1_test_ctest )
-_add_test( AtlFindBSEvent4_test
-   "AtlFindBSEvent -e 187403142 test_defl.data"
-   EXTRA_PATTERNS "+Timestamp"
-   DEPENDS ByteStreamCnvSvc_AtlCopyBSEvent3_test_ctest )
-_add_test( AtlCopyBSEvent5_test
-   "rm -f test_infl.data; AtlCopyBSEvent -e 186882810,187403142,187419528 -o test_infl.data test_defl.data"
-   DEPENDS ByteStreamCnvSvc_AtlFindBSEvent4_test_ctest )
-# Input file has vanished.
-#_add_test( AtlCopyBSEvent6_test
-#   "AtlCopyBSEvent -e all -o empty.data /afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/RAW.01524408._005549.data.1"
-#   DEPENDS ByteStreamCnvSvc_AtlFindBSEvent4_test_ctest )
+atlas_add_test( AtlCopyBSEvent1_test
+   PRE_EXEC_SCRIPT "rm -f test.data"
+   SCRIPT "AtlCopyBSEvent -e 186882810,187403142,187404922,187419528 -o test.data /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"
+   PROPERTIES DEPENDS ByteStreamCnvSvc_BSEventSelector_ctest )
 
+atlas_add_test( AtlFindBSEvent2_test
+   SCRIPT "AtlFindBSEvent -e 187403142 test.data"
+   PROPERTIES DEPENDS ByteStreamCnvSvc_AtlCopyBSEvent1_test_ctest )
 
-atlas_add_test( ByteStreamConfigTest    SCRIPT python -m ByteStreamCnvSvc.ByteStreamConfig    POST_EXEC_SCRIPT nopost.sh )
+atlas_add_test( AtlCopyBSEvent3_test
+   PRE_EXEC_SCRIPT "rm -f test_defl.data"
+   SCRIPT "AtlCopyBSEvent -d -e 186882810,187403142,187419528 -o test_defl.data test.data"
+   PROPERTIES DEPENDS ByteStreamCnvSvc_AtlCopyBSEvent1_test_ctest )
+
+atlas_add_test( AtlFindBSEvent4_test
+   SCRIPT "AtlFindBSEvent -e 187403142 test_defl.data"
+   LOG_IGNORE_PATTERN "+Timestamp"
+   PROPERTIES DEPENDS ByteStreamCnvSvc_AtlCopyBSEvent3_test_ctest )
+
+atlas_add_test( AtlCopyBSEvent5_test
+   PRE_EXEC_SCRIPT "rm -f test_infl.data"
+   SCRIPT "AtlCopyBSEvent -e 186882810,187403142,187419528 -o test_infl.data test_defl.data"
+   PROPERTIES DEPENDS ByteStreamCnvSvc_AtlCopyBSEvent3_test_ctest )
+
+atlas_add_test( AtlCopyBSEvent6_test
+   PRE_EXEC_SCRIPT "rm -f empty*.data && python ${CMAKE_CURRENT_SOURCE_DIR}/test/create_empty_bsfile.py"
+   SCRIPT "AtlCopyBSEvent -e all -o empty.data empty._0001.data"
+   PROPERTIES DEPENDS ByteStreamCnvSvc_AtlCopyBSEvent5_test_ctest )
+
+atlas_add_test( ByteStreamConfigTest
+   SCRIPT python -m ByteStreamCnvSvc.ByteStreamConfig
+   POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/catalogBytestreamFiles.sh )

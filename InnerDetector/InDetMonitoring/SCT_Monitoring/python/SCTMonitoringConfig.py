@@ -8,5 +8,7 @@ def SCTMonitoringConfig(flags):
     if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
         from .SCTLorentzMonAlg import SCTLorentzMonAlgConfig
         acc.merge(SCTLorentzMonAlgConfig(flags))
+        from .SCTTracksMonAlg import SCTTracksMonAlgConfig
+        acc.merge(SCTTracksMonAlgConfig(flags))
 
     return acc

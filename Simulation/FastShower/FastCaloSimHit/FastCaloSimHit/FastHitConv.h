@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -52,9 +52,6 @@ private:
 
   StatusCode hitConstruction();
 
-  // For reading in of Fast Hits
-  LArHitContainer* m_fastHitCont;
-  TileHitVector* m_fastTileHits;
   //for writing out of Hit, naming as G4 for default
   SG::WriteHandle<LArHitContainer> m_embHitContainer;
   SG::WriteHandle<LArHitContainer> m_emecHitContainer;

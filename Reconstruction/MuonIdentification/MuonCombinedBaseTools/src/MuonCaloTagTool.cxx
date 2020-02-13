@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -38,6 +38,7 @@
 #include "HepMC/GenVertex.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
+#include <cmath>
 
 namespace MuonCombined {
  
@@ -375,8 +376,8 @@ namespace MuonCombined {
     double momEta = par->momentum().eta();
     double momPhi = par->momentum().phi();
     ATH_MSG_DEBUG("*** Analysing track with parameters: ***");
-    ATH_MSG_VERBOSE("  position:  r = " << r  << ", eta = " << eta    << ", phi = " << phi/3.1415);
-    ATH_MSG_DEBUG("  momentum: pt = " << pt << ", eta = " << momEta << ", phi = " << momPhi/3.1415);
+    ATH_MSG_VERBOSE("  position:  r = " << r  << ", eta = " << eta    << ", phi = " << phi/M_PI);
+    ATH_MSG_DEBUG("  momentum: pt = " << pt << ", eta = " << momEta << ", phi = " << momPhi/M_PI);
     
     return;
     

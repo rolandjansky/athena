@@ -9,6 +9,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkValidationUtils/SurfaceNtupleBranch.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 class TTree;
 
@@ -18,8 +19,6 @@ namespace Muon {
 
 namespace MuonGM {
   
-  class MuonDetectorManager;
-        
   /** @class MuonGMNtupleWriter
        
       BAsic MuonGM Ntuple dumper
@@ -59,7 +58,11 @@ namespace MuonGM {
 
     Trk::SurfaceNtupleBranch m_mdtSurfaceBranch;
     
-    const MuonGM::MuonDetectorManager* m_detMgr;
+    // MuonDetectorManager from the conditions store
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
+
     bool m_outputToTextFile;
   };
    

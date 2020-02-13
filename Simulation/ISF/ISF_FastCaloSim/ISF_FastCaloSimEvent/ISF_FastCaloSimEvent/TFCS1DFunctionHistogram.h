@@ -45,8 +45,4 @@ class TFCS1DFunctionHistogram:public TFCS1DFunction
 
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCS1DFunctionHistogram+;
-#endif
-
 #endif

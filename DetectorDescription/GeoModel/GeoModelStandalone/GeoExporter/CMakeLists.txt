@@ -25,7 +25,7 @@ find_package( Qt5 COMPONENTS Sql Gui PrintSupport )
 find_package( Eigen ) # is it really needed here?
 FIND_PACKAGE( Boost ) # is it really needed here?
 find_package( CLHEP )
-find_package( GeoModel )
+find_package( GeoModelCore )
 
 # Component(s) in the package:
 atlas_add_library( GeoExporter

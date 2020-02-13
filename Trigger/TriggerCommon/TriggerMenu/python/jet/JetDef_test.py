@@ -2,12 +2,8 @@
 
 from __future__ import print_function
 
-import sys
-import os
-from cStringIO import StringIO
 import copy
 import unittest
-from mock import MagicMock
 from JetDef import generateHLTChainDef, usage
 
 from ChainConfigMaker import JetAttributes
@@ -18,7 +14,9 @@ class TestJetDef(unittest.TestCase):
 
     def setUp(self):
         self.from_central =  copy.deepcopy(MC_pp_V5_dicts[0])
+        # import sys
         # self.old_stdout = sys.stdout
+        # from cStringIO import StringIO
         # sys.stdout = StringIO()
 
     def tearDown(self):
@@ -254,7 +252,7 @@ class TestJetDef(unittest.TestCase):
              'topoStartFrom': False,
              'topoThreshold': None}
         
-        chain_def = generateHLTChainDef(d)
+        generateHLTChainDef(d)
         
 
 if __name__ == '__main__':

@@ -3,7 +3,6 @@
 */
 
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
-#include "TrkToolInterfaces/IExtendedTrackSummaryHelperTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -16,11 +15,6 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
-#include "TrkToolInterfaces/IPixelToTPIDTool.h"
-
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
-
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkParameters/TrackParameters.h"
@@ -36,37 +30,10 @@ Trk::TrackSummaryTool::TrackSummaryTool(const std::string& t,
   const IInterface*  p )
   :
   base_class(t,n,p),
-  m_doHolesMuon(false),
-  m_doHolesInDet(false),
-  m_doSharedHits(false),
-  m_detID{},
-  m_idTool("", this),
-  m_eProbabilityTool("", this),
-  m_trt_dEdxTool("", this),
-  m_dedxtool("", this),
-  m_muonTool("", this),
-  m_pixelExists(true)
+  m_detID{}
 {
   declareInterface<ITrackSummaryTool>(this);
-  declareProperty("doSharedHits",               m_doSharedHits);
-  declareProperty("doHolesInDet",               m_doHolesInDet);
-  declareProperty("doHolesMuon",                m_doHolesMuon);
-  declareProperty("AddDetailedInDetSummary",    m_addInDetDetailedSummary=true);
-  declareProperty("AddDetailedMuonSummary",     m_addMuonDetailedSummary=true);
-  declareProperty("InDetSummaryHelperTool",     m_idTool);
-  declareProperty("TRT_ElectronPidTool",        m_eProbabilityTool);
-  declareProperty("TRT_ToT_dEdxTool",           m_trt_dEdxTool);
-  declareProperty("PixelToTPIDTool",            m_dedxtool);
-  declareProperty("MuonSummaryHelperTool",      m_muonTool);
-  declareProperty("PixelExists",                m_pixelExists);
-
-  declareProperty("TRTdEdx_DivideByL",        (m_TRTdEdx_DivideByL=true) );
-  declareProperty("TRTdEdx_useHThits",        (m_TRTdEdx_useHThits=true) );
-  declareProperty("TRTdEdx_corrected",        (m_TRTdEdx_corrected=true) );
-  declareProperty("minTRThitsForTRTdEdx",     (m_minTRThitsForTRTdEdx=1) );
-
 }
-
 
 //============================================================================================
 

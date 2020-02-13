@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthExJobOptions/KeyMixin.h"
+#include "KeyMixin.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 

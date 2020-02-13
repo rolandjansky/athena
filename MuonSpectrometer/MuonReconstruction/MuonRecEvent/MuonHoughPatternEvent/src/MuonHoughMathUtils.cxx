@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughMathUtils.h"
@@ -66,12 +66,12 @@ double MuonHoughMathUtils::angleFrom0To180(double angle)const
 
 double MuonHoughMathUtils::angleFrom0ToPi(double angle)const
 {
-  return incrementTillAbove0(angle,MuonHough::Pi);
+  return incrementTillAbove0(angle,M_PI);
 }
 
 double MuonHoughMathUtils::angleFromMinusPiToPi(double angle)const
 {
-  return incrementTillAbove0(angle,2*MuonHough::Pi,-MuonHough::Pi);
+  return incrementTillAbove0(angle,2*M_PI,-M_PI);
 }
 
 std::string MuonHoughMathUtils::intToString(int i)const

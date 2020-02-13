@@ -20,8 +20,6 @@ StatusCode CppFilterTester::initialize()
 
   // Get filter EB and only then register the cuts
   m_filterCutID = cutFlowSvc()->registerFilter(this->name(), "Algorithm cut");
-  m_cut1ID      = cutFlowSvc()->registerCut("cut1", "First cut", m_filterCutID);
-  m_cut2ID      = cutFlowSvc()->registerCut("cut2", "Second cut", m_filterCutID);
 
   return StatusCode::SUCCESS;
 }
@@ -29,8 +27,6 @@ StatusCode CppFilterTester::initialize()
 
 StatusCode CppFilterTester::execute()
 {
-  cutFlowSvc()->addEvent(m_cut1ID, m_cut1);
-  cutFlowSvc()->addEvent(m_cut2ID, m_cut2);
   cutFlowSvc()->addEvent(m_filterCutID, 2);
 
   return StatusCode::SUCCESS;

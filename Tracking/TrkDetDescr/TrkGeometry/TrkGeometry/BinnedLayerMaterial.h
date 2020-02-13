@@ -84,7 +84,7 @@ namespace Trk {
       const BinUtility* binUtility() const override;
        
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
-      virtual void updateBinning(BinUtility* bu) const override;
+      virtual void updateBinning(BinUtility* bu) override;
        
       /**Return method for full material description of the Layer - for all bins*/
       const MaterialPropertiesMatrix& fullMaterial() const;
@@ -104,7 +104,7 @@ namespace Trk {
     private:
       friend class ::BinnedLayerMaterialCnv_p1;
 
-      mutable BinUtility*       m_binUtility; //!< the helper for the bin finding
+      BinUtility*       m_binUtility; //!< the helper for the bin finding
  
       /** The five different MaterialProperties */
       MaterialPropertiesMatrix m_fullMaterial;
@@ -129,7 +129,7 @@ inline const BinUtility* BinnedLayerMaterial::binUtility() const
      return m_fullMaterial[bin1][bin0];
   }
   
-  inline void BinnedLayerMaterial::updateBinning(BinUtility* bu) const {
+  inline void BinnedLayerMaterial::updateBinning(BinUtility* bu){
       if (bu){
           delete m_binUtility;
           m_binUtility = bu;

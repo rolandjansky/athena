@@ -22,7 +22,6 @@
 #include "InDetRawData/TRT_RDORawData.h"
 
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
@@ -47,8 +46,6 @@ InDet::TRT_DriftCircleToolCosmics::TRT_DriftCircleToolCosmics(const std::string&
   m_driftFunctionTool("TRT_DriftFunctionTool"),
   m_ConditionsSummary("TRT_StrawStatusSummaryTool",this),
   m_useConditionsStatus(false),
-  m_trt_mgr_location("TRT"),
-  m_trt_mgr(0),
   m_trtid(0),
   m_global_offset(0),
   m_useToTCorrection(false),
@@ -76,7 +73,6 @@ InDet::TRT_DriftCircleToolCosmics::TRT_DriftCircleToolCosmics(const std::string&
 
 {
   declareInterface<ITRT_DriftCircleTool>(this);
-  declareProperty("TrtDescrManageLocation",m_trt_mgr_location);
   declareProperty("TRTDriftFunctionTool", m_driftFunctionTool);
   declareProperty("ConditionsSummaryTool",m_ConditionsSummary);
   declareProperty("UseConditionsStatus",m_useConditionsStatus);
@@ -154,16 +150,6 @@ StatusCode InDet::TRT_DriftCircleToolCosmics::initialize()
     ATH_MSG_INFO(m_driftFunctionTool.propertyName() << ": Retrieved tool " << m_driftFunctionTool.type());
   }
 
-
-  // Get  TRT Detector Manager
-  //
-  sc = AthAlgTool::detStore()->retrieve(m_trt_mgr, m_trt_mgr_location);
-  if (sc.isFailure() || !m_trt_mgr)
-  {
-    ATH_MSG_FATAL("Could not find TRT_DetectorManager: "
-		  << m_trt_mgr_location << " !");
-    return sc;
-  }
   // Get TRT ID helper
   sc = detStore()->retrieve(m_trtid,"TRT_ID");
   if ( sc.isFailure() ) {
@@ -182,6 +168,10 @@ StatusCode InDet::TRT_DriftCircleToolCosmics::initialize()
 
   // Initialize Read handle key
   ATH_CHECK(m_evtPhaseKey.initialize());
+
+  // Initialize readCondHandle key                                                                                                                         
+  ATH_CHECK(m_trtDetEleContKey.initialize());
+
   return sc;
 }
 
@@ -211,7 +201,12 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 
   SG::ReadHandle<ComTime> theComTime(m_evtPhaseKey);
   
-
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
+  const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
+  if (not trtDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");
+    return rio;
+  }
   	 
   float timecor=0.;
   if (theComTime.isValid()) {
@@ -228,7 +223,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 
    //Get the BaseElement and the rio of the collection
     IdentifierHash IHc                 = rdo      ->identifyHash();
-    const InDetDD::TRT_BaseElement* pE = m_trt_mgr->getElement(IHc);
+    const InDetDD::TRT_BaseElement* pE = elements->getDetectorElement(IHc);
     rio                                = new InDet::TRT_DriftCircleCollection(IHc);
     rio->setIdentifier(rdo->identify());
     rio->reserve( std::distance(rb, re) );

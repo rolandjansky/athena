@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,7 +19,6 @@
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsComparison.h"
 #include "SiDetElementsRoadUtils_xk.h"
-#include "StoreGate/ReadCondHandle.h"
 #include "TrkPrepRawData/PrepRawData.h"
 
 #include <ostream>
@@ -63,9 +62,7 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
 
-  // Map of detector elements production
-  //
-  mapDetectorElementsProduction(); 
+  computeBounds();
 
   ATH_CHECK(m_layerVecKey.initialize());
 
@@ -129,13 +126,12 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions(MsgStream& out) cons
   for (int i=0; i<n; ++i) s6.append(" ");
   s6.append("|");
 
-  std::vector<SiDetElementsLayer_xk>* layer[3];
-  std::unique_lock<std::mutex> lock{getLayers(layer)};
+  const SiDetElementsLayerVectors_xk &layer = *getLayers();
 
   int maps = 0;
-  if (layer[0]->size()) ++maps;
-  if (layer[1]->size()) ++maps;
-  if (layer[2]->size()) ++maps;
+  if (layer[0].size()) ++maps;
+  if (layer[1].size()) ++maps;
+  if (layer[2].size()) ++maps;
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
      <<"\n";
@@ -156,10 +152,10 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions(MsgStream& out) cons
 
   if (!maps || m_outputlevel==0) return out;
 
-  if (layer[1]->size()) {
-    int nl = layer[1]->size();
+  if (layer[1].size()) {
+    int nl = layer[1].size();
     int nc = 0;
-    for (unsigned int i=0; i!=layer[1]->size(); ++i) nc+=layer[1]->at(i).nElements();
+    for (unsigned int i=0; i!=layer[1].size(); ++i) nc+=layer[1].at(i).nElements();
     out<<"|----------------------------------------------------------------|"
        <<"\n";
     out<<"| Barrel map containt "
@@ -172,26 +168,26 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions(MsgStream& out) cons
        <<"\n";
     out<<"|------|-----------|------------|------------|------------|------|"
        <<"\n";
-    for (unsigned int i=0; i!=layer[1]->size(); ++i) {
-      double zmin = layer[1]->at(i).z()-layer[1]->at(i).dz();
-      double zmax = layer[1]->at(i).z()+layer[1]->at(i).dz();
+    for (unsigned int i=0; i!=layer[1].size(); ++i) {
+      double zmin = layer[1].at(i).z()-layer[1].at(i).dz();
+      double zmax = layer[1].at(i).z()+layer[1].at(i).dz();
       out<<"| "
 	 <<std::setw(4)<<i<<" |"
-	 <<std::setw(10)<<std::setprecision(4)<<  layer[1]->at(i).r ()<<" | "
+	 <<std::setw(10)<<std::setprecision(4)<<  layer[1].at(i).r ()<<" | "
 	 <<std::setw(10)<<std::setprecision(4)<<                zmin<<" | "
 	 <<std::setw(10)<<std::setprecision(4)<<                zmax<<" | "
-	 <<std::setw(10)<<std::setprecision(4)<< layer[1]->at(i).dfe()<<" | "
-	 <<std::setw(4)<<layer[1]->at(i).nElements()<<" | "
+	 <<std::setw(10)<<std::setprecision(4)<< layer[1].at(i).dfe()<<" | "
+	 <<std::setw(4)<<layer[1].at(i).nElements()<<" | "
 	 <<"\n";
     }
     out<<"|------|-----------|------------|------------|------------|------|"
        <<"\n";
 
   }
-  if (layer[0]->size()) {
-    int nl = layer[0]->size();
+  if (layer[0].size()) {
+    int nl = layer[0].size();
     int nc = 0;
-    for (unsigned int i=0; i!=layer[0]->size(); ++i) nc+=layer[0]->at(i).nElements();
+    for (unsigned int i=0; i!=layer[0].size(); ++i) nc+=layer[0].at(i).nElements();
     out<<"|----------------------------------------------------------------|"
        <<"\n";
     out<<"| L.Endcap map containt"
@@ -205,25 +201,25 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions(MsgStream& out) cons
        <<"\n";
     out<<"|------|-----------|------------|------------|------------|------|"
        <<"\n";
-    for (unsigned int i=0; i!=layer[0]->size(); ++i) {
-      double rmin = layer[0]->at(i).r()-layer[0]->at(i).dr();
-      double rmax = layer[0]->at(i).r()+layer[0]->at(i).dr();
+    for (unsigned int i=0; i!=layer[0].size(); ++i) {
+      double rmin = layer[0].at(i).r()-layer[0].at(i).dr();
+      double rmax = layer[0].at(i).r()+layer[0].at(i).dr();
       out<<"| "
 	 <<std::setw(4)<<i<<" |"
-	 <<std::setw(10)<<std::setprecision(4)<<  layer[0]->at(i).z()<<" | "
+	 <<std::setw(10)<<std::setprecision(4)<<  layer[0].at(i).z()<<" | "
 	 <<std::setw(10)<<std::setprecision(4)<<               rmin<<" | "
 	 <<std::setw(10)<<std::setprecision(4)<<               rmax<<" | "
-	 <<std::setw(10)<<std::setprecision(4)<<layer[0]->at(i).dfe()<<" | "
-	 <<std::setw(4)<<layer[0]->at(i).nElements()<<" | "
+	 <<std::setw(10)<<std::setprecision(4)<<layer[0].at(i).dfe()<<" | "
+	 <<std::setw(4)<<layer[0].at(i).nElements()<<" | "
 	 <<"\n";
     }
     out<<"|------|-----------|------------|------------|------------|------|"
        <<"\n";
   }
-  if (layer[2]->size()) {
-    int nl = layer[2]->size();
+  if (layer[2].size()) {
+    int nl = layer[2].size();
     int nc = 0;
-    for (unsigned int i=0; i!=layer[2]->size(); ++i) nc+=layer[2]->at(i).nElements();
+    for (unsigned int i=0; i!=layer[2].size(); ++i) nc+=layer[2].at(i).nElements();
     out<<"|----------------------------------------------------------------|"
        <<"\n";
     out<<"| R.Endcap map containt"
@@ -236,16 +232,16 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions(MsgStream& out) cons
        <<"\n";
     out<<"|------|-----------|------------|------------|------------|------|"
        <<"\n";
-    for (unsigned int i=0; i!=layer[2]->size(); ++i) {
-      double rmin = layer[2]->at(i).r()-layer[0]->at(i).dr();
-      double rmax = layer[2]->at(i).r()+layer[0]->at(i).dr();
+    for (unsigned int i=0; i!=layer[2].size(); ++i) {
+      double rmin = layer[2].at(i).r()-layer[0].at(i).dr();
+      double rmax = layer[2].at(i).r()+layer[0].at(i).dr();
       out<<"| "
 	 <<std::setw(4)<<i<<" |"
-	 <<std::setw(10)<<std::setprecision(4)<<  layer[2]->at(i).z()<<" | "
+	 <<std::setw(10)<<std::setprecision(4)<<  layer[2].at(i).z()<<" | "
 	 <<std::setw(10)<<std::setprecision(4)<<               rmin<<" | "
 	 <<std::setw(10)<<std::setprecision(4)<<               rmax<<" | "
-	 <<std::setw(10)<<std::setprecision(4)<<layer[2]->at(i).dfe()<<" | "
-	 <<std::setw(4)<<layer[2]->at(i).nElements()<<" | "
+	 <<std::setw(10)<<std::setprecision(4)<<layer[2].at(i).dfe()<<" | "
+	 <<std::setw(4)<<layer[2].at(i).nElements()<<" | "
 	 <<"\n";
     }
     out<<"|------|-----------|------------|------------|------------|------|"
@@ -284,22 +280,6 @@ std::ostream& InDet::operator <<
   return se.dump(sl); 
 }   
 
-///////////////////////////////////////////////////////////////////
-// Main methods for road builder using only space points
-///////////////////////////////////////////////////////////////////
-
-void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
-(const std::list<const Trk::SpacePoint*>& Sp,
- std::list<const InDetDD::SiDetectorElement*>& Road) const
-{
-  if ((!m_usePIX && !m_useSCT)) return;
-  
-  std::list<Amg::Vector3D> G;
-  for (const Trk::SpacePoint* s: Sp) {
-    G.push_back(s->globalPosition());
-  }
-  detElementsRoad(G,Road);
-}
 
 ///////////////////////////////////////////////////////////////////
 // Main methods for road builder using input list global positions
@@ -307,30 +287,37 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 
 void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 (std::list<Amg::Vector3D>& GP,
- std::list<const InDetDD::SiDetectorElement*>& Road) const
+ std::list<const InDetDD::SiDetectorElement*>& Road,
+ bool test) const
 {  
   if (!m_usePIX && !m_useSCT) return;
 
-  std::vector<SiDetElementsLayer_xk>* layer[3];
-  std::unique_lock<std::mutex> lock{getLayers(layer)};
+  const SiDetElementsLayerVectors_xk &layer = *getLayers();
 
   std::list<Amg::Vector3D>::iterator g=GP.begin(), ge=GP.end();
   float Po[6] = {static_cast<float>((*g).x()), static_cast<float>((*g).y()), static_cast<float>((*g).z()),
                  static_cast<float>(sqrt((*g).x()*(*g).x()+(*g).y()*(*g).y())), m_width, 0.};
   int n0 = 0;
-  for (; n0!=static_cast<int>(layer[0]->size()); ++n0) {
-    if (Po[2] > layer[0]->at(n0).z()) break;
+  for (; n0!=static_cast<int>(layer[0].size()); ++n0) {
+    if (Po[2] > layer[0].at(n0).z()) break;
   }
   int n1 = 0;
-  for (; n1!=static_cast<int>(layer[1]->size()); ++n1) {
-    if (Po[3] < layer[1]->at(n1).r()) break;
+  for (; n1!=static_cast<int>(layer[1].size()); ++n1) {
+    if (Po[3] < layer[1].at(n1).r()) break;
   }
   int n2 = 0;
-  for (; n2!=static_cast<int>(layer[2]->size()); ++n2) {
-    if (Po[2] < layer[2]->at(n2).z()) break;
+  for (; n2!=static_cast<int>(layer[2].size()); ++n2) {
+    if (Po[2] < layer[2].at(n2).z()) break;
   }
 
-  std::list<InDet::SiDetElementLink_xk*> lDE;
+  std::vector<InDet::SiDetElementLink_xk::ElementWay> lDE;
+  std::array<std::vector<std::vector<InDet::SiDetElementLink_xk::UsedFlag> >,3> used;
+  for ( unsigned int module_i=0; module_i<3; ++module_i) {
+     used[module_i].resize( layer[module_i].size() );
+     for (unsigned int layer_i=0; layer_i < layer[module_i].size(); ++layer_i) {
+        used[module_i][layer_i].resize( layer[module_i][layer_i].nElements() );
+     }
+  }
 
   ++g;
   while (g!=ge) {
@@ -370,14 +357,16 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     // Barrel
     //
     if (Pn[3]>Po[3]) {
-      for (; n1<static_cast<int>(layer[1]->size()); ++n1) {
-	if (Pn[3] < layer[1]->at(n1).r()) break;
-	layer[1]->at(n1).getBarrelDetElements(Po, A, lDE);
+      for (; n1<static_cast<int>(layer[1].size()); ++n1) {
+	if (Pn[3] < layer[1].at(n1).r()) break;
+        assert( used.at(1).size() > static_cast<unsigned int>(n1) );
+	layer[1].at(n1).getBarrelDetElements(Po, A, lDE, used[1][n1]);
       }
     } else {
       for (--n1; n1>=0; --n1) {
-	if (Pn[3] > layer[1]->at(n1).r()+dr) break; 
-	layer[1]->at(n1).getBarrelDetElements(Po, A, lDE);
+	if (Pn[3] > layer[1].at(n1).r()+dr) break;
+        assert( used.at(1).size() > static_cast<unsigned int>(n1) );
+	layer[1].at(n1).getBarrelDetElements(Po, A, lDE, used[1][n1]);
       }
       ++n1;
     }
@@ -385,14 +374,16 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     // Positive endcap
     //
     if (Pn[2]>Po[2]) {
-      for (; n2<static_cast<int>(layer[2]->size()); ++n2) {
-	if (Pn[2] < layer[2]->at(n2).z()) break; 
-	layer[2]->at(n2).getEndcapDetElements(Po, A, lDE);
+      for (; n2<static_cast<int>(layer[2].size()); ++n2) {
+	if (Pn[2] < layer[2].at(n2).z()) break;
+        assert( used.at(2).size() > static_cast<unsigned int>(n2) );
+	layer[2].at(n2).getEndcapDetElements(Po, A, lDE,used[2][n2]);
       }
     } else {
       for (--n2; n2>=0; --n2) {
-	if (Pn[2] > layer[2]->at(n2).z()) break; 
-	layer[2]->at(n2).getEndcapDetElements(Po, A, lDE);
+	if (Pn[2] > layer[2].at(n2).z()) break;
+        assert( used.at(2).size() > static_cast<unsigned int>(n2) );
+	layer[2].at(n2).getEndcapDetElements(Po, A, lDE, used[2][n2]);
       }
       ++n2;
     }
@@ -400,15 +391,17 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     // Negative endcap
     //
     if (Pn[2]<Po[2]) {
-      for (; n0<static_cast<int>(layer[0]->size()); ++n0) {
-	if (Pn[2] > layer[0]->at(n0).z()) break; 
-	layer[0]->at(n0).getEndcapDetElements(Po, A, lDE);
+      for (; n0<static_cast<int>(layer[0].size()); ++n0) {
+	if (Pn[2] > layer[0].at(n0).z()) break;
+        assert( used.at(0).size() > static_cast<unsigned int>(n0) );
+	layer[0].at(n0).getEndcapDetElements(Po, A, lDE,used[0][n0]);
       }
     } else {
       for (--n0; n0>=0; --n0) {
-	if (Pn[2] < layer[0]->at(n0).z()) break; 
-	layer[0]->at(n0).getEndcapDetElements(Po, A, lDE);
-      } 
+	if (Pn[2] < layer[0].at(n0).z()) break;
+        assert( used.at(0).size() > static_cast<unsigned int>(n0) );
+	layer[0].at(n0).getEndcapDetElements(Po, A, lDE,used[0][n0]);
+      }
       ++n0;
     }
 
@@ -421,15 +414,15 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 
   // Sort list in propogation order
   //
-  std::list<InDet::SiDetElementLink_xk*>::iterator l=lDE.begin(), le=lDE.end(), n, m;
+  std::vector<InDet::SiDetElementLink_xk::ElementWay>::iterator l=lDE.begin(), le=lDE.end(), n, m;
   if (l==le) return;
 
   bool nc =true;
   while (nc) {
     nc =false; m=l; n=l;
     for (++n; n!=le; ++n) {
-      if ((*m)->way() > (*n)->way()) {
-	InDet::SiDetElementLink_xk* d=(*m);
+      if (m->way() > n->way()) {
+        InDet::SiDetElementLink_xk::ElementWay d=(*m);
         (*m)=(*n);
         (*n)=d;
         nc=true;
@@ -441,12 +434,11 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   // Fill list pointers to detector elements
   //
   for (l=lDE.begin(); l!=le; ++l) {
-    if (m_test) {
-      if ((*l)->way() >= 0.) Road.push_back((*l)->detElement());
+    if (test) {
+      if (l->way() >= 0.) Road.push_back(l->link()->detElement());
     } else {
-      Road.push_back((*l)->detElement());
+      Road.push_back(l->link()->detElement());
     }
-    (*l)->clearUsed();
   }
 }
 
@@ -465,9 +457,9 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   double S    = m_step/qp                    ;
   if (S  > 1000. ) S  = 1000. ;
 
-  m_test = true;
+  bool test = true;
   if (D<0) {
-    m_test = false;
+    test = false;
     S=-S;
   }
 
@@ -497,7 +489,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
       }
     }
   }
-  detElementsRoad(G, R);  
+  detElementsRoad(G, R,test);
 }
 
 
@@ -505,9 +497,8 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 // Map of detector elements production
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction() 
+void InDet::SiDetElementsRoadMaker_xk::computeBounds()
 {
-  const double pi2=2.*M_PI, pi=M_PI;
 
   StatusCode sc;
 
@@ -587,6 +578,7 @@ void InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction()
   double   mzmax [3];  // max Z coordinate
   double   mrmin [3];  // min radius
   double   mrmax [3];  // max radius
+  bool     has[3] {false,false,false};
  
   for (int N=0; N!=3; ++N) {
     double P[40];
@@ -628,42 +620,7 @@ void InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction()
         if (i==im) ++Il;
 
 	if (If<=Il) {
-	  double rmin = 100000., rmax =-100000.;
-	  double zmin = 100000., zmax =-100000.;
-	  double dfm  = 0.;
-
-	  std::vector<InDetDD::SiDetectorElement*> pE;
-	  for (int j=If; j<=Il; ++j) pE.push_back(pW[N][j]);
-	  std::sort(pE.begin(), pE.end(), InDet::compDetElements_A());
-	  
-	  InDet::SiDetElementsLayer_xk layer;
-
-	  for (unsigned int j=0; j!=pE.size(); ++j) {
-	    if (pE[j]) {
-	      InDet::SiDetElementsRoadUtils_xk::detElementInformation(*(pE[j]), P);
-
-	      if (P[ 9] < rmin) rmin = P[ 9]; 
-	      if (P[10] > rmax) rmax = P[10]; 
-	      if (P[11] < zmin) zmin = P[11]; 
-	      if (P[12] > zmax) zmax = P[12]; 
-	      
-	      double df1 = fabs(P[13]-P[2]);
-              if (df1>pi) df1 = fabs(df1-pi2); 
-	      double df2 = fabs(P[14]-P[2]);
-              if (df2>pi) df2 = fabs(df2-pi2); 
-	      if (df1>dfm) dfm = df1;
-	      if (df2>dfm) dfm = df2;
-	      
-	      InDet::SiDetElementLink_xk link(pE[j], P);
-	      layer.add(link);
-	    }
-	  }
-	  double r  =(rmax+rmin)*.5;
-	  double dr =(rmax-rmin)*.5; 
-	  double z  =(zmax+zmin)*.5;
-	  double dz =(zmax-zmin)*.5;
-	  layer.set(r, dr, z, dz, dfm);
-	  m_layer[N].push_back(layer);
+          has[N]=true;
 	}
 	If = i;
       }
@@ -676,7 +633,7 @@ void InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction()
   double zma = -100000;
   double rma = -100000;
   for (int i=0; i!=3; ++i) {
-    if (m_layer[i].size()) {
+    if (has[i]) {
       if (mzmin[i]<zmi) zmi=mzmin[i]; 
       if (mzmax[i]>zma) zma=mzmax[i]; 
       if (mrmax[i]>rma) rma=mrmax[i];
@@ -688,6 +645,7 @@ void InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction()
   const Trk::CylinderBounds CB(rma+20., hz+20.);
   m_bounds  = CB;
 }
+
 
 ///////////////////////////////////////////////////////////////////
 // Distance to detector element according stright line model
@@ -742,28 +700,4 @@ Trk::CylinderBounds InDet::SiDetElementsRoadMaker_xk::getBound
   if (rm > m_bounds.r()) return m_bounds;
   Trk::CylinderBounds CB(rm, m_bounds.halflengthZ());
   return CB;
-}
-
-std::unique_lock<std::mutex> InDet::SiDetElementsRoadMaker_xk::getLayers(std::vector<SiDetElementsLayer_xk>* (&layer)[3]) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  CacheEntry* ent{m_cache.get(ctx)};
-  std::unique_lock lock(ent->m_mutex);
-  if (ent->m_evt!=ctx.evt()) {
-    SG::ReadCondHandle<SiDetElementsLayerVectors_xk> layerVec{m_layerVecKey, ctx};
-    if (not layerVec.isValid()) {
-      ATH_MSG_ERROR("Failed to get " << m_layerVecKey.key());
-    }
-    ent->m_evt = ctx.evt();
-    // Condition objects are copied for each event
-    // so that we can set used state in shared detector elements.
-    // Index 0: Endcap C, 1: Barrel, 2: Endcap A
-    ent->m_layerVectors[0] = (*layerVec)->at(0);
-    ent->m_layerVectors[1] = (*layerVec)->at(1);
-    ent->m_layerVectors[2] = (*layerVec)->at(2);
-  }
-  layer[0] = &(ent->m_layerVectors[0]);
-  layer[1] = &(ent->m_layerVectors[1]);
-  layer[2] = &(ent->m_layerVectors[2]);
-
-  return lock;
 }

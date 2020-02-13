@@ -7,6 +7,8 @@
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
 
+#include <algorithm>
+
 namespace Muon {
 
   // Static members
@@ -15,62 +17,58 @@ namespace Muon {
   unsigned int MuPatTrack::s_numberOfCopies = 0;
   unsigned int MuPatTrack::s_processingStageStringMaxLen = 0;
   std::vector<std::string> MuPatTrack::s_processingStageStrings;
+  std::mutex MuPatTrack::s_mutex;
+  std::once_flag MuPatTrack::s_stageStringsInitFlag;
 
 // Static functions
-  void MuPatTrack::resetMaxNumberOfInstantiations() {
-    s_maxNumberOfInstantiations = 0;
+
+  unsigned int MuPatTrack::processingStageStringMaxLen() {
+    std::call_once(s_stageStringsInitFlag, MuPatTrack::initProcessingStageStrings);
+    return s_processingStageStringMaxLen;
   }
 
-  void MuPatTrack::resetNumberOfCopies() {
-    s_numberOfCopies = 0;
-  }
-
-unsigned int MuPatTrack::processingStageStringMaxLen() {
-  if ( s_processingStageStringMaxLen == 0 ) {
-    initProcessingStageStrings();
-    // get the maximum string length (for nicely formatted printout)
-    for ( unsigned int i = 0; i < (unsigned int)NumberOfProcessingStages; ++i ) {
-      unsigned int len = s_processingStageStrings[i].length();
-      if ( len > s_processingStageStringMaxLen ) s_processingStageStringMaxLen = len;
-    }
-  }
-  return s_processingStageStringMaxLen;
-}
-
-
-void MuPatTrack::initProcessingStageStrings() {
-  if ( s_processingStageStrings.empty() ) {
+  void MuPatTrack::initProcessingStageStrings() {
     s_processingStageStrings.resize(NumberOfProcessingStages+1);
     s_processingStageStrings[Unknown] = "Unknown";
-    s_processingStageStrings[InitialLoop] = "InitialLoop"; 
-    s_processingStageStrings[LayerRecovery] = "LayerRecov"; 
-    s_processingStageStrings[ExtendedWithSegment] = "ExtWSegment"; 
-    s_processingStageStrings[SegmentRecovery] = "SegmentRecov"; 
-    s_processingStageStrings[FitRemovedSegment] = "FitRmSegment"; 
-    s_processingStageStrings[RefitRemovedSegment] = "RefitRmSegment"; 
-    s_processingStageStrings[AmbiguityCreateCandidateFromSeeds] = "AmbiCreate"; 
-    s_processingStageStrings[AmbiguitySelectCandidates] = "AmbiSelect"; 
-    s_processingStageStrings[MatchFail] = "MatchFail"; 
-    s_processingStageStrings[FitFail] = "FitFail"; 
-    s_processingStageStrings[FitWorse] = "FitWorse"; 
-    s_processingStageStrings[UnassociatedEM] = "UnassocEM"; 
-    s_processingStageStrings[FitRemovedLayer] = "FitRmLayer"; 
-    s_processingStageStrings[TrackSelector] = "TrackSelect"; 
+    s_processingStageStrings[InitialLoop] = "InitialLoop";
+    s_processingStageStrings[LayerRecovery] = "LayerRecov";
+    s_processingStageStrings[ExtendedWithSegment] = "ExtWSegment";
+    s_processingStageStrings[SegmentRecovery] = "SegmentRecov";
+    s_processingStageStrings[FitRemovedSegment] = "FitRmSegment";
+    s_processingStageStrings[RefitRemovedSegment] = "RefitRmSegment";
+    s_processingStageStrings[AmbiguityCreateCandidateFromSeeds] = "AmbiCreate";
+    s_processingStageStrings[AmbiguitySelectCandidates] = "AmbiSelect";
+    s_processingStageStrings[MatchFail] = "MatchFail";
+    s_processingStageStrings[FitFail] = "FitFail";
+    s_processingStageStrings[FitWorse] = "FitWorse";
+    s_processingStageStrings[UnassociatedEM] = "UnassocEM";
+    s_processingStageStrings[FitRemovedLayer] = "FitRmLayer";
+    s_processingStageStrings[TrackSelector] = "TrackSelect";
     s_processingStageStrings[KeptUntilEndOfCombi] = "--KEPT--";
     s_processingStageStrings[NumberOfProcessingStages] = "OutOfBounds";
 
-  }
-}
+    auto it = std::max_element(s_processingStageStrings.begin(), s_processingStageStrings.end(),
+      [](const std::string& lhs, const std::string& rhs) {
+        return lhs.size() < rhs.size();
+      }
+    );
 
-const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStage stage ) {
-  if ( s_processingStageStrings.empty() ) initProcessingStageStrings();
-  unsigned int index = stage;
-  if ( index >= s_processingStageStrings.size() ) {
-    return s_processingStageStrings[NumberOfProcessingStages];
+    if (it != s_processingStageStrings.end()) {
+      s_processingStageStringMaxLen = it->size();
+    } else {
+      s_processingStageStringMaxLen = 0;
+    }
   }
 
-  return s_processingStageStrings[index];
-}
+  const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStage stage ) {
+    std::call_once(s_stageStringsInitFlag, MuPatTrack::initProcessingStageStrings);
+
+    if (static_cast<size_t>(stage) < s_processingStageStrings.size()) {
+      return s_processingStageStrings[static_cast<size_t>(stage)];
+    } else {
+      return s_processingStageStrings[NumberOfProcessingStages];
+    }
+  }
 
 
   // member functions
@@ -82,7 +80,7 @@ const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStag
    , m_track(track)
    , m_seedSeg(0)
    , m_ownTrack(true)
-   , mboyInfo(0) 
+   , mboyInfo(0)
   {
 #ifdef MCTB_OBJECT_POINTERS
     std::cout << " new track " << this << std::endl;
@@ -109,7 +107,7 @@ const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStag
    , m_track(track)
    , m_seedSeg(0)
    , m_ownTrack(true)
-   , mboyInfo(0) 
+   , mboyInfo(0)
   {
 #ifdef MCTB_OBJECT_POINTERS
     std::cout << " new track " << this << std::endl;
@@ -136,7 +134,7 @@ const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStag
    , m_track(track)
    , m_seedSeg(0)
    , m_ownTrack(true)
-   , mboyInfo(0) 
+   , mboyInfo(0)
   {
 #ifdef MCTB_OBJECT_POINTERS
    std::cout << " new track " << this << std::endl;
@@ -174,7 +172,7 @@ const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStag
     updateSegments(false);
   }
 
-  MuPatTrack::MuPatTrack( const MuPatTrack& can ) 
+  MuPatTrack::MuPatTrack( const MuPatTrack& can )
    : MuPatCandidateBase(can)
    , created(can.created)
    , lastSegmentChange(can.lastSegmentChange)
@@ -182,7 +180,7 @@ const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStag
    , m_excludedSegments(can.m_excludedSegments)
    , m_track(can.m_track)
    , m_seedSeg(can.m_seedSeg)
-   , m_ownTrack(false) 
+   , m_ownTrack(false)
   {
 #ifdef MCTB_OBJECT_POINTERS
     std::cout << " ctor track " << this << std::endl;
@@ -195,21 +193,21 @@ const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStag
     } else {
       mboyInfo = new MboyInfo();
       mboyInfo->m_MboyStatus = can.mboyInfo->m_MboyStatus ;
-  
+
       mboyInfo->m_ISC0 = can.mboyInfo->m_ISC0 ;
-  
+
       mboyInfo->m_DZT1 = can.mboyInfo->m_DZT1 ;
       mboyInfo->m_DS1  = can.mboyInfo->m_DS1  ;
       mboyInfo->m_DZT2 = can.mboyInfo->m_DZT2 ;
       mboyInfo->m_DS2  = can.mboyInfo->m_DS2  ;
-      
+
       mboyInfo->m_SMU  = can.mboyInfo->m_SMU  ;
-  
+
       mboyInfo->m_CFI  = can.mboyInfo->m_CFI  ;
       mboyInfo->m_SFI  = can.mboyInfo->m_SFI  ;
       mboyInfo->m_CFA  = can.mboyInfo->m_CFA  ;
       mboyInfo->m_SFA  = can.mboyInfo->m_SFA  ;
-  
+
       mboyInfo->m_Z1   = can.mboyInfo->m_Z1   ;
       mboyInfo->m_T1   = can.mboyInfo->m_T1   ;
       mboyInfo->m_S1   = can.mboyInfo->m_S1   ;
@@ -229,9 +227,9 @@ const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStag
     updateSegments(true);
   }
 
-  MuPatTrack& MuPatTrack::operator=(const MuPatTrack& can) { 
+  MuPatTrack& MuPatTrack::operator=(const MuPatTrack& can) {
     if( &can != this ){
-      
+
 #ifdef MCTB_OBJECT_POINTERS
       std::cout << " operator= track " << this << std::endl;
 #endif
@@ -264,21 +262,21 @@ const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStag
       } else {
         mboyInfo = new MboyInfo();
         mboyInfo->m_MboyStatus = can.mboyInfo->m_MboyStatus ;
-  
+
         mboyInfo->m_ISC0 = can.mboyInfo->m_ISC0 ;
-  
+
         mboyInfo->m_DZT1 = can.mboyInfo->m_DZT1 ;
         mboyInfo->m_DS1  = can.mboyInfo->m_DS1  ;
         mboyInfo->m_DZT2 = can.mboyInfo->m_DZT2 ;
         mboyInfo->m_DS2  = can.mboyInfo->m_DS2  ;
-  
+
         mboyInfo->m_SMU  = can.mboyInfo->m_SMU  ;
-  
+
         mboyInfo->m_CFI  = can.mboyInfo->m_CFI  ;
         mboyInfo->m_SFI  = can.mboyInfo->m_SFI  ;
         mboyInfo->m_CFA  = can.mboyInfo->m_CFA  ;
         mboyInfo->m_SFA  = can.mboyInfo->m_SFA  ;
-  
+
         mboyInfo->m_Z1   = can.mboyInfo->m_Z1   ;
         mboyInfo->m_T1   = can.mboyInfo->m_T1   ;
         mboyInfo->m_S1   = can.mboyInfo->m_S1   ;
@@ -298,7 +296,7 @@ const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStag
     updateSegments(true);
 
     }
-    return *this; 
+    return *this;
   }
 
   bool MuPatTrack::hasMomentum() const {
@@ -309,8 +307,8 @@ const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStag
 
   bool MuPatTrack::hasMomentum( const Trk::Track& track ) const {
 
-    // use track info if set properly  
-    if( track.info().trackProperties(Trk::TrackInfo::StraightTrack) ) return false;  
+    // use track info if set properly
+    if( track.info().trackProperties(Trk::TrackInfo::StraightTrack) ) return false;
 
     bool hasMom = false;
     const Trk::Perigee* pp = track.perigeeParameters();
@@ -335,7 +333,7 @@ const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStag
     m_ownTrack = true;
   }
 
-  const Trk::Track& MuPatTrack::releaseTrack() const {
+  const Trk::Track& MuPatTrack::releaseTrack() {
     m_ownTrack = false;
     return *m_track;
   }
@@ -343,7 +341,7 @@ const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStag
   void MuPatTrack::addExcludedSegment( MuPatSegment* segment ) {
     m_excludedSegments.push_back(segment);
   }
-  
+
   void MuPatTrack::addSegment( MuPatSegment* segment, const Trk::Track* newTrack ) {
     // add segment and increase counter
     m_segments.push_back(segment);
@@ -367,7 +365,7 @@ const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStag
     // modify usedInFit counter of segment
     std::vector<MuPatSegment*>::iterator it = m_segments.begin();
     std::vector<MuPatSegment*>::iterator it_end = m_segments.end();
-    for( ;it!=it_end; ++it ) { 
+    for( ;it!=it_end; ++it ) {
       //std::cout << " modifying " << *it << std::endl;
       std::set<MuonStationIndex::ChIndex>::const_iterator chit = (*it)->chambers().begin();
       std::set<MuonStationIndex::ChIndex>::const_iterator chit_end = (*it)->chambers().end();
@@ -384,8 +382,8 @@ const std::string& MuPatTrack::processingStageString( MuPatTrack::ProcessingStag
     bool bRemovedSegments = false;
     std::vector<MuPatSegment*>::iterator it = m_segments.begin();
     // NOTE: can not cache m_segments.end() because it may change in the loop
-    while ( it != m_segments.end() ) { 
-      
+    while ( it != m_segments.end() ) {
+
       bool inChamberSet = false;
       std::set<MuonStationIndex::ChIndex>::const_iterator chit = (*it)->chambers().begin();
       std::set<MuonStationIndex::ChIndex>::const_iterator chit_end = (*it)->chambers().end();

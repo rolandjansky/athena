@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from logging import getLogger; log = getLogger("DQDefects.defect_ids")
 
@@ -8,6 +8,8 @@ from DQUtils.channel_mapping import get_channel_ids_names
 
 from .exceptions import (DefectUnknownError,
                          InvalidLogicTagError)
+
+import six
 
 
 class DefectIDBitfield(Structure):
@@ -50,7 +52,7 @@ def choose_new_defect_id(existing_map, defect_name, virtual=False):
     It works for virtual IDs as well, though via a bit of an edge case for
     when none exist yet.
     """
-    existing = sorted(_ for _ in existing_map.itervalues() if not isinstance(_, basestring))
+    existing = sorted(_ for _ in six.itervalues(existing_map) if not isinstance(_, six.string_types))
     if len(existing) == 0:
         newid = 0
     else:
@@ -188,12 +190,13 @@ class DefectsDBIDsNamesMixin(object):
         This function first checks against non-virtual defects, then virutal 
         defects. Thus virtual-defects are lazily loaded.        
         """
-        if isinstance(channel, (long, int)):
+        from builtins import int
+        if isinstance(channel, int):
             if (channel not in self.defect_ids and 
                 (not primary_only and channel not in self.virtual_defect_ids)):
                 raise DefectUnknownError(channel)
             return channel
-        elif isinstance(channel, basestring):
+        elif isinstance(channel, six.string_types):
             if channel in self.defect_names:
                 return self.defect_id_map[channel]
             if not primary_only and channel in self.virtual_defect_names:
@@ -267,10 +270,11 @@ class DefectsDBIDsNamesMixin(object):
         Parameters:
             `defect_id` : defect channel id or name
         """
-        if isinstance(defect_id, (long, int)):
+        from builtins import int
+        if isinstance(defect_id, int):
             return DefectID(defect_id).is_virtual
         
-        if not isinstance(defect_id, basestring):
+        if not isinstance(defect_id, six.string_types):
             raise RuntimeError("Invalid defect_id, expected int or string")
         
         if defect_id in self.defect_names:
@@ -289,10 +293,10 @@ class DefectsDBIDsNamesMixin(object):
         object as `defect_id`.
         """
         wasstring = False
-        if isinstance(defect_id, basestring):
+        if isinstance(defect_id, six.string_types):
             defect_id = [defect_id]
             wasstring = True
-        if any(not isinstance(i, basestring) for i in defect_id):
+        if any(not isinstance(i, six.string_types) for i in defect_id):
             raise ValueError('All input values must be strings')
 
         uppered_defects = dict((i.upper(), i) for i in self.defect_names)

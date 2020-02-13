@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_RpcTimingCorr_H
@@ -44,7 +44,6 @@ class RpcTimingCorr : public AlgTool, virtual public CalibSegmentPreparationTool
   RegionSelectionSvc *p_reg_sel_svc;
   StoreGateSvc *m_detStore;         // pointer to the detector store
   const RpcIdHelper *m_RpcIdHelper; // pointer to the RPC ID helper
-  const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon
 		
   std::string m_detector_store; // name of the detector store
   std::string m_RPC_ID_helper;  // name of the RPC ID helper

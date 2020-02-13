@@ -181,8 +181,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
 
   virtual StatusCode initialize(); //!< Get the trigger decision tool and set up global groups
   virtual StatusCode execute(); //!< In first call - register all triggers. Then load event weighting parameters, fill trigger decisions, compute group rates.
-  virtual StatusCode finalize(); //!< Print rates and normalise histograms
-  virtual StatusCode beginInputFile(); //!< Setup of the Enhanced Bias weighting tool. Needs AOD metadata so can not be set up before. Also read any prescale XML supplied.
+  virtual StatusCode finalize(); //!< Print rates
 
   StatusCode populateTriggers(); //!< Register all triggers to emulate. This is actually done at the start of the event loop such that the TDT has access to the configuration.
   StatusCode executeTrigDecisionToolTriggers(); //!< Internal call to get the pass/fail for all TDT triggers
@@ -229,11 +228,11 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   
   bool isZero(double v) const { return fabs(v) < 1e-10; } //!< Helper function for floating point subtraction
 
-  std::unordered_map<std::string, RatesTrigger> m_triggers; //!< All individual triggers (L1 or HLT)
-  std::unordered_map<std::string, RatesScanTrigger> m_scanTriggers; //!< All individual rates-scan triggers (L1 or HLT)
-  std::unordered_map<std::string, RatesGroup> m_groups; //!< All regular and CPS groups 
-  std::unordered_map<std::string, RatesGroup> m_globalGroups; //!< Big (master) groups which do the OR of the whole menu 
-  std::unordered_map<std::string, RatesGroup> m_uniqueGroups; //!< Groups used to obtain unique rates for chains.
+  std::unordered_map<std::string, std::unique_ptr<RatesTrigger>> m_triggers; //!< All individual triggers (L1 or HLT)
+  std::unordered_map<std::string, std::unique_ptr<RatesScanTrigger>> m_scanTriggers; //!< All individual rates-scan triggers (L1 or HLT)
+  std::unordered_map<std::string, std::unique_ptr<RatesGroup>> m_groups; //!< All regular and CPS groups 
+  std::unordered_map<std::string, std::unique_ptr<RatesGroup>> m_globalGroups; //!< Big (master) groups which do the OR of the whole menu 
+  std::unordered_map<std::string, std::unique_ptr<RatesGroup>> m_uniqueGroups; //!< Groups used to obtain unique rates for chains.
 
   std::unordered_set<RatesTrigger*> m_activatedTriggers; //!< Triggers which were changed & hence need to be reset at the event end.
   std::unordered_set<RatesTrigger*> m_expressTriggers; //!< Triggers with non-zero express PS, used to print them at the end.
@@ -248,29 +247,28 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   const std::string m_l2GroupName = "Main";
   const std::string m_expressGroupName = "Express";
 
-  ToolHandle<IEnhancedBiasWeighter> m_enhancedBiasRatesTool; //!< Tool to access weighting information required for trigger rates.
-  ToolHandle<Trig::TrigDecisionTool> m_tdt;
+  ToolHandle<IEnhancedBiasWeighter> m_enhancedBiasRatesTool{this, "EnhancedBiasRatesTool", "EnhancedBiasWeighter/EnhancedBiasRatesTool"};
+  ToolHandle<Trig::TrigDecisionTool> m_tdt{this, "TrigDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool"};
 
-  double m_inelasticCrossSection; //!< Sigma_inel in units of cm^2. Default of 80 mb @ 13 TeV = 8e-26 cm^2
+  Gaudi::Property<double> m_expoScalingFactor{this, "ExpoScalingFactor", 0.1, "Optional. Exponential factor if using exponential-mu rates scaling."};
+  Gaudi::Property<double> m_inelasticCrossSection{this, "InelasticCrossSection", 8e-26, "Inelastic cross section in units cm^2. Default 80 mb at 13 TeV."};
+  Gaudi::Property<bool> m_doUniqueRates{this, "DoUniqueRates", false, "Calculate unique rates for all chains (slow). Requires DoGlobalGroups=True too."}; 
+  Gaudi::Property<bool> m_doGlobalGroups{this, "DoGlobalGroups", false, "Calculate total rates for each trigger level."};
+  Gaudi::Property<bool> m_doTriggerGroups{this, "DoTriggerGroups", false, "Calculate total rates for each group of triggers."};
+  Gaudi::Property<bool> m_doExpressRates{this, "DoExpressRates", false, "Calculate total rates for the express stream."};
+  Gaudi::Property<bool> m_useBunchCrossingTool{this, "UseBunchCrossingTool", true, "BunchCrossing tool requires CONDBR2 access. Can be disabled here if this is a problem."};
+  Gaudi::Property<bool> m_currentEventIsUnbiased; //!< If the current event was triggered online by RDx or not. Random seeded HLT chains must only see these
+  Gaudi::Property<bool> m_doHistograms{this, "DoHistograms", true, "Switch on histogram output of rate vs. mu and position in train."};
+  Gaudi::Property<bool> m_enableLumiExtrapolation{this, "EnableLumiExtrapolation", true, "If false then no extrapolation in L, N_bunch or <mu> will be performed.."};
+  Gaudi::Property<uint32_t> m_vetoStartOfTrain{this, "VetoStartOfTrain", 0, "How many BCID to veto at the start of a bunch train."};
+  Gaudi::Property<std::string> m_prescaleXML{this, "PrescaleXML", "",  "Optional XML of prescales from the TrigRuleBook to apply."};
+
   double m_targetMu; //!< What pileup level the prediction is targeting
   double m_targetBunches; //!< How many bunches the prediction is targeting
   double m_targetLumi; //!< What instantaneous luminosity the prediction is targeting
-  double m_expoScalingFactor; //!< Exponential factor for exponential-in-mu chains
-  bool m_doUniqueRates; //!< What rate is unique to each trigger. More computationally taxing.
-  bool m_useBunchCrossingTool; //!< If rates should be done vs. position in the train. Requires DB access
-  bool m_currentEventIsUnbiased; //!< If the current event was triggered online by RDx or not. Random seeded HLT chains must only see these
-  bool m_doHistograms; //!< If histogram export is enabled or not.
-  bool m_isMC; //!< If input is Monte Carlo
-  bool m_normaliseHistograms; //!< Flag to apply normalisation to histograms. Easier to set this to FALSE if will be needing to hadd
-  bool m_enableLumiExtrapolation; //!< Global flag if extrapolation is to be used. If not, results will be presented at the input file's lumi
-  uint32_t m_vetoStartOfTrain; //!< If > 0, then veto this many BCIDs from the start of a train
   double m_ratesDenominator; //!< How much walltime is seen by the algorithm. This is what we need to normalise to.
-  double m_mcCrossSection; //!< If MC, the cross section in nb
-  double m_mcFilterEfficiency; //!< If MC, the filter efficiency
-  double m_mcKFactor; //!< If MC, any higher order k-factor
   uint32_t m_eventCounter; //!< Count how many events processed
-  double   m_weightedEventCounter; //!< Count how many weighted events were processed
-  std::string m_prescaleXML; //!< Filename of XML of prescales to load
+  double m_weightedEventCounter; //!< Count how many weighted events were processed
 
   TH1D* m_scalingHist; //!< One-bin histogram to store the normalisation of the sample, for use in later combinations
   TH1D* m_bcidHist; //!< Histogram of the BCIDs distribution of the processing

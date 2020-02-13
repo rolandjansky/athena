@@ -21,7 +21,7 @@
 
 #include "MuPatHitTool.h" // Needed to enfornce build order for reflex dict
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
@@ -31,8 +31,6 @@
 
 
 class MsgStream;
-
-class MdtIdHelper;
 
 namespace Trk {
   class Track;
@@ -180,8 +178,7 @@ namespace Muon {
       {this, "CscRotCreator", "Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"};      //<! tool to calibrate CSC hits
     ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_compClusterCreator 
       {this, "CompetingClustersCreator", "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"}; //<! tool to create competing clusters on track
-    ToolHandle<MuonIdHelperTool>                      m_idHelperTool 
-      {this, "IdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};       //<! tool to assist with Identifiers
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<IMuonEDMHelperSvc>                  m_edmHelperSvc 
       {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 

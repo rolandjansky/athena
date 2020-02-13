@@ -27,7 +27,7 @@ namespace xAOD {
   }
 
   namespace TrackingHelpers {
-    inline double _d0significance(const xAOD::TrackParticle *tp, double d0_uncert_beam_spot_2) {
+    inline double d0significance(const xAOD::TrackParticle *tp, double d0_uncert_beam_spot_2) {
       checkTPAndDefiningParamCov(tp);
       double d0 = tp->d0();
       // elements in definingParametersCovMatrixDiagVec should be : sigma_d0^2, sigma_z0^2
@@ -40,14 +40,14 @@ namespace xAOD {
   }
 
   double TrackingHelpers::d0significance(const xAOD::TrackParticle *tp) {
-    return _d0significance(tp,0.);
+    return d0significance(tp,0.);
   }
 
   double TrackingHelpers::d0significance(const xAOD::TrackParticle *tp, double beam_sigma_x, double beam_sigma_y, double beam_sigma_xy) {
     if (!checkBeamSpotSigma(beam_sigma_x, beam_sigma_y, beam_sigma_xy)) {
       throw std::runtime_error("Beamspot covariance matrix is invalid.");
     }
-    return _d0significance(tp,d0UncertaintyBeamSpot2(tp->phi(),beam_sigma_x, beam_sigma_y, beam_sigma_xy));
+    return d0significance(tp,d0UncertaintyBeamSpot2(tp->phi(),beam_sigma_x, beam_sigma_y, beam_sigma_xy));
   }
 
   double TrackingHelpers::z0significance(const xAOD::TrackParticle *tp, const xAOD::Vertex *vx) {

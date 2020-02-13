@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 import shutil, re
@@ -71,13 +71,13 @@ def _ProtectPostProcessing( funcinfo, outFileName, isIncremental ):
             if re.match(r'^[0-9]*_.*.log$',files):
                 logFilesList.append("%s"%files)
         logFiles='\r\n'.join(logFilesList)
-    except Exception, e:
+    except Exception:
         pass
     try:
         _local_apply(func, (tmpfilename, isIncremental))
         _local_apply(_dolsrwrapper, (tmpfilename,))
         success = True
-    except Exception, e:
+    except Exception as e:
         print('WARNING!!!: POSTPROCESSING FAILED FOR', func.__name__)
         print(e)
         print('Relevant results will not be in output')

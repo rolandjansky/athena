@@ -7,7 +7,7 @@
 
 //Generic
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadHandle.h"
 

@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
 // PixelSpacePoint.h
 //   Header file for class PixelSpacePoint
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // Class to handle SPs for Pixel
 ///////////////////////////////////////////////////////////////////
@@ -28,6 +26,12 @@ namespace Trk
 
 namespace InDet
 {
+
+  /**
+   * @class PixelSpacePoint
+   * A PixelSpacePoint is created from a PixelCluster.
+   */
+
   class PixelSpacePoint : public Trk::SpacePoint {
     
     ///////////////////////////////////////////////////////////////////
@@ -35,19 +39,19 @@ namespace InDet
     ///////////////////////////////////////////////////////////////////
   public:
     
-    /** default constructor */
+    /** Default constructor */
     PixelSpacePoint() ;
 
-    /** parametrised constructors */
+    /** Parametrised constructor */
     PixelSpacePoint( IdentifierHash elementId, 
 		     const Trk::PrepRawData* clus);
     
-    /** add Covariance Matrix so for L2 at the moment */
+    /** Parametrised constructor with Covariance Matrix pointer so for L2 at the moment */
     PixelSpacePoint( IdentifierHash elementId,  
 		     const Trk::PrepRawData* clus, 
 		     const Amg::MatrixX* globcov);
     
-    /** add Covariance Matrix so for L2 at the moment */
+    /** Parametrised constructor with Covariance Matrix reference so for L2 at the moment */
     PixelSpacePoint( IdentifierHash elementId,  
 		     const Trk::PrepRawData* clus, 
 		     const Amg::MatrixX& globcov);
@@ -55,18 +59,19 @@ namespace InDet
     /** Copy constructor */
     PixelSpacePoint( const PixelSpacePoint & PSP);
 
-    /** destructor */
+    /** Destructor */
     ~PixelSpacePoint();
 
-    /** overloading assignment operator */
+    /** Overloading assignment operator */
     PixelSpacePoint &operator=(const PixelSpacePoint &);
 
     /** Clones */
     virtual SpacePoint* clone() const;       
 
-    /**Interface method for output, to be overloaded by child classes* */
+    /** Interface method for output, to be overloaded by child classes */
     virtual MsgStream&    dump( MsgStream& out ) const;  
-    /**Interface method for output, to be overloaded by child classes* */
+
+    /** Interface method for output, to be overloaded by child classes */
     virtual std::ostream& dump( std::ostream& out ) const;
       
 };

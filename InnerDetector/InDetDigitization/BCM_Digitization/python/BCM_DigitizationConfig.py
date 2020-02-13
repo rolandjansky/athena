@@ -58,7 +58,8 @@ def getBCM_Range(name="BCM_Range" , **kwargs):
 
 def BCM_OverlayDigitizationTool(name="BCM_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OnlyUseContainerName", False)
     return BCM_DigitizationTool(name,**kwargs)
 
 def BCM_OverlayDigitization(name="BCM_OverlayDigitization",**kwargs):

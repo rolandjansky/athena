@@ -5,7 +5,7 @@
 #most of what is below is just a convenience, and more specific folder setups can 
 #be done by interfacing directly with conddb in the user's joboptions.
 
-import CscCoolFolders
+from MuonCondSvc import CscCoolFolders
 
 class CscCondDB:
     "Class to hold configuration information for cscCondDbSvc"

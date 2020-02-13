@@ -10,8 +10,8 @@
 
 #include "TrigT1RPClogic/RPCtrigDataObject.h"
 
-#include "RPCcablingInterface/TRIGGERidentity.h"
-#include "RPCcablingInterface/CMAidentity.h"
+#include "RPC_CondCabling/TRIGGERidentity.h"
+#include "RPC_CondCabling/CMAidentity.h"
 
 class CMApatterns;
 class RPCdigit;

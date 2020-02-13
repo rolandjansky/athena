@@ -1,18 +1,19 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.InDetJetFitterUtilsConfig import InDetJetFitterUtilsCfg
 from BTagging.JetFitterSequentialVertexFitterConfig import JetFitterSequentialVertexFitterCfg
 from BTagging.VxInternalEdmFactoryConfig import VxInternalEdmFactoryCfg
 from BTagging.ImprovedJetFitterRoutinesConfig import ImprovedJetFitterRoutinesCfg
-from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 from BTagging.JetFitterMode3dTo1dFinderConfig import JetFitterMode3dTo1dFinderCfg
 from BTagging.InDetImprovedJetFitterTrackSelectorToolConfig import InDetImprovedJetFitterTrackSelectorToolCfg
 from BTagging.ImprovedJetFitterInitializationHelperConfig import ImprovedJetFitterInitializationHelperCfg
 
 # import the InDetImprovedJetFitterVxFinder configurable
-from InDetSecVxFinderTool.InDetSecVxFinderToolConf import InDet__InDetImprovedJetFitterVxFinder
+InDet__InDetImprovedJetFitterVxFinder=CompFactory.InDet__InDetImprovedJetFitterVxFinder
 
 # define the class
 def NewJetFitterVxFinderCfg(flags, name = 'JFVxFinder', suffix = "", useBTagFlagsDefaults = True, options = {}):

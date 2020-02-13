@@ -1,7 +1,7 @@
-Checking file /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Checking file test.data
 
-File:/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
-Event index: 473
+File:test.data
+Event index: 2
 Run:         327265
 Event ID:    187403142
 LumiBlock:   100

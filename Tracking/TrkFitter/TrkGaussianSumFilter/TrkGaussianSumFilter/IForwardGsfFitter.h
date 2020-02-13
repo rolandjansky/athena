@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************************
                         IForwardGsfFitter.h  -  description
                         ----------------------------------
 created              : Thursday 8th January 2009
-author               : amorley
+authors              : amorley,christos
 email                : Anthony.Morley@cern.ch
 decription           : Abstract interface for the forward GSF fitter
 ********************************************************************************** */
@@ -18,14 +18,13 @@ decription           : Abstract interface for the forward GSF fitter
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
-
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include <memory>
 namespace Trk {
 
 class IMultiStateMeasurementUpdator;
-class MultiComponentStateCombiner;
 class IMultiStateExtrapolator;
 class IRIO_OnTrackCreator;
 class Surface;
@@ -51,12 +50,13 @@ public:
                                     const ToolHandle<Trk::IRIO_OnTrackCreator>&) = 0;
 
   /** Forward GSF fit using PrepRawData */
-  virtual const ForwardTrajectory* fitPRD(const PrepRawDataSet&,
-                                          const TrackParameters&,
-                                          const ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+  virtual std::unique_ptr<ForwardTrajectory> fitPRD(
+    const PrepRawDataSet&,
+    const TrackParameters&,
+    const ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   /** Forward GSF fit using MeasurementSet */
-  virtual const ForwardTrajectory* fitMeasurements(
+  virtual  std::unique_ptr<ForwardTrajectory> fitMeasurements(
     const MeasurementSet&,
     const TrackParameters&,
     const ParticleHypothesis particleHypothesis = nonInteracting) const = 0;

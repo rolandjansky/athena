@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerHough/LayerAnalysis.h"
@@ -90,7 +90,7 @@ namespace MuonHough {
           double globalDir_theta = globalDir.Theta();
           std::cout << " @@truth segment " << " sector " << seg->sSector << " chamber " << seg->sChIndex << 
           " r " << globalPos.Perp() <<  " z " <<  globalPos.Z() <<  " postheta " << globalPos_theta << 
-          " dirtheta " << 3.1415 - globalDir_theta << std::endl;
+          " dirtheta " << M_PI - globalDir_theta << std::endl;
         }
       } 
 
@@ -103,8 +103,8 @@ namespace MuonHough {
 
   void LayerAnalysis::initialize(){
     SetStyle();
-    m_h_dtheta = new TH1F("dtheta", "RMS of the #Delta #theta for each clutser; #theta RMS", 315, -0.01, 3.14);
-    m_h_dtheta_truth = new TH1F("dtheta_truth", "RMS of the #Delta #theta for each truth clutser; #theta RMS", 315, -3.14, 3.14);
+    m_h_dtheta = new TH1F("dtheta", "RMS of the #Delta #theta for each clutser; #theta RMS", 315, -0.01, M_PI);
+    m_h_dtheta_truth = new TH1F("dtheta_truth", "RMS of the #Delta #theta for each truth clutser; #theta RMS", 315, -M_PI, M_PI);
     m_hMaximaHeightPerChIndex.resize(Muon::MuonStationIndex::ChIndexMax);
     m_hMaximaHeightPerChIndex[Muon::MuonStationIndex::BIS] = new Plots("max_BIS", /* 20, 0, 10000,*/ 16, 0, 3.2, 15, 0, 15);
     m_hMaximaHeightPerChIndex[Muon::MuonStationIndex::BIL] = new Plots("max_BIL", /* 20, 0, 10000,*/ 16, 0, 3.2, 15, 0, 15);
@@ -267,18 +267,11 @@ namespace MuonHough {
 
     //interate over the maximums
     for(int i=0; i < int(plotMaximum.size()); i++){
-      //std::cout << "DEBUG: check !!! maximum found : size " << plotMaximum[i].size() << std::endl;
 
-      TH1F* h_dtheta_temp = new TH1F("thetavalues", "theta values of this current cluster", 628, -3.14, 3.14);
+      TH1F* h_dtheta_temp = new TH1F("thetavalues", "theta values of this current cluster", 628, -M_PI, M_PI);
       for(int j=0; j < int(plotMaximum[i].size()); j++){
-        //std::cout << "DEBUG: check !!! maximum found : size " << plotMaximum[i][j].theta << std::endl;
         h_dtheta_temp->Fill(plotMaximum[i][j].theta);
       }
-      // if (m_DEBUG) std::cout << "DEBUG: check !!! maximum found " << " pulled mean " << h_dtheta_temp->GetMean()
-      // << " pulled mean error" << h_dtheta_temp->GetMeanError()
-      // << " pulled RMS" << h_dtheta_temp->GetRMS()
-      // << " pulled RMS error " << h_dtheta_temp->GetRMSError()
-      // << std::endl;
 
       m_h_dtheta->Fill(h_dtheta_temp->GetRMS());//the rms of dthetas
       delete h_dtheta_temp;//remove the pinter
@@ -321,11 +314,9 @@ namespace MuonHough {
 
     //interate over the truth maximums
     for(int i=0; i < int(plotMaximum_truth.size()); i++){
-      //std::cout << "DEBUG: check !!! maximum found : size " << plotMaximum[i].size() << std::endl;
-      TH1F* h_dtheta_temp = new TH1F("thetavalues", "theta values of this current cluster", 628, -3.14, 3.14);
+      TH1F* h_dtheta_temp = new TH1F("thetavalues", "theta values of this current cluster", 628, -M_PI, M_PI);
       if (m_DEBUG) std::cout << "DEBUG: maximum found ! " << std::endl;
       for(int j=0; j < int(plotMaximum_truth[i].size()); j++){
-        //std::cout << "DEBUG: check !!! maximum found : size " << plotMaximum[i][j].theta << std::endl;
         if (m_DEBUG) std::cout << "DEBUG: maximum " << j << " theta " << plotMaximum_truth[i][j].getGlobalTheta() << " max " << plotMaximum_truth[i][j].max 
             << " pos " << plotMaximum_truth[i][j].pos  << " refpos " << plotMaximum_truth[i][j].refpos  << " refchIndex " << plotMaximum_truth[i][j].refchIndex << " binpos " << plotMaximum_truth[i][j].binpos
             << " binposmin " << plotMaximum_truth[i][j].binposmin  << " binposmax " << plotMaximum_truth[i][j].binposmax
@@ -396,7 +387,6 @@ namespace MuonHough {
     std::vector< double > rmin(3,1e9);
     std::vector< double > rmax(3,-1e9);
     std::vector< std::vector<TObject*> > shapes(3);
-    //std::cout << " drawing sector " << canvasName << " detector region " << region << std::endl;
     unsigned int ntubes(0);
     unsigned int nstrips(0);
 
@@ -453,12 +443,8 @@ namespace MuonHough {
       }
     } 
 
-    //std::cout << " updating display: MDTs " << ntubes << " rpcs " << nstrips
-    //    << " lay0 " << shapes[0].size() << " lay1 " << shapes[1].size() << " lay2 " << shapes[2].size()
-	  //    << std::endl;
     canvas0.Draw();
     canvas0.Update();
-    // canvas0.SaveAs(canvasName + ".pdf");
     canvas0.Write();
 
 ////-----------------------------------This part is still disabled----------------------------
@@ -808,35 +794,8 @@ namespace MuonHough {
           extrapolated_diff = z_extrapolated - expected;
         }
     }
-    //if (m_DEBUG) std::cout << "DEBUG!!! extrapolated difference " << extrapolated_diff << std::endl;
-    //return extrapolated_diff;
-    //float new_linear = MuonHough::extrapolate(ref, ex, false);
     float new_parabolic = MuonHough::extrapolate(ref, ex, true);
 
-    // if (fabs(new_parabolic) - fabs(new_linear)  >= 100){
-    //   if (fabs(new_linear) < 1000 && fabs(new_parabolic) > 1000){//more conditions for detailed debugging; in this case, there should be improvements
-    //     std::cout << "GOOD!!! " << extrapolated_diff << " new linear: " << new_linear << " new para: " << new_parabolic << std::endl;
-    //     std::cout << "GOOD!!! refregion " << ref_region << " chIndex " << ref_chIndex << " ref_r " << r_segment << " ref_z " << z_segment << " ref_theta " 
-    //     << theta_segment  << " angle diff " << theta_segment - atan2(r_segment, z_segment)
-    //     << " theta binstep " << ref.hough->m_descriptor.thetaStep << " theta bin " << ref.bintheta << std::endl;
-
-    //     std::cout << "GOOD!!! exregion " << ex_region << " chIndex " << ex_chIndex << " ex_r " << r_extrapolated << " ex_z " << z_extrapolated << " ex_theta " 
-    //     << theta_extrapolated  << " angle diff " << theta_extrapolated - atan2(r_extrapolated, z_extrapolated)
-    //     << " theta binstep " << ex.hough->m_descriptor.thetaStep << " theta bin " << ex.bintheta << std::endl;
-    //   }
-    // }
-    // if (fabs(new_parabolic) - fabs(extrapolated_diff) >= 100 ){
-    //   if (fabs(extrapolated_diff) < 1000 && fabs(new_parabolic) > 1000){//more conditions for detailed debugging; in this case, there should be improvements
-    //     std::cout << "DEBUG!!! " << extrapolated_diff << " new linear: " << new_linear << " new para: " << new_parabolic << std::endl;
-    //     std::cout << "DEBUG!!! refregion " << ref_region << " chIndex " << ref_chIndex << " ref_r " << r_segment << " ref_z " << z_segment << " ref_theta " 
-    //     << theta_segment  << " angle diff " << theta_segment - atan2(r_segment, z_segment)
-    //     << " theta binstep " << ref.hough->m_descriptor.thetaStep << " theta bin " << ref.bintheta << std::endl;
-
-    //     std::cout << "DEBUG!!! exregion " << ex_region << " chIndex " << ex_chIndex << " ex_r " << r_extrapolated << " ex_z " << z_extrapolated << " ex_theta " 
-    //     << theta_extrapolated  << " angle diff " << theta_extrapolated - atan2(r_extrapolated, z_extrapolated)
-    //     << " theta binstep " << ex.hough->m_descriptor.thetaStep << " theta bin " << ex.bintheta << std::endl;
-    //   }
-    // }
     return new_parabolic;
   }
 

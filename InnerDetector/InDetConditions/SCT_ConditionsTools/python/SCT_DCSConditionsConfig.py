@@ -3,11 +3,12 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders
-from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_DCSConditionsTool
-from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsStatCondAlg
-from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsHVCondAlg
-from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsTempCondAlg
+SCT_DCSConditionsTool=CompFactory.SCT_DCSConditionsTool
+SCT_DCSConditionsStatCondAlg=CompFactory.SCT_DCSConditionsStatCondAlg
+SCT_DCSConditionsHVCondAlg=CompFactory.SCT_DCSConditionsHVCondAlg
+SCT_DCSConditionsTempCondAlg=CompFactory.SCT_DCSConditionsTempCondAlg
 
 def SCT_DCSConditionsToolCfg(flags, name="InDetSCT_DCSConditionsTool", **kwargs):
     """Return a configured SCT_DCSConditionsTool"""

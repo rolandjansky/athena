@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """CaloRingerKeys.py contains the input and output types used by
 CaloRinger Algorithm and Tools. It is inpired in egammaKeys.py by Bruno
@@ -68,15 +68,15 @@ class CaloRingerKeysDict:
 # CaloRingerKeys.outputElectronKey()
 #
 for i, j in CaloRingerKeysDict.inputs.items():
-  exec "def input%sType(): return '%s'" % (i, j[0])
-  exec "def input%sKey(): return '%s'" % (i, j[1])
+  globals()['input%sType'%i] = lambda x = j[0]: '%s' % x
+  globals()['input%sKey' %i] = lambda x = j[1]: '%s' % x
 #
 for i, j in CaloRingerKeysDict.outputs.items():
-  exec "def output%sType(): return '%s'" % (i, j[0])
-  exec "def output%sKey(): return '%s'" % (i, j[1])
+  globals()['output%sType'%i] = lambda x = j[0]: '%s' % x
+  globals()['output%sKey' %i] = lambda x = j[1]: '%s' % x
 #
 for i, j in CaloRingerKeysDict.outputsMetaData.items():
-  exec "def output%sType(): return '%s'" % (i, j[0])
-  exec "def output%sKey(): return '%s'" % (i, j[1])
+  globals()['output%sType'%i] = lambda x = j[0]: '%s' % x
+  globals()['output%sKey' %i] = lambda x = j[1]: '%s' % x
 ###################################################################
 

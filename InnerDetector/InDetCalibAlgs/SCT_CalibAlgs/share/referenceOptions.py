@@ -462,8 +462,6 @@ SCTCalib.NumNoisyStripsPrevRunInDB = noisyStripsInDB_lastRun
 
 SCTCalib.OutputLevel     = INFO # DEBUG
 SCTCalib.AuditAlgorithms = True # False
-SCTCalib.AuditBeginRun   = True # False
-SCTCalib.AuditEndRun     = True # False
 
 print(SCTCalib)
 

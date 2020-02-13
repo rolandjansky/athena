@@ -24,6 +24,7 @@
 #include <EventPrimitives/EventPrimitives.h>
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "InDetReadoutGeometry/TRT_DetElementContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class PixelID;
@@ -32,7 +33,7 @@ class TRT_ID;
 class ITRT_AlignDbSvc;
 
 namespace InDetDD {
-  class TRT_DetectorManager;
+  class TRT_BaseElement;
   class SiDetectorElement;
 }
 
@@ -66,7 +67,7 @@ class InDetAlignCog : public AthAlgorithm {
 
 
   StatusCode getSiElements(const InDetDD::SiDetectorElementCollection*,const bool, InDetAlignCog::Params_t &params);
-  StatusCode getTRT_Elements(const bool, InDetAlignCog::Params_t &params);  
+  StatusCode getTRT_Elements(const InDetDD::TRT_DetElementCollection*,const bool, InDetAlignCog::Params_t &params);  
   StatusCode shiftIDbyCog();
   StatusCode addL1();
 
@@ -87,9 +88,6 @@ class InDetAlignCog : public AthAlgorithm {
  
  private:
 
-
-  // managers
-  const InDetDD::TRT_DetectorManager *m_TRT_Manager;
   
   // helpers
   const PixelID *m_pixid;
@@ -105,6 +103,7 @@ class InDetAlignCog : public AthAlgorithm {
 
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+  SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
   
   // Select which detectors will be considered for cog calculation 
   int m_det;       //!< Pixel=1, SCT=2, Pixel+SCT=12, TRT=3, all (silicon and TRT)=99

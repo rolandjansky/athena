@@ -51,9 +51,10 @@ namespace NSWL1 {
                         const IInterface* parent);
         virtual ~PadTriggerLookupTool();
         virtual StatusCode initialize() override;
-        virtual void handle (const Incident& inc);
+        virtual void handle (const Incident& inc) override;
+        virtual
         StatusCode lookup_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads,
-                                       std::vector<std::unique_ptr<PadTrigger>> &triggers);
+                                       std::vector<std::unique_ptr<PadTrigger>> &triggers) override;
     private:
         /// load the 4o4 coincidence table
          StatusCode loadCoincidenceTable(std::string);

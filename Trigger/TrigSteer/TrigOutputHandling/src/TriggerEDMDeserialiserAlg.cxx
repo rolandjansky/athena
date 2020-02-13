@@ -122,11 +122,12 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
   while ( start != dataptr->end() )  {
     fragmentCount++;
     const CLID clid{ collectionCLID( start ) };
+    std::string transientTypeName;
+    ATH_CHECK( m_clidSvc->getTypeNameOfID( clid, transientTypeName ) );
     const std::vector<std::string> descr{ collectionDescription( start ) };
-    ATH_CHECK( descr.size() == 3 );
-    std::string transientTypeName{ descr[0] };
-    std::string persistentTypeName{ descr[1] };
-    const std::string key{ descr[2] };
+    ATH_CHECK( descr.size() == 2 );
+    std::string persistentTypeName{ descr[0] };
+    const std::string key{ descr[1] };
     const size_t bsize{ dataSize( start ) };
 
     ATH_MSG_DEBUG( "" );

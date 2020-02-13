@@ -109,12 +109,21 @@ class Test(object):
         with open('commands.json', 'w') as outfile:
             json.dump(commands, outfile, indent=4)
 
-        # Create the exit code from required steps
+        # Create the exit code and message from required steps
         exit_code = 0
+        failed_required_steps = []
         for step in self.exec_steps + self.check_steps:
-            if step.required and (step.result > exit_code):
-                exit_code = step.result
-        self.log.info('Test %s finished with code %s', self.name, exit_code)
+            if step.required and (step.result != 0):
+                self.log.debug('Required step %s finished with result %s', step.name, step.result)
+                failed_required_steps.append(step.name)
+                if abs(step.result) > exit_code:
+                    exit_code = abs(step.result)
+        exit_msg = 'Test {:s} finished with code {:d}'.format(self.name, exit_code)
+        if exit_code == 0:
+            exit_msg += ' because all required steps were successful'
+        else:
+            exit_msg += ' because the following required steps failed: {:s}'.format(failed_required_steps)
+        self.log.info(exit_msg)
         return exit_code
 
     def configure_timeout(self):

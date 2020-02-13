@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # JetToolSupport.py
 #
@@ -31,6 +31,8 @@
 #
 # The member "ghostArea" specifies the area to use for the ghosts
 # generated for jet finding.
+
+from __future__ import print_function
 
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRec_jobOptions')
@@ -83,7 +85,7 @@ class JetToolManager:
     myname = mytool.name()
     self.msg(1, "Adding tool " + myname)
     if myname in self.tools:
-      print "Tool " + myname + " is already registered"
+      print ("Tool " + myname + " is already registered")
       self.msg(0, "Tool " + myname + " is already registered")
       raise LookupError
     else:
@@ -782,8 +784,8 @@ class JetToolManager:
 
     builder = TriggerJetBuildTool(name)
     
-    # print 'setting builder name to ', name
-    print 'adding new trigger jet finder ', name
+    # print ('setting builder name to ', name)
+    print ('adding new trigger jet finder ', name)
 
     # self.setOutputLevel(hifinder, OutputLevel)
     # builder.JetFinder = hifinder
@@ -858,8 +860,10 @@ class JetToolManager:
     # to its JetGroomer (!: historical)
     try:
       triggerGroomerTool.JetPseudojetRetriever = self.tools['jpjretriever']
-    except KeyError, e:
+    except KeyError as e:
       jetlog.info( "Requested jet pseudojet retriever is not a registered tool")
+      import traceback
+      traceback.print_exc()
       raise e
 
     self += triggerGroomerTool

@@ -239,6 +239,14 @@ void TrackProcessorUserActionBase::PostUserTrackingAction(const G4Track*)
   return;
 }
 
+ISF::ISFParticleContainer TrackProcessorUserActionBase::ReturnSecondaries(ISF::ISFParticle const* /*parent*/)
+{
+  // For now, just return all particles
+  ISF::ISFParticleContainer result;
+  std::swap( result, m_storedSecondaries );
+  return result;
+}
+
 } // namespace iGeant4
 
 } // namespace G4UA

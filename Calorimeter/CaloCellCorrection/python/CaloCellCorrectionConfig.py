@@ -1,11 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def CaloCellPedestalCorrCfg(configFlags):
-   from CaloCellCorrection.CaloCellCorrectionConf import CaloCellPedestalCorr
+   CaloCellPedestalCorr=CompFactory.CaloCellPedestalCorr
 
    result=DetDescrCnvSvcCfg(configFlags)
    isMC=configFlags.Input.isMC
@@ -57,7 +58,7 @@ def CaloCellNeighborsAverageCorrCfg(flags):
     from TileGeoModel.TileGMConfig import TileGMCfg
     acc.merge(TileGMCfg(flags))
 
-    from CaloCellCorrection.CaloCellCorrectionConf import CaloCellNeighborsAverageCorr
+    CaloCellNeighborsAverageCorr=CompFactory.CaloCellNeighborsAverageCorr
     caloCellNeighborsAverageCorrection = CaloCellNeighborsAverageCorr(testMode = False)
 
     acc.setPrivateTools( caloCellNeighborsAverageCorrection )
@@ -65,7 +66,7 @@ def CaloCellNeighborsAverageCorrCfg(flags):
 
 
 def CaloCellTimeCorrCfg(configFlags):
-   from CaloCellCorrection.CaloCellCorrectionConf import CaloCellTimeCorrTool
+   CaloCellTimeCorrTool=CompFactory.CaloCellTimeCorrTool
    result=ComponentAccumulator()
    folder= "/LAR/TimeCorrectionOfl/CellTimeOffset"
    result.merge(addFolders(configFlags,[folder,], "LAR_OFL", className="AthenaAttributeList"))
@@ -74,7 +75,7 @@ def CaloCellTimeCorrCfg(configFlags):
 
 
 def CaloEnergyRescalerCfg(configFlags):
-   from CaloCellCorrection.CaloCellCorrectionConf import CaloCellEnergyRescaler
+   CaloCellEnergyRescaler=CompFactory.CaloCellEnergyRescaler
    result=ComponentAccumulator()
    folder="/LAR/CellCorrOfl/EnergyCorr"
    result.merge(addFolders(configFlags,[folder,], "LAR_OFL", className="AthenaAttributeList"))

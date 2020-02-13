@@ -145,17 +145,17 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*> vTracks, xAOD::
   if(vTracks.size() == 0)
     return StatusCode::SUCCESS;
 
-  static SG::AuxElement::Accessor<float> idScoreCharged("rnn_chargedScore");
-  static SG::AuxElement::Accessor<float> idScoreIso("rnn_isolationScore");
-  static SG::AuxElement::Accessor<float> idScoreConv("rnn_conversionScore");
-  static SG::AuxElement::Accessor<float> idScoreFake("rnn_fakeScore");
-  static SG::AuxElement::Accessor<float> idScoreUncl("rnn_unclassifiedScore");
+  SG::AuxElement::Accessor<float> idScoreCharged("rnn_chargedScore");
+  SG::AuxElement::Accessor<float> idScoreIso("rnn_isolationScore");
+  SG::AuxElement::Accessor<float> idScoreConv("rnn_conversionScore");
+  SG::AuxElement::Accessor<float> idScoreFake("rnn_fakeScore");
+  SG::AuxElement::Accessor<float> idScoreUncl("rnn_unclassifiedScore");
 
-  static SG::AuxElement::Accessor<int> nTrkCharged("nRnnChargedTracks");
-  static SG::AuxElement::Accessor<int> nTrkIso("nRnnIsolationTracks");
-  static SG::AuxElement::Accessor<int> nTrkConv("nRnnConvertionTracks");
-  static SG::AuxElement::Accessor<int> nTrkFake("nRnnFakeTracks");
-  static SG::AuxElement::Accessor<int> nTrkUncl("nRnnUnclassifiedTracks");
+  SG::AuxElement::Accessor<int> nTrkCharged("nRnnChargedTracks");
+  SG::AuxElement::Accessor<int> nTrkIso("nRnnIsolationTracks");
+  SG::AuxElement::Accessor<int> nTrkConv("nRnnConvertionTracks");
+  SG::AuxElement::Accessor<int> nTrkFake("nRnnFakeTracks");
+  SG::AuxElement::Accessor<int> nTrkUncl("nRnnUnclassifiedTracks");
 
   ATH_CHECK(setVars(vTracks, xTau));
 

@@ -73,7 +73,6 @@ class RawInfoSummaryForTagWriter : public AthAlgorithm
   SG::WriteHandleKey<RawInfoSummaryForTag> m_RISFTKey;
 
 
-  bool m_doTileMuonFitter; //!< do TileMuonFitter tag
   bool m_doClusterSums;//!< turn on/off the cluster sum in the tag (as it crashes if Tile is off)
   
   std::string m_mbtsContainerName;

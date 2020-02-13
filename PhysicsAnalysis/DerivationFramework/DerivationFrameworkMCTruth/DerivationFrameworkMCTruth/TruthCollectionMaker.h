@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,7 +30,6 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-      ExpressionParsing::ExpressionParser *m_vertParser;
       ExpressionParsing::ExpressionParser *m_partParser;
       mutable unsigned int m_ntotpart, m_npasspart;
       std::string m_particlesKey;

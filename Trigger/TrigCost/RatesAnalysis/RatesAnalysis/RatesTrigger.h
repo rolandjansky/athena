@@ -37,6 +37,10 @@ class RatesTrigger : public RatesHistoBase {
     const ExtrapStrat_t extrapolation = ExtrapStrat_t::kLINEAR);
   ~RatesTrigger();
 
+  RatesTrigger(const RatesTrigger&) = delete;
+
+  RatesTrigger& operator=(const RatesTrigger&) = delete;
+
   virtual void reset() { m_pass = false; } //!< If I was used in an event, reset me.
 
   void setSeedsFromRandom(const bool i) { m_seedsFromRandom = i; } //!< Set if this trigger is to behave as if it seeds from a random L1 item
@@ -102,13 +106,6 @@ class RatesTrigger : public RatesHistoBase {
    * @return The information to be printed
    */
   const std::string printExpressRate(const double ratesDenominator) const;
-
-  /**
-   * @brief Use my m_extrapolationStrategy to select the correct weight from the supplied WeightingValuesSummary_t
-   * @param weights Struct of weights from which to choose the correct one
-   * @return The extrapolation weight
-   */
-  double getExtrapolationFactor(const WeightingValuesSummary_t& weights) const;
 
  protected: 
 

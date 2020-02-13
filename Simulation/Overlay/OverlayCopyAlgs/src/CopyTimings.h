@@ -1,21 +1,21 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OVERLAYCOPYALGS_COPYTIMINGS_H
 #define OVERLAYCOPYALGS_COPYTIMINGS_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "RecEvent/RecoTimingObj.h"
 
-class CopyTimings : public AthAlgorithm
+class CopyTimings : public AthReentrantAlgorithm
 {
 public:
 
   CopyTimings(const std::string &name, ISvcLocator *pSvcLocator);
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
   SG::ReadHandleKey<RecoTimingObj> m_bkgInputKey{ this, "BkgInputKey", "", "ReadHandleKey for Background EVNTtoHITS Timings" };

@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2PhotonHypo
 
 from AthenaCommon.SystemOfUnits import GeV
-from TrigL2CaloHypoCutDefs import L2CaloPhotonCutMaps
+from .TrigL2CaloHypoCutDefs import L2CaloPhotonCutMaps
 # basic cut
 class TrigL2PhotonHypoBase (TrigL2PhotonHypo):
     __slots__ = []

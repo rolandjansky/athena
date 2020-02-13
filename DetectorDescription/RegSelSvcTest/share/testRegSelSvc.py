@@ -2,7 +2,9 @@
 # please import configurables yourself instead.
 
 doEmptyMenu = True
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 from RegSelSvcTest.RegSelSvcTestConf import RegSelTestAlg
 from AthenaCommon.AppMgr import athAlgSeq

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_TDSimHit_p1_h
@@ -15,23 +15,23 @@ class AFP_TDSimHit_p1
 	friend class AFP_TDSimHitCnv_p1;
 
 private:
-	int m_nHitID;
-	int m_nTrackID;
-	int m_nParticleEncoding;
-	float m_fKineticEnergy;
-	float m_fEnergyDeposit;
-	float m_fWaveLength;
-	float m_fPreStepX;
-	float m_fPreStepY;
-	float m_fPreStepZ;
-	float m_fPostStepX;
-	float m_fPostStepY;
-	float m_fPostStepZ;
-	float m_fGlobalTime;
+	int m_nHitID = 0;
+	int m_nTrackID = 0;
+	int m_nParticleEncoding = 0;
+	float m_fKineticEnergy = 0;
+	float m_fEnergyDeposit = 0;
+	float m_fWaveLength = 0;
+	float m_fPreStepX = 0;
+	float m_fPreStepY = 0;
+	float m_fPreStepZ = 0;
+	float m_fPostStepX = 0;
+	float m_fPostStepY = 0;
+	float m_fPostStepZ = 0;
+	float m_fGlobalTime = 0;
 
-	int m_nStationID;
-	int m_nDetectorID;
-	int m_nSensitiveElementID;
+	int m_nStationID = 0;
+	int m_nDetectorID = 0;
+	int m_nSensitiveElementID = 0;
 };
 
 

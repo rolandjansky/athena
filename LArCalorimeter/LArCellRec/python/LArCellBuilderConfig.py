@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool, LArCellMerger, LArCellNoiseMaskingTool
+from AthenaConfiguration.ComponentFactory import CompFactory
+LArCellBuilderFromLArRawChannelTool, LArCellMerger, LArCellNoiseMaskingTool=CompFactory.getComps("LArCellBuilderFromLArRawChannelTool","LArCellMerger","LArCellNoiseMaskingTool",)
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg 
 from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
 
@@ -48,7 +49,7 @@ def LArCellCorrectorCfg(configFlags):
 def LArHVCellContCorrCfg(configFlags):
     acc=ComponentAccumulator()
     acc.merge(LArHVScaleCfg(configFlags)) #CondAlgo & co for HVScale Corr
-    from LArCellRec.LArCellRecConf import LArCellContHVCorrTool
+    LArCellContHVCorrTool=CompFactory.LArCellContHVCorrTool
     theLArCellHVCorrTool = LArCellContHVCorrTool()
     acc.setPrivateTools(theLArCellHVCorrTool)
     return acc

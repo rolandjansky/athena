@@ -10,8 +10,10 @@ PACKAGE:  offline/Reconstruction/egamma/egammaTools
 AUTHORS:  F. Derue 
 CREATED:  July 3, 2009
 
-PURPOSE:     Check in each sampling that fraction of energy 
-   reconstructed is not greater thana a certain threshold
+PURPOSE:     Check in each sampling that the fraction of energy 
+              reconstructed is not greater than a certain threshold.
+              Also make sure there is some minimal energy in the 2nd
+              sampling.  
 
 UPDATED :
            Dec. 29, 2009 (FD) protection against bad pointers
@@ -22,7 +24,6 @@ UPDATED :
 #include "xAODCaloEvent/CaloCluster.h"
 
 
-// =================================================================
 egammaCheckEnergyDepositTool::egammaCheckEnergyDepositTool(const std::string& type, 
 							   const std::string& name, 
 							   const IInterface* parent) :
@@ -32,12 +33,10 @@ egammaCheckEnergyDepositTool::egammaCheckEnergyDepositTool(const std::string& ty
 
 }
 
-// ===============================================================
 egammaCheckEnergyDepositTool::~egammaCheckEnergyDepositTool() 
 {
 }
 
-// =============================================================
 StatusCode egammaCheckEnergyDepositTool::initialize() 
 {
 
@@ -46,13 +45,11 @@ StatusCode egammaCheckEnergyDepositTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-// =========================================================================
 StatusCode egammaCheckEnergyDepositTool::finalize() 
 {
   return StatusCode::SUCCESS;
 }
 
-// =========================================================================
 bool egammaCheckEnergyDepositTool::checkFractioninSamplingCluster(const xAOD::CaloCluster*   cluster) const  
 {
 

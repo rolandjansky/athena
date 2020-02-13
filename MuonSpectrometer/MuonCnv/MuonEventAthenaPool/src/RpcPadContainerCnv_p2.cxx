@@ -7,7 +7,6 @@
 #include "MuonEventAthenaPool/RpcPad_p1.h"
 #include "MuonEventAthenaPool/RpcPadContainer_p2.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "RpcPadCnv_p1.h"
 #include "RpcPadContainerCnv_p2.h"
 

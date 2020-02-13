@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.filter_files
 # @purpose take a bunch of input (pool/bs) files and produce a filtered one
@@ -76,9 +76,11 @@ def main(args):
     else:
         try:
             args.selection = eval(args.selection)
-        except Exception,err:
+        except Exception as err:
             msg.error('caught:\n%s', err)
             msg.error('.. while trying to parse selection-string')
+            import traceback
+            traceback.print_exc()
             return 1
         
         selection = []

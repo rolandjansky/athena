@@ -234,6 +234,10 @@ jtm.addJetFinder("Run2AntiKt4TruthJets", "AntiKt", 0.4, "truth", ghostArea=0.0)
 #DQMonFlags.doTRTElectronMon.set_Value_and_Lock               (False)
 #DQMonFlags.doLArMon.set_Value_and_Lock                       (False)
 
+# ensure BeamSpotCondAlg should be executed earlier than EventInfoCnvAlg
+DetFlags.simulate.all_setOff()
+include ("InDetBeamSpotService/BeamCondSvc.py")
+
 include ("RecExCommon/RecExCommon_topOptions.py")
 
 # Turn off TRT validity gate, which is not configured for 50ns RDOs

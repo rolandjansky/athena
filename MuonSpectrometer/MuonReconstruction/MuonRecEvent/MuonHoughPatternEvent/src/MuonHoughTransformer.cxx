@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughTransformer.h"
@@ -193,7 +193,7 @@ void MuonHoughTransformer::initTables()
   // better to calculate pi/180 * theta already and loop over angle in rad
   for (double angle = m_stepsize_per_angle/2.; angle <180.; angle+=m_stepsize_per_angle)
     {
-      double angle_in_rad = MuonHough::Pi*angle/180.;
+      double angle_in_rad = M_PI*angle/180.;
       m_sin[angle_in_rad] = std::sin(angle_in_rad);
       m_cos[angle_in_rad] = std::cos(angle_in_rad);
     }

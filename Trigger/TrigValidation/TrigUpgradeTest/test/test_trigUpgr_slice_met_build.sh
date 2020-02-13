@@ -5,10 +5,10 @@
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 
-export EVENTS=50
+export EVENTS=20
 export THREADS=1
 export SLOTS=1
-export JOBOPTION="TrigUpgradeTest/full_menu.py"
+export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
 export REGTESTEXP="TrigSignatureMoniMT.*HLT_.*"
 export EXTRA="doEmptyMenu=True;doMETSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"
 

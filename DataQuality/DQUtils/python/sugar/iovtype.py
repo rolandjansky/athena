@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import division
 
@@ -50,7 +50,7 @@ class IOVType(object):
         """
         if self.until == IOVMAX:
             return [self.since.run]
-        return xrange(self.since.run, self.until.run+1)
+        return range(self.since.run, self.until.run+1)
 
     @property
     def run(self):

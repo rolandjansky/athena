@@ -3,6 +3,7 @@
 """Define methods to construct configured Tile auto correlation tool and conditions algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileAutoCorrelationCondAlgCfg(flags, **kwargs):
     """Return component accumulator with configured Tile auto correlation conditions algorithm
@@ -78,7 +79,7 @@ def TileCondToolAutoCrCfg(flags, **kwargs):
 
     acc.merge( TileAutoCorrelationCondAlgCfg(flags, **kwargs) )
 
-    from TileConditions.TileConditionsConf import TileCondToolAutoCr
+    TileCondToolAutoCr=CompFactory.TileCondToolAutoCr
     acc.setPrivateTools( TileCondToolAutoCr(name, TileAutoCorrelation = autoCorrelation) )
 
     return acc
@@ -106,7 +107,7 @@ if __name__ == "__main__":
 
     acc.printConfig(withDetails = True, summariseProps = True)
     print(acc.getService('IOVDbSvc'))
-    acc.store( open('TileAutoCorrelation.pkl','w') )
+    acc.store( open('TileAutoCorrelation.pkl','wb') )
 
     print('All OK')
 

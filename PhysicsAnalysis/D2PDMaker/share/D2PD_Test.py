@@ -186,10 +186,3 @@ TestStream.AddItem( ['INav4MomAssocs#*'] )
 
 
 
-#====================================================================
-# Define the ThinningSvc
-#====================================================================
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-#augStream = MSMgr.GetStream( streamName )
-#evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="TestStreamThinning", outStreams=[evtStream] )

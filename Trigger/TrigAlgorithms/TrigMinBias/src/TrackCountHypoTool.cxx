@@ -5,7 +5,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 #include "DecisionHandling/HLTIdentifier.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TrackCountHypoTool.h"
 

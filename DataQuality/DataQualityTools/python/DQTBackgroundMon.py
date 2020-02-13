@@ -3,13 +3,15 @@
 #
 
 def DQTBackgroundMonAlgConfig(flags, isOld=False):
-    from AthenaMonitoring import AthMonitorCfgHelper
     if isOld: # replace with helper for the old configuration
         from AthenaMonitoring import AthMonitorCfgHelperOld as AthMonitorCfgHelper
+        from .DataQualityToolsConf import DQTBackgroundMon
+    else:
+        from AthenaMonitoring import AthMonitorCfgHelper
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        DQTBackgroundMon = CompFactory.DQTBackgroundMon
     helper = AthMonitorCfgHelper(flags, 'DQTBackgroundMonAlgCfg')
     
-    from DataQualityToolsConf import DQTBackgroundMon
-    from ROOT import EventInfo
 
     monAlg = helper.addAlgorithm(DQTBackgroundMon,'DQTBackgroundMonAlg')
     monAlg.Muons = True

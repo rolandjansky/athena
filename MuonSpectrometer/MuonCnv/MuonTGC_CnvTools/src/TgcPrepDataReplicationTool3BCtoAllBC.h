@@ -14,11 +14,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
-namespace MuonGM
-{
-  class MuonDetectorManager;
-}
-
 namespace Muon 
 {
   class TgcPrepDataReplicationTool3BCtoAllBC 

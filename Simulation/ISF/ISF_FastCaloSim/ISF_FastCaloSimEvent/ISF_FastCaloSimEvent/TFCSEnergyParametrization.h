@@ -22,8 +22,4 @@ private:
   ClassDefOverride(TFCSEnergyParametrization,1)  //TFCSEnergyParametrization
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSEnergyParametrization+;
-#endif
-
 #endif

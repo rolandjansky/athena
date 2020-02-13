@@ -52,7 +52,7 @@ atlas_add_test( TileBeamElemContainerCnv_p1_test
                 test/TileBeamElemContainerCnv_p1_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TileEvent TileSimEventTPCnv TestTools AthenaKernel IdDictParser GaudiKernel TileConditionsLib TileIdentifier TileTPCnv
-                EXTRA_PATTERNS "initialize_from_dictionary" )
+                LOG_IGNORE_PATTERN "initialize_from_dictionary" )
 
 atlas_add_test( TileCosmicMuonCnv_p1_test
                 SOURCES
@@ -89,28 +89,28 @@ atlas_add_test( TileDigitsContainerCnv_p1_test
                 test/TileDigitsContainerCnv_p1_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TileEvent TileSimEventTPCnv TestTools AthenaKernel IdDictParser GaudiKernel TileConditionsLib TileIdentifier TileTPCnv
-                EXTRA_PATTERNS "initialize_from_dictionary" )
+                LOG_IGNORE_PATTERN "initialize_from_dictionary" )
 
 atlas_add_test( TileDigitsContainerCnv_p2_test
                 SOURCES
                 test/TileDigitsContainerCnv_p2_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TileEvent TileSimEventTPCnv TestTools AthenaKernel IdDictParser GaudiKernel TileConditionsLib TileIdentifier TileTPCnv
-                EXTRA_PATTERNS "initialize_from_dictionary" )
+                LOG_IGNORE_PATTERN "initialize_from_dictionary" )
 
 atlas_add_test( TileDigitsContainerCnv_p3_test
                 SOURCES
                 test/TileDigitsContainerCnv_p3_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TileEvent TileSimEventTPCnv TestTools AthenaKernel IdDictParser GaudiKernel TileConditionsLib TileIdentifier TileTPCnv
-                EXTRA_PATTERNS "initialize_from_dictionary" )
+                LOG_IGNORE_PATTERN "initialize_from_dictionary" )
 
 atlas_add_test( TileHitContainerCnv_p1_test
                 SOURCES
                 test/TileHitContainerCnv_p1_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TileEvent TileSimEventTPCnv TestTools AthenaKernel IdDictParser GaudiKernel TileConditionsLib TileIdentifier TileTPCnv
-                EXTRA_PATTERNS "initialize_from_dictionary" )
+                LOG_IGNORE_PATTERN "initialize_from_dictionary" )
 
 atlas_add_test( TileRawChannelCnv_p1_test
                 SOURCES
@@ -123,7 +123,7 @@ atlas_add_test( TileRawChannelContainerCnv_p1_test
                 test/TileRawChannelContainerCnv_p1_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TileEvent TileSimEventTPCnv TestTools AthenaKernel IdDictParser GaudiKernel TileConditionsLib TileIdentifier TileTPCnv
-                EXTRA_PATTERNS "initialize_from_dictionary" )
+                LOG_IGNORE_PATTERN "initialize_from_dictionary" )
 
 atlas_add_test( TileTTL1CellCnv_p1_test
                 SOURCES

@@ -15,8 +15,8 @@ def LArAffectedRegionsConfig(inputFlags):
     from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
     acc.merge(LArHVScaleCfg(inputFlags))
 
-    from LArMonitoring.LArMonitoringConf import LArAffectedRegionsAlg
-    larAffectedRegAlg = helper.addAlgorithm(LArAffectedRegionsAlg,'larAffectedRegAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    larAffectedRegAlg = helper.addAlgorithm(CompFactory.LArAffectedRegionsAlg,'larAffectedRegAlg')
 
     #define the group names here, as you'll use them multiple times
     affectedRegGroupName="LArAffectedRegionsMonGroup"

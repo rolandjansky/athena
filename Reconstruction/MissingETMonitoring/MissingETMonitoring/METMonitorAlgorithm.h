@@ -6,24 +6,21 @@
 
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h" 
-#include "AthenaMonitoring/Monitored.h" 
+ 
 #include "xAODJet/JetContainer.h" 
 
 #include "StoreGate/ReadHandleKey.h" 
-#include "xAODMissingET/MissingET.h" 
-#include "xAODMissingET/MissingETContainer.h" 
-#include "xAODMissingET/MissingETComposition.h" 
 
-#include "TRandom3.h" 
-// JVT 
-#include "JetInterface/IJetUpdateJvt.h"
+#include "xAODMissingET/MissingETContainer.h" 
+
 // Jet cleaning 
 #include "JetInterface/IJetSelector.h"
+
 class METMonitoringAlg : public AthMonitorAlgorithm {
 public:     
   METMonitoringAlg( const std::string& name, ISvcLocator* pSvcLocator );     
   virtual ~METMonitoringAlg();    
-  StatusCode initialize();    
+  StatusCode initialize() override;    
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
  private:
@@ -46,7 +43,6 @@ public:
 
   Gaudi::Property<bool> m_doJetCleaning{this, "DoJetCleaning", false, ""};
    ToolHandle<IJetSelector> m_jetCleaningTool{this, "JetCleaningTool", "", ""};
-   // bool isGoodEvent(const EventContext& ctx ) const;
    bool isGoodEvent( const EventContext& ctx ) const;
 
 };

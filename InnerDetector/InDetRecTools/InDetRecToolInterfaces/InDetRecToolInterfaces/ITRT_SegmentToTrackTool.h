@@ -24,6 +24,8 @@
 #include "TrkTrack/Track.h"
 #include "TrkSegment/TrackSegment.h"
 #include "TrkTrack/TrackCollection.h"
+#include "TrkEventPrimitives/TrackScore.h"
+#include <utility>
 
 class MsgStream;
 
@@ -44,36 +46,39 @@ namespace InDet {
     virtual StatusCode initialize () = 0;
     virtual StatusCode finalize   () = 0;
 
-    virtual Trk::Track* segToTrack(const Trk::TrackSegment&) = 0;
-    /** Check if the TRT segment has already been assigned a Si extension  */
-    virtual bool segIsUsed(const Trk::TrackSegment&, const Trk::PRDtoTrackMap *) = 0;
-    virtual bool toLower(const Trk::TrackSegment&) = 0;
-    virtual void resetAll() = 0;
-    virtual void resetAssoTool() = 0;
-    /** Add track into the track-score multimap */
-    virtual void addNewTrack(Trk::Track*) = 0;
-    /** Resolve the standalone TRT tracks based on the number of shared TRT hits */
-    virtual TrackCollection* resolveTracks(const Trk::PRDtoTrackMap *) = 0;
+    struct EventData {
+       std::vector< std::pair<Trk::TrackScore, Trk::Track*> > m_trackScores;
+       enum ECounter {knTrkScoreZero, ///< Number of tracks rejected by score zero
+                      knTrkSegUsed,   ///< Number of excluded segments by other TRT segments
+                      knTRTTrk,       ///< Number of TRT-only tracks on output
+                      kNCounter};
+       std::array<int,kNCounter>  m_counter {};
+    };
 
-    virtual int GetnTrkScoreZero() = 0;
-    virtual int GetnTrkSegUsed() = 0;
-    virtual int GetnTRTTrk() = 0;
+    virtual Trk::Track* segToTrack(const Trk::TrackSegment&) const = 0;
+
+    /** Check if the TRT segment has already been assigned a Si extension  */
+    virtual bool segIsUsed(const Trk::TrackSegment&,
+                           const Trk::PRDtoTrackMap *) const = 0;
+
+    virtual bool toLower(const Trk::TrackSegment&) const = 0;
+
+    /** Add track into the track-score multimap */
+    virtual void addNewTrack(Trk::Track*,
+                             ITRT_SegmentToTrackTool::EventData &event_data) const = 0;
+
+    /** Resolve the standalone TRT tracks based on the number of shared TRT hits */
+    virtual TrackCollection* resolveTracks(const Trk::PRDtoTrackMap *,
+                                           ITRT_SegmentToTrackTool::EventData &event_data) const = 0;
 
     ///////////////////////////////////////////////////////////////////
     // Print internal tool parameters and status
     ///////////////////////////////////////////////////////////////////
-   
+
     virtual MsgStream&    dump(MsgStream&    out) const = 0;
     virtual std::ostream& dump(std::ostream& out) const = 0;
 
   };
-
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator for MsgStream and  std::ostream
-  ///////////////////////////////////////////////////////////////////
- 
-  MsgStream&    operator << (MsgStream&   ,const ITRT_SegmentToTrackTool&);
-  std::ostream& operator << (std::ostream&,const ITRT_SegmentToTrackTool&);
 
   ///////////////////////////////////////////////////////////////////
   // Inline methods
@@ -86,19 +91,6 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
   // Overload of << operator MsgStream
   ///////////////////////////////////////////////////////////////////
-   
-  inline MsgStream& operator    <<     (MsgStream& sl,const ITRT_SegmentToTrackTool& se)
-  { 
-    return se.dump(sl); 
-  }
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator std::ostream
-  ///////////////////////////////////////////////////////////////////
- 
-  inline std::ostream& operator <<     (std::ostream& sl,const ITRT_SegmentToTrackTool& se)
-  {
-    return se.dump(sl); 
-  }
 
 }
 

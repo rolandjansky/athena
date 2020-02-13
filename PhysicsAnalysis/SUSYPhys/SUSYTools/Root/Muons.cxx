@@ -20,9 +20,9 @@
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"

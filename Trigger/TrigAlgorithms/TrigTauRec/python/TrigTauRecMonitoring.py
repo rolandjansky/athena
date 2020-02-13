@@ -104,7 +104,7 @@ class TrigTauRecValidationMonitoring(TrigTauRecOnlineMonitoring):
 
         
 
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 def tauMonitoringCaloOnly():
    monTool = GenericMonitoringTool('MonTool')

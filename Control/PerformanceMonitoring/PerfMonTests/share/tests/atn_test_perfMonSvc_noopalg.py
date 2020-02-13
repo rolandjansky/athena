@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-import user
+from __future__ import print_function
+
 import os
 import sys
-import commands
 from AthenaCommon import ChapPy
 
 ###-----------------------------------------------------
@@ -18,17 +18,17 @@ from TestTools.iobench import BenchSequence
 ## PerfMon helper
 from PerfMonTests.tests import testPerfMon
 
-print "#"*80
-print "## PerfMon test... [noopalg]"
-print "#"*80
+print ("#"*80)
+print ("## PerfMon test... [noopalg]")
+print ("#"*80)
 bench = BenchSequence( "PerfMonTest" )
 
 bench += testPerfMon( "PerfMonTests/test_perfMonSvc_noopalg.py",
                       "perfmon.noopalg.root",
                       evtMax = 5000 )
 
-print ""
-print "#"*80
+print ("")
+print ("#"*80)
 bench.printStatus()
-print "## Bye."
-print "#"*80
+print ("## Bye.")
+print ("#"*80)

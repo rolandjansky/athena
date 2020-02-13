@@ -59,7 +59,7 @@ def getFinalModifierListAndPrereqs(mods_initial, jetdef):
 # Translate modifier string into JetModifier if necessary
 # Extracts the modspec from the string or the config object
 def getModDefAndSpec(mod):
-    from StandardJetMods import jetmoddict
+    from .StandardJetMods import jetmoddict
     moddef = mod
     modspec = ""
     if mod.__class__ == type("str"):
@@ -91,6 +91,6 @@ def getModifier(jetdef, moddef, modspec):
         modlog.error( "Unhandled modifier specification {0} for mod {1} acting on jet def {2}!".format(modspec,moddef,jetdef.basename) )
         modlog.error( "Received exception \"{0}\"".format(e) )
         modlog.error( "Helper function is \"{0}\"".format(moddef.helperfn) )
-        raise ValueError( "JetModConfig unable to handle mod {0}".format(moddef) )
+        raise ValueError( "JetModConfig unable to handle mod {0} with spec \"{1}\"".format(moddef,modspec) )
 
     return modtool

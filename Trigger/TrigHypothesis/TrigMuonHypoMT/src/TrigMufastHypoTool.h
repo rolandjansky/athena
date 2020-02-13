@@ -11,7 +11,7 @@
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
 #include "DecisionHandling/TrigCompositeUtils.h" 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 class StoreGateSvc;
 

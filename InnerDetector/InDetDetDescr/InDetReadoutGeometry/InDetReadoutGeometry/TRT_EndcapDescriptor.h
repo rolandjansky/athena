@@ -5,8 +5,6 @@
 ///////////////////////////////////////////////////////////////////
 // SiDetectorElementCollection.h
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef TRT_EndcapDescriptor_h
 #define TRT_EndcapDescriptor_h 1
@@ -23,7 +21,8 @@ namespace InDetDD {
 
   /** class TRT_EndcapDescriptor
       
-       Helper class to access GeoModel infromation and calculation for straws 
+       Helper class to access GeoModel infromation and calculation for straws.
+       Objects of this class are owned by TRT_DetectorManager.
        */
 
   class TRT_EndcapDescriptor

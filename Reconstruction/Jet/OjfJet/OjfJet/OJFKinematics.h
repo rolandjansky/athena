@@ -43,7 +43,7 @@ namespace OptimalJetFinder {
   enum Kinematics { sphere, cylinder };
 
 
-  const double pi = 3.141592653589793; 
+  const double pi = M_PI; 
   const double pi180 = pi / 180;
 
   

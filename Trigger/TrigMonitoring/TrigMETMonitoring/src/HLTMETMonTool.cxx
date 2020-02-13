@@ -60,7 +60,7 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("hlt_cell_run3_key", m_hlt_cell_run3_met_key="HLT_MET_cell");
   declareProperty("hlt_mht_run3_key", m_hlt_mht_run3_met_key="HLT_MET_mht");
   declareProperty("hlt_topocl_run3_key", m_hlt_topocl_run3_met_key="HLT_MET_tc");
-  declareProperty("hlt_topocl_PUC_run3_key", m_hlt_topocl_PUC_run3_met_key="HLT_MET_tcPufit");
+  declareProperty("hlt_topocl_PUC_run3_key", m_hlt_topocl_PUC_run3_met_key="HLT_MET_tcpufit");
   declareProperty("hlt_cell_key", m_hlt_cell_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET");
   declareProperty("hlt_mht_key", m_hlt_mht_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht");
   declareProperty("hlt_mhtem_key", m_hlt_mhtem_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht_em");

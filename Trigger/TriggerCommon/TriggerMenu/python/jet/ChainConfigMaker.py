@@ -9,14 +9,14 @@ TriggerMenu/trunk/python/menu/SignatureDicts.py#L144
 
 import re
 from functools import reduce
-from eta_string_conversions import eta_string_to_floats
-from clusterparams_factory import clusterparams_factory
-from fexparams_factory import fexparams_factory
-from hypo_factory import hypo_factory
+from .eta_string_conversions import eta_string_to_floats
+from .clusterparams_factory import clusterparams_factory
+from .fexparams_factory import fexparams_factory
+from .hypo_factory import hypo_factory
 
 # from lxml import etree as et
-from ChainConfig import ChainConfig
-from MenuData import MenuData
+from .ChainConfig import ChainConfig
+from .MenuData import MenuData
 
 class JetAttributes(object):
     """Per jet attributes. Used by  hypo algorithms."""
@@ -574,11 +574,11 @@ def _setup_ht_vars(parts):
     extra = ht_part['extra']
     if (not (extra == '' or extra.startswith('test'))):
         try:
-            args['jet_et_threshold'] = float(part['extra'][1:])
-        except:
+            args['jet_et_threshold'] = float(ht_part['extra'][1:])
+        except Exception:
             m = '%s unrecognized value for HT jet cut %s' % (
                 err_hdr,
-                str(part['extra'][1:]))
+                str(ht_part['extra'][1:]))
             
             raise RuntimeError(m)
 
@@ -592,7 +592,7 @@ def _setup_tla_vars(parts):
     tla_string = _get_tla_string(parts)
 
     m = tla_re.search(tla_string)
-    if m == None:
+    if m is None:
         m = '%s _setup_tla_vars unmatched ' \
             'tla string: %s regex: %s'  % (err_hdr,
                                            tla_string, 
@@ -726,7 +726,6 @@ if __name__ == '__main__':
         from triggerMenuXML_dicts import MC_pp_V5_dicts
 
         bad = []
-        ngood = 0
         for d in MC_pp_V5_dicts: 
             d['run_rtt_diags'] = False
             print (d['chainName'])

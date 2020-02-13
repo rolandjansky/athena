@@ -6,7 +6,7 @@
 #define TILEMONITORING_TILEJETMONITORALGORITHM
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TileConditions/ITileBadChanTool.h"
 

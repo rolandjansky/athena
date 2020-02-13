@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGRECTOOLS_MUONTGHITNTUPLE_H
@@ -66,15 +66,16 @@ class MuonTGHitNtuple : public AthAlgorithm
    
  private:
 
-  void fillFatras() const;
-  void fillSimNtuple() const;
-  void fillRecNtuple(const TrackCollection*) const;
-  void fillHoles(const TrackCollection*) const;
+  void fillFatras(const MuonGM::MuonDetectorManager* MuonDetMgr) const;
+  void fillSimNtuple(const MuonGM::MuonDetectorManager* MuonDetMgr) const;
+  void fillRecNtuple(const TrackCollection*, const MuonGM::MuonDetectorManager* MuonDetMgr) const;
+  void fillHoles(const TrackCollection*, const MuonGM::MuonDetectorManager* MuonDetMgr) const;
   
-  const TrackCollection* holesFromSim() const;
+  const TrackCollection* holesFromSim(const MuonGM::MuonDetectorManager* MuonDetMgr) const;
   const Trk::TrackStateOnSurface* createHole(const Trk::TrackParameters*,const Trk::Layer*, bool) const;
-  bool layerMatch(Identifier id1, Identifier id2) const;
-  const std::vector< std::pair<const Trk::Layer*, std::vector<Identifier> > >* getOrderedSimLayers(int index, Amg::Vector3D mom) const;
+  bool layerMatch(Identifier id1, Identifier id2, const MuonGM::MuonDetectorManager* MuonDetMgr) const;
+  const std::vector< std::pair<const Trk::Layer*, std::vector<Identifier> > >* getOrderedSimLayers(int index, Amg::Vector3D mom, 
+												   const MuonGM::MuonDetectorManager* MuonDetMgr) const;
   Identifier getRpcId(const RPCSimHit*) const;
   Identifier getCscId(const CSCSimHit*) const;
   Identifier getTgcId(const TGCSimHit*) const;
@@ -85,8 +86,9 @@ class MuonTGHitNtuple : public AthAlgorithm
   CscHitIdHelper* m_cscHelper;
   TgcHitIdHelper* m_tgcHelper;
 
-
-  const MuonGM::MuonDetectorManager* m_muonMgr;
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
 
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};

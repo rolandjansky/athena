@@ -4,24 +4,25 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 # utilities
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from PileUpComps.PileUpCompsConf import PileUpXingFolder
-from SGComps.SGCompsConf import AddressRemappingSvc, ProxyProviderSvc
+PileUpXingFolder=CompFactory.PileUpXingFolder
+AddressRemappingSvc, ProxyProviderSvc=CompFactory.getComps("AddressRemappingSvc","ProxyProviderSvc",)
 # for PileUpTool
-from LArDigitization.LArDigitizationConf import LArPileUpTool
+LArPileUpTool=CompFactory.LArPileUpTool
 from LArGeoAlgsNV.LArGMConfig import LArGMCfg
 from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
 from LArRecUtils.LArRecUtilsConfig import LArAutoCorrNoiseCondAlgCfg
 from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg, LArBadFebCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
-from CommissionUtils.CommissionUtilsConf import CosmicTriggerTimeTool
+CosmicTriggerTimeTool=CompFactory.CosmicTriggerTimeTool
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 # for Digitization
-from LArDigitization.LArDigitizationConf import LArDigitMaker
+LArDigitMaker=CompFactory.LArDigitMaker
 from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
 from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
 # for Trigger Tower
-from LArL1Sim.LArL1SimConf import LArTTL1Maker
+LArTTL1Maker=CompFactory.LArTTL1Maker
 from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg
 from CaloConditions.CaloConditionsConfig import CaloTriggerTowerCfg
 

@@ -14,6 +14,9 @@
 #define TRIGPSC_PSC_H
 
 // Package includes
+#include "TrigPSC/Config.h"
+
+// TDAQ includes
 #include "hltinterface/HLTInterface.h"
 
 // Gaudi Includes
@@ -34,9 +37,6 @@ class IAppMgrUI;
 
 namespace psc {
 
-  // Fwd decl
-  class Config;
-
   /**
    * Common base class for HLT Pesa Steering Controller.
    */
@@ -44,14 +44,14 @@ namespace psc {
   {
   public:
     /**
-     * C'tor. (Nothing happens here...)
+     * Default constructor
      */
-    Psc() ;
+    Psc() = default;
 
     /**
-     * D'tor virtualisation
+     * Virtual desctuctor
      */
-    virtual ~Psc() ;
+    virtual ~Psc();
 
     /**
      * Configures the framework
@@ -135,7 +135,7 @@ namespace psc {
     IAppMgrUI*                    m_pesaAppMgr{nullptr}; ///< Application Manager
     std::string                   m_nameEventLoopMgr;    ///< name of the event loop manager
     bool                          m_interactive{false};  ///< Running in interactive mode (athenaHLT)
-    std::unique_ptr<psc::Config>  m_config;              ///< Config derived from ptree
+    std::unique_ptr<psc::Config>  m_config{nullptr};     ///< Config derived from ptree
 
     SmartIF<ISvcLocator> m_svcLoc;     ///< Service locator handle
   };

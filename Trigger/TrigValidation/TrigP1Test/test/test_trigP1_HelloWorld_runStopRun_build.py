@@ -13,7 +13,7 @@ ex.type = 'athenaHLT'
 ex.job_options = 'AthExHelloWorld/HelloWorldOptions.py'
 ex.input = 'data'
 ex.args = '-i -M -ul'
-ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
+ex.perfmon = False # perfmon currently not fully supported with athenaHLT -M
 
 # Trick to pass the transitions file into athenaHLT -i
 ex.job_options += ' < `find_data.py run-stop-run-saveHist.trans`'

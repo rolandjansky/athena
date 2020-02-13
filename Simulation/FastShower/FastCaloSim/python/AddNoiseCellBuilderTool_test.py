@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
 #
 # File: FastCaloSim/python/AddNoiseCellBuilderTool_test.py
 # Author: scott snyder
@@ -18,6 +18,11 @@ import ROOT
 # address:
 # subcalo, barec_or_posneg, sampling_or_module, region_or_dummy, eta, phi
 
+def i32(x):
+    if x >= (1<<31):
+        x -= (1<<32)
+    return x
+
 LAREM = 0
 LARHEC = 1
 LARFCAL = 2
@@ -25,32 +30,32 @@ TILE = 3
 LARHIGHGAIN = 0
 LARMEDIUMGAIN = 1
 LARLOWGAIN = 2
-TILEHIGHHIGH = (1<<32)-11
-TILEHIGHLOW = (1<<32)-12
+TILEHIGHHIGH = -11
+TILEHIGHLOW = -12
 cell_desc = {
     # larem barrel
-    (LAREM, 1, 1, 0, 100, 10) : (1000,   LARHIGHGAIN,     1004.69),
+    (LAREM, 1, 1, 0, 100, 10) : (1000,   LARHIGHGAIN,     1007.97),
     (LAREM, 1, 1, 0, 100, 11) : (50000,  LARMEDIUMGAIN,  50020.05),
     (LAREM, 1, 1, 0, 100, 12) : (300000, LARLOWGAIN,    299961.5),
 
     # larem endcap
-    (LAREM, 2, 1, 2, 30, 10) : (1000,     LARHIGHGAIN,     1011.57),
+    (LAREM, 2, 1, 2, 30, 10) : (1000,     LARHIGHGAIN,      995.08),
     (LAREM, 2, 1, 2, 30, 11) : (50000,    LARMEDIUMGAIN,  49930.60),
     (LAREM, 2, 1, 2, 30, 12) : (300000,   LARLOWGAIN,    299785.6),
 
     # larhec
-    (LARHEC, 2, 1, 0, 3, 10) : (1000,     LARMEDIUMGAIN,   1385.40),
+    (LARHEC, 2, 1, 0, 3, 10) : (1000,     LARMEDIUMGAIN,    985.86),
     (LARHEC, 2, 1, 0, 3, 11) : (50000,    LARMEDIUMGAIN,  49526.75),
-    (LARHEC, 2, 1, 0, 3, 12) : (300000,   LARLOWGAIN,    299096.1),
+    (LARHEC, 2, 1, 0, 3, 12) : (300000,   LARLOWGAIN,    299838.22),
 
     # fcal
-    (LARFCAL, 2, 1, 0, 3, 10) : (1000,     LARHIGHGAIN,     1071.27),
-    (LARFCAL, 2, 1, 0, 3, 11) : (50000,    LARMEDIUMGAIN,  49949.16),
-    (LARFCAL, 2, 1, 0, 3, 12) : (800000,   LARLOWGAIN,    799391.06),
+    (LARFCAL, 2, 1, 0, 3, 10) : (1000,     LARHIGHGAIN,      975.03),
+    (LARFCAL, 2, 1, 0, 3, 11) : (50000,    LARMEDIUMGAIN,  49817.90),
+    (LARFCAL, 2, 1, 0, 3, 12) : (800000,   LARLOWGAIN,    795062.44),
 
     # tile
-    (TILE, 1, 1, 10, 3, 1) : (1000,      TILEHIGHHIGH,     984.47),
-    (TILE, 1, 1, 11, 3, 1) : (50000,     TILEHIGHLOW,    49825.87),
+    (TILE, 1, 1, 10, 3, 1) : (1000,      TILEHIGHHIGH,    1024.70),
+    (TILE, 1, 1, 11, 3, 1) : (50000,     TILEHIGHLOW,    49563.63),
     }
 
 def make_calo_cells (detStore, desc):
@@ -84,7 +89,7 @@ def compare_cells (detStore, ccc, exp_cells):
     tilehelper = idhelper.tile_idHelper()
 
     for c in ccc:
-        lcell = [c.gain(), c.energy()]
+        lcell = [i32(c.gain()), c.energy()]
 
         cid = c.ID()
         sub_calo = idhelper.sub_calo(cid)
@@ -113,6 +118,8 @@ def compare_cells (detStore, ccc, exp_cells):
         if (lcell[0] != l[0] or
             abs ((lcell[1] - l[1])/l[1]) > 1e-3):
             print ('xxx cell mismatch: ', addr, lcell, l)
+            import sys
+            sys.stdout.flush()
             assert 0
         del exp_cells[addr]
 

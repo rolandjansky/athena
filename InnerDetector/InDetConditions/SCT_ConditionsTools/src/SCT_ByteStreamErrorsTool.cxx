@@ -238,7 +238,7 @@ SCT_ByteStreamErrorsTool::resetSets(const EventContext& ctx) const {
  * e.g. for monitoring plots.
  */
 
-const std::set<IdentifierHash>*
+const std::set<IdentifierHash>
 SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) const {
   std::lock_guard<std::mutex> lock{m_mutex};
   CacheEntry* ent{m_cache.get(ctx)};
@@ -247,12 +247,12 @@ SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) co
     if (sc.isFailure()) {
       ATH_MSG_ERROR("fillData in getErrorSet fails");
     }
-    return &(ent->m_bsErrors[errorType]);
+    return ent->m_bsErrors[errorType];
   }
-  return nullptr;
+  return {};
 }
 
-const std::set<IdentifierHash>* 
+const std::set<IdentifierHash> 
 SCT_ByteStreamErrorsTool::getErrorSet(int errorType) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   return getErrorSet(errorType, ctx);

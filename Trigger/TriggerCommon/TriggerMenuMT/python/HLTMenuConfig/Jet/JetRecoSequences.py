@@ -5,7 +5,7 @@
 from AthenaCommon.CFElements import parOR, seqAND
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import RecoFragmentsPool
 
-import JetRecoConfiguration
+from TriggerMenuMT.HLTMenuConfig.Jet import JetRecoConfiguration
 
 # Translate the reco dict to a string for suffixing etc
 def jetRecoDictToString(jetRecoDict):
@@ -108,7 +108,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         # depending on how we want to handle HLT preselection
         trkcolls = None
         if jetRecoDict["trkopt"] != "notrk":
-            from JetTrackingConfig import JetTrackingSequence
+            from .JetTrackingConfig import JetTrackingSequence
             (jettrkseq, trkcolls) = RecoFragmentsPool.retrieve( JetTrackingSequence, None, trkopt=jetRecoDict["trkopt"], RoIs=RoIs)
             recoSeq += jettrkseq
 

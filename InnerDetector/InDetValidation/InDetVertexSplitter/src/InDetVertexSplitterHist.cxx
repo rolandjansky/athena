@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -151,17 +151,11 @@ StatusCode InDet::InDetVertexSplitterHist::makeSplitHist() {
       m_evenBranch.c01=cxye;
       m_evenBranch.c11=yee;
       m_evenBranch.c22=zee;
-      
-      const DataHandle<xAOD::EventInfo> eventInfo;
-      sc = evtStore()->retrieve( eventInfo );
-      if(sc.isSuccess()){
-        m_metaData.lumi = eventInfo->lumiBlock();
-        m_metaData.run = eventInfo->runNumber();
-        m_metaData.event = eventInfo->eventNumber();
-      }
-      else{
-        return sc;
-      }
+
+      const EventContext& ctx = Gaudi::Hive::currentContext();
+      m_metaData.lumi = ctx.eventID().lumi_block();
+      m_metaData.run = ctx.eventID().run_number();
+      m_metaData.event = ctx.eventID().event_number();
       m_ntuple->Fill(); 
     }
     vxi++;

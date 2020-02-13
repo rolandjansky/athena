@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ MdtVsTgcRawDataValAlg::tgceffcalc(const xAOD::MuonSegmentContainer *newmdtsegmen
 
 // Prepare array of TGC Readout Elements
 void
-MdtVsTgcRawDataValAlg::prepareTREarray(){
+MdtVsTgcRawDataValAlg::prepareTREarray(const MuonGM::MuonDetectorManager* MuonDetMgrDS){
   int TGCStationNames[8]={41, 42, 43, 44, 45, 46, 47, 48};
   
   // Make array of TGC Readout Element pointers
@@ -136,7 +136,7 @@ MdtVsTgcRawDataValAlg::prepareTREarray(){
         delete isValid;
         
         // Get TRE and put into to array
-        m_TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi] = m_muonMgr->getTgcReadoutElement(tgc_testId);
+        m_TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi] = MuonDetMgrDS->getTgcReadoutElement(tgc_testId);
         if(m_TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi]==0){
           ATH_MSG_WARNING( "prepareTREarray: TgcReadoutElement==0 passed checks"  );
           continue;

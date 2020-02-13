@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -29,6 +29,7 @@
 // MuonCalib //
 #include "MuonCalibStandAloneBase/CalibSegmentPreparationTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 // AtlasCore //
 // AtlasConditions //
@@ -36,12 +37,6 @@
 //CLHEP
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/Vector.h"
-
-namespace MuoinGM {
-
-class MuonDetectorManager;
-
-}
 
 namespace MuonCalib {
 
@@ -77,7 +72,12 @@ class BarrelSecondCoordinatePreparationTool : public AthAlgTool, virtual public 
     std::vector<int> num_same, double max_r, CLHEP::HepVector &tr_par, double &angle_err);
 
  private:
-  const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon detector manager
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+
   const MuonCalib::IIdToFixedIdTool *m_id_tool; // identifier converter
 
   FILE* m_rpcHitsFile; //File to store RPC entries

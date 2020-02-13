@@ -10,18 +10,21 @@
 ///////////////////////////////////////////////////////////////////
 
 
-#include <iostream>
-#include <iomanip>
-#include <utility>
+
 
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TRT_TrackExtensionTool_xk/TRT_TrackExtensionToolCosmics.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
+//
+#include "TrkEventPrimitives/PropDirection.h"
+ #include "InDetIdentifier/TRT_ID.h"
+#include <iostream>
+#include <utility>
+#include <cmath>
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -336,10 +339,10 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 
 	    double distance=m_roadwidth+1;
 	    if(lpos){
-	      distance = fabs(lpos->x());
+	      distance = std::abs(lpos->x());
 	      msg(MSG::DEBUG)<<"Hit "<<m_trtid->show_to_string((*driftCircleIterator)->identify())<<" has a distance of "<<distance<<endmsg;
 
-	      double dist_locz=fabs(lpos->y());
+	      double dist_locz=std::abs(lpos->y());
 	      if(distance<m_roadwidth+1){
 		if(!dc_surface.insideBounds(*lpos,m_roadwidth,m_roadwidth_locz)){
 		  msg(MSG::DEBUG)<<"Hit not inside surface bounds! "<<distance<<" , "<<dist_locz<<endmsg;
@@ -354,8 +357,6 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	    if(distance<maxdist){
 	      maxdist=distance;
 	      circ=(*driftCircleIterator);
-	      //}else{
-	      //  msg(MSG::DEBUG)<<"Driftcircle "<<m_trtid->show_to_string((*driftCircleIterator)->identify())<<" has a distance of "<<distance<<endmsg;
 	    }
 	  }
 	}
@@ -364,13 +365,12 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
       if(circ){
 	msg(MSG::DEBUG)<<"Found Driftcircle! Adding it to list ..."<<m_trtid->show_to_string(circ->identify())<<endmsg;
         if (lastz<-9999) lastz=(**parameterIter).position().z();
-        if (fabs(lastz-(**parameterIter).position().z())>500.) return;
+        if (std::abs(lastz-(**parameterIter).position().z())>500.) return;
         lastz=(**parameterIter).position().z();
         const Trk::StraightLineSurface *slsurf=dynamic_cast<const Trk::StraightLineSurface *>(&circ->detectorElement()->surface(circ->identify())); if(!slsurf) continue;
         Trk::AtaStraightLine atasl((**parameterIter).position(),(**parameterIter).parameters()[Trk::phi],(**parameterIter).parameters()[Trk::theta],(**parameterIter).parameters()[Trk::qOverP],*slsurf);
         const Trk::MeasurementBase *newmeas=m_riontrackN->correct(*circ,atasl); 
 	event_data.m_measurement.push_back(newmeas);
-        //std::cout << "param pos: " << (**parameterIter).position() << " meas pos: " << newmeas->globalPosition() << std::endl;
 
       }	  
     }
@@ -382,7 +382,7 @@ class tp_sort_cosmics{
           public:
           tp_sort_cosmics(double theta){m_theta=theta;}
           bool operator()(const Trk::TrackParameters *par1,const Trk::TrackParameters *par2){
-            if (m_theta>M_PI/2) return (par1->position().z()>par2->position().z());
+            if (m_theta>M_PI_2) return (par1->position().z()>par2->position().z());
             else return (par1->position().z()<par2->position().z());
           }
           private:
@@ -426,7 +426,6 @@ InDet::TRT_DriftCircleContainer::const_iterator
      if ((**w).empty()) continue; 
      const Trk::Surface &surf=(**(**w).begin()).detectorElement()->surface();
      Amg::Vector3D pos=intersect(&surf,per);
-     //std::cout << "pos: " << pos << " surf: " << surf << std::endl;
      Amg::Vector3D locintersec = (surf.transform().inverse())*pos;
      Amg::Vector2D locpos(locintersec.x(), locintersec.y());
      if (pos.perp()<500. || !surf.insideBounds(locpos,50.,50.)) continue;
@@ -438,7 +437,6 @@ InDet::TRT_DriftCircleContainer::const_iterator
      Trk::TrackParameters *newpar=0;
      if (plsurf) newpar=new Trk::AtaPlane(pos2,per->parameters()[Trk::phi],per->parameters()[Trk::theta],per->parameters()[Trk::qOverP],*plsurf);
      else newpar=new Trk::AtaDisc(pos2,per->parameters()[Trk::phi],per->parameters()[Trk::theta],per->parameters()[Trk::qOverP],*discsurf); 
-     //std::cout << "pos: " << pos << " pos2: " << pos2 << " param pos: " << newpar->position() << std::endl; 
      vecTP.push_back(newpar);
    }
   tpars_down=new std::vector<const Trk::TrackParameters* >;
@@ -456,20 +454,11 @@ InDet::TRT_DriftCircleContainer::const_iterator
   }
   if (!tpars_up->empty()) std::reverse(tpars_up->begin(),tpars_up->end());
   
-/*  Trk::Surface *boundary_surface=findBoundarySurface(par,Trk::alongMomentum, event_data);
-  if(boundary_surface)
-    tpars_down=m_extrapolator->extrapolateStepwise(*m_propagator, par, *boundary_surface, Trk::alongMomentum, m_boundarycheck, Trk::muon);  
 
-  boundary_surface=findBoundarySurface(par,Trk::oppositeMomentum, event_data);
-  if(boundary_surface)
-    tpars_up  =m_extrapolator->extrapolateStepwise(*m_propagator, par, *boundary_surface, Trk::oppositeMomentum, m_boundarycheck, Trk::muon);
-*/
   if(tpars_down){
-    //std::cout << "analyze_tpars(tpars_down)" << std::endl;
     analyze_tpars(tpars_down,event_data);
   }
   if(tpars_up){
-    //std::cout << "analyze_tpars(tpars_up)" << std::endl;
     analyze_tpars(tpars_up, event_data);
   }
 
@@ -537,21 +526,19 @@ InDet::TRT_TrackExtensionToolCosmics::findBoundarySurface(const Trk::TrackParame
 Amg::Vector3D InDet::TRT_TrackExtensionToolCosmics::intersect(const Trk::Surface *surf,const Trk::Perigee *per) {
   // Calculate intersection of helix with silicon module. Assume barrel modules parallel to z-axis, endcap modules perpendicular to z-axis
 
-  double sinTheta = sin(per->parameters()[3]);
+  double sinTheta = std::sin(per->parameters()[3]);
   double r= (std::abs(per->parameters()[Trk::qOverP]) > 1e-10) ? -sinTheta/(per->parameters()[Trk::qOverP]*0.6) : 1e6;
-  double xc=per->position().x()-r*sin(per->parameters()[2]);
-  double yc=per->position().y()+r*cos(per->parameters()[2]);
-  //double signdeltaphi= (r<0) ? -1.: 1.;
-  double phi0=atan2(per->position().y()-yc,per->position().x()-xc);
+  double xc=per->position().x()-r*std::sin(per->parameters()[2]);
+  double yc=per->position().y()+r*std::cos(per->parameters()[2]);
+  double phi0=std::atan2(per->position().y()-yc,per->position().x()-xc);
   double theta=per->parameters()[Trk::theta];
   double z0=per->position().z();
 
-  if (fabs(surf->normal().z())>0.5){ // endcap module
+  if (std::abs(surf->normal().z())>0.5){ // endcap module
     double delta_s=(surf->center().z()-z0)/cos(theta);
-    double delta_phi=delta_s*sin(theta)/r;
-    double x=xc+fabs(r)*cos(phi0+delta_phi);
-    double y=yc+fabs(r)*sin(phi0+delta_phi);
-    //std::cout << "deltaphi: " << delta_phi << " delta_s: " << delta_s << " r: " << r << "intersect: " << x << " " << y << " " << surf->center().z() << std::endl;
+    double delta_phi=delta_s*std::sin(theta)/r;
+    double x=xc+std::abs(r)*std::cos(phi0+delta_phi);
+    double y=yc+std::abs(r)*std::sin(phi0+delta_phi);
     return Amg::Vector3D(x,y,surf->center().z());
 
 
@@ -566,27 +553,22 @@ Amg::Vector3D InDet::TRT_TrackExtensionToolCosmics::intersect(const Trk::Surface
     double b=2*( (x2 - x1)*(x1 - xc) + (y2 - y1)*(y1 - yc));
     double c=xc*xc + yc*yc + x1*x1 + y1*y1 - 2*(xc*x1 + yc*y1) - r*r;
     double discr=b*b-4*a*c;
-    //std::cout << "discr: " << discr << std::endl;
     if (discr<0) return Amg::Vector3D(0,0,0);
-    double u1=(-b-sqrt(discr))/(2*a);
-    double u2=(-b+sqrt(discr))/(2*a);
-    double u=(fabs(u1)<fabs(u2)) ? u1 : u2;
+    double u1=(-b-std::sqrt(discr))/(2*a);
+    double u2=(-b+std::sqrt(discr))/(2*a);
+    double u=(std::abs(u1)<std::abs(u2)) ? u1 : u2;
     double x=x1+u*(x2-x1);
     double y=y1+u*(y2-y1);
-    double phi=atan2(y-yc,x-xc);
-   // std::cout << "phi1: " << phi1 << " phi: " << phi << std::endl;
+    double phi=std::atan2(y-yc,x-xc);
     double delta_phi=phi-phi0;
-    if (fabs(fabs(delta_phi)-2*M_PI)<fabs(delta_phi)){
+    if (std::abs(std::abs(delta_phi)-2*M_PI)<std::abs(delta_phi)){
       if (delta_phi<0) delta_phi+=2*M_PI;
       else delta_phi-=2*M_PI;
 
     }
-    double delta_z=r*delta_phi/tan(theta);
-    //if (theta>M_PI/2) delta_z=-delta_z;
-    //if (fabs(surf.center().x()-107)<60 && fabs(surf.center().y()+290)<60 && fabs(surf.center().z()-700)<60) std::cout << "signdeltaphi: " << signdeltaphi << " delta_phi: " << delta_phi << " phi0: " << phi0 << " phi: " << phi << " z0: " << z0 << " deltaz: " << delta_z << std::endl;
+    double delta_z=r*delta_phi/std::tan(theta);
 
     double z=z0+delta_z;
-    //std::cout << "phi0: " << phi0 << " phi: " << phi << " delta phi: " << delta_phi << " z0: " << z0 << " delta z: " << delta_z << " theta: " << theta << " intersect barrel: " << x << " " << y << " " << z << std::endl;
     return Amg::Vector3D(x,y,z);
   }
 }

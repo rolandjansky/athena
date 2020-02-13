@@ -317,48 +317,7 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
       else  m_stgcSimHitCollection->Insert(nswsTGCHit); 
 
       ATH_MSG_VERBOSE("[ muhit ] NSW hit created.");           
-         
-      /*
-	
-      // validation/fast digit 
-      if ( m_muonMgr->mmIdHelper()->is_mm(id) ) {
-        const MuonGM::MMReadoutElement* mm=m_muonMgr->getMMReadoutElement(id);
-        if (mm) {
-          Trk::GlobalPosition g2re = mm->transform(id).inverse()*(*plIter)->position();
-	  std::cout <<currLay->surfaceRepresentation().center()<< ","<<mm->center(id)<< std::endl;
-	  Trk::LocalPosition lp(g2re.x(),g2re.y());         
-	  int nCh = mm->stripNumber(lp,id);
-	  std::cout <<"MM layer, strip number,length:"<<  m_muonMgr->mmIdHelper()->gasGap(id) <<","
-	  <<nCh<<","<<mm->getDesign(id)->channelLength(nCh)<<":"<<  mm->getDesign(id)->gasGapThickness() << std::endl;
-	  std::cout<<"distance to nearest channel, readout:"<<mm->getDesign(id)->distanceToChannel(lp) <<","<< mm->distanceToReadout(lp,id)<<std::endl;     
-        }
-      } else if ( m_muonMgr->stgcIdHelper()->is_stgc(id) ) {
-        const MuonGM::sTgcReadoutElement* stgc=m_muonMgr->getsTgcReadoutElement(id);
-	if (stgc) {
-	  Trk::GlobalPosition g2re = stgc->transform(id).inverse()*(*plIter)->position();
-	  Trk::LocalPosition lp(g2re.x(),g2re.y());         
-	  std::cout <<currLay->surfaceRepresentation().center()<< ","<<stgc->center(id)<<"," <<m_muonMgr->stgcIdHelper()->channelType(id)<<  std::endl;
-	  int nCh = stgc->stripNumber(lp,id);
-	  std::cout << "channel number:"<< nCh << std::endl; 
-	  std::cout <<"sTGC layer, strip number,length:"<<  m_muonMgr->stgcIdHelper()->gasGap(id) <<","
-	  <<nCh<<","<<stgc->getDesign(id)->channelLength(nCh)<<"," << stgc->getDesign(id)->gasGapThickness() << std::endl;
-	  std::cout <<"distance to nearest channel, readout:"<<stgc->getDesign(id)->distanceToChannel(lp) <<","<< stgc->distanceToReadout(lp,id)<<std::endl;
-	  
-	  // test wire gangs
-	  Identifier wid=m_muonMgr->stgcIdHelper()->channelID(m_muonMgr->stgcIdHelper()->stationName(id),
-	  m_muonMgr->stgcIdHelper()->stationEta(id),
-	  m_muonMgr->stgcIdHelper()->stationPhi(id),
-	  m_muonMgr->stgcIdHelper()->multiplet(id),
-	  m_muonMgr->stgcIdHelper()->gasGap(id),2,1);
-	  int nW = stgc->stripNumber(lp,wid);
-	  std::cout << "wire gang number:"<< nW << std::endl; 
-	  std::cout <<"sTGC layer, wire number,length:"<<  m_muonMgr->stgcIdHelper()->gasGap(wid) <<","
-	  <<nW<<","<<stgc->getDesign(wid)->channelLength(nW)<<":"<< stgc->getDesign(wid)->gasGapThickness() <<  std::endl;
-	  std::cout<<"distance to nearest channel, readout:"<<stgc->getDesign(wid)->distanceToChannel(lp) <<","<< stgc->distanceToReadout(lp,wid)<<std::endl;
-	  
-	}
-      }
-      */   // end NSW validation
+
     }  else if (m_muonIdHelperTool->mdtIdHelper().is_mdt(id)) {    // (A) special treatment for MDTs to find closest channel and nearby hits
       double pitch = 0.;
       // get the identifier 

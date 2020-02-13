@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPOUNITTEST_TLORENTZVECTORASIJET_H
@@ -22,18 +22,18 @@ class TLorentzVectorAsIJet: public HypoJet::IJet {
     m_tl(tl),
     m_position(0){
   }
-  
-  double pt() const override {return m_pt;}
-  double eta() const override {return m_eta;}
-  double phi() const override {return m_phi;}
-  double m() const override  {return m_m;}
-  double e() const override  {return m_e;}
-  double et() const override  {return m_et;}
-  double rapidity() const override  {return m_eta;}
-  TLorentzVector p4() const override  {return m_tl;}
-  unsigned int position() const override {return m_position;}
-  bool getAttribute(const std::string&, float&) const {return true;}
-  std::string toString() const {return "TLorentzVectorAsIJet";}
+
+  virtual double pt() const override {return m_pt;}
+  virtual double eta() const override {return m_eta;}
+  virtual double phi() const override {return m_phi;}
+  virtual double m() const override  {return m_m;}
+  virtual double e() const override  {return m_e;}
+  virtual double et() const override  {return m_et;}
+  virtual double rapidity() const override  {return m_eta;}
+  virtual TLorentzVector p4() const override  {return m_tl;}
+  virtual unsigned int position() const override {return m_position;}
+  virtual bool getAttribute(const std::string&, float&) const override {return true;}
+  virtual std::string toString() const override {return "TLorentzVectorAsIJet";}
   virtual std::optional<const xAOD::Jet*> xAODJet() const override {
     return std::optional<const xAOD::Jet*>();
   }

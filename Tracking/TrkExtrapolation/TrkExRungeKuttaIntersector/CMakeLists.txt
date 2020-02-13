@@ -43,7 +43,7 @@ atlas_add_test( RungeKuttaIntersector_test
                 SOURCES test/RungeKuttaIntersector_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES TrkExUtils GaudiKernel TestTools CxxUtils ${ROOT_LIBRARIES}
-                EXTRA_PATTERNS "^AtlasFieldSvc +INFO"
+                LOG_IGNORE_PATTERN "^AtlasFieldSvc +INFO"
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 

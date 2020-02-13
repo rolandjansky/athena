@@ -47,10 +47,7 @@ Muon::MuonTrackSummaryHelperTool::~MuonTrackSummaryHelperTool()
 StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
 {
 
-  if ( detStore()->retrieve( m_detMgr ).isFailure() ) {
-    ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
   if( m_calculateCloseHits && !m_extrapolator.empty() ){
     if (m_extrapolator.retrieve().isSuccess()){
@@ -162,6 +159,13 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
     ATH_MSG_DEBUG("TrackSummary already has detailed muon track summary, not adding a new one");
     return;
   }
+
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return; 
+  } 
 
   ATH_MSG_DEBUG("Adding detailed muon track summary");
   ATH_MSG_DEBUG(track.info());
@@ -388,7 +392,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
       if( isMdt && pars ) {
         double rDrift = fabs(meas->localParameters()[Trk::locR]);
         double rTrack = fabs(pars->parameters()[Trk::locR]);
-        double innerRadius = m_detMgr->getMdtReadoutElement(id)->innerTubeRadius();
+        double innerRadius = MuonDetMgr->getMdtReadoutElement(id)->innerTubeRadius();
         if( rTrack > rDrift && rTrack < innerRadius ) {
           ++proj.ndeltas;
           continue;
@@ -434,12 +438,19 @@ void Muon::MuonTrackSummaryHelperTool::updateHoleContent( Trk::MuonTrackSummary:
     return;
   }
 
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return; 
+  } 
+
   bool isCsc = m_idHelperTool->isCsc(chamberHitSummary.chamberId());
   int neta = isCsc ? 4 : 2;
   int nphi = isCsc ? 4 : 2;
   if( m_idHelperTool->isTgc(chamberHitSummary.chamberId()) ){
 
-    const MuonGM::TgcReadoutElement* detEl = m_detMgr->getTgcReadoutElement(chamberHitSummary.chamberId());
+    const MuonGM::TgcReadoutElement* detEl = MuonDetMgr->getTgcReadoutElement(chamberHitSummary.chamberId());
     if( !detEl ){
       ATH_MSG_WARNING(" No detector element found for " << m_idHelperTool->toStringChamber(chamberHitSummary.chamberId()) );      
       return;

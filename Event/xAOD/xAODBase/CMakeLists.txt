@@ -40,7 +40,12 @@ atlas_add_dictionary( xAODBaseObjectTypeDict
    xAODBase/xAODBaseObjectTypeDict.h
    xAODBase/selection-ObjectType.xml)
 
+atlas_install_python_modules( python/*.py )
+
 # Test(s) in the package:
 atlas_add_test( ut_xAODObjectType_test
    SOURCES test/ut_xAODObjectType_test.cxx
    LINK_LIBRARIES xAODBase )
+
+atlas_add_test( ut_xAODObjectType_pytest
+	        SCRIPT test/ut_xAODObjectType_pytest.py)

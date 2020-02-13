@@ -1,6 +1,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Constants import DEBUG, INFO
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
@@ -19,7 +20,7 @@ class MuonPrdCacheNames(object):
 def MuonPrdCacheCfg():
     acc = ComponentAccumulator()
 
-    from MuonRdoToPrepData.MuonRdoToPrepDataConf import MuonPRDCacheCreator
+    MuonPRDCacheCreator=CompFactory.MuonPRDCacheCreator
     cacheCreator = MuonPRDCacheCreator(MdtCacheKey  = MuonPrdCacheNames.MdtCache,
                                        CscCacheKey  = MuonPrdCacheNames.CscCache,
                                        RpcCacheKey  = MuonPrdCacheNames.RpcCache,
@@ -47,14 +48,14 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataToolMT
+    Muon__RpcRdoToPrepDataToolMT=CompFactory.Muon__RpcRdoToPrepDataToolMT
     RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name = "RpcRdoToRpcPrepDataTool")
     if flags.Common.isOnline: 
         RpcRdoToRpcPrepDataTool.ReadKey = "" ## cond data not needed online
     acc.addPublicTool( RpcRdoToRpcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
-    from MuonRdoToPrepData.MuonRdoToPrepDataConf import RpcRdoToRpcPrepData
+    RpcRdoToRpcPrepData=CompFactory.RpcRdoToRpcPrepData
     RpcRdoToRpcPrepData = RpcRdoToRpcPrepData(name          = "RpcRdoToRpcPrepData",
                                               DecodingTool  = RpcRdoToRpcPrepDataTool,
                                               PrintPrepData = False )
@@ -81,12 +82,12 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataToolMT
+    Muon__TgcRdoToPrepDataToolMT=CompFactory.Muon__TgcRdoToPrepDataToolMT
     TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataToolMT(name           = "TgcRdoToTgcPrepDataTool")
     acc.addPublicTool( TgcRdoToTgcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
-    from MuonRdoToPrepData.MuonRdoToPrepDataConf import TgcRdoToTgcPrepData
+    TgcRdoToTgcPrepData=CompFactory.TgcRdoToTgcPrepData
     TgcRdoToTgcPrepData = TgcRdoToTgcPrepData(name          = "TgcRdoToTgcPrepData",
                                               DecodingTool  = TgcRdoToTgcPrepDataTool,
                                               PrintPrepData = False )
@@ -115,12 +116,12 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataToolMT
+    Muon__MdtRdoToPrepDataToolMT=CompFactory.Muon__MdtRdoToPrepDataToolMT
     MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataToolMT(name = "MdtRdoToMdtPrepDataTool")
     acc.addPublicTool( MdtRdoToMdtPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
-    from MuonRdoToPrepData.MuonRdoToPrepDataConf import MdtRdoToMdtPrepData
+    MdtRdoToMdtPrepData=CompFactory.MdtRdoToMdtPrepData
     MdtRdoToMdtPrepData = MdtRdoToMdtPrepData(name          = "MdtRdoToMdtPrepData",
                                               DecodingTool  = MdtRdoToMdtPrepDataTool,
                                               PrintPrepData = False )
@@ -149,12 +150,12 @@ def CscRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataToolMT
+    Muon__CscRdoToCscPrepDataToolMT=CompFactory.Muon__CscRdoToCscPrepDataToolMT
     CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataToolMT(name           = "CscRdoToCscPrepDataTool")
     acc.addPublicTool( CscRdoToCscPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
-    from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
+    CscRdoToCscPrepData=CompFactory.CscRdoToCscPrepData
     CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = "CscRdoToCscPrepData",
                                               CscRdoToCscPrepDataTool = CscRdoToCscPrepDataTool,
                                               PrintPrepData           = False )
@@ -172,12 +173,12 @@ def CscClusterBuildCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
 
     # Get cluster creator tool
-    from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilderTool
+    CscThresholdClusterBuilderTool=CompFactory.CscThresholdClusterBuilderTool
     CscClusterBuilderTool = CscThresholdClusterBuilderTool(name = "CscThresholdClusterBuilderTool" )
     acc.addPublicTool( CscClusterBuilderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
   
     #CSC cluster building
-    from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
+    CscThresholdClusterBuilder=CompFactory.CscThresholdClusterBuilder
     CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThresholdClusterBuilder",
                                                    cluster_builder = CscClusterBuilderTool )
     acc.addEventAlgo(CscClusterBuilder)

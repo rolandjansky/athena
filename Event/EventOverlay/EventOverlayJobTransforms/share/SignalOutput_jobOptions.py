@@ -25,16 +25,16 @@ if DetFlags.overlay.Truth_on():
             signalStream.ItemList += ['TrackRecordCollection#' + overlayFlags.sigPrefix() + collection]
 
     if DetFlags.overlay.BCM_on():
-        outStream.ItemList += [ 'InDetSimDataCollection#' + overlayFlags.sigPrefix() + 'BCM_SDO_Map' ]
+        signalStream.ItemList += [ 'InDetSimDataCollection#' + overlayFlags.sigPrefix() + 'BCM_SDO_Map' ]
 
     if DetFlags.overlay.pixel_on():
-        outStream.ItemList += [ 'InDetSimDataCollection#' + overlayFlags.sigPrefix() + 'PixelSDO_Map' ]
+        signalStream.ItemList += [ 'InDetSimDataCollection#' + overlayFlags.sigPrefix() + 'PixelSDO_Map' ]
 
     if DetFlags.overlay.SCT_on():
         signalStream.ItemList += ['InDetSimDataCollection#' + overlayFlags.sigPrefix() + 'SCT_SDO_Map']
 
     if DetFlags.overlay.TRT_on():
-        outStream.ItemList += [ 'InDetSimDataCollection#' + overlayFlags.sigPrefix() + 'TRT_SDO_Map' ]
+        signalStream.ItemList += [ 'InDetSimDataCollection#' + overlayFlags.sigPrefix() + 'TRT_SDO_Map' ]
 
     if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
         if 'CaloCalibrationHitContainer' in overlayFlags.optionalContainerMap():
@@ -42,52 +42,52 @@ if DetFlags.overlay.Truth_on():
                 signalStream.ItemList += ['CaloCalibrationHitContainer#' + overlayFlags.sigPrefix() + collection]
 
     if DetFlags.overlay.CSC_on():
-        outStream.ItemList += [ 'CscSimDataCollection#' + overlayFlags.sigPrefix() + 'CSC_SDO' ]
+        signalStream.ItemList += [ 'CscSimDataCollection#' + overlayFlags.sigPrefix() + 'CSC_SDO' ]
 
     if DetFlags.overlay.MDT_on():
-        outStream.ItemList += [ 'MuonSimDataCollection#' + overlayFlags.sigPrefix() + 'MDT_SDO' ]
+        signalStream.ItemList += [ 'MuonSimDataCollection#' + overlayFlags.sigPrefix() + 'MDT_SDO' ]
 
     if DetFlags.overlay.RPC_on():
-        outStream.ItemList += [ 'MuonSimDataCollection#' + overlayFlags.sigPrefix() + 'RPC_SDO' ]
+        signalStream.ItemList += [ 'MuonSimDataCollection#' + overlayFlags.sigPrefix() + 'RPC_SDO' ]
 
     if DetFlags.overlay.TGC_on():
-        outStream.ItemList += [ 'MuonSimDataCollection#' + overlayFlags.sigPrefix() + 'TGC_SDO' ]
+        signalStream.ItemList += [ 'MuonSimDataCollection#' + overlayFlags.sigPrefix() + 'TGC_SDO' ]
 
     if DetFlags.overlay.sTGC_on():
-        outStream.ItemList += [ 'MuonSimDataCollection#' + overlayFlags.sigPrefix() + 'sTGC_SDO' ]
+        signalStream.ItemList += [ 'MuonSimDataCollection#' + overlayFlags.sigPrefix() + 'sTGC_SDO' ]
 
     if DetFlags.overlay.Micromegas_on():
-        outStream.ItemList += [ 'MuonSimDataCollection#' + overlayFlags.sigPrefix() + 'MM_SDO' ]
+        signalStream.ItemList += [ 'MuonSimDataCollection#' + overlayFlags.sigPrefix() + 'MM_SDO' ]
 
 if DetFlags.overlay.BCM_on():
-    outStream.ItemList+=['BCM_RDO_Container#' + overlayFlags.sigPrefix() + 'BCM_RDOs']
+    signalStream.ItemList+=['BCM_RDO_Container#' + overlayFlags.sigPrefix() + 'BCM_RDOs']
 
 if DetFlags.overlay.pixel_on():
-    outStream.ItemList += ['PixelRDO_Container#' + overlayFlags.sigPrefix() + 'PixelRDOs']
+    signalStream.ItemList += ['PixelRDO_Container#' + overlayFlags.sigPrefix() + 'PixelRDOs']
 
 if DetFlags.overlay.SCT_on():
     signalStream.ItemList += ['SCT_RDO_Container#' + overlayFlags.sigPrefix() + 'SCT_RDOs']
 
 if DetFlags.overlay.TRT_on():
-    outStream.ItemList += ['TRT_RDO_Container#' + overlayFlags.sigPrefix() + 'TRT_RDOs']
+    signalStream.ItemList += ['TRT_RDO_Container#' + overlayFlags.sigPrefix() + 'TRT_RDOs']
 
 if DetFlags.overlay.CSC_on():
-    outStream.ItemList += [ 'CscRawDataContainer#' + overlayFlags.sigPrefix() + 'CSCRDO' ]
+    signalStream.ItemList += [ 'CscRawDataContainer#' + overlayFlags.sigPrefix() + 'CSCRDO' ]
 
 if DetFlags.overlay.MDT_on():
-    outStream.ItemList += [ 'MdtCsmContainer#' + overlayFlags.sigPrefix() + 'MDTCSM' ]
+    signalStream.ItemList += [ 'MdtCsmContainer#' + overlayFlags.sigPrefix() + 'MDTCSM' ]
 
 if DetFlags.overlay.RPC_on():
-    outStream.ItemList += [ 'RpcPadContainer#' + overlayFlags.sigPrefix() + 'RPCPAD' ]
+    signalStream.ItemList += [ 'RpcPadContainer#' + overlayFlags.sigPrefix() + 'RPCPAD' ]
 
 if DetFlags.overlay.TGC_on():
-    outStream.ItemList += [ 'TgcRdoContainer#' + overlayFlags.sigPrefix() + 'TGCRDO' ]
+    signalStream.ItemList += [ 'TgcRdoContainer#' + overlayFlags.sigPrefix() + 'TGCRDO' ]
 
 if DetFlags.overlay.sTGC_on():
-    outStream.ItemList += [ 'Muon::STGC_RawDataContainer#' + overlayFlags.sigPrefix() + 'sTGCRDO' ]
+    signalStream.ItemList += [ 'Muon::STGC_RawDataContainer#' + overlayFlags.sigPrefix() + 'sTGCRDO' ]
 
 if DetFlags.overlay.Micromegas_on():
-    outStream.ItemList += [ 'Muon::MM_RawDataContainer#' + overlayFlags.sigPrefix() + 'MMRDO' ]
+    signalStream.ItemList += [ 'Muon::MM_RawDataContainer#' + overlayFlags.sigPrefix() + 'MMRDO' ]
 
 # Temporary to ensure the output is stored
 signalStream.TransientItems = signalStream.ItemList

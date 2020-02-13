@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 
 #
@@ -72,7 +73,7 @@ class Enabled(JobProperty):
          oname = self.__class__._nInstancesContextDict[i].__name__
          ocontext = self.__class__._nInstancesContextDict[i]._context_name.partition('.'+oname)
          if context !=  ocontext:
-            #print ocontext
+            #print(ocontext)
                if context[0] == ocontext[0]:
                   objects.append(self.__class__._nInstancesContextDict[i])
       return objects
@@ -108,7 +109,7 @@ class doDBM(InDetFlagsJobProperty):
     StoredValue  = False
 
 class doPrintConfigurables(InDetFlagsJobProperty):
-    """if this is on the all the print InDetXYZ lines are activated"""
+    """if this is on the all the print(InDetXYZ lines are activated"""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = True
@@ -124,7 +125,13 @@ class doPseudoTracking(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False 
-    
+
+class doIdealPseudoTracking(InDetFlagsJobProperty):
+    """Run pseudoTracking with 100\% hit assignment efficiency"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
 class doSplitReco(InDetFlagsJobProperty):
     """Turn running of the truth seeded pseudo tracking only for pileup on and off. 
        Only makes sense to run on RDO file where SplitDigi was used!"""
@@ -1215,7 +1222,7 @@ class InDetJobProperties(JobPropertyContainer):
     from AthenaCommon.DetFlags    import DetFlags
 
     from AthenaCommon.BeamFlags import jobproperties
-    print "InDetJobProperties::setupDefaults():  jobproperties.Beam.beamType() is "+jobproperties.Beam.beamType()+" bunch spacing is "+str(jobproperties.Beam.bunchSpacing()) 
+    print("InDetJobProperties::setupDefaults():  jobproperties.Beam.beamType() is "+jobproperties.Beam.beamType()+" bunch spacing is "+str(jobproperties.Beam.bunchSpacing()))
 
     if ( jobproperties.Beam.beamType()=="collisions" and jobproperties.Beam.bunchSpacing() <= 25): 
        self.checkThenSet(self.InDet25nsec            , True)     
@@ -1321,7 +1328,7 @@ class InDetJobProperties(JobPropertyContainer):
 
     # --- special case SLHC
     elif (self.doSLHC()):
-       print "----> InDetJobProperties for SLHC"
+       print("----> InDetJobProperties for SLHC")
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
@@ -1354,8 +1361,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTrackSegmentsDisappearing, False)
 
     elif (self.doIBL()):
-       print "----> InDetJobProperties for IBL"
-       print "----> DEPRECATED! This should now be the default settings"
+       print("----> InDetJobProperties for IBL")
+       print("----> DEPRECATED! This should now be the default settings")
        #self.checkThenSet(self.doNewTracking          , True )
        #self.checkThenSet(self.doLowPt                , False)
        #self.checkThenSet(self.doVeryLowPt            , False)
@@ -1382,7 +1389,7 @@ class InDetJobProperties(JobPropertyContainer):
        #self.checkThenSet(self.doSGDeletion           , True )
  
     elif (self.doHighPileup()):
-       print "----> InDetJobProperties for high pilep"
+       print("----> InDetJobProperties for high pilep")
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
@@ -1411,7 +1418,7 @@ class InDetJobProperties(JobPropertyContainer):
 
     # --- special setup for vtxlumi stream processing   
     elif (self.doVtxLumi()):
-       print "----> InDetJobProperties for vertex lumi"
+       print("----> InDetJobProperties for vertex lumi")
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
@@ -1451,7 +1458,7 @@ class InDetJobProperties(JobPropertyContainer):
 
 # --- special setup for vtxbeamspot stream processing   
     elif (self.doVtxBeamSpot()):
-       print "----> InDetJobProperties for vertex lumi"
+       print("----> InDetJobProperties for vertex lumi")
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
@@ -1487,7 +1494,7 @@ class InDetJobProperties(JobPropertyContainer):
 
     # --- special case minimal reconstruction setup
     elif (self.doMinimalReco()):
-       print "----> InDetJobProperties for minimal reconstruction"
+       print("----> InDetJobProperties for minimal reconstruction")
        self.checkThenSet(self.preProcessing          , True )
        self.checkThenSet(self.doPRDFormation         , True )
        self.checkThenSet(self.doSpacePointFormation  , True )
@@ -1527,7 +1534,7 @@ class InDetJobProperties(JobPropertyContainer):
     # --- new setup for LargeD0 retracking -- what the user
     # --- is allowed to change
     elif self.doDVRetracking():
-       print "----> InDetJobProperties for high-d0 tracks reconstruction"
+       print("----> InDetJobProperties for high-d0 tracks reconstruction")
        # see setDVRetracking method which overrides some of the flags
        self.checkThenSet(self.doLargeD0               , True              )
        self.checkThenSet(self.useExistingTracksAsInput, True              )
@@ -1667,9 +1674,9 @@ class InDetJobProperties(JobPropertyContainer):
     #Method to do the final setup of the flags according to user input before.
     #This method MUST ONLY BE CALLED once in InDetRecExample/InDetRec_jobOptions.py!!
     if not self.Enabled:
-      print 'InDetFlags.init(): ID flags are disabled. Locking container and not doing anything else.'
+      print('InDetFlags.init(): ID flags are disabled. Locking container and not doing anything else.')
     else:
-      print 'Initializing InDetJobProperties with DetFlags, GlobalFlags and other high level flags.'
+      print('Initializing InDetJobProperties with DetFlags, GlobalFlags and other high level flags.')
 
       # THIS METHOD MUST BE THE FIRST TO BE CALLED. DO NOT MOVE IT OR ADD THINGS IN FRONT
       self.setupDefaults()
@@ -1877,7 +1884,7 @@ class InDetJobProperties(JobPropertyContainer):
       if (self.trackFitterType() is not 'KalmanFitter' and self.trackFitterType() is not 'KalmanDNAFitter') :
          self.refitROT = True
       if not self.refitROT() and not self.redoTRT_LR() :
-         print 'ConfiguredInDetFlags.py       WARNING refitROT and redoTRT_LR are both False, NOT RECOMMENDED!' 
+         print('ConfiguredInDetFlags.py       WARNING refitROT and redoTRT_LR are both False, NOT RECOMMENDED!')
       #
       # refKF needs a new method in IUpdator, where there is currently only one implementation
       if (self.trackFitterType() is 'ReferenceKalmanFitter'):
@@ -1890,8 +1897,8 @@ class InDetJobProperties(JobPropertyContainer):
                or (self.trackFitterType() is 'DistributedKalmanFilter')
                or (self.trackFitterType() is 'GlobalChi2Fitter' )
                or (self.trackFitterType() is 'GaussianSumFilter') ):
-         print 'InDetJobProperties.py       WARNING unregistered or invalid track fitter setup.'
-         print '                                      --> re-setting to TrkKalmanFitter.'
+         print('InDetJobProperties.py       WARNING unregistered or invalid track fitter setup.')
+         print('                                      --> re-setting to TrkKalmanFitter.')
          self.trackFitterType = 'KalmanFitter'
 
       #
@@ -1932,7 +1939,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTRT_PRDFormation,  False)
       
     # do this also if Enabled == False
-    print "Initialization of InDetFlags finished - locking container!"
+    print("Initialization of InDetFlags finished - locking container!")
     self.lock_JobProperties()
 
   def loadTrackingGeometry(self):
@@ -2139,164 +2146,164 @@ class InDetJobProperties(JobPropertyContainer):
 # ----------------------------------------------------------------------------
 
   def printInfo(self) :
-    print '****** Inner Detector Flags ********************************************************'
+    print('****** Inner Detector Flags ********************************************************')
     if self.AODall() :
-       print '*'
-       print '* --------------------> write AOD classes for all trackers!'
-       print '*'
+       print('*')
+       print('* --------------------> write AOD classes for all trackers!')
+       print('*')
     if self.doSLHC() :
-       print '*'
-       print '* --------------------> Special reconstruction for SLHC !'
+       print('*')
+       print('* --------------------> Special reconstruction for SLHC !')
        if self.doSLHCVeryForward():
-          print '* --------------------> Including Very Forward Extension !' 
-       print '*'
+          print('* --------------------> Including Very Forward Extension !')
+       print('*')
     if self.doIBL() :
-       print '*'
-       print '* --------------------> Special reconstruction for IBL !'
-       print '*'
+       print('*')
+       print('* --------------------> Special reconstruction for IBL !')
+       print('*')
     if self.doDBM() :
-       print '*'
-       print '* --------------------> Special reconstruction for DBM !'
-       print '*'
+       print('*')
+       print('* --------------------> Special reconstruction for DBM !')
+       print('*')
     if self.doDBMstandalone() :
-       print '*'
-       print '* --------------------> Standalone reconstruction for DBM !'
-       print '*'
+       print('*')
+       print('* --------------------> Standalone reconstruction for DBM !')
+       print('*')
     if self.doHighPileup() :
-       print '*'
-       print '* --------------------> Special reconstruction for high pile-up !'
-       print '*'
+       print('*')
+       print('* --------------------> Special reconstruction for high pile-up !')
+       print('*')
     if self.doVtxLumi() :
-       print '*'
-       print '* --------------------> Special reconstruction for vertex lumi measurement !'
-       print '*'
+       print('*')
+       print('* --------------------> Special reconstruction for vertex lumi measurement !')
+       print('*')
     if self.doVtxBeamSpot() :
-       print '*'
-       print '* --------------------> Special reconstruction for vertex beamspot measurement !'
-       print '*'
+       print('*')
+       print('* --------------------> Special reconstruction for vertex beamspot measurement !')
+       print('*')
     if self.doCosmics() :
-       print '*'
-       print '* --------------------> Special reconstruction for cosmics !'
-       print '*'
+       print('*')
+       print('* --------------------> Special reconstruction for cosmics !')
+       print('*')
     if self.doHeavyIon() :
-       print '*'
-       print '* --------------------> Special reconstruction for heavy ions !'
-       print '*'
+       print('*')
+       print('* --------------------> Special reconstruction for heavy ions !')
+       print('*')
     if self.doMinimalReco() :
-       print '*'
-       print '* --------------------> Minimal Reconstruction !'
-       print '*'
+       print('*')
+       print('* --------------------> Minimal Reconstruction !')
+       print('*')
     if self.doDVRetracking() :
-       print '*'
-       print '* --------------------> Special reconstruction for high-d0 tracks !'
-       print '*'
+       print('*')
+       print('* --------------------> Special reconstruction for high-d0 tracks !')
+       print('*')
     if self.disableInDetReco():
-       print '*'
-       print '* --------------------> Disabling Reconstruction !'
-       print '*'
+       print('*')
+       print('* --------------------> Disabling Reconstruction !')
+       print('*')
     if self.disableTracking() and not self.disableInDetReco():
-       print '*'
-       print '* --------------------> Disabling all tracking !'
-       print '*'
+       print('*')
+       print('* --------------------> Disabling all tracking !')
+       print('*')
     if self.doMinBias():
-       print '*'
-       print '* --------------------> old Min Bias Mode (no longer supported)'
-       print '*'
+       print('*')
+       print('* --------------------> old Min Bias Mode (no longer supported)')
+       print('*')
     if self.doLowMuRunSetup():
-       print '*'
-       print '* --------------------> Low Mu Run Setup for Min Bias studies'
-       print '*'
+       print('*')
+       print('* --------------------> Low Mu Run Setup for Min Bias studies')
+       print('*')
     if self.doRobustReco():
-       print '*'
-       print '* --------------------> Robust Reco Cuts'
-       print '*'
+       print('*')
+       print('* --------------------> Robust Reco Cuts')
+       print('*')
     if self.doSingleCollisionVertexReco():
-       print '*'
-       print '* --------------------> Single collision vertex reco'
-       print '*'   
+       print('*')
+       print('* --------------------> Single collision vertex reco')
+       print('*')   
     if self.doInnerDetectorCommissioning:
-       print '*'
-       print '* --------------------> Loose setting for Commissioning'
-       print '*'   
+       print('*')
+       print('* --------------------> Loose setting for Commissioning')
+       print('*')   
 
     
     # -----------------------------------------
-    print '*'
-    print '* PreProcessing:'
-    print '* =============='
-    print '*'
+    print('*')
+    print('* PreProcessing:')
+    print('* ==============')
+    print('*')
     if self.InDet25nsec(): 
-       print '* -----> 25 nsec setup for SCT/TRT' 
+       print('* -----> 25 nsec setup for SCT/TRT')
     else:
-       print '* -----> 50 nsec setup for SCT/TRT' 
-    print '*'
+       print('* -----> 50 nsec setup for SCT/TRT')
+    print('*')
     if self.doPRDFormation() :
-       print '* run PrepRawDataFormation'
+       print('* run PrepRawDataFormation')
        if self.doPixelClusterSplitting():
           if self.doTIDE_Ambi(): 
-            print '* - run TIDE ambi with pixel cluster splitting' 
-            print '*   splitting technique:                 ', self.pixelClusterSplittingType()
-            print '*   split prob1 cut:                     ', self.pixelClusterSplitProb1()
-            print '*   split prob2 cut:                     ', self.pixelClusterSplitProb2()
-            print '*   Min split   pt: [MeV]                ', self.pixelClusterSplitMinPt() 
+            print('* - run TIDE ambi with pixel cluster splitting')
+            print('*   splitting technique:                 ', self.pixelClusterSplittingType())
+            print('*   split prob1 cut:                     ', self.pixelClusterSplitProb1())
+            print('*   split prob2 cut:                     ', self.pixelClusterSplitProb2())
+            print('*   Min split   pt: [MeV]                ', self.pixelClusterSplitMinPt())
             if self.doTIDE_RescalePixelCovariances():
-                print '*   rescaling pixel cluster covariances: ', self.doTIDE_RescalePixelCovariances() 
+                print('*   rescaling pixel cluster covariances: ', self.doTIDE_RescalePixelCovariances())
           else:
-            print '* - run new Pixel clustering with splitting using analog information'
-            print '*   splitting technique: ', self.pixelClusterSplittingType()
+            print('* - run new Pixel clustering with splitting using analog information')
+            print('*   splitting technique: ', self.pixelClusterSplittingType())
        if self.selectSCTIntimeHits():
            if self.InDet25nsec(): 
-               print '* - use 01X masking for SCT readout in reconstruction' 
+               print('* - use 01X masking for SCT readout in reconstruction')
            else:  
-               print '* - use X1X masking for SCT readout in reconstruction' 
+               print('* - use X1X masking for SCT readout in reconstruction')
        if self.cutSCTOccupancy():
-           print '* - cut on SCT occupancy for masking noisy modules'
+           print('* - cut on SCT occupancy for masking noisy modules')
        if self.removeTRTNoise():
-           print '* - remove flagged TRT noise' 
+           print('* - remove flagged TRT noise')
        if self.noTRTTiming():
-           print '* - ignore TRT timing information !'
+           print('* - ignore TRT timing information !')
     if self.doSpacePointFormation() :
-       print '* run SpacePointFormation'
+       print('* run SpacePointFormation')
     # -----------------------------------------
-    print '*'
-    print '* TrackFinding:'
-    print '* ============='
+    print('*')
+    print('* TrackFinding:')
+    print('* =============')
     # -----------------------------------------
     if self.doNewTracking() :
-       print '*'
-       print '* NewTracking is ON:'
+       print('*')
+       print('* NewTracking is ON:')
     if self.doSiSPSeededTrackFinder() :
-       print '* - run SiSPSeededTrackFinder'
+       print('* - run SiSPSeededTrackFinder')
        if self.useZvertexTool() :
-          print '*   and use ZvertexTool'
+          print('*   and use ZvertexTool')
     if self.doAmbiSolving() :
-       print '* - run AmbiguitySolver'
+       print('* - run AmbiguitySolver')
     if self.doTRTExtension() :
-       print '* - run TRT_TrackExtension'
+       print('* - run TRT_TrackExtension')
     if self.doExtensionProcessor() :
-       print '* - run TrackExtensionProcessor'
+       print('* - run TrackExtensionProcessor')
        if self.redoTRT_LR() :
-          print '*   and redo LR and tube hits in fit for TRT !!!'
+          print('*   and redo LR and tube hits in fit for TRT !!!')
     # -----------------------------------------
     if self.doBackTracking() :
-       print '*'
-       print '* BackTracking is ON:'
+       print('*')
+       print('* BackTracking is ON:')
     if self.doTrtSegments() :
-       print '* - run TRT Segment finding'
+       print('* - run TRT Segment finding')
     if self.doTRTSeededTrackFinder() :
-       print '* - run TRT seeded track finding'
+       print('* - run TRT seeded track finding')
        if self.loadTRTSeededSPFinder() :
-          print '*   and load TRT_SeededSpacePointFinder'
+          print('*   and load TRT_SeededSpacePointFinder')
        if self.loadSimpleTRTSeededSPFinder() :
-          print '*   and load SimpleTRT_SeededSpacePointFinder'
+          print('*   and load SimpleTRT_SeededSpacePointFinder')
     if self.doResolveBackTracks() :
-       print '* - run ambi on TRT seeded tracks'
+       print('* - run ambi on TRT seeded tracks')
     if self.doTRTStandalone() :
-       print '* - create TRT standalone tracks'
+       print('* - create TRT standalone tracks')
     # -----------------------------------------
     if self.doNewTrackingSegments():
-       print '*'
-       print '* Create separate track segments for:'
+       print('*')
+       print('* Create separate track segments for:')
        standAloneTracking = '*   - '
        if self.doTrackSegmentsPixel():
           standAloneTracking += 'Pixel '
@@ -2304,145 +2311,145 @@ class InDetJobProperties(JobPropertyContainer):
           standAloneTracking += 'SCT '
        if self.doTrackSegmentsTRT():
           standAloneTracking += 'TRT'
-       print standAloneTracking
+       print(standAloneTracking)
     # -----------------------------------------
     if self.doLargeD0() or self.doLowPtLargeD0() :
-       print '*'
-       print '* LargeD0 Tracking is ON'
+       print('*')
+       print('* LargeD0 Tracking is ON')
        if self.doSiSPSeededTrackFinder() :
-          print '* - run SiSPSeededTrackFinder'
+          print('* - run SiSPSeededTrackFinder')
        if self.useZvertexTool() :
-          print '*   and use ZvertexTool'
+          print('*   and use ZvertexTool')
        if self.doAmbiSolving() :
-          print '* - run AmbiguitySolver'
+          print('* - run AmbiguitySolver')
        if self.doTRTExtension() :
-          print '* - run TRT_TrackExtension'
+          print('* - run TRT_TrackExtension')
        if self.doExtensionProcessor() :
-          print '* - run TrackExtensionProcessor'
+          print('* - run TrackExtensionProcessor')
           if self.redoTRT_LR() :
-              print '*   and redo LR and tube hits in fit for TRT !!!'
+              print('*   and redo LR and tube hits in fit for TRT !!!')
     # -----------------------------------------
     if self.useExistingTracksAsInput() :
-       print '*'
-       print '* Use (D)ESD tracks as input'
+       print('*')
+       print('* Use (D)ESD tracks as input')
     # -----------------------------------------
     if self.doLowPt() :
-       print '*'
-       print '* LowPtTracking is ON'
+       print('*')
+       print('* LowPtTracking is ON')
        if self.doVeryLowPt() :
-          print '* and VeryLowPtTracking is ON'
+          print('* and VeryLowPtTracking is ON')
     # -----------------------------------------
     if self.doSLHCConversionFinding() :
-       print '*'
-       print '* SLHCConversionFinding is ON'
+       print('*')
+       print('* SLHCConversionFinding is ON')
     # -----------------------------------------
     if self.doForwardTracks():
-       print '*'
-       print '* Forward Tracklets are ON'
+       print('*')
+       print('* Forward Tracklets are ON')
     # -----------------------------------------
-    print '*'
-    print '* Cut level for Tracking is set to : ',self.cutLevel()
+    print('*')
+    print('* Cut level for Tracking is set to : ',self.cutLevel())
     if not self.doHeavyIon():
-       print '*    (1) - 2010 settings'
-       print '*    (2) - start of 2011 settings'
-       print '*    (3) - tighter version of (2)'
-       print '*    (4) - max d0 cut on SSS seeds'
-       print '*    (5) - cut level 4 + seed level 2'
-       print '*    (6) - TRTonly cuts for pileup' 
-       print '*    (7) - BackTracking cuts for pileup'
-       print '*    (8) - slightly tighter hole cuts for NewTracking'
-       print '*    (9) - slightly tighter IP cuts'
-       print '*    (10)- use Z boundary seeding'
-       print '*    (11)- TRT only uses eta depending hit cuts'
-       print '*    (12)- Tighter X2 cuts on both track and hits being accepted'
-       print '*    (13)- TRT segment making in RoI guided model'
+       print('*    (1) - 2010 settings')
+       print('*    (2) - start of 2011 settings')
+       print('*    (3) - tighter version of (2)')
+       print('*    (4) - max d0 cut on SSS seeds')
+       print('*    (5) - cut level 4 + seed level 2')
+       print('*    (6) - TRTonly cuts for pileup')
+       print('*    (7) - BackTracking cuts for pileup')
+       print('*    (8) - slightly tighter hole cuts for NewTracking')
+       print('*    (9) - slightly tighter IP cuts')
+       print('*    (10)- use Z boundary seeding')
+       print('*    (11)- TRT only uses eta depending hit cuts')
+       print('*    (12)- Tighter X2 cuts on both track and hits being accepted')
+       print('*    (13)- TRT segment making in RoI guided model')
     else:
-       print '*    (1) - 2010 heavy ion settings'
-       print '*    (2) - 2011 heavy ion settings with seed level 2'
-       print '*    (3) - 2011 heavy ion settings with seed level 2 and pT cut at 0.3 GeV'
+       print('*    (1) - 2010 heavy ion settings')
+       print('*    (2) - 2011 heavy ion settings with seed level 2')
+       print('*    (3) - 2011 heavy ion settings with seed level 2 and pT cut at 0.3 GeV')
     # -----------------------------------------
     if self.doBremRecovery():
-       print '* run Brem Recovery in tracking'
+       print('* run Brem Recovery in tracking')
        if self.doCaloSeededBrem():
-          print '* - restrict Brem Recovery to Calo ROIs'
+          print('* - restrict Brem Recovery to Calo ROIs')
     # -----------------------------------------
     if self.doxKalman() or self.doiPatRec() or self.doFatras():
-       print '*'
-       print '* Alternative trackings:'
+       print('*')
+       print('* Alternative trackings:')
        if self.doxKalman() :
-          print '*   - run xKalman'
+          print('*   - run xKalman')
        if self.doiPatRec() :
-          print '*   - run iPatRec'
+          print('*   - run iPatRec')
        if self.doFatras() :
-          print '*   - run FATRAS'
+          print('*   - run FATRAS')
     # -----------------------------------------
     if self.doRefit() :
-       print '*'
-       print '* do a refit of all tracks'
+       print('*')
+       print('* do a refit of all tracks')
     if self.doSlimming() :
-       print '*'
+       print('*')
        if not self.doSlimPoolTrack() :
-          print '* slim down the tracks for output on ESD'
+          print('* slim down the tracks for output on ESD')
        else :
-          print '* persistify slim tracks '
+          print('* persistify slim tracks ')
     # -----------------------------------------
-    print '*'
-    print '* PostProcessing:'
-    print '* ==============='
-    print '*'
+    print('*')
+    print('* PostProcessing:')
+    print('* ===============')
+    print('*')
     if self.doVertexFinding() :
-       print '* run primary vertex finding with : ',self.primaryVertexSetup()
-       print '* - using sorting based on        : ',self.primaryVertexSortingSetup()
-       print '* - primary vertexing cut setup   : ',self.primaryVertexCutSetup()
+       print('* run primary vertex finding with : ',self.primaryVertexSetup())
+       print('* - using sorting based on        : ',self.primaryVertexSortingSetup())
+       print('* - primary vertexing cut setup   : ',self.primaryVertexCutSetup())
        if self.doPrimaryVertex3DFinding() :
-          print '* - use 3D seed finding'
-       print '* - privtx cut level : ', self.priVtxCutLevel()
+          print('* - use 3D seed finding')
+       print('* - privtx cut level : ', self.priVtxCutLevel())
     if self.doParticleCreation() :
-       print '* create TrackParticles'
+       print('* create TrackParticles')
        if self.doSharedHits() :
-          print '* - and do shared hits search'
+          print('* - and do shared hits search')
        if self.KeepFirstParameters() :
-          print '* - keep first parameters on track'
+          print('* - keep first parameters on track')
        elif self.KeepParameters() :
-          print '* - keep extra parameters on track'
+          print('* - keep extra parameters on track')
     if self.doV0Finder() :
-       print '* run V0 finder'
+       print('* run V0 finder')
        if self.useV0Fitter() :
-          print '* - use V0 fitter'
+          print('* - use V0 fitter')
        else:
-          print '* - use VkalVrt'
+          print('* - use VkalVrt')
           pass
        if self.doSimpleV0Finder() :
-          print '* - running with simple V0Finder cuts'
+          print('* - running with simple V0Finder cuts')
        else:
-          print '* - running with full V0Finder cuts'
+          print('* - running with full V0Finder cuts')
           pass
        pass
     #if self.doSimpleV0Finder() :
-    #   print '* run simple V0 finder'
+    #   print('* run simple V0 finder')
     #   if self.useV0Fitter() :
-    #      print '* - use V0 fitter'
+    #      print('* - use V0 fitter')
     #   else:
-    #      print '* - use VkalVrt'
+    #      print('* - use VkalVrt')
     #      pass
     #   pass
     if self.doSecVertexFinder() :
-       print '* run V0 search using conversion finder with vertexing cut setup : ',self.secondaryVertexCutSetup()
+       print('* run V0 search using conversion finder with vertexing cut setup : ',self.secondaryVertexCutSetup())
     if self.doConversions() :
-       print '* run conversion finder with conversion vertexing cut setup      : ',self.conversionVertexCutSetup()
+       print('* run conversion finder with conversion vertexing cut setup      : ',self.conversionVertexCutSetup())
     # -----------------------------------------
     if self.doStatistics() :
-       print '* run statistics packages'
+       print('* run statistics packages')
     if self.doStandardPlots() :
-       print '* run Standard Plots package'
+       print('* run Standard Plots package')
     if self.doPhysValMon() :
-       print '* run Physics Validation Monitoring'
+       print('* run Physics Validation Monitoring')
     if self.doNtupleCreation():
        ntupleString = '* Ntuple cluster/drift circle trees activated:'
        if self.doSctClusterNtuple():
           ntupleString += ' SCT'
        if self.doSctClusterNtuple():
-          print ntupleString
+          print(ntupleString)
 
        ntupleString = '* Ntuple track trees activated:'
        if self.doTrkNtuple():
@@ -2454,7 +2461,7 @@ class InDetJobProperties(JobPropertyContainer):
        if self.doTrtTrkNtuple():
           ntupleString += ' \"TRT Track Extension\"'
        if self.doTrkNtuple() or self.doPixelTrkNtuple() or self.doSctTrkNtuple() or self.doTrtTrkNtuple():
-          print ntupleString
+          print(ntupleString)
 
        ntupleString = '* Ntuple vertex trees activated:'
        if self.doVtxNtuple():
@@ -2464,7 +2471,7 @@ class InDetJobProperties(JobPropertyContainer):
        if self.doV0VtxNtuple():
           ntupleString += ' V0s'
        if self.doVtxNtuple() or self.doConvVtxNtuple() or self.doV0VtxNtuple():
-          print ntupleString
+          print(ntupleString)
 
     if self.doD3PDCreation():
        ntupleString = '* D3PD track trees activated:'
@@ -2477,7 +2484,7 @@ class InDetJobProperties(JobPropertyContainer):
        if self.doTrtTrkD3PD():
           ntupleString += ' \"TRT Tracklets\"'
        if self.doTrkD3PD() or self.doPixelTrkD3PD() or self.doSctTrkD3PD() or self.doTrtTrkD3PD():
-          print ntupleString
+          print(ntupleString)
 
        ntupleString = '* D3PD vertex trees activated:'
        if self.doVtxD3PD():
@@ -2489,14 +2496,14 @@ class InDetJobProperties(JobPropertyContainer):
        if self.doV0VtxD3PD():
           ntupleString += ' V0s'
        if self.doVtxD3PD() or self.doVtxMonitoringD3PD() or self.doConvVtxD3PD() or self.doV0VtxD3PD():
-          print ntupleString
+          print(ntupleString)
 
        if self.doTriggerD3PD():
-          print '* D3PD trigger tree activated'
+          print('* D3PD trigger tree activated')
 
     # -----------------------------------------
     if (self.doMonitoringGlobal() or self.doMonitoringPrimaryVertexingEnhanced() or self.doMonitoringPixel() or self.doMonitoringSCT() or self.doMonitoringTRT() or self.doMonitoringAlignment()):
-       print '*'
+       print('*')
        myString = '* Run Monitoring on for: '
        if self.doMonitoringGlobal():
          myString += ' Global'
@@ -2510,85 +2517,85 @@ class InDetJobProperties(JobPropertyContainer):
          myString += ' TRT'
        if self.doMonitoringAlignment():
          myString += ' Alignment'
-       print myString
-       print '*'
+       print(myString)
+       print('*')
     # -----------------------------------------
-    print '*'
-    print '* Other parameters'
-    print '* ================='
-    print '*'
+    print('*')
+    print('* Other parameters')
+    print('* =================')
+    print('*')
     if self.doTruth() :
-       print '* run truth association: '+self.truthMatchStrategy()
+       print('* run truth association: '+self.truthMatchStrategy())
     if self.solenoidOn() :
-       print '* solenoid field is ON'
+       print('* solenoid field is ON')
     if self.usePixelDCS():
-       print '* use Pixel DCS'
+       print('* use Pixel DCS')
     if self.useSctDCS():
        if not self.useHVForSctDCS():
-          print '* use SCT DCS'
+          print('* use SCT DCS')
        else:
-          print '* use non-standard SCT DCS based on ~20V HV cut'          
+          print('* use non-standard SCT DCS based on ~20V HV cut')
     if self.useTrtDCS():
-       print '* use TRT DCS'
+       print('* use TRT DCS')
     if self.useDynamicAlignFolders():
-       print '* use of Dynamic alignment folder scheme enabled'
+       print('* use of Dynamic alignment folder scheme enabled')
 
     if not self.doPRDFormation():
-       print '* PRD Formation is off for all technologies'
+       print('* PRD Formation is off for all technologies')
     if not self.doPixelPRDFormation():
-       print '* Pixel PRD Formation is off'
+       print('* Pixel PRD Formation is off')
     if not self.doSCT_PRDFormation():
-       print '* SCT PRD Formation is off'
+       print('* SCT PRD Formation is off')
     if not self.doTRT_PRDFormation():
-       print '* TRT PRD Formation is off'
+       print('* TRT PRD Formation is off')
 
     # -----------------------------------------
-    print '*'
-    print '* Configurable Services loaded:'
-    print '* ============================='
-    print '*'
+    print('*')
+    print('* Configurable Services loaded:')
+    print('* =============================')
+    print('*')
     if self.loadTrackingGeometry() :
-      print '* load tracking geometry for Inner Detector'
+      print('* load tracking geometry for Inner Detector')
     if self.useBeamConstraint() :
-      print '* use Beam Spot Constraint in reconstruction/vertexing'
+      print('* use Beam Spot Constraint in reconstruction/vertexing')
     # -----------------------------------------
-    print '*'
-    print '* Configurable Tools loaded:'
-    print '* =========================='
-    print '*'
+    print('*')
+    print('* Configurable Tools loaded:')
+    print('* ==========================')
+    print('*')
     if self.loadRotCreator() :
-      print '* load ROT_Creator for Inner Detector'
+      print('* load ROT_Creator for Inner Detector')
       if self.useBroadClusterErrors():
-        print '* - (commissioning) use broad cluster errors !'
+        print('* - (commissioning) use broad cluster errors !')
     if self.loadTrackingGeometry():
-      print '* load TrackingGeometry'
+      print('* load TrackingGeometry')
     if self.loadExtrapolator() :
-      print '* load Extrapolator:'
+      print('* load Extrapolator:')
       if self.propagatorType() is 'RungeKutta' :
-        print '* - load Runge Kutta propagator'
+        print('* - load Runge Kutta propagator')
       elif self.propagatorType() is 'STEP' :
-        print '* - load STEP propagator'
+        print('* - load STEP propagator')
       if self.materialInteractions() :
-        print '* - use material corrections of type %s in extrapolation and fit'% self.materialInteractionsType()
+        print('* - use material corrections of type %s in extrapolation and fit'% self.materialInteractionsType())
     if self.loadUpdator() :
       if self.kalmanUpdator() is "fast" :
-        print '* load MeasurementUpdator_xk'
+        print('* load MeasurementUpdator_xk')
       else:
-        print '* load MeasurementUpdator'
+        print('* load MeasurementUpdator')
     if self.loadFitter() :
-      print '* load track fitter of type ', self.trackFitterType()
+      print('* load track fitter of type ', self.trackFitterType())
       if self.refitROT() :
-        print '* - refit from ROT'
+        print('* - refit from ROT')
       else:
-        print '* - refit from PRD, redo the ROTs'
+        print('* - refit from PRD, redo the ROTs')
     if self.loadAssoTool() :
-      print '* load PRD_AssociationToolGangedPixels'
+      print('* load PRD_AssociationToolGangedPixels')
     if self.loadSummaryTool() :
-      print '* load TrackSummaryTool'
+      print('* load TrackSummaryTool')
       if self.doHolesOnTrack() :
-        print '* - and do holes on track search'
-      print '*'  
-    print '************************************************************************************'
+        print('* - and do holes on track search')
+      print('*')  
+    print('************************************************************************************')
     
 # ----------------------------------------------------------------------------
 # --- set methods for less often used switches
@@ -2599,8 +2606,8 @@ class InDetJobProperties(JobPropertyContainer):
   def usePrimVertexZcoordinate ( self, usezvertex ) :
     self.useZvertexTool = usezvertex
     if not self.doNewTracking() :
-      print 'ConfiguredInDetFlags.py       WARNING toggling the z-vertex constraint has no effect'
-      print '                                      because the new tracking IS NOT SWITCHED ON!'
+      print('ConfiguredInDetFlags.py       WARNING toggling the z-vertex constraint has no effect')
+      print('                                      because the new tracking IS NOT SWITCHED ON!')
 
 # ----------------------------------------------------------------------------
 # --- set different vertexing options
@@ -2621,6 +2628,7 @@ _list_InDetJobProperties = [Enabled,
                             doPrintConfigurables,
                             doNewTracking,
                             doPseudoTracking,
+                            doIdealPseudoTracking,
                             doSplitReco,
                             doxKalman,
                             doiPatRec,

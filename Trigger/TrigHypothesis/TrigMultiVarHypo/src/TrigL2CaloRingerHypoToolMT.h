@@ -8,7 +8,7 @@
 #include "GaudiKernel/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "xAODTrigRinger/TrigRingerRings.h"

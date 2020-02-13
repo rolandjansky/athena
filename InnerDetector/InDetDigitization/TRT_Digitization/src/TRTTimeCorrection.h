@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRTTIMECORRECTION_H
-#define TRTTIMECORRECTION_H
+#ifndef TRT_DIGITIZATION_TRTTIMECORRECTION_H
+#define TRT_DIGITIZATION_TRTTIMECORRECTION_H
 
 #include <vector>
 #include "GaudiKernel/ServiceHandle.h"
@@ -30,9 +30,9 @@ class TRTTimeCorrection {
 public:
 
   TRTTimeCorrection(const std::string& name,
-		    const TRTDigSettings* digset,
-		    const InDetDD::TRT_DetectorManager* detmgr,
-		    const TRT_ID*);
+                    const TRTDigSettings* digset,
+                    const InDetDD::TRT_DetectorManager* detmgr,
+                    const TRT_ID*);
 
   ~TRTTimeCorrection();
 
@@ -56,9 +56,9 @@ public:
    * @param propagationTime2: propagation time - reflected signal
    */
   void PropagationTime(const int& strawID,
-		       const double& meanZ,
-		       double& propagationTime1,
-		       double& propagationTime2);
+                       const double& meanZ,
+                       double& propagationTime1,
+                       double& propagationTime2);
 
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
   bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
@@ -67,57 +67,57 @@ public:
 private:
 
   Identifier getIdentifier ( int hitID,
-			     bool& statusok) ; //Note: Changed from const due to message service hick ups
+                             bool& statusok) ; //Note: Changed from const due to message service hick ups
 
 
   void Initialize();
 
   /** Time shift for barrel straws */
   double calculateTimeShift_Barrel( const unsigned int& iPhi,
-				    const unsigned int& iRing,
-				    const unsigned int& iLayer,
-				    const unsigned int& iStraw,
-				    const int strawID) ; //Note: Changed from const due to message service hick ups
+                                    const unsigned int& iRing,
+                                    const unsigned int& iLayer,
+                                    const unsigned int& iStraw,
+                                    const int strawID) ; //Note: Changed from const due to message service hick ups
 
   /** Time shift for end cap straws */
   double calculateTimeShift_EndCap( const unsigned int& iPhi,
-				    const unsigned int& iWheel,
-				    const unsigned int& iLayer,
-				    const int strawID) ; //Note: Changed from const due to message service hick ups
+                                    const unsigned int& iWheel,
+                                    const unsigned int& iLayer,
+                                    const int strawID) ; //Note: Changed from const due to message service hick ups
 
   /** Time shift from straw endpoints in global system */
   double calculateTimeShiftFromStrawEnds( const Amg::Vector3D& strawend1_globalcoord,
-				          const Amg::Vector3D& strawend2_globalcoord,
-				          const int strawID) ;
+                                          const Amg::Vector3D& strawend2_globalcoord,
+                                          const int strawID) ;
   /**
    * Calculate the distance along the wire the signal travels before reaching
    * the electronics. Both the direct and reflected signal. The signal starts
    * in the middle of the straw.
    */
   void calculateSignalDists_Barrel(const unsigned int& iRing,
-				   const unsigned int& iLayer,
-				   double& direct_dist,
-				   double& reflect_dist ) const;
+                                   const unsigned int& iLayer,
+                                   double& direct_dist,
+                                   double& reflect_dist ) const;
   /**
    * Calculate the distance along the wire the signal travels before reaching
    * the electronics. Both the direct and reflected signal. The signal starts
    * in the middle of the straw.
    */
   void calculateSignalDists_EndCap(const unsigned int& iWheel,
-				   double& direct_dist,
-				   double& reflect_dist ) const;
+                                   double& direct_dist,
+                                   double& reflect_dist ) const;
 
   const TRTDigSettings* m_settings;
   const InDetDD::TRT_DetectorManager* m_detmgr;
- protected:
+protected:
   const TRT_ID* m_trt_id;
- private:
+private:
   /** Cached timeshifts */
   std::vector< std::vector<  std::vector<double> > >
-    m_timeShiftForEndCapPlanes;
+  m_timeShiftForEndCapPlanes;
   /** Cached timeshifts */
   std::vector< std::vector< std::vector< std::vector<double> > > >
-    m_timeShiftForBarrelStraws;
+  m_timeShiftForBarrelStraws;
 
   /** Cached distances */
   std::vector<double> m_directDistsForEndCapWheels;

@@ -140,7 +140,7 @@ class TrigEgammaMonToolBuilderRun3(TrigEgammaMonToolBuilder):
         log_trigeg.info('TrigEgammaMonToolBuilderRun3.config')
         self._get_monitoring_mode_success = self.get_monitoring_mode()
         #print self._get_monitoring_mode_success
-        if self._get_monitoring_mode_success == False:
+        if not self._get_monitoring_mode_success:
             log_trigeg.warning("HLTMonTriggerList: Error getting monitoring mode, default monitoring lists will be used.")
         else:
             log_trigeg.info("Configuring for %s", self.data_type)
@@ -182,18 +182,18 @@ class TrigEgammaMonToolBuilderRun3(TrigEgammaMonToolBuilder):
 
 
         if doJpsiee:
-            self._nEtbins=51;
+            self._nEtbins=51
             self._etbins = etbins_Jpsiee[0:self._nEtbins+1]
         else:
-            self._nEtbins=30;
+            self._nEtbins=30
             self._etbins = etbins_Zee[0:self._nEtbins+1]
 
         # Define the binning
-        self._nEtabins=20;
-        self._ndefaultEtbins=13;
-        self._ndefaultEtabins=20;
-        self._ncoarseEtbins=6;
-        self._ncoarseEtabins=8;
+        self._nEtabins=20
+        self._ndefaultEtbins=13
+        self._ndefaultEtabins=20
+        self._ncoarseEtbins=6
+        self._ncoarseEtabins=8
 
         #Fill the arrays
         self._etabins = etabins[0:self._nEtabins+1]
@@ -224,8 +224,8 @@ class TrigEgammaMonToolBuilderRun3(TrigEgammaMonToolBuilder):
         # base class configuration following the inputFlags. The returned object
         # is the algorithm.
         #The added algorithm must exist as a .h file
-        from TrigEgammaMonitoring.TrigEgammaMonitoringConf import TrigEgammaMonitorAlgorithm
-        trigEgammaMonAlg = helper.addAlgorithm(TrigEgammaMonitorAlgorithm, algnameprefix+'__'+triggerChain)
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        trigEgammaMonAlg = helper.addAlgorithm(CompFactory.TrigEgammaMonitorAlgorithm, algnameprefix+'__'+triggerChain)
 
         ### STEP 3 ###
         # Edit properties of a algorithm
@@ -908,9 +908,9 @@ class TrigEgammaMonToolBuilderRun3(TrigEgammaMonToolBuilder):
         self.addHistogram(monGroup, TH1F("lhloose_discriminant", "lh loose discriminant; lh loose discriminant; Count", 50, -5.,2.))
 
         if self.detailLevel:
-            addHistogram(monGroup, TH2F("deta1_vs_clusterEta", "HLT deta1 as function of cluster #eta; #eta; deta1; Count",
-                        50, -2.47, 2.47,
-                        90, -0.03, 0.03))
+            self.addHistogram(monGroup, TH2F("deta1_vs_clusterEta", "HLT deta1 as function of cluster #eta; #eta; deta1; Count",
+                             50, -2.47, 2.47,
+                             90, -0.03, 0.03))
 
 
     def bookEfficiency2DHistos(self, monGroup):

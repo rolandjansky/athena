@@ -66,9 +66,6 @@ private:
   StatusCode finaliseEvent();
   StatusCode hitConstruction(CaloCellContainer *theCellCont);
 
-  //For reading in of fast hit
-  LArHitContainer *m_fastHitContainer;
-  TileHitVector *m_fastTileHits;
   //for writing out of Hit, naming as G4 for default
   SG::WriteHandle<LArHitContainer> m_embHitContainer;
   SG::WriteHandle<LArHitContainer> m_emecHitContainer;

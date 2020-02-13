@@ -11,7 +11,7 @@
 #include "TrigT1RPClogic/CMApatterns.h"
 #include "TrigT1RPClogic/RPCdata.h"
 
-#include "RPCcablingInterface/CMAparameters.h"
+#include "RPC_CondCabling/CMAparameters.h"
 
 
 #ifndef LVL1_STANDALONE

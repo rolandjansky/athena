@@ -665,7 +665,7 @@ def getTileCondToolOfcCool(source = 'FILE', runType = 'PHY', ofcType = 'OF2', na
         if ofcType == 'OF1' and not (isUsedDataBaseRun2 or isMC):
             return None
 
-        from TileCoolMgr import GetTileOfcCoolSource, AddTileOfcCoolSource, tileCoolMgr
+        from TileConditions.TileCoolMgr import GetTileOfcCoolSource, AddTileOfcCoolSource, tileCoolMgr
 
         ofc = 'TileOfc' + ofcType.capitalize()
         ofcCondAlg = ofc + 'CondAlg'

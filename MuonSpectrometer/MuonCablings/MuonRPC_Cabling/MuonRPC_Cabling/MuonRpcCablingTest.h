@@ -1,26 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/***************************************************************************
- test MuonGeoModel from digits to pos. in space
- ----------------------------------------------
- ***************************************************************************/
-
-//<doc><file>	$Id: MuonRpcCablingTest.h,v 1.15 2009/03/28 10:59:00 stefspa Exp $
-//<version>	$Name:  $
 
 #ifndef MUONGEOMODEL_MUONRPCCABLINGTEST_H
 # define MUONGEOMODEL_MUONRPCCABLINGTEST_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-class StoreGateSvc;
-class RpcIdHelper;
 class IRPCcablingSvc;
 class RpcPadIdHash;
-
 
 namespace MuonGM
 {    
@@ -33,11 +23,10 @@ class MuonRpcCablingTest: public AthAlgorithm
 public:
     
     MuonRpcCablingTest(const std::string& name, ISvcLocator* pSvcLocator);
-    ~MuonRpcCablingTest();
+    ~MuonRpcCablingTest() {};
     
     StatusCode	initialize();
     StatusCode 	execute();
-    StatusCode 	finalize();
 
 private:
 
@@ -54,8 +43,7 @@ private:
     std::vector<int> m_selPadVec;
     bool m_firstLastChannel;
     
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
 
 #endif // MUONGEOMODEL_MUONRPCCABLINGTEST_H

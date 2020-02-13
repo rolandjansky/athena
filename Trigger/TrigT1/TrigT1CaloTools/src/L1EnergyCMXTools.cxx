@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <map>
@@ -27,7 +27,7 @@ L1EnergyCMXTools::L1EnergyCMXTools(const std::string &type,
                                    const std::string &name,
                                    const IInterface *parent)
     : AthAlgTool(type, name, parent),
-      m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
+      m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_jeTool("LVL1::L1JetElementTools/L1JetElementTools"),
       m_etTool("LVL1::L1EtTools/L1EtTools")
 {
@@ -79,9 +79,6 @@ StatusCode L1EnergyCMXTools::initialize()
         ATH_MSG_ERROR("Couldn't retrieve EtTool");
         return sc;
     }
-
-    findRestrictedEta(m_maskXE, m_maskTE);
-    ATH_MSG_DEBUG("Restricted eta masks: XE=" << MSG::hex << m_maskXE << ", TE=" << m_maskTE << MSG::dec);
 
     ATH_MSG_DEBUG("Initialization completed");
 

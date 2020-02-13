@@ -3,7 +3,7 @@
 # default configuration of RegSelSvc
 # example of a configuration in class deriving from a Configurable
 
-from AthenaCommon.SystemOfUnits import *  # loads MeV etc...
+from AthenaCommon.SystemOfUnits import mm
     
 # import the base class
 from RegionSelector.RegionSelectorConf import RegSelSvc

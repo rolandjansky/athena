@@ -38,6 +38,26 @@ namespace InDet {
     m_initialized = true;
   }
 
+  void SiCombinatorialTrackFinderData_xk::setPixContainer(const InDet::PixelClusterContainer* pixcont) {
+    m_pixcontainer = pixcont;
+  }
+
+  void SiCombinatorialTrackFinderData_xk::setSctContainer(const InDet::SCT_ClusterContainer* sctcont) {
+    m_sctcontainer = sctcont;
+  }
+
+  const InDet::PixelClusterContainer* SiCombinatorialTrackFinderData_xk::pixContainer() const {
+    return m_pixcontainer;
+  }
+
+  const InDet::SCT_ClusterContainer* SiCombinatorialTrackFinderData_xk::sctContainer() const {
+    return m_sctcontainer;
+  }
+
+  const Trk::PRDtoTrackMap* SiCombinatorialTrackFinderData_xk::PRDtoTrackMap() const {
+    return m_tools.PRDtoTrackMap();
+  }
+
   bool SiCombinatorialTrackFinderData_xk::isInitialized() const {
     return m_initialized;
   }
@@ -132,6 +152,10 @@ namespace InDet {
 
   double& SiCombinatorialTrackFinderData_xk::xi2maxlink() {
     return m_xi2maxlink;
+  }
+
+  void SiCombinatorialTrackFinderData_xk::setPRDtoTrackMap(const Trk::PRDtoTrackMap* prd_to_track_map) {
+    m_tools.setPRDtoTrackMap(prd_to_track_map);
   }
 
 } // end of name space

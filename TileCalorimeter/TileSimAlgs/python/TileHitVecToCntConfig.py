@@ -3,6 +3,7 @@
 """Define method to construct configured private Tile hit vector to container tool"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 
 def getTileFirstXing():
@@ -19,7 +20,7 @@ def getTileRange(name = 'TileRange', **kwargs):
     kwargs.setdefault('LastXing',  getTileLastXing() )
     kwargs.setdefault('ItemList', ['TileHitVector#TileHitVec', 'TileHitVector#MBTSHits'] )
 
-    from PileUpComps.PileUpCompsConf import PileUpXingFolder
+    PileUpXingFolder=CompFactory.PileUpXingFolder
     return PileUpXingFolder(name, **kwargs)
 
 
@@ -61,11 +62,11 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
         kwargs.setdefault('PileUp', flags.Digitization.Pileup)
 
     if kwargs['RndmEvtOverlay'] or kwargs['PileUp']:
-        from PileUpTools.PileUpToolsConf import PileUpMergeSvc
+        PileUpMergeSvc=CompFactory.PileUpMergeSvc
         acc.addService( PileUpMergeSvc() )
 
     if flags.Beam.Type == 'cosmics':
-        from CommissionUtils.CommissionUtilsConf import CosmicTriggerTimeTool
+        CosmicTriggerTimeTool=CompFactory.CosmicTriggerTimeTool
         kwargs.setdefault('TriggerTimeTool', CosmicTriggerTimeTool())
         kwargs.setdefault('HitTimeFlag', 2)
         kwargs.setdefault('UseTriggerTime', True)
@@ -74,7 +75,7 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
         kwargs.setdefault("FirstXing", getTileFirstXing() )
         kwargs.setdefault("LastXing",  getTileLastXing() )
 
-    from TileSimAlgs.TileSimAlgsConf import TileHitVecToCntTool
+    TileHitVecToCntTool=CompFactory.TileHitVecToCntTool
     acc.setPrivateTools(TileHitVecToCntTool(**kwargs))
 
     return acc
@@ -95,7 +96,7 @@ def TileHitVecToCntCfg(flags, **kwargs):
         tool = acc.popToolsAndMerge( TileHitVecToCntToolCfg(flags) )
         kwargs.setdefault('DigitizationTool', tool)
 
-    from TileSimAlgs.TileSimAlgsConf import TileHitVecToCnt
+    TileHitVecToCnt=CompFactory.TileHitVecToCnt
     acc.addEventAlgo(TileHitVecToCnt(**kwargs))
 
     return acc
@@ -159,7 +160,7 @@ if __name__ == "__main__":
     acc.getService('StoreGateSvc').Dump = True
     acc.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
-    acc.store( open('TileHitVecToCnt.pkl','w') )
+    acc.store( open('TileHitVecToCnt.pkl','wb') )
 
     sc = acc.run(maxEvents=3)
     # Success should be 0

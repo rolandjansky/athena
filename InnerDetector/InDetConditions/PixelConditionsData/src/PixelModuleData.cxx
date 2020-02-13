@@ -5,34 +5,12 @@
 #include "PixelConditionsData/PixelModuleData.h"
 
 PixelModuleData::PixelModuleData():
-  m_biasVoltage(),
-  m_temperature(),
   m_moduleStatus(),
   m_chipStatus()
 {
 }
 
 PixelModuleData::~PixelModuleData() { }
-
-void PixelModuleData::setBiasVoltage(const int chanNum, const float value) {
-  m_biasVoltage[chanNum] = value;
-}
-
-float PixelModuleData::getBiasVoltage(const int chanNum) const {
-  auto itr = m_biasVoltage.find(chanNum);
-  if (itr!=m_biasVoltage.end()) { return itr->second; }
-  return 0;
-}
-
-void PixelModuleData::setTemperature(const int chanNum, const float value) {
-  m_temperature[chanNum] = value;
-}
-
-float PixelModuleData::getTemperature(const int chanNum) const {
-  auto itr = m_temperature.find(chanNum);
-  if (itr!=m_temperature.end()) { return itr->second; }
-  return -7.0; // this is temporaly fix
-}
 
 // Module status
 void PixelModuleData::setModuleStatus(const int chanNum, const int value) {
@@ -56,7 +34,32 @@ int PixelModuleData::getChipStatus(const int chanNum) const {
   return 0;
 }
 
-// set via job option
+// Switch parameters
+void PixelModuleData::setUseCalibConditions(bool UseCalibConditions) { m_useCalibConditions = UseCalibConditions; }
+bool PixelModuleData::getUseCalibConditions() const { return m_useCalibConditions; }
+
+void PixelModuleData::setUseDeadmapConditions(bool UseDeadmapConditions) { m_useDeadmapConditions = UseDeadmapConditions; }
+bool PixelModuleData::getUseDeadmapConditions() const { return m_useDeadmapConditions; }
+
+void PixelModuleData::setUseDCSStateConditions(bool UseDCSStateConditions) { m_useDCSStateConditions = UseDCSStateConditions; }
+bool PixelModuleData::getUseDCSStateConditions() const { return m_useDCSStateConditions; }
+
+void PixelModuleData::setUseDCSStatusConditions(bool UseDCSStatusConditions) { m_useDCSStatusConditions = UseDCSStatusConditions; }
+bool PixelModuleData::getUseDCSStatusConditions() const { return m_useDCSStatusConditions; }
+
+void PixelModuleData::setUseDCSHVConditions(bool UseDCSHVConditions) { m_useDCSHVConditions = UseDCSHVConditions; }
+bool PixelModuleData::getUseDCSHVConditions() const { return m_useDCSHVConditions; }
+
+void PixelModuleData::setUseDCSTemperatureConditions(bool UseDCSTemperatureConditions) { m_useDCSTemperatureConditions = UseDCSTemperatureConditions; }
+bool PixelModuleData::getUseDCSTemperatureConditions() const { return m_useDCSTemperatureConditions; }
+
+void PixelModuleData::setUseTDAQConditions(bool UseTDAQConditions) { m_useTDAQConditions = UseTDAQConditions; }
+bool PixelModuleData::getUseTDAQConditions() const { return m_useTDAQConditions; }
+
+void PixelModuleData::setUseCablingConditions(bool UseCablingConditions) { m_useCablingConditions = UseCablingConditions; }
+bool PixelModuleData::getUseCablingConditions() const { return m_useCablingConditions; }
+
+// Digitization parameters
 void PixelModuleData::setBunchSpace(double bunchSpace) { m_bunchSpace = bunchSpace; }
 double PixelModuleData::getBunchSpace() const { return m_bunchSpace; }
 
@@ -98,9 +101,6 @@ double PixelModuleData::getTimeJitter(int bec, int layer) const {
   if (std::abs(bec)==4 && layer<(int)m_DBMTimeJitter.size())    { timeJitter=m_DBMTimeJitter.at(layer); }
   return timeJitter;
 }
-
-void PixelModuleData::setUseCalibConditions(bool UseCalibConditions) { m_useCalibConditions = UseCalibConditions; }
-bool PixelModuleData::getUseCalibConditions() const { return m_useCalibConditions; }
 
 void PixelModuleData::setDefaultBarrelAnalogThreshold(std::vector<int> BarrelAnalogThreshold) { m_defaultBarrelAnalogThreshold = BarrelAnalogThreshold; }
 void PixelModuleData::setDefaultEndcapAnalogThreshold(std::vector<int> EndcapAnalogThreshold) { m_defaultEndcapAnalogThreshold = EndcapAnalogThreshold; }
@@ -149,13 +149,6 @@ int PixelModuleData::getDefaultInTimeThreshold(int bec, int layer) const {
   if (std::abs(bec)==4 && layer<(int)m_defaultDBMInTimeThreshold.size())    { analogInTimeThreshold=m_defaultDBMInTimeThreshold.at(layer); }
   return analogInTimeThreshold;
 }
-
-void PixelModuleData::setDefaultQ2TotA(float paramA) { m_paramA=paramA; }
-void PixelModuleData::setDefaultQ2TotE(float paramE) { m_paramE=paramE; }
-void PixelModuleData::setDefaultQ2TotC(float paramC) { m_paramC=paramC; }
-float PixelModuleData::getDefaultQ2TotA() const { return m_paramA; }
-float PixelModuleData::getDefaultQ2TotE() const { return m_paramE; }
-float PixelModuleData::getDefaultQ2TotC() const { return m_paramC; }
 
 void PixelModuleData::setBarrelToTThreshold(std::vector<int> BarrelToTThreshold) { m_BarrelToTThreshold = BarrelToTThreshold; }
 void PixelModuleData::setEndcapToTThreshold(std::vector<int> EndcapToTThreshold) { m_EndcapToTThreshold = EndcapToTThreshold; }
@@ -299,9 +292,63 @@ int PixelModuleData::getFEI4OverflowToT(int bec, int layer) const {
   return overflow[idx];
 }
 
+// Charge calibration parameters
+void PixelModuleData::setDefaultQ2TotA(float paramA) { m_paramA=paramA; }
+void PixelModuleData::setDefaultQ2TotE(float paramE) { m_paramE=paramE; }
+void PixelModuleData::setDefaultQ2TotC(float paramC) { m_paramC=paramC; }
+float PixelModuleData::getDefaultQ2TotA() const { return m_paramA; }
+float PixelModuleData::getDefaultQ2TotE() const { return m_paramE; }
+float PixelModuleData::getDefaultQ2TotC() const { return m_paramC; }
+
+// DCS parameters
+void PixelModuleData::setDefaultBiasVoltage(float biasVoltage) { m_biasVoltage=biasVoltage; }
+float PixelModuleData::getDefaultBiasVoltage() const { return m_biasVoltage; }
+
+void PixelModuleData::setDefaultTemperature(float temperature) { m_temperature=temperature; }
+float PixelModuleData::getDefaultTemperature() const { return m_temperature; }
+
+// Cabling parameters
+void PixelModuleData::setCablingMapToFile(bool cablingMapToFile) { m_cablingMapToFile = cablingMapToFile; }
+bool PixelModuleData::getCablingMapToFile() const { return m_cablingMapToFile; }
+
+void PixelModuleData::setCablingMapFileName(std::string cablingMapFileName) { m_cablingMapFileName = cablingMapFileName; }
+std::string PixelModuleData::getCablingMapFileName() const { return m_cablingMapFileName; }
+
+// Distortion parameters
+void PixelModuleData::setDistortionInputSource(int distortionInputSource) { m_distortionInputSource = distortionInputSource; }
+int PixelModuleData::getDistortionInputSource() const { return m_distortionInputSource; }
+
+void PixelModuleData::setDistortionVersion(int distortionVersion) { m_distortionVersion = distortionVersion; }
+int PixelModuleData::getDistortionVersion() const { return m_distortionVersion; }
+
+void PixelModuleData::setDistortionR1(double distortionR1) { m_distortionR1 = distortionR1; }
+double PixelModuleData::getDistortionR1() const { return m_distortionR1; }
+
+void PixelModuleData::setDistortionR2(double distortionR2) { m_distortionR2 = distortionR2; }
+double PixelModuleData::getDistortionR2() const { return m_distortionR2; }
+
+void PixelModuleData::setDistortionTwist(double distortionTwist) { m_distortionTwist = distortionTwist; }
+double PixelModuleData::getDistortionTwist() const { return m_distortionTwist; }
+
+void PixelModuleData::setDistortionMeanR(double distortionMeanR) { m_distortionMeanR = distortionMeanR; }
+double PixelModuleData::getDistortionMeanR() const { return m_distortionMeanR; }
+
+void PixelModuleData::setDistortionRMSR(double distortionRMSR) { m_distortionRMSR = distortionRMSR; }
+double PixelModuleData::getDistortionRMSR() const { return m_distortionRMSR; }
+
+void PixelModuleData::setDistortionMeanTwist(double distortionMeanTwist) { m_distortionMeanTwist = distortionMeanTwist; }
+double PixelModuleData::getDistortionMeanTwist() const { return m_distortionMeanTwist; }
+
+void PixelModuleData::setDistortionRMSTwist(double distortionRMSTwist) { m_distortionRMSTwist = distortionRMSTwist; }
+double PixelModuleData::getDistortionRMSTwist() const { return m_distortionRMSTwist; }
+
+void PixelModuleData::setDistortionWriteToFile(bool distortionWriteToFile) { m_distortionWriteToFile = distortionWriteToFile; }
+bool PixelModuleData::getDistortionWriteToFile() const { return m_distortionWriteToFile; }
+
+void PixelModuleData::setDistortionFileName(std::string distortionFileName) { m_distortionFileName = distortionFileName; }
+std::string PixelModuleData::getDistortionFileName() const { return m_distortionFileName; }
+
 void PixelModuleData::clear() {
-  m_biasVoltage.clear();
-  m_temperature.clear();
   m_moduleStatus.clear();
   m_chipStatus.clear();
 }

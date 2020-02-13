@@ -7,7 +7,7 @@
 #include "MuonCondInterface/IRPCCablingDbTool.h"
 #include "MuonCondInterface/IRPCTriggerDbTool.h"
 
-#include "RPCcablingInterface/RDOindex.h"
+#include "RPC_CondCabling/RDOindex.h"
 #include "MuonCablingTools/OutputDef.h"
 
 #include "MuonIdHelpers/RpcIdHelper.h"

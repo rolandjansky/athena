@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from collections import defaultdict
-from Sequence import Sequence
+from .Sequence import Sequence
 
 # def _update_if_diagnostic_sequence(sequence):
 #     # diagnostic sequences monitor sequences. Ensure diagnostic

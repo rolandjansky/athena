@@ -216,7 +216,7 @@ bool Trk::Layer::needsMaterialProperties() const {
   return true;
 }
 
-void Trk::Layer::assignMaterialProperties( const LayerMaterialProperties& prop, double scale) const 
+void Trk::Layer::assignMaterialProperties( const LayerMaterialProperties& prop, double scale)
 {
   m_layerMaterialProperties = Trk::SharedObject<LayerMaterialProperties>(prop.clone());  
   if (scale != 1.0) 

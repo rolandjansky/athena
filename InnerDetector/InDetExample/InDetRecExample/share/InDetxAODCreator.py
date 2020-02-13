@@ -52,7 +52,7 @@ if InDetFlags.doSplitReco()  and is_mc:
     topSequence += xAODTruthCnvPU
 
 def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
-    from AthenaCommon.AppMgr import theApp, ToolSvc
+    from AthenaCommon.AppMgr import ToolSvc
     if hasattr(ToolSvc,'InDetxAODParticleCreatorTool'+suffix) :
         return getattr(ToolSvc,'InDetxAODParticleCreatorTool')
 
@@ -94,7 +94,7 @@ def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
 
 
 def isValid(name) :
-    return name != None and name != ""
+    return name is not None and name != ""
 
 def createTrackParticles(track_in, track_particle_truth_in,track_particle_out, topSequence, prd_to_track_map=None, suffix="") :
     '''
@@ -159,6 +159,11 @@ if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <-
     if not InDetFlags.doDBMstandalone(): 
         if doCreation :
             createTrackParticles(InputTrackCollection, InputTrackCollectionTruth, InDetKeys.xAODTrackParticleContainer(),topSequence)
+            from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+            from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
+            for col in InDetPhysValFlags.validateExtraTrackCollections() :
+                prefix=extractCollectionPrefix(col)
+                createTrackParticles(col,"", prefix+"TrackParticles", topSequence)
         if doConversion :
             convertTrackParticles(getRecTrackParticleNameIfInFile(InDetKeys.TrackParticles()),
                                   InDetKeys.TrackParticlesTruth() ,

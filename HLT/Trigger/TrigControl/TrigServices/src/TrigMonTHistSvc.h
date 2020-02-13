@@ -73,7 +73,8 @@ public:
   virtual StatusCode getTHists(TDirectory *td, TList &tl, bool recurse=false, bool reg=false) override;
   virtual StatusCode getTHists(const std::string& name, TList &tl, bool recurse=false, bool reg=false) override;
 
-  virtual bool exists( const std::string& name ) const override;
+  virtual bool exists( const std::string& name ) const override { return existsHist(name); }
+  virtual bool existsHist( const std::string& name ) const override;
 
   /* Unsupported interfaces */
   virtual StatusCode regTree(const std::string&) override { NOSUPPORT(WARNING, "TTree"); }
@@ -93,11 +94,28 @@ public:
   virtual std::vector<std::string> getGraphs() const override { NOSUPPORT(DEBUG, "TGraph"); }
   virtual StatusCode getGraph(const std::string&, TGraph*&) const override { NOSUPPORT(DEBUG, "TGraph"); }
 
+  virtual StatusCode regEfficiency(const std::string&) override { NOSUPPORT(WARNING, "TEfficiency"); }
+  virtual StatusCode regEfficiency(const std::string&, std::unique_ptr<TEfficiency>) override { NOSUPPORT(WARNING, "TEfficiency"); }
+  virtual StatusCode regEfficiency(const std::string&, TEfficiency*) override { NOSUPPORT(WARNING, "TEfficiency"); }
+  virtual StatusCode getEfficiency(const std::string&, TEfficiency*&) const override { NOSUPPORT(WARNING, "TEfficiency"); }
+  virtual std::vector<std::string> getEfficiencies() const override { NOSUPPORT(WARNING, "TEfficiency"); }
+
+  virtual StatusCode getTEfficiencies(TDirectory*, TList&, bool) const override { NOSUPPORT(WARNING, "TEfficiency"); }
+  virtual StatusCode getTEfficiencies(const std::string&, TList&, bool) const override { NOSUPPORT(WARNING, "TEfficiency"); }
+  virtual StatusCode getTEfficiencies(TDirectory*, TList&, bool, bool) override { NOSUPPORT(WARNING, "TEfficiency"); }
+  virtual StatusCode getTEfficiencies(const std::string&, TList&, bool, bool) override { NOSUPPORT(WARNING, "TEfficiency"); }
+
   virtual StatusCode regShared( const std::string&, std::unique_ptr<TGraph>, LockedHandle<TGraph>& ) override { NOSUPPORT(WARNING, "TGraph"); }
   virtual StatusCode getShared( const std::string&, LockedHandle<TGraph>& ) const override { NOSUPPORT(WARNING, "TGraph"); }
+  virtual StatusCode regShared( const std::string&, std::unique_ptr<TEfficiency>, LockedHandle<TEfficiency>& ) override { NOSUPPORT(WARNING, "TEfficiency"); }
+  virtual StatusCode getShared( const std::string&, LockedHandle<TEfficiency>& ) const override { NOSUPPORT(WARNING, "TEfficiency"); }
 
   virtual StatusCode merge( const std::string& ) override  { NOSUPPORT(WARNING, "merge"); }
   virtual StatusCode merge( TObject* ) override  { NOSUPPORT(WARNING, "merge"); }
+
+  virtual bool existsTree( const std::string& ) const override { NOSUPPORT(DEBUG, "TTree"); }
+  virtual bool existsGraph( const std::string& ) const override { NOSUPPORT(WARNING, "TGraph"); }
+  virtual bool existsEfficiency( const std::string& ) const override { NOSUPPORT(WARNING, "TEfficiency"); }
 
 private:
   /// Helper struct that bundles the histogram, name and mutex

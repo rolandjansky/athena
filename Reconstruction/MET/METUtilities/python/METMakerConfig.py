@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
     from AthenaCommon import CfgMgr
 
-    print "Generate METMaker and METMakerAlg for METAssoc_"+suffix
+    print ("Generate METMaker and METMakerAlg for METAssoc_"+suffix)
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()

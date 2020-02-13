@@ -9,7 +9,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "RPCcablingInterface/CablingRPCBase.h"
 #include "MuonRPC_CnvTools/IRpcROD_Decoder.h"
 #include "ByteStreamData/RawEvent.h"
@@ -47,8 +48,7 @@ namespace Muon
       std::vector<IdentifierHash> to_be_converted(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                                   const std::vector<IdentifierHash>& coll) const;
 
-      /// RPC cabling Svc
-      const IRPCcablingSvc *m_rpcCabling;
+      SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
       // Rob Data Provider handle 
       ServiceHandle<IROBDataProviderSvc>          m_robDataProvider;

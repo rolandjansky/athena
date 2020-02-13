@@ -82,12 +82,11 @@
 
   StatusCode JetForwardJvtTool::modify(xAOD::JetContainer& jetCont) const {
     getPV();
-    m_pileupMomenta.clear();
+    if (jetCont.size() > 0) calculateVertexMomenta(&jetCont);
     for(const auto& jetF : jetCont) {
       (*m_Dec_out)(*jetF) = 1;
       fjvt_dec(*jetF) = 0;
       if (!forwardJet(jetF)) continue;
-      if (m_pileupMomenta.size()==0) calculateVertexMomenta(&jetCont);
       double fjvt = getFJVT(jetF)/jetF->pt();
       if (fjvt>m_fjvtThresh) (*m_Dec_out)(*jetF) = 0;
       fjvt_dec(*jetF) = fjvt;

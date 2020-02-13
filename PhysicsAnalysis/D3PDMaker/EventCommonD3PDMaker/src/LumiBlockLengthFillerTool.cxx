@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: LumiBlockLengthFillerTool.cxx 542661 2013-03-27 00:35:13Z ssnyder $
@@ -77,7 +77,7 @@ namespace D3PD {
       ATH_MSG_DEBUG( "Updating the luminosity block length info" );
 
       // Read the contents of the folder:
-      const DataHandle< AthenaAttributeList > lblb;
+      const AthenaAttributeList* lblb = nullptr;
       CHECK( detStore()->retrieve( lblb, m_folderName ) );
 
       // Read the contents:

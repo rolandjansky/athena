@@ -34,7 +34,6 @@ class MsgStream;
 // pre-declarations
 namespace MuonGM {
   class MdtReadoutElement;
-  class MuonDetectorManager;
 }
 
 class MDTPRDValAlg: public AthAlgorithm {
@@ -125,16 +124,11 @@ class MDTPRDValAlg: public AthAlgorithm {
   /**MDT barrel eta cut, applicable to the MDT 2D cross section plot */
   double m_BarrelEtaCut;
 
-  bool m_histo_flag;
   std::string m_chamberName;
   std::string m_StationSize;
   int m_StationEta;
   int m_StationPhi;
   int m_LastEvent;
-
-  /**Pointer On MuonDetectorManager */
-  const MuonGM::MdtReadoutElement* m_descriptor;
-  const MuonGM::MuonDetectorManager* m_pMuonMgr;
 
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};

@@ -3,6 +3,7 @@
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/ConfiguredFactory
 
 from AthenaCommon import CfgMgr
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def setSCT_CablingDataBase():
     from IOVDbSvc.CondDB import conddb
@@ -92,7 +93,7 @@ def SCT_CablingCondAlgCfg(configFlags):
     cfg=ComponentAccumulator()
     foldersCfg,path=SCT_CablingFoldersCfg(configFlags)
     cfg.merge(foldersCfg)
-    from SCT_Cabling.SCT_CablingConf import SCT_CablingCondAlgFromCoraCool
+    SCT_CablingCondAlgFromCoraCool=CompFactory.SCT_CablingCondAlgFromCoraCool
     cfg.addCondAlgo(SCT_CablingCondAlgFromCoraCool(ReadKeyRod=path+"ROD",
                                                    ReadKeyRodMur=path+"RODMUR",
                                                    ReadKeyMur=path+"MUR",

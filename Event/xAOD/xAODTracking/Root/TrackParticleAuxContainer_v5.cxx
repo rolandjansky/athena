@@ -46,7 +46,6 @@ namespace xAOD {
       AUX_VARIABLE( patternRecoInfo );
 
       // TrackSummary information
-#ifndef XAODTRACKPARTICLE_SUMMARYDYNAMIC
       // uint8_ts
       AUX_VARIABLE( numberOfContribPixelLayers        );
       AUX_VARIABLE( numberOfInnermostPixelLayerHits               );
@@ -98,10 +97,7 @@ namespace xAOD {
       // Floats
       AUX_VARIABLE( eProbabilityComb                  );
       AUX_VARIABLE( eProbabilityHT                    ); 
-      // AUX_VARIABLE( eProbabilityToT                   ); 
-      // AUX_VARIABLE( eProbabilityBrem                  );
       AUX_VARIABLE( pixeldEdx                 );
-#endif
 
       //Links
       AUX_VARIABLE( TRTTrackOccupancy );

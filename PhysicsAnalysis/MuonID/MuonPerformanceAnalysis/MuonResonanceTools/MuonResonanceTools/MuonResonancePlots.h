@@ -81,7 +81,6 @@ class MuonResonancePlots: public PlotBase {
 
   TString selitool;
   const double M_pdg[3] = {91187.6, 3096.9, 9460.3};
-  const double Pi = TMath::Pi();
 
   void useGeV(bool u){if (u) m_fGeV=1000.0; else m_fGeV=1.0;}
   void setSuffix(std::string suff){m_suffix=suff;};

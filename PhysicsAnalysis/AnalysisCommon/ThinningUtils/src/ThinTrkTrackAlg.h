@@ -18,10 +18,13 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "TrkTrack/TrackCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
-
-class IThinningSvc;
+#include "StoreGate/ThinningHandleKey.h"
 
 
 class ThinTrkTrackAlg : public ::AthAlgorithm {
@@ -47,8 +50,8 @@ public:
   StatusCode doEGamma() ;
   StatusCode doMuons() ;
   
-  /// Pointer to IThinningSvc
-  ServiceHandle<IThinningSvc> m_thinningSvc;
+  StringProperty m_streamName
+  { this, "StreamName", "", "Name of the stream being thinned" };
 
   // For P->T converters of ID tracks with Pixel
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
@@ -59,13 +62,24 @@ public:
   bool m_doElectrons;
   bool m_doPhotons;
   bool m_doMuons;
-  ///Names of the containers of Objects of interest Electron/Muon
-  std::string m_muonsKey;
-  std::string m_electronsKey;
-  std::string m_photonsKey;
-  /// Names of the containers to thin
-  std::string m_CombinedMuonsTracksKey;
-  std::string m_GSFTracksKey;
+  /// The containers of Objects of interest Electron/Muon
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muonsKey
+  { this, "MuonsKey", "Muons", "StoreGate key for muons container" };
+
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_electronsKey
+  { this, "ElectronsKey", "Electrons", "StoreGate key for electrons container" };
+
+  SG::ReadHandleKey<xAOD::PhotonContainer> m_photonsKey
+  { this, "PhotonsKey", "Photons", "StoreGate key for photon container" };
+
+
+  /// Containers to thin
+  SG::ThinningHandleKey<TrackCollection> m_CombinedMuonsTracksKey
+  { this, "CombinedMuonsTrackKey", "CombinedMuonTracks", "StoreGate key for combined muons Trk::Track container" };
+
+  SG::ThinningHandleKey<TrackCollection> m_GSFTracksKey
+  { this, "GSFTrackKey", "GSFTracks", "StoreGate key for GSF Trk::Track container" };
+
   //pT cuts for the objects
   double m_minptElectrons;
   double m_minptPhotons;

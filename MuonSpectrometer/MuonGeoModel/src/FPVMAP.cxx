@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/FPVMAP.h"
@@ -10,19 +10,14 @@
 namespace MuonGM {
 
 
-FPVMAP* FPVMAP::s_thePointer=0;
-
 FPVMAP::FPVMAP()
 {
     m_nreused=0;
 //    std::cout<<"Creating the FPVMAP structure"<<std::endl;
 }
 
-FPVMAP* FPVMAP::GetPointer()
-{
-    if (!s_thePointer) s_thePointer=new FPVMAP;
-    return s_thePointer;
-}
+FPVMAP::~FPVMAP()
+{}
 
 GeoVPhysVol* FPVMAP::GetDetector(std::string name) 
 {

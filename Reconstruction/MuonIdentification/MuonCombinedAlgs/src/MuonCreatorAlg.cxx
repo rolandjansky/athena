@@ -3,13 +3,13 @@
 */
 
 #include "MuonCreatorAlg.h"
-#include "MuonCombinedToolInterfaces/IMuonCreatorTool.h"
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegmentAuxContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonSegment/MuonSegment.h"
 #include "xAODMuon/SlowMuonContainer.h"
@@ -19,10 +19,8 @@
 #include <vector>
 
 MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator),
-  m_muonCreatorTool("MuonCombined::MuonCreatorTool/MuonCreatorTool")
+  AthAlgorithm(name,pSvcLocator)
 {
-  declareProperty("MuonCreatorTool",m_muonCreatorTool);
   declareProperty("BuildSlowMuon",m_buildSlowMuon=false);
   declareProperty("CreateSAmuons", m_doSA=false);
   declareProperty("MakeClusters",m_makeClusters=true);
@@ -168,7 +166,17 @@ StatusCode MuonCreatorAlg::execute()
     auto cbtrks_eta = Monitored::Collection("cbtrks_eta", *(wh_combtp.ptr()), &xAOD::TrackParticle_v1::eta);
     auto cbtrks_phi = Monitored::Collection("cbtrks_phi", *(wh_combtp.ptr()), &xAOD::TrackParticle_v1::phi);
 
-    auto monitorIt = Monitored::Group(m_monTool, muon_n, muon_pt, muon_eta, muon_phi, satrks_n, satrks_pt, satrks_eta, satrks_phi, cbtrks_n, cbtrks_pt, cbtrks_eta, cbtrks_phi);
+    if (!m_doSA) {
+      auto idtrks_n   = Monitored::Scalar<int>("idtrks_n", indetCandidateCollection->size());
+      auto idtrks_pt  = Monitored::Collection("idtrks_pt", *indetCandidateCollection, [](auto const& idtrk) {return idtrk->indetTrackParticle().pt()/1000.0;});
+      auto idtrks_eta = Monitored::Collection("idtrks_eta", *indetCandidateCollection, [](auto const& idtrk) {return idtrk->indetTrackParticle().eta();});
+      auto idtrks_phi = Monitored::Collection("idtrks_phi", *indetCandidateCollection, [](auto const& idtrk) {return idtrk->indetTrackParticle().phi();});
+      auto monitorIt = Monitored::Group(m_monTool, muon_n, muon_pt, muon_eta, muon_phi, satrks_n, satrks_pt, satrks_eta, satrks_phi, cbtrks_n, cbtrks_pt,
+					cbtrks_eta, cbtrks_phi, idtrks_n, idtrks_pt, idtrks_eta, idtrks_phi);
+    }
+    else
+      auto monitorIt = Monitored::Group(m_monTool, muon_n, muon_pt, muon_eta, muon_phi, satrks_n, satrks_pt, satrks_eta, satrks_phi, cbtrks_n, cbtrks_pt,
+                                      cbtrks_eta, cbtrks_phi);
   }
 
   return StatusCode::SUCCESS;

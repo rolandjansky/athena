@@ -41,6 +41,9 @@ namespace G4UA
       /// @brief Add one action to the list
       void addAction(G4UserSteppingAction* action);
 
+      /// @brief Return the actions vector
+      std::vector<G4UserSteppingAction*>& getActions(){ return m_actions; };
+
     private:
 
       /// List of ATLAS stepping actions

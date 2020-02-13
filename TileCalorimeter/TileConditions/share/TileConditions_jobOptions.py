@@ -1,6 +1,7 @@
 # Author: N. Gollub (nils.gollub@cern.ch)
 # main job option to setup TileConditions
 #
+from __future__ import division
 include.block ("TileConditions/TileConditions_jobOptions.py")
 from AthenaCommon.Logging import logging
 msg = logging.getLogger( 'TileConditions_jobOptions.py' )
@@ -48,7 +49,7 @@ if (not 'TileCablingType' in dir()):
             TileCablingType = 4 
             msg.warning("Forcing RUN2 cabling for run %s with geometry %s" % (rn,gbltg) )
     elif geoFlags.Run()=="RUN2":
-        if (globalflags.DataSource()!='data' and rn>=310000) or rn>=343000 or rn<1: # choose RUN2a cabling for R2 geometry tags starting from 31-Jan-2018
+        if rn==None or (globalflags.DataSource()!='data' and rn>=310000) or rn>=343000 or rn<1: # choose RUN2a cabling for R2 geometry tags starting from 31-Jan-2018
             TileCablingType = 5
             msg.info("Forcing RUN2a (2018) cabling for run %s with geometry %s" % (rn,gbltg) )
         else:
@@ -94,7 +95,7 @@ if TileUseDCS or ('TileCheckOFC' in dir() and TileCheckOFC) or ('RunOflOFC' in d
 
 msg.info("Adjusting TileInfo for %s samples" % TileFrameLength )
 tileInfoConfigurator.NSamples = TileFrameLength
-tileInfoConfigurator.TrigSample = (TileFrameLength-1)/2
+tileInfoConfigurator.TrigSample = (TileFrameLength-1)//2 # Floor division
 
 if athenaCommonFlags.isOnline():
     #=== setup reading from COOL DB

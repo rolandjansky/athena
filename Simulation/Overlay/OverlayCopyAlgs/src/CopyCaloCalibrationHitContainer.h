@@ -5,17 +5,17 @@
 #ifndef OVERLAYCOPYALGS_COPYCALOCALIBRATIONHITCONTAINER_H
 #define OVERLAYCOPYALGS_COPYCALOCALIBRATIONHITCONTAINER_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 
-class CopyCaloCalibrationHitContainer : public AthAlgorithm
+class CopyCaloCalibrationHitContainer : public AthReentrantAlgorithm
 {
 public:
 
   CopyCaloCalibrationHitContainer(const std::string &name, ISvcLocator *pSvcLocator);
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
   SG::ReadHandleKey<CaloCalibrationHitContainer> m_signalInputKey{ this, "SignalInputKey", "", "ReadHandleKey for Signal CaloCalibrationHitContainer" };

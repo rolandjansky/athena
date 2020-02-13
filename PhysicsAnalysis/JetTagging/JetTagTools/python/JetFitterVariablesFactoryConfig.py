@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-from JetTagTools.JetTagToolsConf import Analysis__JetFitterVariablesFactory
+Analysis__JetFitterVariablesFactory=CompFactory.Analysis__JetFitterVariablesFactory
 
 def JetFitterVariablesFactoryCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a NewJetFitterVariablesFactory tool and returns it.

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file MuonEventTPCnv/test/STGC_RawDataContainerCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -97,7 +95,8 @@ void test1 (const MuonGM::MuonDetectorManager& muo_dd)
 int main()
 {
   ISvcLocator* pSvcLoc;
-  if (!Athena_test::initGaudi("MuonEventTPCnv_test.txt", pSvcLoc)) {
+  if (!Athena_test::initGaudi("MuonEventTPCnv/MuonEventTPCnv_test.txt", pSvcLoc))
+  {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }

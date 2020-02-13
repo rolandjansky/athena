@@ -16,7 +16,6 @@
 #include "MuonIdHelpers/TgcIdHelper.h"
 
 // muon geomodel
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
 
 #include "MuonPattern/MuonPatternCombination.h"
@@ -60,7 +59,6 @@ namespace MuonCalib {
 
   MuonSegmentToCalibSegment::MuonSegmentToCalibSegment(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
-    m_detMgr(NULL),
     m_calibrationTool("MdtCalibrationTool",this),
     m_assocTool("Muon::MuonPatternSegmentAssociationTool/MuonPatternSegmentAssociationTool"),
     m_idToFixedIdTool("MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool")
@@ -116,7 +114,7 @@ namespace MuonCalib {
     m_log << MSG::INFO << "================================" << endmsg;*/
 
     std::string managerName="Muon";
-    ATH_CHECK( detStore()->retrieve(m_detMgr) );
+    ATH_CHECK(m_DetectorManagerKey.initialize());
     ATH_CHECK( m_idToFixedIdTool.retrieve() );
     ATH_CHECK( m_assocTool.retrieve() );
 
@@ -164,7 +162,14 @@ namespace MuonCalib {
 
     ATH_MSG_DEBUG( " convertPatterns() "  );
 
-    if( !m_readSegments ) {
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return StatusCode::FAILURE; 
+    } 
+
+   if( !m_readSegments ) {
 
       const MuonSegmentCombinationCollection* segCombis = retrieveSegmentCombinations();
       
@@ -217,7 +222,7 @@ namespace MuonCalib {
 		continue;
 	      }
 	      
-	      MuonCalibSegment* mdtSeg = createMuonCalibSegment( *seg );
+	      MuonCalibSegment* mdtSeg = createMuonCalibSegment( *seg, MuonDetMgr );
 	      mdtSeg->setAuthor(seg->author()); 
 	      calibpat->addMuonSegment( mdtSeg );
 	    }
@@ -276,7 +281,7 @@ namespace MuonCalib {
 	    ATH_MSG_DEBUG( "WARNING, empty muoncalibpattern created"  );
 	    MuonCalibPattern* pat = new MuonCalibPattern();
 	    
-	    MuonCalibSegment* mdtSeg = createMuonCalibSegment( *seg );
+	    MuonCalibSegment* mdtSeg = createMuonCalibSegment( *seg, MuonDetMgr );
 	    if(*autIt<0)
 		    mdtSeg->setAuthor(seg->author()); 
 	    else
@@ -352,7 +357,7 @@ namespace MuonCalib {
 	      continue;
 	    }
 	    
-	    MuonCalibSegment* CscSeg = createMuonCalibSegment( *seg );
+	    MuonCalibSegment* CscSeg = createMuonCalibSegment( *seg, MuonDetMgr );
 	    CscSeg->setAuthor(seg->author()); 
 	    calibpat->addMuonSegment( CscSeg );
 	  }
@@ -397,32 +402,32 @@ namespace MuonCalib {
     return rots.front()->identify();
   }
 
-  Amg::Transform3D MuonSegmentToCalibSegment::getGlobalToStation( const Identifier& id ) const
+  Amg::Transform3D MuonSegmentToCalibSegment::getGlobalToStation( const Identifier& id, const MuonGM::MuonDetectorManager* MuonDetMgr  ) const
   {
     
     if( m_muonIdHelperTool->mdtIdHelper().is_mdt( id ) ){
-      const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement(id);
+      const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->GlobalToAmdbLRSTransform();
       }
     }else if( m_muonIdHelperTool->cscIdHelper().is_csc( id ) ){
-      const MuonGM::CscReadoutElement* detEl = m_detMgr->getCscReadoutElement(id);
+      const MuonGM::CscReadoutElement* detEl = MuonDetMgr->getCscReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->transform().inverse();
       }
     }else if( m_muonIdHelperTool->tgcIdHelper().is_tgc( id ) ){
-      const MuonGM::TgcReadoutElement* detEl = m_detMgr->getTgcReadoutElement(id);
+      const MuonGM::TgcReadoutElement* detEl = MuonDetMgr->getTgcReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->transform().inverse();
       }
     }else if( m_muonIdHelperTool->rpcIdHelper().is_rpc( id ) ){
-      const MuonGM::RpcReadoutElement* detEl = m_detMgr->getRpcReadoutElement(id);
+      const MuonGM::RpcReadoutElement* detEl = MuonDetMgr->getRpcReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
@@ -495,7 +500,7 @@ namespace MuonCalib {
   }
 
 
-  MuonCalibSegment* MuonSegmentToCalibSegment::createMuonCalibSegment( const Muon::MuonSegment& seg ) const 
+  MuonCalibSegment* MuonSegmentToCalibSegment::createMuonCalibSegment( const Muon::MuonSegment& seg, const MuonGM::MuonDetectorManager* MuonDetMgr  ) const 
   {
     // convert MuonSegment to MuonCalibSegment
 
@@ -503,7 +508,7 @@ namespace MuonCalib {
     
     // global to station transformation for this chamber
     Amg::Transform3D gToStationCheck = seg.associatedSurface().transform().inverse();
-    Amg::Transform3D gToStation = getGlobalToStation( chid );
+    Amg::Transform3D gToStation = getGlobalToStation( chid, MuonDetMgr );
     // create the local position and direction vector
     Amg::Vector3D  segPosG(seg.globalPosition());
     Amg::Vector3D segDirG(seg.globalDirection());

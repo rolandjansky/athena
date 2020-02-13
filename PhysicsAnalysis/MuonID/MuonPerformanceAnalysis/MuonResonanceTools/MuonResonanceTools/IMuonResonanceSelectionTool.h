@@ -15,7 +15,7 @@
 #include "xAODTracking/Vertex.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "TrigMuonMatching/ITrigMuonMatching.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"

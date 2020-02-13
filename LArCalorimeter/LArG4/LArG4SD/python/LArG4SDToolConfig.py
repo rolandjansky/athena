@@ -1,17 +1,18 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
 
-from LArG4SD.LArG4SDConf import LArG4__EMBSDTool
-from LArG4SD.LArG4SDConf import LArG4__EMECSDTool
-from LArG4SD.LArG4SDConf import LArG4__FCALSDTool
-from LArG4SD.LArG4SDConf import LArG4__HECSDTool
-from LArG4SD.LArG4SDConf import LArG4__MiniFCALSDTool
-from LArG4SD.LArG4SDConf import LArG4__DeadSDTool
-from LArG4SD.LArG4SDConf import LArG4__ActiveSDTool
-from LArG4SD.LArG4SDConf import LArG4__InactiveSDTool
-from LArG4SD.LArG4SDConf import LArG4__CalibrationDefaultCalculator
+LArG4__EMBSDTool=CompFactory.LArG4__EMBSDTool
+LArG4__EMECSDTool=CompFactory.LArG4__EMECSDTool
+LArG4__FCALSDTool=CompFactory.LArG4__FCALSDTool
+LArG4__HECSDTool=CompFactory.LArG4__HECSDTool
+LArG4__MiniFCALSDTool=CompFactory.LArG4__MiniFCALSDTool
+LArG4__DeadSDTool=CompFactory.LArG4__DeadSDTool
+LArG4__ActiveSDTool=CompFactory.LArG4__ActiveSDTool
+LArG4__InactiveSDTool=CompFactory.LArG4__InactiveSDTool
+LArG4__CalibrationDefaultCalculator=CompFactory.LArG4__CalibrationDefaultCalculator
 
 #to be migrated: getCalibrationDefaultCalculator, getDeadMaterialCalibrationHitMerger
 

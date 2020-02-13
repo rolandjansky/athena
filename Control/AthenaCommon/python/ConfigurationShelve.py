@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaCommon/python/ConfigurationShelve.py
 # @author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -308,7 +308,8 @@ def loadJobOptionsCatalogue( cfg_fname ):
       for n,v in six.iteritems(jocat[ client ]):
          # In Gaudi v28, the second argument of the ctor is passed by move,
          # which pyroot doesn't handle correctly.  Do this as a workaround.
-         p = gaudi.StringProperty( n, '' )
+         p = gaudi.StringProperty()
+         p.setName(n)
          try:
             p.fromString(v).ignore()
          except Exception:
@@ -322,7 +323,8 @@ def loadJobOptionsCatalogue( cfg_fname ):
       svc = PyAthena.py_svc( client, createIf = False, iface='IProperty' )
       for n,v in six.iteritems(jocfg[ client ]):
          # See comment above.
-         p = gaudi.StringProperty( n, '' )
+         p = gaudi.StringProperty()
+         p.setName(n)
          p.fromString(v).ignore()
          svc.setProperty( p )
 

@@ -79,6 +79,11 @@ StatusCode TrigBphysHelperUtilsTool::finalize()
 // Const methods: 
 ///////////////////////////////////////////////////////////////////
 
+int TrigBphysHelperUtilsTool::sumCharge(const xAOD::TrackParticle *p1, const xAOD::TrackParticle* p2){
+   int q1 = (p1->qOverP() > 0) ? 1 : ((p1->qOverP() < 0) ? -1 : 0);
+   int q2 = (p2->qOverP() > 0) ? 1 : ((p2->qOverP() < 0) ? -1 : 0);
+   return q1+q2;
+}
 
 double TrigBphysHelperUtilsTool::deltaPhi( double phi1, double phi2) const {
     double dphi = phi1 - phi2;
@@ -545,6 +550,42 @@ double TrigBphysHelperUtilsTool::invariantMass(const xAOD::IParticle *p1, const 
     return invariantMassIP( {p1,p2},{m1,m2});
 } // invariantMass
 
+double TrigBphysHelperUtilsTool::invariantMass(const xAOD::TrackParticle *p1, const xAOD::TrackParticle* p2, double mi1, double mi2) const {
+    static_assert(!std::is_base_of<xAOD::L2StandAloneMuon, xAOD::TrackParticle>::value, "Types have become ambiguous, units may be wrong" );
+    static_assert(!std::is_base_of<xAOD::TrackParticle, xAOD::L2StandAloneMuon>::value, "Types have become ambiguous, units may be wrong" );
+    assert(p1!=nullptr);
+    assert(p2!=nullptr);
+    double px(0.),py(0.),pz(0.),E(0.);
+    
+
+    {
+    const auto &pv1 = p1->p4();
+    px += pv1.Px();
+    py += pv1.Py();
+    pz += pv1.Pz();
+    E  += sqrt(mi1*mi1 +
+               pv1.Px()*pv1.Px() +
+               pv1.Py()*pv1.Py() +
+               pv1.Pz()*pv1.Pz()
+          );
+    }
+    {
+    const auto &pv2 = p2->p4();
+    px += pv2.Px();
+    py += pv2.Py();
+    pz += pv2.Pz();
+    E  += sqrt(mi2*mi2 +
+               pv2.Px()*pv2.Px() +
+               pv2.Py()*pv2.Py() +
+               pv2.Pz()*pv2.Pz()
+          );
+    }
+    double m2 = E*E - px*px - py*py -pz*pz;
+    if (m2 < 0) return 0.;
+    else        return sqrt(m2);
+} // invariantMass
+
+
 double TrigBphysHelperUtilsTool::invariantMass(const std::vector<const xAOD::TrackParticle*>&ptls, const std::vector<double> & masses) const {
     // 're-cast the vector in terms of the iparticle'
     std::vector<const xAOD::IParticle*> i_ptls;
@@ -575,7 +616,7 @@ double TrigBphysHelperUtilsTool::invariantMassIP(const std::vector<const xAOD::I
             ATH_MSG_DEBUG("Found L2StandAlone muon for IParticle: " << i << " Treating as having units of GeV" );
         } // if L2 muon
 
-        auto pv4 = ptls[i]->p4();
+        const auto &pv4 = ptls[i]->p4();
         px += pv4.Px()*cFactor;
         py += pv4.Py()*cFactor;
         pz += pv4.Pz()*cFactor;
@@ -660,7 +701,7 @@ void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
     
     double sumPx(0.), sumPy(0.), sumPt(0.);
     for (const auto& ptl: ptls) {
-    	auto pv4 = ptl->p4();
+    	const auto &pv4 = ptl->p4();
         sumPx += pv4.Px(); // FIXME - is there a more optimal way
         sumPy += pv4.Py();
     }

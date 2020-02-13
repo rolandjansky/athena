@@ -224,7 +224,7 @@ if 'AthSequencer/EvgenGenSeq' in topSeq.getSequence():
 if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
+        svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
 
 ### Changing to post-sim include/exec
 ## Post-include
@@ -485,7 +485,7 @@ include ("Digitization/Digitization.py")
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 if hasattr(runArgs,"AMITag"):
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag ]
+    svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag":runArgs.AMITag})
 
 ### No RDO output to increase file size of
 # Increase max RDO output file size to 10 GB

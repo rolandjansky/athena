@@ -41,23 +41,23 @@ def checkPoolFileForRunLevel(poolfilename):
 
     if hasattr(mdt,folderName["L1K"]):
         br = mdt.GetBranch(folderName["L1K"])
-        for i in xrange(mdt.GetEntries()):
+        for i in range(mdt.GetEntries()):
             br.GetEntry(i)
             metaData = getattr(mdt, br.GetName())
             plc = metaData.payloadContainer()
             for payload in plc.iter():
-                for i in xrange(payload.size()):
+                for i in range(payload.size()):
                     chanNum = int(payload.chanNum(i))
                     l1keys += [ payload.attributeList(chanNum)["Lvl1PrescaleConfigurationKey"].data("unsigned int")() ]
 
     if hasattr(mdt,folderName["HLTK"]):
         br = mdt.GetBranch(folderName["HLTK"])
-        for i in xrange(mdt.GetEntries()):
+        for i in range(mdt.GetEntries()):
             br.GetEntry(i)
             metaData = getattr(mdt, br.GetName())
             plc = metaData.payloadContainer()
             for payload in plc.iter():
-                for i in xrange(payload.size()):
+                for i in range(payload.size()):
                     chanNum = int(payload.chanNum(i))
                     hltkeys += [ payload.attributeList(chanNum)["HltPrescaleConfigurationKey"].data("unsigned int")() ]
 

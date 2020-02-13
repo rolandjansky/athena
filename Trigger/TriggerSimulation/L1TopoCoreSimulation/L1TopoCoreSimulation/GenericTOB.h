@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 //  GeneralTOP.h
@@ -8,8 +8,8 @@
 //  Created by Joerg Stelzer on 11/10/12.
 //
 
-#ifndef __TopoCore__GeneralTOP__
-#define __TopoCore__GeneralTOP__
+#ifndef L1TOPOCORESIMULATION_GENERICTOB_H
+#define L1TOPOCORESIMULATION_GENERICTOB_H
 
 #include <iostream>
 
@@ -40,7 +40,7 @@ namespace TCS {
       GenericTOB(const ClusterTOB & cluster);
 
       // destructor
-      ~GenericTOB();
+      virtual ~GenericTOB();
 
 
       static GenericTOB* createOnHeap(const GenericTOB &);
@@ -70,4 +70,4 @@ namespace TCS {
 } // end of namespace TCS
 
 
-#endif /* defined(__TopoCore__GeneralTOP__) */
+#endif /* defined(L1TOPOCORESIMULATION_GENERICTOB_H) */

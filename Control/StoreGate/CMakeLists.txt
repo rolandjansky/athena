@@ -44,7 +44,6 @@ atlas_add_library( SGtests test/SGtests.cxx
 atlas_add_test( ActiveStore_test
    SOURCES test/ActiveStore_test.cxx
    LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "JobOptionsSvc +INFO"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
    set( _hivePatterns "JobOptionsSvc +INFO|StoreGateSvc.*DEBUG|HiveMgrSvc +DEBUG" )
@@ -52,24 +51,22 @@ atlas_add_test( ActiveStore_test
 atlas_add_test( SGTiming_test
    SOURCES test/SGTiming_test.cxx
    LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "${_hivePatterns}|rec:|averages"
+   LOG_IGNORE_PATTERN "${_hivePatterns}|rec:|averages"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( SGHive_test
    SOURCES test/SGHive_test.cxx
    LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "${_hivePatterns}"
+   LOG_IGNORE_PATTERN "${_hivePatterns}"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( DataHandle_test
    SOURCES test/DataHandle_test.cxx
-   LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "ClassIDSvc Initialized successfully|^HistogramPersis.* INFO" )
+   LINK_LIBRARIES SGtests )
 
 atlas_add_test( SGIterator_test
    SOURCES test/SGIterator_test.cxx
-   LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "^HistogramPersis.* INFO" )
+   LINK_LIBRARIES SGtests )
 
 atlas_add_test( KeyConcept_test
    SOURCES test/KeyConcept_test.cxx
@@ -81,8 +78,7 @@ atlas_add_test( StoreClearedIncident_test
 
 atlas_add_test( SegMemSvc_test
    SOURCES test/SegMemSvc_test.cxx
-   LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "^HistogramPersis.* INFO" )
+   LINK_LIBRARIES SGtests )
 
 atlas_add_test( exceptions_test
    SOURCES test/exceptions_test.cxx
@@ -125,7 +121,7 @@ atlas_add_test( TypelessWriteHandleKey_test
 atlas_add_test( VarHandleBase_test
    SOURCES test/VarHandleBase_test.cxx
    LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "could not get proxy for|try using a ReadHandle"
+   LOG_IGNORE_PATTERN "could not get proxy for|try using a ReadHandle"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( VarHandles_test

@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from eflowRec import eflowRecConf
 from InDetTrackSelectionTool import InDetTrackSelectionToolConf
 
@@ -143,6 +145,6 @@ def PFHLTSequence(dummyflags,clustersin,tracktype):
     pfSequence = parOR("HLTPFlow_"+tracktype, [PFTrkSel,PFAlg,PFCCreator,PFNCreator])
     pfoPrefix = "HLT_"+tracktype
 
-    print pfSequence
+    print (pfSequence)
 
     return pfSequence, pfoPrefix

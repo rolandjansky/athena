@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_MUONSEGMENTTOCALIBSEGMENT_H
@@ -18,13 +18,10 @@
 #include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
 #include "MdtCalibSvc/MdtCalibrationTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 namespace Muon{
   class MuonPatternCombination;
-}
-
-namespace MuonGM {
-  class MuonDetectorManager;
 }
 
 namespace MuonCalib {
@@ -65,10 +62,10 @@ output the muon calibration input.
     StatusCode savePatterns( const MuonCalibPatternCollection* newPatterns ) const;
     
     
-    MuonCalibSegment* createMuonCalibSegment( const Muon::MuonSegment& seg ) const;
+    MuonCalibSegment* createMuonCalibSegment( const Muon::MuonSegment& seg, const MuonGM::MuonDetectorManager* MuonDetMgr ) const;
     MuonCalibPattern* createMuonCalibPattern( const Muon::MuonPatternCombination* pat ) const;
     Identifier        getChId( const Muon::MuonSegment& seg ) const;
-    Amg::Transform3D    getGlobalToStation( const Identifier& id ) const;
+    Amg::Transform3D    getGlobalToStation( const Identifier& id, const MuonGM::MuonDetectorManager* MuonDetMgr ) const;
 
     unsigned int getQuality( const Muon::MuonSegment& seg ) const;
 
@@ -91,9 +88,11 @@ output the muon calibration input.
     std::string         m_associationInputLocation; //!< Location of the association object for PatternCombis and SegmentCombis
     std::string         m_cscAssociationInputLocation; //!< Location of the association object for PatternCombis and SegmentCombis
 
-    /** Pointer to MuonDetectorManager */
-    const MuonGM::MuonDetectorManager*  m_detMgr;
-   
+    /** MuonDetectorManager from the conditions store */
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
+
     /** Tool for the Identifier Helpers */
     ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
       "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};

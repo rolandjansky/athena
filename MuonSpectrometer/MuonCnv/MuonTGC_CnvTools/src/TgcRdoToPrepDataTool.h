@@ -10,7 +10,6 @@
 
 #include "TgcRdoToPrepDataToolCore.h"
 
-
 namespace Muon 
 {
   /** @class TgcRdoToPrepDataTool 

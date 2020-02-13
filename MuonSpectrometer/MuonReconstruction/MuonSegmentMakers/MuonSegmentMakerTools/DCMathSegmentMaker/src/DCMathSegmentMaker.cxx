@@ -76,7 +76,6 @@ namespace Muon {
 
   DCMathSegmentMaker::DCMathSegmentMaker( const std::string& t, const std::string& n, const IInterface*  p ) :
     AthAlgTool(t,n,p),
-    m_detMgr(0),
     m_intersectSvc("MuonStationIntersectSvc", name()),
     m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", this),
     m_mdtCreatorT0("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", this),
@@ -145,7 +144,7 @@ namespace Muon {
   {
     
     // retrieve MuonDetectorManager
-    ATH_CHECK( detStore()->retrieve(m_detMgr,"Muon") );
+    ATH_CHECK(m_DetectorManagerKey.initialize());
     ATH_CHECK( m_intersectSvc.retrieve() );
     ATH_CHECK( m_mdtCreator.retrieve() );
     ATH_CHECK( m_mdtCreatorT0.retrieve() );
@@ -1636,8 +1635,15 @@ namespace Muon {
     int isSmallMdt = m_idHelperTool->mdtIdHelper().isSmallMdt(chid);
     TrkDriftCircleMath::MdtStationId stationId( isSmallMdt, isBarrel, name, eta, phi );
 
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      // return 0; 
+    }
+
     // get detEL for first ml (always there)
-    const MuonGM::MdtReadoutElement* detEl1 = m_detMgr->getMdtReadoutElement( m_idHelperTool->mdtIdHelper().channelID( name,eta,phi,1,1,1 ) );
+    const MuonGM::MdtReadoutElement* detEl1 = MuonDetMgr->getMdtReadoutElement( m_idHelperTool->mdtIdHelper().channelID( name,eta,phi,1,1,1 ) );
     const MuonGM::MdtReadoutElement* detEl2 = 0;
     int ntube2 = 0;
     // number of multilayers in chamber
@@ -1646,7 +1652,7 @@ namespace Muon {
     // treament of chambers with two ml
     if( nml == 2 ){
       Identifier firstIdml1 = m_idHelperTool->mdtIdHelper().channelID( name,eta,phi,2,1,1 );
-      detEl2 = m_detMgr->getMdtReadoutElement( firstIdml1 ); 
+      detEl2 = MuonDetMgr->getMdtReadoutElement( firstIdml1 ); 
       firstTubeMl1 = gToStation*(detEl2->surface( firstIdml1 ).center());
       ntube2 = detEl2->getNtubesperlayer();
     }
@@ -2294,7 +2300,15 @@ namespace Muon {
       dbData=readHandle.cptr();
     }
     else dbData=nullptr; //for online running
-    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack(chid, gpos, gdir, dbData, m_detMgr );
+
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      // return 0; 
+    } 
+
+    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack(chid, gpos, gdir, dbData, MuonDetMgr );
 
 
     // set to identify the hit on the segment
@@ -2341,7 +2355,7 @@ namespace Muon {
 
       bool notBetweenHits = layer < firstLayer || layer > lastLayer;
       double distanceCut  = hasMeasuredCoordinate ? -20 : -200.;
-      double innerRadius  = m_detMgr->getMdtReadoutElement(id)->innerTubeRadius();
+      double innerRadius  = MuonDetMgr->getMdtReadoutElement(id)->innerTubeRadius();
       if( notBetweenHits && ( fabs(tint.rIntersect) > innerRadius || (!m_allMdtHoles && tint.xIntersect > distanceCut) ) ) {
 	if( msgLvl(MSG::VERBOSE)  ) msg(MSG::VERBOSE) << " not counting tube:  distance to wire " << tint.rIntersect << " dist to tube end " << tint.xIntersect 
 						      << " " << m_idHelperTool->toString(tint.tubeId) << std::endl;

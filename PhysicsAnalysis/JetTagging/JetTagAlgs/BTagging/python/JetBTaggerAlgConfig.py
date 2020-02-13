@@ -1,12 +1,13 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTagSecVertexingConfig import BTagSecVtxToolCfg
 from BTagging.BTagTrackAssociationConfig import BTagTrackAssociationCfg
 from BTagging.BTagToolConfig import BTagToolCfg
 
-# import the JetBTaggerAlg configurable
-from BTagging.BTaggingConf import Analysis__JetBTaggerAlg as JetBTaggerAlg
+
+JetBTaggerAlg=CompFactory.Analysis__JetBTaggerAlg
 
 def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="", **options):
 

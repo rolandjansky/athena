@@ -16,7 +16,6 @@ namespace Muon {
   /** Constructor **/
   MuonTruthSummaryTool::MuonTruthSummaryTool(const std::string& t, const std::string& n, const IInterface* p) : 
     AthAlgTool(t,n,p),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_incidentSvc("IncidentSvc",n),
     m_wasInit(false),
@@ -31,13 +30,12 @@ namespace Muon {
     declareProperty("NtupleTreeName",   m_treeName = "MuonTruthSummaryTree");
     declareProperty("HistStream",       m_histStream = "Summary");
     declareProperty("SelectedPdgId",    m_selectedPdgId = 13, "Should be positive as absolute value is used" );
-    declareProperty("UseNSW",           m_useNSW=false);
   }
 
   StatusCode  MuonTruthSummaryTool::initialize()
   {
     ATH_MSG_VERBOSE("Initializing ...");
-    ATH_CHECK( m_idHelper.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_incidentSvc.retrieve() );      
@@ -65,11 +63,9 @@ namespace Muon {
       m_selectedPdgId = abs(m_selectedPdgId);
     }
 
-    if(m_useNSW){
-      m_TruthNames.emplace_back("MM_TruthMap");
-      m_TruthNames.emplace_back("STGC_TruthMap");
-    }
-    else m_TruthNames.emplace_back("CSC_TruthMap");
+    if(m_idHelperSvc->hasMM()) m_TruthNames.emplace_back("MM_TruthMap");
+    if(m_idHelperSvc->hasSTgc()) m_TruthNames.emplace_back("STGC_TruthMap");
+    if(m_idHelperSvc->hasCSC()) m_TruthNames.emplace_back("CSC_TruthMap");
     ATH_CHECK(m_TruthNames.initialize());
     return StatusCode::SUCCESS;
   }
@@ -147,7 +143,7 @@ namespace Muon {
     std::scoped_lock lock(m_mutex);
     for( std::vector<const Trk::MeasurementBase*>::const_iterator it = measurements.begin();it!=measurements.end();++it ){
       Identifier id = m_edmHelperSvc->getIdentifier(**it);
-      if( id.is_valid() && m_idHelper->isMuon(id) ) add(id,level);
+      if( id.is_valid() && m_idHelperSvc->isMuon(id) ) add(id,level);
     }
   }
   
@@ -191,15 +187,15 @@ namespace Muon {
       std::map<Identifier, unsigned int> chambers; // Store counts per chamber Id
       unsigned int hitNum=0;
       for( std::vector<Identifier>::iterator it=result.begin();it!=result.end();++it ){
-        sout << hitNum++<<":\t" << m_idHelper->toString(*it) << std::endl;
-        if(m_idHelper->isMM(*it)  ) ++nmm;
-        chambers[m_idHelper->chamberId(*it)]++;
+        sout << hitNum++<<":\t" << m_idHelperSvc->toString(*it) << std::endl;
+        if(m_idHelperSvc->isMM(*it)  ) ++nmm;
+        chambers[m_idHelperSvc->chamberId(*it)]++;
       }
       if( nmm > 4 ) sout << " possible missing MM segment : " << nmm << std::endl;
 
       sout << std::endl<<"++++ Chamber summaries:"<<std::endl;      
       for (auto chamber : chambers ){
-        sout << "Chamber "<<m_idHelper->toStringChamber(chamber.first)<<"\t has "<<chamber.second<<" missing truth hits"<<std::endl;
+        sout << "Chamber "<<m_idHelperSvc->toStringChamber(chamber.first)<<"\t has "<<chamber.second<<" missing truth hits"<<std::endl;
         if (m_writeTree) fillChamberVariables(chamber.first, chamber.second);
       }
     }else{
@@ -279,18 +275,15 @@ namespace Muon {
   
   void MuonTruthSummaryTool::fillChamberVariables(const Identifier& chamberId, const unsigned int numMissedHits){
     std::scoped_lock lock(m_mutex);
-    ATH_MSG_DEBUG("fillChamberVariables: Level = "<<(m_level+1)<<" \t chamber = "<<m_idHelper->toStringChamber(chamberId)<<" numMissedHits="<<numMissedHits );
+    ATH_MSG_DEBUG("fillChamberVariables: Level = "<<(m_level+1)<<" \t chamber = "<<m_idHelperSvc->toStringChamber(chamberId)<<" numMissedHits="<<numMissedHits );
     
     m_numChambers[m_level]++;
     m_numMissedHits[m_level]->push_back(numMissedHits);
-    m_missedHitTechnologyIndex[m_level]->push_back( m_idHelper->technologyIndex(chamberId) );
-    m_missedHitStationPhi[m_level]       ->push_back( m_idHelper->stationPhi(chamberId) );
-    m_missedHitStationSector[m_level]       ->push_back( m_idHelper->sector(chamberId) );
-    m_missedHitStationEta[m_level]       ->push_back( m_idHelper->stationEta(chamberId) );
-    // m_missedHitR[m_level]       ->push_back( m_idHelper->stationEta(chamberId) ); // Need to do R/Z elsewhere...
-    // m_missedHitZ[m_level]       ->push_back( m_idHelper->stationEta(chamberId) );
-    // // m_missedHitStationName[m_level]      ->push_back( m_idHelper->chamberNameString(chamberId) );
-    m_missedHitStationNameIndex[m_level]      ->push_back( m_idHelper->stationIndex(chamberId) );
+    m_missedHitTechnologyIndex[m_level]->push_back( m_idHelperSvc->technologyIndex(chamberId) );
+    m_missedHitStationPhi[m_level]       ->push_back( m_idHelperSvc->stationPhi(chamberId) );
+    m_missedHitStationSector[m_level]       ->push_back( m_idHelperSvc->sector(chamberId) );
+    m_missedHitStationEta[m_level]       ->push_back( m_idHelperSvc->stationEta(chamberId) );
+    m_missedHitStationNameIndex[m_level]      ->push_back( m_idHelperSvc->stationIndex(chamberId) );
   }
 
   void MuonTruthSummaryTool::handle(const Incident& inc) {

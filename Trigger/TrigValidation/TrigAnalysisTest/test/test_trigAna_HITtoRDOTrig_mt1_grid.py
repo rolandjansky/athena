@@ -17,6 +17,7 @@
 # art-output: *.check*
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, Input
+from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 import os
 
 # To run single-process transform on MCORE sites
@@ -52,6 +53,7 @@ test = Test.Test()
 test.art_type = 'grid'
 test.exec_steps = [hit2rdo, rdo2rdotrig]
 test.check_steps = CheckSteps.default_check_steps(test)
+add_analysis_steps(test, input_file='RDO_TRIG.pool.root')
 
 import sys
 sys.exit(test.run())

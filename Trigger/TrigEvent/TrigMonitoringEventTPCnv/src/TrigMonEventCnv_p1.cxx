@@ -1,12 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigMonitoringEvent/TrigMonEvent.h"
-#undef private
-#undef protected
 
 // This class data and converter
 #include "TrigMonitoringEventTPCnv/TrigMonEvent_p1.h"
@@ -14,61 +10,62 @@
 
 void TrigMonEventCnv_p1::persToTrans(const TrigMonEvent_p1* persObj, 
 				     TrigMonEvent* transObj, 
-				     MsgStream &log)
+				     MsgStream &log) const
 {
-  transObj->m_event       = persObj->m_event;
-  transObj->m_lumi        = persObj->m_lumi;
-  transObj->m_bxid        = persObj->m_bxid;
-  transObj->m_run         = persObj->m_run;
-  transObj->m_sec         = persObj->m_sec;
-  transObj->m_nsec        = persObj->m_nsec;
-  transObj->m_word        = persObj->m_word;
-  transObj->m_l1          = persObj->m_l1;
-  transObj->m_hlt         = persObj->m_hlt;
-  transObj->m_var_key     = persObj->m_var_key;
-  transObj->m_var_val     = persObj->m_var_val;
+  transObj->setEventID (persObj->m_event,
+                        persObj->m_lumi,
+                        persObj->m_bxid,
+                        persObj->m_run,
+                        persObj->m_sec,
+                        persObj->m_nsec);
 
-  m_robCnv.persToTrans(&(persObj->m_rob), &(transObj->m_rob), log);
-  m_roiCnv.persToTrans(&(persObj->m_roi), &(transObj->m_roi), log);
-  m_seqCnv.persToTrans(&(persObj->m_seq), &(transObj->m_seq), log);
-  m_teCnv. persToTrans(&(persObj->m_te),  &(transObj->m_te),  log);
+  transObj->m_lumi = persObj->m_lumi;
+  transObj->m_bxid = persObj->m_bxid;
 
-  if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG 
-	<< "TrigMonEventCnv_p1::persToTrans called - persistent to transient :" << endmsg
-	<< " event: " << transObj->m_event << " to " << persObj->m_event << endmsg
-	<< " lumi:  " << transObj->m_lumi  << " to " << persObj->m_lumi  << endmsg
-	<< " run:   " << transObj->m_run   << " to " << persObj->m_run   << endmsg;
-  }
+  transObj->getWord()       = persObj->m_word;
+  transObj->getL1Item()     = persObj->m_l1;
+  transObj->getChain()      = persObj->m_hlt;
+  transObj->getVarKey()     = persObj->m_var_key;
+  transObj->getVarVal()     = persObj->m_var_val;
+
+  m_robCnv.persToTrans(&(persObj->m_rob),
+                       &transObj->getVec<TrigMonROB>(),
+                       log);
+  m_roiCnv.persToTrans(&(persObj->m_roi),
+                       &transObj->getVec<TrigMonRoi>(),
+                       log);
+  m_seqCnv.persToTrans(&(persObj->m_seq),
+                       &transObj->getVec<TrigMonSeq>(),
+                       log);
+  m_teCnv. persToTrans(&(persObj->m_te),
+                       &transObj->getVec<TrigMonTE>(),
+                       log);
 }
 
 
 void TrigMonEventCnv_p1::transToPers(const TrigMonEvent* transObj, 
 				     TrigMonEvent_p1* persObj, 
-				     MsgStream &log)
+				     MsgStream &log) const
 {
-  persObj->m_event      = transObj->m_event;
+  persObj->m_event      = transObj->getEvent();
+  persObj->m_run        = transObj->getRun();
+  persObj->m_sec        = transObj->getSec();
+  persObj->m_nsec       = transObj->getNanoSec();
+  persObj->m_word       = transObj->getWord();
+  persObj->m_l1         = transObj->getL1Item();
+  persObj->m_hlt        = transObj->getChain();
+  persObj->m_var_key    = transObj->getVarKey();
+  persObj->m_var_val    = transObj->getVarVal();
+
   persObj->m_lumi       = transObj->m_lumi;
   persObj->m_bxid       = transObj->m_bxid;
-  persObj->m_run        = transObj->m_run;
-  persObj->m_sec        = transObj->m_sec;
-  persObj->m_nsec       = transObj->m_nsec;
-  persObj->m_word       = transObj->m_word;
-  persObj->m_l1         = transObj->m_l1;
-  persObj->m_hlt        = transObj->m_hlt;
-  persObj->m_var_key    = transObj->m_var_key;
-  persObj->m_var_val    = transObj->m_var_val;
 
-  m_robCnv.transToPers(&(transObj->m_rob), &(persObj->m_rob), log);
-  m_roiCnv.transToPers(&(transObj->m_roi), &(persObj->m_roi), log);
-  m_seqCnv.transToPers(&(transObj->m_seq), &(persObj->m_seq), log);
-  m_teCnv. transToPers(&(transObj->m_te),  &(persObj->m_te),  log);
-
-  if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG 
-	<< "TrigMonEventCnv_p1::transToPers called - persistent to transient:" << endmsg
-	<< " event: " << persObj->m_event << " to " << transObj->m_event << endmsg
-	<< " lumi:  " << persObj->m_lumi  << " to " << transObj->m_lumi  << endmsg
-	<< " run:   " << persObj->m_run   << " to " << transObj->m_run   << endmsg;
-  }
+  m_robCnv.transToPers(&transObj->getVec<TrigMonROB>(),
+                       &(persObj->m_rob), log);
+  m_roiCnv.transToPers(&transObj->getVec<TrigMonRoi>(),
+                       &(persObj->m_roi), log);
+  m_seqCnv.transToPers(&transObj->getVec<TrigMonSeq>(),
+                       &(persObj->m_seq), log);
+  m_teCnv. transToPers(&transObj->getVec<TrigMonTE>(),
+                       &(persObj->m_te),  log);
 }

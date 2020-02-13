@@ -14,7 +14,6 @@
 // Id includes
 #include "MuonIdHelpers/TgcIdHelper.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 
 TgcPrepDataContainerCnv::TgcPrepDataContainerCnv(ISvcLocator* svcloc) :

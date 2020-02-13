@@ -67,9 +67,9 @@ atlas_install_joboptions( share/*.py )
 
 atlas_add_test( CaloEstimatedGainToolConfig_test
                 SCRIPT python -m CaloTools.CaloEstimatedGainToolConfig
-                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
 atlas_add_test( CaloEstimatedGainTool_test
                 SCRIPT python -m CaloTools.CaloEstimatedGainTool_test
-                EXTRA_PATTERNS "-s ERROR|error|WARNING [^U]|FATAL|processing|TestAlg" )
+                LOG_SELECT_PATTERN "ERROR|error|WARNING [^U]|FATAL|processing|TestAlg" )
 

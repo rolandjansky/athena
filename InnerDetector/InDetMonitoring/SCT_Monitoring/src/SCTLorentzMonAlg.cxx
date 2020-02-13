@@ -4,7 +4,7 @@
 
 #include "SCTLorentzMonAlg.h"
 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetPrepRawData/SiCluster.h"

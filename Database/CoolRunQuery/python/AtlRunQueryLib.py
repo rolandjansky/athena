@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ----------------------------------------------------------------
 # Script : AtlRunQueryLib.py
@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------
 #
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 
@@ -109,7 +109,7 @@ class AtlRunQuery:
             if   html=="AUTO": self.html = runsOnServer()
             elif html=="YES":  self.html = True
             elif html=="NO":   self.html = False
-            else: raise RuntimeError, "Unknown argument for option 'html': %s" % html
+            else: raise RuntimeError ("Unknown argument for option 'html': %s" % html)
         Run.writehtml = self.html
 
         if self.cmdlineOptions.prodgrl != None : # happens only if --nogrl is specified
@@ -206,8 +206,8 @@ class AtlRunQuery:
         #     self.cmdlineOptions.show = [x for x in self.cmdlineOptions.show if x not in ["lhc","olclumi","olcfillparams","olclbdata"]]
         #     self.cmdlineOptions.partition=None
         #     self.cmdlineOptions.projecttag=None
-        #     print "Pre-run2 selection removed partition and projecttag from querying"
-        #     print "Pre-run2 selection removed lhc, olc from showing. Modified show list: %r" % self.cmdlineOptions.show
+        #     print ("Pre-run2 selection removed partition and projecttag from querying")
+        #     print ("Pre-run2 selection removed lhc, olc from showing. Modified show list: %r" % self.cmdlineOptions.show)
             
         self.selectionOutput += ["%s" % rtSel]
 
@@ -244,14 +244,14 @@ class AtlRunQuery:
                 self.selectionOutput += ["%s" % s.__str__()]
             with timer("run AfterQuery for selector '%s'" % s.name):
                 s.runAfterQuery(runlist)
-            #print [r.runNr for r in runlist]
+            #print ([r.runNr for r in runlist])
 
         # reverse list for presentation: newest run on top
         runlist.reverse()
 
         # if "last" option used, the runlist has to be truncated
         if self.maxNumOfRuns > 0:
-            print 'SELOUT Selecting the %i most recent runs' % self.maxNumOfRuns
+            print ('SELOUT Selecting the %i most recent runs' % self.maxNumOfRuns)
             runlist = runlist[0:self.maxNumOfRuns]
             self.selectionOutput += ['SELOUT Selecting the %i most recent runs' % self.maxNumOfRuns]
             
@@ -269,14 +269,14 @@ class AtlRunQuery:
         # create XML file (and return pretty html output for print)
         if self.prodgrl:
             with timer('CreateXMLFile'):
-                print "Producing XML file"
+                print ("Producing XML file")
                 from CoolRunQuery.output.AtlRunQueryXML import CreateXMLFile
                 from .AtlRunQueryVersion import SvnVersion
                 xmlhtmlstr = CreateXMLFile( runlist, self.cmdlineOptions, self.origQuery, self.datapath,
                                             self.xmlFileName, self.xmlFileLabel, SvnVersion )
         else:
             xmlhtmlstr = None
-            print "Creation of GRL disabled"
+            print ("Creation of GRL disabled")
 
         if self.dictroot and len(runlist) > 0:
             with timer('CreateRootFile'):
@@ -285,7 +285,7 @@ class AtlRunQuery:
                 rootfilename, roothtmlstr = CreateRootFile( dic )
         else:
             roothtmlstr = None
-            print "Creation of root file disabled"
+            print ("Creation of root file disabled")
 
         return (dic, dicsum, xmlhtmlstr, roothtmlstr)
         
@@ -320,17 +320,17 @@ class AtlRunQuery:
             with timer("run ResultPageMaker makePage"):
                 ResultPageMaker.makePage(pageinfo)
             #except ImportError, ie:
-            #    print "Can't import pagemaker, no web page made",ie
+            #    print ("Can't import pagemaker, no web page made",ie)
 
         else:
-            print '---------------------------------------------------------------------'
-            print Run.header()
+            print ('---------------------------------------------------------------------')
+            print (Run.header())
             runlist.reverse()
             for r in runlist:
-                print r
+                print (r)
 
             from CoolRunQuery.utils.AtlRunQueryUtils import addKommaToNumber, filesize
-            print 'Summary:'
+            print ('Summary:')
             for data_key, summary in dicsum.items():
                 if data_key.Type==DataKey.STREAM:
                     key = data_key.ResultKey.replace('STR:','')
@@ -338,10 +338,10 @@ class AtlRunQuery:
                 else:
                     key = data_key.ResultKey
                     val = addKommaToNumber(summary)
-                print '%20s : %s' % (key,val)
+                print ('%20s : %s' % (key,val))
             duration = time() - self.querystart
-            print "%20s : %g sec" % ('Total execution time',duration)
-            print '---------------------------------------------------------------------'
+            print ("%20s : %g sec" % ('Total execution time',duration))
+            print ('---------------------------------------------------------------------')
         
     def finalize(self):
         coolDbConn.CloseAll()

@@ -31,12 +31,13 @@ def ExampleMonitoringConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the 
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
-    from AthenaMonitoring.AthenaMonitoringConf import ExampleMonitorAlgorithm
-    exampleMonAlg = helper.addAlgorithm(ExampleMonitorAlgorithm,'ExampleMonAlg')
+    # This uses the new Configurables object system.
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    exampleMonAlg = helper.addAlgorithm(CompFactory.ExampleMonitorAlgorithm,'ExampleMonAlg')
 
     # You can actually make multiple instances of the same algorithm and give 
     # them different configurations
-    anotherExampleMonAlg = helper.addAlgorithm(ExampleMonitorAlgorithm,'AnotherExampleMonAlg')
+    anotherExampleMonAlg = helper.addAlgorithm(CompFactory.ExampleMonitorAlgorithm,'AnotherExampleMonAlg')
 
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 
@@ -84,8 +85,11 @@ def ExampleMonitoringConfig(inputFlags):
                             xbins=[0,.1,.2,.4,.8,1.6])
     myGroup.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
                             xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
-    # myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
-    #                         path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
+    myGroup.defineHistogram('pT_passed,pT', type='TEfficiency', title='Test TEfficiency;x;Eff',
+                            path='AndInTheDarkness', xbins=100, xmin=0.0, xmax=50.0)
+    myGroup.defineHistogram('pT_passed,pT,random', type='TEfficiency', title='Test TEfficiency 2D;x;y;Eff',
+                            path='AndInTheDarkness', xbins=100, xmin=0.0, xmax=50.0,
+                            ybins=10, ymin=0.0, ymax=2.0)
 
     anotherGroup.defineHistogram('lbWithFilter',title='Lumi;lb;Events',
                                  path='top',xbins=1000,xmin=-0.5,xmax=999.5)

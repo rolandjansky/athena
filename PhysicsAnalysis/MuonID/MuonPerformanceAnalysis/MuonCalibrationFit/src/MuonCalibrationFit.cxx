@@ -3,6 +3,7 @@
 */
 
 #include "MuonCalibrationFit/MuonCalibrationFit.h"
+#include "TMath.h" // for TMath::Prob()
 
 MuonCalibrationFit::MuonCalibrationFit( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm( name, pSvcLocator ) {
   //::: General properties
@@ -234,12 +235,12 @@ StatusCode MuonCalibrationFit::execute() {
     if( m_JpsiMass_Pts != "" && m_ZMass_Pts != "" ) {
       m_CurrentTemplate->AddMonitoredVariable( "Eta", "#eta", "#eta", 50, -2.5, 2.5 );
       m_CurrentTemplate->AddMonitoredVariable( "Pt", "p_{T}", "p_{T} [GeV]", 44, 6, 50, 57, 6, 120 );
-      m_CurrentTemplate->AddMonitoredVariable( "Phi", "#phi", "#phi", 50, -TMath::Pi(), TMath::Pi() );
-      m_CurrentTemplate->AddMonitoredVariable( "DeltaPhi", "#Delta #phi", "#Delta #phi", 50, 0, TMath::Pi() );
+      m_CurrentTemplate->AddMonitoredVariable( "Phi", "#phi", "#phi", 50, -M_PI, M_PI );
+      m_CurrentTemplate->AddMonitoredVariable( "DeltaPhi", "#Delta #phi", "#Delta #phi", 50, 0, M_PI );
       m_CurrentTemplate->AddMonitoredVariable( "DeltaEta", "#Delta #eta", "#Delta #eta", 50, 0, 5 );
       m_CurrentTemplate->AddMonitoredVariable( "PairPt", "p_{T}^{#mu#mu} [GeV]", "p_{T}^{#mu#mu} [GeV]", 50, 0, 50 );
       m_CurrentTemplate->AddMonitoredVariable( "PairEta", "#eta^{#mu#mu}", "#eta^{#mu#mu}", 50, -5, 5 );
-      m_CurrentTemplate->AddMonitoredVariable( "PairPhi", "#phi^{#mu#mu}", "#phi^{#mu#mu}", 50, -TMath::Pi(), TMath::Pi() );
+      m_CurrentTemplate->AddMonitoredVariable( "PairPhi", "#phi^{#mu#mu}", "#phi^{#mu#mu}", 50, -M_PI, M_PI );
     }
     if( m_ZRho_Pts     != "" ) m_CurrentTemplate->AddRhoZ( m_ZRho_Bins, m_ZRho_Min, m_ZRho_Max, GetVector( m_ZRho_Pts ) );
     m_OutputFile->cd();
@@ -765,7 +766,7 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
             ATH_MSG_DEBUG( "Eureka: alpha_pos[ " << var_index << " ] = " << alpha_pos[ var_index ] << "  ===>  pars[ var_index ] = " << pars[ var_index ] * ( 1. + alpha_pos[ var_index ] ) );
           }
           else {
-            float sf = sqrt( random_value.Uniform( 4 * m_Error, 9 * m_Error ) / TMath::Abs( Dist ) );
+            float sf = std::sqrt( random_value.Uniform( 4 * m_Error, 9 * m_Error ) / std::fabs( Dist ) );
             alpha_pos[ var_index ] *= sf;
           }
         }
@@ -799,7 +800,7 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
             ATH_MSG_DEBUG( "Eureka: alpha_neg[ " << var_index << " ] = " << alpha_neg[ var_index ] << "  ===>  pars[ var_index ] = " << pars[ var_index ] * ( 1. - alpha_neg[ var_index ] ) );
           }
           else {
-            alpha_neg[ var_index ] *= sqrt( random_value.Uniform( 4 * m_Error, 9 * m_Error ) / TMath::Abs( Dist ) );
+            alpha_neg[ var_index ] *= std::sqrt( random_value.Uniform( 4 * m_Error, 9 * m_Error ) / std::fabs( Dist ) );
             if( m_PosDef[ var_index ] && pars[ var_index ] * ( 1. - alpha_neg[ var_index ] ) < 0 ) {
               ATH_MSG_DEBUG( "Ouch! alpha_neg = " << alpha_neg[ var_index ] << ", temp_pars[ var_index ] = " << pars[ var_index ] * ( 1. - alpha_neg[ var_index ] ) );
               found = kTRUE;
@@ -814,7 +815,7 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
       double scanCenter[ Par::N ], scanSteps[ Par::N ], errors_up[ Par::N ], errors_low[ Par::N ];
       for( int the_index = 0; the_index < Par::N; the_index++ ) {
         scanCenter[ the_index ] = pars[ the_index ] * ( 2 + final_alpha_pos[ the_index ] - final_alpha_neg[ the_index ] ) / 2.;
-        scanSteps[ the_index ] = fabs( pars[ the_index ] * ( final_alpha_pos[ the_index ] + final_alpha_neg[ the_index ] ) / 20. );
+        scanSteps[ the_index ] = std::fabs( pars[ the_index ] * ( final_alpha_pos[ the_index ] + final_alpha_neg[ the_index ] ) / 20. );
       }
       bool NewMinimumFound = kFALSE;
       for( int the_index = 0; the_index < Par::N; the_index++ ) {
@@ -844,13 +845,13 @@ bool MuonCalibrationFit::RunMinimizationStep( std::string what, int times ) {
           if( previousY - m_GlobalMinimum > m_Error && currentY - m_GlobalMinimum < m_Error ) {
             double interY = m_GlobalMinimum + m_Error;
             double interX = ( currentX * ( previousY - interY ) + previousX * ( interY - currentY ) ) / ( previousY - currentY );
-            error_left = fabs( interX - pars[ the_index ] );
+            error_left = std::fabs( interX - pars[ the_index ] );
           }
           //::: Case 3: previous sampling < m_Error and current > m_Error
           if( previousY - m_GlobalMinimum < m_Error && currentY - m_GlobalMinimum > m_Error ) {
             double interY = m_GlobalMinimum + m_Error;
             double interX = ( currentX * ( previousY - interY ) + previousX * ( interY - currentY ) ) / ( previousY - currentY );
-            error_right = fabs( interX - pars[ the_index ] );
+            error_right = std::fabs( interX - pars[ the_index ] );
           }
           previousX = currentX;
           previousY = currentY;
@@ -998,7 +999,6 @@ void MuonCalibrationFit::UpdateTemplates( const double* par ) {
   TRandom3 rand_gen( 2988100123 );
   for( Tools::Info theInfo : *m_MonteCarloSingleInfo ) {
     if( ! theInfo.IsOS ) continue;
-    //std::cout << "GREP ME ====== " << int( TMath::Abs( theInfo.Gamma ) * 1000000 ) << std::endl;
     for( int index = 0; index < m_NumRandomValues; index++ ) {
       double rnd = rand_gen.Gaus( 0, 1 );
       float pt_for_binning = ( theInfo.GetMass() < 10 ) ? std::min( theInfo.Corr_First_Mu_pt( par, rnd ), theInfo.Second_Mu_pt ) : std::max( theInfo.Corr_First_Mu_pt( par, rnd ), theInfo.Second_Mu_pt );
@@ -1020,8 +1020,6 @@ void MuonCalibrationFit::UpdateTemplates( const double* par ) {
   //::: Double Muon Correction
   for( Tools::Info theInfo : *m_MonteCarloBothInfo ) {
     if( ! theInfo.IsOS ) continue;
-    //std::cout << "GREP ME ====== " << int( TMath::Abs( theInfo.Gamma ) * 1000000 ) << std::endl;
-    //TRandom2 rand_gen( int( TMath::Abs( theInfo.Gamma ) * 1000000 ) );
     for( int index = 0; index < m_NumRandomValues; index++ ) {
       double rnd1 = rand_gen.Gaus( 0, 1 );
       double rnd2 = rand_gen.Gaus( 0, 1 );
@@ -1056,7 +1054,7 @@ void MuonCalibrationFit::UpdateTemplates( const double* par ) {
 void MuonCalibrationFit::FoldParameters( const double* fit_pars, const double* fit_errs, double* pars, double* errs ) {
   for( int index = 0; index < Par::N; index++ ) {
     if( m_PosDef[ index ] ) {
-      pars[ index ] = TMath::Abs( fit_pars[ index ] );
+      pars[ index ] = std::fabs( fit_pars[ index ] );
     }
     else { 
       pars[ index ] = fit_pars[ index ];
@@ -1121,33 +1119,3 @@ void MuonCalibrationFit::SetParameters( ROOT::Math::Minimizer* Minim, bool forSc
   }
 }
 
-/*
-float MuonCalibrationFit::GetTruth( float eta, int par ) {
-  if( par == Par::s0 ) {
-    TF1 func( "func", "0.", -2.5, 2.5 ); 
-    return func.Eval( eta );
-  }
-  if( par == Par::s1 ) {
-    TF1 func( "func", "0.01 * TMath::Sin( 2 * x ) / ( x + 5 )", -2.5, 2.5 );
-    return func.Eval( eta );
-    //return -0.001;
-  }
-  if( par == Par::p0 ) {
-    TF1 func( "func", "0.", -2.5, 2.5 ); 
-    return func.Eval( eta );
-  }
-  if( par == Par::p1 ) {
-    TF1 func( "func", "0.002 + 0.01 * TMath::Exp( - TMath::Power( x * 0.5, 2 ) )", -2.5, 2.5 );
-    return func.Eval( eta );
-    //return 0.01;
-  }
-  if( par == Par::p2 ) {
-    TF1 func( "func", "0.00016 * ( 2 + TMath::Erf( x ) )", -2.5, 2.5 );
-    return func.Eval( eta );
-    //return 0.0005;
-  }
-  else {
-    return -666.;
-  }
-}
-*/

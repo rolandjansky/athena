@@ -12,12 +12,10 @@
 #ifndef TRIGCONFSTORAGE_JSONFILELOADER_H
 #define TRIGCONFSTORAGE_JSONFILELOADER_H
 
-#include "GaudiKernel/StatusCode.h"
+#include "TrigConfBase/TrigConfMessaging.h"
+#include "TrigConfData/DataStructure.h"
 
 #include "boost/property_tree/ptree.hpp"
-#include "TrigConfBase/TrigConfMessaging.h"
-
-#include "TrigConfData/DataStructure.h"
 
 namespace TrigConf {
 
@@ -49,9 +47,9 @@ namespace TrigConf {
        *    fileLoader.loadFile( l1_filename, metSignificance, "CaloInfo.METSignificance");
        @endcode
        */
-      StatusCode loadFile( const std::string & filename,
-                           boost::property_tree::ptree & data,
-                           const std::string & pathToChild = "") const;
+      bool loadFile( const std::string & filename,
+                     boost::property_tree::ptree & data,
+                     const std::string & pathToChild = "") const;
 
       /**
        * @brief Load content of json file into a ptree
@@ -59,9 +57,9 @@ namespace TrigConf {
        * @param data [out] 
        * @param pathToChild [in] Path to a sub structure for partial loading of data
        */
-      StatusCode loadFile( const std::string & filename,
-                           DataStructure & data,
-                           const std::string & pathToChild = "") const;
+      bool loadFile( const std::string & filename,
+                     DataStructure & data,
+                     const std::string & pathToChild = "") const;
 
 
       /**
@@ -75,12 +73,15 @@ namespace TrigConf {
        * @param filename [in] Name of the json file
        * @param level [out] either "L1", "HLT" or "UNKNOWN"
        */
-      StatusCode checkTriggerLevel( const std::string & filename,
-                                    std::string & level ) const;
+      bool checkTriggerLevel( const std::string & filename,
+                              std::string & level ) const;
 
       void setLevel(MSGTC::Level lvl) { msg().setLevel(lvl); }
 
       MSGTC::Level outputLevel() const { return msg().level(); }
+
+   private:
+      std::string findFile(const std::string & filename) const;
 
    };
 

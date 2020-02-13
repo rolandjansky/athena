@@ -1,13 +1,14 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 if not 'doHLTCaloTopo' in dir() :
   doHLTCaloTopo=True
 if not 'doL2Egamma' in dir():
   doL2Egamma=True
-
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()

@@ -1,11 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.NeuralNetworkToHistoToolConfig import NeuralNetworkToHistoToolCfg
 
 # import the JetFitterNNTool configurable
-from JetTagTools.JetTagToolsConf import Analysis__JetFitterNNTool
+Analysis__JetFitterNNTool=CompFactory.Analysis__JetFitterNNTool
 
 def JetFitterNNToolCfg( name = 'JetFitterNNTool', CombinedIPNN = False, useBTagFlagsDefaults = True, **options ):
     """Sets up a JetFitterNNTool tool and returns it.

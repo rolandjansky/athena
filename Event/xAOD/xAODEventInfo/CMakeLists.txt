@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 744185 2016-05-02 09:31:12Z krasznaa $
 ################################################################################
 # Package: xAODEventInfo
 ################################################################################
@@ -36,7 +35,7 @@ atlas_add_test( ut_xaodeventinfo_evtstore_test
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEventInfo
    PROPERTIES TIMEOUT 300
-   EXTRA_PATTERNS "[0-9]+ bytes" )
+   LOG_IGNORE_PATTERN "[0-9]+ bytes" )
 
 atlas_add_test( ut_xaodeventinfo_printop_test
    SOURCES test/ut_xaodeventinfo_printop_test.cxx

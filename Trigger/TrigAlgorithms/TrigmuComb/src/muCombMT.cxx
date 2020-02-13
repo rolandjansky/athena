@@ -24,7 +24,7 @@
 #include "xAODTrigMuon/L2CombinedMuonAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrigSiSpacePointTool/ISpacePointProvider.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 class ISvcLocator;

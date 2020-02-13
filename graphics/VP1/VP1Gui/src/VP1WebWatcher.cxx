@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////
@@ -39,13 +39,14 @@ public:
   class HttpThread : public QThread {
   public:
     //________________________________________
-    HttpThread(const QString& url, VP1WebWatcher*ww )
+    HttpThread(const QString& url, VP1WebWatcher*/*ww*/ )
       : QThread(),
 	m_url(url),
 	m_result(VP1WebWatcher_ResultNotReady),
-	m_httpStartTime(0),
-        // m_http(0),
-	m_watcher(ww) {}
+	m_httpStartTime(0)
+        // m_http(0)
+    {
+    }
 
     //________________________________________
     ~HttpThread() { /*delete m_http;*/ }
@@ -128,7 +129,6 @@ public:
     QString m_result;
     unsigned m_httpStartTime;
     // QHttp * m_http;
-    VP1WebWatcher* m_watcher;
   };
 
   //___________________________________________________________________

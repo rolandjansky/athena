@@ -6,14 +6,13 @@
 #define TRIGMETMONITORING_TRIGMETMONITORALGORITHM_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODTrigger/EnergySumRoI.h" 
 #include "xAODTrigMissingET/TrigMissingETContainer.h" 
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h" 
 
-//#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
 
 class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
@@ -30,8 +29,10 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_mht_met_key;
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_tc_met_key;
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_tcpufit_met_key;
+  SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_trkmht_met_key;
 
-
+  ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool;
+  
 
 };
 #endif

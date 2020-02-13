@@ -374,17 +374,17 @@ svcMgr.EventSelector.RunNumber = runArgs.runNumber
 
 ## Include information about generators in metadata
 import EventInfoMgt.EventInfoMgtInit
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["lhefGenerator", '+'.join( filter( gens_lhef, gennames ) ) ]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["generators", '+'.join(gennames)]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenProcess", evgenConfig.process]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenTune", evgenConfig.tune]
-if hasattr( evgenConfig, "hardPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["hardPDF", evgenConfig.hardPDF]
-if hasattr( evgenConfig, "softPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["softPDF", evgenConfig.softPDF]
-if hasattr( runArgs, "randomSeed") :  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["randomSeed", str(runArgs.randomSeed)]
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"lhefGenerator" : '+'.join( filter( gens_lhef, gennames ) ),
+                                             "generators"    : '+'.join(gennames),
+                                             "evgenProcess"  : evgenConfig.process,
+                                             "evgenTune"     : evgenConfig.tune,
+                                             "beam_energy"   : str(int(runArgs.ecmEnergy*Units.GeV/2.0)),
+                                             "beam_type"     : 'collisions',
+                                         })
 
-## Handle beam info
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(int(runArgs.ecmEnergy*Units.GeV/2.0))]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", 'collisions']
+if hasattr( evgenConfig, "hardPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"hardPDF" : evgenConfig.hardPDF})
+if hasattr( evgenConfig, "softPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"softPDF" : evgenConfig.softPDF})
+if hasattr( runArgs, "randomSeed") :  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"randomSeed" : str(runArgs.randomSeed)})
 
 ## Propagate energy argument to the generators
 # TODO: Standardise energy setting in the GenModule interface
@@ -394,7 +394,7 @@ include("EvgenJobTransforms/Generate_ecmenergies.py")
 include("EvgenJobTransforms/Generate_randomseeds.py")
 
 ## Add special config option (extended model info for BSM scenarios)
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["specialConfiguration", evgenConfig.specialConfig ]
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"specialConfiguration" : evgenConfig.specialConfig})
 
 ## Remove TestHepMC if it's inappropriate for this generator combination
 # TODO: replace with direct del statements in the generator common JO fragments?

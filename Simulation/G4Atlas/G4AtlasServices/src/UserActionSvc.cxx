@@ -148,4 +148,12 @@ namespace G4UA
     return StatusCode::SUCCESS;
   }
 
+  // For ISF, get UserActions that could have stored secondary particles
+  StatusCode UserActionSvc::getSecondaryActions( std::vector< G4UserSteppingAction* >& actions ) {
+
+    // Only stepping actions can return secondaries? Maybe turn this into a templated method
+    actions = m_steppingActions.get()->getActions();
+
+    return StatusCode::SUCCESS;
+  }
 } // namespace G4UA

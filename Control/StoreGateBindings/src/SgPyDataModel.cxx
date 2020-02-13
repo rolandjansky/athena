@@ -193,7 +193,12 @@ namespace SG {
   {
     // Don't do this if don't have a valid thread state.
     // (With py3, the interpreter gets shut down before global dtors run...)
-    if (PyThreadState_GET()) {
+#if PY_VERSION_HEX >= 0x03000000
+    if (_PyThreadState_UncheckedGet())
+#else
+    if (PyThreadState_GET())
+#endif
+    {
       Py_DECREF(m_aliases);
       Py_DECREF(m_clids);
     }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Getter for LArDigit from LArHit for MC digitization
 
@@ -31,7 +31,6 @@ class LArDigitGetter (Configured) :
                 job.PileUpToolsAlg.PileUpTools["LArPileUpTool"].DoDigiTruthReconstruction = digitizationFlags.doDigiTruth()
             else:
                 # Defined in LArDigitizationConfig.py
-                print "call CfgGetter for digitmaker1 "
                 job += CfgGetter.getAlgorithm("digitmaker1", tryDefaultConfigurable=True)
                 job.digitmaker1.LArPileUpTool.DigitContainer = self.outputKey()
                 job.digitmaker1.LArPileUpTool.DigitContainer_DigiHSTruth = self.outputKey_DigiHSTruth()
@@ -46,9 +45,10 @@ class LArDigitGetter (Configured) :
                     ServiceMgr.PileUpMergeSvc.Intervals += [ CfgGetter.getPrivateTool("LArRangeEM", checkType=True) ]
                     ServiceMgr.PileUpMergeSvc.Intervals += [ CfgGetter.getPrivateTool("LArRangeHEC", checkType=True) ]
                     ServiceMgr.PileUpMergeSvc.Intervals += [ CfgGetter.getPrivateTool("LArRangeFCAL", checkType=True) ]
-        except Exception as configException:
-            print configException
-            print "ERROR Problem with configuration"
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            mlog.error ("ERROR Problem with configuration")
         
         return True
 

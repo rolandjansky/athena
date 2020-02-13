@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ helpers for slice flags manipulations """
 class CommonSliceHelper:
@@ -128,7 +128,7 @@ class Bag:
     def __eq__(self, arg):
         if type(arg)==list or type(arg)==tuple or type(arg)==set:
             
-            notContained = [a for a in arg if not a in self]
+            notContained = [a for a in arg if a not in self]
 
             if len(notContained)==0: return True
 

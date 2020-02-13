@@ -86,6 +86,8 @@ void execute() {
 
 int main() {
 
+   std::cout << "xAODCore/auxbase_threading_test\n";
+
    /// The number of threads to use in the test
    static const int THREADS = 4;
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 import os
@@ -164,7 +164,7 @@ def getLimits(name):
         else:
             low_limit = 1
             hi_limit = max_hi_limit
-    except Exception, e:
+    except Exception as e:
         logging.warning('Could not determine limits because: %s', e)
         low_limit = 1
         hi_limit = 4294967295
@@ -328,7 +328,7 @@ def ctp_defects(d, i, runNumber):
 
     # loop over error bin numbers defined in dict above
     for errorBin in mapping:
-        bad_lbs[errorBin] = [bin for bin in xrange(1, when.GetNbinsX(
+        bad_lbs[errorBin] = [bin for bin in range(1, when.GetNbinsX(
         )+1) if when.GetBinContent(bin, errorBin) > 0]  # fix this line, slicing in Y? is that it?
         overflow_bad_lbs[errorBin] = (
             when.GetBinContent(when.GetNbinsX()+1, errorBin) > 0)
@@ -404,7 +404,7 @@ def sct_perlb_defects(d, i, runNumber):
         foundany = True
 
     # extract bad bins
-        bad_lbs[dname] = [bin for bin in xrange(
+        bad_lbs[dname] = [bin for bin in range(
             1, when.GetNbinsX()+1) if policy(when.GetBinContent(bin))]
         overflow_bad_lbs[dname] = policy(
             when.GetBinContent(when.GetNbinsX()+1))
@@ -539,7 +539,7 @@ def hancool_defects(runNumber, filePath="./", dbConnection="", db_tag='HEAD', is
         since, until = getLimits(filename)
         try:
             defects += pix_defect.execute(runNumber, globname, until-1)
-        except Exception, e:
+        except Exception as e:
             logging.warning('Unable to execute pixel hancool code')
             logging.warning('--> %s: %s', type(e).__name__, e)
 

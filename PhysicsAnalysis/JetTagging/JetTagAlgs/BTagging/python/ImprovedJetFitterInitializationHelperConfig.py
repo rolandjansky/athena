@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 from BTagging.JetFitterFullLinearizedTrackFactoryConfig import JetFitterFullLinearizedTrackFactoryCfg
-from TrkJetVxFitter.TrkJetVxFitterConf import Trk__JetFitterInitializationHelper
+Trk__JetFitterInitializationHelper=CompFactory.Trk__JetFitterInitializationHelper
 
 def ImprovedJetFitterInitializationHelperCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a ImprovedJetFitterInitializationHelper tool and returns it.

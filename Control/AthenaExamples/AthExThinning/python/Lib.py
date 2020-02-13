@@ -167,7 +167,7 @@ class PyWriteThinnedData( PyAthena.Alg ):
             self.msg.info( "%9s | %s", (i+1)*10, kr )
         self.msg.info( "="*19 )
 
-        filter[len(filter)/2:] = [True]*(len(filter)/2)
+        filter[len(filter)//2:] = [True]*(len(filter)//2)
         self.msg.info( "Filter %r", filter )
 
         self.msg.info( "... Processing [pre-thinning] ..." )
@@ -184,7 +184,7 @@ class PyWriteThinnedData( PyAthena.Alg ):
             self.msg.info( " idx %i -> %s", i, newIdx )
 
         filter = self.filter[:]
-        filter[:len(filter)/2] = [True]*(len(filter)/2)
+        filter[:len(filter)//2] = [True]*(len(filter)//2)
         self.msg.info( "Filter %r", filter )
         
         self.msg.info( "... Processing [thinning] ..." )
@@ -210,7 +210,7 @@ class PyWriteThinnedData( PyAthena.Alg ):
             self.msg.info( "%9s | %s", (i+1)*10, kr )
         self.msg.info( "="*19 )
 
-        filter[len(filter)/2:] = [False]*(len(filter)/2)
+        filter[len(filter)//2:] = [False]*(len(filter)//2)
         self.msg.info( "Filter %s", filter )
 
         self.msg.info( "... Processing [pre-thinning] ..." )
@@ -225,7 +225,7 @@ class PyWriteThinnedData( PyAthena.Alg ):
             self.msg.info( " idx %i -> %s", i, newIdx )
 
         filter = self.filter[:]
-        filter[:len(filter)/2] = [False]*(len(filter)/2)
+        filter[:len(filter)//2] = [False]*(len(filter)//2)
         self.msg.info( "Filter %s", filter )
         
         self.msg.info( "... Processing [thinning] ..." )
@@ -251,7 +251,7 @@ class PyWriteThinnedData( PyAthena.Alg ):
             self.msg.info( "%9s | %s", (i+1)*10, kr )
         self.msg.info( "="*19 )
 
-        filter[len(filter)/2:] = [True]*(len(filter)/2)
+        filter[len(filter)//2:] = [True]*(len(filter)//2)
         self.msg.info( "Filter %r", filter )
 
         self.msg.info( "... Processing [pre-thinning] ..." )
@@ -266,7 +266,7 @@ class PyWriteThinnedData( PyAthena.Alg ):
             self.msg.info( " idx %i -> %s", i, newIdx )
 
         filter = self.filter[:]
-        filter[:len(filter)/2] = [True]*(len(filter)/2)
+        filter[:len(filter)//2] = [True]*(len(filter)//2)
         self.msg.info( "Filter %r", filter )
         
         self.msg.info( "... Processing [thinning] ..." )

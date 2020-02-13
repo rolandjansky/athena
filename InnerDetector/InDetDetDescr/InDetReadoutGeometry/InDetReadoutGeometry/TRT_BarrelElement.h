@@ -53,7 +53,11 @@ namespace InDetDD {
 		      unsigned int phiIndex, 
 		      unsigned int strawLayIndex,
 		      const TRT_ID * idHelper,
-		      const TRT_Conditions * conditions);
+		      const TRT_Conditions * conditions,
+                      const GeoAlignmentStore* geoAlignStore=nullptr);
+
+
+    TRT_BarrelElement(const TRT_BarrelElement &right, const GeoAlignmentStore* geoAlignStore);
     
     /** Destructor: */
     virtual ~TRT_BarrelElement();

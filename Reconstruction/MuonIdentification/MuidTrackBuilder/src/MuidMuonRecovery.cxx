@@ -19,22 +19,17 @@
 #include <vector>
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuidTrackBuilder/MuidMuonRecovery.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkEventPrimitives/ResidualPull.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkSurfaces/PlaneSurface.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkSegment/SegmentCollection.h"
@@ -48,11 +43,6 @@ MuidMuonRecovery::MuidMuonRecovery (const std::string&	type,
 				    const std::string&	name, 
 				    const IInterface*	parent)
     :	AthAlgTool		(type, name, parent),
-	m_extrapolator          ("Trk::Extrapolator/AtlasExtrapolator"),
-	m_idHelper              ("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-	m_printer               ("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-	m_residualCalculator    ("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-	m_trackBuilder		("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"),
 	m_minP			(10.*Gaudi::Units::GeV),
 	m_minPt			(5.*Gaudi::Units::GeV),
 	m_recoveryAttempts	(0),
@@ -60,8 +50,6 @@ MuidMuonRecovery::MuidMuonRecovery (const std::string&	type,
 	m_recoverySuccess	(0)
 {
     declareInterface<IMuidMuonRecovery>(this);
-    declareProperty("Extrapolator",		m_extrapolator);
-    declareProperty("TrackBuilder",		m_trackBuilder);
     declareProperty("MinP",			m_minP);
     declareProperty("MinPt",			m_minPt);
     declareProperty("PullCut",			m_pullCut = 5);
@@ -96,14 +84,14 @@ MuidMuonRecovery::initialize()
     {
 	ATH_MSG_INFO( "Retrieved tool " << m_edmHelperSvc );
     }
-    if (m_idHelper.retrieve().isFailure())
+    if (m_muonIdHelperSvc.retrieve().isFailure())
     {
-	ATH_MSG_FATAL( "Failed to retrieve tool " << m_idHelper );
+	ATH_MSG_FATAL( "Failed to retrieve tool " << m_muonIdHelperSvc );
 	return StatusCode::FAILURE;
     }
     else
     {
-	ATH_MSG_INFO( "Retrieved tool " << m_idHelper );
+	ATH_MSG_INFO( "Retrieved tool " << m_muonIdHelperSvc );
     }
     if (m_printer.retrieve().isFailure())
     {
@@ -203,21 +191,21 @@ MuidMuonRecovery::recoverableMatch (const Trk::Track& indetTrack,
 	
 	Identifier id = m_edmHelperSvc->getIdentifier(*meas);
 	if ( !id.is_valid() ) continue;
-	Muon::MuonStationIndex::StIndex index = m_idHelper->stationIndex(id);
-	bool measuresPhi = m_idHelper->measuresPhi(id);
+	Muon::MuonStationIndex::StIndex index = m_muonIdHelperSvc->stationIndex(id);
+	bool measuresPhi = m_muonIdHelperSvc->measuresPhi(id);
 	++nmeas;
 
 	if ( measuresPhi )
 	{
 	    if ( phiIndices.count(index) ) continue;
-	    ATH_MSG_DEBUG("Adding phi station " << m_idHelper->toString(id));
+	    ATH_MSG_DEBUG("Adding phi station " << m_muonIdHelperSvc->toString(id));
 	    phiIndices.insert(index);
 	}
-	else if (m_idHelper->isMdt(id) || (m_idHelper->isCsc(id) ) )
+	else if (m_muonIdHelperSvc->isMdt(id) || (m_muonIdHelperSvc->isCsc(id) ) )
 	{
 	    if ( etaIndices.count(index) ) continue;
 	  
-	    ATH_MSG_DEBUG("Adding eta station " << m_idHelper->toString(id));
+	    ATH_MSG_DEBUG("Adding eta station " << m_muonIdHelperSvc->toString(id));
 	    etaIndices.insert(index);
 	}
 	else
@@ -241,13 +229,13 @@ MuidMuonRecovery::recoverableMatch (const Trk::Track& indetTrack,
 	}
 	if ( ! exPars )
 	{
-	    ATH_MSG_DEBUG("Failed to extrapolate to station" << m_idHelper->toStringChamber(id) );
+	    ATH_MSG_DEBUG("Failed to extrapolate to station" << m_muonIdHelperSvc->toStringChamber(id) );
 	    continue;
 	}
 	const Trk::ResidualPull* res = m_residualCalculator->residualPull( meas,
 									   exPars,
 									   Trk::ResidualPull::Unbiased );
-	ATH_MSG_DEBUG(" " << m_idHelper->toStringChamber(id) << "  residual " << m_printer->print(*res));
+	ATH_MSG_DEBUG(" " << m_muonIdHelperSvc->toStringChamber(id) << "  residual " << m_printer->print(*res));
 	if ( fabs(res->pull().front()) > m_pullCut )
 	{
 	    if ( measuresPhi )
@@ -264,10 +252,10 @@ MuidMuonRecovery::recoverableMatch (const Trk::Track& indetTrack,
 if (msgLvl(MSG::DEBUG)) 
     {
 
-	if ( !m_idHelper->measuresPhi(id) )
+	if ( !m_muonIdHelperSvc->measuresPhi(id) )
        	{
 	    const MuonGM::MuonReadoutElement* detEl = 0;
-	    if ( m_idHelper->isMdt(id) )
+	    if ( m_muonIdHelperSvc->isMdt(id) )
 	    {
 		const Muon::MdtDriftCircleOnTrack* mdt =
 		    dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(meas);
@@ -276,7 +264,7 @@ if (msgLvl(MSG::DEBUG))
 		    detEl = mdt->detectorElement();
 		}
 	    }
-	    else if ( m_idHelper->isCsc(id) )
+	    else if ( m_muonIdHelperSvc->isCsc(id) )
 	    {
 		const Muon::CscClusterOnTrack* csc =
 		    dynamic_cast<const Muon::CscClusterOnTrack*>(meas);
@@ -372,8 +360,8 @@ if (msgLvl(MSG::DEBUG))
     
 	Identifier id = m_edmHelperSvc->getIdentifier(*meas);
 	if ( !id.is_valid() ) continue;
-	Muon::MuonStationIndex::StIndex index = m_idHelper->stationIndex(id);
-	bool measuresPhi = m_idHelper->measuresPhi(id);
+	Muon::MuonStationIndex::StIndex index = m_muonIdHelperSvc->stationIndex(id);
+	bool measuresPhi = m_muonIdHelperSvc->measuresPhi(id);
 	if ( cleanEta && !measuresPhi && badEtaIndices.count(index) ) continue;
 	if ( cleanPhi &&  measuresPhi && badPhiIndices.count(index) ) continue;
 	spectrometerMeasurements.push_back(meas);

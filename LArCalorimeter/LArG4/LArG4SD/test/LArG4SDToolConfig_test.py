@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  ConfigFlags.Sim.ISF.Run = True
+  ConfigFlags.Sim.ISFRun = True
 
   #Provide input
   from AthenaConfiguration.TestDefaults import defaultTestFiles
@@ -68,6 +68,7 @@ if __name__ == '__main__':
   #cfg.setPrivateTools(tool5)
 
   acc6 = LArDeadSensitiveDetectorToolCfg(ConfigFlags)
+  tool6 = cfg.popToolsAndMerge(acc6)
   #cfg.setPrivateTools(toolDeadSensitiveDetector)
 
   toolActiveSensitiveDetector = LArActiveSensitiveDetectorToolCfg(ConfigFlags)

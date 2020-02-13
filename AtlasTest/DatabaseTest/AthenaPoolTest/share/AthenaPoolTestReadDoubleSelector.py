@@ -33,8 +33,11 @@ import AthenaPoolCnvSvc.ReadAthenaPoolDouble
 #--------------------------------------------------------------
 
 # Add in DoubleEventSelector
-svcMgr.DoubleEventSelector.PrimaryInputCollections = [ "SimplePoolFile1.root" ]
-svcMgr.DoubleEventSelector.SecondaryaryInputCollections = [ "SimplePoolFile2.root" ]
+svcMgr.DoubleEventSelector.InputCollections = [ "SimplePoolFile1.root" ]
+svcMgr.SecondaryEventSelector.InputCollections = [ "SimplePoolFile2.root" ]
+
+svcMgr.DoubleEventSelector.OutputLevel = DEBUG
+svcMgr.SecondaryEventSelector.OutputLevel = DEBUG
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -51,13 +54,14 @@ topSequence += AthenaPoolTestDataReader( "AthenaPoolTestDataReader" )
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
-svcMgr.MessageSvc = Service( "MessageSvc" )
 svcMgr.MessageSvc.OutputLevel = WARNING
 svcMgr.MessageSvc.debugLimit  = 100000
 AthenaPoolTestDataReader.OutputLevel = DEBUG
 
-AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
-AthenaEventLoopMgr.OutputLevel = DEBUG
+from AthenaServices import AthenaServicesConf
+AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()
+AthenaEventLoopMgr.UseSecondaryEventNumber = True
+svcMgr += AthenaEventLoopMgr
 
 # Turn on the tree cache for the CollectionTree - tree cache only
 # works for one tree. And set tree cache size - default is 10 MB (10 000 000)

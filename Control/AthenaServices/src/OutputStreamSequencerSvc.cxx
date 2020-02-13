@@ -55,6 +55,9 @@ StatusCode OutputStreamSequencerSvc::initialize() {
    } else {
       ATH_MSG_VERBOSE("Sequential events mode");
    }
+
+   m_finishedRange = m_fnToRangeId.end();
+
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -119,7 +122,7 @@ void OutputStreamSequencerSvc::handle(const Incident& inc)
 }
 
 //__________________________________________________________________________
-std::string OutputStreamSequencerSvc::buildSequenceFileName(const std::string& orgFileName) const
+std::string OutputStreamSequencerSvc::buildSequenceFileName(const std::string& orgFileName)
 {
    if( !inUse() ) {
       // Event sequences not in use, just return the original filename
@@ -134,5 +137,23 @@ std::string OutputStreamSequencerSvc::buildSequenceFileName(const std::string& o
    }
    std::ostringstream n;
    n << fileNameCore << "." << m_currentRangeID << fileNameExt;
+   m_fnToRangeId.insert(std::pair<std::string,std::string>(n.str(),m_currentRangeID));
+
    return n.str();
+}
+
+void OutputStreamSequencerSvc::publishRangeReport(const std::string& outputFile)
+{
+  m_finishedRange = m_fnToRangeId.find(outputFile);
+}
+
+OutputStreamSequencerSvc::RangeReport_ptr OutputStreamSequencerSvc::getRangeReport()
+{
+  RangeReport_ptr report;
+  if(m_finishedRange!=m_fnToRangeId.end()) {
+    report = std::make_unique<RangeReport_t>(m_finishedRange->second,m_finishedRange->first);
+    m_fnToRangeId.erase(m_finishedRange);
+    m_finishedRange=m_fnToRangeId.end();
+  }
+  return report;
 }

@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from LArG4FCAL.LArG4FCALConf import LArFCALCalculatorBase
-from LArG4FCAL.LArG4FCALConf import LArG4__FCAL__LArFCALCalibCalculatorBase
+from AthenaConfiguration.ComponentFactory import CompFactory
+LArFCALCalculatorBase=CompFactory.LArFCALCalculatorBase
+LArG4__FCAL__LArFCALCalibCalculatorBase=CompFactory.LArG4__FCAL__LArFCALCalibCalculatorBase
 from AthenaCommon.SystemOfUnits import mm,deg,ns
 import math
 

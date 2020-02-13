@@ -13,6 +13,7 @@
 
 #include "Identifier/Identifier.h"
 
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 class MsgStream;
@@ -23,10 +24,6 @@ namespace Muon {
   class MuonEDMPrinterTool;
   class MuonSegment;
   
-}
-
-namespace MuonGM {
-  class MuonDetectorManager;
 }
 
 namespace Muon {
@@ -59,7 +56,10 @@ namespace Muon {
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;          //!< EDM printer tool
-    const MuonGM::MuonDetectorManager* m_detMgr;
+
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
 
     double m_positionAlongTubeCut; //!< cut on the distance from the tube wall use for hole count
     double m_lowerADCBound; //!< lower bound for good MDT hits

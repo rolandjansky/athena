@@ -5,10 +5,9 @@
 # Purpose: Configure LuminosityCondAlg.
 #
 
-
 from __future__ import print_function
 
-
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from AthenaCommon.Logging import logging
@@ -43,8 +42,8 @@ def LuminosityCondAlgCfg (configFlags, useOnlineLumi=None, suffix=None):
         log.warning ("LuminosityCondAlgCfg can't resolve database instance = %s, assume Run2!" % configFlags.IOVDb.DatabaseInstance)
         kwargs = luminosityCondAlgRun2Cfg (configFlags, name, result)
 
-    from LumiBlockComps.LumiBlockCompsConf import \
-        LuminosityCondAlg
+    LuminosityCondAlg=CompFactory.LuminosityCondAlg
+
     alg = LuminosityCondAlg (name,
                              LuminosityOutputKey = 'LuminosityCondData' + suffix,
                              **kwargs)

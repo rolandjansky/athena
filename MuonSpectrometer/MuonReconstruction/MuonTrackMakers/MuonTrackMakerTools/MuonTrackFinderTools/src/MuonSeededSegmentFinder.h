@@ -17,6 +17,7 @@
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "TrkParameters/TrackParameters.h"
 
@@ -43,10 +44,6 @@ class MdtDriftCircleOnTrack;
 class MuonSegment;
 class IMuonSegmentMaker;
 class MdtPrepData;
-}
-
-namespace MuonGM {
-class MuonDetectorManager;
 }
 
 namespace Trk {
@@ -123,7 +120,9 @@ private:
       bool& doHoleSearch ) const;
 
 
-  const MuonGM::MuonDetectorManager*  m_detMgr;
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
 
   ToolHandle<Muon::IMuonSegmentMaker>              m_segMaker;           //!< actual segment maker with hole search
   ToolHandle<Muon::IMuonSegmentMaker>              m_segMakerNoHoles;    //!< actual segment maker no hole search

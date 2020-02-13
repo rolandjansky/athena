@@ -7,7 +7,6 @@
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonCalibTools/IdToFixedIdTool.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 

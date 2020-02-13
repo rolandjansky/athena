@@ -15,13 +15,13 @@ atlas_depends_on_subdirs( PRIVATE
 
 # External dependencies:
 find_package( Eigen )
-find_package( GeoModel )
+find_package( GeoModelCore )
 
 # Component(s) in the package:
 atlas_add_library( LArGeoTBBarrel
                    src/*.cxx
                    PUBLIC_HEADERS LArGeoTBBarrel
-                   PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} StoreGateLib SGtests
+                   PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoModelUtilities GaudiKernel LArGeoBarrel )
 

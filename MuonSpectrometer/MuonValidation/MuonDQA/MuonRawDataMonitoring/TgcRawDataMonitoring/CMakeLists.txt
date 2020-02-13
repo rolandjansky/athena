@@ -20,7 +20,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTrigger
-                          MuonSpectrometer/MuonDigitContainer
                           MuonSpectrometer/MuonRDO
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
                           Reconstruction/MuonIdentification/muonEvent
@@ -35,7 +34,7 @@ atlas_add_component( TgcRawDataMonitoring
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaMonitoringLib
-                     StoreGateLib SGtests MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData MuonTrigCoinData MuonDQAUtilsLib Identifier xAODEventInfo xAODMuon xAODTrigger MuonDigitContainer MuonRDO AnalysisTriggerEvent muonEvent TrigSteeringEvent TrigDecisionToolLib )
+                     StoreGateLib SGtests MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData MuonTrigCoinData MuonDQAUtilsLib Identifier xAODEventInfo xAODMuon xAODTrigger MuonRDO AnalysisTriggerEvent muonEvent TrigSteeringEvent TrigDecisionToolLib )
 
 
 # Install files from the package:

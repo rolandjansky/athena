@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Provide different utilities like:
@@ -6,6 +6,8 @@ Provide different utilities like:
   MemorySnooper = process memory monitoring tool
   _frozen = a base class / metaclass for making objects immutable
 """
+
+from __future__ import print_function
 
 __author__  = 'A. Dell`Acqua, M. Gallas, A. Di Simone'
 
@@ -73,7 +75,7 @@ class MemorySnooper(PyAthena.Alg):
         pid = os.getpid()
         statm = string.split(open('/proc/%d/statm' % pid, 'r').readlines()[0] )
         stat = string.split(open('/proc/%d/stat' % pid, 'r').readlines()[0] )
-        print '*** The Application is in %s with %d kB of VMMEM and %d kB of RSS' % (app_phase,int(stat[22])/1048.576, int(statm[1])*4)
+        print ('*** The Application is in %s with %d kB of VMMEM and %d kB of RSS' % (app_phase,int(stat[22])/1048.576, int(statm[1])*4))
         self.file.write("%d %d %d %f\n" %  (self.eventNumber, int(stat[22])/1048.576, int(statm[1])*4, elapsed_time) )
 
     def memcheck_reduced(self,app_phase):
@@ -93,7 +95,7 @@ class MemorySnooper(PyAthena.Alg):
         if (int(stat[22])/1048.576 != self.memoV or int(statm[0])*4 != self.memoR):
             self.memoV = int(stat[22])/1048.576
             self.memoR = int(statm[0])*4
-            print '*** The Application is in %s with %d kB of VMMEM and %d kB of RSS' % (app_phase,int(stat[22])/1048.576, int(statm[1])*4)
+            print ('*** The Application is in %s with %d kB of VMMEM and %d kB of RSS' % (app_phase,int(stat[22])/1048.576, int(statm[1])*4))
             self.file.write("%d %d %d %f\n" %  (self.eventNumber, int(stat[22])/1048.576, int(statm[1])*4, elapsed_time ) )
 
     def initialize(self, reinit=False):

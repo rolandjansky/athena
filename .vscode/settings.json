@@ -1,0 +1,7 @@
+{
+    "remote.SSH.defaultExtensions": [
+        "ms-vscode.cpptools",
+        "twxs.cmake"
+    ],
+    "remote.SSH.lockfilesInTmp": true
+}

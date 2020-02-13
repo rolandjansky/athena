@@ -4,6 +4,8 @@
 # Wouter van den Wollenberg (2013-2015)
 # E-mail: wouter.van.den.wollenberg@cern.ch, wwollenb@nikhef.nl
 
+from __future__ import print_function
+
 from BTagging.BTaggingFlags import BTaggingFlags
 from RecExConfig.RecFlags import rec
 
@@ -162,14 +164,14 @@ def createConfiguration(name = ""):
   """Create a new configuration instance with a given name and returns it."""
   global _BTaggingConfig_Configurations
   if name in _BTaggingConfig_Configurations:
-    print '#BTAG# - ERROR - Attempting to create a configuration instance with name "'+name+'" but this configuration already exists!'
+    print ('#BTAG# - ERROR - Attempting to create a configuration instance with name "'+name+'" but this configuration already exists!')
     raise ValueError
   NewConf = Configuration(name)
   _BTaggingConfig_Configurations[name] = NewConf
   if len(name) == 0:
-    print '#BTAG# - INFO - Default configuration instance created.'
+    print ('#BTAG# - INFO - Default configuration instance created.')
   else:
-    print '#BTAG# - INFO - Non-default configuration instance created: "'+name+'"'
+    print ('#BTAG# - INFO - Non-default configuration instance created: "'+name+'"')
   return NewConf
 
 class Configuration:
@@ -270,55 +272,55 @@ class Configuration:
     """Sets the configuration specific setting of the BTaggingFlags.OutputFilesPrefix."""
     self._OutputFilesPrefix = Setting
     if Verbose:
-      print self.BTagTag()+' - DEBUG - Setting OutputFilesPrefix to '+str(Setting)
+      print (self.BTagTag()+' - DEBUG - Setting OutputFilesPrefix to '+str(Setting))
 
   def setOutputFilesSVname(self, Setting, Verbose=True):
     """Sets the configuration specific setting of the BTaggingFlags.OutputFilesSVname."""
     self._OutputFilesSVname = Setting
     if Verbose:
-      print self.BTagTag()+' - DEBUG - Setting OutputFilesSVname to '+str(Setting)
+      print (self.BTagTag()+' - DEBUG - Setting OutputFilesSVname to '+str(Setting))
 
   def setOutputFilesJFVxname(self, Setting, Verbose=True):
     """Sets the configuration specific setting of the BTaggingFlags.OutputFilesJFVxname."""
     self._OutputFilesJFVxname = Setting
     if Verbose:
-      print self.BTagTag()+' - DEBUG - Setting OutputFilesJFVxname to '+str(Setting)
+      print (self.BTagTag()+' - DEBUG - Setting OutputFilesJFVxname to '+str(Setting))
 
   def setOutputFilesBaseName(self, Setting, Verbose=True):
     """Sets the configuration specific setting of the BTaggingFlags.OutputFilesBaseName."""
     self._OutputFilesBaseName = Setting
     if Verbose:
-      print self.BTagTag()+' - DEBUG - Setting OutputFilesBaseName to '+str(Setting)
+      print (self.BTagTag()+' - DEBUG - Setting OutputFilesBaseName to '+str(Setting))
 
   def setOutputFilesBaseAuxName(self, Setting, Verbose=True):
     """Sets the configuration specific setting of the BTaggingFlags.OutputFilesBaseAuxName."""
     self._OutputFilesBaseAuxName = Setting
     if Verbose:
-      print self.BTagTag()+' - DEBUG - Setting OutputFilesBaseAuxName to '+str(Setting)
+      print (self.BTagTag()+' - DEBUG - Setting OutputFilesBaseAuxName to '+str(Setting))
 
   def setOutputFilesBaseNameSecVtx(self, Setting, Verbose=True):
     """Sets the configuration specific setting of the BTaggingFlags.OutputFilesBaseNameSecVtx."""
     self._OutputFilesBaseNameSecVtx = Setting
     if Verbose:
-      print self.BTagTag()+' - DEBUG - Setting OutputFilesBaseNameSecVtx to '+str(Setting)
+      print (self.BTagTag()+' - DEBUG - Setting OutputFilesBaseNameSecVtx to '+str(Setting))
 
   def setOutputFilesBaseAuxNameSecVtx(self, Setting, Verbose=True):
     """Sets the configuration specific setting of the BTaggingFlags.OutputFilesBaseAuxNameSecVtx."""
     self._OutputFilesBaseAuxNameSecVtx = Setting
     if Verbose:
-      print self.BTagTag()+' - DEBUG - Setting OutputFilesBaseAuxNameSecVtx to '+str(Setting)
+      print (self.BTagTag()+' - DEBUG - Setting OutputFilesBaseAuxNameSecVtx to '+str(Setting))
 
   def setOutputFilesBaseNameJFSecVtx(self, Setting, Verbose=True):
     """Sets the configuration specific setting of the BTaggingFlags.OutputFilesBaseNameJFSecVtx."""
     self._OutputFilesBaseNameJFSecVtx = Setting
     if Verbose:
-      print self.BTagTag()+' - DEBUG - Setting OutputFilesBaseNameJFSecVtx to '+str(Setting)
+      print (self.BTagTag()+' - DEBUG - Setting OutputFilesBaseNameJFSecVtx to '+str(Setting))
 
   def setOutputFilesBaseAuxNameJFSecVtx(self, Setting, Verbose=True):
     """Sets the configuration specific setting of the BTaggingFlags.OutputFilesBaseAuxNameJFSecVtx."""
     self._OutputFilesBaseAuxNameJFSecVtx = Setting
     if Verbose:
-      print self.BTagTag()+' - DEBUG - Setting OutputFilesBaseAuxNameJFSecVtx to '+str(Setting)
+      print (self.BTagTag()+' - DEBUG - Setting OutputFilesBaseAuxNameJFSecVtx to '+str(Setting))
 
   def BTagTag(self):
     """Returns the tag used in messages made by this instance. This allows one to distinguish messages coming from different instances in the log."""
@@ -337,13 +339,13 @@ class Configuration:
   def PrefixxAODBaseName(self, Setting, Verbose=True):
     """Sets the value of _PrefixxAODBaseName which controls whether the name of this instance is prefixed to the xAODBaseName of tools."""
     if Verbose:
-      print self.BTagTag()+' - DEBUG - Setting _PrefixxAODBaseName to '+str(Setting)
+      print (self.BTagTag()+' - DEBUG - Setting _PrefixxAODBaseName to '+str(Setting))
     self._PrefixxAODBaseName = Setting
 
   def PrefixVertexFinderxAODBaseName(self, Setting, Verbose=True):
     """Sets the value of _PrefixVertexFinderxAODBaseName which controls whether the name of this instance is prefixed to the VertexFinderxAODBaseName of tools."""
     if Verbose:
-      print self.BTagTag()+' - DEBUG - Setting _PrefixVertexFinderxAODBaseName to '+str(Setting)
+      print (self.BTagTag()+' - DEBUG - Setting _PrefixVertexFinderxAODBaseName to '+str(Setting))
     self._PrefixVertexFinderxAODBaseName = Setting
 
   def getxAODBaseNamePrefix(self):
@@ -366,30 +368,30 @@ class Configuration:
       added dynamically, so the print-out would not be representative. Therefore we have this function
       which you can call at the end of the setup (or any other moment you like =) )."""
       if PrintJetBTaggerTools:
-          print '--- JetBTaggerTools ---'
+          print ('--- JetBTaggerTools ---')
           for tool in self._BTaggingConfig_JetBTaggerTools:
-              print str(tool)+': ',self._BTaggingConfig_JetBTaggerTools[tool]
-          print '--- JetBTaggerAlgs ---'
+              print (str(tool)+': ',self._BTaggingConfig_JetBTaggerTools[tool])
+          print ('--- JetBTaggerAlgs ---')
           for tool in self._BTaggingConfig_JetBTaggerAlgs:
-              print str(tool)+': ',self._BTaggingConfig_JetBTaggerAlgs[tool]
-          print '--- Main Associator Tools ---'
+              print (str(tool)+': ',self._BTaggingConfig_JetBTaggerAlgs[tool])
+          print ('--- Main Associator Tools ---')
           for tool in self._BTaggingConfig_MainAssociatorTools:
-              print str(tool)+': ',self._BTaggingConfig_MainAssociatorTools[tool]
+              print (str(tool)+': ',self._BTaggingConfig_MainAssociatorTools[tool])
       if PrintOtherTools:
-          print '--- Associators ---'
+          print ('--- Associators ---')
           for tool in self._BTaggingConfig_TrackAssociators:
-              print str(tool)+': ',self._BTaggingConfig_TrackAssociators[tool]
+              print (str(tool)+': ',self._BTaggingConfig_TrackAssociators[tool])
           for tool in self._BTaggingConfig_MuonAssociators:
-              print str(tool)+': ',self._BTaggingConfig_MuonAssociators[tool]
-          print '--- BTagTools ---'
+              print (str(tool)+': ',self._BTaggingConfig_MuonAssociators[tool])
+          print ('--- BTagTools ---')
           for tool in self._BTaggingConfig_JetCollections:
-              print str(tool)+': ',self._BTaggingConfig_JetCollections[tool]
-          print '--- BTagTool support tools ---'
+              print (str(tool)+': ',self._BTaggingConfig_JetCollections[tool])
+          print ('--- BTagTool support tools ---')
           for tool in self._BTaggingConfig_SecVtxTools:
-              print str(tool)+': ',self._BTaggingConfig_SecVtxTools[tool]
-          print '--- Other tools ---'
+              print (str(tool)+': ',self._BTaggingConfig_SecVtxTools[tool])
+          print ('--- Other tools ---')
           for tool in self._BTaggingConfig_InitializedTools:
-              print str(tool)+': ',self._BTaggingConfig_InitializedTools[tool]
+              print (str(tool)+': ',self._BTaggingConfig_InitializedTools[tool])
 
   def updateBTaggers(self, JetCollection):
       """Updates the JetBTaggerAlgs for the selected JetCollection if they already exist. This is in order to keep
@@ -406,9 +408,9 @@ class Configuration:
       if (JetCollection.lower()).endswith("jets"):
           if Verbose is None:
               if BTaggingFlags.OutputLevel < 3:
-                  print(self.BTagTag()+" - DEBUG - Stripping trailing 'jets' from jet collection '"+JetCollection+"' prior to setup.")
+                  print((self.BTagTag()+" - DEBUG - Stripping trailing 'jets' from jet collection '"+JetCollection+"' prior to setup."))
           elif Verbose:
-              print(self.BTagTag()+" - DEBUG - Stripping trailing 'jets' from jet collection '"+JetCollection+"' prior to setup.")
+              print((self.BTagTag()+" - DEBUG - Stripping trailing 'jets' from jet collection '"+JetCollection+"' prior to setup."))
           JetCollection = JetCollection[:-4]
       btagger = self.setupJetBTaggerAlgs(ToolSvc, [JetCollection,], topSequence, Verbose, options, TaggerList, SetupScheme)
       return btagger[0]
@@ -421,9 +423,9 @@ class Configuration:
       if (JetCollection.lower()).endswith("jets"):
           if Verbose is None:
               if BTaggingFlags.OutputLevel < 3:
-                  print(self.BTagTag()+" - DEBUG - Stripping trailing 'jets' from jet collection '"+JetCollection+"' prior to setup.")
+                  print((self.BTagTag()+" - DEBUG - Stripping trailing 'jets' from jet collection '"+JetCollection+"' prior to setup."))
           elif Verbose:
-              print(self.BTagTag()+" - DEBUG - Stripping trailing 'jets' from jet collection '"+JetCollection+"' prior to setup.")
+              print((self.BTagTag()+" - DEBUG - Stripping trailing 'jets' from jet collection '"+JetCollection+"' prior to setup."))
           JetCollection = JetCollection[:-4]
       btagger = self.setupJetBTaggerTools(ToolSvc, [JetCollection,], topSequence, Verbose, AddToToolSvc, options, TaggerList, SetupScheme)
       return btagger[0]
@@ -466,7 +468,7 @@ class Configuration:
       if Verbose is None:
           Verbose = (BTaggingFlags.OutputLevel < 3)
       if Verbose:
-          print self.BTagTag()+' - DEBUG - Setting up JetBTaggerAlgs for jet collections: '+str(JetCollections)
+          print (self.BTagTag()+' - DEBUG - Setting up JetBTaggerAlgs for jet collections: '+str(JetCollections))
       returnlist = []
       # Allow for string input
       if type(JetCollections) == str:
@@ -482,14 +484,14 @@ class Configuration:
               continue
           if jetcol in self._BTaggingConfig_JetBTaggerAlgs:
               returnlist.append(self._BTaggingConfig_JetBTaggerAlgs.get(jetcol, None))
-              print self.BTagTag()+' - INFO - Updating JetBTaggerAlg for '+jetcol
+              print (self.BTagTag()+' - INFO - Updating JetBTaggerAlg for '+jetcol)
               self.ConfigureMainAssociatorTool(self._BTaggingConfig_MainAssociatorTools[jetcol], jetcol)
               continue
           # Check if this jet collection has been correctly set up.
           if not jetcol in self._BTaggingConfig_JetCollections:
-              print self.BTagTag()+' - ERROR - setupJetBTaggerAlgs() called for jet collection with name "'+jetcol+'" but this jet collection has not been initialized.'
+              print (self.BTagTag()+' - ERROR - setupJetBTaggerAlgs() called for jet collection with name "'+jetcol+'" but this jet collection has not been initialized.')
               raise RuntimeError
-          print self.BTagTag()+' - INFO - Adding JetBTaggerAlg for '+jetcol
+          print (self.BTagTag()+' - INFO - Adding JetBTaggerAlg for '+jetcol)
           from BTagging.BTaggingConf import Analysis__JetBTaggerAlg as JetBTaggerAlg
           objs = {}
           options = dict(options)
@@ -520,8 +522,8 @@ class Configuration:
           if not topSequence is None:
               topSequence += jetbtaggeralg
           if Verbose:
-              print self.BTagTag()+' - INFO - Attached to the beforementioned JetBTaggerAlg we have the following BTagTool:'
-              print self._BTaggingConfig_JetCollections.get(jetcol, None)
+              print (self.BTagTag()+' - INFO - Attached to the beforementioned JetBTaggerAlg we have the following BTagTool:')
+              print (self._BTaggingConfig_JetCollections.get(jetcol, None))
           # Register
           self._BTaggingConfig_JetBTaggerAlgs[jetcol] = jetbtaggeralg
           returnlist.append(jetbtaggeralg)
@@ -567,7 +569,7 @@ class Configuration:
       if Verbose is None:
           Verbose = (BTaggingFlags.OutputLevel < 3)
       if Verbose:
-          print self.BTagTag()+' - DEBUG - Setting up JetBTaggerTools for jet collections: '+str(JetCollections)
+          print (self.BTagTag()+' - DEBUG - Setting up JetBTaggerTools for jet collections: '+str(JetCollections))
       returnlist = []
       # Allow for string input
       if type(JetCollections) == str:
@@ -583,14 +585,14 @@ class Configuration:
               continue
           if jetcol in self._BTaggingConfig_JetBTaggerTools:
               returnlist.append(self._BTaggingConfig_JetBTaggerTools.get(jetcol, None))
-              print self.BTagTag()+' - INFO - Updating JetBTaggerTool for '+jetcol
+              print (self.BTagTag()+' - INFO - Updating JetBTaggerTool for '+jetcol)
               self.ConfigureMainAssociatorTool(self._BTaggingConfig_MainAssociatorTools[jetcol], jetcol)
               continue
           # Check if this jet collection has been correctly set up.
           if not jetcol in self._BTaggingConfig_JetCollections:
-              print self.BTagTag()+' - ERROR - setupJetBTaggerTools() called for jet collection with name "'+jetcol+'" but this jet collection has not been initialized.'
+              print (self.BTagTag()+' - ERROR - setupJetBTaggerTools() called for jet collection with name "'+jetcol+'" but this jet collection has not been initialized.')
               raise RuntimeError
-          print self.BTagTag()+' - INFO - Adding JetBTaggerTool for '+jetcol
+          print (self.BTagTag()+' - INFO - Adding JetBTaggerTool for '+jetcol)
           from BTagging.BTaggingConf import Analysis__JetBTaggerTool as JetBTaggerTool
           options = dict(options)
           options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
@@ -624,9 +626,9 @@ class Configuration:
           if AddToToolSvc:
               ToolSvc += jetbtaggertool
           if Verbose:
-              print jetbtaggertool
-              print self.BTagTag()+' - INFO - Attached to the beforementioned JetBTaggerTool we have the following BTagTool:'
-              print self._BTaggingConfig_JetCollections.get(jetcol, None)
+              print (jetbtaggertool)
+              print (self.BTagTag()+' - INFO - Attached to the beforementioned JetBTaggerTool we have the following BTagTool:')
+              print (self._BTaggingConfig_JetCollections.get(jetcol, None))
           # Register
           self._BTaggingConfig_JetBTaggerTools[jetcol] = jetbtaggertool
           returnlist.append(jetbtaggertool)
@@ -680,31 +682,31 @@ class Configuration:
       """
       if len(track) == 0:
           if self.getToolName(tool_type, "OroroMonroe", jetcol) != self.getToolName(tool_type, "TriangleWizard", jetcol):
-              print self.BTagTag()+' - WARNING - Attempting to register tool "'+tool_type+'" without specifying required track association!'
+              print (self.BTagTag()+' - WARNING - Attempting to register tool "'+tool_type+'" without specifying required track association!')
               raise ValueError
       if len(jetcol) == 0:
           if self.getToolName(tool_type, track, "CarlSagan") != self.getToolName(tool_type, track, "RichardFeynman"):
-              print self.BTagTag()+' - WARNING - Attemping to register tool "'+tool_type+'" without specifying required jet collection!'
+              print (self.BTagTag()+' - WARNING - Attemping to register tool "'+tool_type+'" without specifying required jet collection!')
               raise ValueError
       if tool is None:
-          print self.BTagTag()+' - WARNING - A tool of type '+tool_type+' has type None!'
+          print (self.BTagTag()+' - WARNING - A tool of type '+tool_type+' has type None!')
           raise ValueError
       if self.getToolName(tool_type, track, jetcol) in self._BTaggingConfig_InitializedTools:
-          print self.BTagTag()+' - WARNING - A tool named '+self.getToolName(tool_type, track, jetcol)+' has already been set up before!'
+          print (self.BTagTag()+' - WARNING - A tool named '+self.getToolName(tool_type, track, jetcol)+' has already been set up before!')
           raise ValueError
       if BTaggingFlags.OutputLevel < 3:
-          print self.BTagTag()+' - DEBUG - Registering tool: '+self.getToolName(tool_type, track, jetcol)
+          print (self.BTagTag()+' - DEBUG - Registering tool: '+self.getToolName(tool_type, track, jetcol))
       if ToolSvc is None:
           if BTaggingFlags.OutputLevel < 3:
-              print self.BTagTag()+' - DEBUG - INFO: ToolSvc is None during registration. This could be on purpose if want to add the tool to ToolSvc yourself and in particular is normal for BTagCalibrationBrokerTool.'
+              print (self.BTagTag()+' - DEBUG - INFO: ToolSvc is None during registration. This could be on purpose if want to add the tool to ToolSvc yourself and in particular is normal for BTagCalibrationBrokerTool.')
       if CheckPrerequisites and not ToolSvc is None:
         self.setupPrerequisites(tool_type, ToolSvc, TrackCollection = track, JetCollection = jetcol, Verbose = Verbose,
                                 MuonCollection=MuonCollection,
                                 CheckOnlyInsideToolCollection=CheckOnlyInsideToolCollection, DoNotSetUpParticleAssociators=DoNotSetUpParticleAssociators)
       self._BTaggingConfig_InitializedTools[self.getToolName(tool_type, track, jetcol)] = tool
       if not ToolSvc is None:
-          print self.BTagTag()+' - DEBUG - Tool added to ToolSvc: '
-          print tool
+          print (self.BTagTag()+' - DEBUG - Tool added to ToolSvc: ')
+          print (tool)
           ToolSvc += tool
 
   def getToolAttribute(self, attribute, tool_type, TrackCollection="", JetCollection="", RaiseException=True):
@@ -719,7 +721,7 @@ class Configuration:
       if tool is None:
         return None
       if not hasattr(tool, attribute) and RaiseException:
-        print self.BTagTag()+' - ERROR - Attribute "'+attribute+'" does not exist for tool of type "'+tool_type+'".'
+        print (self.BTagTag()+' - ERROR - Attribute "'+attribute+'" does not exist for tool of type "'+tool_type+'".')
         raise AttributeError
       return getattr(tool, attribute, None)
 
@@ -836,7 +838,7 @@ class Configuration:
           else:
               DeadSwitch -= 1
               if DeadSwitch < 0:
-                  print self.BTagTag()+' - ERROR - Dependencies for tool of type "'+tool_type+'" cannot be sorted; possible cyclic dependency!'
+                  print (self.BTagTag()+' - ERROR - Dependencies for tool of type "'+tool_type+'" cannot be sorted; possible cyclic dependency!')
                   raise ValueError
       return required
 
@@ -852,7 +854,7 @@ class Configuration:
              CheckOnlyInsideToolCollection: Whether to consider only tools within the tool collection.
       output: Ordered list of tools needed which are not yet in ToolSvc."""
       if (len(TrackCollection) == 0 or len(JetCollection) == 0) and not getToolMetadata(tool_type, 'OneInTotal'):
-          print self.BTagTag()+' - ERROR - checkPrerequisitesOneLevel() called without specifying required track/jet collection for a tool does depend on this.'
+          print (self.BTagTag()+' - ERROR - checkPrerequisitesOneLevel() called without specifying required track/jet collection for a tool does depend on this.')
           raise ValueError
       required = []
       ToolCollDict = getToolCollections()
@@ -883,14 +885,14 @@ class Configuration:
       if len(required) < 1:
           return False
       if Verbose:
-          print self.BTagTag()+' - DEBUG - '+tool_type+' requires the following tools that have not yet been set up: '+str(required)
-          print self.BTagTag()+' - DEBUG - Setting them up now with default settings:'
+          print (self.BTagTag()+' - DEBUG - '+tool_type+' requires the following tools that have not yet been set up: '+str(required))
+          print (self.BTagTag()+' - DEBUG - Setting them up now with default settings:')
       for r in range(len(required)):
           if (len(TrackCollection) == 0 or len(JetCollection) == 0) and not getToolMetadata(required[r], 'OneInTotal'):
-              print self.BTagTag()+' - ERROR - Setting up a tool without jet/track collection which depends on a tool that does depend on such collections.'
+              print (self.BTagTag()+' - ERROR - Setting up a tool without jet/track collection which depends on a tool that does depend on such collections.')
               raise ValueError
           if Verbose:
-              print self.BTagTag()+' - DEBUG - Setting up '+required[r]+' for '+TrackCollection+' tracks and the '+JetCollection+' jet collection...'
+              print (self.BTagTag()+' - DEBUG - Setting up '+required[r]+' for '+TrackCollection+' tracks and the '+JetCollection+' jet collection...')
           # Note that we do not check for prerequisites because we just did so
           self.addTool(required[r], ToolSvc, TrackCollections=TrackCollection,
                        JetCollections=JetCollection, CheckPrerequisites = False, Verbose = Verbose,
@@ -941,9 +943,9 @@ class Configuration:
       if not SuppressNonCloneWarning:
           if not getToolMetadata(tool_type, 'IsAClone') is None:
               if len(options) > 0 and (getToolMetadata(tool_type, 'IsAClone') == False):
-                  print self.BTagTag()+' - WARNING - You are changing the settings for an instance of '+tool_type+'. It is generally safer to first clone the tool and then use the non-default settings for the clone to avoid any confusion later on. You can also suppress this warning by running addTool with the SuppressNonCloneWarning set to True.'
+                  print (self.BTagTag()+' - WARNING - You are changing the settings for an instance of '+tool_type+'. It is generally safer to first clone the tool and then use the non-default settings for the clone to avoid any confusion later on. You can also suppress this warning by running addTool with the SuppressNonCloneWarning set to True.')
           elif len(options) > 0:
-              print self.BTagTag()+' - WARNING - You are changing the settings for an instance of '+tool_type+'. It is generally safer to first clone the tool and then use the non-default settings for the clone to avoid any confusion later on. You can also suppress this warning by running addTool with the SuppressNonCloneWarning set to True.'
+              print (self.BTagTag()+' - WARNING - You are changing the settings for an instance of '+tool_type+'. It is generally safer to first clone the tool and then use the non-default settings for the clone to avoid any confusion later on. You can also suppress this warning by running addTool with the SuppressNonCloneWarning set to True.')
       if type(TrackCollections) == str:
           if len(TrackCollections) == 0:
               TrackCollections = []
@@ -956,10 +958,10 @@ class Configuration:
               JetCollections = [JetCollections,]
       # Check if track associations and jet collections are actually lists
       if type(TrackCollections) != list or type(JetCollections) != list:
-          print self.BTagTag()+' - ERROR - addTool() requires TrackCollections and JetCollections as lists or strings!'
+          print (self.BTagTag()+' - ERROR - addTool() requires TrackCollections and JetCollections as lists or strings!')
           raise ValueError
       if ToolSvc is None:
-          print self.BTagTag()+' - ERROR - addTool() requires ToolSvc to be specified.'
+          print (self.BTagTag()+' - ERROR - addTool() requires ToolSvc to be specified.')
           raise ValueError
       # First check if a btagtool exists for each of the desired jet collections
       for jetcol in JetCollections:
@@ -983,7 +985,7 @@ class Configuration:
                   self.addToolToJetCollection(tool_type, tool, jetcol="", track="")
               return tool
           else:
-              print self.BTagTag()+' - ERROR - No track/jetcollection specified for tool that does not have the "OneInTotal" metadata.'
+              print (self.BTagTag()+' - ERROR - No track/jetcollection specified for tool that does not have the "OneInTotal" metadata.')
               raise ValueError
       # Otherwise run over all the desired tracks and jet collections
       for track in TrackCollections:
@@ -997,11 +999,11 @@ class Configuration:
               if not DoNotSetUpParticleAssociators:
                 # Do the correct track associators exist for this collection of tracks?
                 if self.getTrackAssociator(track, jetcol) is None:
-                  print self.BTagTag()+' - Track associator not found, setting up default'
+                  print (self.BTagTag()+' - Track associator not found, setting up default')
                   self.setupTrackAssociator(track, jetcol, ToolSvc, Verbose=Verbose)
                 if getToolMetadata(tool_type, 'NeedsMuonAssociator'):
                   if self.getMuonAssociator(MuonCollection, jetcol) is None:
-                    print self.BTagTag()+' - Muon associator not found, setting up default'
+                    print (self.BTagTag()+' - Muon associator not found, setting up default')
                     self.setupMuonAssociator(MuonCollection, jetcol, ToolSvc, Verbose=Verbose)
               # Check if it already exists
               tool = self.getTool(tool_type, TrackCollection = track, JetCollection = jetcol)
@@ -1013,7 +1015,7 @@ class Configuration:
                                                jetcol=jetcol, name=name, options=options,
                                                MuonCollection=MuonCollection)
                   else:
-                      print self.BTagTag()+'Adding ' + tool_type + ' to ToolSvc. We should not see this message after private migration.'
+                      print (self.BTagTag()+'Adding ' + tool_type + ' to ToolSvc. We should not see this message after private migration.')
                       tool = self.setupDefaultTool(tool_type, ToolSvc, Verbose=Verbose, track=track,
                                                jetcol=jetcol, name=name, options=options,
                                                MuonCollection=MuonCollection)
@@ -1038,12 +1040,12 @@ class Configuration:
       tool = self.getTool('BTagMuonToJetAssociator', MuonCollectionName, JetCollection)
       if tool is None:
           if Verbose:
-              print self.BTagTag()+' - DEBUG - Setting up MuonAssociator for combination: '+str((MuonCollectionName, JetCollection))
+              print (self.BTagTag()+' - DEBUG - Setting up MuonAssociator for combination: '+str((MuonCollectionName, JetCollection)))
           tool = toolBTagMuonToJetAssociator(**options)
           self.registerTool('BTagMuonToJetAssociator', tool, track = MuonCollectionName, jetcol = JetCollection)
       else:
           if Verbose:
-              print self.BTagTag()+' - DEBUG - Adding MuonAssociator for '+MuonCollectionName+' which already exists now also to jet collection: '+JetCollection
+              print (self.BTagTag()+' - DEBUG - Adding MuonAssociator for '+MuonCollectionName+' which already exists now also to jet collection: '+JetCollection)
       if self._BTaggingConfig_MuonAssociators.get((MuonCollectionName, JetCollection), None) is None:
           self._BTaggingConfig_MuonAssociators[(MuonCollectionName, JetCollection)] = tool
           if len(ContainerName) == 0:
@@ -1051,7 +1053,7 @@ class Configuration:
           self._BTaggingConfig_MuonConCol[(MuonCollectionName, JetCollection)] = (ContainerName, MuonCollectionName)
           self.updateBTaggers(JetCollection)
       else:
-          print self.BTagTag()+' - WARNING - SetupMuonAssociator() called for combination which already exists: '+str((MuonCollectionName,JetCollection))
+          print (self.BTagTag()+' - WARNING - SetupMuonAssociator() called for combination which already exists: '+str((MuonCollectionName,JetCollection)))
       return tool
 
   def setupTrackAssociator(self, TrackCollection, JetCollection, ToolSvc, options={}, Verbose = False, ContainerName = ""):
@@ -1069,8 +1071,8 @@ class Configuration:
 
 
       if "TracksToTagList" in options:
-          print self.BTagTag() + " you have requested to tag the following collections of tracks: "
-          print options["TracksToTagList"]
+          print (self.BTagTag() + " you have requested to tag the following collections of tracks: ")
+          print (options["TracksToTagList"])
           return None
 
 
@@ -1078,12 +1080,12 @@ class Configuration:
       tool = self.getTool('BTagTrackToJetAssociator', TrackCollection, JetCollection)
       if tool is None:
           if Verbose:
-              print self.BTagTag()+' - DEBUG - Setting up TrackAssociator for combination: '+str((TrackCollection, JetCollection))
+              print (self.BTagTag()+' - DEBUG - Setting up TrackAssociator for combination: '+str((TrackCollection, JetCollection)))
           tool = toolBTagTrackToJetAssociator(**options)
           self.registerTool('BTagTrackToJetAssociator', tool, track = TrackCollection, jetcol = JetCollection)
       else:
           if Verbose:
-              print self.BTagTag()+' - INFO - Adding TrackAssociator for '+TrackCollection+' which already exists now also to jet collection: '+JetCollection
+              print (self.BTagTag()+' - INFO - Adding TrackAssociator for '+TrackCollection+' which already exists now also to jet collection: '+JetCollection)
       if self._BTaggingConfig_TrackAssociators.get((TrackCollection, JetCollection), None) is None:
           self._BTaggingConfig_TrackAssociators[(TrackCollection, JetCollection)] = tool
           if len(ContainerName) == 0:
@@ -1091,7 +1093,7 @@ class Configuration:
           self._BTaggingConfig_TrackConCol[(TrackCollection, JetCollection)] = (ContainerName, TrackCollection)
           self.updateBTaggers(JetCollection)
       else:
-          print self.BTagTag()+' - WARNING - SetupTrackAssociator() called for combinations which already exists: '+str((TrackCollection,JetCollection))
+          print (self.BTagTag()+' - WARNING - SetupTrackAssociator() called for combinations which already exists: '+str((TrackCollection,JetCollection)))
       return tool
 
   def getMuonAssociatorData(self, JetCollection):
@@ -1107,7 +1109,7 @@ class Configuration:
               if len(x) == 3:
                   returnlist.append(x)
               else:
-                  print self.BTagTag()+' - ERROR - getMuonAssociatorData() does not find enough metadata for jet collection: '+JetCollection
+                  print (self.BTagTag()+' - ERROR - getMuonAssociatorData() does not find enough metadata for jet collection: '+JetCollection)
                   raise ValueError
       return returnlist
 
@@ -1124,7 +1126,7 @@ class Configuration:
               if len(x) == 3:
                   returnlist.append(x)
               else:
-                  print self.BTagTag()+' - ERROR - getTrackAssociatorData() does not find enough metadata for jet collection: '+JetCollection
+                  print (self.BTagTag()+' - ERROR - getTrackAssociatorData() does not find enough metadata for jet collection: '+JetCollection)
                   raise ValueError
       return returnlist
 
@@ -1140,7 +1142,7 @@ class Configuration:
       if tool is None:
         return None
       if not hasattr(tool, attribute) and RaiseException:
-        print self.BTagTag()+' - ERROR - Attribute "'+attribute+'" does not exist for a muon associator.'
+        print (self.BTagTag()+' - ERROR - Attribute "'+attribute+'" does not exist for a muon associator.')
         raise AttributeError
       return getattr(tool, attribute, None)
 
@@ -1160,7 +1162,7 @@ class Configuration:
       if tool is None:
         return None
       if not hasattr(tool, attribute) and RaiseException:
-        print self.BTagTag()+' - ERROR - Attribute "'+attribute+'" does not exist for a track associator.'
+        print (self.BTagTag()+' - ERROR - Attribute "'+attribute+'" does not exist for a track associator.')
         raise AttributeError
       return getattr(tool, attribute, None)
 
@@ -1176,7 +1178,7 @@ class Configuration:
              jetcol:             The jet collection.
              track:              The track selection this tool is running on."""
       if (tool_type, jetcol, track) in self._BTaggingConfig_SetUpCombinations:
-          print self.BTagTag()+' - WARNING - A tool of type "'+tool_type+'" was already set up for the combination '+str((track, jetcol))+' ignoring duplicate...'
+          print (self.BTagTag()+' - WARNING - A tool of type "'+tool_type+'" was already set up for the combination '+str((track, jetcol))+' ignoring duplicate...')
           return
       #HACK DL1
       if getToolMetadata(tool_type, 'IsATagger') and not 'DL1' in tool_type and not 'MV2' in tool_type:
@@ -1189,7 +1191,7 @@ class Configuration:
           SecVertexingTool.SecVtxFinderList += [tool,]
           SecVertexingTool.SecVtxFinderTrackNameList += [track,]
           if not getToolMetadata(tool_type, 'VertexFinderxAODBaseName'):
-              print self.BTagTag()+' - ERROR - Tool '+self.getToolName(tool_type, track, jetcol)+' is set as a vertex finder, but no VertexFinderxAODBaseName was specified in the metadata.'
+              print (self.BTagTag()+' - ERROR - Tool '+self.getToolName(tool_type, track, jetcol)+' is set as a vertex finder, but no VertexFinderxAODBaseName was specified in the metadata.')
               raise ValueError
           SecVertexingTool.SecVtxFinderxAODBaseNameList += [self.getVertexFinderxAODBaseName() + getToolMetadata(tool_type, 'VertexFinderxAODBaseName'), ]
           VertexFinderPassByPointer = getToolMetadata(tool_type, 'VertexFinderPassByPointer')
@@ -1197,22 +1199,22 @@ class Configuration:
               for element in VertexFinderPassByPointer:
                   ToPass = self._BTaggingConfig_InitializedTools.get(self.getToolName(VertexFinderPassByPointer[element],track,jetcol), None)
                   if ToPass is None:
-                      print self.BTagTag()+' - ERROR - Tool of type '+VertexFinderPassByPointer[element]+' to be passed as pointer to tool of type '+tool_type+' to the SecVertexingTool'
-                      print self.BTagTag()+' - ERROR - but this tool was not found/registered.'
+                      print (self.BTagTag()+' - ERROR - Tool of type '+VertexFinderPassByPointer[element]+' to be passed as pointer to tool of type '+tool_type+' to the SecVertexingTool')
+                      print (self.BTagTag()+' - ERROR - but this tool was not found/registered.')
                       raise ValueError
                   setattr(SecVertexingTool, element, ToPass)
       self._BTaggingConfig_SetUpCombinations[(tool_type, jetcol, track)] = tool
       if BTaggingFlags.OutputLevel < 3:
-          print self.BTagTag()+' - DEBUG - Added tool '+self.getToolName(tool_type, track, jetcol)+' to jet collection: '+jetcol
+          print (self.BTagTag()+' - DEBUG - Added tool '+self.getToolName(tool_type, track, jetcol)+' to jet collection: '+jetcol)
       # Add to the tool also the jet collection (needed for reference running)
       jetcollist = getToolMetadata(tool_type, 'JetCollectionList')
       if jetcollist:
           if not jetcol in getattr(tool, jetcollist):
               if BTaggingFlags.OutputLevel < 3:
-                  print self.BTagTag()+' - DEBUG - Adding to tool '+self.getToolName(tool_type, track, jetcol)+' the jet collection: '+jetcol
+                  print (self.BTagTag()+' - DEBUG - Adding to tool '+self.getToolName(tool_type, track, jetcol)+' the jet collection: '+jetcol)
               getattr(tool, jetcollist).append(jetcol)
       if BTaggingFlags.OutputLevel < 3:
-          print self.BTagTag()+' - DEBUG - '+str((tool_type, jetcol, track))+' -> '+self.getToolName(tool_type, track, jetcol)+' added'
+          print (self.BTagTag()+' - DEBUG - '+str((tool_type, jetcol, track))+' -> '+self.getToolName(tool_type, track, jetcol)+' added')
 
   def getJetCollectionMainAssociatorAttribute(self, attribute, JetCollection, RaiseException=True):
       """Returns an attribute of a main associator. Technically the same can be returned by first getting a reference
@@ -1226,7 +1228,7 @@ class Configuration:
       if tool is None:
         return None
       if not hasattr(tool, attribute) and RaiseException:
-        print self.BTagTag()+' - ERROR - Attribute "'+attribute+'" does not exist for a main associator tool.'
+        print (self.BTagTag()+' - ERROR - Attribute "'+attribute+'" does not exist for a main associator tool.')
         raise AttributeError
       return getattr(tool, attribute, None)
 
@@ -1238,7 +1240,7 @@ class Configuration:
       output: The tool."""
       tool = self._BTaggingConfig_MainAssociatorTools.get(jetcol, None)
       if tool is None:
-          print self.BTagTag()+' - ERROR - getJetCollectionMainAssociatorTool() returns none for '+jetcol
+          print (self.BTagTag()+' - ERROR - getJetCollectionMainAssociatorTool() returns none for '+jetcol)
           raise ValueError
       return tool
 
@@ -1254,7 +1256,7 @@ class Configuration:
       if tool is None:
         return None
       if not hasattr(tool, attribute) and RaiseException:
-        print self.BTagTag()+' - ERROR - Attribute "'+attribute+'" does not exist for a secondary vertexing tool.'
+        print (self.BTagTag()+' - ERROR - Attribute "'+attribute+'" does not exist for a secondary vertexing tool.')
         raise AttributeError
       return getattr(tool, attribute, None)
 
@@ -1266,7 +1268,7 @@ class Configuration:
       output: The tool."""
       tool = self._BTaggingConfig_SecVtxTools.get(jetcol, None)
       if tool is None:
-          print self.BTagTag()+' - ERROR - getJetCollectionSecVertexingTool() returns none for '+jetcol
+          print (self.BTagTag()+' - ERROR - getJetCollectionSecVertexingTool() returns none for '+jetcol)
           raise ValueError
       return tool
 
@@ -1288,7 +1290,7 @@ class Configuration:
       if tool is None:
         return None
       if not hasattr(tool, attribute) and RaiseException:
-        print self.BTagTag()+' - ERROR - Attribute "'+attribute+'" does not exist for a BTagTool.'
+        print (self.BTagTag()+' - ERROR - Attribute "'+attribute+'" does not exist for a BTagTool.')
         raise AttributeError
       return getattr(tool, attribute, None)
 
@@ -1301,7 +1303,7 @@ class Configuration:
       btagger = self._BTaggingConfig_JetCollections.get(JetCollection, None)
       if btagger is None:
           if BTaggingFlags.OutputLevel < 3:
-              print self.BTagTag()+' - DEBUG - getJetCollectionTool() returns none for '+JetCollection
+              print (self.BTagTag()+' - DEBUG - getJetCollectionTool() returns none for '+JetCollection)
       return btagger
 
   def RegisterOutputContainersForJetCollection(self, JetCollection, Verbose=False):
@@ -1362,7 +1364,7 @@ class Configuration:
       else:
           # The tool already exists, we just return it
           if len(options) > 0:
-              print self.BTagTag()+' - WARNING - A JetCollection called "'+JetCollection+'" has already been set up; ignoring new btagtool options.'
+              print (self.BTagTag()+' - WARNING - A JetCollection called "'+JetCollection+'" has already been set up; ignoring new btagtool options.')
           return self._BTaggingConfig_JetCollections.get(JetCollection, None)
 
   def setupBTagTrackAssociation(self, name, ToolSvc, Verbose = False, options={}):
@@ -1477,12 +1479,12 @@ class Configuration:
       if self._name == "Trig":
           ToolSvc += btagtool
       if BTaggingFlags.OutputLevel < 3:
-          print self.BTagTag()+' - DEBUG - Setting up BTagTool for jet collection: '+jetcol
+          print (self.BTagTag()+' - DEBUG - Setting up BTagTool for jet collection: '+jetcol)
       if self._BTaggingConfig_JetCollections.get(jetcol, None) is None:
           # Store this one to the jet collections
           self._BTaggingConfig_JetCollections[jetcol] = btagtool
       else:
-          print self.BTagTag()+' - ERROR - Setting up BTagTool for a jet collection which was already set up previously!'
+          print (self.BTagTag()+' - ERROR - Setting up BTagTool for a jet collection which was already set up previously!')
           raise ValueError
       return btagtool
 
@@ -1491,12 +1493,12 @@ class Configuration:
 
       output: Returns whether b-tagging is to be active or not."""
       if not BTaggingFlags.Active:
-          print '#BTAG# - WARNING - Disabling whole b-tagging since BTaggingFlags.Active is False...'
+          print ('#BTAG# - WARNING - Disabling whole b-tagging since BTaggingFlags.Active is False...')
           return False
-      print '#BTAG# - INFO - B-tagging descoping:  level = ',rec.ScopingLevel()
+      print ('#BTAG# - INFO - B-tagging descoping:  level = ',rec.ScopingLevel())
       from AthenaCommon.BFieldFlags import jobproperties
       if not jobproperties.Beam.beamType == "collisions":
-          print '#BTAG# - WARNING - Disabling whole b-tagging since beamType is not collisions...'
+          print ('#BTAG# - WARNING - Disabling whole b-tagging since beamType is not collisions...')
           BTaggingFlags.Active = False
           return False
       if not self._IgnoreTaggerObstacles:
@@ -1504,7 +1506,7 @@ class Configuration:
               if not taggerIsPossible(tagger):
                   BTaggingFlags.Disable(tagger)
       else:
-          print '#BTAG# - INFO - Not checking for obstacles for taggers (DetFlags etc.).'
+          print ('#BTAG# - INFO - Not checking for obstacles for taggers (DetFlags etc.).')
       return True
 
   def setupDefaultTool(self, tool_type, ToolSvc, track="", jetcol="", Verbose = False, name="", options={}, MuonCollection='Muons'):
@@ -1551,8 +1553,8 @@ class Configuration:
               # Find the tool
               ToPass = self._BTaggingConfig_InitializedTools.get(self.getToolName(PassByPointer[element],track,jetcol), None)
               if ToPass is None and not element in options: # allow for options overwrite
-                  print self.BTagTag()+' - ERROR - Tool of type '+PassByPointer[element]+' to be passed as pointer to tool of type '+tool_type
-                  print self.BTagTag()+' - ERROR - but this tool was not found/registered. (Can be overwritten using options passed to the set up script).'
+                  print (self.BTagTag()+' - ERROR - Tool of type '+PassByPointer[element]+' to be passed as pointer to tool of type '+tool_type)
+                  print (self.BTagTag()+' - ERROR - but this tool was not found/registered. (Can be overwritten using options passed to the set up script).')
                   raise ValueError
               options.setdefault(element, ToPass)
       if PassByName:
@@ -1561,20 +1563,20 @@ class Configuration:
               options.setdefault(element, self.getToolName(PassByName[element],track,jetcol))
       if PassTracksAs:
           if len(track) == 0:
-              print self.BTagTag()+' - ERROR - setupDefaultTool() called for a tool that has PassTracksAs metadata but without specifying a track collection.'
+              print (self.BTagTag()+' - ERROR - setupDefaultTool() called for a tool that has PassTracksAs metadata but without specifying a track collection.')
               raise ValueError
           options.setdefault(PassTracksAs, track)
       if CalibrationTaggers:
           if BTaggingFlags.CalibrationSingleFolder is False:
-              print self.BTagTag()+' - ERROR - BTaggingFlags.CalibrationSingleFolder is False, the new calibration scheme does not support this!'
-              print self.BTagTag()+' - ERROR - Calibrations will not function!'
+              print (self.BTagTag()+' - ERROR - BTaggingFlags.CalibrationSingleFolder is False, the new calibration scheme does not support this!')
+              print (self.BTagTag()+' - ERROR - Calibrations will not function!')
               raise ValueError
           else:
               broker = self._BTaggingConfig_InitializedTools.get(self.getToolName('BTagCalibrationBrokerTool',track,jetcol), None)
               if broker is None:
-                  print self.BTagTag()+' - WARNING - CalibrationBroker not found; The tool is replaced by a condition algorithm'
+                  print (self.BTagTag()+' - WARNING - CalibrationBroker not found; The tool is replaced by a condition algorithm')
               elif not hasattr(broker, 'taggers'):
-                  print self.BTagTag()+' - ERROR - CalibrationBroker does not have "taggers" as an attribute; calibrations will not function!'
+                  print (self.BTagTag()+' - ERROR - CalibrationBroker does not have "taggers" as an attribute; calibrations will not function!')
                   raise ValueError
               else:
                   for tagger in CalibrationTaggers:
@@ -1582,9 +1584,9 @@ class Configuration:
                           broker.taggers.append(tagger)
       # Set up the actual tool
       try:
-          exec('tool = tool'+tool_type+'(**options)')
+          tool = eval('tool'+tool_type+'(**options)')
       except:
-          print self.BTagTag()+' - ERROR - Attempting to set up a tool of type "'+tool_type+'" but this tool was not/incorrectly implemented.'
+          print (self.BTagTag()+' - ERROR - Attempting to set up a tool of type "'+tool_type+'" but this tool was not/incorrectly implemented.')
           raise
       # Fill in jet collection lists if applicable
       jetcollist = getToolMetadata(tool_type, 'JetCollectionList')
@@ -1619,11 +1621,11 @@ def taggerIsPossible(tagger):
     """Returns whether a tagger can be used depending on various criteria."""
     # disable tagger is it is unknown
     if not tagger in BTaggingFlags._tags:
-        print '#BTAG# - WARNING - Unknown tagger ('+tagger+') encountered, disabling...'
+        print ('#BTAG# - WARNING - Unknown tagger ('+tagger+') encountered, disabling...')
         return False
     # disable all taggers if B-tagging is not active
     if not BTaggingFlags.Active:
-        print '#BTAG# - WARNING - Disabling '+tagger+' tagger because B-tagging has been disabled...'
+        print ('#BTAG# - WARNING - Disabling '+tagger+' tagger because B-tagging has been disabled...')
         return False
     # disable some taggers if we are running in reference mode
     if BTaggingFlags.Runmodus == 'reference':
@@ -1654,32 +1656,32 @@ def taggerIsPossible(tagger):
                       'MV2',
                       'MV1Flip',
                       'MV2Flip']:
-            print '#BTAG# - WARNING - Disabling '+tagger+' tagger due to reference run modus...'
+            print ('#BTAG# - WARNING - Disabling '+tagger+' tagger due to reference run modus...')
             return False
     # disable taggers accordingly to reconstruction scoping levels
     if rec.ScopingLevel() >= 2:
         if tagger in BTaggingFlags.LowPriorityTaggers:
-            print '#BTAG# - WARNING - Disabling low priority '+tagger+' tagger due to scoping level >= 2'
+            print ('#BTAG# - WARNING - Disabling low priority '+tagger+' tagger due to scoping level >= 2')
             return False
     if rec.ScopingLevel() >= 3:
         if tagger in BTaggingFlags.MediumPriorityTaggers:
-            print '#BTAG# - WARNING - Disabling medium priority '+tagger+' tagger due to scoping level >= 3'
+            print ('#BTAG# - WARNING - Disabling medium priority '+tagger+' tagger due to scoping level >= 3')
             return False
     if rec.ScopingLevel() >= 4:
         if tagger in BTaggingFlags.HighPriorityTaggers:
-            print '#BTAG# - WARNING - Disabling high priority '+tagger+' tagger due to scoping level >= 4'
+            print ('#BTAG# - WARNING - Disabling high priority '+tagger+' tagger due to scoping level >= 4')
             return False
     # disable specific taggers if geometry is not defined
     from AthenaCommon.DetFlags import DetFlags
     if not DetFlags.detdescr.ID_on():
-        print '#BTAG# - WARNING - Disabling '+tagger+' tagger because ID detdescr. was not found'
+        print ('#BTAG# - WARNING - Disabling '+tagger+' tagger because ID detdescr. was not found')
         return False
     if tagger in ['SoftMu',
                   'SoftMuChi2',
                   'SecondSoftMu',
                   'SecondSoftMuChi2']:
         if not DetFlags.detdescr.Muon_on():
-            print '#BTAG# - WARNING - Disabling '+tagger+' tagger because muon detdescr. was not found'
+            print ('#BTAG# - WARNING - Disabling '+tagger+' tagger because muon detdescr. was not found')
             return False
     return True
 
@@ -1724,7 +1726,7 @@ def checkToolCollectionStructure(CheckTransToolCollectionDependencies = True):
     If CheckTransToolCollectionDependencies is True then it will print warnings for every instance
     where a tool from a tool collection depends on another tool from another tool collection whose
     size is bigger than one."""
-    print '#BTAG# - DEBUG - Checking tool collection structure.'
+    print ('#BTAG# - DEBUG - Checking tool collection structure.')
     for tcoll in _BTaggingConfig_ToolCollections:
         for tool in _BTaggingConfig_ToolCollections[tcoll]:
             # This loops over all tools
@@ -1736,17 +1738,17 @@ def checkToolCollectionStructure(CheckTransToolCollectionDependencies = True):
                     if tcoll2:
                         if getToolCollectionSize(tcoll2) > 1 and CheckTransToolCollectionDependencies:
                             if tcoll2 != tcoll:
-                                print '#BTAG# - DEBUG - Trans tool collection dependency: '+tool+' ('+tcoll+') on '+d+' ('+tcoll2+')'
+                                print ('#BTAG# - DEBUG - Trans tool collection dependency: '+tool+' ('+tcoll+') on '+d+' ('+tcoll2+')')
                     else:
-                        print '#BTAG# - WARNING - Tool of type '+tool+' depends on tool of type '+d+' but '+d+' is not part of any tool collection.'
+                        print ('#BTAG# - WARNING - Tool of type '+tool+' depends on tool of type '+d+' but '+d+' is not part of any tool collection.')
                     if d == tool:
-                        print '#BTAG# - ERROR - Tool of type '+tool+' depends on itself!'
+                        print ('#BTAG# - ERROR - Tool of type '+tool+' depends on itself!')
                         raise ValueError
             if PassByPointer:
                 for p in PassByPointer:
                     if not PassByPointer[p] in Dependencies:
-                        print '#BTAG# - WARNING - Tool of type '+tool+' needs a tool of type '+PassByPointer[p]+' passed to it by pointer but '+PassByPointer[p]+' is not one of '+tool+"'s dependencies."
-    print '#BTAG# - DEBUG - Check completed.'
+                        print ('#BTAG# - WARNING - Tool of type '+tool+' needs a tool of type '+PassByPointer[p]+' passed to it by pointer but '+PassByPointer[p]+' is not one of '+tool+"'s dependencies.")
+    print ('#BTAG# - DEBUG - Check completed.')
 
 def getAllToolsThatDependOn(tool_type):
     """Returns a list of tool types of all tools that directly depend on a tool of a given tool type. This operation
@@ -1769,17 +1771,17 @@ def cloneTool(ToolType, Suffix):
     This function does not update metadata; it is therefore recommended to use the cloneToolCollection() function for most
     purposes instead. The tool will be placed in its own tool collection."""
     if 'tool'+ToolType+Suffix in dir():
-            print '#BTAG# - WARNING - Attempting to clone tool of type '+ToolType+' with suffix '+Suffix+' but this already exists'
+            print ('#BTAG# - WARNING - Attempting to clone tool of type '+ToolType+' with suffix '+Suffix+' but this already exists')
     try:
-        exec 'tool'+ToolType+Suffix+' = tool'+ToolType in globals()
-        exec 'meta'+ToolType+Suffix+' = deepcopy(meta'+ToolType+')' in globals()
+        exec ('tool'+ToolType+Suffix+' = tool'+ToolType in globals())
+        exec ('meta'+ToolType+Suffix+' = deepcopy(meta'+ToolType+')' in globals())
         # update xAODBaseNames if needed
         if not getToolMetadata(ToolType, "VertexFinderxAODBaseName") is None:
             changeToolMetadata(ToolType+Suffix, "VertexFinderxAODBaseName", str(getToolMetadata(ToolType, "VertexFinderxAODBaseName"))+Suffix)
         if not getToolMetadata(ToolType, "xAODBaseName") is None:
             changeToolMetadata(ToolType+Suffix, "xAODBaseName", str(getToolMetadata(ToolType, "xAODBaseName"))+Suffix)
     except:
-        print '#BTAG# - ERROR - cloneToolCollection() called but one of the tools does not exist, is not implemented correctly, or does not allow cloning: '+ToolType
+        print ('#BTAG# - ERROR - cloneToolCollection() called but one of the tools does not exist, is not implemented correctly, or does not allow cloning: '+ToolType)
         raise
     addToolTypeToToolCollection(ToolType+Suffix, ToolType+Suffix)
     changeToolMetadata(ToolType+Suffix, "IsAClone", True)
@@ -1793,21 +1795,21 @@ def cloneToolCollection(ToolCollection, Suffix):
     This is useful if you want to set up multiple tools of the same type but with different settings. See the documentation
     for more information."""
     if not ToolCollection in _BTaggingConfig_ToolCollections:
-        print '#BTAG#- ERROR - Trying to clone a tool collection called '+ToolCollection+' but this does not exist'
+        print ('#BTAG#- ERROR - Trying to clone a tool collection called '+ToolCollection+' but this does not exist')
         options = []
         tcollections = getToolCollections()
         for tcol in tcollections:
             options.append(tcol)
-        print '#BTAG#- ERROR - Valid tool collections are: '+str(options)
+        print ('#BTAG#- ERROR - Valid tool collections are: '+str(options))
         raise RuntimeError
     ToolsToClone = _BTaggingConfig_ToolCollections[ToolCollection]
     returnlist = []
     for tool in ToolsToClone:
         if 'tool'+tool+Suffix in dir():
-            print '#BTAG#- WARNING - Attempting to clone tool of type '+tool+' with suffix '+Suffix+' but this already exists, this operation will overwrite the previous clone'
+            print ('#BTAG#- WARNING - Attempting to clone tool of type '+tool+' with suffix '+Suffix+' but this already exists, this operation will overwrite the previous clone')
         try:
-            exec 'tool'+tool+Suffix+' = tool'+tool in globals()
-            exec 'meta'+tool+Suffix+' = deepcopy(meta'+tool+')' in globals()
+            exec ('tool'+tool+Suffix+' = tool'+tool in globals())
+            exec ('meta'+tool+Suffix+' = deepcopy(meta'+tool+')' in globals())
             # update xAODBaseNames if needed
             if not getToolMetadata(tool, "VertexFinderxAODBaseName") is None:
                 changeToolMetadata(tool+Suffix, "VertexFinderxAODBaseName", str(getToolMetadata(tool, "VertexFinderxAODBaseName"))+Suffix)
@@ -1817,9 +1819,9 @@ def cloneToolCollection(ToolCollection, Suffix):
             PassByPointers = {}
             PassByNames = {}
             DependsOn = {}
-            exec 'if "PassByPointer" in meta'+tool+Suffix+':\n\tPassByPointers = meta'+tool+Suffix+'["PassByPointer"]'
-            exec 'if "PassByName" in meta'+tool+Suffix+':\n\tPassByNames = meta'+tool+Suffix+'["PassByName"]'
-            exec 'if "DependsOn" in meta'+tool+Suffix+':\n\tDependsOn = meta'+tool+Suffix+'["DependsOn"]'
+            exec ('if "PassByPointer" in meta'+tool+Suffix+':\n\tPassByPointers = meta'+tool+Suffix+'["PassByPointer"]')
+            exec ('if "PassByName" in meta'+tool+Suffix+':\n\tPassByNames = meta'+tool+Suffix+'["PassByName"]')
+            exec ('if "DependsOn" in meta'+tool+Suffix+':\n\tDependsOn = meta'+tool+Suffix+'["DependsOn"]')
             # Here we use the Python property that everything is a reference
             for pointer in PassByPointers:
                 if PassByPointers[pointer] in ToolsToClone:
@@ -1834,7 +1836,7 @@ def cloneToolCollection(ToolCollection, Suffix):
             addToolTypeToToolCollection(tool+Suffix, ToolCollection+Suffix)
             changeToolMetadata(tool+Suffix, "IsAClone", True)
         except:
-            print '#BTAG#- ERROR - cloneToolCollection() called but one of the tools does not exist, is not implemented correctly, or does not allow cloning: '+tool
+            print ('#BTAG#- ERROR - cloneToolCollection() called but one of the tools does not exist, is not implemented correctly, or does not allow cloning: '+tool)
             raise
     return returnlist
 
@@ -1845,9 +1847,9 @@ def getToolAllMetadata(tool_type):
 
     output: The metadata as a dictionary."""
     try:
-        exec('D = meta'+tool_type)
+        D = eval('meta'+tool_type)
     except:
-        print '#BTAG#- ERROR - Tool type "'+tool_type+'" has no metadata dictionary or does not exist!'
+        print ('#BTAG#- ERROR - Tool type "'+tool_type+'" has no metadata dictionary or does not exist!')
         raise NotImplementedError
     return D
 
@@ -1872,7 +1874,7 @@ def changeClonedToolCollectionMetadata(ToolCollection, Suffix, metakey, metavalu
     Note, you can actually also use this on the default (i.e. non-cloned) tool collections by settings the Suffix to "", but
     this is not recommended."""
     if not ToolCollection in _BTaggingConfig_ToolCollections:
-        print '#BTAG#- ERROR - Attempting to modify metadata for cloned tool collection for a tool collection that does not exist: '+ToolCollection
+        print ('#BTAG#- ERROR - Attempting to modify metadata for cloned tool collection for a tool collection that does not exist: '+ToolCollection)
         raise ValueError
     for tool in _BTaggingConfig_ToolCollections[ToolCollection]:
         changeToolMetadata(tool + Suffix, metakey, metavalue)
@@ -1884,7 +1886,7 @@ def changeToolMetadata(tool_type, metakey, metavalue):
         exec('global meta'+tool_type)
         exec('meta'+tool_type+'[metakey] = metavalue')
     except:
-        print '#BTAG#- ERROR - Trying to adjust metadata for a tool that does not exist or has no metadata: '+tool_type
+        print ('#BTAG#- ERROR - Trying to adjust metadata for a tool that does not exist or has no metadata: '+tool_type)
         raise ValueError
 
 def setToolDefaultTracks(tool_type, default):
@@ -1895,7 +1897,7 @@ def setToolDefaultTracks(tool_type, default):
 
     For permanent changes it is better to adjust the actual metadata."""
     changeToolMetadata(tool_type, 'DefaultTracks', default)
-    print '#BTAG#- INFO - Default track association for tool of type "'+tool_type+'" changed to "'+default+'".'
+    print ('#BTAG#- INFO - Default track association for tool of type "'+tool_type+'" changed to "'+default+'".')
 
 def JetCollectionIsSupported(JetCollection):
     """Returns whether a given jet collection is supported for b-tagging. This takes information
@@ -2000,7 +2002,7 @@ def toolBTagMuonToJetAssociator(name, useBTagFlagsDefaults = True, **options):
 for tool in dir():
     if tool.find('meta') == 0:
         tname = tool[4:]
-        exec 'metadict = meta'+tname
+        exec ('metadict = meta'+tname)
         tcoll = tname
         if 'ToolCollection' in metadict:
             tcoll = metadict['ToolCollection']

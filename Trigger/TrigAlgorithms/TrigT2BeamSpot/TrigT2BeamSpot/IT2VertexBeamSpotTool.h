@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT2BEAMSPOT_IT2VERTEXBEAMSPOTTOOL_H
 #define TRIGT2BEAMSPOT_IT2VERTEXBEAMSPOTTOOL_H
@@ -35,6 +35,7 @@ enum Statistics
 
 
 namespace PESA {
+   class T2TrackClusterer;
 
    class IT2VertexBeamSpotTool : virtual public IAlgTool {
       public:
@@ -63,7 +64,7 @@ namespace PESA {
                DataVector< TrigVertexCollection >&  mySplitVertexCollections) = 0;
 
          virtual void reconstructSplitVertices( ConstDataVector<TrackCollection>& mySelectedTrackCollection,
-               DataVector< TrigVertexCollection >& mySplitVertexCollections ) = 0;
+               DataVector< TrigVertexCollection >& mySplitVertexCollections, T2TrackClusterer& trackClusterer ) = 0;
 
 
          virtual void resetMonitoredVariables() = 0;

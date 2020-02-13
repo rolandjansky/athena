@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## David Cote, 17 July 2009
 ## Put the GetCool method in a python import, to ensure it is queried only once.
+
+from __future__ import print_function
 
 __all__ = [
     "cool",
@@ -23,7 +25,7 @@ def _setup():
     from CoolConvUtilities.MagFieldUtils import getFieldForRun
 
     if lb==None:
-        print rn
+        logGetCool.info(rn)  
         cool=getFieldForRun(rn)
     else:
         # MagFieldDCSInfo

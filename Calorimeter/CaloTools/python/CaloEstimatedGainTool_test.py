@@ -16,6 +16,12 @@ from AthenaCommon.Logging import logging
 import ROOT
 
 
+def i32(x):
+    if x >= (1<<31):
+        x -= (1<<32)
+    return x
+
+
 class TestAlg (Alg):
     def __init__ (self, name):
         Alg.__init__ (self, name)
@@ -33,24 +39,23 @@ class TestAlg (Alg):
     def testcell (self, elt, elist):
         ctx = self.getContext()
         for (e, gain) in elist:
-            if gain < 0: gain += (1<<32)
             if isinstance(e, type(())):
                 cell = ROOT.TileCell(elt, e[0])
                 cell.setEnergy (e[0], e[1], 0, 0)
             else:
                 cell = ROOT.CaloCell (elt, e, 0, 0, 0)
-                g = self.tool.estimatedGain (ctx, elt, e, 0)
+                g = i32(self.tool.estimatedGain (ctx, elt, e, 0))
                 assert g == gain, (e, g, gain)
-                g = self.tool.estimatedGain (ctx, elt, e, 1)
+                g = i32(self.tool.estimatedGain (ctx, elt, e, 1))
                 assert g == gain, (e, g, gain)
 
-            g = self.tool.estimatedGain (ctx, cell, 0)
+            g = i32(self.tool.estimatedGain (ctx, cell, 0))
             assert g == gain, (e, g, gain)
-            g = self.tool.estimatedGain (ctx, cell, elt, 0)
+            g = i32(self.tool.estimatedGain (ctx, cell, elt, 0))
             assert g == gain, (e, g, gain)
-            g = self.tool.estimatedGain (ctx, cell, 1)
+            g = i32(self.tool.estimatedGain (ctx, cell, 1))
             assert g == gain, (e, g, gain)
-            g = self.tool.estimatedGain (ctx, cell, elt, 1)
+            g = i32(self.tool.estimatedGain (ctx, cell, elt, 1))
             assert g == gain, (e, g, gain)
         return
             
@@ -70,10 +75,10 @@ class TestAlg (Alg):
         self.testcell (elt3, [(1000, 0), (50000, 1), (800000, 2)])
 
         elt4 = mgr.get_element (ROOT.CaloCell_ID.TileBar1, 0.3, 0.1)
-        self.testcell (elt4, [((1000, 1000), ROOT.CaloGain.TILEHIGHHIGH),
-                              ((1000, 50000), ROOT.CaloGain.TILEHIGHLOW),
-                              ((50000, 1000), ROOT.CaloGain.TILEHIGHLOW),
-                              ((50000, 50000), ROOT.CaloGain.TILELOWLOW),
+        self.testcell (elt4, [((1000, 1000), i32(ROOT.CaloGain.TILEHIGHHIGH)),
+                              ((1000, 50000), i32(ROOT.CaloGain.TILEHIGHLOW)),
+                              ((50000, 1000), i32(ROOT.CaloGain.TILEHIGHLOW)),
+                              ((50000, 50000), i32(ROOT.CaloGain.TILELOWLOW)),
                              ])
         log.info ('finished')
         return StatusCode.Success

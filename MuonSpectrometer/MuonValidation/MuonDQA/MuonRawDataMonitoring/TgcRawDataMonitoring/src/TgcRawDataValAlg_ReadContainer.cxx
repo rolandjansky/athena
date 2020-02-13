@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,6 +84,15 @@ TgcRawDataValAlg::readTgcPrepDataContainer(const Muon::TgcPrepDataContainer* tgc
   ///////////////////////////////////////////////////////////////////////////
   // Loop over TgcPrepDataContainer
   if(pcn!=TOTA){
+
+    // MuonDetectorManager from the conditions store
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return; 
+    } 
+
     // PREV/CURR/NEXT timing
     Muon::TgcPrepDataContainer::const_iterator container_end=tgc_prep_container->end();
     for(Muon::TgcPrepDataContainer::const_iterator containerIt=tgc_prep_container->begin();
@@ -155,7 +164,7 @@ TgcRawDataValAlg::readTgcPrepDataContainer(const Muon::TgcPrepDataContainer* tgc
                                 layer, sector, dummy1, sectorPhi);
                 
         // Get channel position
-        const MuonGM::TgcReadoutElement* pReadoutElementTGC = m_muonMgr->getTgcReadoutElement(elementID);
+        const MuonGM::TgcReadoutElement* pReadoutElementTGC = MuonDetMgr->getTgcReadoutElement(elementID);
         const Amg::Vector3D channelPos = pReadoutElementTGC->channelPos(elementID); // attention
 	//const HepGeom::Point3D<double> channelPos = pReadoutElementTGC->channelPos(elementID);        
 

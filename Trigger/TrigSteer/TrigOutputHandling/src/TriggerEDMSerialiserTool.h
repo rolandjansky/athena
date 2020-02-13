@@ -12,7 +12,7 @@
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaSerializeSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigOutputHandling/HLTResultMTMakerTool.h"
 #include "TrigSerializeTP/TrigSerTPTool.h"
 #include "Gaudi/Parsers/Factory.h" // Needed to declare less common Property types

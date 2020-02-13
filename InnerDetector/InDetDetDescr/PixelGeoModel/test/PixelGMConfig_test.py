@@ -20,6 +20,6 @@ if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
     acc = PixelGeometryCfg(ConfigFlags)
-    f=open('PixelGeometryCfg.pkl','w')
+    f=open('PixelGeometryCfg.pkl','wb')
     acc.store(f)
     f.close()

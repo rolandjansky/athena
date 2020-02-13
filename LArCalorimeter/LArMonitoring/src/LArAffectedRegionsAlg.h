@@ -12,7 +12,7 @@
 #define LARAFFECTEDREGIONSALG_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"

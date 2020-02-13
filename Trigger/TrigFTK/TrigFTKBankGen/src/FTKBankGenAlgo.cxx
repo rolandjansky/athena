@@ -55,6 +55,7 @@ FTKBankGenAlgo::FTKBankGenAlgo(const std::string& name, ISvcLocator* pSvcLocator
   m_UseIdentifierHash(false),
   m_sector_dir_path(),
   m_gcon_dir_path(),
+  m_par_c_max(0),
   m_par_c_min(0),
   m_par_c_slices(0),
   m_par_phi_max(0),

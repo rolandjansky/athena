@@ -20,7 +20,7 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "xAODBTagging/BTaggingAuxContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTagging.h"

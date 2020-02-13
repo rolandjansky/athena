@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """ Instantiates tools for back tracking and L2
 """
@@ -27,4 +29,4 @@ InDetTrigTRTDetElementsRoadMaker =  InDet__TRT_DetElementsRoadMaker_xk(name   = 
 
 ToolSvc += InDetTrigTRTDetElementsRoadMaker
 if (InDetTrigFlags.doPrintConfigurables()):
-  print      InDetTrigTRTDetElementsRoadMaker
+  print (     InDetTrigTRTDetElementsRoadMaker)

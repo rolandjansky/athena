@@ -116,23 +116,12 @@ Stream1.MetadataItemList += [ 'DMTest::S1#MetaS1',
 ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += ["DEFAULT_SPLITLEVEL='1'"]
 
 
-#--------------------------------------------------------------
-# Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
-#--------------------------------------------------------------
-svcMgr.MessageSvc.OutputLevel = 3
-svcMgr.MessageSvc.debugLimit  = 100000
-svcMgr.ClassIDSvc.OutputLevel = 3
-
-# No stats printout
-ChronoStatSvc = Service( "ChronoStatSvc" )
-ChronoStatSvc.ChronoPrintOutTable = FALSE
-ChronoStatSvc.PrintUserTime       = FALSE
-ChronoStatSvc.StatPrintOutTable   = FALSE
-
-# Avoid races when running tests in parallel.
-FILECATALOG = 'xAODTestWrite_catalog.xml'
-include ('DataModelRunTests/setCatalog.py')
-
 # Increment LBN every two events.
 from McEventSelector import McEventSelectorConf
 svcMgr+=McEventSelectorConf.McEventSelector('EventSelector',EventsPerLB=2)
+
+
+# Avoid races when running tests in parallel.
+FILECATALOG = 'xAODTestWrite_catalog.xml'
+
+include ('DataModelRunTests/commonTrailer.py')

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##############################
 # L2 Electron and Photon Calorimeter Hypothesis Algorithm Configuration:
@@ -11,7 +11,7 @@ from AthenaCommon.SystemOfUnits import GeV
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 menu_name = TriggerFlags.triggerMenuSetup()
 
-from TrigL2CaloHypoCutDefs import L2CaloCutMaps
+from .TrigL2CaloHypoCutDefs import L2CaloCutMaps
 class TrigL2CaloHypoBase (TrigL2CaloHypo):
     __slots__ = []
     def __init__(self, name):

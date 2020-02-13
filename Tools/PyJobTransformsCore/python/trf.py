@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @package trf
 #
@@ -8,7 +8,7 @@
 #  @version $Rev: 576050 $
 #  @date $Date: 2013-12-18 09:14:07 +0100 (Wed, 18 Dec 2013) $
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 import os, sys, time, getopt, stat, re, math, subprocess, signal, threading
 import traceback
 import stat as statconsts
@@ -338,7 +338,7 @@ class JobTransform(TransformLogger):
     #  @exception SystemExit()
     def _completeReport( self, signum, frame ):
         if self._runJobProcess is not None:
-            print "Signal handler: Killing %s with %s." % ( self._runJobProcess.pid, signal.SIGTERM )
+            print ("Signal handler: Killing %s with %s." % ( self._runJobProcess.pid, signal.SIGTERM ))
             os.kill( self._runJobProcess.pid, signal.SIGTERM )
         # Restoring signal handlers.
         setDefaultSignalHandlers()
@@ -361,8 +361,8 @@ class JobTransform(TransformLogger):
         if rc < 0 or rc is None:
             os.system( 'dmesg > dmesg_trf.txt' )
             rc = 8 #ExitCodes---> 8: an unknown exception occurred
-        print "Signal handler: athCode=%s" % rc
-        print "Signal handler: athAcronym=%s" % str(ExitCodes.what(rc) )
+        print ("Signal handler: athCode=%s" % rc)
+        print ("Signal handler: athAcronym=%s" % str(ExitCodes.what(rc) ))
         # overwrite producer for new errors that are added
         self._jobReport.setProducer(self.name(),self.version())
         # adding the exit status from athena        
@@ -375,7 +375,7 @@ class JobTransform(TransformLogger):
         self.dumpReport(self._endReportOptions,self._endReportNotOptions)
         self.writeReports()
         ec = self._jobReport.exitCode()
-        print "Signal handler: Raising SystemExit with exit code %s." % ec
+        print ("Signal handler: Raising SystemExit with exit code %s." % ec)
         raise SystemExit( ec )
 
     ## @brief Default skeleton job options file name.
@@ -688,10 +688,10 @@ class JobTransform(TransformLogger):
         random.seed()
         if random.random() < float(percentage):
             self._exportToAmi = True
-            print 'trf.py will send to ami. '
+            print ('trf.py will send to ami. ')
         else:
             self._exportToAmi = False
-            print 'trf.py will NOT send to ami. '
+            print ('trf.py will NOT send to ami. ')
     
     
     ## @brief Ensure that the exit code is not affected by the presence of unknown errors.
@@ -986,16 +986,16 @@ class JobTransform(TransformLogger):
                     "try:",
                     "   from AthenaServices import SummarySvc",
                     "except:",
-                    "   print 'Could not import AthenaServices.SummarySvc'",
+                    "   printfunc ('Could not import AthenaServices.SummarySvc')",
                     "   try:",
                     "      from AthenaCommon.AppMgr import ServiceMgr, theApp",
                     "      import AthenaCommon.ConfigurableDb as ConfDb",
                     "      from AthenaServices.AthenaServicesConf import AthenaSummarySvc",
                     "      from AthenaCommon.OldStyleConfig import Service",
                     "   except:",
-                    "      print 'Could not import required modules to enable use of LoggedMessageSvc.'",
+                    "      printfunc ('Could not import required modules to enable use of LoggedMessageSvc.')",
                     "   else:",
-                    "      print 'Using AthenaServices...'",
+                    "      printfunc ('Using AthenaServices...')",
                     "      from AthenaServices.AthenaServicesConf import AthenaSummarySvc",
                     "      AthenaSummarySvc.SummaryFile = 'AthenaSummary_%s.txt'" % self.name(),
                     "      theApp.CreateSvc += ['AthenaSummarySvc']",
@@ -1020,7 +1020,7 @@ class JobTransform(TransformLogger):
                     "      ServiceMgr += newMsgSvc",
                     "      MessageSvc = ServiceMgr.MessageSvc",
                     "else:",
-                    "   print 'Using AthenaServices.SummarySvc...'",
+                    "   printfunc ('Using AthenaServices.SummarySvc...')",
                     "   from AthenaServices.AthenaServicesConf import AthenaSummarySvc",
                     "   AthenaSummarySvc.SummaryFile = 'AthenaSummary_%s.txt'" % self.name(),
                     "   SummarySvc.useAthenaSummarySvc()" ]
@@ -1233,12 +1233,12 @@ class JobTransform(TransformLogger):
     ## Print short usage message to @c sys.stdout
     #  @return None
     def usage(self):
-        print self.getUsage()
+        print (self.getUsage())
 
     ## Print full help message to @c sys.stdout
     #  @return None
     def help(self):
-        print self.getFullHelp()
+        print (self.getFullHelp())
 
     ## Add all arguments to _positionalArgs, ensures proper help is provided
     #   @details Placeholder, to be implemented in task specific transforms.
@@ -1336,8 +1336,8 @@ class JobTransform(TransformLogger):
                 try:
                     name = posArgs[pos].name()
                 except IndexError:
-                    raise TransformArgumentError, 'too many arguments: %d (max=%d)' % \
-                          (nArgs, len(posArgs))
+                    raise TransformArgumentError ('too many arguments: %d (max=%d)' % \
+                          (nArgs, len(posArgs)))
                 pos += 1
             else:
                 #named argument or option
@@ -1847,16 +1847,16 @@ class JobTransform(TransformLogger):
             out = subprocess.Popen(["voms-proxy-info","-fqan"],  stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
             lines=out.split("\n")
             for l in lines:
-                # print l.strip()
+                # print (l.strip())
                 if l.startswith('/atlas/Role=production'): isProd=True
-        except OSError, e:
-            print "trf.py - Not a prodSys environment."
+        except OSError as e:
+            print ("trf.py - Not a prodSys environment.")
                      
         
-        if isProd==False and os.getenv('TZAMIPW') is None: print 'Performance data will not get stored in the AMI db.'          
+        if isProd==False and os.getenv('TZAMIPW') is None: print ('Performance data will not get stored in the AMI db.'          )
         elif self._exportToAmi==True and self.name()!='Digi_trf':  # digi is off as it has no AMItag and is fast
         
-            #print '-------', self.name(), '-------'
+            #print ('-------', self.name(), '-------')
             
             isMC = False
             isStream=''
@@ -1867,66 +1867,66 @@ class JobTransform(TransformLogger):
             import PyUtils.AthFile as athFile 
             # this loop just tries to find runnumber, stream, amitag. should not look at NTUP files as these have not metadata embeded
             for arg in self._positionalArgs: 
-                # print arg.name()
+                # print (arg.name())
                 if  arg.name()=='outputAODFile' or arg.name()=='outputESDFile' :
                     # or arg.name().startswith('outputNTUP') 
                     # arg.name()=='outputEvgenFile' or arg.name()=='outputHitsFile' or # arg.name().startswith('outputRDOFile'):
-                    print '========o= inputFilePeeker ============'
-                    print arg.name(), arg.value()
+                    print ('========o= inputFilePeeker ============')
+                    print (arg.name(), arg.value())
                     inFile=arg.value()
                                         
                     inputFileSummary={}
                     try:
                         fi = athFile.fopen(inFile)
                         inputFileSummary = fi.fileinfos
-                    except Exception,err:
-                        print "Unable to open file:",inFile
-                        print 'caught:\t',err
+                    except Exception as err:
+                        print ("Unable to open file:",inFile)
+                        print ('caught:\t',err)
                     
                     try:
                         if 'IS_SIMULATION' in inputFileSummary['evt_type']:
                             isMC = True
-                        print 'isMC     ', isMC
+                        print ('isMC     ', isMC)
                         
                         if 'triggerStreamOfFile' in inputFileSummary['tag_info']:
                             isStream = inputFileSummary['tag_info']['triggerStreamOfFile']
-                        print 'isStream ',isStream
+                        print ('isStream ',isStream)
                         
                         if 'AMITag' in inputFileSummary['tag_info']:
                             isAMItag = inputFileSummary['tag_info']['AMITag']
-                        print 'isAMItag ',isAMItag
+                        print ('isAMItag ',isAMItag)
                         
                         if 'run_number' in  inputFileSummary:
                             isRun    = inputFileSummary['run_number'][0]
-                        print 'isRun    ', isRun
+                        print ('isRun    ', isRun)
                         
                         # if 'stream_names' in inputFileSummary:
                         #     isFormat = inputFileSummary['stream_names'][0].replace('Stream','')
-                        # print 'isFormat ',isFormat
+                        # print ('isFormat ',isFormat)
                     
                         # if arg.name().startswith('outputRDOFile'):
-                        #     print 'This is RDO. Changing format to proper one.'
+                        #     print ('This is RDO. Changing format to proper one.')
                         #     isFormat='RDO'
                         
                         if isMC==True:
-                            print 'this is MC. Changin stream->procstep and runnumber -> pandaid'
+                            print ('this is MC. Changin stream->procstep and runnumber -> pandaid')
                             isStream=self.name()
                             fromFN = inFile.split('.');
                             if inFile[1].isdigit():
                                 isRun = inFile[1]
                             else:
                                 isRun = 0
-                    except Exception,e:
-                        print "Problem in decoding variables."
-                        print sys.exc_info()[0]
-                        print sys.exc_info()[1]
+                    except Exception as e:
+                        print ("Problem in decoding variables.")
+                        print (sys.exc_info()[0])
+                        print (sys.exc_info()[1])
                     except:
-                        print "Unexpected error:", sys.exc_info()[0]
-                    print '====================='
+                        print ("Unexpected error:", sys.exc_info()[0])
+                    print ('=====================')
                    
             if isAMItag!='':
             			    
-                print 'trf.py STARTING UPLOAD the final values -> stream:',isStream,'\trunnumber:',isRun,'\tamitag:',isAMItag#, '\tformat:',isFormat
+                print ('trf.py STARTING UPLOAD the final values -> stream:',isStream,'\trunnumber:',isRun,'\tamitag:',isAMItag)#, '\tformat:',isFormat
                 
                 import PyJobTransforms.performanceDataUploader as pu
                 
@@ -1935,25 +1935,25 @@ class JobTransform(TransformLogger):
 			    # this loop finds sizes and formats and uploads to AMI for all the files.
                 for cmd in self._postRunActions:
                     try:
-                        # print 'trf.py _postRunAction ',cmd
+                        # print ('trf.py _postRunAction ',cmd)
                         fs=[]
                         cmd.getDataForAmi(fs)
-                        print 'trf.py returned from getting data on object sizes'
+                        print ('trf.py returned from getting data on object sizes')
                         if len(fs)==3:
                             if fs[1]>0:
                                 try:
                                     uploader.uploadDataSize(fs[0], int(isRun), isStream ,isAMItag, fs[1], fs[2])
-                                    print 'trf.py object size data upload DONE'
-                                except Exception, exc:
-                                    print exc
+                                    print ('trf.py object size data upload DONE')
+                                except Exception as exc:
+                                    print (exc)
                                 except:
-                                    print "Unexpected error:", sys.exc_info()[0]
-                    except Exception, e:
-                        print 'trf.py WARNING: Could not send size data to AMI ' , e
-                        print sys.exc_info()[0]
-                        print sys.exc_info()[1]
+                                    print ("Unexpected error:", sys.exc_info()[0])
+                    except Exception as e:
+                        print ('trf.py WARNING: Could not send size data to AMI ' , e)
+                        print (sys.exc_info()[0])
+                        print (sys.exc_info()[1])
                     except:
-                        print "Unexpected error:", sys.exc_info()[0]
+                        print ("Unexpected error:", sys.exc_info()[0])
                 
                 if self._name=='AtlasG4_trf' or self._name=='Evgen_trf' or self._name=='Digi_trf': 
                     perffile='ntuple.pmon.gz' 
@@ -1962,24 +1962,24 @@ class JobTransform(TransformLogger):
                     
                 if os.access(perffile,os.F_OK):
                     try:
-                        print 'trf.py: uploading job performance data to AMI'
+                        print ('trf.py: uploading job performance data to AMI')
                             
                         try:
                             uploader.uploadPerfMonSD(isAMItag, self._name, isStream, int(isRun), perffile)
-                        except Exception, exc: 
-                            print exc
+                        except Exception as exc: 
+                            print (exc)
                         except:
-                            print "Unexpected error:", sys.exc_info()[0]
+                            print ("Unexpected error:", sys.exc_info()[0])
                         
-                        print 'trf.py upload of job performance data done!'
-                    except Exception, e:
-                        print 'trf.py WARNING: Could not send job info to AMI ' , e
-                        print sys.exc_info()[0]
-                        print sys.exc_info()[1]
+                        print ('trf.py upload of job performance data done!')
+                    except Exception as e:
+                        print ('trf.py WARNING: Could not send job info to AMI ' , e)
+                        print (sys.exc_info()[0])
+                        print (sys.exc_info()[1])
                     except:
-                        print "Unexpected error:", sys.exc_info()[0]
+                        print ("Unexpected error:", sys.exc_info()[0])
                 else:
-                    print 'there is no perfmon file: ', perffile
+                    print ('there is no perfmon file: ', perffile)
         
         
         
@@ -1993,16 +1993,16 @@ class JobTransform(TransformLogger):
         for cmd in self._postRunActions:
             try:
                 cmd.postRunAction()             
-            except TransformValidationError, e:
+            except TransformValidationError as e:
                 self.addValidationError( e )
                 
         from PyJobTransforms.performanceDataUploader import timelimited
         try:
             timelimited(120, self.doUpload)
-        except Exception, exc: 
-            print exc
+        except Exception as exc: 
+            print (exc)
         except:
-            print "Unexpected error:", sys.exc_info()[0]
+            print ("Unexpected error:", sys.exc_info()[0])
             
         
         if not ( VALIDATION_DICT['ALL'] == False or VALIDATION_DICT[ 'testMatchEvents' ] == False ):
@@ -2106,7 +2106,7 @@ class JobTransform(TransformLogger):
                       statconsts.S_IXUSR | statconsts.S_IXGRP | statconsts.S_IXOTH |
                       statconsts.S_IRUSR | statconsts.S_IRGRP | statconsts.S_IROTH |
                       statconsts.S_IWUSR )
-        except Exception, e:
+        except Exception as e:
             self.logger().warning( 'Encountered an error while trying to create %s. %s' % ( athenaScript, e ) )
         logStartAthena = self._logFile.tell()
         # the actual execution
@@ -2198,7 +2198,7 @@ class JobTransform(TransformLogger):
             # run the sub-job
             self._jobReport.addReport( self.runJob(), 'MERGE' )
         # Catch all exceptions
-        except Exception, e:
+        except Exception as e:
             self.logger().error( "During execution of %s, exception caught: %s" % ( self.name(), e ) )
             self._jobReport.addError( self._handleException(e) )
         # run the error diagnoser on all errors
@@ -2225,7 +2225,7 @@ class JobTransform(TransformLogger):
         # process argument list
         try:
             self.processArgs(sys.argv[1:])
-        except SystemExit,e:
+        except SystemExit as e:
             if not hasattr(e,'args') or not e.args or e.args[0] == 0:
                 # normal system exit call without any error (in printHelpAndExit())
                 self.logger().error("Got zero SystemExit exception")
@@ -2233,7 +2233,7 @@ class JobTransform(TransformLogger):
             else:
                 self.logger().error("Got SystemExit exception with code %s", e.args[0])
                 self._jobReport.addError( self._handleException(e) )
-        except Exception,e:
+        except Exception as e:
             self._jobReport.addError( self._handleException(e) )
         else:
             # Run timing routines
@@ -2260,7 +2260,7 @@ class JobTransform(TransformLogger):
                 name = arg.name()
                 if hasattr(runArgs,name):
                     self.setArgument( name, getattr(runArgs,name) )
-        except Exception,e:
+        except Exception as e:
             self._jobReport.addError( self._handleException(e) )
         else:
             # Run timing routines
@@ -2303,7 +2303,7 @@ class JobTransform(TransformLogger):
                 name = arg.name()
                 if name in argDict:
                     self.setArgument( name, argDict[name] )
-        except Exception,e:
+        except Exception as e:
             self._jobReport.addError( self._handleException(e) )
         else:
             # Run timing routines

@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file SCT_TestCablingAlg.cxx
- * Implementation file for  SCT cabling service test algorithm
+ * Implementation file for  SCT cabling tool test algorithm
  * @author Shaun Roe
  * @date 20 October, 2008
  **/

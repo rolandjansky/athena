@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # $Id: SimpleAssociation.py 542123 2013-03-23 02:41:01Z ssnyder $
 #
@@ -10,7 +10,7 @@
 
 
 import D3PDMakerCoreComps
-from D3PDObject import D3PDObject
+from .D3PDObject import D3PDObject
 
 
 def SimpleAssociation (parent,

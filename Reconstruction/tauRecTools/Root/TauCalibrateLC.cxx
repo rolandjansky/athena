@@ -51,7 +51,7 @@ TauCalibrateLC::~TauCalibrateLC() {
 /********************************************************************/
 StatusCode TauCalibrateLC::initialize() {
 
-  ATH_CHECK( m_vertexInputContainer.initialize() );
+  ATH_CHECK( m_vertexInputContainer.initialize(! m_vertexInputContainer.key().empty()) );
 
   std::string fullPath = find_file(m_calibrationFile);
 
@@ -161,14 +161,12 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
         
     if (etaBin>=m_nEtaBins) etaBin = m_nEtaBins-1; // correction from last bin should be applied on all taus outside stored eta range
 
-    // for tau trigger
-    bool inTrigger = tauEventData()->inTrigger();
     const xAOD::VertexContainer * vxContainer = 0;
 
     int nVertex = 0;
         
     // Only retrieve the container if we are not in trigger
-    if ( !inTrigger ) {
+    if ( ! m_vertexInputContainer.key().empty() ) {
 
       // StatusCode sc;
       // Get the primary vertex container from StoreGate

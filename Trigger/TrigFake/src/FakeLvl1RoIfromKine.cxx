@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*******************************************************************e
@@ -55,7 +55,6 @@ Modified :
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 
-const int NPOS=-1;
 
 using namespace HepMC;
 using namespace TrigFake; // for Trajectory

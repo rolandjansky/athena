@@ -28,7 +28,7 @@
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 
 
 ///Jets

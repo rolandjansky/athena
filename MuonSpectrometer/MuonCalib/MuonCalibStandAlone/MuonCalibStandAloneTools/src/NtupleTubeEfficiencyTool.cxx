@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -22,7 +22,6 @@
 #include <cstdlib>
 
 // MuonReadoutGeometry //
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
@@ -107,7 +106,8 @@ StatusCode NtupleTubeEfficiencyTool::initialize() {
 
     ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
-    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
+    //retrieve detector manager from the conditions store
+    ATH_CHECK(m_DetectorManagerKey.initialize());
 
     //retrieve fixed id tool   
     std::string idToFixedIdToolType("MuonCalib::IdToFixedIdTool");
@@ -391,11 +391,18 @@ NtupleTubeEfficiencyTool::handleEvent( const MuonCalibEvent & event,
     m_qfitter->switchOnRefit();
     //m_qfitter->fit(segment);
 
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return StatusCode::FAILURE; 
+    } 
+
     //loop over multilayers
     for (int multilayer=1; multilayer<m_nb_multilayers+1; multilayer++) {
 
 	const MuonGM::MdtReadoutElement* MdtRoEl = 
-	    m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(station_id,multilayer,1,1) );
+	    MuonDetMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(station_id,multilayer,1,1) );
     
 	if(m_nb_layers<0)  m_nb_layers = MdtRoEl->getNLayers();
 	if(m_nb_tubes<0)   m_nb_tubes  = MdtRoEl->getNtubesperlayer(); 

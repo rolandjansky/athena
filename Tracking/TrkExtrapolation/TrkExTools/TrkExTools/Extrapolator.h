@@ -39,7 +39,7 @@
 #include "xAODTracking/TrackParticle.h" 
 #include "xAODTracking/NeutralParticle.h"
 
-#include "GaudiKernel/Counters.h"
+#include <Gaudi/Accumulators.h>
 #include "tbb/concurrent_unordered_map.h"
 
 class MsgStream;
@@ -359,24 +359,24 @@ class Extrapolator : public AthAlgTool,
     /** C 10) <b>Configured AlgTool extrapolation method</b>:
       - Extrapolate to a destination surface, while collecting all the material layers in between.
       */
-    virtual const std::vector<const TrackStateOnSurface*>* extrapolateM(const TrackParameters& parameters,
-                                                                        const Surface& sf,
-                                                                        PropDirection dir,
-                                                                        BoundaryCheck bcheck,
-                                                                        ParticleHypothesis particle=pion,
-                                                                        Trk::ExtrapolationCache* cache = 0) const override final;
+    virtual std::vector<const TrackStateOnSurface*>* extrapolateM(const TrackParameters& parameters,
+                                                                  const Surface& sf,
+                                                                  PropDirection dir,
+                                                                  BoundaryCheck bcheck,
+                                                                  ParticleHypothesis particle=pion,
+                                                                  Trk::ExtrapolationCache* cache = 0) const override final;
 
     /** C 11) <b>Configured AlgTool extrapolation method</b>:
       - Extrapolate to a destination surface, while collecting all the material layers and transport jacobians in between.
       */
-    virtual const std::vector<const TrackParameters*>* extrapolateM(const TrackParameters& parameters,
-                                                                    const Surface& sf,
-                                                                    PropDirection dir,
-                                                                    BoundaryCheck bcheck,
-                                                                    std::vector<MaterialEffectsOnTrack>& material,
-                                                                    std::vector<Trk::TransportJacobian *>& jacs,
-                                                                    ParticleHypothesis particle=pion,
-                                                                    Trk::ExtrapolationCache* cache = 0) const override final;
+    virtual std::vector<const TrackParameters*>* extrapolateM(const TrackParameters& parameters,
+                                                              const Surface& sf,
+                                                              PropDirection dir,
+                                                              BoundaryCheck bcheck,
+                                                              std::vector<MaterialEffectsOnTrack>& material,
+                                                              std::vector<Trk::TransportJacobian *>& jacs,
+                                                              ParticleHypothesis particle=pion,
+                                                              Trk::ExtrapolationCache* cache = 0) const override final;
 
     virtual const Trk::TrackParameters*  extrapolateWithPathLimit(
                                                                   const Trk::TrackParameters& parm,

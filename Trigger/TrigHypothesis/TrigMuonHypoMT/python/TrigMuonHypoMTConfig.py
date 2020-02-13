@@ -271,7 +271,7 @@ class TrigMufastHypoConfig(object):
                 tool.PtThresholds[th] = [ -1. * GeV ]
                 tool.AcceptAll = True
             else:
-                if "idperf" in toolName or thvalue < 5:
+                if "idperf" in toolName or int(thvalue) < 5:
                     thvaluename =  thvalue + 'GeV_v15a'
                 elif "0eta105" in toolName:
                     thvaluename = thvalue+ "GeV_barrelOnly_v15a"
@@ -414,7 +414,7 @@ class TrigmuCombHypoConfig(object):
                 tool.PtBins[th] = [-10000.,10000.]
                 tool.PtThresholds[th] = [ -1. * GeV ]
             else:
-                if thvalue >= 24:
+                if int(thvalue) >= 24:
                     thvaluename = '22GeV_v15a'
                 else:
                     thvaluename = thvalue + 'GeV_v15a'

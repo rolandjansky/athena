@@ -20,7 +20,7 @@
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaInterprocess/Incidents.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 using namespace SG;
 // --------------------------------------------------------------------------------

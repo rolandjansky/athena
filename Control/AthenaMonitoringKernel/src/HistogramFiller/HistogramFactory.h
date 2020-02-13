@@ -46,6 +46,20 @@ namespace Monitored {
      * @return ROOT object handler
      */
     virtual TNamed* create(const HistogramDef& def);
+
+    /**
+     * @brief Invent path name
+     *
+     * If def path contains any of: EXPERT, SHIFT, DEBUG, RUNSTAT, EXPRESS this is online 
+     * convention this becomes the first element of the path followed by the group name.
+     * Else if the def.path is DEFAULT then only the group name is used if the path yet 
+     * different is concatenated with the group name.
+     * 
+     * @param def Histogram definition 
+     * @return Full path to histogram
+    */
+    std::string getFullName(const HistogramDef& def) const;
+
   private:
     /**
      * @brief Create and register histogram
@@ -122,20 +136,7 @@ namespace Monitored {
      * @param hist Histogram handler 
      * @param labels Histogram labels (from histogram definition)
      */
-    static void setLabels(TH1* hist, const std::vector<std::string>& labels);
-
-    /**
-     * @brief Invent path name
-     *
-     * If def path contains any of: EXPERT, SHIFT, DEBUG, RUNSTAT, EXPRES this is online 
-     * convention this becomes the first element of the path followed by the group name.
-     * Else if the def.path is DEFAULT then only the group name is used if the path yet 
-     * different is concatenated with the group name.
-     * 
-     * @param def Histogram definition 
-     * @return Efficiency graph handler
-    */
-    std::string getFullName(const HistogramDef& def);
+    static void setLabels(TAxis* axis, const std::vector<std::string>& labels);
 
     ServiceHandle<ITHistSvc> m_histSvc;
     std::string m_streamName; //!< defines the stream for THistSvc

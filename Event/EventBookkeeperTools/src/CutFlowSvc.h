@@ -73,13 +73,6 @@ public:
   CutIdentifier registerFilter( const std::string& name,
                                 const std::string& description ) override final;
 
-  /// Register cut as child of a filter in the CutFlowSvc and returns the CutID
-  /// of the corresponding CutBookkeeper. This method should be used by
-  /// filters to register their internal cuts that are not the Algs themselves.
-  CutIdentifier registerCut( const std::string& name,
-                             const std::string& description,
-                             CutIdentifier originCutID ) override final;
-
   /// Tells CutFlowSvc that a filter is used directly by an outputStream with
   /// a given logical context. The only foreseen client should the DecisionSvc,
   /// with its Accept/Require/Veto.
@@ -88,18 +81,12 @@ public:
                                    unsigned int logic,
                                    const std::string& outputStream ) override final;
 
-  /// Tells CutFlowSvc that a filter should not be treated as as being used by
-  /// another filter. This should be used by filters that use other filter Algs
-  /// internally, e.g., like the LogicalFilterCombiner
-  CutIdentifier declareUsedOtherFilter( const std::string& name,
-                                        CutIdentifier originCutID ) override final;
-
   /// Set the description of an existing CutBookkeeper
   void setFilterDescription( CutIdentifier cutID,
                              const std::string& descr ) override final;
 
   /// Tells CutFlowSvc to update the weighted event counter of a CutIdentifier cutID,
-  /// using CutIdentifier returned by selfRegisterFilter or registerCut
+  /// using CutIdentifier returned by selfRegisterFilter
   void addEvent( CutIdentifier cutID, double weight ) override final;
 
   const std::string SGKey() override final;

@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
-from MinBiasScintillator.MinBiasScintillatorConf import MinBiasScintillatorSDTool
+from AthenaConfiguration.ComponentFactory import CompFactory
+MinBiasScintillatorSDTool=CompFactory.MinBiasScintillatorSDTool
 
 
 def MinBiasScintillatorSDCfg(ConfigFlags, name="MinBiasScintillatorSD", **kwargs):

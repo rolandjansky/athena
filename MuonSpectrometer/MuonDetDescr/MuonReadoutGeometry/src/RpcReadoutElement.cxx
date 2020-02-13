@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -861,8 +861,10 @@ namespace MuonGM {
       phiDesign.signY = 0.;
 
       Amg::Vector2D pos1;
+      pos1.setZero();
       phiDesign.stripPosition(1,pos1);
       Amg::Vector2D pos2;
+      pos2.setZero();
       phiDesign.stripPosition(2,pos2);
 
       // now calculate distance to eta RO for the two phi strips 

@@ -1,10 +1,6 @@
-// This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthContainers/src/exceptions.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -474,6 +470,33 @@ std::string excAtomicMismatch_format (SG::auxid_t auxid,
 ExcAtomicMismatch::ExcAtomicMismatch (SG::auxid_t auxid,
                                       const std::type_info& type)
   : std::runtime_error (excAtomicMismatch_format (auxid, type))
+{
+}
+
+
+//*************************************************************************
+
+
+/// Helper: format exception error string.
+std::string excInvalidThinningTarget_format (CLID clid,
+                                             const std::string& key)
+{
+  std::ostringstream os;
+  os << "SG::ExcInvalidThinningTarget: "
+     << "ThinningHandle target does not exist: "
+     << clid << "/" << key;
+  return os.str();
+}
+
+
+/**
+ * @brief Constructor.
+ * @param clid The CLID of the requested container.
+ * @param key The StoreGate key of the requested container.
+ */
+ExcInvalidThinningTarget::ExcInvalidThinningTarget (CLID clid,
+                                                    const std::string& key)
+  : std::runtime_error (excInvalidThinningTarget_format (clid, key))
 {
 }
 

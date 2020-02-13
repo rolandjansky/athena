@@ -153,6 +153,9 @@ private:
   /// Flag for calo only LH
   bool m_caloOnly;
 
+  /// Flag for skip the use of deltaPoverP in  LH computation (like at HLT)
+  bool m_skipDeltaPoverP;
+
   ///  read handle key to heavy ion container
   SG::ReadHandleKey<xAOD::HIEventShapeContainer> m_HIESContKey;
     

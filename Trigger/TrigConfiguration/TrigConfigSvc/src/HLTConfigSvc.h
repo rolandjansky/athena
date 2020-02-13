@@ -16,7 +16,6 @@
 #include "TrigConfInterfaces/IHLTConfigSvc.h"
 #include "TrigConfHLTData/HLTFrame.h"
 
-#include "TrigConfData/HLTMenu.h"
 
 class TH1F;
 class TH2I;
@@ -74,8 +73,6 @@ namespace TrigConf {
       Gaudi::Property< std::string > m_hltFileName { this, "JsonFileName", "HLTMenu.json", "file name of HLT json file, needed if InputType is file" };
       Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "TRIGGERDB", "DB connection alias, needed if InputType is db" };
       Gaudi::Property< unsigned int > m_smk { this, "SMK", 0, "DB smk, needed if InputType is db" };
-
-      // SG::WriteHandleKey<TrigConf::HLTMenu> m_hltMenuKey{"DetectorStore+HLTTriggerMenu"};
 
       StatusCode assignPrescalesToChains(uint lumiblock );
 

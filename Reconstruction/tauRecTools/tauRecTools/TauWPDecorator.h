@@ -35,14 +35,7 @@ public:
     virtual StatusCode initialize();
     virtual StatusCode finalize();
     virtual StatusCode execute(xAOD::TauJet& pTau);
-    virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&, const xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePi0nPFO(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
-
+    
     virtual StatusCode retrieveHistos(int nProng);
     virtual StatusCode storeLimits(int nProng);
     virtual double transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi);

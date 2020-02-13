@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_RawEv/AFP_RawDataCollection.h"
@@ -9,7 +9,7 @@
 #include <sstream>
 
 
-void AFP_RawDataCollectionCnv_p1::transToPers(const AFP_RawDataCollection* transColl, AFP_RawDataCollection_p1* persColl, MsgStream& log) {
+void AFP_RawDataCollectionCnv_p1::transToPers(const AFP_RawDataCollection* transColl, AFP_RawDataCollection_p1* persColl, MsgStream& log) const {
  
   if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In AFP_RawDataCollectionCnv_p1::transToPers" << endmsg;
 
@@ -27,7 +27,7 @@ void AFP_RawDataCollectionCnv_p1::transToPers(const AFP_RawDataCollection* trans
 
 }
 
-void AFP_RawDataCollectionCnv_p1::persToTrans(const AFP_RawDataCollection_p1* persColl, AFP_RawDataCollection* transColl, MsgStream& log) {
+void AFP_RawDataCollectionCnv_p1::persToTrans(const AFP_RawDataCollection_p1* persColl, AFP_RawDataCollection* transColl, MsgStream& log) const {
 
   if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In  AFP_RawDataCollectionCnv_p1::persToTrans" << endmsg;
 

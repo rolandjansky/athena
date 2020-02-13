@@ -30,6 +30,7 @@
 #include "../OutputStreamSequencerSvc.h"
 #include "../AthenaStopperAlg.h"
 #include "../AthenaHiveEventLoopMgr.h"
+#include "../AthenaMtesEventLoopMgr.h"
 #include "../AthIncFirerAlg.h"
 #include "../ToyNextPassFilterAlg.h"
 #include "../ToyNextPassFilterTool.h"
@@ -44,11 +45,11 @@ DECLARE_COMPONENT( TestRandomSeqAlg )
 DECLARE_COMPONENT( MultipleEventLoopMgr )
 DECLARE_COMPONENT( AthenaEventLoopMgr )
 DECLARE_COMPONENT( AthenaHiveEventLoopMgr )
+DECLARE_COMPONENT( AthenaMtesEventLoopMgr )
 DECLARE_COMPONENT( PyAthenaEventLoopMgr )
 DECLARE_COMPONENT( SimplePOSIXTimeKeeperSvc )
 DECLARE_COMPONENT( MixingEventSelector )
 DECLARE_COMPONENT( ThinningSvc )
-//DECLARE_COMPONENT( EventDumperSvc )
 DECLARE_COMPONENT( MemoryRescueSvc )
 DECLARE_COMPONENT( FPEControlSvc )
 DECLARE_COMPONENT( JobIDSvc )

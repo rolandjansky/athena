@@ -65,9 +65,9 @@ private:
     double dR;
     double seconddR;
     double deltaPhiLast;
-    double deltaEta[4];
-    double deltaPhi[4];
-    double deltaPhiRescaled[4];
+    std::array<double,4> deltaEta;
+    std::array<double,4> deltaPhi;
+    std::array<double,4> deltaPhiRescaled;
   };
 
   /** @brief function object to sort track matches based on quality */
