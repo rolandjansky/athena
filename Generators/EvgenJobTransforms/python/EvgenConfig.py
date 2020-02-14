@@ -123,6 +123,7 @@ class EvgenConfig(TransformConfig):
     extraSaveItems = ListOfStrings("List of extra StreamEVGEN items to save in output file - note occurs AFTER doNotSaveItems are removed")
     inputFilesPerJob = Integer("number of input files per job",0, AllowedExpression("value >= 0"))
     nEventsPerJob = Integer("number of input events per job",0, AllowedExpression("value >= 0"))
+    obsolete = Boolean("Are JOs/common fragment obsolete", False)
 
     def __init__(self, name="evgenConfig"):
         TransformConfig.__init__(self, name)
