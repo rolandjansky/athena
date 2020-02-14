@@ -183,7 +183,6 @@ ostream& operator<<(ostream &sout, MiniPattern &pattern)
 #endif
 
 struct ihash
-    : std::unary_function<MiniPattern, std::size_t>
 {
     std::size_t operator()(const MiniPattern& patt) const
     {
