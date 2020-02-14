@@ -608,7 +608,8 @@ EXOT8SlimmingHelper.ExtraVariables = ["Electrons.charge",
                                       "Photons."+NewTrigVars["Photons"]
                                       ]
 
-EXOT8SlimmingHelper.AllVariables   = ["CombinedMuonTrackParticles",
+EXOT8SlimmingHelper.AllVariables   = ["TruthEvents",
+                                      "CombinedMuonTrackParticles",
                                       "ExtrapolatedMuonTrackParticles",
                                       "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
                                       ]
