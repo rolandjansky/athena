@@ -38,4 +38,5 @@ addTool( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDOTool", "CscDigitToCscRDOT
 addTool( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDOTool2", "CscDigitToCscRDOTool2" )
 addTool( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDOTool4", "CscDigitToCscRDOTool4" )
 addAlgorithm( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDO", "CscDigitToCscRDO" )
+addAlgorithm( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDO4", "CscDigitToCscRDO4" )
 
