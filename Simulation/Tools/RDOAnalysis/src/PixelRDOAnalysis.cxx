@@ -466,7 +466,7 @@ StatusCode PixelRDOAnalysis::initialize() {
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_disabled_ec->GetName(), m_h_disabled_ec));
     
   if (m_doITk) {
-    for (unsigned int layer=0; layer<5; layer++) {    
+    for (unsigned int layer=0; layer<33; layer++) {    
       m_h_brlflatPhiIndex_perLayer[layer] = new TH1F(("h_brlflatPhiIndex_perLayer"+std::to_string(layer)).c_str(), ("Phi index - Barrel Flat - Layer "+std::to_string(layer)).c_str(), 820, 0, 820);
       m_h_brlflatPhiIndex_perLayer[layer]->StatOverflows();
       ATH_CHECK(m_thistSvc->regHist(m_path + m_h_brlflatPhiIndex_perLayer[layer]->GetName(), m_h_brlflatPhiIndex_perLayer[layer]));
