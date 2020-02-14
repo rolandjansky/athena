@@ -1,16 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
 // Dear emacs, this is -*-c++-*-
-#ifndef __ASGELECTRONISEMSELECTRONCONFIGHELPER__
-#define __ASGELECTRONISEMSELECTRONCONFIGHELPER__
+#ifndef __ASGELECTRONPHOTONCORRECTIONCONFIGHELPER__
+#define __ASGELECTRONPHOTONCORRECTIONCONFIGHELPER__
 
 /**
-   @brief Tool to simplify the configuration of the cut based IsEM based on TEnv input
-
-   @author Christos Anastopoulos
+   @brief Tool to simplify the configuration of the ElectronPhotonVariableCorrectionTool based on TEnv input
+   @author Nils Gillwald (DESY) nils.gillwald@desy.de
+   @date February 2020
 */
 #include <string>
 #include <vector>
@@ -26,4 +26,4 @@ namespace AsgConfigHelper{
 }
 
 
-#endif
+#endif //__ASGELECTRONPHOTONCORRECTIONCONFIGHELPER__

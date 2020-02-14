@@ -1,3 +1,13 @@
+/*
+    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**
+    @brief Test code to compare output of ElectronPhotonVariableCorrectionTool correction to the isolation correction tool
+    @author Nils Gillwald (DESY) nils.gillwald@desy.de
+    @date February 2020
+**/
+
 // ROOT includes
 #include "TFile.h"
 #include "TString.h"

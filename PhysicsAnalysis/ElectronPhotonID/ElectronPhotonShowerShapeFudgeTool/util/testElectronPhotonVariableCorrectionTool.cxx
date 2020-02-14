@@ -1,7 +1,12 @@
+/*
+    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 /**
+ * @brief Test if ElectronPhotonVariableCorrectionTool runs fine on electrons and (un-)converted photons
  * @author Nils Gillwald (DESY) nils.gillwald@desy.de
- * @date October 2019
- */
+ * @date February 2020
+ **/
 
 // ROOT includes
 #include "TFile.h"

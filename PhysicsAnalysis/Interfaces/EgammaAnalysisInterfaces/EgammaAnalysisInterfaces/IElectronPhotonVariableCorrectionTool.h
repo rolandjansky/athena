@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAANALYSISINTERFACES_IELECTRONPHOTONVARIABLECORRECTIONTOOL_H
 #define EGAMMAANALYSISINTERFACES_IELECTRONPHOTONVARIABLECORRECTIONTOOL_H
 
 /**
-   @class ElectronPhotonVariableCorrectionTool
-   @brief Tool to correct electron and photon MC variables.
+   @class IElectronPhotonVariableCorrectionTool
+   @brief Tool intefrace to correct electron and photon MC variables.
 
    @author Nils Gillwald (DESY) nils.gillwald@desy.de
    @date   February 2020
-
-
-*/
+**/
 
 // ATLAS include(s):
 #include "AsgTools/IAsgTool.h"

@@ -1,3 +1,13 @@
+/*
+    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+/**
+    @brief Test code to test ElectronPhotonVariableCorrectionTool Dictionaries
+    @author Nils Gillwald (DESY) nils.gillwald@desy.de
+    @date February 2020
+**/
+
 // ROOT include(s):
 #include <TError.h>
 
