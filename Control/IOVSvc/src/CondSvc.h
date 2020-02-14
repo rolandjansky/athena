@@ -19,7 +19,7 @@
 class ConditionSlotFuture;
 class ICondtionIOSvc;
 
-class CondSvc: public extends1<AthService, ICondSvc> {
+class ATLAS_CHECK_THREAD_SAFETY CondSvc: public extends1<AthService, ICondSvc> {
 public:
 
   CondSvc(const std::string& name, ISvcLocator* svc);
