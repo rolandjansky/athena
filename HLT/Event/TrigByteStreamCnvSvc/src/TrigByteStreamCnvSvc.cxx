@@ -219,6 +219,7 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
     std::ostringstream ss;
     ss << errorCode;
     m_histOnlineErrorCode->Fill(ss.str().data(), 1.0);
+    m_histOnlineErrorCode->LabelsDeflate("X");
   }
 
   // Decode stream tags
@@ -266,6 +267,7 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
   for (const eformat::helper::StreamTag& st : streamTags) {
     std::string typeName = st.type + "_" + st.name;
     m_histStreamTags->Fill(typeName.data(), 1.0);
+    m_histStreamTags->LabelsDeflate("X");
     m_histStreamTagsType->Fill(st.type.data(), 1.0);
     if (st.robs.size() > 0 || st.dets.size() >0) { // PEB stream tag
       m_histPebRobsNum->Fill(st.robs.size());
@@ -299,17 +301,22 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
     resultSizesByStream[typeName] = size;
     for (const std::string& sdName : sdFromRobList) {
       m_histPebSubDetsFromRobList->Fill(sdName.data(), 1.0);
+      m_histPebSubDetsFromRobList->LabelsDeflate("X");
     }
     for (const std::string& sdName : sdFromSubDetList) {
       m_histPebSubDetsFromSubDetList->Fill(sdName.data(), 1.0);
+      m_histPebSubDetsFromSubDetList->LabelsDeflate("X");
     }
   }
 
   // Fill result size and stream tag correlation histograms
   for (const auto& [typeName, size] : resultSizesByStream) {
     m_histResultSizeByStream->Fill(typeName.data(), size*wordsToKiloBytes, 1.0);
+    m_histResultSizeByStream->LabelsDeflate("X");
     for (const auto& [typeName2, size2] : resultSizesByStream) {
       m_histStreamTagsCorr->Fill(typeName.data(), typeName2.data(), 1.0);
+      m_histStreamTagsCorr->LabelsDeflate("X");
+      m_histStreamTagsCorr->LabelsDeflate("Y");
     }
   }
   for (const auto& [moduleId, size] : resultSizes) {
@@ -458,7 +465,6 @@ void TrigByteStreamCnvSvc::bookHistograms() {
 
   m_histResultSizeFullEvFrag = new TH1F(
     "ResultSizeFullEvFrag", "HLT output FullEventFragment size;Size [kB];Events", 100, 0, 1000);
-  m_histResultSizeFullEvFrag->SetCanExtend(TH1::kXaxis);
   regHist(m_histResultSizeFullEvFrag);
 
   m_histEventDoneTime = new TH1F(
