@@ -1158,30 +1158,31 @@ const CscReadoutElement* MuonDetectorManager::getCscReadoutElement(Identifier id
 
 void MuonDetectorManager::addTgcReadoutElement (const TgcReadoutElement* x, Identifier id)
 {
-    MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
-
     if (id!=x->identify()) 
     {
-	log<<MSG::ERROR<<"Trying to add TgcReadoutElement with id "
+        MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
+	    log<<MSG::ERROR<<"Trying to add TgcReadoutElement with id "
 	   <<m_tgcIdHelper->show_to_string(id)
 	   <<" not matching the id assigned to the TgcReadoutElement "
 	   <<m_tgcIdHelper->show_to_string(x->identify())<<endmsg;
-	throw;
+	    throw;
     }
 
     // add RE to array by RE hash
     IdentifierHash Idhash = x->detectorElementHash();
     if (Idhash >= TgcRElMaxHash)
-    {  
-	log<<MSG::ERROR<<"Trying to add TgcReadoutElement with detector-element-hash id "
+    {
+        MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
+	    log<<MSG::ERROR<<"Trying to add TgcReadoutElement with detector-element-hash id "
 	   <<(unsigned int)Idhash
 	   <<" outside boundaries 0-"<<TgcRElMaxHash<<endmsg;	
-	throw;
+	    throw;
     }		
     else
     {
       if (m_tgcArrayByHash[Idhash]!=nullptr) 
 	{
+	    MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	    log<<MSG::ERROR<<"Trying to add TgcReadoutElement with detector-element-hash id "
 	       <<(unsigned int)Idhash<<" id = "<<m_tgcIdHelper->show_to_string(id)
 	       <<" at location already taken by "
@@ -1190,7 +1191,6 @@ void MuonDetectorManager::addTgcReadoutElement (const TgcReadoutElement* x, Iden
 	    throw;
 	}
 	m_tgcArrayByHash[Idhash] = x;
-	//log<<MSG::DEBUG<<"Adding TgcReadoutElement at loc. detector-element-hash id "<<(unsigned int)Idhash<<" for ext id = "<<m_tgcIdHelper->show_to_string(id)<<endmsg;
     }
 
     //add here the TgcDetectorElement and/or add this readoutElement to the DetectorElement
@@ -1206,10 +1206,11 @@ void MuonDetectorManager::addTgcReadoutElement (const TgcReadoutElement* x, Iden
     }
     else
     {
+       MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	   log<<MSG::ERROR<<"Trying to add TgcDetectorElement with data-collection-hash id "
 	   <<(unsigned int)idh
 	   <<" outside boundaries 0-"<<TgcDetElMaxHash<<endmsg;	
-	throw;
+	   throw;
     }
     
 
@@ -1221,24 +1222,28 @@ void MuonDetectorManager::addTgcReadoutElement (const TgcReadoutElement* x, Iden
 
     if (stname_index<0 || stname_index >= NTgcStatType) 
     {
+        MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
         log<<MSG::ERROR<<"ERROR MuonDetectorManager::addTgcReadoutElement stNameindex out of range "
                  <<stname_index<<" 0-"<<NTgcStatType-1<<endmsg;
         throw;
     }
     if (steta_index<0 || steta_index >= NTgcStatEta) 
     {
+        MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
         log<<MSG::ERROR<<"ERROR MuonDetectorManager::addTgcReadoutElement stEtaindex out of range "
                  <<steta_index<<" 0-"<<NTgcStatEta-1<<endmsg;
         throw;
     }
     if (stphi_index<0 ||  stphi_index>= NTgcStatPhi) 
     {
+        MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
         log<<MSG::ERROR<<"ERROR MuonDetectorManager::addTgcReadoutElement stPhiindex out of range "
                  <<stphi_index<<" 0-"<<NTgcStatPhi-1<<endmsg;
         throw;
     }
     if (m_tgcArray[stname_index][steta_index][stphi_index] != nullptr)
     {
+        MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
         log<<MSG::ERROR<<"addTgcReadoutElement - this place is taken ]"
                  <<stname_index<<"]["
                  <<steta_index<< "]["
@@ -1254,9 +1259,6 @@ void MuonDetectorManager::addTgcReadoutElement (const TgcReadoutElement* x, Iden
 
 const TgcReadoutElement* MuonDetectorManager::getTgcReadoutElement (Identifier id) const
 {
-//     int stName = m_tgcIdHelper->stationName(id);
-//     int stEta  = m_tgcIdHelper->stationEta(id);
-//     int stPhi  = m_tgcIdHelper->stationPhi(id);
 
     int stname_index = m_tgcIdHelper->stationName(id) + NTgcStatTypeOff;
     int zi = m_tgcIdHelper->stationEta(id);
@@ -1311,36 +1313,35 @@ const MdtReadoutElement* MuonDetectorManager::getMdtRElement_fromIdFields(int i1
 
 const MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(int i1, int i2, int i3, int i4)const
 {
-   MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
   if (i1<0 || i1 >= NMdtStatType) 
   {
+      MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
       log<<MSG::ERROR<<"ERROR MuonDetectorManager::getMdtReadoutElement stNameindex out of range "
                <<i1<<" 0-"<<NMdtStatType-1<<endmsg;
       throw;
   }
   if (i2<0 || i2 >= NMdtStatEta) 
   {
-
+      MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
       log<<MSG::ERROR<<"ERROR MuonDetectorManager::getMdtReadoutElement stEtaindex out of range "
                <<i2<<" 0-"<<NMdtStatEta-1<<endmsg;
       throw;
   }
   if (i3<0 ||  i3 >= NMdtStatPhi) 
   {
-
+      MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
       log<<MSG::ERROR<<"ERROR MuonDetectorManager::getMdtReadoutElement stPhiindex out of range "
                <<i3<<" 0-"<<NMdtStatPhi-1<<endmsg;
       throw;
   }
   if (i4 < 0 || i4 >= NMdtMultilayer)
   {
-
+      MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
       log<<MSG::ERROR<<"ERROR MuonDetectorManager::getMdtReadoutElement ml_index out of range "
                <<i4<<" 0-" <<NMdtMultilayer-1<<endmsg;
       throw;
   }    
-
-    return m_mdtArray[i1][i2][i3][i4];
+  return m_mdtArray[i1][i2][i3][i4];
 }
 
 const CscReadoutElement* MuonDetectorManager::getCscRElement_fromIdFields(int i1,
@@ -1359,33 +1360,35 @@ const CscReadoutElement* MuonDetectorManager::getCscRElement_fromIdFields(int i1
 
 const CscReadoutElement* MuonDetectorManager::getCscReadoutElement(int i1, int i2, int i3, int i4)const
 {
-   MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
   if (i1<0 || i1 >= NCscStatType) 
   {
-       log<<MSG::ERROR<<"ERROR MuonDetectorManager::getCscReadoutElement stNameindex out of range "
+      MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
+      log<<MSG::ERROR<<"ERROR MuonDetectorManager::getCscReadoutElement stNameindex out of range "
                <<i1<<" 0-"<<NCscStatType-1<<endmsg;
       throw;
   }
   if (i2<0 || i2 >= NCscStatEta) 
   {
-       log<<MSG::ERROR<<"ERROR MuonDetectorManager::getCscReadoutElement stEtaindex out of range "
+      MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
+      log<<MSG::ERROR<<"ERROR MuonDetectorManager::getCscReadoutElement stEtaindex out of range "
                <<i2<<" 0-"<<NCscStatEta-1<<endmsg;
       throw;
   }
   if (i3<0 ||  i3 >= NCscStatPhi) 
   {
-       log<<MSG::ERROR<<"ERROR MuonDetectorManager::getCscReadoutElement stPhiindex out of range "
+      MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
+      log<<MSG::ERROR<<"ERROR MuonDetectorManager::getCscReadoutElement stPhiindex out of range "
                <<i3<<" 0-"<<NCscStatPhi-1<<endmsg;
       throw;
   }
   if (i4 < 0 || i4 >= NCscChamberLayer)
   {
-       log<<MSG::ERROR<<"ERROR MuonDetectorManager::getCscReadoutElement ml_index out of range "
+      MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
+      log<<MSG::ERROR<<"ERROR MuonDetectorManager::getCscReadoutElement ml_index out of range "
                <<i4<<" 0-" <<NCscChamberLayer-1<<endmsg;
       throw;
   }    
-
-    return m_cscArray[i1][i2][i3][i4];
+  return m_cscArray[i1][i2][i3][i4];
 }
 const RpcReadoutElement* MuonDetectorManager::getRpcRElement_fromIdFields(int i1,
                                                                           int i2,
