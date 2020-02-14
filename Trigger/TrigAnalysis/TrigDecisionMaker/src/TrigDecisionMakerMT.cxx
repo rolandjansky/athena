@@ -17,6 +17,7 @@
 
 #include "TrigDecisionMakerMT.h"
 
+#include "TrigSteeringEvent/OnlineErrorCode.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "TrigSteering/Lvl1ResultAccessTool.h"
 
@@ -126,6 +127,18 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
       passRawBitset = hltResult->getHltPassRawBits();
       prescaledBitset = hltResult->getHltPrescaledBits();
       rerunBitset = hltResult->getHltRerunBits();
+
+      const std::vector<HLT::OnlineErrorCode> errorCodes = hltResult->getErrorCodes();
+      bool truncated = false;
+      uint32_t code = 0;
+      for (size_t i = 0; i < errorCodes.size(); ++i) {
+        truncated |= (errorCodes.at(i) == HLT::OnlineErrorCode::RESULT_TRUNCATION);
+        if (i == 0) {
+          code = static_cast<uint32_t>(errorCodes.at(i));
+        }
+      }
+      trigDec->setEFErrorBits(code);
+      trigDec->setEFTruncated(truncated);
 
     }
 
