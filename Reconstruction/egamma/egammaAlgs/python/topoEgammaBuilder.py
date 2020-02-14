@@ -18,3 +18,4 @@ topoEgammaBuilder = AlgFactory( egammaAlgsConf.topoEgammaBuilder,
                                 PhotonOutputName = egammaKeys.outputPhotonKey(),  
                                 AmbiguityTool = EGammaAmbiguityTool
                                 )
+
