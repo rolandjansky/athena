@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Main header
@@ -9,15 +9,14 @@
 #include "TightMuonSteppingFieldManager.h"
 
 // Geant4 includes
-#include "G4TransportationManager.hh"
-#include "G4VUserPrimaryGeneratorAction.hh"
-#include "G4MagneticField.hh"
-#include "G4FieldManager.hh"
 #include "G4ChordFinder.hh"
-#include "G4PropagatorInField.hh"
+#include "G4FieldManager.hh"
 #include "G4MagIntegratorStepper.hh"
+#include "G4MagneticField.hh"
+#include "G4PropagatorInField.hh"
+#include "G4TransportationManager.hh"
 #include "G4Version.hh"
-#include "G4MagIntegratorDriver.hh"
+#include "G4VIntegrationDriver.hh"
 
 //-----------------------------------------------------------------------------
 // Tool constructor
@@ -75,22 +74,17 @@ StatusCode GlobalFieldManagerTool::initializeField()
     // Create and configure the ChordFinder
     fieldMgr->CreateChordFinder(field);
 
-    // Construct the stepper
+#if G4VERSION_NUMBER < 1040
+    ATH_MSG_DEBUG("Old style stepper setting");
     G4MagIntegratorStepper* stepper = getStepper(m_integratorStepper, field);
-    G4MagInt_Driver* magDriver = nullptr; 
-
- #if G4VERSION_NUMBER < 1040
-
-    magDriver = fieldMgr->GetChordFinder()->GetIntegrationDriver();
+    G4MagInt_Driver* magDriver = fieldMgr->GetChordFinder()->GetIntegrationDriver();
     magDriver->RenewStepperAndAdjust(stepper);
-
 #else
-   
-    auto chordFinder = fieldMgr->GetChordFinder();
-    magDriver = new G4MagInt_Driver(1.0e-2, stepper, stepper->GetNumberOfVariables());
-    chordFinder->SetIntegrationDriver(magDriver);
-
-#endif 
+    ATH_MSG_DEBUG("New style stepper setting");
+    G4VIntegrationDriver* driver = createDriverAndStepper(m_integratorStepper, field);
+    G4ChordFinder* chordFinder = fieldMgr->GetChordFinder();
+    chordFinder->SetIntegrationDriver(driver);
+#endif
 
     // Configure the propagator
     G4PropagatorInField* propagator = transpManager->GetPropagatorInField();
