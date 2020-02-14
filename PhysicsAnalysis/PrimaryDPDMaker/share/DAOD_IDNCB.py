@@ -61,10 +61,9 @@ streamName = primDPD.WriteDAOD_IDNCBStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDNCBStream )
 IDNCBStream = MSMgr.NewPoolRootStream( streamName, fileName )
 IDNCBStream.AcceptAlgs(["DFIDNCB_KERN"])
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="IDNCBThinningSvc", outStreams=[evtStream] )
+
 #################
 ### Setup tools
 #################
@@ -255,7 +254,7 @@ thinningTools = []
 # TrackParticles directly
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 IDNCBThinningTool = DerivationFramework__TrackParticleThinning(name = "IDNCBThinningTool",
-                                                                 ThinningService         = "IDNCBThinningSvc",
+                                                                 StreamName              = streamName,
                                                                  SelectionString         = thinTrackSelection,
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                  ThinHitsOnTrack = thinHitsOnTrack)

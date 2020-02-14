@@ -47,7 +47,7 @@ SUSY7ThinningHelper.AppendToStream( SUSY7Stream )
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
 SUSY7TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY7TPThinningTool",
-								 ThinningService	 = SUSY7ThinningHelper.ThinningSvc(),
+                                                                 StreamName              = streamName,
 								 SelectionString	 = "InDetTrackParticles.pt > 10*GeV",
 								 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY7TPThinningTool

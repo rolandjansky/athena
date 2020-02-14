@@ -186,7 +186,7 @@ print EGAM8TauTPThinningTool
 # Tracks from primary vertex
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 EGAM8TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM8TPThinningTool",
-                                                                  ThinningService         = "EGAM8ThinningSvc",
+                                                                  StreamName              = streamName,
                                                                   SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EGAM8TPThinningTool

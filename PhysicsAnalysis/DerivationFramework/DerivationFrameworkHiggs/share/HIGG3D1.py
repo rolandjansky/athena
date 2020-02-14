@@ -67,7 +67,7 @@ thinningTools.append(HIGG3D1ElectronTPThinningTool)
 # Tracks themselves
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 HIGG3D1TPThinningTool = DerivationFramework__TrackParticleThinning(name                    = "HIGG3D1TPThinningTool",
-                                                                   ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(),
+                                                                   StreamName              = streamName,
                                                                    SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
                                                                    InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG3D1TPThinningTool

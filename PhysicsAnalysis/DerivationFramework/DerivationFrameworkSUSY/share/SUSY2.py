@@ -48,7 +48,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 
 # TrackParticles directly
 SUSY2TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY2TPThinningTool",
-                                                                 ThinningService         = SUSY2ThinningHelper.ThinningSvc(),
+                                                                 StreamName              = streamName,
                                                                  SelectionString         = "InDetTrackParticles.pt > 10*GeV",
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY2TPThinningTool

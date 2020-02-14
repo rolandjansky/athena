@@ -49,9 +49,8 @@ MUON4_thinning_tools = []
 thinning_expression1 = "InDetTrackParticles.pt > 2*GeV"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 MUON4ThinningTool1 = DerivationFramework__TrackParticleThinning(name                    = "MUON4ThinningTool1",
-                                                                ThinningService         = "MUON4ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 SelectionString         = thinning_expression1,
-                                                                ApplyAnd                = False,
                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON4ThinningTool1
 MUON4_thinning_tools.append(MUON4ThinningTool1)
@@ -71,10 +70,9 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_MUON4Stream )
 MUON4Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 MUON4Stream.AcceptAlgs(["MUON4Kernel"])
 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="MUON4ThinningSvc", outStreams=[evtStream] ) 
+
 #====================================================================
 # CONTENT LIST  
 #====================================================================

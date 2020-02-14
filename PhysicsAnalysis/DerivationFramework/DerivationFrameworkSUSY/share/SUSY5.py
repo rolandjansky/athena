@@ -62,7 +62,7 @@ thinningTools.append(SUSY5JetTPThinningTool)
 # TrackParticles directly
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 SUSY5TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY5TPThinningTool",
-                                                                 ThinningService         = SUSY5ThinningHelper.ThinningSvc(),
+                                                                 StreamName              = streamName,
                                                                  SelectionString         = "InDetTrackParticles.pt > 10*GeV",
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY5TPThinningTool
