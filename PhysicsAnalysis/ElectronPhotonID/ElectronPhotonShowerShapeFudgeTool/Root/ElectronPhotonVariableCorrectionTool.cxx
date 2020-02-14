@@ -299,7 +299,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::GetKinematicProperties(co
 
     // protection against bad clusters
     const xAOD::CaloCluster* cluster  = egamma_object.caloCluster();
-    if ( cluster == 0 )
+    if ( cluster == nullptr )
     {
         ATH_MSG_ERROR("EGamma object calorimeter cluster is NULL: Cluster " << cluster);
         return StatusCode::FAILURE;
@@ -594,7 +594,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::Get2DBinnedParameter(floa
 const StatusCode ElectronPhotonVariableCorrectionTool::GetDensity(float& value, const std::string& eventShapeContainer) const
 {
     // retreive the event shape container
-    const xAOD::EventShape* evtShape;
+    const xAOD::EventShape* evtShape = nullptr;
     if(evtStore()->retrieve(evtShape, eventShapeContainer).isFailure()){
         ATH_MSG_ERROR("Cannot retrieve density container " << eventShapeContainer);
         return StatusCode::FAILURE;
