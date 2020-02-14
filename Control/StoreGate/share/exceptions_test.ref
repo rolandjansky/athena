@@ -10,3 +10,4 @@ SG::ExcNullReadHandle: Dereference of read handle failed: FooSvc+foo[123]
 SG::ExcNullUpdateHandle: Dereference of update handle failed: FooSvc+foo[123]
 SG::ExcNonConstHandleKey: Attempt to get non-const VarHandleKey from non-owning VarHandle: FooSvc+foo[123]
 Attempt to dereference invalid SG::Iterator/SG::ConstIterator
+Initialization of InitializedReadHandleKey failed.
