@@ -10,14 +10,11 @@ from egammaRec import egammaKeys
 
 from egammaTools.egammaToolsFactories import EGammaAmbiguityTool
 
-print(">>>>>>>>>> I AM RUNNING in " + __file__)
-
 topoEgammaBuilder = AlgFactory( egammaAlgsConf.topoEgammaBuilder,
                                 name = 'topoEgammaBuilder',
                                 SuperElectronRecCollectionName=egammaKeys.ElectronSuperRecKey(),
                                 SuperPhotonRecCollectionName=egammaKeys.PhotonSuperRecKey(),
                                 ElectronOutputName = egammaKeys.outputElectronKey(),
                                 PhotonOutputName = egammaKeys.outputPhotonKey(),  
-                                AmbiguityTool = None # TODO: change back to EGammaAmbiguityTool
+                                AmbiguityTool = EGammaAmbiguityTool
                                 )
-
