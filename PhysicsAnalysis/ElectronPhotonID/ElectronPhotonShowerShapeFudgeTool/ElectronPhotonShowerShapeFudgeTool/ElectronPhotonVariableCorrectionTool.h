@@ -41,15 +41,15 @@ public:
     ~ElectronPhotonVariableCorrectionTool();
 
     /** Gaudi Service Interface method implementations */
-    StatusCode initialize();
+    StatusCode initialize() override;
     /** Gaudi Service Interface method implementations */
-    StatusCode finalize(); //does finalize need to be public? It's called in the destructor...
+    StatusCode finalize() override; //does finalize need to be public? It's called in the destructor...
 
-    const StatusCode applyCorrection( xAOD::Photon& photon );
-    const StatusCode applyCorrection( xAOD::Electron& electron );
-    const StatusCode correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon );
-    const StatusCode correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron);
-    const std::string GetCorrectionVariable(){ return m_correctionVariable; };
+    const StatusCode applyCorrection( xAOD::Photon& photon ) override;
+    const StatusCode applyCorrection( xAOD::Electron& electron ) override;
+    const StatusCode correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon ) override;
+    const StatusCode correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron) override;
+    const std::string GetCorrectionVariable() override { return m_correctionVariable; };
 
 private:
     // In order to do faster comparisons, use enum and not string for type of function parameter
