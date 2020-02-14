@@ -186,20 +186,22 @@ def __compareConfig(configRef, configChk, args):
 
     for component in allComps:
 
-        if component not in configRef and not args.ignoreMissing:
-            print(
-                "\n\033[91m Component ",
-                component,
-                " \033[94m exists only in Chk \033[0m \033[0m \n",
-            )
+        if component not in configRef:
+            if not args.ignoreMissing:
+                print(
+                    "\n\033[91m Component ",
+                    component,
+                    " \033[94m exists only in Chk \033[0m \033[0m \n",
+                )
             continue
 
-        if component not in configChk and not args.ignoreMissing:
-            print(
-                "\n\033[91m Component",
-                component,
-                " \033[92m exists only in Ref \033[0m  \033[0m \n",
-            )
+        if component not in configChk:
+            if not args.ignoreMissing:
+                print(
+                    "\n\033[91m Component",
+                    component,
+                    " \033[92m exists only in Ref \033[0m  \033[0m \n",
+                )
             continue
         refValue = configRef[component]
         chkValue = configChk[component]
