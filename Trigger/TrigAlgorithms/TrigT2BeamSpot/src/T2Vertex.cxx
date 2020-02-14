@@ -19,7 +19,6 @@
 #include <numeric>
 #include <cmath>
 using Gaudi::Units::GeV;
-using std::unary_function;
 using std::accumulate;
 
 
@@ -53,7 +52,7 @@ namespace PESA
   };
 
 
-  struct TrkTrackPt : public unary_function< Trk::Track, double >
+  struct TrkTrackPt 
   {
     double operator()( const Trk::Track* track ) {
       const Trk::TrackParameters* params = track->perigeeParameters();
@@ -62,7 +61,7 @@ namespace PESA
   };
 
 
-  struct TrkTrackPt2 : public unary_function< Trk::Track, double >
+  struct TrkTrackPt2 
   {
     double operator()( const Trk::Track* track ) { const double pT = TrkTrackPt()( track ); return pT*pT; }
   };
