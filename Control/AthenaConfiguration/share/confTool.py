@@ -156,26 +156,10 @@ def __print(conf):
 
 
 def __printComps(conf):
-
-    def __printDict(d):
-        for key, value in dict(d).items():
-            if key in "Histograms":
-                continue
-
-            if isinstance(value, dict):
-                __printDict(value)
-            elif isinstance(value, str) and "/" in value:
-                if "[" not in value:  # not an array
-                    if value.count("/") == 1:
-                        print(value)
-                else:  # handle arrays
-                    actualType = ast.literal_eval(value)
-                    if isinstance(actualType, list):
-                        for el in actualType:
-                            if el.count("/") == 1:  # ==1 eliminates COOL folders
-                                print(el)
     for item in conf:
-        __printDict(item)
+        if isinstance(item, dict):
+            for compName in item.keys():
+                print(compName)
 
 
 def __compareConfig(configRef, configChk, args):
