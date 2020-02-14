@@ -9,6 +9,7 @@ logger = Logging.logging.getLogger("PowhegControl")
 
 class Wt_DS_onshellW(PowhegV2):
     """! Default Powheg configuration for single top production with an associated W-boson through the t-channel (diagram subtraction).
+    The W-boson is on-shell (stable in the matrix element and without width).
 
     Create a configurable object with all applicable Powheg options.
 

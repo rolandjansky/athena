@@ -3,7 +3,7 @@
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = "POWHEG+Pythia8 W+t (diagram subtraction) with off-shell non-top W production with A14 NNPDF2.3 tune."
+evgenConfig.description = "POWHEG+Pythia8 W+t (diagram subtraction) production with A14 NNPDF2.3 tune. The W-boson is on-shell (stable in the matrix element and without width)"
 evgenConfig.keywords = ["SM", "W", "top"]
 evgenConfig.contact = ["james.robinson@cern.ch"]
 
