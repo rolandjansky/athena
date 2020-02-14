@@ -44,7 +44,6 @@ namespace ClusterSeg {
     double m_ang_cut;
     double m_ang2_cut;
     double m_dist_cut;
-    double m_dist_cut2;    
     
     std::unique_ptr<TH2F> m_h_miss_RZ;
     std::unique_ptr<TH2F> m_h_miss_XY;

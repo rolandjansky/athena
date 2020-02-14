@@ -34,8 +34,7 @@ namespace ClusterSeg {
     m_writeOut(false),
     m_ang_cut(0.5),
     m_ang2_cut(1.0),
-    m_dist_cut(100.0),
-    m_dist_cut2(50.)
+    m_dist_cut(100.0)
   {
     m_ntuple.init();
   }
@@ -45,8 +44,7 @@ namespace ClusterSeg {
     m_writeOut(false),
     m_ang_cut(0.5),
     m_ang2_cut(1.0),
-    m_dist_cut(100.0),
-    m_dist_cut2(50.)
+    m_dist_cut(100.0)
   {
     m_ntuple.initForRead(tree);
   }
