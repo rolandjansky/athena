@@ -262,6 +262,10 @@ evgenLog.info(".transform =                  Gen_tf")
 
 ## Sort and check generator name / JO name consistency
 ##
+## Check that the common fragments are not obsolete:
+if evgenConfig.obsolete:
+    evgenLog.error("JOs or icludes are obsolete, please check them")
+    sys.exit(1)
 ## Check that the generators list is not empty:
 if not evgenConfig.generators:
     evgenLog.error("No entries in evgenConfig.generators: invalid configuration, please check your JO")
