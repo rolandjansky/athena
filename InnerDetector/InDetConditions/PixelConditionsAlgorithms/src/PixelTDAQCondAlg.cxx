@@ -66,7 +66,6 @@ StatusCode PixelTDAQCondAlg::execute(const EventContext& ctx) const {
     std::vector<int> checkActive;
     for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
       CondAttrListCollection::ChanNum channelNumber = attrList->first;
-      CondAttrListCollection::AttributeList payload = attrList->second;
       checkActive.push_back((int)channelNumber-1);
     }
 
