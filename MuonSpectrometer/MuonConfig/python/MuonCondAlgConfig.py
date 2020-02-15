@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## Configuration Access to OFFLINE DB (COMP200)
 
@@ -55,10 +55,19 @@ def RpcCondDbAlgCfg(flags, **kwargs):
 
 def CscCondDbAlgCfg(flags, **kwargs):
     result  = ComponentAccumulator()
-    folders = ["/CSC/STAT"]
+    folders = ["/CSC/FTHOLD", "/CSC/NOISE", "/CSC/PED", "/CSC/PSLOPE", "/CSC/RMS", "/CSC/STAT", "/CSC/T0BASE", "/CSC/T0PHASE"]
+    scheme  = "CSC_OFL"
     if flags.Common.isOnline:
-        return result ## avoid adding algo to the component accumulator
-        kwargs["isOnline"] = True
+        kwargs["isOnline"  ] = True
+        kwargs['isData'    ] = True
+        kwargs['ReadKey_FT'] = '/CSC/FTHOLD' # 'ConditionsStore+' prefix not necessarily needed in ReadKey
+        kwargs['ReadKey_NO'] = '/CSC/NOISE'
+        kwargs['ReadKey_PD'] = '/CSC/PED'
+        kwargs['ReadKey_PS'] = '/CSC/PSLOPE'
+        kwargs['ReadKey_RM'] = '/CSC/RMS'
+        kwargs['ReadKey_ST'] = '/CSC/STAT'
+        folders = ["/CSC/ONL/FTHOLD", "/CSC/ONL/NOISE", "/CSC/ONL/PED", "/CSC/ONL/PSLOPE", "/CSC/ONL/RMS", "/CSC/ONL/STAT"]
+        scheme  = "CSC_ONL"
     else:
         kwargs["isOnline"] = False
         if flags.Input.isMC:
@@ -67,7 +76,7 @@ def CscCondDbAlgCfg(flags, **kwargs):
             kwargs['isData'] = True
             kwargs['isRun1'] = flags.IOVDb.DatabaseInstance == 'COMP200'
     alg = CscCondDbAlg(**kwargs)
-    result.merge( addFolders(flags, folders , detDb="CSC_OFL", className='CondAttrListCollection') )
+    result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
     result.addCondAlgo(alg)
     return result
 

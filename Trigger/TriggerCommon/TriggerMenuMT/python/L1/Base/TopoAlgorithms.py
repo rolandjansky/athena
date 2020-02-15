@@ -21,7 +21,7 @@ class AlgCategory(Enum):
     TOPO = (1, 'TOPO', 'new topo')
     MUCTPI = (2, 'MUTOPO', 'muctpi topo')
     LEGACY = (3, 'R2TOPO', 'legacy topo')
-    MULTI = (4, 'MULT', 'multiplicity topo')
+    MULTI = (4, 'MULTTOPO', 'multiplicity topo')
 
     def __init__(self, _, key, desc ):
         self.key = key

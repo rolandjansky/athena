@@ -51,9 +51,9 @@ class L1MenuConfig(object):
                                          AlgCategory.TOPO : 0, AlgCategory.MUCTPI : 0, AlgCategory.LEGACY : 0 }
 
         # all registered topo algos
-        self._definedTopoAlgos2 = {}
+        self._definedTopoAlgos = {}
         for cat in AlgCategory.getAllCategories():
-            self._definedTopoAlgos2[cat] = {}
+            self._definedTopoAlgos[cat] = {}
 
         # menu
         self.l1menu = L1Menu(self.menuName)
@@ -108,27 +108,27 @@ class L1MenuConfig(object):
         """ Add a L1Topo algo to the set of algos which are registered for further use"""
 
         if self.currentAlgoDef == "multi":
-            if algo.name in self._definedTopoAlgos2[AlgCategory.MULTI]:
+            if algo.name in self._definedTopoAlgos[AlgCategory.MULTI]:
                 raise RuntimeError('L1Topo multiplicity algo %s is already registered as such' % algo.name)
-            self._definedTopoAlgos2[AlgCategory.MULTI][algo.name] = algo
+            self._definedTopoAlgos[AlgCategory.MULTI][algo.name] = algo
             log.debug("Added in the multiplicity topo algo list: {0}, ID:{1}" .format(algo.name,algo.algoId))
 
         elif self.currentAlgoDef == "muctpi":
-            if algo.name in self._definedTopoAlgos2[AlgCategory.MUCTPI]:
+            if algo.name in self._definedTopoAlgos[AlgCategory.MUCTPI]:
                 raise RuntimeError('L1Topo MuCTPi algo %s is already registered as such' % algo.name)
-            self._definedTopoAlgos2[AlgCategory.MUCTPI][algo.name] = algo
+            self._definedTopoAlgos[AlgCategory.MUCTPI][algo.name] = algo
             log.debug("Added in the MuCTPi topo algo list: {0}, ID:{1}" .format(algo.name,algo.algoId))
 
         elif self.currentAlgoDef == "topo":
-            if algo.name in self._definedTopoAlgos2[AlgCategory.TOPO]:
+            if algo.name in self._definedTopoAlgos[AlgCategory.TOPO]:
                 raise RuntimeError('L1Topo algo %s is already registered as such' % algo.name)
-            self._definedTopoAlgos2[AlgCategory.TOPO][algo.name] = algo
+            self._definedTopoAlgos[AlgCategory.TOPO][algo.name] = algo
             log.debug("Added in the topo algo list: {0}, ID:{1}" .format(algo.name,algo.algoId))
 
         elif self.currentAlgoDef == "legacy":
-            if algo.name in self._definedTopoAlgos2[AlgCategory.LEGACY]:
+            if algo.name in self._definedTopoAlgos[AlgCategory.LEGACY]:
                 raise RuntimeError('L1Topo legacy algo %s is already registered as such' % algo.name)
-            self._definedTopoAlgos2[AlgCategory.LEGACY][algo.name] = algo
+            self._definedTopoAlgos[AlgCategory.LEGACY][algo.name] = algo
             log.debug("Added in the legacy topo algo list: {0}, ID:{1}" .format(algo.name,algo.algoId))
 
         return algo
@@ -179,7 +179,7 @@ class L1MenuConfig(object):
         # for all topo algorithm categories the outputs (sometimes multiple) are defined as thresholds
         for cat in AlgCategory.getAllCategories():
             outputLines = []        
-            for algo in self._definedTopoAlgos2[cat].values():
+            for algo in self._definedTopoAlgos[cat].values():
                 outputLines += algo.outputs if (type(algo.outputs) == list) else [ algo.outputs ]
             self._topoTriggers[cat] = sorted(outputLines)
             log.info("... found %i topo triggerlines (source: %s)", len(self._topoTriggers[cat]), cat )
@@ -233,11 +233,16 @@ class L1MenuConfig(object):
             log.warning("No menu was generated, can not create json file")
             return None
 
+    def menuToLoad(self,silent=False):
+        menuToLoad = self.menuName
+        if menuToLoad == "LS2_v1" or menuToLoad == "pp_run3_v1" in menuToLoad:
+            menuToLoad = "MC_pp_v8"
+            if not silent:
+                log.info("Menu LS2_v1/*_pp_run3_v1 was requested but is not available yet. Will load MC_pp_v8 instead. This is a TEMPORARY meassure")
+        return menuToLoad
 
     def _checkMenuExistence(self):
-        menuToLoad = self.menuName
-        if menuToLoad == "LS2_v1" or "pp_run3_v1" in menuToLoad:
-            menuToLoad = "MC_pp_v8"
+        menuToLoad = self.menuToLoad(silent=True)
         from PyUtils.moduleExists import moduleExists
         modname = 'TriggerMenuMT.L1.Menu.Menu_%s' % menuToLoad
         if not moduleExists (modname):
@@ -255,11 +260,7 @@ class L1MenuConfig(object):
         """
 
         # we apply a hack here. menu group is working on LS2_v1, until ready we will use MC_pp_v8
-        menuToLoad = self.menuName
-        if menuToLoad == "LS2_v1" or "pp_run3_v1" in menuToLoad:
-            menuToLoad = "MC_pp_v8"
-            log.info("Menu LS2_v1/*_pp_run3_v1 was requested but is not available yet. Will load MC_pp_v8 instead. This is a TEMPORARY meassure")
-
+        menuToLoad = self.menuToLoad()
         log.info("Reading TriggerMenuMT.Menu.Menu_%s", menuToLoad)
         menumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s' % menuToLoad, globals(), locals(), ['defineMenu'], 0)
         menumodule.defineMenu()
@@ -267,7 +268,7 @@ class L1MenuConfig(object):
 
         log.info("Reading TriggerMenuMT.Menu.Menu_%s_inputs", menuToLoad)
         topomenumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s_inputs' % menuToLoad, globals(), locals(), ['defineMenu'], 0)
-        topomenumodule.defineMenu()
+        topomenumodule.defineInputsMenu()
         algoCount = 0
         for boardName, boardDef in L1MenuFlags.boards().items():
             if "connectors" in boardDef:
@@ -282,7 +283,7 @@ class L1MenuConfig(object):
         try:
             log.info("Reading TriggerMenuMT.Menu.Menu_%s_inputs_legacy", menuToLoad)
             legacymenumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s_inputs_legacy' % menuToLoad, globals(), locals(), ['defineMenu'], 0)
-            legacymenumodule.defineLegacyMenu()
+            legacymenumodule.defineLegacyInputsMenu()
             log.info("... L1 legacy menu %s contains %i legacy boards (%s)", menuToLoad, len(L1MenuFlags.legacyBoards()), ', '.join(L1MenuFlags.legacyBoards().keys()))
         except ImportError:
             log.info("==> No menu defining the legacy inputs was found, will assume this intended")
@@ -302,25 +303,25 @@ class L1MenuConfig(object):
         self.currentAlgoDef = "topo"
         from .Config.TopoAlgoDef import TopoAlgoDef
         TopoAlgoDef.registerTopoAlgos(self)
-        log.info("... registered %i defined topo algos for the new topo boards", len(self._definedTopoAlgos2[AlgCategory.TOPO]))
+        log.info("... registered %i defined topo algos for the new topo boards", len(self._definedTopoAlgos[AlgCategory.TOPO]))
 
         log.info("Reading TriggerMenuMT.Config.TopoAlgoDefMuctpi")
         self.currentAlgoDef = "muctpi"
         from .Config.TopoAlgoDefMuctpi import TopoAlgoDefMuctpi
         TopoAlgoDefMuctpi.registerTopoAlgos(self)
-        log.info("... registered %i defined topo algos for the MuCTPi", len(self._definedTopoAlgos2[AlgCategory.MUCTPI]))
+        log.info("... registered %i defined topo algos for the MuCTPi", len(self._definedTopoAlgos[AlgCategory.MUCTPI]))
 
         log.info("Reading TriggerMenuMT.Config.TopoMultiplicityAlgoDef")
         self.currentAlgoDef = "multi"
         from .Config.TopoMultiplicityAlgoDef import TopoMultiplicityAlgoDef
         TopoMultiplicityAlgoDef.registerTopoAlgos(self)
-        log.info("... registered %i defined topo multiplicity algos for the new topo boards", len(self._definedTopoAlgos2[AlgCategory.MULTI]))
+        log.info("... registered %i defined topo multiplicity algos for the new topo boards", len(self._definedTopoAlgos[AlgCategory.MULTI]))
 
         log.info("Reading TriggerMenuMT.Config.TopoAlgoDefLegacy")
         self.currentAlgoDef = "legacy"
         from .Config.TopoAlgoDefLegacy import TopoAlgoDefLegacy
         TopoAlgoDefLegacy.registerTopoAlgos(self)
-        log.info("... registered %i defined topo algos for the legacy topo boards", len(self._definedTopoAlgos2[AlgCategory.LEGACY]))
+        log.info("... registered %i defined topo algos for the legacy topo boards", len(self._definedTopoAlgos[AlgCategory.LEGACY]))
 
         log.info("Reading TriggerMenuMT.Config.ThreholdDef")
         from .Config.ThresholdDef import ThresholdDef
@@ -347,8 +348,8 @@ class L1MenuConfig(object):
 
 
     def _getTopoAlgo(self, algoName, category):
-        if algoName in self._definedTopoAlgos2[category]:
-            return self._definedTopoAlgos2[category][algoName]
+        if algoName in self._definedTopoAlgos[category]:
+            return self._definedTopoAlgos[category][algoName]
         raise RuntimeError("Algorithm of name %s is not defined in category %s" % (algoName, category) )
 
 
@@ -359,7 +360,7 @@ class L1MenuConfig(object):
         runtime exception
         """
         sortingAlgs = []
-        for name, alg in self._definedTopoAlgos2[AlgCategory.TOPO].items():  # TODO: extend to legacy topo
+        for name, alg in self._definedTopoAlgos[AlgCategory.TOPO].items():  # TODO: extend to legacy topo
             if type(alg.outputs)==list:
                 foundOutput = (input in alg.outputs)
             else:
@@ -490,7 +491,7 @@ class L1MenuConfig(object):
         # ------------------
 
         # build list of items for the menu from the list of requested names
-        itemNamesForMenu = []
+        itemsForMenu = []
         for itemName in L1MenuFlags.items():
             registeredItem = self.getRegisteredItem(itemName)
             if registeredItem is None:
@@ -502,15 +503,15 @@ class L1MenuConfig(object):
                 newCTPID = L1MenuFlags.CtpIdMap()[itemName]
                 registeredItem.setCtpid(newCTPID)
 
-            itemNamesForMenu += [ registeredItem ]
+            itemsForMenu += [ registeredItem ]
 
 
         # CTP IDs available for assignment
-        assigned_ctpids = set([item.ctpid for item in itemNamesForMenu])
+        assigned_ctpids = set([item.ctpid for item in itemsForMenu])
         available_ctpids = sorted( list( set(range(Limits.MaxTrigItems)) - assigned_ctpids ), reverse=True )
 
         # add the items to the menu
-        for item in itemNamesForMenu:
+        for item in itemsForMenu:
             # set the physics bit
             if not item.name.startswith('L1_CALREQ'):
                 item.setTriggerType( item.trigger_type | TT.phys )
@@ -530,7 +531,7 @@ class L1MenuConfig(object):
         list_of_undefined_thresholds = []
         # new thresholds
         for (boardName, boardDef) in L1MenuFlags.boards().items():
-            if boardName == "Ctpin":
+            if boardName.startswith("Ctpin"):
                 continue
             for connDef in boardDef["connectors"]:
                 if connDef["format"] != "multiplicity":
@@ -549,9 +550,9 @@ class L1MenuConfig(object):
 
         # ctpin thresholds
         for (boardName, boardDef) in allBoards:
-            if boardName != "Ctpin":
+            if not boardName.startswith("Ctpin"):
                 continue
-            for connDef in boardDef["inputConnectors"]:
+            for connDef in boardDef["connectors"]:
                 for entry in connDef["thresholds"]:
                     if type(entry) == dict:
                         # section that defines topo legacy thresholds 
@@ -581,7 +582,6 @@ class L1MenuConfig(object):
                 except KeyError:
                     pass
 
-
         if len(list_of_undefined_thresholds)>0:
             raise RuntimeError("Found undefined threshold in menu %s, please add these thresholds to l1menu/ThresholdDef.py: %s" % \
                                (self.l1menu.menuName, ', '.join(list_of_undefined_thresholds)) )
@@ -592,17 +592,28 @@ class L1MenuConfig(object):
         # ------------------
 
         for (boardName, boardDef) in allBoards:
-            connectorList = boardDef["inputConnectors"] if 'ctpin' in boardName.lower() else boardDef["connectors"]
-            for connDef in connectorList:
+            for connDef in boardDef["connectors"]:
                 self.l1menu.addConnector( connDef )
 
         # ------------------
         # Boards
         # ------------------
 
-        for boardName, boardDef in allBoards:
+        for (boardName, boardDef) in allBoards:
             self.l1menu.addBoard(boardDef)
             
+        # ------------------
+        # Mark items legacy
+        # ------------------
+        legacyThresholdsSet = set() # determine from connectors
+        for conn in self.l1menu.connectors:
+            if not conn.isLegacy():
+                continue
+            legacyThresholdsSet.update(conn.triggerThresholds())
+        for item in self.l1menu.items:
+            item.markLegacy(legacyThresholdsSet)
+            
+
         # assign mapping to thresholds according to their use in the menu
         self.mapThresholds()
 
@@ -613,7 +624,7 @@ class L1MenuConfig(object):
         self.l1menu.setupCTPMonitoring()
 
         # final consistency check
-        #self.menu.checkL1()
+        self.l1menu.check()
 
 
 

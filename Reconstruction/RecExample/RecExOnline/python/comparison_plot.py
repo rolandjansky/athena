@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Draw comparison plots and statistical tables for each 2 histograms inside 2 data sets.
@@ -22,7 +22,7 @@ import copy
 from UnbinnedHist import UnbinnedHist
 from hash_tool import HashTool
 matplotlib.rcParams["text.usetex"]=True
-matplotlib.rcParams['text.latex.preamble']=['\usepackage{booktabs}']
+matplotlib.rcParams['text.latex.preamble']=['\\usepackage{booktabs}']
 def tree(): return defaultdict(tree)
 #set_style('ATLAS',mpl=True)
 def set_yaxis(ax, tick=None):

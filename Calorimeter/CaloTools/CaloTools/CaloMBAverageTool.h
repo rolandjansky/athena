@@ -29,10 +29,12 @@ class CaloDetDescrElement;
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "CxxUtils/checker_macros.h"
+
 class LArCablingLegacyService;
 
-class CaloMBAverageTool
-  : public extends<AthAlgTool, ICaloMBAverageTool>
+class ATLAS_NOT_THREAD_SAFE /*It registers callbacks*/ CaloMBAverageTool: 
+  public extends<AthAlgTool, ICaloMBAverageTool>
 {
 private: 
 //Database  

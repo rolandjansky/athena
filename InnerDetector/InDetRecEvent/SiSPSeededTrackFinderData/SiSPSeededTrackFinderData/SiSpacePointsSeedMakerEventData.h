@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -137,10 +137,10 @@ namespace InDet {
     std::vector<std::pair<float,InDet::SiSpacePointForSeed*>> CmSp;
     std::vector<std::pair<float,InDet::SiSpacePointForSeedITK*>> CmSp_ITK;
 
-    std::vector<std::list<InDet::SiSpacePointForSeed*>> r_Sorted;
-    std::vector<std::list<InDet::SiSpacePointForSeed*>> rf_Sorted;
-    std::vector<std::list<InDet::SiSpacePointForSeed*>> rfz_Sorted;
-    std::vector<std::list<InDet::SiSpacePointForSeed*>> rfzv_Sorted;
+    std::vector<std::vector<InDet::SiSpacePointForSeed*>> r_Sorted;
+    std::vector<std::vector<InDet::SiSpacePointForSeed*>> rf_Sorted;
+    std::vector<std::vector<InDet::SiSpacePointForSeed*>> rfz_Sorted;
+    std::vector<std::vector<InDet::SiSpacePointForSeed*>> rfzv_Sorted;
     std::vector<std::list<InDet::SiSpacePointForSeedITK*>> r_Sorted_ITK;
     std::vector<std::list<InDet::SiSpacePointForSeedITK*>> rfz_Sorted_ITK;
     std::vector<std::list<InDet::SiSpacePointForSeedITK*>> rfzv_Sorted_ITK;
@@ -162,7 +162,7 @@ namespace InDet {
     std::list<InDet::SiSpacePointsProSeedITK>::iterator i_seed_ITK;
     std::list<InDet::SiSpacePointsProSeedITK>::iterator i_seede_ITK;
 
-    std::list<InDet::SiSpacePointForSeed*>::iterator rMin;
+    std::vector<InDet::SiSpacePointForSeed*>::iterator rMin;
     std::list<InDet::SiSpacePointForSeedITK*>::iterator rMin_ITK;
 
     std::multimap<float,InDet::SiSpacePointsSeed*> mapOneSeeds;

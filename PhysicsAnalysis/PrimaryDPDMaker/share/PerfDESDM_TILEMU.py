@@ -110,7 +110,7 @@ ToolSvc += TileMuCaloCellThinningTool
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 TileMuMuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name = "TileMuMuonTPThinningTool",
-                                                                          ThinningService = "TileMuThinningToolSvc",
+                                                                          StreamName = primDPD.WriteDESDM_TILEMUStream.StreamName,
                                                                           MuonKey = "Muons",
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += TileMuMuonTPThinningTool

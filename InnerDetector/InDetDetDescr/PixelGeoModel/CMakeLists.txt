@@ -18,6 +18,7 @@ atlas_depends_on_subdirs(
    GaudiKernel
    InnerDetector/InDetDetDescr/InDetGeoModelUtils
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
+   InnerDetector/InDetDetDEscr/PixelReadoutGeometry
    PRIVATE
    Control/SGTools
    Control/StoreGate
@@ -36,7 +37,7 @@ atlas_add_library( PixelGeoModelLib
    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
    LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel 
    GeoModelUtilities Identifier GaudiKernel InDetGeoModelUtils
-   InDetReadoutGeometry
+   InDetReadoutGeometry PixelReadoutGeometry
    PRIVATE_LINK_LIBRARIES SGTools StoreGateLib DetDescrConditions
    InDetIdentifier
    PRIVATE_DEFINITIONS "-DGEOTORUS=1" )

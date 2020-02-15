@@ -48,7 +48,7 @@ protected:
                                        const std::string& key);
 
    /// Set POOL placement.
-   virtual void setPlacement(const std::string& key, const std::string& output);
+   virtual Placement setPlacement(const std::string& key, const std::string& output);
 
 public:
    /// @return class ID.

@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+/**
+ * @file PixelDigitization/SensorSimTool.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date January, 2020
+ * @brief Base class of pixel sensor simulation
+ */
 
-///////////////////////////////////////////////////////////////////
-// SensorSimTool.h
-//   Header file for class SensorSimTool
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 #ifndef PIXELDIGITIZATION_SensorSimTool_H
 #define PIXELDIGITIZATION_SensorSimTool_H
 
@@ -20,7 +20,7 @@
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "SiPropertiesTool/ISiPropertiesTool.h"
 
 static const InterfaceID IID_ISensorSimTool("SensorSimTool", 1, 0);
@@ -38,15 +38,15 @@ class SensorSimTool:public AthAlgTool,virtual public IAlgTool {
 
     virtual StatusCode initialize() {
       ATH_CHECK(AthAlgTool::initialize()); 
-
       ATH_CHECK(m_siPropertiesTool.retrieve());
-
       return StatusCode::SUCCESS;
     }
 
     virtual StatusCode finalize() {return StatusCode::FAILURE;}
     virtual ~SensorSimTool() {}
-    virtual StatusCode induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine) = 0;  
+    virtual StatusCode induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, 
+        const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, 
+        std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine) = 0;  
 
   private:
     SensorSimTool();
@@ -54,6 +54,5 @@ class SensorSimTool:public AthAlgTool,virtual public IAlgTool {
   protected:
     ToolHandle<ISiPropertiesTool>   m_siPropertiesTool{this, "SiPropertiesTool", "SiPropertiesTool", "Tool to retrieve SiProperties"};
 };
-
 
 #endif // PIXELDIGITIZATION_SensorSimTool_H

@@ -1,5 +1,3 @@
-# $Id: CMakeLists.txt 781044 2016-10-28 15:35:33Z krasznaa $
-
 # The name of the package:
 atlas_subdir( EventLoopGrid )
 
@@ -16,9 +14,9 @@ find_package( ROOT COMPONENTS Core RIO PyROOT Tree )
 
 # Library in the package:
 atlas_add_root_dictionary( EventLoopGrid EventLoopGridCintDict
-   ROOT_HEADERS EventLoopGrid/GridWorker.h EventLoopGrid/GridDriver.h
-   EventLoopGrid/PrunDriver.h EventLoopGrid/GridJobLoader.h
-   EventLoopGrid/PandaRootTools.h Root/LinkDef.h
+   ROOT_HEADERS EventLoopGrid/GridDriver.h
+   EventLoopGrid/PrunDriver.h
+   Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )
 
 atlas_add_library( EventLoopGrid
@@ -26,9 +24,19 @@ atlas_add_library( EventLoopGrid
    PUBLIC_HEADERS EventLoopGrid
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop SampleHandler
-   PRIVATE_LINK_LIBRARIES RootCoreUtils )
+   PRIVATE_LINK_LIBRARIES RootCoreUtils PathResolver )
+
+target_compile_definitions (EventLoopGrid PUBLIC USE_CMAKE)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_scripts( scripts/* )
 atlas_install_data( data/* )
+
+
+file (GLOB util_sources RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/util/[a-zA-Z0-9]*.cxx")
+foreach (source ${util_sources})
+  string (REGEX REPLACE "util/(.*).cxx" "\\1" util ${source})
+  message (${util} ${source} LINK_LIBRARIES EventLoop)
+  atlas_add_executable (${util} ${source} LINK_LIBRARIES EventLoopGrid)
+endforeach (source ${util_sources})

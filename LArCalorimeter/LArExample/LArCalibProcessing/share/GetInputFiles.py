@@ -1,7 +1,7 @@
 from os import popen
 
 def GetInputFiles(inputPath,filePattern):
-    print "Searching for files with pattern '",filePattern,"' in ",inputPath
+    printfunc ("Searching for files with pattern '",filePattern,"' in ",inputPath)
     fileList=[]
     if (inputPath[0:8]=='/castor/'):
         cmd='nsls'
@@ -19,7 +19,7 @@ def GetInputFiles(inputPath,filePattern):
            fileList+=['root://eosatlas.cern.ch/'+inputPath+'/'+f]
         else:   
            fileList+=[inputPath+'/'+f]
-    print "Found ",len(fileList), " files"
+    printfunc ("Found ",len(fileList), " files")
     return fileList
     
 

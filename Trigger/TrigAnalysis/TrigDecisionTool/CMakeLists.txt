@@ -59,7 +59,7 @@ else()
       Trigger/TrigEvent/TrigNavStructure
       Trigger/TrigEvent/TrigNavigation
       Trigger/TrigEvent/TrigStorageDefinitions
-      Trigger/TrigSteer/DecisionHandling
+      Trigger/TrigSteer/TrigCompositeUtils
       PRIVATE
       Control/AthenaBaseComps
       Control/AthenaKernel
@@ -89,7 +89,7 @@ else()
          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
          LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools EventInfo xAODBase
          xAODTrigger GaudiKernel TrigConfHLTData TrigConfL1Data
-         TrigNavStructure StoreGateLib TrigRoiConversionLib
+         TrigNavStructure StoreGateLib TrigRoiConversionLib TrigCompositeUtilsLib
          PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps
          TrigSteeringEvent AthenaKernel )
    else()
@@ -102,7 +102,7 @@ else()
          xAODTrigger GaudiKernel AnalysisTriggerEvent TrigConfHLTData
          TrigConfL1Data TrigDecisionEvent TrigMuonEvent TrigNavStructure
          TrigStorageDefinitions StoreGateLib TrigNavigationLib
-         TrigRoiConversionLib
+         TrigRoiConversionLib TrigCompositeUtilsLib
          PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps
          TrigSteeringEvent AthenaKernel )
    endif()

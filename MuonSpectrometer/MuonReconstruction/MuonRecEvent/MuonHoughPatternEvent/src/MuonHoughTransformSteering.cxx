@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughPattern.h"
 #include "MuonHoughPatternEvent/MuonHoughTransformer.h"
 #include "MuonHoughPatternEvent/MuonHoughTransformSteering.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 MuonHoughTransformSteering::MuonHoughTransformSteering(MuonHoughTransformer* houghtransformer)
 {
@@ -20,6 +22,7 @@ MuonHoughTransformSteering::~MuonHoughTransformSteering()
 
 MuonHoughPatternCollection MuonHoughTransformSteering::constructHoughPatterns(const MuonHoughHitContainer* event, double residu_mm, double residu_grad, int max_patterns, bool which_segment, int printlevel)const
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughTransformSteering::constructHoughPatterns");
   MuonHoughPatternCollection houghpatterns;
   houghpatterns.reserve(max_patterns);
   std::vector <std::pair <int, int> > maxima = m_houghtransformer->getMaxima(max_patterns); // sector,binnumber , sorted vector
@@ -37,9 +40,9 @@ MuonHoughPatternCollection MuonHoughTransformSteering::constructHoughPatterns(co
 	}
       else 
 	{
-	  if (printlevel>=4)
+	  if (printlevel>=4 || log.level()<=MSG::VERBOSE)
 	    {
-	      std::cout << "binnumber == -1 (no max found), max patterns = " << maximum_number << std::endl;
+	      log << MSG::VERBOSE << "binnumber == -1 (no max found), max patterns = " << maximum_number << endmsg;
 	    }
 	  break;
 	}
@@ -53,14 +56,15 @@ MuonHoughPatternCollection MuonHoughTransformSteering::constructHoughPatterns(co
 
 MuonHoughPattern* MuonHoughTransformSteering::constructHoughPattern(const MuonHoughHitContainer* event, double residu_mm, double residu_grad, int maximum_number, bool which_segment, int printlevel)const
 {
-  if (printlevel>=3)
-    {std::cout << "MuonHoughTransformSteering::constructHoughPattern (start) " << std::endl;}
-
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughTransformSteering::constructHoughPattern");
+  if (printlevel>=3 || log.level()<=MSG::DEBUG)
+    {log << MSG::DEBUG << "MuonHoughTransformSteering::constructHoughPattern (start) " << endmsg;}
+  
   MuonHoughPattern* houghpattern = m_houghtransformer->associateHitsToMaximum(event,residu_mm,residu_grad,maximum_number,which_segment,printlevel);
-      
-  if (printlevel>=3)
-    {std::cout << "MuonHoughTransformSteering::constructHoughPattern (end) " << std::endl;}
-
+  
+  if (printlevel>=3 || log.level()<=MSG::DEBUG)
+    {log << MSG::DEBUG << "MuonHoughTransformSteering::constructHoughPattern (end) " << endmsg;}
+  
   return houghpattern;
 }
 

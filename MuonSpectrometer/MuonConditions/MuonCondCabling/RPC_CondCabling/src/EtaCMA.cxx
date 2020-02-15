@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <stdlib.h>
@@ -28,8 +28,8 @@ EtaCMA::EtaCMA(int num,int stat,int type,CMAcoverage coverage,
 
    m_msgSvc = Athena::getMessageSvc();
    MsgStream log(m_msgSvc, name());
-
    m_debug = log.level() <= MSG::DEBUG;
+   m_verbose = log.level() <= MSG::VERBOSE;
 
    if(m_debug) log<<MSG::DEBUG
    <<"Building EtaCMA for eta/phi/PAD/Ixx/pivot/lpt/hpt/start_ch/start_st/stop_ch/stop_st "
@@ -475,14 +475,14 @@ EtaCMA::setup(SectorLogicSetup& setup)
         std::map<std::string, std::string>::const_iterator itc;
         itc=p_trigroads->find(name);
         if(itc != p_trigroads->end()){
-          if(m_debug){
-            log<<MSG::DEBUG
+          if(m_verbose){
+            log<<MSG::VERBOSE
 	    << "EtaCMA low: key " << name << "found in the Trigger Road Map --> OK" << endmsg;
-            log<<MSG::DEBUG
+            log<<MSG::VERBOSE
 	    << "EtaCMA low: key " <<  itc->second.c_str()<<endmsg;
 	  }
           CMAprogLow_COOL.str(itc->second.c_str());
-          if(m_debug) log<<MSG::DEBUG
+          if(m_verbose) log<<MSG::VERBOSE
 		      << "Etacma:CMAPROGLOW " << CMAprogLow_COOL.str()<<endmsg;
         }
         ++it;
@@ -586,14 +586,14 @@ EtaCMA::setup(SectorLogicSetup& setup)
         std::map<std::string, std::string>::const_iterator itc;
         itc=p_trigroads->find(name);
         if(itc != p_trigroads->end()){
-          if(m_debug) { 
-            log<<MSG::DEBUG
+          if(m_verbose) {
+            log<<MSG::VERBOSE
 	    << "EtaCMA high: key " << name << "found in the Trigger Road Map --> OK"<<endmsg;
-	    log<<MSG::DEBUG
+	    log<<MSG::VERBOSE
 	    << "EtaCMA high: key " <<  itc->second.c_str()<<endmsg;
 	  }
           CMAprogHigh_COOL.str(itc->second.c_str());
-          if(m_debug) log<<MSG::DEBUG
+          if(m_verbose) log<<MSG::VERBOSE
 	  << "EtaCMA:CMAPROGHIGH " << CMAprogHigh_COOL.str()<<endmsg;
         }
         ++it;

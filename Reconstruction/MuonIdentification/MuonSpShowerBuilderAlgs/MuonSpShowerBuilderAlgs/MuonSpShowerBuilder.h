@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSPSHOWERBUILDER_H
@@ -27,11 +27,9 @@ RPC and TGC hits might also be used.
 *****************************************************************************/
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 
-namespace MuonGM {
-class MuonDetectorManager;
-}
-class MuonIdHelper;
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <vector>
 #include <string>
@@ -40,10 +38,9 @@ class MuonSpShowerBuilder : public AthAlgorithm {
  public:
 
   MuonSpShowerBuilder(const std::string& name, ISvcLocator* pSvcLocator);
-  ~MuonSpShowerBuilder();
+  ~MuonSpShowerBuilder()=default;
 
   StatusCode initialize();
-  StatusCode finalize();
   StatusCode execute();
 
  private:
@@ -65,8 +62,7 @@ class MuonSpShowerBuilder : public AthAlgorithm {
 
   std::string m_MuonSpShowerKey;
 
-  const MuonGM::MuonDetectorManager* m_MuonMgr;
-  const MuonIdHelper* m_muonHelper;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
 };
 

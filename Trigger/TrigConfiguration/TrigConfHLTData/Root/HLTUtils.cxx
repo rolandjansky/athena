@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -25,107 +25,6 @@
 
 using namespace TrigConf;
 using namespace std;
-
-std::mutex HLTUtils::s_mutex;
-
-std::string HLTUtils::s_newCategory("##NewCategory");
-
-//
-// \brief function used to generate uniqu  ID (integer) from string
-//        In fact uniqueness is not 100% guaranteed. Thread safe
-// \param s string to be hashed
-//
-// \return key for this string (this function never fails)
-//
-namespace HashChecking {
-  typedef std::map<HLTHash, std::string> HashMap;
-  typedef std::map<std::string, HashMap> CategoryMap;
-  static CategoryMap AllHashesByCategory;
-  void checkGeneratedHash (HLTHash hash,  const std::string& s,   const std::string& category) {
-    std::lock_guard<std::mutex> lock(HLTUtils::s_mutex);
-    HashMap& hashes = AllHashesByCategory[category];
-    if ( hashes[hash] == "" )
-      hashes[hash] = s;
-    else if ( hashes[hash] != s )
-      throw std::domain_error("Hashes the same for category: "+category
-			      + " and elements "+ hashes[hash] + " "+ s );
-  }
-}
-
-HLTHash HLTUtils::string2hash( const std::string& s, const std::string& category )
-{
-  // hash function (based on available elswhere ELF hash function)
-  // uniqueness tested in MC way; contact me for details
-  // email: Tomasz.Bold@cern.ch
-  HLTHash hash;
-  hash = 0xd2d84a61;
-  int i;
-
-  for ( i = (int)s.size()-1; i >= 0; --i )
-    hash ^= ( hash >> 5) + s[i] + ( hash << 7 );
-
-  for ( i = 0; i < (int)s.size(); ++i )
-    hash ^= ( hash >> 5) + s[i] + ( hash << 7 );
-
-    
-  HashChecking::checkGeneratedHash(hash, s, category);
-
-  return hash;
-}
-
-const std::string HLTUtils::hash2string( HLTHash hash, const std::string& category ) {
-  std::lock_guard<std::mutex> lock(s_mutex);
-  HashChecking::CategoryMap::const_iterator mapForCategoryIt = HashChecking::AllHashesByCategory.find(category);
-  if ( mapForCategoryIt == HashChecking::AllHashesByCategory.end() ) {
-    return "UNKNOWN CATEGORY";
-  }
-  HashChecking::HashMap::const_iterator hashMapIt = mapForCategoryIt->second.find(hash);
-  if ( hashMapIt == mapForCategoryIt->second.end() ) 
-    return "UNKNOWN HASH ID";
-  return hashMapIt->second;
-}
-
-void HLTUtils::hashes2file( const std::string& fileName) {
-  std::lock_guard<std::mutex> lock(s_mutex);
-  std::ofstream fout(fileName);
-  for (const auto& categoryMapElement : HashChecking::AllHashesByCategory) {
-    const std::string& categoryName = categoryMapElement.first;
-    const HashChecking::HashMap& categoryMap = categoryMapElement.second;
-    fout << s_newCategory << std::endl << categoryName << std::endl;
-    for (const auto& mapElement : categoryMap) {
-      const HLTHash hash = mapElement.first;
-      std::string name = mapElement.second;
-      name.erase(std::remove(name.begin(), name.end(), '\n'), name.end());
-      fout << hash << std::endl << name << std::endl;
-    }
-  }
-}
-
-void HLTUtils::file2hashes( const std::string& fileName) {
-  std::ifstream fin(fileName);
-  if (!fin.is_open()) {
-    return;
-  }
-  std::string line;
-  std::string category;
-  // Note: this method is a to aid with development/debugging. 
-  // It won't be used in production code, hence it is light on error checking.
-  while(std::getline(fin, line)) {
-    if (line == s_newCategory) {
-      std::getline(fin, category);
-      continue;
-    }
-    HLTHash hash = std::stoul(line);
-    std::string name;
-    std::getline(fin, name);
-    HLTHash check = string2hash(name, category);
-    if (check != hash) {
-      std::cerr << "Inconsistency in file2hashes(" << fileName << ") function,"
-                   " item " << name << " has hash " << hash << " not " << check << std::endl;
-    }
-  }
-}
-
 
 /*****
  * This is to support discover in configuration recursively called sequences
@@ -212,9 +111,9 @@ namespace TrigConf {
 
 
 std::vector<unsigned int>
-HLTUtils::allTEsProducedInLevel( const std::string& level, 
-                                 const HLTChainList& chainList,
-                                 const HLTSequenceList& sequenceList) {
+HLTTEUtils::allTEsProducedInLevel( const std::string& level, 
+                                   const HLTChainList& chainList,
+                                   const HLTSequenceList& sequenceList) {
    
 
    set<unsigned int> outTEs;
@@ -241,7 +140,7 @@ HLTUtils::allTEsProducedInLevel( const std::string& level,
 
 
 vector<string>
-HLTUtils::explicitChainTEs(const HLTChain& ch) {
+HLTTEUtils::explicitChainTEs(const HLTChain& ch) {
    vector<string> tes;
    for( HLTSignature* sig : ch.signatureList() ) {
       for( HLTTriggerElement* te : sig->outputTEs() )
@@ -255,7 +154,7 @@ HLTUtils::explicitChainTEs(const HLTChain& ch) {
 
 
 std::vector<std::string>
-HLTUtils::implicitChainTEs(const HLTChain& ch, const HLTSequenceList& sequenceList) {
+HLTTEUtils::implicitChainTEs(const HLTChain& ch, const HLTSequenceList& sequenceList) {
    vector<string> tes = explicitChainTEs(ch);
 
    vector<string> newTes;
@@ -271,7 +170,7 @@ HLTUtils::implicitChainTEs(const HLTChain& ch, const HLTSequenceList& sequenceLi
 
 // ________________________________________________________________________________
 std::set<std::string>
-TrigConf::HLTUtils::allTEsProducedInL2( const HLTFrame& frame ) {
+TrigConf::HLTTEUtils::allTEsProducedInL2( const HLTFrame& frame ) {
 
    const HLTChainList& chainList = frame.getHLTChainList();
    const HLTSequenceList& sequenceList = frame.getHLTSequenceList();
@@ -288,7 +187,7 @@ TrigConf::HLTUtils::allTEsProducedInL2( const HLTFrame& frame ) {
 
 // ________________________________________________________________________________
 std::set<std::string>
-TrigConf::HLTUtils::allTEsProducedInEF( const HLTFrame& frame,
+TrigConf::HLTTEUtils::allTEsProducedInEF( const HLTFrame& frame,
                                         std::set<std::string>* l2tes ) 
 {
    const HLTChainList& chainList = frame.getHLTChainList();
@@ -308,7 +207,7 @@ TrigConf::HLTUtils::allTEsProducedInEF( const HLTFrame& frame,
 
 // ________________________________________________________________________________
 std::set<std::string>
-TrigConf::HLTUtils::allTEsProduced( const HLTFrame& frame )
+TrigConf::HLTTEUtils::allTEsProduced( const HLTFrame& frame )
 {
    using std::set; using std::string; using std::vector;
 
@@ -327,7 +226,7 @@ TrigConf::HLTUtils::allTEsProduced( const HLTFrame& frame )
 
 // ________________________________________________________________________________
 std::set<std::string>
-TrigConf::HLTUtils::inputTEs( const std::set<std::string>& TEs,
+TrigConf::HLTTEUtils::inputTEs( const std::set<std::string>& TEs,
                               const TrigConf::HLTSequenceList& sequenceList) {
 
    using std::set; using std::string;
@@ -351,7 +250,7 @@ TrigConf::HLTUtils::inputTEs( const std::set<std::string>& TEs,
 
 // ________________________________________________________________________________
 std::set<std::string>
-TrigConf::HLTUtils::allTEsProducedInL2Chain( const TrigConf::HLTChain& chain,
+TrigConf::HLTTEUtils::allTEsProducedInL2Chain( const TrigConf::HLTChain& chain,
                                              const TrigConf::HLTSequenceList& sequenceList)
 {
    using std::set; using std::string; using std::vector;
@@ -394,7 +293,7 @@ TrigConf::HLTUtils::allTEsProducedInL2Chain( const TrigConf::HLTChain& chain,
 
 // ________________________________________________________________________________
 std::set<std::string>
-TrigConf::HLTUtils::allTEsProducedInEFChain( const TrigConf::HLTChain& chain,
+TrigConf::HLTTEUtils::allTEsProducedInEFChain( const TrigConf::HLTChain& chain,
                                              const TrigConf::HLTSequenceList& sequenceList,
                                              const std::set<std::string>& l2tes )
 {
@@ -438,7 +337,7 @@ TrigConf::HLTUtils::allTEsProducedInEFChain( const TrigConf::HLTChain& chain,
 
 // ________________________________________________________________________________
 std::string
-TrigConf::HLTUtils::ChainCondenseDisplay( const HLTChain& chain,
+TrigConf::HLTTEUtils::ChainCondenseDisplay( const HLTChain& chain,
                                           const HLTFrame& frame )
 {
    using std::string; using std::set; using std::vector; using TrigConf::HLTTriggerElement;
@@ -508,7 +407,7 @@ TrigConf::HLTUtils::ChainCondenseDisplay( const HLTChain& chain,
 
 // ________________________________________________________________________________
 std::vector< std::string >
-TrigConf::HLTUtils::splitGroups(const std::string& s)
+TrigConf::HLTTEUtils::splitGroups(const std::string& s)
 {
    // turns "(str1),(str2),(str3)" into ["str1", "str2", "str3"]
    std::string::size_type currentOpen = 0;
@@ -541,7 +440,7 @@ TrigConf::HLTUtils::splitGroups(const std::string& s)
 }
 
 TrigConf::HLTSequence*
-TrigConf::HLTUtils::buildSequence(const std::string& desc)
+TrigConf::HLTTEUtils::buildSequence(const std::string& desc)
 {
    // builds a sequence from a string "inputTE1,inputTE2,outputTE", (can be just "outputTE")
    std::vector<std::string> tes = TrigConf::split(desc,",");
@@ -559,7 +458,7 @@ TrigConf::HLTUtils::buildSequence(const std::string& desc)
 
 
 //merge L2 and EF chains
-void TrigConf::HLTUtils::mergeHLTChainList( HLTFrame& frame) {
+void TrigConf::HLTTEUtils::mergeHLTChainList( HLTFrame& frame) {
 
    if(! frame.mergedHLT()) return;
   
@@ -644,7 +543,7 @@ void TrigConf::HLTUtils::mergeHLTChainList( HLTFrame& frame) {
 
 
 void
-TrigConf::HLTUtils::mergeL2EFPrescales( HLTChain* hltchain, const HLTPrescale& l2ps, const HLTPrescale& efps) {
+TrigConf::HLTTEUtils::mergeL2EFPrescales( HLTChain* hltchain, const HLTPrescale& l2ps, const HLTPrescale& efps) {
    HLTPrescale hltps;
 
    bool disabled = l2ps.disabled() || efps.disabled();
@@ -656,7 +555,7 @@ TrigConf::HLTUtils::mergeL2EFPrescales( HLTChain* hltchain, const HLTPrescale& l
 }
 
 void
-TrigConf::HLTUtils::mergeHLTChainList2( HLTFrame& frame) {
+TrigConf::HLTTEUtils::mergeHLTChainList2( HLTFrame& frame) {
 
    if(! frame.mergedHLT()) return;
    

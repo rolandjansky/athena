@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*---------------------------------------------------------
@@ -16,7 +16,9 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "InDetReadoutGeometry/TRT_BaseElement.h"
+
+#include "StoreGate/ReadCondHandle.h"
 
 //////
 /// Constructor
@@ -76,6 +78,8 @@ StatusCode TRT_ActiveFractionSvc::initialize() {
   }
   m_incSvc->addListener( this, std::string("BeginRun") );
 
+  ATH_CHECK(m_trtDetEleContKey.initialize());
+
   // Build the phi bin list (equal bin widths)
   double phiEdgeLow = -1. * M_PI; // Check this to be sure...
   double deltaPhi = 2. * M_PI / (1. * m_nBinsPhi) ;
@@ -126,12 +130,13 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
       return;
     }
 
-    const InDetDD::TRT_DetectorManager *TRTDetMgr = 0;	
-    sc = m_detStore->retrieve(TRTDetMgr, "TRT");
-    if ( sc.isFailure() ) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "TRT_ActiveFractionSvc::handle: Unable to retrieve TRT Detector Manager " << endmsg;
+
+    SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
+    const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
+    if (not trtDetEleHandle.isValid() or elements==nullptr) {
+      ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");
       return;
-    }	
+    }
 
     const TRT_ID *TRTHelper;
     sc = m_detStore->retrieve(TRTHelper, "TRT_ID");
@@ -148,10 +153,13 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
       for (int i=0; i<=nStrawsInLayer; i++) { 
 
         Identifier id = TRTHelper->straw_id(*it, i);	 
+        // Make sure it is a straw_layer id
+        Identifier strawLayerId = TRTHelper->layer_id(id);
+        IdentifierHash hashId = TRTHelper->straw_layer_hash(strawLayerId);
         bool status = m_deadStrawSvc->get_status(id);
         countAll++; if (status) countDead++;
 
-        const Amg::Vector3D &strawPosition = TRTDetMgr->getElement( id )->center( id );
+        const Amg::Vector3D &strawPosition = elements->getDetectorElement(hashId)->center(id);
         double phi = atan2( strawPosition.y(), strawPosition.x() );
         int phiBin = findPhiBin( phi );
 	if (phiBin<0) { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc::handle phiBin<0: " << phi << " " << phiBin << endmsg; countPhiSkipped++; continue; }

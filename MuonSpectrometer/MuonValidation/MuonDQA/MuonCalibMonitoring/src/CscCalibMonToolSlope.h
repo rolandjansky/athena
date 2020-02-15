@@ -1,15 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// ********************************************************************
-//
-// NAME:      CscCalibMonTool.h
-// PACKAGE:   MuonCalibMonTool.h
-//
-// AUTHORS:   Caleb Parnell-Lampen <lampen@physics.arizona.edu>
-//
-// ********************************************************************
 
 #ifndef MUONCALIBMONITORING_CSCCALIBMONTOOLSLOPE_H
 #define MUONCALIBMONITORING_CSCCALIBMONTOOLSLOPE_H
@@ -18,9 +9,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
-
-#include "MuonIdHelpers/CscIdHelper.h"
-
 
 /////////////////////////////////////////////////////////////////////////////
 class TH1F;
@@ -54,7 +42,7 @@ class CscCalibMonToolSlope: public CscCalibMonToolBase
                 const IInterface* parent);
 
         /**Destructor*/
-        ~CscCalibMonToolSlope();
+        ~CscCalibMonToolSlope() {};
       
         /**Initialize slope sepcific values. Also calls CscCalibMonToolBase::intialize*/
         StatusCode initialize();
@@ -85,9 +73,6 @@ class CscCalibMonToolSlope: public CscCalibMonToolBase
         //Leftover from when I was using more arrays. I should get rid of this or replace it with something more vector friendly
         //Maybe when I start using the slope program again more.. 2009-09-24
         std::vector<float> & setArray(std::vector<float> & array , const float &value, const int &numEntries);
-  
-        // CSC identifier helper
-        //       const CscIdHelper * m_cscIdHelper;
 
         /**Generated next neighbor channel ratios of the slopes*/
         void genNeighborRatios(const std::vector<float> & source, std::vector<float> & ratios) const;

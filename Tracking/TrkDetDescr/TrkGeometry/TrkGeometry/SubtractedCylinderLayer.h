@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ class OverlapDescriptor;
         SubtractedCylinderLayer(const SubtractedCylinderSurface* subCyl,
                       const LayerMaterialProperties& laymatprop,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
+                      OverlapDescriptor* od = nullptr,
                       int laytyp=int(Trk::active));
                               
         /**Copy constructor*/
@@ -54,17 +54,17 @@ class OverlapDescriptor;
         SubtractedCylinderLayer& operator=(const SubtractedCylinderLayer&);
                       
         /**Destructor*/
-        virtual ~SubtractedCylinderLayer(){}  
+        virtual ~SubtractedCylinderLayer() override{}  
         
         /** Transforms the layer into a Surface representation for extrapolation */
-        const SubtractedCylinderSurface& surfaceRepresentation() const override;
+        virtual const SubtractedCylinderSurface& surfaceRepresentation() const override;
         
         /** getting the MaterialProperties back - for pre-update*/ 
-        double preUpdateMaterialFactor(const Trk::TrackParameters& par,
+        virtual double preUpdateMaterialFactor(const Trk::TrackParameters& par,
                                        Trk::PropDirection dir) const override;
 
         /** getting the MaterialProperties back - for post-update*/ 
-        double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
+        virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
                                          Trk::PropDirection dir) const override;
 
         /** use the base class insideBounds (Vector2d, BoundaryCheck) */
@@ -74,7 +74,7 @@ class OverlapDescriptor;
         virtual void moveLayer( Amg::Transform3D& shift ) override;
 
         /** move the Layer */
-        virtual void moveLayer ATLAS_NOT_CONST_THREAD_SAFE ( Amg::Transform3D& shift ) const override{
+        virtual void moveLayer ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D& shift ) const override{
          const_cast<SubtractedCylinderLayer*> (this)->moveLayer(shift);
         }
 
@@ -83,15 +83,15 @@ class OverlapDescriptor;
        /** Resize the layer to the tracking volume - not implemented*/  
        virtual void resizeLayer(const VolumeBounds&, double) override {}
       /** Resize the layer to the tracking volume - not implemented*/  
-       virtual void resizeLayer ATLAS_NOT_CONST_THREAD_SAFE (const VolumeBounds&, double) const  override {}
+       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds&, double) const  override {}
 
        /** Resize the layer to the tracking volume - not implemented */ 
        virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double)   override {}
 
        /** Resize the layer to the tracking volume - not implemented */
-       virtual void resizeAndRepositionLayer ATLAS_NOT_CONST_THREAD_SAFE(const VolumeBounds&,
-                                                                         const Amg::Vector3D&,
-                                                                         double) const override
+       virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                                                                   const Amg::Vector3D&,
+                                                                   double) const override
        {}
   };
  

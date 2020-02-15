@@ -33,6 +33,7 @@ namespace FlavorTagDiscriminants {
   enum class SortOrder {
     ABS_D0_SIGNIFICANCE_DESCENDING, D0_SIGNIFICANCE_DESCENDING, PT_DESCENDING};
   enum class TrackSelection {ALL, IP3D_2018};
+  enum class OutputType {FLOAT, DOUBLE};
 
   // Structures to define DL2 input.
   //
@@ -167,7 +168,9 @@ namespace FlavorTagDiscriminants {
     DL2(const lwt::GraphConfig&,
         const std::vector<DL2InputConfig>&,
         const std::vector<DL2TrackSequenceConfig>& = {},
-        FlipTagConfig = FlipTagConfig::STANDARD);
+        FlipTagConfig = FlipTagConfig::STANDARD,
+        std::map<std::string, std::string> out_remap = {},
+        OutputType = OutputType::DOUBLE);
     void decorate(const xAOD::Jet& jet) const;
   private:
     struct TrackSequenceBuilder {

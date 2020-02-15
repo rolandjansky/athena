@@ -53,8 +53,8 @@ StatusCode JetRecAlg::finalize() {
 
 StatusCode JetRecAlg::execute() {  
 
-  // Build JetContainer by running fastjet, grooming or copying existing jets...
-  std::unique_ptr<xAOD::JetContainer>  jets( m_jetprovider->build() );
+  // Get JetContainer by running fastjet, grooming or copying existing jets...
+  std::unique_ptr<xAOD::JetContainer> jets( m_jetprovider->getJets() );
   if(jets==nullptr){
     ATH_MSG_ERROR("Builder tool "<< m_jetprovider->name() << "  returned a null pointer");
     return StatusCode::FAILURE;

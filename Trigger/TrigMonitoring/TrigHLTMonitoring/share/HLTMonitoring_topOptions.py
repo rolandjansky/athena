@@ -44,6 +44,6 @@ else :
   HLTMonFlags.doMaM = False
 
 log.info("HLTMonFlags are:")
-print HLTMonFlags
+printfunc (HLTMonFlags)
 
 include( "TrigHLTMonitoring/addMonTools.py" )

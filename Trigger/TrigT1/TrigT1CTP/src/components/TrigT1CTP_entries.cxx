@@ -1,8 +1,6 @@
-#include "TrigT1CTP/CTPSimulation.h"
-#include "TrigT1CTP/CTPDataDumper.h"
+#include "../CTPSimulation.h"
+#include "../ResultBuilder.h"
 
-using LVL1CTP::CTPSimulation;
-using LVL1CTP::CTPDataDumper;
 
-DECLARE_COMPONENT( CTPSimulation )
-DECLARE_COMPONENT( CTPDataDumper )
+DECLARE_COMPONENT( LVL1CTP::CTPSimulation )
+DECLARE_COMPONENT( LVL1CTP::ResultBuilder )

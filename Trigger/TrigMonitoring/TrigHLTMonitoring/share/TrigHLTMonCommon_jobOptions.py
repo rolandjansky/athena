@@ -116,23 +116,27 @@ if data_type == 'pool':
 
     if hasattr(runArgs,"maxEvents"):
             theApp.EvtMax=runArgs.maxEvents
+
+    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+    cfg =  TriggerConfigGetter()
     
     from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
     from TrigEDMConfig.TriggerEDM import EDMLibraries
     ToolSvc.TrigDecisionTool.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    if TriggerFlags.doMT() or TriggerFlags.EDMDecodingVersion() == 3:
+        ToolSvc.TrigDecisionTool.NavigationFormat="TrigComposite"
     
-    if hasattr(runArgs,"useDB"):
-        if runArgs.useDB:
-            from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-            cfg =  TriggerConfigGetter()
-            ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
+    if hasattr(runArgs,"useDB") and runArgs.useDB:
+        ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
     else:
         log.info("Configure TrigConfigSvc by default")
-        from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-        cfg =  TriggerConfigGetter()
-        ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
+        if not hasattr(svcMgr, 'xAODConfigSvc'):
+          from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
+          svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
+        ToolSvc.TrigDecisionTool.TrigConfigSvc = svcMgr.xAODConfigSvc
     
     # enable slices for monitoring 
     # otherwise enable slices via monFlags 
@@ -191,6 +195,9 @@ if hasattr(runArgs,"useDB"):
             tool_prop = tool.getDefaultProperties()
             for prop,value in tool_prop.iteritems():
                 if prop == "TrigConfigTool":
-                    log.info("Set TrigConfigTool %s",tool.getName())
+                    log.info("Set xAOD::TrigConfigTool %s",tool.getName())
                     tool.TrigConfigTool="TrigConf::xAODConfigTool"
+                if prop == "TrigConfigSvc":
+                    log.info("Set xAOD::TrigConfigSvc %s",tool.getName())
+                    tool.TrigConfigTool="TrigConf::xAODConfigSvc"
 

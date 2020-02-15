@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -83,16 +83,16 @@ namespace Trk {
         mutable int           m_layerBins;                 //!< total number of bins - loc0 * loc 1
         mutable int           m_layerBins0;                //!< total number of bins - loc 0
         mutable int           m_layerBins1;                //!< total number of bins - loc 0
-        mutable int           m_bin0[LAYERMAXBINS];        //!< bin 0
-        mutable int           m_bin1[LAYERMAXBINS];        //!< bin 1
-        mutable float         m_thickness[LAYERMAXBINS];   //!< gathered thickness from material mapping/material properties
-        mutable float         m_X0[LAYERMAXBINS];          //!< gathered X0 from material mapping/material properties
-        mutable float         m_L0[LAYERMAXBINS];          //!< gathered L0 from material mapping/material properties
-        mutable float         m_A[LAYERMAXBINS];           //!< gathered A from material mapping/material properties
-        mutable float         m_Z[LAYERMAXBINS];           //!< gathered Z from material mapping/material properties
-        mutable float         m_Rho[LAYERMAXBINS];         //!< gathered rho from material mapping/material properties
-        mutable int           m_elements[LAYERMAXBINS];    //!< gathered number of elements from material mapping/material properties
-        mutable int           m_binCounter[LAYERMAXBINS];  //!< how often was this bin hit / used
+        mutable std::vector<int> m_bin0 {LAYERMAXBINS};        //!< bin 0
+        mutable std::vector<int> m_bin1 {LAYERMAXBINS};        //!< bin 1
+        mutable std::vector<float> m_thickness {LAYERMAXBINS};   //!< gathered thickness from material mapping/material properties
+        mutable std::vector<float> m_X0 {LAYERMAXBINS};          //!< gathered X0 from material mapping/material properties
+        mutable std::vector<float> m_L0 {LAYERMAXBINS};          //!< gathered L0 from material mapping/material properties
+        mutable std::vector<float> m_A {LAYERMAXBINS};           //!< gathered A from material mapping/material properties
+        mutable std::vector<float> m_Z {LAYERMAXBINS};           //!< gathered Z from material mapping/material properties
+        mutable std::vector<float> m_Rho {LAYERMAXBINS};         //!< gathered rho from material mapping/material properties
+        mutable std::vector<int> m_elements {LAYERMAXBINS};    //!< gathered number of elements from material mapping/material properties
+        mutable std::vector<int> m_binCounter {LAYERMAXBINS};  //!< how often was this bin hit / used
 
     };
 

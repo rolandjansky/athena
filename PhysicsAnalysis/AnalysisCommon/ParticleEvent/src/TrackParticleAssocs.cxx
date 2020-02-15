@@ -45,7 +45,7 @@ TrackParticleAssocs& TrackParticleAssocs::operator=(const TrackParticleAssocs& r
 ///////////////////////////////////////////////////////////////////
  
  bool  TrackParticleAssocs::assocs( const Rec::TrackParticle* object,
-				    Rec::TrackParticleContainer& associatedElems ) const
+                                    ConstDataVector<Rec::TrackParticleContainer>& associatedElems ) const
 {
   if ( 0 == object ) {
     return false;

@@ -20,9 +20,9 @@ template <class Tvol> inline BoundaryCylinderSurface<Tvol>&
     BoundarySurface<Tvol>::m_outsideVolume       = bcs.m_outsideVolume;
     BoundarySurface<Tvol>::m_insideVolumeArray   = bcs.m_insideVolumeArray ;
     BoundarySurface<Tvol>::m_outsideVolumeArray  = bcs.m_outsideVolumeArray ;
-    Surface::m_transform  = (bcs.m_transform) ? new Amg::Transform3D(*bcs.m_transform) : 0;
-    Surface::m_center     = (bcs.m_center)    ? new Amg::Vector3D(*bcs.m_center) : 0;
-    Surface::m_normal     = (bcs.m_normal)    ? new Amg::Vector3D(*bcs.m_normal) : 0 ;
+    Surface::m_transform  = (bcs.m_transform) ? new Amg::Transform3D(*bcs.m_transform) : nullptr;
+    Surface::m_center     = (bcs.m_center)    ? new Amg::Vector3D(*bcs.m_center) : nullptr;
+    Surface::m_normal     = (bcs.m_normal)    ? new Amg::Vector3D(*bcs.m_normal) : nullptr ;
     Surface::m_associatedDetElement   = bcs.m_associatedDetElement;   // copy by pointer as CylinderSurface does not have ownership 
     Surface::m_associatedDetElementId = bcs.m_associatedDetElementId;
     m_bounds =  bcs.m_bounds;
@@ -34,12 +34,12 @@ template <class Tvol> inline BoundaryCylinderSurface<Tvol>&
 template <class Tvol> inline const Tvol* BoundaryCylinderSurface<Tvol>::attachedVolume(const TrackParameters& parms,
                                                                        PropDirection dir) const
 {
-  const Tvol* attVolume = 0;
+  const Tvol* attVolume = nullptr;
   // (ST) buggy line - assumes the parms are at this boundary surface ! 
   // const HepGeom::Vector3D<double>* localNormal = this->surfaceRepresentation().normal(parms.localPosition());
   // replacing with
   const Amg::Vector2D* locPos = this->surfaceRepresentation().globalToLocal(parms.position());
-  const Amg::Vector3D* localNormal = 0;
+  const Amg::Vector3D* localNormal = nullptr;
   if (locPos) {
     localNormal = this->surfaceRepresentation().normal(*locPos);
     delete locPos;
@@ -66,7 +66,7 @@ template <class Tvol> inline const Tvol* BoundaryCylinderSurface<Tvol>::attached
                                                                        const Amg::Vector3D& mom,
                                                                        PropDirection dir) const
 {
-  const Tvol* attVolume = 0;
+  const Tvol* attVolume = nullptr;
   //const Amg::Vector2D* lp = CylinderSurface::globalToLocal(pos, 2.*Gaudi::Units::mm); // FIXME: previous call with 2mm hard coded tolerance, new interface doesn't allow setting tolerance
   Amg::Vector2D* lp = new Amg::Vector2D;                                                // FIXME: call without tolerance, check if still ok
   CylinderSurface::globalToLocal(pos, pos, *lp);                                        // FIXME: call without tolerance, check if still ok

@@ -12,6 +12,15 @@ from DerivationFrameworkCore.WeightMetadata import *
 exot1Seq  = CfgMgr.AthSequencer("EXOT1Sequence")
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT1Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT1Stream )
+EXOT1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT1Stream.AcceptAlgs(["EXOT1Kernel"])
+
+
+#====================================================================
 # SKIMMING TOOL 
 #====================================================================
 
@@ -61,7 +70,7 @@ thinningTools=[]
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
 EXOT1Ak4CCThinningTool_LC = DerivationFramework__JetCaloClusterThinning(name                   = "EXOT1Ak4CCThinningTool_LC",
-                                                                        ThinningService        = "EXOT1ThinningSvc",
+                                                                        StreamName             = streamName,
                                                                         SGKey                  = "AntiKt4LCTopoJets",
                                                                         TopoClCollectionSGKey  = "CaloCalTopoClusters",
                                                                         SelectionString        = "AntiKt4LCTopoJets.pt > 40*GeV",
@@ -71,7 +80,7 @@ thinningTools.append(EXOT1Ak4CCThinningTool_LC)
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
 EXOT1Ak4CCThinningTool_EM = DerivationFramework__JetCaloClusterThinning(name                   = "EXOT1Ak4CCThinningTool_EM",
-                                                                     ThinningService        = "EXOT1ThinningSvc",
+                                                                     StreamName             = streamName,
                                                                      SGKey                  = "AntiKt4EMTopoJets",
                                                                      TopoClCollectionSGKey  = "CaloCalTopoClusters",
                                                                      SelectionString        = "AntiKt4EMTopoJets.pt > 40*GeV",
@@ -99,21 +108,6 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += exot1Seq
 exot1Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT1Kernel_skim", SkimmingTools = [EXOT1ORSkimmingTool])
 exot1Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT1Kernel", ThinningTools = thinningTools)
-
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EXOT1Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT1Stream )
-EXOT1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT1Stream.AcceptAlgs(["EXOT1Kernel"])
-
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT1ThinningSvc", outStreams=[evtStream] )
 
 
 #====================================================================

@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -151,7 +153,7 @@ if not 'ReadHECMapFromCOOL' in dir():
    ReadHECMapFromCOOL = True
 	
 if not 'InputHECMapPoolFileDir' in dir():
-   InputHECMapPoolFileDir  = commands.getoutput("pwd")
+   InputHECMapPoolFileDir  = subprocess.getoutput("pwd")
    
 if not 'InputHECMapPoolFileName' in dir():
    InputHECMapPoolFileName = "LArHECMap.pool.root"   
@@ -167,7 +169,7 @@ if not 'PedRunNumber' in dir():
    PedRunNumber = "1005020_1005021_1005022"
 
 if not 'InputPedPoolFileDir' in dir():
-   InputPedPoolFileDir  = commands.getoutput("pwd")
+   InputPedPoolFileDir  = subprocess.getoutput("pwd")
    
 if not 'InputPedPoolFileName' in dir():
    InputPedPoolFileName = "LArPedestal_" + str(PedRunNumber) +"_"+Partition.replace("*","")+ ".pool.root"
@@ -183,7 +185,7 @@ if not 'OFCRunNumber' in dir():
    OFCRunNumber = "30950"
 
 if not 'InputOFCPoolFileDir' in dir():
-   InputOFCPoolFileDir  = commands.getoutput("pwd")
+   InputOFCPoolFileDir  = subprocess.getoutput("pwd")
 
 if not 'InputOFCPoolFileName' in dir():
    if PeakOF :
@@ -197,10 +199,10 @@ if not 'LArCalibFolderOutputTag' in dir():
    LArCalibFolderOutputTag = rs.getFolderTagSuffix(LArCalib_Flags.LArRampFolder)      
 
 if not 'OutputRampRootFileDir' in dir():
-   OutputRampRootFileDir = commands.getoutput("pwd")
+   OutputRampRootFileDir = subprocess.getoutput("pwd")
    
 if not 'OutputRampPoolFileDir' in dir():
-   OutputRampPoolFileDir = commands.getoutput("pwd")
+   OutputRampPoolFileDir = subprocess.getoutput("pwd")
 
 if not 'OutputDB' in dir():
    OutputDB = LArCalib_Flags.OutputDB

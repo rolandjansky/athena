@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauJetBDTEvaluator.h"
@@ -54,7 +54,7 @@ StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau){
   if(nTracks<m_minNTracks) return StatusCode::SUCCESS;
   if(nTracks>m_maxNTracks) return StatusCode::SUCCESS;
 
-  if( !inTrigger() ){
+  if( !m_in_trigger ){
     float absTrackEta = acc_absTrackEta(xTau);
     if(m_minAbsTrackEta>=0. && absTrackEta < m_minAbsTrackEta) 
       return StatusCode::SUCCESS;

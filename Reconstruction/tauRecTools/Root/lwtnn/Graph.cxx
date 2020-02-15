@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/lwtnn/Graph.h"
@@ -8,7 +8,6 @@
 
 #include <set>
 #include <memory>
-#include <iostream>
 
 namespace lwtDev {
 
@@ -133,9 +132,7 @@ namespace lwtDev {
     m_n_outputs(n_outputs)
   {
   }
-  MatrixXd InputSequenceNode::scan(const ISource& source, MatMap& inp, MatMap& out) const {
-    (void) inp; //silence unused variable warning
-    (void) out; //silence unused variable warning
+  MatrixXd InputSequenceNode::scan(const ISource& source) const {
     MatrixXd output = source.matrix_at(m_index);
     if (output.rows() == 0) {
       throw NNEvaluationException("empty input sequence");
@@ -153,28 +150,16 @@ namespace lwtDev {
   }
 
   SequenceNode::SequenceNode(const RecurrentStack* stack,
-                             const std::map<std::string, ISequenceNode*> sources) :
+                             const ISequenceNode* source) :
     m_stack(stack),
-    m_sources(sources)
+    m_source(source)
   {
   }
-  MatrixXd SequenceNode::scan(const ISource& source, MatMap& inp, MatMap& out) const {
-    //for(auto sit=m_sources.begin(); sit!=m_sources.end(); sit++)
-    //  m_stack->set_aux_link(sit->first, (sit->second)->get_aux_link(sit->first));
-    
-    MatrixXd output_source = (m_sources.at("0"))->scan(source, inp, out);
-    
-    for(auto it=m_sources.begin(); it != m_sources.end(); it++){
-      if(it->first == "1") inp["1"] = out["1"];
-      if(it->first == "2") inp["2"] = out["2"];
-    }
-
-    return m_stack->scan(output_source, inp, out);
+  MatrixXd SequenceNode::scan(const ISource& source) const {
+    return m_stack->scan(m_source->scan(source));
   }
   VectorXd SequenceNode::compute(const ISource& src) const {
-    MatMap inp;
-    MatMap out;
-    MatrixXd mat = scan(src, inp, out);
+    MatrixXd mat = scan(src);
     size_t n_cols = mat.cols();
     // special handling for empty sequence
     if (n_cols == 0) {
@@ -186,19 +171,14 @@ namespace lwtDev {
     return m_stack->n_outputs();
   }
 
-
   TimeDistributedNode::TimeDistributedNode(const Stack* stack,
                                            const ISequenceNode* source):
     m_stack(stack),
     m_source(source)
   {
   }
-  MatrixXd TimeDistributedNode::scan(const ISource& source, MatMap& inp, MatMap& out) const {
-    (void) inp; //silence unused variable warning
-    (void) out; //silence unused variable warning
-    MatMap inp_1;
-    MatMap out_1;
-    MatrixXd input = m_source->scan(source, inp_1, out_1);
+  MatrixXd TimeDistributedNode::scan(const ISource& source) const {
+    MatrixXd input = m_source->scan(source);
     MatrixXd output(m_stack->n_outputs(), input.cols());
     size_t n_columns = input.cols();
     for (size_t col_n = 0; col_n < n_columns; col_n++) {
@@ -209,6 +189,18 @@ namespace lwtDev {
   size_t TimeDistributedNode::n_outputs() const {
     return m_stack->n_outputs();
   }
+
+  SumNode::SumNode(const ISequenceNode* source):
+    m_source(source)
+  {
+  }
+  VectorXd SumNode::compute(const ISource& source) const {
+    return m_source->scan(source).rowwise().sum();
+  }
+  size_t SumNode::n_outputs() const {
+    return m_source->n_outputs();
+  }
+
 }
 
 namespace {
@@ -218,11 +210,7 @@ namespace {
   }
   void check_compute_node(const NodeConfig& node) {
     size_t n_source = node.sources.size();
-    if (node.type == NodeConfig::Type::SEQUENCE){
-      if (n_source > 3) throw_cfg("sequence node allows for max 3 sources, found", n_source);
-    }else{
-      if (n_source != 1) throw_cfg("need one source, found", n_source);
-    }
+    if (n_source != 1) throw_cfg("need one source, found", n_source);
     int layer_n = node.index;
     if (layer_n < 0) throw_cfg("negative layer number", layer_n);
   }
@@ -242,7 +230,7 @@ namespace {
 
     // FIXME: merge this block with the time distributed one later on
     check_compute_node(node, layers.size());
-    INode* source = node_map.at(node.sources.at("0").at(0));
+    INode* source = node_map.at(node.sources.at(0));
     int layer_n = node.index;
     if (!stack_map.count(layer_n)) {
       stack_map[layer_n] = new Stack(source->n_outputs(),
@@ -255,21 +243,16 @@ namespace {
     const std::vector<LayerConfig>& layers,
     const std::unordered_map<size_t, ISequenceNode*>& node_map,
     std::unordered_map<size_t, RecurrentStack*>& stack_map) {
+
     check_compute_node(node, layers.size());
-
-    std::map<std::string, ISequenceNode*> sequence_sources;
-    for (auto it=node.sources.begin(); it!=node.sources.end(); it++){
-      sequence_sources[it->first] = node_map.at(it->second.at(0));
-    }
-
+    ISequenceNode* source = node_map.at(node.sources.at(0));
     int layer_n = node.index;
     if (!stack_map.count(layer_n)) {
-      stack_map[layer_n] = new RecurrentStack(sequence_sources.at("0")->n_outputs(),
+      stack_map[layer_n] = new RecurrentStack(source->n_outputs(),
                                               {layers.at(layer_n)});
     }
-    return new SequenceNode(stack_map.at(layer_n), sequence_sources );
+    return new SequenceNode(stack_map.at(layer_n), source);
   }
-
   TimeDistributedNode* get_time_distributed_node(
     const NodeConfig& node,
     const std::vector<LayerConfig>& layers,
@@ -278,7 +261,7 @@ namespace {
 
     // FIXME: merge this block with the FF block above
     check_compute_node(node, layers.size());
-    ISequenceNode* source = node_map.at(node.sources.at("0").at(0));
+    ISequenceNode* source = node_map.at(node.sources.at(0));
     int layer_n = node.index;
     if (!stack_map.count(layer_n)) {
       stack_map[layer_n] = new Stack(source->n_outputs(),
@@ -302,7 +285,7 @@ namespace lwtDev {
   Graph::Graph(const std::vector<NodeConfig>& nodes,
                const std::vector<LayerConfig>& layers):
     m_last_node(0)
-  {    
+  {
     for (size_t iii = 0; iii < nodes.size(); iii++) {
       build_node(iii, nodes, layers);
     }
@@ -355,17 +338,13 @@ namespace lwtDev {
       }
       throw NNEvaluationException("Graph: no output at " + num);
     }
-    MatMap inp;
-    MatMap out;
-    return m_seq_nodes.at(node_number)->scan(source, inp, out);
+    return m_seq_nodes.at(node_number)->scan(source);
   }
   MatrixXd Graph::scan(const ISource& source) const {
     if (!m_seq_nodes.count(m_last_node)) {
       throw OutputRankException("Graph: output is not a sequence node");
     }
-    MatMap inp;
-    MatMap out;
-    return m_seq_nodes.at(m_last_node)->scan(source, inp, out);
+    return m_seq_nodes.at(m_last_node)->scan(source);
   }
 
   // ______________________________________________________________________
@@ -381,17 +360,20 @@ namespace lwtDev {
     // downstream ones, so the last node built should be some kind of
     // sink for graphs with only one output this will be it.
     m_last_node = iii;
+
     if (iii >= nodes.size()) throw_cfg("no node index", iii);
+
     const NodeConfig& node = nodes.at(iii);
+
     // if it's an input, build and return
     if (node.type == NodeConfig::Type::INPUT) {
       check_compute_node(node);
-      size_t input_number = node.sources.at("0").at(0);
+      size_t input_number = node.sources.at(0);
       m_nodes[iii] = new InputNode(input_number, node.index);
       return;
     } else if (node.type == NodeConfig::Type::INPUT_SEQUENCE) {
       check_compute_node(node);
-      size_t input_number = node.sources.at("0").at(0);
+      size_t input_number = node.sources.at(0);
       m_seq_nodes[iii] = new InputSequenceNode(input_number, node.index);
       return;
     }
@@ -401,8 +383,7 @@ namespace lwtDev {
       throw NNConfigurationException("found cycle in graph");
     }
     cycle_check.insert(iii);
-
-    for (size_t source_node: node.sources.at("0")) {
+    for (size_t source_node: node.sources) {
       build_node(source_node, nodes, layers, cycle_check);
     }
 
@@ -423,10 +404,15 @@ namespace lwtDev {
     } else if (node.type == NodeConfig::Type::CONCATENATE) {
       // build concatenate layer
       std::vector<const INode*> in_nodes;
-      for (size_t source_node: node.sources.at("0")) {
+      for (size_t source_node: node.sources) {
         in_nodes.push_back(m_nodes.at(source_node));
       }
       m_nodes[iii] = new ConcatenateNode(in_nodes);
+    } else if (node.type == NodeConfig::Type::SUM) {
+      if (node.sources.size() != 1) {
+        throw NNConfigurationException("Sum node needs exactly 1 source");
+      }
+      m_nodes[iii] = new SumNode(m_seq_nodes.at(node.sources.at(0)));
     } else {
       throw NNConfigurationException("unknown node type");
     }

@@ -19,7 +19,7 @@ TrigConf::L1PrescalesSet::~L1PrescalesSet()
 void
 TrigConf::L1PrescalesSet::update()
 {
-   const auto & cuts = m_data.get_child("cutValues");
+   const auto & cuts = data().get_child("cutValues");
    for( auto & c : cuts ) {
       L1Prescale ps;
       ps.cut = c.second.get_child("cut").get_value<int32_t>();

@@ -30,7 +30,7 @@
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/ChainGroup.h"
 
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 namespace HLT {
   class Chain;

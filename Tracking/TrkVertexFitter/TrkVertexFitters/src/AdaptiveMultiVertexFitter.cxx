@@ -397,7 +397,7 @@ namespace Trk
 
     if (num_steps>=m_maxIterations)
     {
-      msg(MSG::WARNING) << "Didn't converge fully after " << num_steps << endmsg;
+      msg(MSG::DEBUG) << "Didn't converge fully after " << num_steps << endmsg;
     }
     
     msg(MSG::VERBOSE) << "In principle the big multivertex fit step is finished now..." << endmsg;

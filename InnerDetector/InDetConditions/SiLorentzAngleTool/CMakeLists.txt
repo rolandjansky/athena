@@ -23,7 +23,8 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry )
+                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/PixelReadoutGeometry )
 
 # External dependencies:
 find_package( Eigen )
@@ -33,7 +34,7 @@ atlas_add_component( SiLorentzAngleTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoPrimitives GaudiKernel SiPropertiesToolLib MagFieldInterfaces AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoPrimitives GaudiKernel SiPropertiesToolLib MagFieldInterfaces AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry)
 
 # Run tests:
 atlas_add_test( TestSCTLorentzAngle

@@ -146,8 +146,8 @@ StatusCode TauWPDecorator::initialize() {
 }
 
 /********************************************************************/
-StatusCode TauWPDecorator::eventInitialize()
-{
+StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) 
+{ 
   SG::ReadHandle<xAOD::EventInfo> eventinfoInHandle( m_eventInfo );
   if (!eventinfoInHandle.isValid()) {
     ATH_MSG_ERROR( "Could not retrieve HiveDataObj with key " << eventinfoInHandle.key() << ", will set mu=0.");
@@ -157,13 +157,6 @@ StatusCode TauWPDecorator::eventInitialize()
     const xAOD::EventInfo* eventInfo = eventinfoInHandle.cptr();    
     m_mu = eventInfo->averageInteractionsPerCrossing();
   } 
-
-  return StatusCode::SUCCESS;
-}
-
-/********************************************************************/
-StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) 
-{ 
   const SG::AuxElement::ConstAccessor<float> acc_score(m_scoreName);
   SG::AuxElement::Accessor<float> acc_newScore(m_newScoreName);
 

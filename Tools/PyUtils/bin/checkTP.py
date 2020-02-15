@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    checkTP.py
 # @purpose: dump the layout of a class (data members and bases)
@@ -15,7 +15,8 @@
 # if checkTP.py has been made 'chmod +x' one can just do:
 # ./checkTP.py CaloCellContainer
 
-import user
+from __future__ import print_function
+
 import sys
 import os
 
@@ -57,9 +58,9 @@ class Columbo(object):
 
     def __init__(self):
         object.__init__(self)
-        print ""
-        print "#"*80
-        print "## initializing..."
+        print ("")
+        print ("#"*80)
+        print ("## initializing...")
         import cppyy
         self.gbl = cppyy.gbl
         self.Type = cppyy.gbl.RootType
@@ -69,7 +70,7 @@ class Columbo(object):
 
     def loadDicts(self, klassName):
         klassNames = [klassName]
-        print "## loading dictionary... [%s]" % klassName
+        print ("## loading dictionary... [%s]" % klassName)
 
         ## protect against STL internals...
         if klassName.startswith("std::_"):
@@ -84,10 +85,10 @@ class Columbo(object):
         try:
             loaded = getattr (self.gbl, klassName)
         except Exception as e:
-            print "Error loading dict. for [%s]" % klassName
-            print "--> ", e
+            print ("Error loading dict. for [%s]" % klassName)
+            print ("--> ", e)
         if not loaded:
-            print "Failed to load dict for [%s]" % klassName
+            print ("Failed to load dict for [%s]" % klassName)
             return klassNames
         klass = self.Type.ByName(klassName)
 
@@ -125,44 +126,44 @@ class Columbo(object):
 
     def inspect(self, klassName):
         self.report = []
-        print ""
-        print "#"*80
-        print "## loading all relevant dictionaries..."
+        print ("")
+        print ("#"*80)
+        print ("## loading all relevant dictionaries...")
         try:
             klassNames = self.loadDicts(klassName)
-            print "#"*80
-        except Exception, err:
-            print ""
-            print "#"*80
-            print "## ERROR while trying to load dict for [%s]" % klassName
-            print "##  -Most probably you DIDN'T give a fully qualified name !"
-            print "##   Ex: try 'Analysis::Muon' instead of 'Muon'"
-            print "##"
-            print "##  -Could also mean that you are missing a dictionary "
-            print "##   of one of the base classes..."
-            print "#"*80
-            print err
+            print ("#"*80)
+        except Exception as err:
+            print ("")
+            print ("#"*80)
+            print ("## ERROR while trying to load dict for [%s]" % klassName)
+            print ("##  -Most probably you DIDN'T give a fully qualified name !")
+            print ("##   Ex: try 'Analysis::Muon' instead of 'Muon'")
+            print ("##")
+            print ("##  -Could also mean that you are missing a dictionary ")
+            print ("##   of one of the base classes...")
+            print ("#"*80)
+            print (err)
             raise
             return
 
-        print ""
-        print "#"*80
-        print "## infos for class [%s]:" % klassName
-        print "## sizeof(%s) = %i" % \
-              (klassName,
-               self.Type.SizeOf(self.Type.ByName(klassName)))
-        print "##"
-        print "## (offset, data member name, data member type)"
-        print ""
+        print ("")
+        print ("#"*80)
+        print ("## infos for class [%s]:" % klassName)
+        print ("## sizeof(%s) = %i" % \
+               (klassName,
+                self.Type.SizeOf(self.Type.ByName(klassName))))
+        print ("##")
+        print ("## (offset, data member name, data member type)")
+        print ("")
         # we want to dump from the base to the most derived class
         klassNames.reverse()
         for klass in klassNames:
             line = "%s %s %s" % (
-                "-" * (40-len(klass)/2-1),
+                "-" * (40-len(klass)//2-1),
                 "[%s]" % klass, 
-                "-" * (40-len(klass)/2-1) )
+                "-" * (40-len(klass)//2-1) )
                 
-            print line
+            print (line)
             self.report.append(line)
             dataMembers = self.dumpDataMembers( self.Type.ByName(klass) )
             for i in dataMembers:
@@ -170,9 +171,9 @@ class Columbo(object):
                                                       " "*5,
                                                       i.name,
                                                       " "*5, i.type )
-                print line
+                print (line)
                 self.report.append(line)
-        print "#"*80
+        print ("#"*80)
         return
 
     def save(self, fileName = "./columbo.out" ):

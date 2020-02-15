@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,12 +16,14 @@
 // STL
 #include <map>
 #include <vector>
+#include "CxxUtils/checker_macros.h"
 
 namespace Trk {
 
     class TrackingVolume;
 
     typedef std::map<BoundarySurfaceFace, std::vector<const TrackingVolume*> >::iterator GlueVolumeIterator;
+    typedef std::map<BoundarySurfaceFace, std::vector<const TrackingVolume*> >::const_iterator GlueVolumeConstIterator;
     /** @class GlueVolumesDescriptor 
   
        Descriptor class to hold GlueVolumes of a TrackingGeometry object.
@@ -44,7 +46,8 @@ namespace Trk {
         ~GlueVolumesDescriptor(){}
  
         /** register the volumes */
-        void registerGlueVolumes(BoundarySurfaceFace, std::vector<const TrackingVolume*>&) const;
+        void registerGlueVolumes(BoundarySurfaceFace, std::vector<const TrackingVolume*>&);
+        void registerGlueVolumes ATLAS_NOT_THREAD_SAFE (BoundarySurfaceFace, std::vector<const TrackingVolume*>&) const;
      
         /** retrieve them again */
         const std::vector<const TrackingVolume*>& glueVolumes(BoundarySurfaceFace) const;
@@ -54,10 +57,16 @@ namespace Trk {
 
 
      private:
-        mutable std::map<BoundarySurfaceFace, std::vector<const TrackingVolume*> > m_glueVolumes;
-        mutable std::vector<BoundarySurfaceFace>                                   m_glueFaces;
+        std::map<BoundarySurfaceFace, std::vector<const TrackingVolume*> > m_glueVolumes;
+        std::vector<BoundarySurfaceFace>                                   m_glueFaces;
         static  const std::vector<const TrackingVolume*>                           s_emptyVector;
    };
+
+  inline void GlueVolumesDescriptor::registerGlueVolumes ATLAS_NOT_CONST_THREAD_SAFE (BoundarySurfaceFace bSurf, 
+                                                                                       std::vector<const TrackingVolume*>& vols) const{
+
+    const_cast<GlueVolumesDescriptor*>(this)->registerGlueVolumes(bSurf,vols);
+  }
 
   inline const std::vector<BoundarySurfaceFace>& GlueVolumesDescriptor::glueFaces() const
   { return m_glueFaces; }

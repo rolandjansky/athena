@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _NtupleRunScanTool_H
@@ -12,9 +12,10 @@
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibStandAloneTools/HitCounter.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 class TFile;
@@ -33,13 +34,9 @@ class NtupleRunScanTool:  public AthAlgTool, virtual public NtupleCalibrationToo
 //==============================================================================
 	/** Tool Constructor*/
 		NtupleRunScanTool(const std::string& t, const std::string& n, const IInterface* p);
+		~NtupleRunScanTool()=default;
 	/** tool initialization */
 		StatusCode initialize();
-	/** tool finalization */
-		inline StatusCode finalize()
-			{
-			return StatusCode::SUCCESS;
-			}
 	/**analyse event - fill hits into specra*/
 		StatusCode handleEvent(const MuonCalibEvent &event, int /*evnt_nr*/, const std::vector<MuonCalibSegment *> &segments, unsigned int position);
 	/** end of events analysis - segemnts are not used here*/
@@ -62,8 +59,7 @@ class NtupleRunScanTool:  public AthAlgTool, virtual public NtupleCalibrationToo
 	//! hit counter classes - sortet by station
 		std::map<NtupleStationId, HitCounter> m_hit_counters;
 	//!access to geomodel
-		ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    		"Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+		ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
 		// MuonDetectorManager from the conditions store
 		SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 

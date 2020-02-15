@@ -71,6 +71,8 @@ def CopyMcEventCollectionAlgCfg(flags, name = "CopyMcEventCollection", **kwargs)
     """Return a ComponentAccumulator for the CopyMcEventCollection algorithm"""
     acc = ComponentAccumulator()
 
+    kwargs.setdefault("RemoveBkgHardScatterTruth", True)
+
     if flags.Overlay.DataOverlay:
         # Disable background for data overlay
         kwargs.setdefault("BkgInputKey", "")

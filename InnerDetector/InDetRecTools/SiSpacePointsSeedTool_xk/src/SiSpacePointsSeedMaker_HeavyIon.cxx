@@ -767,7 +767,7 @@ void  InDet::SiSpacePointsSeedMaker_HeavyIon::convertToBeamFrameWork
 void InDet::SiSpacePointsSeedMaker_HeavyIon::fillLists(EventData& data) const
 {
   constexpr float pi2 = 2.*M_PI;
-  std::list<InDet::SiSpacePointForSeed*>::iterator r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r;
   
   for (int i=0; i<m_r_size; ++i) {
     if (!data.r_map[i]) continue;
@@ -860,7 +860,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production2Sp(EventData& data) cons
 {
   if (data.nsazv<2) return;
 
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0,r0e,r,re;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0,r0e,r,re;
   int nseed = 0;
 
   // Loop thorugh all azimuthal regions
@@ -959,7 +959,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp(EventData& data) cons
   if (data.nsaz<3) return;
 
   const int ZI[SizeZ] = {5,6,7,8,9,10,4,3,2,1,0};
-  std::list<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
+  std::vector<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
   int nseed = 0;
 
   // Loop thorugh all azimuthal regions
@@ -1008,13 +1008,13 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp(EventData& data) cons
 
 void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
  int NB, int NT, int& nseed) const
 {
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if (!data.endlist) {r0 = data.rMin; data.endlist = true;}
 
   // Loop through all trigger space points
@@ -1179,15 +1179,15 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
 
 void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpTrigger
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
  int NB, int NT, int& nseed) const
 {
   constexpr float pi2 = 2.*M_PI;
 
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if (!data.endlist) {
     r0 = data.rMin;
     data.endlist = true;
@@ -1379,13 +1379,13 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpTrigger
 
 void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpNoVertex
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
  int NB, int NT, int& nseed) const
 {
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if (!data.endlist) {
     r0 = data.rMin;
     data.endlist = true;

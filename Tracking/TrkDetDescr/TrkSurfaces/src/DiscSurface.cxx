@@ -98,7 +98,7 @@ Trk::DiscSurface::DiscSurface(const Trk::TrkDetElementBase& detelement)
   , m_referencePoint(nullptr)
 {}
 // destructor (will call destructor from base class which deletes objects)
-Trk::DiscSurface::~DiscSurface() {}
+Trk::DiscSurface::~DiscSurface() = default;
 
 Trk::DiscSurface&
 Trk::DiscSurface::operator=(const DiscSurface& dsf)
@@ -164,7 +164,7 @@ Trk::DiscSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vector3D
 {
   Amg::Vector3D loc3Dframe = (transform().inverse()) * glopos;
   locpos = Amg::Vector2D(loc3Dframe.perp(), loc3Dframe.phi());
-  return ((fabs(loc3Dframe.z()) > s_onSurfaceTolerance) ? false : true);
+  return (fabs(loc3Dframe.z()) <= s_onSurfaceTolerance);
 }
 
 const Amg::Vector2D*
@@ -207,7 +207,7 @@ Trk::DiscSurface::globalToLocalCartesian(const Amg::Vector3D& glopos, double tol
 {
   Amg::Vector3D loc3Dframe = (transform().inverse()) * glopos;
   if (fabs(loc3Dframe.z()) > s_onSurfaceTolerance + tol)
-    return 0;
+    return nullptr;
   return new Amg::Vector2D(loc3Dframe.x(), loc3Dframe.y());
 }
 

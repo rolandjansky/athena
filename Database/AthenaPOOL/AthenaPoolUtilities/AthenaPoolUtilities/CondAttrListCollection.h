@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -29,7 +29,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-
+#include <sstream>
 
 
 /**
@@ -157,6 +157,9 @@ public:
 
     /// Dump our contents to std::cout
     void                 dump() const;
+
+    /// Dump the contents to std::ostringstream
+    void                 dump(std::ostringstream& stream) const;
 
     /// Equal operator. Compares channels, IOVs and attributes. For
     /// attributes only types and values are compared, not the
@@ -575,6 +578,32 @@ CondAttrListCollection::dump() const
     }
     
 }
+
+inline void                    
+CondAttrListCollection::dump(std::ostringstream& stream) const
+{
+  stream << m_minRange << " iov size " << m_iovMap.size() << std::endl;
+  // IOVs
+  iov_const_iterator itIOV   = iov_begin();
+  iov_const_iterator lastIOV = iov_end();
+  for(; itIOV != lastIOV; ++itIOV) {
+    stream << "chan, iov: " << (*itIOV).first << " " << (*itIOV).second  << std::endl;
+  }
+  // Attribute list
+  const_iterator itAtt = begin();
+  const_iterator lastAtt = end();
+  for(; itAtt != lastAtt; ++itAtt) {
+    stream << "chan, attr: " << (*itAtt).first << std::endl;
+    (*itAtt).second.toOutputStream(stream) << std::endl;
+  }
+  // channel names
+  name_const_iterator itName   = name_begin();
+  name_const_iterator lastName = name_end();
+  for (; itName != lastName; ++itName) {
+    stream << "chan, name: " << (*itName).first << " " << (*itName).second  << std::endl;
+  }
+}
+
 
 inline
 bool 

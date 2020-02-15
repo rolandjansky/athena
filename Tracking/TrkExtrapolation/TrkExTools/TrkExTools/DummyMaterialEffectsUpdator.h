@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
     
     virtual void validationAction() const override {};
 
-    virtual void modelAction(const TrackParameters* parm=0) const override{ 
+    virtual void modelAction(const TrackParameters* parm=nullptr) const override{ 
       if(parm) return; 
     } 
 
@@ -166,7 +166,7 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
     }
 
     /** Model Action:*/
-    virtual void modelAction(ICache& icache,const TrackParameters* parm=0) const override{     
+    virtual void modelAction(ICache& icache,const TrackParameters* parm=nullptr) const override{     
       (void) icache;
       modelAction(parm); 
     }   

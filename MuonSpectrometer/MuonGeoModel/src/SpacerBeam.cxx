@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -25,7 +25,8 @@
 namespace MuonGM
 {
 
-SpacerBeam::SpacerBeam(Component *ss): DetectorElement(ss->name),
+SpacerBeam::SpacerBeam(Component *ss):
+  DetectorElement(ss->name),
   m_hole_pos1(0), m_hole_pos2(0), m_lb_height(0), m_lb_width(0), m_cross_excent(0)
 {
   StandardComponent* s = (StandardComponent*)ss;
@@ -48,7 +49,7 @@ SpacerBeam::SpacerBeam(Component *ss): DetectorElement(ss->name),
   }
 
   lowerThickness = 0.;
-  
+
   MYSQL* mysql = MYSQL::GetPointer();
   if (componentType == "CHV") {
     CHV* ch = (CHV*)mysql->GetTechnology(s->name);
@@ -86,12 +87,11 @@ GeoVPhysVol* SpacerBeam::build(bool is_barrel)
 }
 
 
-GeoVPhysVol* 
-SpacerBeam::build(int /*cutoutson*/, bool is_barrel)
+GeoVPhysVol* SpacerBeam::build(int /*cutoutson*/, bool is_barrel)
 {
   GeoPhysVol* pvol = 0;
   GeoLogVol* lvol = 0;
-  const GeoMaterial* mat = matManager->getMaterial("std::Aluminium");
+  const GeoMaterial* mat = getMaterialManager()->getMaterial("std::Aluminium");
   if (name.substr(0,3)=="CHV" ||name.substr(0,3)=="CRO" ||name.substr(0,3)=="CMI" ) {
     double sinexc = 0.;
     double cosexc = 1.;
@@ -101,7 +101,7 @@ SpacerBeam::build(int /*cutoutson*/, bool is_barrel)
       sinexc = std::abs(excent)/ltemp;
       cosexc = length/ltemp;
       length = ltemp - largeness*std::abs(excent)/length;
-    }            
+    }
 
     if (thickness > 0.) {
       // I-beam shape
@@ -113,8 +113,8 @@ SpacerBeam::build(int /*cutoutson*/, bool is_barrel)
       IBeamShape = &(IBeamShape->subtract( (*sideBox) << GeoTrf::TranslateY3D(-yshift) ) );
 
       // Cut holes for LB
-      GeoBox* holeBox = new GeoBox(m_lb_height/2.+1., 
-                                   thickness/2.+1., 
+      GeoBox* holeBox = new GeoBox(m_lb_height/2.+1.,
+                                   thickness/2.+1.,
                                    m_lb_width/cosexc/2.+thickness*sinexc/cosexc+6.);
       IBeamShape = &(IBeamShape->subtract( (*holeBox) << GeoTrf::TranslateZ3D(m_hole_pos1/cosexc) ) );
       IBeamShape = &(IBeamShape->subtract( (*holeBox) << GeoTrf::TranslateZ3D(m_hole_pos2/cosexc) ) );
@@ -148,7 +148,8 @@ SpacerBeam::build(int /*cutoutson*/, bool is_barrel)
 
 void SpacerBeam::print()
 {
-   std::cout << " SpacerBeam " << name << " :" << std::endl;
+  MsgStream log(Athena::getMessageSvc(), "MuGM::SpacerBeam");
+  log << MSG::INFO << " SpacerBeam " << name << " :" << endmsg;
 }
 
 } // namespace MuonGM

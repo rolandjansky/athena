@@ -37,5 +37,7 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
 
-atlas_add_test( RegSelConfigTest    SCRIPT python -m RegionSelector.RegSelConfig    POST_EXEC_SCRIPT nopost.sh )
-
+atlas_add_test( RegSelConfigTest
+                SCRIPT python -m RegionSelector.RegSelConfig
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh )

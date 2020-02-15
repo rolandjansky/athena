@@ -17,6 +17,7 @@
 
 #include "TrigDecisionMakerMT.h"
 
+#include "TrigSteeringEvent/OnlineErrorCode.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "TrigSteering/Lvl1ResultAccessTool.h"
 
@@ -44,12 +45,13 @@ StatusCode TrigDecisionMakerMT::initialize()
 
   bool resultObjectIsUsed = true;
   if (!m_bitsMakerTool.empty()) {
-    ATH_MSG_INFO("TrigDecisionMakerMT is setting up for MC to use the TriggerBitsMakerTool");
+    ATH_MSG_INFO("TrigDecisionMakerMT is setting to run after the Trigger in a job with POOL output. "
+      "The TriggerBitsMakerTool will be used directly to create the xAOD::TrigDecision.");
     ATH_CHECK( m_bitsMakerTool.retrieve() );
     resultObjectIsUsed = false;
   } else {
-    ATH_MSG_INFO("TrigDecisionMakerMT is setting up for Data to use the HLTResultMT. "
-      "If this job is for MC, make sure that the BitsMakerTool property is set instead.");
+    ATH_MSG_INFO("TrigDecisionMakerMT is setting up to read the trigger bits from trigger bytestream. "
+      "The HLTResultMT object will be used as the source of the trigger bits.");
   }
   ATH_CHECK( m_hltResultKeyIn.initialize(resultObjectIsUsed) ); // If false, this removes the ReadHandle
 
@@ -125,6 +127,18 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
       passRawBitset = hltResult->getHltPassRawBits();
       prescaledBitset = hltResult->getHltPrescaledBits();
       rerunBitset = hltResult->getHltRerunBits();
+
+      const std::vector<HLT::OnlineErrorCode> errorCodes = hltResult->getErrorCodes();
+      bool truncated = false;
+      uint32_t code = 0;
+      for (size_t i = 0; i < errorCodes.size(); ++i) {
+        truncated |= (errorCodes.at(i) == HLT::OnlineErrorCode::RESULT_TRUNCATION);
+        if (i == 0) {
+          code = static_cast<uint32_t>(errorCodes.at(i));
+        }
+      }
+      trigDec->setEFErrorBits(code);
+      trigDec->setEFTruncated(truncated);
 
     }
 

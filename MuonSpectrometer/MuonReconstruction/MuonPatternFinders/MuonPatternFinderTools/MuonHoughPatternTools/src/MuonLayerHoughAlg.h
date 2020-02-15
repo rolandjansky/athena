@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONLAYERHOUGHALG_H
@@ -13,7 +13,7 @@ class MuonLayerHoughAlg : public AthAlgorithm
  public:
   MuonLayerHoughAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-  virtual ~MuonLayerHoughAlg();
+  virtual ~MuonLayerHoughAlg() = default;
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
@@ -26,21 +26,19 @@ class MuonLayerHoughAlg : public AthAlgorithm
 
 
   /** storegate location of the MuonPrepDataContainer for all four technologies */
-  SG::ReadHandleKey<Muon::TgcPrepDataContainer>   m_keyTgc;
-  std::string         m_keyTgcPriorBC;//unused
-  std::string         m_keyTgcNextBC;//unused
-  SG::ReadHandleKey<Muon::RpcPrepDataContainer>   m_keyRpc;
-  SG::ReadHandleKey<Muon::CscPrepDataContainer>   m_keyCsc;
-  SG::ReadHandleKey<Muon::MdtPrepDataContainer>   m_keyMdt;
-  SG::ReadHandleKey<Muon::sTgcPrepDataContainer>  m_keysTgc;
-  SG::ReadHandleKey<Muon::MMPrepDataContainer>    m_keyMM;
+  SG::ReadHandleKey<Muon::TgcPrepDataContainer>   m_keyTgc{this,"TgcPrepDataContainer","TGC_Measurements"};
+  SG::ReadHandleKey<Muon::RpcPrepDataContainer>   m_keyRpc{this,"RpcPrepDataContainer","RPC_Measurements"};
+  SG::ReadHandleKey<Muon::CscPrepDataContainer>   m_keyCsc{this,"CscPrepDataContainer","CSC_Clusters"};
+  SG::ReadHandleKey<Muon::MdtPrepDataContainer>   m_keyMdt{this,"MdtPrepDataContainer","MDT_DriftCircles"};
+  SG::ReadHandleKey<Muon::sTgcPrepDataContainer>  m_keysTgc{this,"sTgcPrepDataContainer","STGC_Measurements"};
+  SG::ReadHandleKey<Muon::MMPrepDataContainer>    m_keyMM{this,"MMPrepDataContainer","MM_Measurements"};
 
-  SG::WriteHandleKey<MuonPatternCombinationCollection> m_combis;
+  SG::WriteHandleKey<MuonPatternCombinationCollection> m_combis{this,"MuonPatternCombinationCollection","MuonLayerHoughCombis"};
   SG::WriteHandleKey<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> m_houghDataPerSectorVecKey {this, 
     "Key_MuonLayerHoughToolHoughDataPerSectorVec", "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
-  ToolHandle<Muon::MuonEDMPrinterTool> m_printer;     
-  ToolHandle<Muon::MuonLayerHoughTool> m_layerTool;     
-  bool m_printSummary;
+  ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this,"printerTool","Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+  ToolHandle<Muon::MuonLayerHoughTool> m_layerTool{this,"MuonLayerScanTool","Muon::MuonLayerHoughTool/MuonLayerHoughTool"};
+  Gaudi::Property<bool> m_printSummary{this,"PrintSummary",false};
 };
 
 

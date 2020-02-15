@@ -1,17 +1,14 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # This is the main CMakeLists.txt file for building the AnalysisBase
 # software release.
 #
 
-# The minimum required CMake version:
-cmake_minimum_required( VERSION 3.6 FATAL_ERROR )
-
-# Read in the project's version from a file called version.txt. But let it be
-# overridden from the command line if necessary.
+# Set up the project.
+cmake_minimum_required( VERSION 3.6 )
 file( READ ${CMAKE_SOURCE_DIR}/version.txt _version )
 string( STRIP ${_version} _version )
-set( ANALYSISBASE_PROJECT_VERSION ${_version}
-   CACHE STRING "Version of the AnalysisBase project to build" )
+project( AnalysisBase VERSION ${_version} LANGUAGES C CXX )
 unset( _version )
 
 # This project is built on top of AnalysisBaseExternals:
@@ -28,9 +25,8 @@ list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
 # Set up CTest:
 atlas_ctest_setup()
 
-# Declare project name and version
-atlas_project( AnalysisBase ${ANALYSISBASE_PROJECT_VERSION}
-   USE AnalysisBaseExternals ${AnalysisBaseExternals_VERSION}
+# Set up the "ATLAS project".
+atlas_project( USE AnalysisBaseExternals ${AnalysisBaseExternals_VERSION}
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
 
 # Configure and install the post-configuration file:
@@ -44,10 +40,6 @@ set( _replacements )
 if( NOT "$ENV{NICOS_PROJECT_HOME}" STREQUAL "" )
    get_filename_component( _buildDir $ENV{NICOS_PROJECT_HOME} PATH )
    list( APPEND _replacements ${_buildDir} "\${AnalysisBase_DIR}/../../../.." )
-endif()
-if( NOT "$ENV{NICOS_PROJECT_RELNAME}" STREQUAL "" )
-   list( APPEND _replacements $ENV{NICOS_PROJECT_RELNAME}
-      "\${AnalysisBase_VERSION}" )
 endif()
 
 # Generate the environment configuration file(s):

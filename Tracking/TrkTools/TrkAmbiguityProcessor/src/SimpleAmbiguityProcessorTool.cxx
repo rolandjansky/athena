@@ -1,19 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SimpleAmbiguityProcessorTool.h"
-#include "TrackScoringTool.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
-#include "TrkTrack/TrackCollection.h"
+#include "AtlasDetDescr/AtlasDetectorID.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TrackScoringTool.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/TrackInfo.h"
-#include <map>
 #include <ext/functional>
 #include <iterator>
+#include <map>
+#include <memory>
 
 //==================================================================================================
 Trk::SimpleAmbiguityProcessorTool::SimpleAmbiguityProcessorTool(const std::string& t, 
@@ -25,19 +26,14 @@ Trk::SimpleAmbiguityProcessorTool::SimpleAmbiguityProcessorTool(const std::strin
   m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"), 
   m_fitterTool ("Trk::KalmanFitter/InDetTrackFitter"), 
   m_selectionTool("InDet::InDetAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"),
-  m_Nevents(0),
-  m_Ncandidates(5), m_NcandScoreZero(5), m_NcandDouble(5),
-  m_NscoreOk(5),m_NscoreZeroBremRefit(5),m_NscoreZeroBremRefitFailed(5),
-  m_NscoreZeroBremRefitScoreZero(5),m_NscoreZero(5),
-  m_Naccepted(5),m_NsubTrack(5),m_NnoSubTrack(5),m_NacceptedBrem(5),
-  m_NbremFits(5),m_Nfits(5),m_NrecoveryBremFits(5),m_NgoodFits(5),m_NfailedFits(5)
+  m_etabounds( {0.8,
+                1.6,
+                2.5,
+                2.5,
+                10.0} ),
+  m_Nevents(0)
 {
   // statitics stuff
-  m_etabounds.push_back(0.8);
-  m_etabounds.push_back(1.6);
-  m_etabounds.push_back(2.5);
-  m_etabounds.push_back(2.5);
-  m_etabounds.push_back(10.0);
 
   declareInterface<ITrackAmbiguityProcessorTool>(this);
   declareProperty("DropDouble"           , m_dropDouble         = true);
@@ -122,36 +118,21 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize()
   m_particleHypothesis = particleSwitch.particle[m_matEffects];
 
   // brem fitting enabled ?
-  if (m_tryBremFit)
-    msg(MSG::INFO) << "Try brem fit and recovery for electron like tracks." << endmsg;
+  if (m_tryBremFit) {
+     ATH_MSG_INFO( "Try brem fit and recovery for electron like tracks.");
+  }
 
   // statistics
-  {
-  std::lock_guard<std::mutex> lock( m_statMutex );
-  for (int i=0; i<5; i++) {
-    m_Ncandidates[i]      = 0;
-    m_NcandScoreZero[i]   = 0;
-    m_NcandDouble[i]      = 0;
-    m_NscoreOk[i]         = 0;
-    m_NscoreZeroBremRefit[i]          = 0;
-    m_NscoreZeroBremRefitFailed[i]    = 0;
-    m_NscoreZeroBremRefitScoreZero[i] = 0;
-    m_NscoreZero[i]       = 0;
-    m_Naccepted[i]        = 0;
-    m_NacceptedBrem[i]    = 0;
-    m_NsubTrack[i]        = 0;
-    m_NnoSubTrack[i]      = 0;
-    m_NbremFits[i]        = 0;
-    m_Nfits[i]            = 0;
-    m_NrecoveryBremFits[i]= 0;
-    m_NgoodFits[i]        = 0;
-    m_NfailedFits[i]      = 0;
+  if (m_etabounds.size() != kNRegions) {
+     ATH_MSG_ERROR( "There must be exactly " << kNRegions
+                    << " etaBounds: barrel end, transition region end, end-cap end, DBM start, DBM end." );
+     return StatusCode::FAILURE;
   }
-  }
-
+  m_stat.init();
   return sc;
 }
 //==================================================================================================
+
 
 StatusCode Trk::SimpleAmbiguityProcessorTool::finalize()
 {
@@ -162,165 +143,68 @@ void Trk::SimpleAmbiguityProcessorTool::statistics()
 {
 
   if (msgLvl(MSG::INFO)) {
-    std::lock_guard<std::mutex> lock( m_statMutex );
-    ATH_MSG_INFO (name() << " -- statistics:");
-    std::streamsize ss = std::cout.precision();
-    int iw=9;
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  Number of events processed      :   "<< m_Nevents << std::endl;
-    std::cout << "  statistics by eta range          ------All---Barrel---Trans.--- Endcap---DBM--- " << std::endl;
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  Number of candidates at input   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_Ncandidates[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_Ncandidates[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_Ncandidates[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_Ncandidates[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_Ncandidates[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    std::cout << "  - candidates rejected score 0   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NcandScoreZero[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NcandScoreZero[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NcandScoreZero[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NcandScoreZero[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_NcandScoreZero[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    std::cout << "  - candidates rejected as double :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NcandDouble[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NcandDouble[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NcandDouble[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NcandDouble[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_NcandDouble[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  candidates with good score      :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NscoreOk[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NscoreOk[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NscoreOk[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NscoreOk[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NscoreOk[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    if (m_tryBremFit) {
-      std::cout << "  + recovered after brem refit    :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NscoreZeroBremRefit[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NscoreZeroBremRefit[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NscoreZeroBremRefit[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NscoreZeroBremRefit[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
-                << m_NscoreZeroBremRefit[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    }
-    std::cout << "  candidates rejected score 0     :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NscoreZero[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NscoreZero[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NscoreZero[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NscoreZero[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_NscoreZero[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    if (m_tryBremFit) {
-      std::cout << "  + rejected failed brem refit    :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NscoreZeroBremRefitFailed[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NscoreZeroBremRefitFailed[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NscoreZeroBremRefitFailed[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NscoreZeroBremRefitFailed[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
-                << m_NscoreZeroBremRefitFailed[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-      std::cout << "  + rejected brem refit score 0   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NscoreZeroBremRefitScoreZero[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NscoreZeroBremRefitScoreZero[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NscoreZeroBremRefitScoreZero[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-                << m_NscoreZeroBremRefitScoreZero[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NscoreZeroBremRefitScoreZero[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    }
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  number of normal fits           :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_Nfits[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_Nfits[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_Nfits[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_Nfits[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_Nfits[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    if (m_tryBremFit) {
-      std::cout << "  + 2nd brem fit for failed fit   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NrecoveryBremFits[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NrecoveryBremFits[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NrecoveryBremFits[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NrecoveryBremFits[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
-                << m_NrecoveryBremFits[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-      std::cout << "  normal brem fits for electrons  :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NbremFits[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NbremFits[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NbremFits[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NbremFits[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
-                << m_NbremFits[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    }
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  sum of succesful fits           :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NgoodFits[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NgoodFits[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NgoodFits[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NgoodFits[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_NgoodFits[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    std::cout << "  sum of failed fits              :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NfailedFits[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NfailedFits[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NfailedFits[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NfailedFits[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_NfailedFits[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  Number of subtracks created     :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NsubTrack[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NsubTrack[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NsubTrack[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NsubTrack[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::endl;
-    std::cout << "  Number of candidates excluded   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NnoSubTrack[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NnoSubTrack[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NnoSubTrack[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_NnoSubTrack[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::endl;
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  Number of tracks accepted       :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_Naccepted[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_Naccepted[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_Naccepted[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-	      << m_Naccepted[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
-              << m_Naccepted[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    if (m_tryBremFit) {
-      std::cout << "  including number of brem fits   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NacceptedBrem[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NacceptedBrem[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NacceptedBrem[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
-		<< m_NacceptedBrem[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::endl;
-    }
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-    std::cout << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
-	      << "    definition: ( 0.0 < Barrel < " << m_etabounds[iBarrel-1] << " < Transition < " << m_etabounds[iTransi-1]
-	      << " < Endcap < " << m_etabounds[iEndcap-1] << " DBM )" << std::endl;
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
-    std::cout.precision (ss);
+     MsgStream &out=msg(MSG::INFO);
+     out << " -- statistics:" << std::endl;
+     dumpStat(out);
+     out << endmsg;
   }
-  return;
+}
+
+void Trk::SimpleAmbiguityProcessorTool::dumpStat(MsgStream &out) const {
+    std::lock_guard<std::mutex> lock( m_statMutex );
+    std::streamsize ss = out.precision();
+    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    out <<             "  Number of events processed      :   "<< m_Nevents << std::endl;
+    out <<             "  statistics by eta range          ------All---Barrel---Trans.--- Endcap---DBM---" << std::endl;
+    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    dumpRegions(out,   "  Number of candidates at input   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNcandidates);
+    dumpRegions(out,   "  - candidates rejected score 0   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNcandScoreZero);
+    dumpRegions(out,   "  - candidates rejected as double :", Trk::SimpleAmbiguityProcessorTool::Counter::kNcandDouble);
+    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    dumpRegions(out,   "  candidates with good score      :", Trk::SimpleAmbiguityProcessorTool::Counter::kNscoreOk);
+    if (m_tryBremFit) {
+       dumpRegions(out,"  + recovered after brem refit    :", Trk::SimpleAmbiguityProcessorTool::Counter::kNscoreZeroBremRefit);
+    }
+    dumpRegions(out,   "  candidates rejected score 0     :", Trk::SimpleAmbiguityProcessorTool::Counter::kNscoreZero);
+    if (m_tryBremFit) {
+       dumpRegions(out,"  + rejected failed brem refit    :", Trk::SimpleAmbiguityProcessorTool::Counter::kNscoreZeroBremRefitFailed);
+    }
+    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    dumpRegions(out,   "  number of normal fits           :", Trk::SimpleAmbiguityProcessorTool::Counter::kNfits);
+    if (m_tryBremFit) {
+       dumpRegions(out,"  + 2nd brem fit for failed fit   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNrecoveryBremFits);
+       dumpRegions(out,"  normal brem fits for electrons  :", Trk::SimpleAmbiguityProcessorTool::Counter::kNbremFits);
+    }
+    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    dumpRegions(out,   "  sum of succesful fits           :", Trk::SimpleAmbiguityProcessorTool::Counter::kNgoodFits);
+    dumpRegions(out,   "  sum of failed fits              :", Trk::SimpleAmbiguityProcessorTool::Counter::kNfailedFits);
+    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    dumpRegions(out,   "  Number of subtracks created     :", Trk::SimpleAmbiguityProcessorTool::Counter::kNsubTrack);
+    dumpRegions(out,   "  Number of candidates excluded   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNnoSubTrack);
+    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    dumpRegions(out,   "  Number of tracks accepted       :", Trk::SimpleAmbiguityProcessorTool::Counter::kNaccepted);
+    if (m_tryBremFit) {
+       dumpRegions(out,"  including number of brem fits   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNacceptedBrem);
+    }
+    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    out << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
+        <<             "    definition: ( 0.0 < Barrel < " << m_etabounds[iBarrel-1] << " < Transition < " << m_etabounds[iTransi-1]
+        <<             " < Endcap < " << m_etabounds[iEndcap-1] << " DBM )" << std::endl;
+    out <<             "-------------------------------------------------------------------------------" << std::endl;
+    out.precision (ss);
 }
 
 //==================================================================================================
 
 /** helper function for statistics */
-
-void Trk::SimpleAmbiguityProcessorTool::increment_by_eta(std::vector<int>& Ntracks, const Track* track, bool updateAll) const {
-
-  std::lock_guard<std::mutex> lock( m_statMutex );
-  if (updateAll) Ntracks[Trk::SimpleAmbiguityProcessorTool::iAll] += 1;
-
-  // test
-  if (!track)
-    {
-       ATH_MSG_ERROR ("track pointer zero, should not happen!");
-       return;
-    }
-
-  // use first parameter 
-  if (!track->trackParameters())
-    {
-      ATH_MSG_WARNING ("No track parameters, needed for statistics code in Trk::SimpleAmbiguityProcessorTool!");
-    }
-  else
-    {
-      double eta = track->trackParameters()->front()->eta();
-      if (fabs(eta) < m_etabounds[0]) ++Ntracks[Trk::SimpleAmbiguityProcessorTool::iBarrel];
-      else if (fabs(eta) < m_etabounds[1]) ++Ntracks[Trk::SimpleAmbiguityProcessorTool::iTransi];
-      else if (fabs(eta) < m_etabounds[2]) ++Ntracks[Trk::SimpleAmbiguityProcessorTool::iEndcap];
-      else if ((fabs(eta) > m_etabounds[3]) && (fabs(eta) < m_etabounds[4])) ++Ntracks[Trk::SimpleAmbiguityProcessorTool::iDBM];
-    }
+void Trk::SimpleAmbiguityProcessorTool::missingTrackOrParameters(const Track* track) const {
+  if (!track) {
+     ATH_MSG_ERROR ("track pointer zero, should not happen!");
+     return;
+  }
+  else if (!track->trackParameters()) {
+     ATH_MSG_WARNING ("No track parameters, needed for statistics code in Trk::SimpleAmbiguityProcessorTool!");
+  }
 }
 
 //==================================================================================================
@@ -366,7 +250,8 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process_vector(std::vector<
   }
   //put tracks into maps etc
   ATH_MSG_DEBUG ("Adding input track candidates to list");
-  addNewTracks(tracks, trackScoreTrackMap, *prd_to_track_map);
+  Counter stat;
+  addNewTracks(tracks, trackScoreTrackMap, *prd_to_track_map, stat);
 
   // going to do simple algorithm for now:
   // - take track with highest score
@@ -375,8 +260,11 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process_vector(std::vector<
 
   ATH_MSG_DEBUG ("Solving Tracks");
   std::vector<std::unique_ptr<const Trk::Track> > cleanup_tracks;
-  TrackCollection* final_tracks = solveTracks(trackScoreTrackMap, *prd_to_track_map,cleanup_tracks);
-
+  TrackCollection* final_tracks = solveTracks(trackScoreTrackMap, *prd_to_track_map,cleanup_tracks, stat);
+  {
+     std::lock_guard<std::mutex> lock(m_statMutex);
+     m_stat += stat;
+  }
   if (msgLvl(MSG::DEBUG)) dumpTracks(*final_tracks);
   return final_tracks;
 }
@@ -384,7 +272,8 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process_vector(std::vector<
 //==================================================================================================
 void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const std::vector<const Track*> &tracks,
                                                      TrackScoreMap& trackScoreTrackMap,
-                                                     Trk::PRDtoTrackMap &prd_to_track_map) const
+                                                     Trk::PRDtoTrackMap &prd_to_track_map,
+                                                     Trk::SimpleAmbiguityProcessorTool::Counter &stat) const
 {
   using namespace std;
 
@@ -401,7 +290,7 @@ void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const std::vector<const Tra
 
       ATH_MSG_DEBUG ("Processing track candidate "<<a_track);
       // statistics
-      increment_by_eta(m_Ncandidates,a_track);
+      increment_by_eta(Counter::kNcandidates,stat,a_track);
     
       bool reject = false;
     
@@ -413,7 +302,7 @@ void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const std::vector<const Tra
       if (score==0) { 
 	ATH_MSG_DEBUG ("Candidate score is zero, reject it");
 	// statistic
-	increment_by_eta(m_NcandScoreZero,a_track);
+	increment_by_eta(Counter::kNcandScoreZero,stat,a_track);
 	
 	reject = true;
 
@@ -436,7 +325,7 @@ void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const std::vector<const Tra
 
 	    ATH_MSG_DEBUG ("Double track, reject it !");
 	    // statistic
-	    increment_by_eta(m_NcandDouble,a_track);
+	    increment_by_eta(Counter::kNcandDouble,stat,a_track);
 
 	    reject = true;
 
@@ -464,8 +353,6 @@ void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const std::vector<const Tra
   
   ATH_MSG_DEBUG ("Number of tracks in map:"<<trackScoreTrackMap.size());
   DEBUG_CODE( countTrueTracksInMap( trackScoreTrackMap ) );
-  
-  return;
 }
 
 //==================================================================================================
@@ -474,7 +361,8 @@ void Trk::SimpleAmbiguityProcessorTool::addTrack(Trk::Track* in_track,
                                                  const bool fitted,
                                                  TrackScoreMap &trackScoreTrackMap,
                                                  Trk::PRDtoTrackMap &prd_to_track_map,
-                                                 std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks) const
+                                                 std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks,
+                                                 Trk::SimpleAmbiguityProcessorTool::Counter &stat) const
 {
   using namespace std;
   std::unique_ptr<Trk::Track> atrack(in_track);
@@ -494,7 +382,7 @@ void Trk::SimpleAmbiguityProcessorTool::addTrack(Trk::Track* in_track,
     {
       ATH_MSG_DEBUG ("Track  ("<< atrack.get() <<") has score "<<score);
       // statistic
-      increment_by_eta(m_NscoreOk,atrack.get());
+      increment_by_eta(Counter::kNscoreOk,stat,atrack.get());
 
       // add track to map, map is sorted small to big !
       trackScoreTrackMap.insert( make_pair(-score, TrackPtr(atrack.release(), fitted)) );
@@ -518,8 +406,8 @@ void Trk::SimpleAmbiguityProcessorTool::addTrack(Trk::Track* in_track,
 	{
 	  ATH_MSG_DEBUG ("Brem refit failed, drop track");
 	  // statistic
-	  increment_by_eta(m_NscoreZeroBremRefitFailed,atrack.get());
-	  increment_by_eta(m_NfailedFits,atrack.get());
+	  increment_by_eta(Counter::kNscoreZeroBremRefitFailed,stat,atrack.get());
+	  increment_by_eta(Counter::kNfailedFits,stat,atrack.get());
 
 	  // clean up
           cleanup_tracks.push_back(std::move(atrack));
@@ -529,7 +417,7 @@ void Trk::SimpleAmbiguityProcessorTool::addTrack(Trk::Track* in_track,
 	{
 
 	  // statistic
-	  increment_by_eta(m_NgoodFits,bremTrack.get());
+          increment_by_eta(Counter::kNgoodFits,stat,bremTrack.get());
 
 	  // rerun score
 	  score = m_scoringTool->score( *bremTrack, suppressHoleSearch );
@@ -539,7 +427,7 @@ void Trk::SimpleAmbiguityProcessorTool::addTrack(Trk::Track* in_track,
 	    {
               ATH_MSG_DEBUG ("Brem refit successful, recovered track  ("<< atrack.get() <<") has score "<<score);
 	      // statistics
-	      increment_by_eta(m_NscoreZeroBremRefit,bremTrack.get());
+	      increment_by_eta(Counter::kNscoreZeroBremRefit,stat,bremTrack.get());
 
 	      // add track to map, map is sorted small to big !
 	      trackScoreTrackMap.insert( make_pair(-score, TrackPtr(bremTrack.release(), fitted)) );
@@ -549,7 +437,7 @@ void Trk::SimpleAmbiguityProcessorTool::addTrack(Trk::Track* in_track,
 	    {
 	      ATH_MSG_DEBUG ("Brem refit gave still track score zero, reject it");
 	      // statistic
-	      increment_by_eta(m_NscoreZeroBremRefitScoreZero,bremTrack.get());
+	      increment_by_eta(Counter::kNscoreZeroBremRefitScoreZero,stat,bremTrack.get());
 
 	    }
           cleanup_tracks.push_back(std::move(atrack));
@@ -559,18 +447,18 @@ void Trk::SimpleAmbiguityProcessorTool::addTrack(Trk::Track* in_track,
     {
       ATH_MSG_DEBUG ("Track score is zero, reject it");
       // statistic
-      increment_by_eta(m_NscoreZero,atrack.get());
+      increment_by_eta(Counter::kNscoreZero,stat,atrack.get());
 
       DEBUG_CODE( rejectedTrack(atrack.get(), prd_to_track_map) );
       cleanup_tracks.push_back(std::move(atrack));
     }
-  return;
-}
+  }
 //==================================================================================================
 
 TrackCollection *Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& trackScoreTrackMap,
                                                                 Trk::PRDtoTrackMap &prd_to_track_map,
-                                                                std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks) const
+                                                                std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks,
+                                                                Trk::SimpleAmbiguityProcessorTool::Counter &stat) const
 {
   std::unique_ptr<TrackCollection> final_tracks(std::make_unique<TrackCollection>());
   using namespace std;
@@ -602,9 +490,9 @@ TrackCollection *Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& t
 	  // track can be kept as is and is already fitted
 	  ATH_MSG_DEBUG ("Accepted track "<<atrack.track()<<"\t has score "<<-(ascore));
 	  // statistic
-	  increment_by_eta(m_Naccepted,atrack.track());
+	  increment_by_eta(Counter::kNaccepted,stat,atrack.track());
 	  if (m_tryBremFit && atrack->info().trackProperties(Trk::TrackInfo::BremFit))
-	    increment_by_eta(m_NacceptedBrem,atrack.track());
+             increment_by_eta(Counter::kNacceptedBrem,stat,atrack.track());
 
 	  // add track to PRD_AssociationTool
           StatusCode sc = m_assoTool->addPRDs(prd_to_track_map, *atrack.track());
@@ -624,13 +512,13 @@ TrackCollection *Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& t
 	  // don't forget to drop track from map
 	  // track can be kept as is, but is not yet fitted
 	  ATH_MSG_DEBUG ("Good track, but need to fit this track first, score, add it into map again and retry !");
-	  refitTrack(atrack.track(),trackScoreTrackMap, prd_to_track_map, cleanup_tracks);
+	  refitTrack(atrack.track(),trackScoreTrackMap, prd_to_track_map, cleanup_tracks, stat);
           if (atrack.newTrack()) {
              cleanup_tracks.push_back( std::unique_ptr<Trk::Track>(atrack.release()) );
           }
 	  // delete original copy
 	 }
-      else if ( cleanedTrack.get() )
+      else if ( cleanedTrack )
 	{
 
            DEBUG_CODE(newCleanedTrack(cleanedTrack.get(), atrack.track()) );
@@ -644,10 +532,10 @@ TrackCollection *Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& t
 	  // stripped down version should be reconsidered
 	  ATH_MSG_DEBUG ("Candidate excluded, add subtrack to map. Track "<<cleanedTrack.get());
 	  // statistic
-	  increment_by_eta(m_NsubTrack,cleanedTrack.get());
+	  increment_by_eta(Counter::kNsubTrack,stat,cleanedTrack.get());
 
 	  // track needs fitting !
-	  addTrack( cleanedTrack.release(), false, trackScoreTrackMap, prd_to_track_map, cleanup_tracks);
+	  addTrack( cleanedTrack.release(), false, trackScoreTrackMap, prd_to_track_map, cleanup_tracks, stat);
 
 	}
       else
@@ -658,7 +546,7 @@ TrackCollection *Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& t
 	  // track should be discarded
 	  ATH_MSG_DEBUG ("Track "<< atrack.track() << " is excluded, no subtrack, reject");
 	  // statistic
-	  increment_by_eta(m_NnoSubTrack,atrack.track());
+	  increment_by_eta(Counter::kNnoSubTrack,stat,atrack.track());
 
           if (atrack.newTrack()) {
              cleanup_tracks.push_back(  std::unique_ptr<Trk::Track>(atrack.release()) );
@@ -680,7 +568,8 @@ TrackCollection *Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& t
 void Trk::SimpleAmbiguityProcessorTool::refitTrack( const Trk::Track* track,
                                                     TrackScoreMap& trackScoreTrackMap,
                                                     Trk::PRDtoTrackMap &prd_to_track_map,
-                                                    std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks) const
+                                                    std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks,
+                                                    Trk::SimpleAmbiguityProcessorTool::Counter &stat) const
 {
   using namespace std;
   std::unique_ptr<Trk::Track> newTrack;
@@ -689,13 +578,13 @@ void Trk::SimpleAmbiguityProcessorTool::refitTrack( const Trk::Track* track,
       {
 	// simple case, fit PRD directly
 	ATH_MSG_VERBOSE ("Refit track "<<track<<" from PRDs");
-	newTrack.reset( refitPrds (track, prd_to_track_map) );
+	newTrack.reset( refitPrds (track, prd_to_track_map,stat) );
       }
     else 
       {
 	// ok, we fit ROTs
 	ATH_MSG_VERBOSE ("Refit track "<<track<<" from ROTs");
-	newTrack.reset( refitRots (track) );
+	newTrack.reset( refitRots (track,stat) );
       }
   }
   else
@@ -725,7 +614,7 @@ void Trk::SimpleAmbiguityProcessorTool::refitTrack( const Trk::Track* track,
       newInfo.setPatternRecognitionInfo(Trk::TrackInfo::SimpleAmbiguityProcessorTool);
       info.addPatternReco(newInfo); 
 
-      newTrack.reset( new Trk::Track(info, vecTsos, fq) );
+      newTrack = std::make_unique<Trk::Track>( info, vecTsos, fq );
     }
 
   if (newTrack)
@@ -733,25 +622,26 @@ void Trk::SimpleAmbiguityProcessorTool::refitTrack( const Trk::Track* track,
       ATH_MSG_DEBUG ("New track successfully fitted"<<newTrack.get());
       DEBUG_CODE( newCleanedTrack( newTrack.get(), atrack.get()) );
 
-      addTrack( newTrack.release(), true, trackScoreTrackMap, prd_to_track_map, cleanup_tracks);
+      addTrack( newTrack.release(), true, trackScoreTrackMap, prd_to_track_map, cleanup_tracks, stat);
     }
   else {
      DEBUG_CODE( fillFailedFit(track, prd_to_track_map) );
      ATH_MSG_DEBUG ("Fit failed !");
   }  
   
-  return;
-}
+  }
 
 //==================================================================================================
 
-Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitPrds( const Trk::Track* track, Trk::PRDtoTrackMap &prd_to_track_map) const
+Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitPrds( const Trk::Track* track,
+                                                          Trk::PRDtoTrackMap &prd_to_track_map,
+                                                          Trk::SimpleAmbiguityProcessorTool::Counter &stat) const
 {
 
   // get vector of PRDs
   std::vector<const Trk::PrepRawData*> prds = m_assoTool->getPrdsOnTrack(prd_to_track_map,*track);
 
-  if ( 0==prds.size() ) {
+  if ( prds.empty() ) {
     msg(MSG::WARNING) << "No PRDs on track"<<endmsg;
     return nullptr;
   }
@@ -774,7 +664,7 @@ Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitPrds( const Trk::Track* trac
   if (m_tryBremFit && track->info().trackProperties(Trk::TrackInfo::BremFit))
     {
       // statistics
-      increment_by_eta(m_NbremFits,track);
+      increment_by_eta(Counter::kNbremFits,stat,track);
 
       ATH_MSG_VERBOSE ("Brem track, refit with electron brem fit");
       newTrack = m_fitterTool->fit(prds, *par, true, Trk::electron);
@@ -783,7 +673,7 @@ Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitPrds( const Trk::Track* trac
   else
     {
       // statistics
-      increment_by_eta(m_Nfits,track);
+      increment_by_eta(Counter::kNfits,stat,track);
 
       ATH_MSG_VERBOSE ("Normal track, refit");
       newTrack = m_fitterTool->fit(prds, *par, true, m_particleHypothesis);
@@ -792,7 +682,7 @@ Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitPrds( const Trk::Track* trac
 	  (!m_caloSeededBrem || track->info().patternRecoInfo(Trk::TrackInfo::TrackInCaloROI)))
 	{
 	  // statistics
-	  increment_by_eta(m_NrecoveryBremFits,track);
+          increment_by_eta(Counter::kNrecoveryBremFits,stat,track);
 
 	  ATH_MSG_VERBOSE ("Normal fit failed, try brem recovery");
 	  newTrack = m_fitterTool->fit(prds, *par, true, Trk::electron);
@@ -802,35 +692,36 @@ Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitPrds( const Trk::Track* trac
   if(newTrack)
     {
       // statistic
-      increment_by_eta(m_NgoodFits,newTrack);
+      increment_by_eta(Counter::kNgoodFits,stat,newTrack);
 
       //keeping the track of previously accumulated TrackInfo
-      const Trk::TrackInfo old_info = track->info();
+      const Trk::TrackInfo& old_info = track->info();
       newTrack->info().addPatternReco(old_info);
     }
   else
     {
       // statistic
-      increment_by_eta(m_NfailedFits,track);
+      increment_by_eta(Counter::kNfailedFits,stat,track);
     }
   return newTrack;
 }
 
 //==================================================================================================
 
-Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitRots( const Trk::Track* track) const
+Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitRots( const Trk::Track* track,
+                                                          Trk::SimpleAmbiguityProcessorTool::Counter &stat) const
 {
 
   ATH_MSG_VERBOSE ("Refit track "<<track);
 
   // refit using first parameter, do outliers
-  Trk::Track* newTrack = 0;
+  Trk::Track* newTrack = nullptr;
 
   if (m_tryBremFit &&
       track->info().trackProperties(Trk::TrackInfo::BremFit))
     {
       // statistics
-      increment_by_eta(m_NbremFits,track);
+      increment_by_eta(Counter::kNbremFits,stat,track);
 
       ATH_MSG_VERBOSE ("Brem track, refit with electron brem fit");
       newTrack = m_fitterTool->fit(*track, true, Trk::electron);
@@ -838,7 +729,7 @@ Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitRots( const Trk::Track* trac
   else
     {
       // statistics
-      increment_by_eta(m_Nfits,track);
+      increment_by_eta(Counter::kNfits,stat,track);
 
       ATH_MSG_VERBOSE ("Normal track, refit");
       newTrack = m_fitterTool->fit(*track, true, m_particleHypothesis);
@@ -848,7 +739,7 @@ Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitRots( const Trk::Track* trac
 	  (!m_caloSeededBrem || track->info().patternRecoInfo(Trk::TrackInfo::TrackInCaloROI)))
 	{
 	  // statistics
-	  increment_by_eta(m_NrecoveryBremFits,track);
+          increment_by_eta(Counter::kNrecoveryBremFits,stat,track);
 
 	  ATH_MSG_VERBOSE ("Normal fit failed, try brem recovery");
 	  newTrack = m_fitterTool->fit(*track, true, Trk::electron);
@@ -858,16 +749,16 @@ Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitRots( const Trk::Track* trac
   if(newTrack)
     {
       // statistic
-      increment_by_eta(m_NgoodFits,newTrack);
+      increment_by_eta(Counter::kNgoodFits,stat,newTrack);
 
       //keeping the track of previously accumulated TrackInfo
-      const Trk::TrackInfo old_info = track->info();
+      const Trk::TrackInfo& old_info = track->info();
       newTrack->info().addPatternReco(old_info);
     }
   else
     {
       // statistic
-      increment_by_eta(m_NfailedFits,track);
+      increment_by_eta(Counter::kNfailedFits,stat,track);
     }
   return newTrack;
 }
@@ -890,7 +781,6 @@ void Trk::SimpleAmbiguityProcessorTool::dumpTracks( const TrackCollection& track
       totalScore+=score;
     }
   ATH_MSG_DEBUG ("Total event score : "<<totalScore);
-  return;
 }
 
 

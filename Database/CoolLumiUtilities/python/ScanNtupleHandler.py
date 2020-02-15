@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # ScanNtupleHandler.py
@@ -6,6 +6,7 @@
 # Definition of vdM scan ntuple
 #
 
+from __future__ import print_function
 # Utility to unpack BCID blobs
 from CoolLumiUtilities.CoolBCIDData import LumiBCIDData
 
@@ -154,13 +155,13 @@ class ScanNtupleHandler:
         self.bbbAlgDict[246] = 'bcmVEarlyC'
 
     def open(self):
-        print 'ScanNtupleHandler.open() called'
+        print('ScanNtupleHandler.open() called')
 
         self.file = TFile(self.fileName, 'recreate')
         self.tree = TTree(self.treeName, self.treeName)
 
     def init(self):
-        print 'ScanNtupleHandler.init() called'
+        print('ScanNtupleHandler.init() called')
 
         self.initScanData()
         self.initBeamPosition()
@@ -180,7 +181,7 @@ class ScanNtupleHandler:
     #
     # Each of these should be a list of IObject values as returned by CoolDataReader
     def fill(self, data):
-        print 'ScanNtupleHandler.fill() called'
+        print('ScanNtupleHandler.fill() called')
 
         nfilled = 0 
         # First we need to fill the scan data
@@ -218,10 +219,10 @@ class ScanNtupleHandler:
             self.tree.Fill()
             nfilled += 1
 
-        print 'ScanNtupleHandler.fill() - filled', nfilled, 'entries'
+        print('ScanNtupleHandler.fill() - filled', nfilled, 'entries')
         
     def close(self):
-        print 'ScanNtupleHandler.close() called'
+        print('ScanNtupleHandler.close() called')
         
         self.file.Write()
         self.file.Close()
@@ -304,7 +305,7 @@ class ScanNtupleHandler:
             break
 
             if not found:
-                print "scanNtupleHandler.fillBeamPosition - Didn't find beam position data to match scan data!"
+                print("scanNtupleHandler.fillBeamPosition - Didn't find beam position data to match scan data!")
                 self.beamPositionStruct.fB1PositionH = 0. 
                 self.beamPositionStruct.fB1PositionV = 0. 
                 self.beamPositionStruct.fB2PositionH = 0. 
@@ -341,7 +342,7 @@ class ScanNtupleHandler:
         self.tree.Branch('FILLPARAMSB2', AddressOf(self.fillParamsStruct, 'fB2Bunches'), 'B2Bunches/I:B2BCIDs[B2Bunches]/I')
         self.tree.Branch('FILLPARAMS', AddressOf(self.fillParamsStruct, 'fLuminousBunches'), 'LuminousBunches/I:LuminousBCIDs[LuminousBunches]/I')
 
-        print 'Defined FillParams data type'
+        print('Defined FillParams data type')
         #print 'type(fB1Bunches):', type(self.fillParamsStruct.fB1Bunches)
         #print 'type(fB1BCIDs):', type(self.fillParamsStruct.fB1BCIDs)
         
@@ -384,7 +385,7 @@ class ScanNtupleHandler:
                 i += 1
                 
         if not found:
-            print "scanNtupleHandler.fillFillParams - Didn't find FILLPARAMS data to match scan data!"
+            print("scanNtupleHandler.fillFillParams - Didn't find FILLPARAMS data to match scan data!")
             self.fillParamsStruct.fB1Bunches = 0
             self.fillParamsStruct.fB2Bunches = 0
             self.fillParamsStruct.fLuminousBunches = 0
@@ -451,19 +452,19 @@ class ScanNtupleHandler:
                 self.lbdataStruct.fB2IntensityAllDCCT = obj.payload()['Beam2IntensityAll']
                 
             else:
-                print 'scanNtupleHandler.fillLbdata - Found unknown channel', obj.channelId(), '!'
+                print('scanNtupleHandler.fillLbdata - Found unknown channel', obj.channelId(), '!')
 
             if foundBCT and foundBPTX and foundDCCT : break
 
 
         if (not foundBPTX) and (not foundBCT) and (not foundDCCT):
-            print "scanNtupleHandler.fillLBdata - Couldn't find LBDATA!"
+            print("scanNtupleHandler.fillLBdata - Couldn't find LBDATA!")
         elif not foundBCT:
-            print "scanNtupleHandler.fillLBdata - Couldn't find BCT data in LBDATA!"
+            print("scanNtupleHandler.fillLBdata - Couldn't find BCT data in LBDATA!")
         elif not foundBPTX:
-            print "scanNtupleHandler.fillLBdata - Couldn't find BPTX data in LBDATA!"
+            print("scanNtupleHandler.fillLBdata - Couldn't find BPTX data in LBDATA!")
         elif not foundDCCT:
-            print "scanNtupleHandler.fillLBdata - Couldn't find DCCT data in LBDATA!"
+            print("scanNtupleHandler.fillLBdata - Couldn't find DCCT data in LBDATA!")
 
         if not foundBCT:
             self.lbdataStruct.fB1IntensityBCT = 0.
@@ -597,17 +598,17 @@ class ScanNtupleHandler:
                     i += 1
                     
             else:
-                print 'scanNtupleHandler.fillLbdata - Found unknown channel', obj.channelId(), '!'
+                print('scanNtupleHandler.fillLbdata - Found unknown channel', obj.channelId(), '!')
 
             if foundBCT and foundBPTX: break
 
 
         if (not foundBPTX) and (not foundBCT):
-            print "scanNtupleHandler.fillBunchData - Couldn't find BUNCHDATA!"
+            print("scanNtupleHandler.fillBunchData - Couldn't find BUNCHDATA!")
         elif not foundBCT:
-            print "scanNtupleHandler.fillBunchData - Couldn't find BCT data in BUNCHDATA!"
+            print("scanNtupleHandler.fillBunchData - Couldn't find BCT data in BUNCHDATA!")
         elif not foundBPTX:
-            print "scanNtupleHandler.fillBunchData - Couldn't find BPTX data in BUNCHDATA!"
+            print("scanNtupleHandler.fillBunchData - Couldn't find BPTX data in BUNCHDATA!")
 
         if not foundBCT:
             self.bunchDataStruct.fB1BunchAverageBCT = 0.
@@ -646,7 +647,7 @@ class ScanNtupleHandler:
         self.fBunchRawInstLum = dict()
         
         for (chId, algstr) in self.bbbAlgDict.iteritems():
-            print 'scanNtupleHandler.initLumiData - initializing', algstr, 'as channel', chId
+            print('scanNtupleHandler.initLumiData - initializing', algstr, 'as channel', chId)
             self.bunchLumiStruct[chId] = BunchLumiStruct()
             self.bunchLumiStruct[chId].fLuminousBunches = 0
 
@@ -678,8 +679,8 @@ class ScanNtupleHandler:
 
             # Figure out which channel
             chId = obj.channelId()
-            if not chId in self.bbbAlgDict:
-                print 'scanNtupleHandler.fillBunchLumi - Unknown lumi channel', chId, '!'
+            if chId not in self.bbbAlgDict:
+                print('scanNtupleHandler.fillBunchLumi - Unknown lumi channel', chId, '!')
                 continue
 
             foundAny = True
@@ -710,12 +711,12 @@ class ScanNtupleHandler:
 #                 self.bunchLumiStruct[chId].fBunchRawInstLum[i] = val
 
         if not foundAny:
-            print 'scanNtupleHandler.fillBunchLumi - Found no BUNCHLUMIS data to match IOV!'
+            print('scanNtupleHandler.fillBunchLumi - Found no BUNCHLUMIS data to match IOV!')
 
         else:
             for (chId, algstr) in self.bbbAlgDict.iteritems():
                 if not found[chId]:
-                    print 'scanNtupleHandler.fillBunchLumi - Found no BUNCHLUMIS data for', algstr, '!'
+                    print('scanNtupleHandler.fillBunchLumi - Found no BUNCHLUMIS data for', algstr, '!')
 
         for chId in self.bbbAlgDict.iterkeys():
             if not found[chId]:
@@ -725,7 +726,7 @@ class ScanNtupleHandler:
                 self.bunchLumiStruct[chId].fLuminousBunches = 0
                 
     def initLumiData(self):
-        print 'scanNtupleHandler.initLumiData() called'
+        print('scanNtupleHandler.initLumiData() called')
         
         #
         # Define LUMINOSITY tree
@@ -751,7 +752,7 @@ class ScanNtupleHandler:
 
         self.lumiStruct = dict()
         for (chId, algstr) in self.algDict.iteritems():
-            print 'scanNtupleHandler.initLumiData - initializing', algstr, 'as channel', chId
+            print('scanNtupleHandler.initLumiData - initializing', algstr, 'as channel', chId)
             self.lumiStruct[chId] = LumiDataStruct()
             branchString = 'ALG_LumiChannel/i:ALG_LBAvInstLumPhys/F:ALG_LBAvEvtsPerBXPhys/F:ALG_LBAvRawInstLumPhys/F:ALG_LBAvInstLumAll/F:ALG_LBAvRawInstLumAll/F:ALG_LBAvEvtsPerBXAll/F:ALG_LBAvOLCInstLum/F:ALG_LBAvOLCRawInstLum/F:ALG_LBAvOLCEvtsPerBX/F:ALG_NOrbPhys/i:ALG_NOrbAll/i:ALG_NOrbOLC/i:ALG_DetectorState/i:ALG_LumiValid/i'
 
@@ -781,8 +782,8 @@ class ScanNtupleHandler:
                 liveDict[chId] = obj.payload()['LBAvOLCInstLum']
                 continue
 
-            elif not chId in self.algDict:
-                print 'scanNtupleHandler.fillLumiData - Unknown lumi channel', chId, '!'
+            elif chId not in self.algDict:
+                print('scanNtupleHandler.fillLumiData - Unknown lumi channel', chId, '!')
                 continue
 
             foundAny = True
@@ -804,8 +805,8 @@ class ScanNtupleHandler:
                 self.lumiStruct[chId].fNOrbPhys = obj.payload()['NOrbPhys']
                 self.lumiStruct[chId].fNOrbAll = obj.payload()['NOrbAll']
                 self.lumiStruct[chId].fNOrbOLC = obj.payload()['NOrbOLC']
-            except Exception, e:
-                print e
+            except Exception as e:
+                print(e)
                 self.lumiStruct[chId].fNOrbPhys = 0
                 self.lumiStruct[chId].fNOrbAll = 0
                 self.lumiStruct[chId].fNOrbOLC = 0
@@ -813,12 +814,12 @@ class ScanNtupleHandler:
             self.lumiStruct[chId].fValid = obj.payload()['Valid']
 
         if not foundAny:
-            print 'scanNtupleHandler.fillLumiData - Found no LUMINOSITY data to match IOV!'
+            print('scanNtupleHandler.fillLumiData - Found no LUMINOSITY data to match IOV!')
 
         else:
             for (chId, algstr) in self.algDict.iteritems():
                 if not found[chId]:
-                    print 'scanNtupleHandler.fillLumiData - Found no LUMINOSITY data for', algstr, '!'
+                    print('scanNtupleHandler.fillLumiData - Found no LUMINOSITY data for', algstr, '!')
 
         for chId in self.algDict.iterkeys():
             if not found[chId]:
@@ -847,7 +848,7 @@ class ScanNtupleHandler:
         self.fillLive(liveDict, 62, 63, self.liveDataStruct.fMBTS_1_BGRP9)
         self.fillLive(liveDict, 66, 67, self.liveDataStruct.fMBTS_2_BGRP9)
 
-        print self.liveDataStruct.fEM12
+        print(self.liveDataStruct.fEM12)
 
     def fillLive(self, liveDict, denchan, numchan, dest):
         num = liveDict.get(numchan, 0.)
@@ -855,7 +856,7 @@ class ScanNtupleHandler:
         if den > 0.:
             dest = num/den
         else:
-            dest = 0.
+            dest = 0.  # noqa: F841
 
         self.liveDataStruct.fRD0_Filled = 0.
 

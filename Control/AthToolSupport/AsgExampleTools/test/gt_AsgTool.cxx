@@ -11,10 +11,10 @@
 //
 
 #include <AsgTools/AnaToolHandle.h>
-#include <AsgTools/MessageCheck.h>
-#include <AsgTools/IMessagePrinter.h>
-#include <AsgTools/MessagePrinterMock.h>
-#include <AsgTools/MessagePrinterOverlay.h>
+#include <AsgMessaging/MessageCheck.h>
+#include <AsgMessaging/IMessagePrinter.h>
+#include <AsgMessaging/MessagePrinterMock.h>
+#include <AsgMessaging/MessagePrinterOverlay.h>
 #include <AsgTesting/UnitTest.h>
 #include <cmath>
 #include <gtest/gtest.h>

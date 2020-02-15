@@ -56,7 +56,7 @@ public:
   { std::abort(); }
   virtual StatusCode makeClient(int /*num*/) override
   { std::abort(); }
-  virtual StatusCode cleanUp() override
+  virtual StatusCode cleanUp(const std::string& /*connection*/) override
   { std::abort(); }
   virtual StatusCode setInputAttributes(const std::string& /*fileName*/) override
   { std::abort(); }

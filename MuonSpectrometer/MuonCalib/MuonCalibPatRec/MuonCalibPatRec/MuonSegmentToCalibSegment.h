@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_MUONSEGMENTTOCALIBSEGMENT_H
 #define MUONCALIB_MUONSEGMENTTOCALIBSEGMENT_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -17,7 +18,7 @@
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
 #include "MdtCalibSvc/MdtCalibrationTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 namespace Muon{
@@ -36,15 +37,13 @@ output the muon calibration input.
   public:
     /** Algorithm constructor */
     MuonSegmentToCalibSegment(const std::string& name, ISvcLocator* pSvcLocator);
+    virtual ~MuonSegmentToCalibSegment()=default;
 
     /** Algorithm initialize */
     StatusCode initialize();
      
     /** Algorithm execute, called once per event */
     StatusCode execute();
-
-    /** Algorithm finalize */
-    StatusCode finalize();
 
   private:
     /** retrieve patterns and segments from storegate */
@@ -93,9 +92,7 @@ output the muon calibration input.
 	"MuonDetectorManager", 
 	"Key of input MuonDetectorManager condition data"};    
 
-    /** Tool for the Identifier Helpers */
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     /** pointer to MdtCalibSvc */
     ToolHandle<MdtCalibrationTool> m_calibrationTool;

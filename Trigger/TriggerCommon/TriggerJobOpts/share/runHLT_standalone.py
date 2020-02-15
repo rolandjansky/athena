@@ -40,6 +40,7 @@ class opt:
     createHLTMenuExternally = False   # Set to True if the menu is build manually outside runHLT_standalone.py
     endJobAfterGenerate = False       # Finish job after menu generation
     failIfNoProxy     = False         # Sets the SGInputLoader.FailIfNoProxy property
+    forceEnableAllChains = False      # if True, all HLT chains will run even if the L1 item is false
     decodeLegacyL1 = True             # Decode L1 RoIs from legacy L1 systems through RoIBResult for HLT seeding
     decodePhaseIL1 = False            # Decode L1 RoIs from Run-3 L1 systems through L1TriggerResult for HLT seeding
 #Individual slice flags
@@ -95,7 +96,8 @@ if opt.doEmptyMenu is True:
             setattr(opt, s, False)
 else:
     for s in slices:
-        setattr(opt, s, True)
+        if s in globals():
+            setattr(opt, s, globals()[s])
 
 # Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT
 # This is temporary and will be re-worked for after M3.5
@@ -190,7 +192,6 @@ setModifiers = ['noLArCalibFolders',
                 #'enableCoherentPS',
                 'useOracle',
                 'enableHotIDMasking',
-                'openThresholdRPCCabling',
 ]
 
 if globalflags.DataSource.is_geant4():  # MC modifiers
@@ -217,12 +218,6 @@ else:           # More data modifiers
                      #'L1TopoCheck',
                      'forceTileRODMap',
     ]
-
-#make some more common trig cost operations easier to setup
-if opt.enableCostD3PD:
-    enableCostMonitoring = True # This goes without saying!
-    enableCostForCAF = True # This sets the cost mon to monitor every event and always export the data.
-
 
 TriggerFlags.doID = opt.doID
 TriggerFlags.doMuon = opt.doMuon
@@ -368,6 +363,20 @@ if TriggerFlags.doMuon():
 
     include ("MuonRecExample/MuonRecLoadTools.py")
 
+# ---------------------------------------------------------------
+# ID conditions
+# ---------------------------------------------------------------
+
+if TriggerFlags.doID:
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    InDetTrigFlags.doPixelClusterSplitting = False
+
+    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
+    from AthenaCommon.Include import include
+    include("InDetRecExample/InDetRecConditionsAccess.py")
+
+
+
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
@@ -379,6 +388,7 @@ if globalflags.InputFormat.is_pool():
     if TriggerFlags.doTransientByteStream():
         log.info("setting up transient BS")
         include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
+        
      
 # ----------------------------------------------------------------
 # ByteStream input
@@ -432,10 +442,15 @@ if opt.doL1Unpacking:
     if globalflags.InputFormat.is_bytestream() or opt.doL1Sim:
         from L1Decoder.L1DecoderConfig import L1Decoder
         l1decoder = L1Decoder("L1Decoder")
+        l1decoder.ctpUnpacker.ForceEnableAllChains = opt.forceEnableAllChains
         if not opt.decodeLegacyL1:
             l1decoder.RoIBResult = ""
         if not opt.decodePhaseIL1:
             l1decoder.L1TriggerResult = ""
+        if TriggerFlags.doTransientByteStream():
+            transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
+            l1decoder.ExtraInputs += [transTypeKey]
+
         topSequence += l1decoder
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
@@ -480,19 +495,6 @@ if not opt.createHLTMenuExternally:
     from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
     createHLTPrescalesFileFromMenu()
 
-
-
-# ---------------------------------------------------------------
-# ID conditions
-# ---------------------------------------------------------------
-
-if TriggerFlags.doID:
-    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-    InDetTrigFlags.doPixelClusterSplitting = False
-  
-    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
-    from AthenaCommon.Include import include
-    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 
 # ---------------------------------------------------------------
@@ -581,18 +583,7 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
 #-------------------------------------------------------------
 # Non-ComponentAccumulator Cost Monitoring
 #-------------------------------------------------------------
-from AthenaCommon.AppMgr import ServiceMgr
-from TrigCostMonitorMT.TrigCostMonitorMTConf import TrigCostMTAuditor, TrigCostMTSvc
-
-# This should be temporary, it is doing the same job as TrigCostMonitorMTConfig but without using a ComponentAccumulator
-if ConfigFlags.Trigger.CostMonitoring.doCostMonitoring:
-    trigCostService = TrigCostMTSvc()
-    trigCostService.MonitorAllEvents = ConfigFlags.Trigger.CostMonitoring.monitorAllEvents
-    trigCostService.SaveHashes = True # This option will go away once the TrigConfigSvc is fully up & running
-    ServiceMgr += trigCostService
-    #
-    ServiceMgr.AuditorSvc += TrigCostMTAuditor()
-    theApp.AuditAlgorithms=True
+include("TrigCostMonitorMT/TrigCostMonitorMT_jobOptions.py")
 
 #-------------------------------------------------------------
 # Debugging for view cross-dependencies

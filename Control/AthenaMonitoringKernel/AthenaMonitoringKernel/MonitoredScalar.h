@@ -71,7 +71,7 @@ namespace Monitored {
     T operator--() { return --m_value; }
     T operator--(int) { return m_value--; }
 
-    const std::vector<double> getVectorRepresentation() const override {
+    std::vector<double> getVectorRepresentation() const override {
       return { convertToDouble( m_value, m_valueTransform, m_valueGenerator ) };
     }
 
@@ -83,6 +83,10 @@ namespace Monitored {
       return std::is_constructible<std::string, T>::value;
     }
 
+    virtual size_t size() const override {
+      return 1;
+    }
+    
   private:
     T m_value;
     std::function<double(const T&)> m_valueTransform;

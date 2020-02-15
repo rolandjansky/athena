@@ -363,6 +363,9 @@ if InDetFlags.doPattern():
     #
     if not InDetFlags.doDBMstandalone():
         InDetTRTDetElementsRoadMaker =  TrackingCommon.getInDetTRT_RoadMaker()
+        from InDetRecExample.TrackingCommon import getTRT_DetElementsRoadCondAlg
+        createAndAddCondAlg(getTRT_DetElementsRoadCondAlg,'TRT_DetElementsRoadCondAlg_xk')
+
         if (InDetFlags.doPrintConfigurables()):
             printfunc (     InDetTRTDetElementsRoadMaker)
 
@@ -630,8 +633,12 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     # --- load Configured Annealing Maker
     #
     from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__DetAnnealingMaker
-    InDetAnnealingMaker = Trk__DetAnnealingMaker(name = "InDetAnnealingMaker",
-                                                 SetOfTemperatures = [64.,16.,4.,2.,1.5,1.]) # not default
+    if(InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding'):
+      InDetAnnealingMaker = Trk__DetAnnealingMaker(name = "InDetAnnealingMaker",
+                                                   SetOfTemperatures = [8.,4.,2.,1.4142136,1.2247449,1.]) # 'standard' annealing temps raised to 0.5
+    else:
+      InDetAnnealingMaker = Trk__DetAnnealingMaker(name = "InDetAnnealingMaker",
+                                                   SetOfTemperatures = [64.,16.,4.,2.,1.5,1.]) # not default
     ToolSvc += InDetAnnealingMaker
     if (InDetFlags.doPrintConfigurables()):
       printfunc (InDetAnnealingMaker)
@@ -923,6 +930,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                     TrackSelector     = InDetTrackSelectorTool,
                                                                     useBeamConstraint = InDetFlags.useBeamConstraint(),
                                                                     selectiontype     = 0,
+								    TracksMaxZinterval = 3,#mm 
                                                                     do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
 
   elif InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding':

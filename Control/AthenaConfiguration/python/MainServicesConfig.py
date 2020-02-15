@@ -18,6 +18,7 @@ def MainServicesMiniCfg(loopMgr='AthenaEventLoopMgr', masterSequence='AthAlgSeq'
     cfg.setAppProperty('JobOptionsType', 'NONE')
     cfg.setAppProperty('JobOptionsPostAction', '')
     cfg.setAppProperty('JobOptionsPreAction', '')
+    cfg.setAppProperty('PrintAlgsSequence', True)
     return cfg
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -65,7 +66,7 @@ def MainServicesThreadedCfg(cfgFlags):
         cfg.addSequence(AthSequencer('AthCondSeq',StopOverride=True),parentName='AthAllAlgSeq')
 
     cfg.addSequence(AthSequencer('AthEndSeq',Sequential=True),parentName='AthAlgEvtSeq') 
-
+    cfg.setAppProperty('PrintAlgsSequence', True)
     
     #Set up incident firing:
     AthIncFirerAlg=CompFactory.AthIncFirerAlg

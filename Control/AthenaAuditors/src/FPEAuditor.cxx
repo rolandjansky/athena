@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // FPEAuditor.cxx 
@@ -153,47 +153,30 @@ void FPEAuditor::UninstallHandler()
   // fedisableexcept (FE_ALL_EXCEPT);
 }
 
-void FPEAuditor::beforeInitialize(INamedInterface* /*comp*/)
+void FPEAuditor::before(StandardEventType evt, INamedInterface*)
 {
   add_fpe_node();
-}
 
-void FPEAuditor::afterInitialize(INamedInterface* comp)
-{
-  //ATH_MSG_INFO("<== ini [" << comp->name() << "]");
-  static const std::string step = "initialize";
-  report_fpe(step, comp->name());
-  pop_fpe_node();
-
-  FPEAudit::lock_t lock (FPEAudit::s_mutex);
-  // CoreDumpSvc can also install a FPE handler, grrr.
-  if (comp->name() == "CoreDumpSvc") FPEAudit::s_handlerInstalled = false;
-  if ( m_NstacktracesOnFPE && ! FPEAudit::s_handlerInstalled )
-    {
-      InstallHandler();
-      m_nexceptions = m_NstacktracesOnFPE;
+  if ( evt==IAuditor::Execute ) {
+    if ( m_NstacktracesOnFPE && ! FPEAudit::s_handlerInstalled ) {
+      FPEAudit::lock_t lock (FPEAudit::s_mutex);
+      if ( m_NstacktracesOnFPE && ! FPEAudit::s_handlerInstalled ) {
+        InstallHandler();
+        m_nexceptions = m_NstacktracesOnFPE;
+      }
     }
-
+  }
 }
 
-void FPEAuditor::beforeReinitialize(INamedInterface* /*comp*/)
+void FPEAuditor::after(StandardEventType evt, INamedInterface* comp, const StatusCode&)
 {
-  add_fpe_node();
-}
-
-void FPEAuditor::afterReinitialize( INamedInterface* comp)
-{
-  static const std::string step = "reinitialize";
-  report_fpe(step, comp->name());
+  report_fpe(toStr(evt), comp->name());
   pop_fpe_node();
-}
 
-void FPEAuditor::beforeExecute(INamedInterface* /*comp*/)
-{
-  add_fpe_node();
-
-  if ( m_NstacktracesOnFPE && ! FPEAudit::s_handlerInstalled ) {
+  if ( evt==IAuditor::Initialize ) {
     FPEAudit::lock_t lock (FPEAudit::s_mutex);
+    // CoreDumpSvc can also install a FPE handler, grrr.
+    if (comp->name() == "CoreDumpSvc") FPEAudit::s_handlerInstalled = false;
     if ( m_NstacktracesOnFPE && ! FPEAudit::s_handlerInstalled ) {
       InstallHandler();
       m_nexceptions = m_NstacktracesOnFPE;
@@ -201,27 +184,7 @@ void FPEAuditor::beforeExecute(INamedInterface* /*comp*/)
   }
 }
 
-void FPEAuditor::afterExecute( INamedInterface* comp, 
-			       const StatusCode& ) 
-{
-  static const std::string step = "execute";
-  report_fpe(step, comp->name());
-  pop_fpe_node();
-}
-
-void FPEAuditor::beforeFinalize(INamedInterface* /*comp*/)
-{
-  add_fpe_node();
-}
-
-void FPEAuditor::afterFinalize(INamedInterface* comp)
-{
-  static const std::string step = "finalize";
-  report_fpe(step, comp->name());
-  pop_fpe_node();
-}
-
-void FPEAuditor::before(CustomEventTypeRef /*evt*/, 
+void FPEAuditor::before(CustomEventTypeRef /*evt*/,
 			const std::string& /*caller*/)
 {
   add_fpe_node();

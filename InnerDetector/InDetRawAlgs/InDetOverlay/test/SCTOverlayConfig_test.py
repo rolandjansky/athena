@@ -8,12 +8,12 @@ import sys
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
 from OverlayConfiguration.OverlayTestHelpers import \
-    CommonTestArgumentParser, postprocessAndLockFlags, printAndRun
+    CommonTestArgumentParser, defaultTestFlags, postprocessAndLockFlags, printAndRun
 from OverlayCopyAlgs.OverlayCopyAlgsConfig import CopyMcEventCollectionCfg
+from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoOverlayCfg
 
 # Configure
 Configurable.configurableRun3Behavior = True
@@ -23,20 +23,15 @@ parser = CommonTestArgumentParser("SCTOverlayConfig_test.py")
 args = parser.parse_args()
 
 # Configure
-ConfigFlags.Input.Files = defaultTestFiles.RDO_BKG
-ConfigFlags.Input.SecondaryFiles = defaultTestFiles.HITS
-ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
-ConfigFlags.Overlay.DataOverlay = False
-ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
-ConfigFlags.Output.RDO_SGNLFileName = "myRDO_SGNL.pool.root"
-
+defaultTestFlags(ConfigFlags, args)
 postprocessAndLockFlags(ConfigFlags, args)
 
 # Construct our accumulator to run
 acc = MainServicesThreadedCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 
-# Add truth overlay (needed downstream)
+# Add event and truth overlay (needed downstream)
+acc.merge(EventInfoOverlayCfg(ConfigFlags))
 acc.merge(CopyMcEventCollectionCfg(ConfigFlags))
 
 # Add SCT overlay

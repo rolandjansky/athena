@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+/**
+ * @file PixelDigitization/PixelDigitizationTool.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date January, 2020
+ * @brief Handle pixel digitization
+ */
 
-///////////////////////////////////////////////////////////////////
-// PixelDigitizationTool.h
-//   Header file for class PixelDigitizationTool
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 #ifndef PIXELDIGITIZATION_PIXELDIGITIZATIONTOOL_H
 #define PIXELDIGITIZATION_PIXELDIGITIZATIONTOOL_H
 
@@ -85,7 +85,7 @@ class PixelDigitizationTool : public PileUpToolBase {
     ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
     ServiceHandle <PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
 
-    Gaudi::Property<bool>          m_createNoiseSDO{this, "CreateNoiseSDO",   false,  "Set create noise SDO flag"};
+    Gaudi::Property<bool> m_createNoiseSDO{this, "CreateNoiseSDO",   false,  "Set create noise SDO flag"};
 
 };
 

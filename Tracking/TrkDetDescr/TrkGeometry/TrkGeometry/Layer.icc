@@ -1,0 +1,238 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+
+inline const SurfaceArray *Layer::surfaceArray() const {
+  return m_surfaceArray;
+}
+
+inline double Layer::thickness() const { return m_layerThickness; }
+
+template <class T>
+bool Layer::onLayer(const T &pars, const BoundaryCheck &bcheck) const {
+  // simple check first .. compare surfaces if parameters are AtaSurface
+  if (pars.type() == AtaSurface) {
+    // surface based association
+    if (&pars.associatedSurface() == &surfaceRepresentation())
+      return (bcheck ? surfaceRepresentation().insideBoundsCheck(
+                           pars.localPosition(), bcheck)
+                     : true);
+    // layer based association
+    if ((pars.associatedSurface().associatedLayer() == this) && !bcheck)
+      return true;
+  }
+  return isOnLayer(pars.position(), bcheck);
+}
+
+/** returns all Compatible surfaces with given BoundaryCheck */
+template <class T>
+size_t Layer::getCompatibleSurfaces(std::vector<SurfaceIntersection> &cSurfaces,
+                                    const T &pars, PropDirection pDir,
+                                    const BoundaryCheck &bcheck,
+                                    bool materialSurfacesOnly,
+                                    const Surface *startSurface,
+                                    const Surface *endSurface,
+                                    const ICompatibilityEstimator *) const {
+  // fast exit - nothing to do
+  if (!m_surfaceArray || !m_overlapDescriptor)
+    return 0;
+
+  // position and momentum/dir
+  const Amg::Vector3D &pos = pars.position();
+  const Amg::Vector3D dir = (pDir == oppositeMomentum)
+                                ? Amg::Vector3D(-1. * pars.momentum().unit())
+                                : pars.momentum().unit();
+
+  // check if you need to force the momentum direction
+  bool fDirection = (pDir == anyDirection ? false : true);
+
+  // check if you have to stop at the endSurface
+  double maxPathLength = 10e10;
+  if (endSurface) {
+    // intersect the end surface
+    Intersection endInter =
+        endSurface->straightLineIntersection(pos, dir, fDirection, bcheck);
+    // non-valid intersection with the end surface provided at this layer
+    // indicates wrong direction or faulty setup
+    // -> do not return compatible surfaces since they may lead you on a wrong
+    // navigation path
+    if (endInter.valid && endInter.pathLength > 0.)
+      maxPathLength = endInter.pathLength;
+    else
+      return 0;
+  }
+
+  // clear the vector, just in case
+  cSurfaces.clear();
+
+  // create a new for for the moment because there are two different modes:
+  // - the layer does the intersection already
+  // - you do the intersection
+  // !< TODO harmonise this
+  std::vector<SurfaceIntersection> testSurfaces;
+
+  // get the main target surface
+  const Surface *tSurface = subSurface(pos);
+  //!< @TODO allow also a 0 target in the future
+  if (tSurface) {
+    // get the reachable surfaces, the target surface will be added
+    bool acceptSurfaces = m_overlapDescriptor->reachableSurfaces(
+        testSurfaces, *tSurface, pos, dir);
+    // boolean said you can directly take the surfaces from the reachable
+    // surfaces
+    if (acceptSurfaces) {
+      // no start nor end surface is given - accept totally if not configured to
+      // only collect material surfaces
+      if (!startSurface && !endSurface && !materialSurfacesOnly)
+        cSurfaces = testSurfaces;
+      else { // endSurface was given - check for maxPathLength && endSurface
+        for (auto &tSurface : testSurfaces) {
+          // exclude the startSurface and endSurface from this loop
+          if (tSurface.object == endSurface || tSurface.object == startSurface)
+            continue;
+          // accept if in path range
+          if (tSurface.intersection.pathLength < maxPathLength &&
+              (!materialSurfacesOnly || tSurface.object->materialLayer()))
+            cSurfaces.push_back(tSurface);
+        }
+      }
+    } else if (!testSurfaces.empty()) {
+      for (auto &tSurface : testSurfaces) {
+        // exclude the endSurface
+        if (tSurface.object == endSurface || tSurface.object == startSurface)
+          continue;
+        // minimize the computational cost
+        Intersection tsfInter = tSurface.object->straightLineIntersection(
+            pos, dir, fDirection, false);
+        // check if the intersection is valid and the maxPathLength has not been
+        // exceeded
+        if (tsfInter.valid && tsfInter.pathLength < maxPathLength) {
+          // resulting propDirection
+          PropDirection rDir =
+              fDirection ? pDir
+                         : (tsfInter.pathLength > 0 ? alongMomentum
+                                                    : oppositeMomentum);
+          // and the surfaces & direction to push back - take only material
+          // surfaces if configured to do so
+          if (!materialSurfacesOnly || tSurface.object->materialLayer())
+            cSurfaces.emplace_back(tsfInter, tSurface.object, rDir);
+        }
+      }
+    }
+  }
+  // the layer surface itself is a testSurface - if there's material
+  const Surface *layerSurface = &surfaceRepresentation();
+  if (layerMaterialProperties() && layerSurface != startSurface &&
+      layerSurface != endSurface) {
+    // self intersection
+    Intersection lInter = surfaceRepresentation().straightLineIntersection(
+        pos, dir, fDirection, bcheck);
+    // allow only if it is in the maximal path length
+    if (lInter.valid && lInter.pathLength < maxPathLength)
+      cSurfaces.emplace_back(lInter, layerSurface, pDir);
+  }
+  // now sort it
+  std::sort(cSurfaces.begin(), cSurfaces.end());
+  // return
+  return cSurfaces.size();
+}
+
+inline const LayerMaterialProperties *Layer::layerMaterialProperties() const {
+  return m_layerMaterialProperties.get();
+}
+
+inline const OverlapDescriptor *Layer::overlapDescriptor() const {
+  return m_overlapDescriptor;
+}
+/** set the previous Layer*/
+inline void Layer::setPreviousLayer(const Layer *in) { m_previousLayer = in; }
+/** set the previous Layer const not const thread safe*/
+inline void Layer::setPreviousLayer
+ATLAS_NOT_THREAD_SAFE(const Layer * in) const {
+  const_cast<Layer *>(this)->setPreviousLayer(in);
+}
+
+/** set the next Layer*/
+inline void Layer::setNextLayer(const Layer *in) { m_nextLayer = in; }
+/** set the next Layer const not const thread safe*/
+inline void Layer::setNextLayer
+ATLAS_NOT_THREAD_SAFE(const Layer *in) const {
+  const_cast<Layer *>(this)->setNextLayer(in);
+}
+
+/** access the BinUtility*/
+inline const BinUtility *Layer::binUtility() const { return m_binUtility; }
+/** set the BinUtility*/
+inline void Layer::setBinUtility(const BinUtility *in) { m_binUtility = in; }
+/** set the BinUtility const not const thread safe*/
+inline void Layer::setBinUtility
+ATLAS_NOT_THREAD_SAFE(const BinUtility *in) const {
+  const_cast<Layer *>(this)->setBinUtility(in);
+}
+
+inline const TrackingVolume *Layer::enclosingTrackingVolume() const {
+  return m_enclosingTrackingVolume;
+}
+inline void Layer::encloseTrackingVolume(const TrackingVolume &tvol) {
+  m_enclosingTrackingVolume = &(tvol);
+}
+inline void Layer::encloseTrackingVolume
+ATLAS_NOT_THREAD_SAFE(const TrackingVolume &tvol) const {
+  const_cast<Layer *>(this)->encloseTrackingVolume(tvol);
+}
+
+inline const DetachedTrackingVolume *
+Layer::enclosingDetachedTrackingVolume() const {
+  return m_enclosingDetachedTrackingVolume;
+}
+inline void
+Layer::encloseDetachedTrackingVolume(const DetachedTrackingVolume &tvol) {
+  m_enclosingDetachedTrackingVolume = &(tvol);
+}
+inline void Layer::encloseDetachedTrackingVolume
+ATLAS_NOT_THREAD_SAFE(const DetachedTrackingVolume &tvol) const {
+  const_cast<Layer *>(this)->encloseDetachedTrackingVolume(tvol);
+}
+
+inline const LayerIndex &Layer::layerIndex() const { return m_index; }
+
+inline int Layer::layerType() const { return m_layerType; }
+inline void Layer::setLayerType(int id) { m_layerType = id; }
+inline void Layer::setLayerType ATLAS_NOT_THREAD_SAFE(int id) const {
+  const_cast<Layer *>(this)->setLayerType(id);
+}
+
+inline void Layer::assignMaterialProperties
+ATLAS_NOT_THREAD_SAFE(const LayerMaterialProperties &layerMaterialProp,
+                            double scale) const {
+  const_cast<Layer *>(this)->assignMaterialProperties(layerMaterialProp, scale);
+}
+
+inline const Volume *Layer::representingVolume() const {
+  return m_representingVolume;
+}
+inline void Layer::registerRepresentingVolume(const Volume *theVol) {
+  m_representingVolume = theVol;
+}
+inline void Layer::registerRepresentingVolume
+ATLAS_NOT_THREAD_SAFE(const Volume *theVol) const {
+  const_cast<Layer *>(this)->registerRepresentingVolume(theVol);
+}
+
+inline void Layer::registerLayerIndex(const LayerIndex &lIdx) {
+  m_index = lIdx;
+}
+inline void Layer::registerLayerIndex
+ATLAS_NOT_THREAD_SAFE(const LayerIndex &lIdx) const {
+  const_cast<Layer *>(this)->registerLayerIndex(lIdx);
+}
+
+inline double Layer::getRef() const { return m_ref; }
+inline void Layer::setRef(double x) { m_ref = x; }
+inline void Layer::setRef ATLAS_NOT_THREAD_SAFE(double x) const {
+  const_cast<Layer *>(this)->setRef(x);
+}
+
+} // namespace Trk

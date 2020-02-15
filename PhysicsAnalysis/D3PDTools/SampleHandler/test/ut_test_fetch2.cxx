@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          
@@ -33,7 +33,7 @@
 /// failures: out of memory II
 void addSample (SH::SampleHandler& sh, const std::string& name)
 {
-  std::auto_ptr<SH::SampleGrid> sample (new SH::SampleGrid (name));
+  std::unique_ptr<SH::SampleGrid> sample (new SH::SampleGrid (name));
   sample->meta()->setString (SH::MetaFields::gridName, name);
   sample->meta()->setString (SH::MetaFields::gridFilter, SH::MetaFields::gridFilter_default);
   sh.add (sample.release());
@@ -41,6 +41,9 @@ void addSample (SH::SampleHandler& sh, const std::string& name)
 
 int main ()
 {
+  // disabled right now
+  return EXIT_SUCCESS;
+
   if (getenv ("ROOTCORE_AUTO_UT") != 0)
     return EXIT_SUCCESS;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/lwtnn/parse_json.h"
@@ -9,7 +9,9 @@
 #include <cassert>
 #include <string>
 #include <cmath> // for NAN
-#include <iostream>
+#include <set>
+
+#include<iostream>
 
 namespace {
   using namespace boost::property_tree;
@@ -27,6 +29,7 @@ namespace {
   void add_dense_info(LayerConfig& lc, const ptree::value_type& pt);
   void add_maxout_info(LayerConfig& lc, const ptree::value_type& pt);
   void add_component_info(LayerConfig& lc, const ptree::value_type& pt);
+  void add_bidirectional_info(LayerConfig& lc, const ptree::value_type& pt);
   void add_embedding_info(LayerConfig& lc, const ptree::value_type& pt);
 
   std::map<std::string, double> get_defaults(const ptree& ptree);
@@ -111,19 +114,17 @@ namespace {
     return cfg;
   }
 
+  const std::set<NodeConfig::Type> layerless_nodes {
+    NodeConfig::Type::CONCATENATE, NodeConfig::Type::SUM };
   NodeConfig get_node(const ptree::value_type& v) {
     NodeConfig cfg;
 
-    for (const auto& sources: v.second.get_child("sources")) {
-      const std::string idxaux = sources.first;
-      cfg.sources[idxaux] = {};
-      for (const auto& source: sources.second){
-        int source_number = source.second.get_value<int>();
-        if (source_number < 0) {
-          throw std::logic_error("node source number must be positive");
-        }
-        cfg.sources[idxaux].push_back(source_number);
+    for (const auto& source: v.second.get_child("sources")) {
+      int source_number = source.second.get_value<int>();
+      if (source_number < 0) {
+        throw std::logic_error("node source number must be positive");
       }
+      cfg.sources.push_back(source_number);
     }
 
     cfg.type = get_node_type(v.second.get<std::string>("type"));
@@ -133,7 +134,7 @@ namespace {
     } else if (cfg.type == Type::FEED_FORWARD || cfg.type == Type::SEQUENCE ||
                cfg.type == Type::TIME_DISTRIBUTED) {
       cfg.index = v.second.get<int>("layer_index");
-    } else if (cfg.type == Type::CONCATENATE){
+    } else if (layerless_nodes.count(cfg.type)){
       cfg.index = -1;
     } else {
       throw std::logic_error("unknown node type");
@@ -160,6 +161,7 @@ namespace {
     if (type == "input_sequence") return Type::INPUT_SEQUENCE;
     if (type == "concatenate") return Type::CONCATENATE;
     if (type == "time_distributed") return Type::TIME_DISTRIBUTED;
+    if (type == "sum") return Type::SUM;
     throw std::logic_error("no node type '" + type + "'");
   }
 
@@ -180,6 +182,8 @@ namespace {
                arch == Architecture::GRU ||
                arch == Architecture::HIGHWAY) {
       add_component_info(layer, v);
+    } else if (arch == Architecture::BIDIRECTIONAL) {
+      add_bidirectional_info(layer, v);
     } else if (arch == Architecture::EMBEDDING) {
       add_embedding_info(layer, v);
     } else {
@@ -221,6 +225,7 @@ namespace {
     if (str == "elu") return Activation::ELU;
     if (str == "leakyrelu") return Activation::LEAKY_RELU;
     if (str == "swish") return Activation::SWISH;
+    if (str == "abs") return Activation::ABS;
     throw std::logic_error("activation function " + str + " not recognized");
     return Activation::LINEAR;
   }
@@ -234,6 +239,7 @@ namespace {
     if (str == "maxout") return Architecture::MAXOUT;
     if (str == "lstm") return Architecture::LSTM;
     if (str == "gru") return Architecture::GRU;
+    if (str == "bidirectional") return Architecture::BIDIRECTIONAL;
     if (str == "embedding") return Architecture::EMBEDDING;
     throw std::logic_error("architecture " + str + " not recognized");
   }
@@ -296,12 +302,38 @@ namespace {
       layer.components[component_map.at(comp.first)] = cfg;
     }
     layer.activation = get_activation(v.second.get_child("activation"));
+    layer.go_backwards = false; 
+    if (v.second.count("return_sequence") != 0)
+      layer.return_sequence = v.second.get<bool>("return_sequence"); 
+    if (v.second.count("go_backwards") != 0)
+      layer.go_backwards = v.second.get<bool>("go_backwards"); 
     if (v.second.count("inner_activation") != 0) {
       layer.inner_activation = get_activation(
         v.second.get_child("inner_activation"));
     }
   }
 
+  void add_bidirectional_info(LayerConfig& layer, const ptree::value_type& v) {
+    using namespace lwtDev;
+    set_defaults(layer);
+    LayerConfig forward_layer;
+    LayerConfig backward_layer;
+    for(auto val: v.second){
+      if(val.first == "forward_layer"){
+        add_component_info(forward_layer, val);
+        forward_layer.architecture = get_architecture(val.second.get<std::string>("architecture"));
+      }
+      if(val.first == "backward_layer"){
+        add_component_info(backward_layer, val);
+        backward_layer.architecture = get_architecture(val.second.get<std::string>("architecture"));
+      }
+    }
+    layer.sublayers.push_back(forward_layer);
+    layer.sublayers.push_back(backward_layer);
+    layer.return_sequence = v.second.get<bool>("return_sequence"); 
+    layer.merge_mode = v.second.get<std::string>("merge_mode");
+    layer.architecture = Architecture::BIDIRECTIONAL;
+  }
 
   void add_embedding_info(LayerConfig& layer, const ptree::value_type& v) {
     using namespace lwtDev;
@@ -323,7 +355,7 @@ namespace {
     // default values.
     if (pt.count(dname)) {
       for (const auto& def: pt.get_child(dname)) {
-        defaults.emplace(def.first, def.second.get_value<double>());
+        defaults.emplace(def.first, def.second.get_value <double>());
       }
     } else {
       const std::string dkey = "default";

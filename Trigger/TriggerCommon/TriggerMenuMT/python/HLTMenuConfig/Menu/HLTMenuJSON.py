@@ -11,10 +11,13 @@ def __getStepsDataFromAlgSequence(HLTAllSteps):
     """ Generates a list where the index corresponds to a Step number and the stored object is a list of Sequencers making up the Step 
     """
     stepsData = []
-    for HLTStep in HLTAllSteps.getChildren():
-        if "HLTAllSteps_Step" not in HLTStep.name(): # Avoid the pre-step Filter execution
-            continue
-        stepsData.append( HLTStep.getChildren() )
+    if HLTAllSteps is not None:
+        for HLTStep in HLTAllSteps.getChildren():
+            if "_reco" not in HLTStep.name(): # Avoid the pre-step Filter execution
+                continue
+            stepsData.append( HLTStep.getChildren() )
+    else:
+        __log.warn( "No HLTAllSteps sequencer, will not export per-Step data for chains.")
     return stepsData
 
 def __getChainSequencers(stepsData, chainName):
@@ -36,6 +39,8 @@ def __getChainSequencers(stepsData, chainName):
                 mySequencer = sequencer
         if mySequencer is None:
             endOfChain = True
+            if counter == 1 and  'noalg' not in chainName:
+                __log.warn("No Filter found for %s in Step 1", chainName)
         else:
             if endOfChain is True:
                 __log.error( "Found another Step, (Step %i) for chain %s "
@@ -48,18 +53,18 @@ def __getSequencerAlgs(stepsData):
     """ For each Sequencer in each Step, return a flat list of the full name of all Algorithms under the Sequencer
     """
     from AthenaCommon.CFElements import findAllAlgorithms
-    sequencerAlgs = {}
+    sequencerAlgs = odict()
     for step in stepsData:
         for sequencer in step:
             sequencerAlgs[ sequencer.name() ] = list(map(lambda x: x.getFullName(), findAllAlgorithms(sequencer)))
-    return sequencerAlgs
+    return sorted(sequencerAlgs.items(), key=lambda t: t[0])
 
 def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
     """ Generates JSON given the ChainProps and sequences
     """
-    menuDict = odict([ ("filetype", "hltmenu"), ("name", menuName), ("chains", []), ("sequencers", []) ])
+    menuDict = odict([ ("filetype", "hltmenu"), ("name", menuName), ("chains", []), ("sequencers", odict()) ])
 
-    # Dictionary of { Step Number: { Filter: Sequencer } }
+    # List of steps data
     stepsData = __getStepsDataFromAlgSequence(HLTAllSteps)
 
     from TriggerMenuMT.HLTMenuConfig.Menu import StreamInfo
@@ -89,7 +94,7 @@ def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
         menuDict["chains"].append( chainDict )
 
     # All algorithms executed by a given Sequencer
-    menuDict["sequencers"].append( __getSequencerAlgs(stepsData) )
+    menuDict["sequencers"].update( __getSequencerAlgs(stepsData) )
 
     __log.info( "Writing trigger menu to %s", fileName )
     with open( fileName, 'w' ) as fp:

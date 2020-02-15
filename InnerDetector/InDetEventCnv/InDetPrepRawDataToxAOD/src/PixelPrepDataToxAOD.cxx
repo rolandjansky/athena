@@ -17,7 +17,7 @@
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"

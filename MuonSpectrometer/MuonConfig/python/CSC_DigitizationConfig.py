@@ -1,12 +1,12 @@
 """Define methods to construct configured CSC Digitization tools and algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
+from MuonConfig.MuonCondAlgConfig import CscCondDbAlgCfg
 CscDigitizationTool, CscDigitBuilder=CompFactory.getComps("CscDigitizationTool","CscDigitBuilder",)
 PileUpXingFolder=CompFactory.PileUpXingFolder
 from MuonConfig.MuonByteStreamCnvTestConfig import CscDigitToCscRDOCfg, CscOverlayDigitToCscRDOCfg
@@ -83,7 +83,7 @@ def CSC_OutputCfg(flags):
 def CSC_DigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator for CSC digitization"""
     acc = MuonGeoModelCfg(flags)
-    acc.merge(CscCoolStrSvcCfg(flags))
+    acc.merge(CscCondDbAlgCfg(flags))
     if "PileUpTools" not in kwargs:
         PileUpTools = acc.popToolsAndMerge(CSC_DigitizationToolCfg(flags))
         kwargs["PileUpTools"] = PileUpTools
@@ -94,7 +94,7 @@ def CSC_DigitizationBasicCfg(flags, **kwargs):
 def CSC_OverlayDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator with CSC Overlay digitization"""
     acc = MuonGeoModelCfg(flags)
-    acc.merge(CscCoolStrSvcCfg(flags))
+    acc.merge(CscCondDbAlgCfg(flags))
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(CSC_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool

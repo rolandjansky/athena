@@ -100,7 +100,7 @@ def splitChainDict(chainDict):
 
 def splitChainInDict(chainName):
       from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
-      from DecisionHandling.TrigCompositeUtils import legName
+      from TrigCompositeUtils.TrigCompositeUtils import legName
       chainDict = TriggerConfigHLT.getChainDictFromChainName(chainName)
       if len(chainDict['chainParts']) ==1:
         return [chainDict]

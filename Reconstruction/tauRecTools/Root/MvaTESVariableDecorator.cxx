@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // local include(s)
@@ -10,8 +10,6 @@
 //_____________________________________________________________________________
 MvaTESVariableDecorator::MvaTESVariableDecorator(const std::string& name) 
   : TauRecToolBase(name) 
-  , m_mu(0)
-  , m_nVtxPU(0)
 {
 }
 
@@ -29,42 +27,7 @@ StatusCode MvaTESVariableDecorator::initialize(){
   return StatusCode::SUCCESS;
 }
 
-//_____________________________________________________________________________
-StatusCode MvaTESVariableDecorator::eventInitialize()
-{
-  // need to check mu can be retrieved via EventInfo for Run3 trigger
-  SG::ReadHandle<xAOD::EventInfo> eventinfoInHandle( m_eventInfo );
-  if (!eventinfoInHandle.isValid()) {
-    ATH_MSG_ERROR( "Could not retrieve HiveDataObj with key " << eventinfoInHandle.key() << ", will set mu=0.");
-    m_mu = 0.;
-  }
-  else {
-    const xAOD::EventInfo* eventInfo = eventinfoInHandle.cptr();    
-    m_mu = eventInfo->averageInteractionsPerCrossing();
-  } 
-
-  m_nVtxPU = 0;
-  if(!m_vertexInputContainer.key().empty()) {
-    // Get the primary vertex container from StoreGate
-    SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
-    if (!vertexInHandle.isValid()) {
-      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
-      if(m_emitVertexWarning) {
-	ATH_MSG_WARNING("No xAOD::VertexContainer, setting nVtxPU to 0");
-	m_emitVertexWarning=false;
-      }
-      // return StatusCode::FAILURE;
-    }
-    else {
-      const xAOD::VertexContainer* vertexContainer = vertexInHandle.cptr();
-      ATH_MSG_VERBOSE("  read: " << vertexInHandle.key() << " = " << "..." );
-      for (auto xVertex : *vertexContainer){
-	if (xVertex->vertexType() == xAOD::VxType::PileUp)
-	  m_nVtxPU++;
-      }
-    }
-  }
-
+StatusCode MvaTESVariableDecorator::finalize() {
   return StatusCode::SUCCESS;
 }
 
@@ -72,12 +35,39 @@ StatusCode MvaTESVariableDecorator::eventInitialize()
 StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   
   // Decorate event info
+  // need to check mu can be retrieved via EventInfo for Run3 trigger
+  int mu = 0;
+  SG::ReadHandle<xAOD::EventInfo> eventinfoInHandle( m_eventInfo );
+  if (!eventinfoInHandle.isValid()) {
+    ATH_MSG_ERROR ( "Could not retrieve HiveDataObj with key " << eventinfoInHandle.key() << ", will set mu=0.");
+    mu = 0.;
+  }
+  else {
+    const xAOD::EventInfo* eventInfo = eventinfoInHandle.cptr();    
+    mu = eventInfo->averageInteractionsPerCrossing();
+  } 
+
+  int nVtxPU = 0;
+  if(!m_vertexInputContainer.key().empty()) {
+    // Get the primary vertex container from StoreGate
+    SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
+    if (!vertexInHandle.isValid()) {
+      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key() << ", will set nVtxPU=0.");
+    }
+    else {
+      const xAOD::VertexContainer* vertexContainer = vertexInHandle.cptr();
+      for (auto xVertex : *vertexContainer){
+	if (xVertex->vertexType() == xAOD::VxType::PileUp)
+	  ++nVtxPU;
+      }
+    }
+  }
   
   SG::AuxElement::Accessor<float> acc_mu("mu");
   SG::AuxElement::Accessor<int> acc_nVtxPU("nVtxPU");
   
-  acc_mu(xTau) = m_mu;
-  acc_nVtxPU(xTau) = m_nVtxPU;
+  acc_mu(xTau) = mu;
+  acc_nVtxPU(xTau) = nVtxPU;
 
   // Decorate jet seed variables
   const xAOD::Jet* jet_seed = xTau.jet();
@@ -167,7 +157,7 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   acc_LeadClusterFrac(xTau) = (float) lead_cluster_frac;
   acc_UpsilonCluster(xTau) = (float) upsilon_cluster;
 
-  if(inTrigger()) {
+  if(m_in_trigger) {
     return StatusCode::SUCCESS;
   }
 
@@ -215,11 +205,5 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   
   xTau.setDetail(xAOD::TauJetParameters::LC_pantau_interpolPt, (float) LC_pantau_interpolPt);
 
-  return StatusCode::SUCCESS;
-}
-
-//_____________________________________________________________________________
-StatusCode MvaTESVariableDecorator::eventFinalize()
-{
   return StatusCode::SUCCESS;
 }

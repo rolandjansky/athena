@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -430,14 +430,19 @@ class TRTTrackExtAlg_EF( InDet__TRT_TrigTrackExtensionAlg ):
       #
       from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadMaker_xk
       InDetTrigTRTDetElementsRoadMaker =  InDet__TRT_DetElementsRoadMaker_xk(name   = 'InDetTrigTRTRoadMaker',
-                                                                             #DetectorStoreLocation = 'DetectorStore',
-                                                                             TRTManagerLocation    = 'TRT',
                                                                              MagneticFieldMode     = 'MapSolenoid',
                                                                              PropagatorTool        = InDetTrigPatternPropagator)
 
       ToolSvc += InDetTrigTRTDetElementsRoadMaker
       if (InDetTrigFlags.doPrintConfigurables()):
          print (     InDetTrigTRTDetElementsRoadMaker)
+
+      # Condition algorithm for InDet__TRT_DetElementsRoadMaker_xk
+      from AthenaCommon.AlgSequence import AthSequencer
+      condSeq = AthSequencer("AthCondSeq")
+      if not hasattr(condSeq, "TRT_DetElementsRoadCondAlg_xk"):
+        from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadCondAlg_xk
+        condSeq += InDet__TRT_DetElementsRoadCondAlg_xk(name = "TRT_DetElementsRoadCondAlg_xk")
 
       # Track extension to TRT tool
       #

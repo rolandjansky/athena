@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Creation: David Cote (DESY), February 2009
 
@@ -23,7 +23,7 @@ def itemIsInList(item,aList):
 
 
 def addToDic(key,StreamName,dicofdic):
-    if not itemIsInList(key,dicofdic.keys()):
+    if not itemIsInList(key,list(dicofdic.keys())):
         dic={}
         dic["StreamName"] = StreamName
         dic["Alg"] = None
@@ -31,7 +31,7 @@ def addToDic(key,StreamName,dicofdic):
     return
 
 def removeFromDic(key,dic):
-    if itemIsInList(key,dic.keys()):
+    if itemIsInList(key,list(dic.keys())):
         dic.pop(key)
     return
 

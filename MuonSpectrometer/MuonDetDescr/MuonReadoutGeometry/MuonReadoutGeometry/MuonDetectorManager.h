@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonDetectorManager_H
@@ -10,6 +10,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoVDetectorManager.h"
+#include "GeoModelKernel/GeoAlignableTransform.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonIdHelpers/TgcIdHelper.h"
@@ -309,8 +310,8 @@ namespace MuonGM {
       {
         NsTgStatType     = 1, /// don't wont to have different array coloumns for different names // using this field to distinguish large=0 and small=1
         NsTgStatTypeOff  = 0, /// relevant only when couplig to identifiers 
-        NsTgStatEta      = 8, /// 4 x 2 sides (-4,-1 and 1,4) 
-        NsTgStEtaOffset  = 4, /// starting from 0-7 
+        NsTgStatEta      = 6, /// 3 x 2 sides (-3,-2,-1 and 1,2,3) 
+        NsTgStEtaOffset  = 3, /// starting from 0-5 
         NsTgStatPhi      = 16, // large and small sector together 
         NsTgChamberLayer = 2
       };    
@@ -318,8 +319,8 @@ namespace MuonGM {
       {
         NMMcStatType     = 1, /// don't wont to have different array coloumns for different names
         NMMcStatTypeOff  = 0, /// relevant only when couplig to identifiers
-        NMMcStatEta      = 8, /// 4 x 2 sides (-4,-1 and 1,4)
-        NMMcStEtaOffset  = 4, /// starting from 0-7
+        NMMcStatEta      = 4, /// 2 x 2 sides (-2,-1 and 1,2)
+        NMMcStEtaOffset  = 2, /// starting from 0-3
         NMMcStatPhi      = 16, // large and small sector together
         NMMcChamberLayer = 2
       };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************************//
@@ -13,11 +13,6 @@
 #include <math.h>
 #include <sstream>
 
-//#include "GaudiKernel/Property.h"
-//#include "FourMomUtils/P4Helpers.h"
-
-//#include "AnalysisUtils/AnalysisMisc.h"
-
 #include "xAODJet/Jet.h"
 #include "xAODTau/TauJet.h"
 
@@ -25,8 +20,6 @@
 #include "tauRecTools/TauSubstructureVariables.h"
 
 #include "tauRecTools/KineUtils.h"
-//#include "CaloUtils/CaloVertexedCluster.h"
-//#include "CaloEvent/CaloVertexedCluster.h"
 
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/SystemOfUnits.h"
@@ -45,13 +38,12 @@ TauSubstructureVariables::TauSubstructureVariables( const std::string& name ) :
 		TauRecToolBase(name),
 		m_maxPileUpCorrection(4 * GeV),
 		m_pileUpAlpha(1.0),
-		m_doVertexCorrection(false), //FF: don't do cell correction by default
+		m_doVertexCorrection(false), 
 		m_inAODmode(false) {
 	declareProperty("maxPileUpCorrection", m_maxPileUpCorrection);
 	declareProperty("pileUpAlpha", m_pileUpAlpha);
 	declareProperty("VertexCorrection", m_doVertexCorrection);
 	declareProperty("inAODmode", m_inAODmode);
-	declareProperty("ConfigPath", m_configPath);
 }
 
 
@@ -76,10 +68,6 @@ StatusCode TauSubstructureVariables::initialize() {
 //***********************************
 
 StatusCode TauSubstructureVariables::finalize() {
-	return StatusCode::SUCCESS;
-}
-
-StatusCode TauSubstructureVariables::eventInitialize() {
 	return StatusCode::SUCCESS;
 }
 
@@ -337,9 +325,7 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	float sumPtTrk(0.0);
 
 	// for tau trigger: JVF and sumPtTrack are not available
-	bool inTrigger = tauEventData()->inTrigger();
-
-	if (!inTrigger)
+	if (!m_in_trigger)
 	{
 		std::vector<float> sumPtTrkvec;
 		std::vector<float> jvfvec;

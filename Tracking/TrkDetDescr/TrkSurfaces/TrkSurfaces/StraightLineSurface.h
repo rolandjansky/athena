@@ -84,7 +84,7 @@ public:
                                                                               double phi,
                                                                               double theta,
                                                                               double qop,
-                                                                              AmgSymMatrix(5) * cov = 0) const override
+                                                                              AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Charged, StraightLineSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
@@ -93,7 +93,7 @@ public:
   virtual ParametersT<5, Charged, StraightLineSurface>* createTrackParameters(const Amg::Vector3D& position,
                                                                               const Amg::Vector3D& momentum,
                                                                               double charge,
-                                                                              AmgSymMatrix(5) * cov = 0) const override
+                                                                              AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Charged, StraightLineSurface>(position, momentum, charge, *this, cov);
   }
@@ -104,7 +104,7 @@ public:
                                                                                 double phi,
                                                                                 double theta,
                                                                                 double qop,
-                                                                                AmgSymMatrix(5) * cov = 0) const override
+                                                                                AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Neutral, StraightLineSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
@@ -113,7 +113,7 @@ public:
   virtual ParametersT<5, Neutral, StraightLineSurface>* createNeutralParameters(const Amg::Vector3D& position,
                                                                                 const Amg::Vector3D& momentum,
                                                                                 double charge,
-                                                                                AmgSymMatrix(5) * cov = 0) const override
+                                                                                AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Neutral, StraightLineSurface>(position, momentum, charge, *this, cov);
   }
@@ -142,7 +142,7 @@ public:
 
   /** Return the measurement frame - this is needed for alignment, in particular for StraightLine and Perigee Surface
       - the default implementation is the the RotationMatrix3D of the transform */
-  virtual const Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos,
+  virtual Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos,
                                                        const Amg::Vector3D& glomom) const override;
 
   /** Return the surface type */

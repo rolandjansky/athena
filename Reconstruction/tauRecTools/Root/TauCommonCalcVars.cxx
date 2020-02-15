@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -14,11 +14,6 @@
 // 16/05/2011: (FF) fix if primaryVertexContainer==NULL (coverity 21734)
 //   Dez 2011: (FF) switch to full LC calibrated tau 4-vector for some variables
 //-----------------------------------------------------------------------------
-//TODO: rename
-
-//#include <GaudiKernel/IToolSvc.h>
-//#include <GaudiKernel/ListItem.h>
-
 #include "tauRecTools/TauEventData.h"
 
 #include "tauRecTools/TauCommonCalcVars.h"
@@ -30,7 +25,6 @@
 
 TauCommonCalcVars::TauCommonCalcVars(const std::string &name) :
 TauRecToolBase(name) {
-    declareProperty("ConfigPath", m_configPath);
     //if TauTrackClassifier is not run, wide&passTrkSelector==classifiedIsolation==modifiedIsolationTrack
     declareProperty("isolationTrackType", m_isolationTrackType=xAOD::TauJetParameters::modifiedIsolationTrack);
 }
@@ -175,7 +169,7 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) {
 
         for (const xAOD::TauTrack* tauTrk : tauTracks){
 
-          double deltaR = Tau1P3PKineUtils::deltaR( (inTrigger() ? pTau.eta() : pTau.etaIntermediateAxis()), pTau.phi(), tauTrk->eta(), tauTrk->phi() );     
+          double deltaR = Tau1P3PKineUtils::deltaR( ( m_in_trigger ? pTau.eta() : pTau.etaIntermediateAxis()), pTau.phi(), tauTrk->eta(), tauTrk->phi() );     
 	
 	  ptSum += tauTrk->pt();
 	  sumWeightedDR += deltaR * (tauTrk->pt());

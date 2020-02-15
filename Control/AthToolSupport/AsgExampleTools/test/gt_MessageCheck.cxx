@@ -11,10 +11,10 @@
 //
 
 #include <AsgTools/AnaToolHandle.h>
-#include <AsgTools/MessageCheck.h>
-#include <AsgTools/IMessagePrinter.h>
-#include <AsgTools/MessagePrinterMock.h>
-#include <AsgTools/MessagePrinterOverlay.h>
+#include <AsgMessaging/MessageCheck.h>
+#include <AsgMessaging/IMessagePrinter.h>
+#include <AsgMessaging/MessagePrinterMock.h>
+#include <AsgMessaging/MessagePrinterOverlay.h>
 #include <AsgTesting/UnitTest.h>
 #include <cmath>
 #include <gtest/gtest.h>
@@ -54,11 +54,11 @@ namespace asg
 
       MessagePrinterMock message_printer;
       MessagePrinterOverlay overlay (&message_printer);
-      EXPECT_CALL (message_printer, print (MSG::ERROR, "AsgToolsMessageTest", MatchesRegex (".*error text")))
+      EXPECT_CALL (message_printer, print (MSG::ERROR, "Package.AsgToolsMessageTest", MatchesRegex (".*error text")))
         .Times (1);
-      EXPECT_CALL (message_printer, print (MSG::INFO, "AsgToolsMessageTest", MatchesRegex (".*info text")))
+      EXPECT_CALL (message_printer, print (MSG::INFO, "Package.AsgToolsMessageTest", MatchesRegex (".*info text")))
         .Times (level<=MSG::INFO);
-      EXPECT_CALL (message_printer, print (MSG::DEBUG, "AsgToolsMessageTest", MatchesRegex (".*debug text")))
+      EXPECT_CALL (message_printer, print (MSG::DEBUG, "Package.AsgToolsMessageTest", MatchesRegex (".*debug text")))
         .Times (level<=MSG::DEBUG);
 
       msgTest::msg().setLevel (level);

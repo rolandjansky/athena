@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -128,6 +128,7 @@ ServiceMgr.DetDescrCnvSvc.DecodeIdDict = True
 
 include ("LArRecUtils/LArAffectedRegion.py")
 include("InDetBeamSpotService/BeamCondSvc.py")
+include("InDetRecExample/InDetRecConditionsAccess.py")
 # Detector Description
 #---------------------------------------------------------------------------------#
 
@@ -157,8 +158,8 @@ except Exception:
 
 include( "McParticleAlgs/TruthParticleBuilder_jobOptions.py" )
 
-include( "TrackToCalo/CaloExtensionBuilderAlg_jobOptions.py" )
-CaloExtensionBuilder("TightPrimary", 500.) 
+from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
+CaloExtensionBuilder("NoCut", 500.) 
 
 from egammaRec.egammaRecFlags import jobproperties
 
@@ -174,11 +175,11 @@ StreamESD.ItemList+=CaloESDList
 include ("egammaRec/egammaOutputItemList_jobOptions.py")
 StreamESD.ItemList+=egammaESDList
 
-print StreamESD.ItemList
+printfunc (StreamESD.ItemList)
 
 include ( "RecExRecoTest/RecExRecoTest_EgammaHiveRenames.py" )
 
-print "==========================================================================================\n"
+printfunc ("==========================================================================================\n")
 
 #
 ## set which Algorithms can be cloned

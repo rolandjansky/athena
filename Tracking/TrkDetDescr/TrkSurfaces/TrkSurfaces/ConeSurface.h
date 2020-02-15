@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ public:
                                                                       double phi,
                                                                       double theta,
                                                                       double qop,
-                                                                      AmgSymMatrix(5) * cov = 0) const override
+                                                                      AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Charged, ConeSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
@@ -97,7 +97,7 @@ public:
   virtual ParametersT<5, Charged, ConeSurface>* createTrackParameters(const Amg::Vector3D& position,
                                                                       const Amg::Vector3D& momentum,
                                                                       double charge,
-                                                                      AmgSymMatrix(5) * cov = 0) const override
+                                                                      AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Charged, ConeSurface>(position, momentum, charge, *this, cov);
   }
@@ -108,7 +108,7 @@ public:
                                                                          double phi,
                                                                          double theta,
                                                                          double qop,
-                                                                         AmgSymMatrix(5) * cov = 0) const override
+                                                                         AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Neutral, ConeSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
@@ -117,7 +117,7 @@ public:
   virtual ParametersT<5, Neutral, ConeSurface>* createNeutralParameters(const Amg::Vector3D& position,
                                                                         const Amg::Vector3D& momentum,
                                                                         double charge,
-                                                                        AmgSymMatrix(5) * cov = 0) const override
+                                                                        AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Neutral, ConeSurface>(position, momentum, charge, *this, cov);
   }
@@ -149,7 +149,7 @@ public:
 
   /** Return the measurement frame - this is needed for alignment, in particular for StraightLine and Perigee Surface
     - the default implementation is the the RotationMatrix3D of the transform */
-  virtual const Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos,
+  virtual Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos,
                                                        const Amg::Vector3D& glomom) const override;
 
   /** Returns a global reference point:
@@ -178,7 +178,7 @@ public:
   virtual bool insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck& bchk) const override;
 
   /** Specialized for ConeSurface : LocalParameters to Vector2D */
-  virtual const Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const override;
+  virtual Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const override;
 
   /** Specialized for ConeSurface : LocalToGlobal method without dynamic memory allocation */
   virtual void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const override;
@@ -261,7 +261,8 @@ inline const Amg::Vector3D*
 ConeSurface::normal(const Amg::Vector2D& lp) const
 {
   // (cos phi cos alpha, sin phi cos alpha, sgn z sin alpha)
-  double phi = lp[Trk::locRPhi] / (bounds().r(lp[Trk::locZ])), sgn = lp[Trk::locZ] > 0 ? -1. : +1.;
+  double phi = lp[Trk::locRPhi] / (bounds().r(lp[Trk::locZ]));
+  double sgn = lp[Trk::locZ] > 0 ? -1. : +1.;
   Amg::Vector3D localNormal(cos(phi) * bounds().cosAlpha(), sin(phi) * bounds().cosAlpha(), sgn * bounds().sinAlpha());
   return new Amg::Vector3D(transform().rotation() * localNormal);
 }
@@ -284,7 +285,7 @@ ConeSurface::insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck&
   return bounds().inside(locpos, bchk.toleranceLoc1, bchk.toleranceLoc2);
 }
 
-inline const Amg::Vector2D
+inline Amg::Vector2D
 ConeSurface::localParametersToPosition(const LocalParameters& locpars) const
 {
   if (locpars.contains(Trk::locRPhi) && locpars.contains(Trk::locZ))

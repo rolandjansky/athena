@@ -1,23 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////
-// A C++ implementation of Mass constraint fitting
-// 23/09/2006
-// K. Nikolopoulos
-// --- * --- * --- * --- * ---* --- * --- * --- * ---
-//
-//
-//
-//
 #include "xAODEgamma/PhotonxAODHelpers.h"
 #include "xAODTracking/TrackParticle.h"
 #include "ZMassConstraint/ConstraintFit.h"
 #include "ZMassConstraint/ConstraintFitInput.h"
 #include "ZMassConstraint/ConstraintFitOutput.h"
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
-#include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 
 namespace ZMassConstraint 
 {

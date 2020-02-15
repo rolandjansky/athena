@@ -9,6 +9,6 @@
 
 #pragma link C++ namespace RCU;
 
-#pragma link C++ function RCU::hadd_core (std::string, std::vector<std::string>, unsigned);
+#pragma link C++ function RCU::hadd (const std::string&, const std::vector<std::string>&, unsigned);
 
 #endif

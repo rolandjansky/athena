@@ -1,25 +1,30 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: PyUtils/bin/dso-stats.py
 # @purpose: compile statistics about shared libraries
 # @author:  Scott Snyder
 
+from __future__ import print_function
+
 import re
 import sys
 import os
 import subprocess
+import six
 
 ## monkey patch subprocess to be forward compatible with py-3k
 def getstatusoutput(cmd):
-    if isinstance(cmd, basestring):
+    if isinstance(cmd, str):
         cmd = cmd.split()
     if not isinstance(cmd, (list, tuple)):
         raise TypeError('expects a list, a tuple or a space separated string')
+    encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
     process = subprocess.Popen(cmd,
                                stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT)
+                               stderr=subprocess.STDOUT,
+                               **encargs)
     stdout, _ = process.communicate()
     return process.returncode, stdout
 subprocess.getstatusoutput = getstatusoutput
@@ -130,7 +135,9 @@ class Data:
         for s, sz in secs:
             if s in ['.hash', '.dynsym', '.dynstr', '.gnu.version',
                      '.gnu.version_r', '.rel.dyn', '.rel.plt',
-                     '.init', '.plt', '.fini']:
+                     '.init', '.plt', '.fini', '.init_array', '.fini_array',
+                     '.gnu.hash', '.rela.dyn', '.rela.plt',
+                     '.data.rel.ro']:
                 self.dso += sz
                 self.ro += sz
 
@@ -155,7 +162,7 @@ class Data:
                 self.java += sz
                 self.rw += sz
 
-            elif s in ['.dynamic', '.got', '.got.plt']:
+            elif s in ['.dynamic', '.got', '.got.plt', '.plt.got']:
                 self.dso += sz
                 self.rw += sz
 
@@ -166,11 +173,11 @@ class Data:
             elif s in ['.bss']:
                 self.bss += sz
 
-            elif s == '.comment' or s.startswith ('.debug'):
+            elif s in ['.comment', '.gnu_debuglink'] or s.startswith ('.debug'):
                 pass
 
             else:
-                print >> sys.stderr, '** Unknown section [%s] **' % s
+                print ('** Unknown section [%s] **' % s, file=sys.stderr)
 
         return
 
@@ -188,7 +195,7 @@ class Data:
         kw['frag'] = _form (self.frag)
         kw['bss'] = _form (self.bss)
         kw['total'] = _form (self.total())
-        print >> f, format % kw
+        print (format % kw, file=f)
         
 
 # secs = parse_lib (lib)
@@ -216,7 +223,7 @@ kw = {'name' : 'Name',
       'bss'  : 'BSS',
       'frag' : 'Frag',
       'total': 'Total'}
-print >> sys.stdout, format % kw
+print (format % kw, file=sys.stdout)
 
 
 total = Data(name = 'Total')
@@ -225,14 +232,14 @@ libs = []
 for l in fileinput.input():
     if l[-1] == '\n':
         l = l[:-1]
+    if l[-1] == '*':
+        l = l[:-1]
     secs = parse_lib(l)
     data = Data (secs, name = l)
     libs.append (data)
     total += data
 
-def fn (a, b):
-    return b.total() - a.total()
-libs.sort (fn)
+libs.sort (key = lambda x: x.total(), reverse=True)
 
 for l in libs:
     l.dump (sys.stdout)

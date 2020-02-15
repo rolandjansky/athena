@@ -19,27 +19,21 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
 
     colsTP = [ "ExtrapolatedMuonTrackParticles", "CombinedMuonTrackParticles", "MSOnlyExtrapolatedMuonTrackParticles" ]
-    fcols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedMuonTracks" ]
-    cols = ["MuidMETracks","MuidCombinedTracks","MSOnlyExtrapolatedMuonTracks"]
-    if muonCombinedRecFlags.doMuGirl():
-        cols += ["MuGirlCombinedTracks","MuGirlMETracks"]
-        if muonCombinedRecFlags.doMuGirlLowBeta():
-            cols += ["MuGirlStauCombinedTracks"]
+    cols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedTracks" ]
     topSequence+= MuonDetailedTrackTruthMaker("MuonCombinedDetailedTrackTruthMaker")
     topSequence.MuonCombinedDetailedTrackTruthMaker.TrackCollectionNames = cols 
-    topSequence.MuonCombinedDetailedTrackTruthMaker.DetailedTrackTruthNames = fcols
     from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     topSequence.MuonCombinedDetailedTrackTruthMaker.HasCSC = MuonGeometryFlags.hasCSC()
     topSequence.MuonCombinedDetailedTrackTruthMaker.HasSTgc = MuonGeometryFlags.hasSTGC()
     topSequence.MuonCombinedDetailedTrackTruthMaker.HasMM = MuonGeometryFlags.hasMM()
         
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
-    for i in range(0, len(fcols)):
-        topSequence += TrackTruthSelector(name= fcols[i] + "Selector",
-                                          DetailedTrackTruthName   = fcols[i] + "DetailedTruth",
-                                          OutputName               = fcols[i] + "Truth" )
-        topSequence += TrackParticleTruthAlg(name = fcols[i]+"TruthAlg",
-                                             TrackTruthName=fcols[i]+"Truth",
+    for i in range(0, len(cols)):
+        topSequence += TrackTruthSelector(name= cols[i] + "Selector",
+                                          DetailedTrackTruthName   = cols[i] + "DetailedTruth",
+                                          OutputName               = cols[i] + "Truth" )
+        topSequence += TrackParticleTruthAlg(name = cols[i]+"TruthAlg",
+                                             TrackTruthName=cols[i]+"Truth",
                                              TrackParticleName = colsTP[i] )
         
     from MuonTruthAlgs.MuonTruthAlgsConf import MuonTruthAssociationAlg

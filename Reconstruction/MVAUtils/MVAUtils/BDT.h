@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MVAUtils_BDT_H
@@ -17,11 +17,11 @@ class TTree;
 namespace MVAUtils
 {
 
-   /** Simplified Boosted Regression Tree, support TMVA and lgbm.
+   /** Simplified Boosted Regression Tree, support TMVA, lgbm, and xgboost.
    * Holds a forest (vector of top nodes of each decision tree) and a
    * constant offset or set of weights (not always used).
    *
-   * Can be constructed from TMVA::MethodBDT or a TTree. Each entry
+   * Each entry
    * of the TTree represents a binary tree and each element of the
    * vectors stored in the TTree represent a node.
    *
@@ -35,6 +35,7 @@ namespace MVAUtils
   public:
     /** Constructor. The input tree must be created with
      *  convertLGBMToRootTree.py (for lgbm training) or with
+     *  convertXGBoostToRootTree.py (for xgboost training) or with
      *  convertXmlToRootTree (for tmva training)
      **/
     explicit BDT(TTree *tree);//ctor TTree
@@ -108,15 +109,15 @@ namespace MVAUtils
 
 
   inline float BDT::GetResponse() const {
-    return (m_pointers.size() ? GetResponse(m_pointers) : -9999.);
+    return (!m_pointers.empty() ? GetResponse(m_pointers) : -9999.);
   }
 
   inline float BDT::GetClassification() const {
-    return (m_pointers.size() ? GetClassification(m_pointers) : -9999.);
+    return (!m_pointers.empty() ? GetClassification(m_pointers) : -9999.);
   }
 
   inline std::vector<float> BDT::GetMultiResponse(unsigned int numClasses) const {
-    return (m_pointers.size() ? GetMultiResponse(m_pointers, numClasses) : std::vector<float>());
+    return (!m_pointers.empty() ? GetMultiResponse(m_pointers, numClasses) : std::vector<float>());
   }
 
   inline std::vector<float> BDT::GetValues() const {

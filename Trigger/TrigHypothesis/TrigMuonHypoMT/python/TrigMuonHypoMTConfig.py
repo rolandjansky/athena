@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # import Hypo Algs/Tools
 from TrigMuonHypoMT.TrigMuonHypoMTConf import (  # noqa: F401 (algs not used here)
@@ -47,12 +47,16 @@ trigMuonEFSAThresholds = {
     '13GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 11.4, 12.0, 11.1, 12.0] ],
     '14GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 12.2, 13.0, 12.1, 13.0] ],
     '15GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 13.0, 14.0, 13.0, 14.0] ],
+    '16GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 13.0, 14.0, 13.0, 14.0] ], # not optimized
     '18GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 15.7, 16.6, 15.4, 16.3] ],
     '20GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 17.5, 18.5, 17.0, 18.0] ],
     '22GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 19.1, 20.0, 18.4, 19.6] ],
     '24GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 20.4, 20.8, 19.3, 21.0] ],
     '26GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 21.6, 22.0, 21.2, 23.7] ], # not optimized
+    '28GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 21.6, 22.0, 21.2, 23.7] ], # not optimized
     '30GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 25.0, 24.5, 23.0, 26.0] ],
+    '35GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 25.0, 24.5, 23.0, 26.0] ], # not optimized
+    '36GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 25.0, 24.5, 23.0, 26.0] ], # not optimized
     '40GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 31.5, 30.0, 28.5, 32.5] ], 
     '40GeV_barrelOnly' : [ [0,1.05,1.5,2.0,9.9], [ 31.5,1000.0,1000.0,1000.0]], 
     '40GeV_uptoEC2'    : [ [0,1.05,1.5,2.0,9.9], [ 31.5, 30.0, 28.5,  1000.0]], 
@@ -386,6 +390,7 @@ def TrigmuCombHypoToolFromDict( chainDict ):
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
+
     config = TrigmuCombHypoConfig()
     
     tight = False # can be probably decoded from some of the proprties of the chain, expert work
@@ -430,7 +435,6 @@ class TrigmuCombHypoConfig(object):
                         tool.MaxChi2IDPik         = 3.5
                 except LookupError:
                     raise Exception('MuComb Hypo Misconfigured: threshold %r not supported' % thvaluename)
-        
 
         return tool 
 
@@ -547,8 +551,14 @@ def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
+
+    if 'muonqual' in chainDict['chainParts'][0]['chainPartName']:
+       muonquality = True
+    else:
+       muonquality = False
+
     config = TrigMuonEFCombinerHypoConfig()
-    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds , muonquality)
     addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
 
@@ -569,8 +579,14 @@ def TrigMuonEFCombinerHypoToolFromName(chainDict):
             if 'noL1' in part:
                 thr =thr.replace('noL1','')
             thresholds.append(thr)
+    if 'muonqual' in chainName:
+       muonquality = True
+    else:
+       muonquality = False
+    
     config = TrigMuonEFCombinerHypoConfig()
-    tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds)
+
+    tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds, muonquality)
     addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
     
@@ -578,7 +594,7 @@ class TrigMuonEFCombinerHypoConfig(object):
         
     log = logging.getLogger('TrigMuonEFCombinerHypoConfig')
 
-    def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
+    def ConfigurationHypoTool( self, thresholdHLT, thresholds, muonquality ):
 
         tool = TrigMuonEFCombinerHypoTool( thresholdHLT )  
 
@@ -586,7 +602,8 @@ class TrigMuonEFCombinerHypoConfig(object):
         log.debug('Set %d thresholds', nt)
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
-
+ 
+        tool.MuonQualityCut = muonquality
  
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV_v15a'

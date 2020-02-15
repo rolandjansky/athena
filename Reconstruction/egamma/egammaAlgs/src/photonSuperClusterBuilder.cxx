@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "photonSuperClusterBuilder.h"
 //
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
@@ -79,6 +80,11 @@ StatusCode photonSuperClusterBuilder::execute(){
   SG::WriteHandle<EgammaRecContainer> newEgammaRecs(m_photonSuperRecCollectionKey);
   ATH_CHECK(newEgammaRecs.record(std::make_unique<EgammaRecContainer>()));
 
+  //The calo Det Descr manager
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr,"CaloMgr") );
+
+
   //Loop over input egammaRec objects, build superclusters.
   std::vector<bool> isUsed (egammaRecs->size(),0);
 
@@ -141,7 +147,7 @@ StatusCode photonSuperClusterBuilder::execute(){
       xAOD::EgammaParameters::convertedPhoton :
       xAOD::EgammaParameters::unconvertedPhoton;
 
-    std::unique_ptr<xAOD::CaloCluster> newCluster = createNewCluster(accumulatedClusters, egType);
+    std::unique_ptr<xAOD::CaloCluster> newCluster = createNewCluster(accumulatedClusters, *calodetdescrmgr, egType);
 
     if (!newCluster) {
       ATH_MSG_DEBUG("Creating a new cluster failed");

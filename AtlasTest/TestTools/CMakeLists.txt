@@ -27,7 +27,7 @@ endif()
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_scripts( share/runUnitTests.sh share/post.sh share/nopost.sh scripts/nightlies/TestHelloWorld.sh share/skip_if_libraryMissing.sh )
+atlas_install_scripts( share/post.sh share/nopost.sh )
 
 if( NOT XAOD_STANDALONE )
    find_package( TBB )

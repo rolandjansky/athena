@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ public:
   virtual double minDistance(const Amg::Vector2D& pos) const override;
 
   /**This method returns the coordinates of vertices*/
-  const std::vector<std::pair<TDD_real_t, TDD_real_t>> vertices() const;
+  std::vector<std::pair<TDD_real_t, TDD_real_t>> vertices() const;
 
   /**This method returns the maximal extension on the local plane, i.e. @f$s\sqrt{h_{\phi}^2 + h_{\eta}^2}\f$*/
   virtual double r() const override;
@@ -136,9 +136,7 @@ TriangleBounds::inside(const Amg::Vector2D& locpo, double tol1, double tol2) con
   double db = locB.first * locV.second - locB.second * locV.first;
   if (fabs(db) < tol1) {
     double a = (locB.first != 0) ? -locV.first / locB.first : -locV.second / locB.second;
-    if (a > -tol2 && a - 1. < tol2)
-      return true;
-    return false;
+    return a > -tol2 && a - 1. < tol2;
   }
 
   double dn = locB.first * locT.second - locB.second * locT.first;
@@ -214,13 +212,13 @@ TriangleBounds::insideLoc2(const Amg::Vector2D& locpo, double tol2) const
   return inside(locpo, tol2, tol2);
 }
 
-inline const std::vector<std::pair<TDD_real_t, TDD_real_t>>
+inline std::vector<std::pair<TDD_real_t, TDD_real_t>>
 TriangleBounds::vertices() const
 {
   std::vector<std::pair<TDD_real_t, TDD_real_t>> vertices;
   vertices.resize(3);
   for (size_t iv = 0; iv < 3; iv++)
-    vertices.push_back(std::pair<TDD_real_t, TDD_real_t>(m_boundValues[2 * iv], m_boundValues[2 * iv + 1]));
+    vertices.emplace_back(m_boundValues[2 * iv], m_boundValues[2 * iv + 1]);
   return vertices;
 }
 

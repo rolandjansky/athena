@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// Dear emacs, this is -*-c++-*-
 
 #ifndef DETAILEDMUONPATTERNTRUTHBUILDER_H
 #define DETAILEDMUONPATTERNTRUTHBUILDER_H
 
+// Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "AthLinks/ElementLink.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -36,14 +36,9 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkPrepRawData/PrepRawData.h"
 
-#include "MuonIdHelpers/MuonStationIndex.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 // Include any other potentially useful packages
-// Gaudi
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 // Trk includes
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
@@ -80,10 +75,9 @@ namespace Trk {
   private:
     typedef InverseMultiMap<PRD_MultiTruthCollection> PRD_InverseTruth;
 
-    const AtlasDetectorID *m_idHelper;
-    ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    ToolHandle<Trk::ITruthTrajectoryBuilder> m_truthTrajBuilder;
+    ToolHandle<Trk::ITruthTrajectoryBuilder> m_truthTrackBuilder;
     ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>   m_mdtCreator;
     ToolHandle<Muon::IMuonClusterOnTrackCreator>      m_muonClusterCreator;
     ToolHandle<Muon::IMuonClusterOnTrackCreator >    p_IMuonClusterOnTrackCreatorCSCCluster ;

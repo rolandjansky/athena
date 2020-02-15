@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArOFCP1.h"
@@ -28,6 +28,12 @@ LArOFCP1::LArOFCP1(float timeOffset,
 
 
 LArOFCP1::LArOFCP1 (const LArCompactSubsetChannelProxy& other)
+  : LAr2DWaveBase (other)
+{
+}
+
+
+LArOFCP1::LArOFCP1 (const LArCompactSubsetConstChannelProxy& other)
   : LAr2DWaveBase (other)
 {
 }

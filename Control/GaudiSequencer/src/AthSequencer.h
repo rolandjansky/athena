@@ -196,7 +196,8 @@ private:
    **************************/
   
   /// Member names (of the form '<cppType>/<instanceName>')
-  Gaudi::Property<std::vector<std::string>> m_names;
+  Gaudi::Property<std::vector<std::string>> m_names{this, "Members",{},
+      "Algorithm names (of the form '<cppType>/<instanceName>')","SubAlgorithm"};
 
   // Atomic sequencer (don't unroll in MT)
   Gaudi::Property<bool> m_atomic;

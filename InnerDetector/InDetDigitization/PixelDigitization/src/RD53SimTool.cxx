@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RD53SimTool.h"
 
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 #include "SiDigitization/SiHelper.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"

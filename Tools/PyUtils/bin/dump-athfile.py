@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    dump-athfile.py
 # @purpose: simple command-line utility wrapping PyUtils.AthFile.fopen
@@ -15,6 +15,8 @@
 # dump-athfile somedir/*/*.pool
 # @endcode
 #
+
+from __future__ import print_function
 
 __version__ = "$Revision: 1.4 $"
 __author__  = "Sebastien Binet <binet@cern.ch>"
@@ -78,7 +80,7 @@ if __name__ == "__main__":
     infos = []
     try:
         infos = af.pfopen(fnames, evtmax=options.evtmax)
-    except Exception, e:
+    except Exception as e:
         msg.error("Caught exception [%s] !!", str(e.__class__))
         msg.error("What:\n%s\n%s\n%s",e,
                   sys.exc_info()[0],
@@ -105,24 +107,24 @@ if __name__ == "__main__":
         msg.info(':'*80)
         msg.info('::::: summary :::::')
         fmt = ' - %-15s: %s'
-        print fmt % ('file md5',       f.infos['file_md5sum'])
-        print fmt % ('file name',      f.infos['file_name'])
-        print fmt % ('file type',      f.infos['file_type'])
-        print fmt % ('file size',      file_size)
-        print fmt % ('file guid',      f.infos['file_guid'])
-        print fmt % ('nentries',       f.infos['nentries'])
-        print fmt % ('run number',     f.infos['run_number'])
-        print fmt % ('run type',       f.infos['run_type'])
-        print fmt % ('evt number',     f.infos['evt_number'])
-        print fmt % ('evt type',       f.infos['evt_type'])
-        print fmt % ('mc channel #',   f.infos['mc_channel_number'])
-        print fmt % ('lumi block',     f.infos['lumi_block'])
-        print fmt % ('beam energy',    f.infos['beam_energy'])
-        print fmt % ('beam type',      f.infos['beam_type'])
-        print fmt % ('stream tags',    f.infos['stream_tags'])
-        print fmt % ('stream names',   f.infos['stream_names'])
-        print fmt % ('geometry',       f.infos['geometry'])
-        print fmt % ('conditions tag', f.infos['conditions_tag'])
+        print (fmt % ('file md5',       f.infos['file_md5sum']))
+        print (fmt % ('file name',      f.infos['file_name']))
+        print (fmt % ('file type',      f.infos['file_type']))
+        print (fmt % ('file size',      file_size))
+        print (fmt % ('file guid',      f.infos['file_guid']))
+        print (fmt % ('nentries',       f.infos['nentries']))
+        print (fmt % ('run number',     f.infos['run_number']))
+        print (fmt % ('run type',       f.infos['run_type']))
+        print (fmt % ('evt number',     f.infos['evt_number']))
+        print (fmt % ('evt type',       f.infos['evt_type']))
+        print (fmt % ('mc channel #',   f.infos['mc_channel_number']))
+        print (fmt % ('lumi block',     f.infos['lumi_block']))
+        print (fmt % ('beam energy',    f.infos['beam_energy']))
+        print (fmt % ('beam type',      f.infos['beam_type']))
+        print (fmt % ('stream tags',    f.infos['stream_tags']))
+        print (fmt % ('stream names',   f.infos['stream_names']))
+        print (fmt % ('geometry',       f.infos['geometry']))
+        print (fmt % ('conditions tag', f.infos['conditions_tag']))
         _metadata = f.infos['metadata']
 
         if _metadata is not None:
@@ -140,14 +142,14 @@ if __name__ == "__main__":
                         campaign = '25 ns'
                     else:
                         campaign = None
-                    print fmt % ('bunch spacing',   campaign + ' i.e. ..., ' + str(pattern[firstBunch:firstBunch+4])[1:-1] + ', ...')
+                    print (fmt % ('bunch spacing',   campaign + ' i.e. ..., ' + str(pattern[firstBunch:firstBunch+4])[1:-1] + ', ...'))
 
             _metadata = _metadata.keys() if isinstance(_metadata,dict) else None
-        print fmt % ('meta data',      _metadata)
+        print (fmt % ('meta data',      _metadata))
 
         msg.info(':'*80)
         if len(infos) > 1:
-            print ""
+            print ("")
         pass # loop over infos
     
     if options.oname:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -69,10 +69,10 @@ namespace Trk {
       BinnedLayerMaterial(const BinnedLayerMaterial& mprop);
       
       /**Destructor*/
-      virtual ~BinnedLayerMaterial();
+      virtual ~BinnedLayerMaterial() override;
       
       /**Pseudo-Constructor clone()*/ 
-      BinnedLayerMaterial* clone() const override;
+      virtual BinnedLayerMaterial* clone() const override;
       
       /** Assignment operator */
       BinnedLayerMaterial& operator=(const BinnedLayerMaterial& lmp);
@@ -81,7 +81,7 @@ namespace Trk {
       virtual BinnedLayerMaterial& operator*=(double scale) override;
 
       /** Return the BinUtility */
-      const BinUtility* binUtility() const override;
+      virtual const BinUtility* binUtility() const override;
        
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
       virtual void updateBinning(BinUtility* bu) override;
@@ -93,13 +93,13 @@ namespace Trk {
       virtual const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const override;
             
       /** Access the single bin */
-     const MaterialProperties* material(size_t bin0, size_t bin1 ) const override;
+      virtual const MaterialProperties* material(size_t bin0, size_t bin1 ) const override;
             
       /** Output Method for MsgStream, to be overloaded by child classes */
-      MsgStream& dump(MsgStream& sl) const override;
+      virtual MsgStream& dump(MsgStream& sl) const override;
       
       /** Output Method for std::ostream, to be overloaded by child classes */
-      std::ostream& dump(std::ostream& sl) const override;      
+      virtual std::ostream& dump(std::ostream& sl) const override;      
 
     private:
       friend class ::BinnedLayerMaterialCnv_p1;

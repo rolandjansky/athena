@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 from TrigEgammaAnalysisTools import TrigEgammaAnalysisToolsConf
 from AthenaCommon import CfgMgr
@@ -224,7 +225,7 @@ def setRunFlag( runFlag ):
     TightLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf"
     VeryLooseLHSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth.conf"
   else:
-    print 'Wrong run flag configuration'
+    print ('Wrong run flag configuration')
 
 
 
@@ -267,7 +268,7 @@ def getEventSelectionTool(runFlag):
     HLTLikelihoodSelectorList    = getElectronLikelihoodSelectorNoD0( "ElectronPhotonSelectorTools/trigger/rel21_20180312")
 
   else:
-    print 'Wrong run flag configuration'
+    print ('Wrong run flag configuration')
  
   # create the event selection tool
   TrigEgammaEventSelection = PublicToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaEventSelection, name ="TrigEgammaEventSelection",

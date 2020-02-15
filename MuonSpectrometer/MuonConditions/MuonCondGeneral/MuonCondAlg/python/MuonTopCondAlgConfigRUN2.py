@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## Configuration Access to OFFLINE DB (COMP200)
 
@@ -11,7 +11,6 @@ from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-
 
 def addFolder(parent, db, folder):
     log = logging.getLogger(parent.getName())        
@@ -72,7 +71,14 @@ class RpcCondDbAlg(CfgMgr.RpcCondDbAlg):
 class CscCondDbAlg(CfgMgr.CscCondDbAlg):
     def __init__(self,name="CscCondDbAlg",**kwargs):
         if athenaCommonFlags.isOnline:
-            kwargs['isOnline'] = True  # COOL folders not available online
+            kwargs['isOnline'  ] = True  # COOL folders not available online
+            kwargs['isData'    ] = True
+            kwargs['ReadKey_FT'] = '/CSC/FTHOLD' # 'ConditionsStore+' prefix not necessarily needed in ReadKey
+            kwargs['ReadKey_NO'] = '/CSC/NOISE'
+            kwargs['ReadKey_PD'] = '/CSC/PED'
+            kwargs['ReadKey_PS'] = '/CSC/PSLOPE'
+            kwargs['ReadKey_RM'] = '/CSC/RMS'
+            kwargs['ReadKey_ST'] = '/CSC/STAT'
         else:    
             kwargs['isOnline'] = False # COOL folders not available online
             if globalflags.DataSource != 'data':
@@ -81,8 +87,22 @@ class CscCondDbAlg(CfgMgr.CscCondDbAlg):
                 kwargs['isData'] = True
                 kwargs['isRun1'] = conddb.dbname == 'COMP200'
         super(CscCondDbAlg,self).__init__(name,**kwargs)
-        if athenaCommonFlags.isOnline: return
-        addFolder(self, "CSC_OFL", "/CSC/STAT")
+        if athenaCommonFlags.isOnline: 
+            addFolder(self, "CSC_ONL", "/CSC/ONL/FTHOLD" )
+            addFolder(self, "CSC_ONL", "/CSC/ONL/NOISE"  )
+            addFolder(self, "CSC_ONL", "/CSC/ONL/PED"    )
+            addFolder(self, "CSC_ONL", "/CSC/ONL/PSLOPE" )
+            addFolder(self, "CSC_ONL", "/CSC/ONL/RMS"    )
+            addFolder(self, "CSC_ONL", "/CSC/ONL/STAT"   )
+        else:
+            addFolder(self, "CSC_OFL", "/CSC/FTHOLD" )
+            addFolder(self, "CSC_OFL", "/CSC/NOISE"  )
+            addFolder(self, "CSC_OFL", "/CSC/PED"    )
+            addFolder(self, "CSC_OFL", "/CSC/PSLOPE" )
+            addFolder(self, "CSC_OFL", "/CSC/RMS"    )
+            addFolder(self, "CSC_OFL", "/CSC/STAT"   )
+            addFolder(self, "CSC_OFL", "/CSC/T0BASE" )
+            addFolder(self, "CSC_OFL", "/CSC/T0PHASE")
 
 class TgcCondDbAlg(CfgMgr.TgcCondDbAlg):
     def __init__(self,name="TgcCondDbAlg",**kwargs):

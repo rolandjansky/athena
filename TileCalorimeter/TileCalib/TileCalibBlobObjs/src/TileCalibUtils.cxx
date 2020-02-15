@@ -25,6 +25,7 @@ const unsigned int TileCalibUtils::NOISY_DEFINITION_CHAN;
 const unsigned int TileCalibUtils::NOGAINL1_DEFINITION_CHAN;
 const unsigned int TileCalibUtils::BADTIMING_DEFINITION_CHAN;
 const unsigned int TileCalibUtils::WRONGBCID_DEFINITION_CHAN;
+const unsigned int TileCalibUtils::TIMINGDMUBCOFFSET_DEFINITION_CHAN;
 
 //
 //_____________________________________________________________________________

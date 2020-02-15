@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -198,12 +198,6 @@ namespace InDet {
     float m_drminv{20.};
     //@}
 
-    /// @name Data members, which are updated only in initialize
-    //@{
-    int m_outputlevel{0};
-    bool m_initialized{false};
-    //@}
-
     /// @name Data members, which are updated only in buildFrameWork in initialize
     //@{
     float m_dzdrmin0{0.};
@@ -258,22 +252,22 @@ namespace InDet {
     void production3Sp(EventData& data) const;
     void production3Sp
     (EventData& data,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rb,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rt,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
-     int NB, int NT, int& nseed) const;
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rb,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rt,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
+     const int NB, const int NT, int& nseed) const;
     void production3SpTrigger
     (EventData& data,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rb,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rt,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
-     int NB, int NT, int& nseed) const;
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rb,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rt,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
+     const int NB, const int NT, int& nseed) const;
  
     bool newVertices(EventData& data, const std::list<Trk::Vertex>& lV) const;
     void findNext(EventData& data) const;
-    bool isZCompatible(EventData& data, float& Zv, float& R, float& T) const;
+    bool isZCompatible(EventData& data, const float& Zv, const float& R, const float& T) const;
     void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const& sp, float* r) const;
     bool isUsed(const Trk::SpacePoint* sp, const Trk::PRDtoTrackMap &prd_to_track_map) const;
 

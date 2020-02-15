@@ -108,7 +108,7 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   /** @brief Adds a beam spot to the Measurements passed to the track refitter*/  
   MeasurementsAndTrash addPointsToTrack(const EventContext& ctx,
                                         const Trk::Track* track, 
-                                        const xAOD::Electron* eg = 0 ) const; 
+                                        const xAOD::Electron* eg = nullptr ) const; 
   
 
   /** @brief Handle for BeamSpotData*/ 

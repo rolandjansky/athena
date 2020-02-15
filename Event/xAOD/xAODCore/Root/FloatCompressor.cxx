@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: FloatCompressor.cxx 789425 2016-12-13 10:50:12Z krasznaa $
@@ -36,6 +36,11 @@ namespace xAOD {
       }
       // And now negate it to get the correct mask:
       m_mantissaBitmask = ~m_mantissaBitmask;
+
+      // Set the Magic numbers
+      m_rounding = 0x1 << ( 32 - (1 + 8 + m_mantissaBits) - 1 );
+      m_vmax = 0x7f7 << 20;
+      m_vmax |= 0x000fffff xor (m_rounding);
    }
 
    float FloatCompressor::reduceFloatPrecision( float value ) const {

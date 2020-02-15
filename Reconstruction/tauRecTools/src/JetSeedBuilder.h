@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_JETSEEDBUILDER_H
@@ -22,35 +22,15 @@
 
 class JetSeedBuilder : public TauRecToolBase {
 public:
-
-    //-------------------------------------------------------------
-    //! Constructor
-    //-------------------------------------------------------------
-    ASG_TOOL_CLASS2( JetSeedBuilder, TauRecToolBase, ITauToolBase )
     JetSeedBuilder(const std::string& name);
+    ASG_TOOL_CLASS2( JetSeedBuilder, TauRecToolBase, ITauToolBase )
 
-    //-------------------------------------------------------------
-    //! Destructor
-    //-------------------------------------------------------------
     virtual ~JetSeedBuilder();
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode finalize() override;
 
-    virtual StatusCode finalize();
-
-    virtual void print() const ;
-
-    virtual StatusCode execute(xAOD::TauJet& pTau);
-    
-    virtual StatusCode eventFinalize();
-
-    virtual StatusCode eventInitialize() { return StatusCode::SUCCESS; }
-
-private:
-    std::string m_jetCollectionName;
-    float m_maxJetdist;
-    float m_minJetPt;
-    bool m_switch_jets_em_scale;
 };
 
 #endif	/* JETSEEDBUILDER_H */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,10 +19,10 @@
 Trk::TrackState::MeasurementType 
 Trk::MeasurementTypeID::defineType (const Trk::MeasurementBase* meas) const {
 
-  if (meas == NULL) return Trk::TrackState::unidentified;
-  const Trk::RIO_OnTrack* testROT=0;
+  if (meas == nullptr) return Trk::TrackState::unidentified;
+  const Trk::RIO_OnTrack* testROT=nullptr;
   Trk::RoT_Extractor::extract( testROT, meas); // get std and competing ROTs
-  if (testROT!=NULL) {
+  if (testROT!=nullptr) {
     if (!( testROT->identify().is_valid())) return Trk::TrackState::unidentified;
     if (m_idHelper->is_pixel(testROT->identify())) 
       return Trk::TrackState::Pixel;
@@ -47,15 +47,15 @@ Trk::MeasurementTypeID::defineType (const Trk::MeasurementBase* meas) const {
 
   const Trk::PseudoMeasurementOnTrack* testPseudo
     = dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(meas);
-  if (testPseudo!=NULL) return Trk::TrackState::Pseudo;
+  if (testPseudo!=nullptr) return Trk::TrackState::Pseudo;
   const Trk::Segment* testSegment
     = dynamic_cast<const Trk::Segment*>(meas);
-  if (testSegment!=NULL) return Trk::TrackState::Segment;
+  if (testSegment!=nullptr) return Trk::TrackState::Segment;
   const Trk::VertexOnTrack* testVertex
     = dynamic_cast<const Trk::VertexOnTrack*>(meas);
-  if (testVertex!=NULL)  return Trk::TrackState::Vertex;
+  if (testVertex!=nullptr)  return Trk::TrackState::Vertex;
   const Trk::SpacePoint* testSpacePoint
     = dynamic_cast<const Trk::SpacePoint*>(meas);
-  if (testSpacePoint!=NULL)  return Trk::TrackState::SpacePoint;
+  if (testSpacePoint!=nullptr)  return Trk::TrackState::SpacePoint;
   return Trk::TrackState::unidentified;
 }

@@ -466,7 +466,7 @@ Trk::Track* Trk::TrackFitInputPreparator::copyToTrack
       new Trk::TrackStateOnSurfaceComparisonFunction
       ( (*inputTrk.trackParameters()->begin())->momentum() ) ;
     if(!__gnu_cxx::is_sorted(newListOfStates->begin(),newListOfStates->end(), *CompFunc))
-      sort(newListOfStates->begin(),newListOfStates->end(), *CompFunc);
+      std::sort(newListOfStates->begin(),newListOfStates->end(), *CompFunc);
     delete CompFunc;
   }
   TrackInfo info;
@@ -536,7 +536,7 @@ Trk::PrepRawDataSet Trk::TrackFitInputPreparator::stripPrepRawData
       ((*inputTrk.trackParameters()->begin())->position(),
        (*inputTrk.trackParameters()->begin())->momentum());
     if ( ! is_sorted( newPrdSet.begin(), newPrdSet.end(), *PRD_CompFunc ) )
-      sort( newPrdSet.begin(), newPrdSet.end(), *PRD_CompFunc );
+      std::sort( newPrdSet.begin(), newPrdSet.end(), *PRD_CompFunc );
     delete PRD_CompFunc;
   }
   return newPrdSet;

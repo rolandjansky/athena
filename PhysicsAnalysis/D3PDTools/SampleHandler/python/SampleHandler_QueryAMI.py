@@ -1,7 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
+import ROOT
 import pyAMI.client
-from pyAMI.atlas.api import get_dataset_info, list_datasets
+from pyAMI.atlas.api import get_dataset_info
 
 def SampleHandler_QueryAmi(samples) :
     # set up an AMI client
@@ -61,7 +64,7 @@ def SampleHandler_QueryAmi(samples) :
         # as we need to redo the event and cross section calculations
         # just for those tasks.
         if (sample.find("_tid")):
-            print "Stripping tid suffix from "+ sample
+            print ("Stripping tid suffix from " + sample)
             sample = sample.split("_tid")[0]
             pass
 

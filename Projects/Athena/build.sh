@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script for building the release on top of externals built using one of the
 # scripts in this directory.
 #
@@ -89,8 +91,6 @@ if [ -z "$EXE_CMAKE" -a -z "$EXE_MAKE" -a -z "$EXE_INSTALL" -a -z "$EXE_CPACK" ]
     EXE_CPACK="1"
 fi
 
-
-
 # Stop on errors from here on out:
 set -e
 # consider a pipe failed if ANY of the commands fails
@@ -177,7 +177,7 @@ fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    { DESTDIR=${BUILDDIR}/install/Athena/${NICOS_PROJECT_VERSION} _time_ ${BUILDTOOL} ${INSTALLRULE}; } \
+    { DESTDIR=${BUILDDIR}/install _time_ ${BUILDTOOL} ${INSTALLRULE}; } \
 	 2>&1 | tee cmake_install.log
 fi
 #^^^ do we need to analyze local install logs?

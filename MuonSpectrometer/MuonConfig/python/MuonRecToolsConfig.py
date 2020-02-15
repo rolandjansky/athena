@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Configuration of tools shared between Segment Finding and Track Building
 
@@ -388,9 +388,16 @@ def MuPatHitToolCfg(flags, name="MuPatHitTool",**kwargs):
     kwargs.setdefault("MdtRotCreator", mdt_creator)
     
     acc = CscClusterOnTrackCreatorCfg(flags)
-    csc_cluster_creator = acc.getPrimary()
+    csc_cluster_creator = acc.popPrivateTools()
     result.merge(acc)
     kwargs.setdefault("CscRotCreator", csc_cluster_creator)
     
     result.setPrivateTools(Muon__MuPatHitTool(name,**kwargs))
     return result
+
+def MuonRefitToolCfg(flags, name="MuonRefitTool", **kwargs):
+    # FIXME - many tools are not yet explicitly configured here.
+    result= ComponentAccumulator()
+    result.setPrivateTools(CompFactory.Muon__MuonRefitTool(name, **kwargs))
+    return result
+

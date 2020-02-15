@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 13.08.2008, AUTHOR: MAURO IODICE
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS NtupleMdtDqaTool ::
@@ -21,11 +17,6 @@
 #include <vector>
 #include <cstdlib>
 
-// Athena //
-#include "GaudiKernel/MsgStream.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "Identifier/IdentifierHash.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 // MuonReadoutGeometry //
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
@@ -39,12 +30,10 @@
 #include "MdtCalibFitters/QuasianalyticLineReconstruction.h"
 #include "MuonCalibEventBase/MuonCalibEvent.h"
 
-
 // NtupleMdtDqaTool //
 #include "MuonCalibStandAloneExtraTools/NtupleMdtDqaTool.h"
 #include "MuonCalibStandAloneExtraTools/PhiEtaUtils.h"
 #include "MuonCalibStandAloneExtraTools/MDTName.h"
-
 
 //this
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
@@ -59,11 +48,6 @@
 #include "TString.h"
 #include "TDirectory.h"
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
-
-using namespace std;
 namespace MuonCalib {
 
 //*****************************************************************************
@@ -79,7 +63,7 @@ NtupleMdtDqaTool::NtupleMdtDqaTool( const std::string &t, const std::string &n,
     
   declareInterface< NtupleCalibrationTool >(this);	
 
-  m_MdtDqa_file_name = string("MdtDqa");
+  m_MdtDqa_file_name = std::string("MdtDqa");
   declareProperty("MdtDqaFileName", m_MdtDqa_file_name);
 
   m_verbose = false;
@@ -158,40 +142,23 @@ NtupleMdtDqaTool::NtupleMdtDqaTool( const std::string &t, const std::string &n,
 //:::::::::::::::::
 StatusCode NtupleMdtDqaTool::initialize() {
 	
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "Initializing NtupleMdtDqaTool" << endmsg;
+  ATH_MSG_INFO("Initializing NtupleMdtDqaTool");
 
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK(m_idHelperSvc.retrieve());
   
-  StatusCode sc = detStore()->retrieve( m_detMgr );
-  if (!sc.isSuccess()) {
-    log << MSG::FATAL << "Can't retrieve MuonDetectorManager" << endmsg;
-    return sc;
-  }
+  ATH_CHECK(detStore()->retrieve(m_detMgr));
 
   //retrieve fixed id tool   
   std::string idToFixedIdToolType("MuonCalib::IdToFixedIdTool");
   std::string idToFixedIdToolName("MuonCalib_IdToFixedIdTool");
     
-  sc = toolSvc()->retrieveTool(idToFixedIdToolType, idToFixedIdToolName, m_id_tool); 
-  if(!sc.isSuccess()) {
-    log << MSG::FATAL << "Can't retrieve IdToFixedIdTool" << endmsg;
-    return sc;
-  }
+  ATH_CHECK(toolSvc()->retrieveTool(idToFixedIdToolType, idToFixedIdToolName, m_id_tool)); 
 
   //get region selection service
-  sc=service("RegionSelectionSvc", p_reg_sel_svc);
-  if(!sc.isSuccess()) {
-    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endmsg;
-    return sc;
-  }
+  ATH_CHECK(service("RegionSelectionSvc", p_reg_sel_svc));
 
   //get pointer to Calibration input service 
-  sc=service("MdtCalibInputSvc", p_calib_input_svc);
-  if(!sc.isSuccess()) {
-    log << MSG::ERROR <<"Cannot retrieve MdtCalibInputSvc!" <<endmsg;
-    return sc;
-  }
+  ATH_CHECK(service("MdtCalibInputSvc", p_calib_input_svc));
 
   //------------------------------------------------------//
   //-- Check Region and book histograms                 --//
@@ -208,8 +175,8 @@ StatusCode NtupleMdtDqaTool::initialize() {
   int SectorMin[2][2] ;
   int SectorMax[2][2] ;
   int SectorMinMax[2][2][2];
-  string spectrometerRegion[2];
-  string spectrometerSide[2];
+  std::string spectrometerRegion[2];
+  std::string spectrometerSide[2];
   spectrometerRegion[0] = "Barrel";
   spectrometerRegion[1] = "Endcap";
   spectrometerSide[0] = "A";
@@ -226,9 +193,8 @@ StatusCode NtupleMdtDqaTool::initialize() {
   const std::vector<MuonCalib::NtupleStationId> stationsInRegion = p_reg_sel_svc->GetStationsInRegions();
   std::vector<MuonCalib::NtupleStationId>::const_iterator itstation;
   for (itstation = stationsInRegion.begin(); itstation!=stationsInRegion.end(); itstation++) {
-//        int stationNameId = itstation->GetStation();
-    string stationName = itstation->regionId();
-    string chamberType = stationName.substr(0,3);
+    std::string stationName = itstation->regionId();
+    std::string chamberType = stationName.substr(0,3);
     int phi = itstation->GetPhi();
     int eta = itstation->GetEta();
     
@@ -262,10 +228,10 @@ StatusCode NtupleMdtDqaTool::initialize() {
   // m_histoManager = new HistogramManager();
 
   // use HistogramManager constructor with MdtIdHelper to retrieve the chamber geometry
-  m_histoManager = new HistogramManager(m_muonIdHelperTool.get());
+  m_histoManager = new HistogramManager(m_idHelperSvc.get());
   m_histoManager->SetDoTracks(m_doTracks);
 
-  string mdtDqaRootFileName = m_MdtDqa_file_name+".root";
+  std::string mdtDqaRootFileName = m_MdtDqa_file_name+".root";
   if (m_fillHistos || m_doTracks) {
     if(!m_histoManager->openOutputFile(mdtDqaRootFileName)) return StatusCode::FAILURE;
   }
@@ -285,9 +251,6 @@ StatusCode NtupleMdtDqaTool::initialize() {
 	int secMax = SectorMax[i][j];
 	if (secMin>0&&secMin<=16 && secMax>0&&secMax<=16 && secMin<=secMax ) {
 	  m_histoManager->buildTopLevel(spectrometerRegion[i],spectrometerSide[j], secMin, secMax);
-	  //	  std::cout<<" Top Level Histograms histogram built for region :"
-	  //		   <<spectrometerRegion[i] <<" Side : " << spectrometerSide[j]
-	  //		   <<"Sector min : "<< secMin<< "Sector max : "<< secMax<< std::endl;
 	}
       }
     }
@@ -296,17 +259,14 @@ StatusCode NtupleMdtDqaTool::initialize() {
     // 
     for (itstation = stationsInRegion.begin(); itstation!=stationsInRegion.end(); itstation++) {
       //             int stationNameId = itstation->GetStation();
-      string stationName = itstation->regionId();
-      string chamberType = stationName.substr(0,3);
+      std::string stationName = itstation->regionId();
+      std::string chamberType = stationName.substr(0,3);
       int phi = itstation->GetPhi();
       int eta = itstation->GetEta();
       
       MDTName chamb(chamberType,phi,eta);
-      string region = chamb.getRegion();
-      string side = chamb.getSide();
-      //             int sector = chamb.getOnlineSector(); 
-    
-      //      std::cout<<" Chamber Histograms building : "<<chamb.getOnlineName()<<std::endl;
+      std::string region = chamb.getRegion();
+      std::string side = chamb.getSide();
       m_histoManager->buildChamberHistos(chamb);
     }
   }
@@ -331,14 +291,13 @@ StatusCode NtupleMdtDqaTool::initialize() {
     m_tubeEffi = new MdtDqaTubeEfficiency(m_EffiNSigma, m_EffiChi2Cut, 
 					  m_EffiUseDefaultResolution, m_EffiHitADCCut, m_EffiGTFitON,
 					  m_EffiUseNewCalibConstants, m_EffiUseTimeCorrections);
-    if(!m_tubeEffi->initialize(m_muonIdHelperTool.get(), m_detMgr, m_id_tool, p_reg_sel_svc, p_calib_input_svc, m_histoManager).isSuccess()) return StatusCode::FAILURE;
+    if(!m_tubeEffi->initialize(m_idHelperSvc.get(), m_detMgr, m_id_tool, p_reg_sel_svc, p_calib_input_svc, m_histoManager).isSuccess()) return StatusCode::FAILURE;
   }
 
   if (m_doGlobalTimeFit) {
-    // m_globalTimeFit = new MdtDqaGlobalTimeFit(4,10,50.,false);
     m_globalTimeFit = new MdtDqaGlobalTimeFit(m_GTFitSeg_minNumHits,m_GTFitSeg_maxNumHits,m_GTFitSeg_chi2Cut,
 					      m_rtDefaultBfieldON, m_GTFitDebug);
-    if(!m_globalTimeFit->initialize(m_muonIdHelperTool.get(), m_detMgr, m_id_tool, p_reg_sel_svc, m_histoManager).isSuccess()) return StatusCode::FAILURE;
+    if(!m_globalTimeFit->initialize(m_detMgr, m_id_tool, p_reg_sel_svc, m_histoManager).isSuccess()) return StatusCode::FAILURE;
   }
   //FOR THE TRACK ANALYSIS
   if (m_doTracks) {
@@ -355,11 +314,10 @@ StatusCode NtupleMdtDqaTool::initialize() {
 
 StatusCode NtupleMdtDqaTool::finalize(void) {
 
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "Finalizing NtupleMdtDqaTool" << endmsg;
+    ATH_MSG_INFO("Finalizing NtupleMdtDqaTool");
 
      if (m_doFinalize) {
-        log << MSG::INFO << "Executing MdtDqaNtupleAnalysis::histogramAnalysis " << endmsg;
+        ATH_MSG_INFO("Executing MdtDqaNtupleAnalysis::histogramAnalysis ");
         m_ntupleAna->histogramAnalysis(m_histoManager->rootFile());
      } 
 
@@ -395,14 +353,7 @@ StatusCode NtupleMdtDqaTool::handleEvent( const MuonCalibEvent &event,
 //:: METHOD analyseSegments ::
 //::::::::::::::::::::::::::::
 StatusCode NtupleMdtDqaTool::analyseSegments(const std::vector<MuonCalibSegment *> &/*segments*/) {
-
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "NtupleMdtDqaTool::analyseSegments ...it does nothing analysis moved elsewhere" 
-      << endmsg;
-  // if (m_doFinalize && m_doEfficiency ) {
-  //    log << MSG::INFO << "Executing MdtDqaTubeEfficiency::analyseSegments" << endmsg;
-  //    m_tubeEffi->analyseSegments(segments);
-  // }
+  ATH_MSG_INFO("NtupleMdtDqaTool::analyseSegments ...it does nothing analysis moved elsewhere");
   return StatusCode::SUCCESS;
 }
 

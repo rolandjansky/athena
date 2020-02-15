@@ -167,6 +167,7 @@ class WriteTrigDecision ( object ) :
         TopAlg = AlgSequence()
 
         self.TrigDecMaker    = TrigDecisionMaker('TrigDecMaker')
+        self.TrigDecMaker.ExtraOutputs = [('TrigDec::TrigDecision', 'StoreGateSvc+TrigDecision')]
 
         TopAlg += self.TrigDecMaker
 

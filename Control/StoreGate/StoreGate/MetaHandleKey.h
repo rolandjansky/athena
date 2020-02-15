@@ -1,16 +1,17 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_METAHANDLEKEY_H
-#define STOREGATE_METAHANDLEKEY_H 1
+#define STOREGATE_METAHANDLEKEY_H
 
 #include "AthenaKernel/MetaCont.h"
 #include "StoreGate/VarHandleKey.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
-#include "PersistentDataModel/DataHeader.h"
+#include "GaudiKernel/IClassIDSvc.h"
 
 namespace SG {
 
@@ -22,19 +23,6 @@ namespace SG {
                    const std::string& dbKey,
                    Gaudi::DataHandle::Mode a );
 
-    template <class OWNER, class K,
-              typename = typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type>
-    inline MetaHandleKey( OWNER* owner,
-                          std::string name,
-                          const K& key={},
-                          std::string doc="") :
-      MetaHandleKey<T>( key ) {
-      auto p = owner->declareProperty(std::move(name), *this, std::move(doc));
-      p->template setOwnerType<OWNER>();
-    }
-
-//    MetaHandleKey& operator= (const std::string& sgkey);
-
     StatusCode initialize();
 
     const MetaContBase::SourceID& dbKey() const { return m_dbKey; }
@@ -43,14 +31,14 @@ namespace SG {
   protected:
     bool isInit() const { return m_isInit; }
 
-    const MetaCont<T>* getContainer() const { return m_cont; }
+    MetaCont<T>* getContainer ATLAS_NOT_CONST_THREAD_SAFE () const { return m_cont; }
 
     StoreGateSvc* getStore() const;
 
   private:
 
     ServiceHandle<StoreGateSvc> m_store;
-    MetaCont<T>* m_cont{0};
+    MetaCont<T>* m_cont{nullptr};
 
     MetaContBase::SourceID m_dbKey{""};
 

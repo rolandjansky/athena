@@ -107,8 +107,7 @@ class L1Decoder(L1Decoder) :
 
         # CTP unpacker
 
-        ctpUnpacker = CTPUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
-                                       ForceEnableAllChains = True)
+        ctpUnpacker = CTPUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),)
 
         self.ctpUnpacker = ctpUnpacker
         from L1Decoder.L1DecoderConf import FSRoIsUnpackingTool

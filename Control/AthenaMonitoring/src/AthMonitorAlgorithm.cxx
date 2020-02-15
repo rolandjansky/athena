@@ -21,6 +21,10 @@ StatusCode AthMonitorAlgorithm::initialize() {
     // Retrieve the generic monitoring tools (a ToolHandleArray)
     if ( !m_tools.empty() ) {
         ATH_CHECK( m_tools.retrieve() );
+        for (size_t idx = 0; idx < m_tools.size(); ++idx) {
+	    std::string name(m_tools[idx].name());
+	    m_toolLookupMap[ name ] = idx;
+        }
     }
 
     // Retrieve the trigger decision tool if requested
@@ -32,7 +36,7 @@ StatusCode AthMonitorAlgorithm::initialize() {
         if ( m_triggerChainString!="" ) {
             sc = parseList(m_triggerChainString,m_vTrigChainNames);
             if ( !sc.isSuccess() ) {
-                ATH_MSG_WARNING("Error parsing trigger chain list, using empty list instead." << endmsg);
+                ATH_MSG_WARNING("Error parsing trigger chain list, using empty list instead.");
                 m_vTrigChainNames.clear();
             }
 
@@ -86,14 +90,14 @@ StatusCode AthMonitorAlgorithm::execute( const EventContext& ctx ) const {
 
 
 void AthMonitorAlgorithm::fill( const ToolHandle<GenericMonitoringTool>& groupHandle,
-                                MonVarVec_t variables ) const {
-    Monitored::Group(groupHandle,variables).fill();
+                                MonVarVec_t&& variables ) const {
+    Monitored::Group(groupHandle,std::move(variables)).fill();
 }
 
 
 void AthMonitorAlgorithm::fill( const std::string& groupName,
-                                MonVarVec_t variables ) const {
-    fill(getGroup(groupName),variables);
+                                MonVarVec_t&& variables ) const {
+   this->fill(getGroup(groupName),std::move(variables));
 }
 
 
@@ -124,7 +128,7 @@ AthMonitorAlgorithm::Environment_t AthMonitorAlgorithm::envStringToEnum( const s
         return Environment_t::altprod;
     } else { // otherwise, warn the user and return "user"
         ATH_MSG_WARNING("AthMonitorAlgorithm::envStringToEnum(): Unknown environment "
-            <<str<<", returning user."<<endmsg);
+            <<str<<", returning user.");
         return Environment_t::user;
     }
 }
@@ -148,7 +152,7 @@ AthMonitorAlgorithm::DataType_t AthMonitorAlgorithm::dataTypeStringToEnum( const
         return DataType_t::heavyIonCollisions;
     } else { // otherwise, warn the user and return "userDefined"
         ATH_MSG_WARNING("AthMonitorAlgorithm::dataTypeStringToEnum(): Unknown data type "
-            <<str<<", returning userDefined."<<endmsg);
+            <<str<<", returning userDefined.");
         return DataType_t::userDefined;
     }
 }
@@ -156,18 +160,26 @@ AthMonitorAlgorithm::DataType_t AthMonitorAlgorithm::dataTypeStringToEnum( const
 
 ToolHandle<GenericMonitoringTool> AthMonitorAlgorithm::getGroup( const std::string& name ) const {
     // get the pointer to the tool, and check that it exists
-    const ToolHandle<GenericMonitoringTool>* toolPtr = m_tools[name];
-    if ( !toolPtr ) {
-        std::string available = std::accumulate( m_tools.begin(), m_tools.end(),
-            m_tools.begin()->name(), [](std::string s,auto h){return s + "," + h->name();} );
-        ATH_MSG_FATAL( "The tool " << name << " could not be found in the tool array of the " <<
-            "monitoring algorithm " << m_name << ". This probably reflects a discrepancy between " <<
-            "your python configuration and c++ filling code. Note: your available groups are {" <<
-            available << "}." << endmsg );
+    const ToolHandle<GenericMonitoringTool>* toolPtr{nullptr};
+    auto idx = m_toolLookupMap.find(name);
+    if (ATH_LIKELY(idx != m_toolLookupMap.end())) {
+        toolPtr = &m_tools[idx->second];
+    }
+    if ( ATH_UNLIKELY(!toolPtr) ) {
+	if ( ! isInitialized() ) {
+	  ATH_MSG_FATAL("It seems that the AthMonitorAlgorithm::initialize was not called in derived class initialize method");
+	} else {
+	  std::string available = std::accumulate( m_toolLookupMap.begin(), m_toolLookupMap.end(),
+						   std::string(""), [](std::string s, auto h){return s + "," + h.first;} );
+	  ATH_MSG_FATAL( "The tool " << name << " could not be found in the tool array of the " <<
+			 "monitoring algorithm " << m_name << ". This probably reflects a discrepancy between " <<
+			 "your python configuration and c++ filling code. Note: your available groups are {" <<
+			 available << "}." );
+	}
     }
     const ToolHandle<GenericMonitoringTool> toolHandle = *toolPtr;
-    if ( toolHandle.empty() ) {
-        ATH_MSG_FATAL("The tool "<<name<<" could not be found because of an empty tool handle."<<endmsg);
+    if ( ATH_UNLIKELY(toolHandle.empty()) ) {
+        ATH_MSG_FATAL("The tool "<<name<<" could not be found because of an empty tool handle." );
     }
     // return the tool handle
     return toolHandle;

@@ -368,6 +368,11 @@ protected:
       return m_alg->identifySimulator(std::forward<Args>(args)...);
     }
 
+    ToolHandleArray<ISF::ISimulatorTool>& getSimulatorTools() const
+    {
+      return m_alg->m_simulationTools;
+    }
+
     // the tested AthAlgorithm
     ISF::SimKernelMT* m_alg;
 
@@ -619,7 +624,10 @@ protected:
 
     const auto* actualSimulatorToolPtr = &this->identifySimulator(particle);
 
-    const auto* expectedSimulatorToolPtr = m_mockSimulatorTool;
+    ToolHandleArray<ISF::ISimulatorTool>& simulatorTools = this->getSimulatorTools();
+    const unsigned int expectedSize(1);
+    ASSERT_EQ (simulatorTools.size(), expectedSize);
+    ISFTesting::MockSimulatorTool* expectedSimulatorToolPtr = dynamic_cast<ISFTesting::MockSimulatorTool*>(&*(simulatorTools[0]));
     ASSERT_EQ(expectedSimulatorToolPtr, actualSimulatorToolPtr);
   }
 
@@ -710,7 +718,11 @@ protected:
       .WillOnce(::testing::Return(true));
 
     const auto* actualSimulatorToolPtr = &this->identifySimulator(particle);
-    const auto* expectedSimulatorToolPtr = m_mockSimulatorTool;
+    ToolHandleArray<ISF::ISimulatorTool>& simulatorTools = this->getSimulatorTools();
+    const unsigned int expectedSize(1);
+    ASSERT_EQ (simulatorTools.size(), expectedSize);
+    ISFTesting::MockSimulatorTool* expectedSimulatorToolPtr = dynamic_cast<ISFTesting::MockSimulatorTool*>(&*(simulatorTools[0]));
+    ASSERT_EQ(expectedSimulatorToolPtr, actualSimulatorToolPtr);
 
     ASSERT_EQ(expectedSimulatorToolPtr, actualSimulatorToolPtr);
   }

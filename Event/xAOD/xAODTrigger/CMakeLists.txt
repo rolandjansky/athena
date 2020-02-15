@@ -19,7 +19,6 @@ atlas_depends_on_subdirs(
    Control/AthLinks
    Event/xAOD/xAODCore
    Event/xAOD/xAODBase
-   Trigger/TrigConfiguration/TrigConfHLTData
    Trigger/TrigEvent/TrigNavStructure
    ${extra_deps} )
 
@@ -28,7 +27,7 @@ atlas_add_library( xAODTrigger
    xAODTrigger/*.h xAODTrigger/versions/*.h xAODTrigger/versions/*.icc
    Root/*.cxx
    PUBLIC_HEADERS xAODTrigger
-   LINK_LIBRARIES AthContainers AthLinks xAODCore xAODBase TrigConfHLTData TrigNavStructure ${extra_libs} )
+   LINK_LIBRARIES AthContainers AthLinks xAODCore xAODBase TrigNavStructure ${extra_libs} )
 
 atlas_add_dictionary( xAODTriggerDict
    xAODTrigger/xAODTriggerDict.h

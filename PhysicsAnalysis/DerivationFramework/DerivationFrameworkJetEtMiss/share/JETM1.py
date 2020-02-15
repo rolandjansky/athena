@@ -47,7 +47,7 @@ thinningTools = []
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 JETM1MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name     = "JETM1MuonTPThinningTool",
-                                                                    ThinningService         = JETM1ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = streamName,
                                                                     MuonKey                 = "Muons",
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM1MuonTPThinningTool

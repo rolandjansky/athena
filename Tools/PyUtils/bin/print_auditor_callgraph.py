@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    print_auditor_callgraph.py
 # @purpose: print the callgraph sequence of a job stage (ini/exe/fin), parsing
@@ -13,6 +13,8 @@
 # print_auditor_callgraph recexcommon.log
 # @endcode
 #
+
+from __future__ import print_function
 
 __version__ = "$Revision: 1.1 $"
 __author__  = "Sebastien Binet <binet@cern.ch>"
@@ -47,13 +49,13 @@ def parse_log_file(fname, step=Steps.ini):
 
         if beg:
             component = beg.group('CompName')
-            #print "  "*stack,component
+            #print ("  "*stack,component)
             stack += 1
             graph += [ (stack, component) ]
 
         if end:
             component = end.group('CompName')
-            #print "  "*stack,component
+            #print ("  "*stack,component)
             stack -= 1
 
     return graph
@@ -78,7 +80,7 @@ if __name__ == '__main__':
         step = getattr(Steps,step)
         
     gr = parse_log_file(fname,step)
-    #print gr
+    #print (gr)
     for i in gr:
-        print ".."*(i[0]+1),i[1]
+        print (".."*(i[0]+1),i[1])
     

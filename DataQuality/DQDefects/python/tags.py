@@ -11,7 +11,13 @@ from DQDefects import DEFECT_LOGIC_TAG_FORMAT
 from .exceptions import InvalidTagError, InvalidDefectTagError, InvalidLogicTagError
 
 from .virtual_mixin import NONHEAD_MODIFICATION_MSG
-                                
+
+import six
+if six.PY2:
+    def _encode (s, enc): return s.encode(enc)
+else:
+    def _encode (s, enc): return s
+
 class DefectsDBTagsMixin(object):
     def __init__(self):
         super(DefectsDBTagsMixin, self).__init__()
@@ -49,8 +55,8 @@ class DefectsDBTagsMixin(object):
         Give the current HEAD of `folder` a new tag and lock it.
         """
         LOCKED = cool.HvsTagLock.LOCKED
-        name = name.encode('ascii')
-        description = description.encode('utf-8')
+        name = _encode(name,'ascii')
+        description = _encode(description,'utf-8')
         folder.cloneTagAsUserTag('HEAD', name, description)
         folder.setTagLockStatus(name, LOCKED)
     
@@ -63,8 +69,8 @@ class DefectsDBTagsMixin(object):
         and has description
         "(v%i) blah"
         """
-        defects_tag = defects_tag.encode('ascii')
-        logics_tag = logics_tag.encode('ascii')
+        defects_tag = _encode(defects_tag,'ascii')
+        logics_tag = _encode(logics_tag,'ascii')
         logic_revision = int(logics_tag.split("-")[-1])
         defect_part = "-".join(defects_tag.split("-")[1:])
         hierarchical_tag = "DetStatus-v%02i-%s" % (logic_revision, defect_part)
@@ -158,7 +164,7 @@ class DefectsDBTagsMixin(object):
         Parameters:
             `description` : What changed in this tag? (optional, default "")
         """
-        description = description.encode('utf-8')
+        description = _encode(description,'utf-8')
         assert self.logics_tag == "HEAD", NONHEAD_MODIFICATION_MSG
         
         new_tag_name = self.next_logics_tag
@@ -176,8 +182,8 @@ class DefectsDBTagsMixin(object):
             `name` : Name of the new tag
             `description` : Description of the contents of this tag
         """
-        name = name.encode('ascii')
-        description = description.encode('utf-8')
+        name = _encode(name,'ascii')
+        description = _encode(description,'utf-8')
         if name.startswith("DetStatus"):
             raise RuntimeError("Only specify the last part of the defect tag")
         

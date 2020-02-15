@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -38,7 +38,7 @@
 #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 class RegionSelectionSvc;
@@ -64,13 +64,10 @@ class NtupleTubeEfficiencyTool : public AthAlgTool, virtual public NtupleCalibra
     public:
         // Constructors //
         NtupleTubeEfficiencyTool(const std::string& t, const std::string& n, const IInterface* p);
-        ///< Default constructor.
 
-        inline ~NtupleTubeEfficiencyTool(){}
+        ~NtupleTubeEfficiencyTool()=default;
         ///< Destructor
 
-        // Methods //
-	
 	/** tool initialize */
 	StatusCode initialize();
 	
@@ -90,8 +87,7 @@ class NtupleTubeEfficiencyTool : public AthAlgTool, virtual public NtupleCalibra
 		}
     private:
 
-	ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-                "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+	ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 	
 	// MuonDetectorManager from the conditions store
 	SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 

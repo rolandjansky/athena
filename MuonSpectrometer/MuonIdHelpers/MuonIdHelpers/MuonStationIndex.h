@@ -1,10 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonStationIndex.h 732860 2016-03-30 08:53:44Z mcorradi $
 #ifndef MUONIDHELPERS_MUONSTATIONINDEX_H
 #define MUONIDHELPERS_MUONSTATIONINDEX_H
 

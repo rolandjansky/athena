@@ -37,7 +37,7 @@ bool CaloAffectedTool::isAffected(const xAOD::IParticle *p, const CaloAffectedRe
 
    if(!vAff) return false;
 
- static float epsilon=1e-6;
+ static const float epsilon=1e-6;
 
   //std::cout << " in isAffected " << p->eta() << " " << p->phi() << std::endl;
 
@@ -91,7 +91,7 @@ bool CaloAffectedTool::listAffected(const xAOD::IParticle*p, const CaloAffectedR
 
   bool found = false;
 
-  static float epsilon=1e-6;
+  static const float epsilon=1e-6;
 
   layer_list.clear();
   problem_list.clear();

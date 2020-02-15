@@ -19,7 +19,7 @@ namespace Trk {
   /** 
     @class ComparisonFunction 
     
-    this functor inherits from std::binary_function to find the closest objects:
+    this functor is used to find the closest objects:
     
     - a point
     - a line

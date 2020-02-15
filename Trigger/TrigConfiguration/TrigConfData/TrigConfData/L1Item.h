@@ -15,7 +15,7 @@ namespace TrigConf {
     * Provides access to the L1 item name and ID and the deadtime settings, 
     * trigger type, logic, and partition.
     */
-   class L1Item final : virtual public DataStructure {
+   class L1Item final : public DataStructure {
    public:
 
       /** Constructor */
@@ -38,6 +38,9 @@ namespace TrigConf {
       /** Accessor to the item definition */
       const std::string & definition() const;
 
+      /** Accessor to the list of bunchgroups */
+      const std::vector<std::string> & bunchgroups() const;
+
       /** Accessor to the complex deadtime
        *
        * This can be 0 or 1, but 1 has never been used so far
@@ -50,8 +53,15 @@ namespace TrigConf {
       /** Accessor to the item partition */
       unsigned int partition() const;
 
-      /** Accessor to the item triggerType */
+      /** Accessor to the item triggerType
+       * returned format is a string (e.g. "10010010")
+       */
       const std::string & triggerType() const;
+
+      /** Accessor to the item triggerType
+       * returned format is an uchar (8 bit L1 trigger type)
+       */
+      unsigned char triggerTypeAsUChar() const;
 
       /** Accessor to the item logic
        *
@@ -60,6 +70,13 @@ namespace TrigConf {
        */
       DataStructure logic() const;
       
+   private:
+
+      /** Update the internal data after modification of the data object */
+      virtual void update();
+
+      std::vector<std::string> m_bunchgroups{};
+
    };
 
 }

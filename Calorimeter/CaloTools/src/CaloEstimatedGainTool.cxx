@@ -178,7 +178,7 @@ CaloEstimatedGainTool::estimatedTileGain(const CaloCell& caloCell,
   double threshold = m_tileInfo->ADCmax();
 
   // xxx
-  static const TileHWID * tileHWID = TileCablingService::getInstance()->getTileHWID();
+  static TileHWID const * const tileHWID = TileCablingService::getInstance()->getTileHWID();
   static const IdContext chContext = tileHWID->channel_context();
   
   HWIdentifier hwid1;

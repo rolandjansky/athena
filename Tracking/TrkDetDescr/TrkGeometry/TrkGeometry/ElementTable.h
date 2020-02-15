@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,13 +25,13 @@ namespace Trk {
     public:  
       /** Empty constructor */
       ElementTable() :
-        m_table(static_cast<size_t>(UCHAR_MAX),(Material*)0),
+        m_table(static_cast<size_t>(UCHAR_MAX),(Material*)nullptr),
         m_names(static_cast<size_t>(UCHAR_MAX),std::string("None"))
      {}
               
       /** Empty constructor */
       ElementTable(const ElementTable& et) :
-        m_table(static_cast<size_t>(UCHAR_MAX),(Material*)0),
+        m_table(static_cast<size_t>(UCHAR_MAX),(Material*)nullptr),
         m_names(et.m_names)
         {
             for (size_t im = 0; im < et.m_table.size(); ++im ){
@@ -51,7 +51,7 @@ namespace Trk {
               for ( ; elIter != m_table.end(); delete(*elIter), ++elIter );
               m_names = et.m_names;
               for (size_t im = 0; im < et.m_table.size(); ++im ){
-                  m_table[im] = 0;
+                  m_table[im] = nullptr;
                   if (et.m_table[im]) m_table[im] = new Trk::Material(*et.m_table[im]);
               }
           }

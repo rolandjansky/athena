@@ -1,4 +1,4 @@
-print 'SINGLE PARTICLE GENERATOR'
+printfunc ('SINGLE PARTICLE GENERATOR')
 
 import AthenaCommon.AtlasUnixGeneratorJob
 from AthenaCommon.AlgSequence import AlgSequence
@@ -11,7 +11,7 @@ job += pg
 
 include("G4AtlasApps/fragment.SimCopyWeights.py")
 
-print "As this is a single particle generator job turn off VertexPositioner (EventFilter already off when ZDCon)"
+printfunc ("As this is a single particle generator job turn off VertexPositioner (EventFilter already off when ZDCon)")
 simFlags.MagneticField.set_Off()
 simFlags.EventFilter.get_Value()['VertexPositioner'] = False
 simFlags.EventFilter.get_Value()['BeamEffectTransformation'] = False
@@ -21,7 +21,7 @@ simFlags.VertexFromCondDB = False
 try:
     include("ForwardTransportSvc/preInclude.ForwardTransportFlags_3.5TeV_0090.00m_nominal_v02.py")
 except:
-    print "forwardTransportFlags not available in this release. The job will only work if this release uses TwissFiles-00-00-03 or earlier."
+    printfunc ("forwardTransportFlags not available in this release. The job will only work if this release uses TwissFiles-00-00-03 or earlier.")
 
 include('ForwardTransportSvc/ForwardTransportSvcConfig.ALFA.py')
 

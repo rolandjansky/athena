@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import os,sys,string,commands
 from datetime import datetime
@@ -17,7 +17,7 @@ def getFile(timestampfile):
 
   ## file exists?
   if not os.path.exists( timestampfile ):
-    print "ERROR : File <%s> does not exist. Exit." % timestampfile
+    print("ERROR : File <%s> does not exist. Exit." % timestampfile)
     sys.exit(1)
 
   return timestampfile
@@ -27,7 +27,7 @@ def readTimestamp(timestampfile):
   fileLine=open(timestampfile,"r").readlines()
 
   if len(fileLine)<2: 
-    print "ERROR : Cannot interpret timestampfile <%s>. Exit." % timestampfile
+    print("ERROR : Cannot interpret timestampfile <%s>. Exit." % timestampfile)
     sys.exit(1)
 
   timestamp = int(fileLine[0].strip())
@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
   usageline = "usage: " + sys.argv[0] + " <newtimestampfile> [<previoustimestampfile>] [<updatePreviousTimestamp>]"
   if (len(sys.argv)<2):
-    print usageline
+    print(usageline)
     sys.exit(1)
 
   ## getopts
@@ -79,17 +79,16 @@ if __name__ == "__main__":
   ## interpret timestamp
   doInstall,pacmankey = interpretNewTimestamp(newtimestampfile, \
 					      prvtimestampfile)
-  if doInstall: 
-    print "Install new nightly kit ? %s" % str(doInstall)
-    print pacmankey
+  if doInstall:
+    print("Install new nightly kit ? %s" % str(doInstall))
+    print(pacmankey)
   else:
-    print "No need to install new nightly kit."
+    print("No need to install new nightly kit.")
 
   if doInstall and updateTimestamp:
     if len(prvtimestampfile)==0:
       prvtimestampfile="previous_copied_release"
     updatePreviousTimestamp(newtimestampfile,prvtimestampfile)
-    print "Timestamp has been updated, stored as <%s>." % prvtimestampfile
+    print("Timestamp has been updated, stored as <%s>." % prvtimestampfile)
 
-  print "\nErrorCode=0 (OK)"
-
+  print("\nErrorCode=0 (OK)")

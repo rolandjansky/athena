@@ -8,7 +8,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "StoreGate/ReadCondHandle.h"

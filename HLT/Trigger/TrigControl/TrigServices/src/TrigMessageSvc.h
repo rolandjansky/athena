@@ -55,7 +55,7 @@ class TH2I;
  */
 class TrigMessageSvc : public extends<Service, IMessageSvc, IIncidentListener> {
 public:
-  typedef std::map<std::string, int> ThresholdMap;
+  typedef std::map<std::string, int, std::less<> > ThresholdMap;
 
   TrigMessageSvc(const std::string& name, ISvcLocator* svcloc);
 
@@ -82,9 +82,9 @@ public:
   }
 
   virtual int outputLevel() const override;
-  virtual int outputLevel(const std::string& source) const override;
+  virtual int outputLevel(std::string_view source) const override;
   virtual void setOutputLevel(int new_level) override;
-  virtual void setOutputLevel(const std::string& source, int new_level) override;
+  virtual void setOutputLevel(std::string_view source, int new_level) override;
   virtual int messageCount(MSG::Level logLevel) const override;
 
   virtual bool useColor() const override { return m_color; }
@@ -96,7 +96,7 @@ public:
   virtual void eraseMessage() override { NOTSUPPORTED; }
   virtual void eraseMessage(const StatusCode&) override { NOTSUPPORTED; }
   virtual void eraseMessage(const StatusCode&, const Message&) override { NOTSUPPORTED; }
-  virtual void insertStream(int, const std::string&, std::ostream*) override { NOTSUPPORTED; }
+  virtual void insertStream(int, std::string, std::ostream*) override { NOTSUPPORTED; }
   virtual void eraseStream() override { NOTSUPPORTED; }
   virtual void eraseStream(int) override { NOTSUPPORTED; }
   virtual void eraseStream(int, std::ostream*) override { NOTSUPPORTED; }

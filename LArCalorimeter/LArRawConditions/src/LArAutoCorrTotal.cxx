@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "LArRawConditions/LArAutoCorrTotal.h"
 #include "LArIdentifier/LArOnlineID_Base.h"
@@ -32,7 +32,7 @@ bool LArAutoCorrTotal::set(const IdentifierHash &hid, const int gain,
 
 // *** compute AutoCorrTotal (nsamples-1 coeffs) for a given cell ***
 const std::vector<double>
-LArAutoCorrTotal::computeAutoCorr(const std::vector<float> terms,
+LArAutoCorrTotal::computeAutoCorr(const std::vector<float>& terms,
                                   float Nminbias) const {
 
   std::vector<double> vResult;
@@ -73,7 +73,7 @@ const std::vector<double> LArAutoCorrTotal::autoCorrTotal(const Identifier &offi
 }
 
 const std::vector<double>
-LArAutoCorrTotal::computeRMS(const std::vector<float> terms,
+LArAutoCorrTotal::computeRMS(const std::vector<float>& terms,
                              float Nminbias) const {
 
   std::vector<double> vResult;

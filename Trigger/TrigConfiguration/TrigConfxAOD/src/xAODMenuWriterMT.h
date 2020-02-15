@@ -75,8 +75,11 @@ namespace TrigConf {
       Gaudi::Property< std::string > m_metaName {this, "MetaObjectName", "TriggerMenu",
         "StoreGate key for the configuration object"};
 
-      Gaudi::Property< bool > m_isJSONConfig {this, "IsJSONConfig", true,
-        "If converting from a JSON menu (Run3) or from the TrigConfigSvc (Runs 1, 2)"};
+      Gaudi::Property< bool > m_isL1JSONConfig {this, "IsL1JSONConfig", true,
+        "If converting from a L1 JSON menu (Run3) or from the TrigConfigSvc (Runs 1, 2)"};
+
+      Gaudi::Property< bool > m_isHLTJSONConfig {this, "IsHLTJSONConfig", true,
+        "If converting from a HLT JSON menu (Run3) or from the TrigConfigSvc (Runs 1, 2)"};
 
       ServiceHandle< TrigConf::ITrigConfigSvc > m_trigConf {this, "TrigConfigSvc", "TrigConfigSvc",
         "The TrigConfigSvc"};
@@ -84,9 +87,13 @@ namespace TrigConf {
       ServiceHandle< StoreGateSvc > m_metaStore {this, "MetaDataStore", "MetaDataStore",
         "The MetaDataStore"};
 
-      StatusCode populateFromTrigConf(xAOD::TriggerMenu* menu) const;
+      StatusCode populateL1FromTrigConf(xAOD::TriggerMenu* menu) const;
 
-      StatusCode populateFromJSON(xAOD::TriggerMenu* menu, const EventContext& ctx) const;
+      StatusCode populateHLTFromTrigConf(xAOD::TriggerMenu* menu) const;
+
+      StatusCode populateL1FromJSON(xAOD::TriggerMenu* menu, const EventContext& ctx) const;
+
+      StatusCode populateHLTFromJSON(xAOD::TriggerMenu* menu, const EventContext& ctx) const;
 
       StatusCode populateBunchGroup(xAOD::TriggerMenu* menu) const;
 

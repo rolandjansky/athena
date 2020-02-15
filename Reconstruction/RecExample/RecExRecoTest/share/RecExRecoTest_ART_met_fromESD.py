@@ -27,7 +27,7 @@ jobproperties.InDetJobProperties.doxAOD.set_Value_and_Lock(False)
 rec.doFileMetaData.set_Value_and_Lock(False)
 
 athenaCommonFlags.EvtMax=10
-UserAlgs=["RecExRecoTest/RecExRecoTest_setupJetEtMissPFlow.py"]
+UserAlgs=["RecExRecoTest/RecExRecoTests_setupReadID.py"]
+UserAlgs+=["RecExRecoTest/RecExRecoTest_setupJetEtMissPFlow.py"]
 UserAlgs+=["METReconstruction/METReconstruction_jobOptions.py"]
 include ("RecExCommon/RecExCommon_topOptions.py")
-

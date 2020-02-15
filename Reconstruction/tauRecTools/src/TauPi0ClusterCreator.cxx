@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -12,7 +12,6 @@
 //-----------------------------------------------------------------------------
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
-//#include "CaloGeoHelpers/CaloSampling.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "xAODJet/Jet.h"
 
@@ -27,7 +26,6 @@ using std::string;
 //-------------------------------------------------------------------------
 
 TauPi0ClusterCreator::TauPi0ClusterCreator( const string& name) :
-
     TauRecToolBase(name)
     , m_clusterEtCut(500.)
 {
@@ -50,12 +48,6 @@ StatusCode TauPi0ClusterCreator::initialize()
 
 StatusCode TauPi0ClusterCreator::finalize() 
 {
-    return StatusCode::SUCCESS;
-}
-
-StatusCode TauPi0ClusterCreator::eventInitialize() 
-{
-
     return StatusCode::SUCCESS;
 }
 
@@ -231,23 +223,6 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
         return StatusCode::FAILURE;
     }
 
-    return StatusCode::SUCCESS;
-}
-
-
-StatusCode TauPi0ClusterCreator::eventFinalize() 
-{
-    // pt sort container at the end of the event
-    // if(m_pOutputPi0CaloClusterContainer->size()) AnalysisUtils::Sort::pT(m_pOutputPi0CaloClusterContainer);
-
-    //----------------------------------------------------------------------
-    // Register cluster container in StoreGate
-    //----------------------------------------------------------------------
-  //CHECK( CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),
-  //m_pOutputPi0CaloClusterContainer,
-  //                                                m_outputPi0ClusterContainerName,
-  //                                                msg()));
-  
     return StatusCode::SUCCESS;
 }
 

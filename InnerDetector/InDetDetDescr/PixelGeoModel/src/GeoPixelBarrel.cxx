@@ -18,7 +18,7 @@
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "Identifier/Identifier.h"
 #include "InDetGeoModelUtils/ExtraMaterial.h"
 #include "InDetIdentifier/PixelID.h"

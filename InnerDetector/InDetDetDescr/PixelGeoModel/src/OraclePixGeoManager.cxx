@@ -22,7 +22,7 @@
 //
 // Get the pixelDD Manager from SG.
 //
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"

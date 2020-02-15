@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file LArRawConditions/LArCompactSubset.h
  * @author scott snyder <snyder@bnl.gov>
@@ -66,8 +63,9 @@
  * a LArCompactSubsetChannelVectorPointer, which acts like a pointer
  * to the previous class.  If we dereference an element here, we get a...
  *
- * LArCompactSubsetChannelProxy.  This holds a subset pointer and
- * a channel index.  This is a proxy to the data for a single proxy.
+ * LArCompactSubsetChannelProxy or LArCompactSubsetConstChannelProxy.
+ * This holds a subset pointer and
+ * a channel index.  This is a proxy to the data for a single channel.
  * We want to be able to use the class we get here as either
  * a LArShapeP2 or a LArOFCP1.  To really make that work, we'd need
  * to duplicate all the code for the two cases (either manually
@@ -96,15 +94,15 @@ class LAr2DWaveBase;
 
 
 /**
- * @brief A more compact way of storing shape/ofc data.
+ * @brief A more compact way of storing shape/ofc data --- const portion.
  */
-class LArCompactSubsetChannelProxy
+class LArCompactSubsetConstChannelProxy
 {
 public:
   /**
    * @brief Default constructor.  Makes an invalid proxy.
    */
-  LArCompactSubsetChannelProxy();
+  LArCompactSubsetConstChannelProxy();
 
 
   /**
@@ -112,28 +110,14 @@ public:
    * @brief chan The channel index we reference.
    * @brief subset The subset object within which we live.
    */
-  LArCompactSubsetChannelProxy (unsigned int chan,
-                                LArCompactSubsetVector& subset);
+  LArCompactSubsetConstChannelProxy (unsigned int chan,
+                                     const LArCompactSubsetVector& subset);
 
 
   /**
    * @brief Test to see if the proxy is valid.
    */
   bool isValid() const;
-
-
-  /**
-   * @brief Initialize the referenced data from a standalone object.
-   * @param other The object from which to initialize.
-   */
-  LArCompactSubsetChannelProxy& operator= (const LAr2DWaveBase& other);
-
-
-  /**
-   * @brief Initialize the referenced data from a standalone object.
-   * @param other The object from which to initialize.
-   */
-  void assign (const LAr2DWaveBase& other);
 
 
   /**
@@ -177,12 +161,54 @@ public:
   ILArOFC::OFCRef_t OFC_b (size_t tbin) const;
 
 
-private:
+protected:
   /// Channel index to which we're referring.
   unsigned int m_chan;
 
   /// Subset within which we live.  Null for an invalid proxy.
-  LArCompactSubsetVector* m_subset;
+  const LArCompactSubsetVector* m_subset;
+};
+
+
+/**
+ * @brief A more compact way of storing shape/ofc data --- non-const portion.
+ */
+class LArCompactSubsetChannelProxy
+  : public LArCompactSubsetConstChannelProxy
+{
+public:
+  /**
+   * @brief Default constructor.  Makes an invalid proxy.
+   */
+  LArCompactSubsetChannelProxy();
+
+
+  /**
+   * @brief Constructor.
+   * @brief chan The channel index we reference.
+   * @brief subset The subset object within which we live.
+   */
+  LArCompactSubsetChannelProxy (unsigned int chan,
+                                LArCompactSubsetVector& subset);
+
+
+  /**
+   * @brief Initialize the referenced data from a standalone object.
+   * @param other The object from which to initialize.
+   */
+  LArCompactSubsetChannelProxy& operator= (const LAr2DWaveBase& other);
+
+
+  /**
+   * @brief Initialize the referenced data from a standalone object.
+   * @param other The object from which to initialize.
+   */
+  void assign (const LAr2DWaveBase& other);
+
+
+private:
+  /// Subset within which we live (non-const).  Null for an invalid proxy.
+  LArCompactSubsetVector* m_subset_nc;
 };
 
 
@@ -285,7 +311,7 @@ public:
      * @brief Iterator difference.
      * @param other Other iterator for difference.
      */
-    size_t operator- (const const_iterator& other) const;
+    long operator- (const const_iterator& other) const;
 
 
   private:
@@ -349,6 +375,45 @@ protected:
   LArCompactSubsetVector* m_subset;
 };
 
+
+/**
+ * @brief This acts like a vector of channel objects --- const version.
+ *
+ * We don't implement the complete vector interface, though;
+ * just what's actually used.
+ */
+class LArCompactSubsetConstChannelVector
+{
+public:
+  /**
+   * @brief Constructor.
+   * @param febIndex FEB index with which we're associated.
+   * @param subset Subset within which we live.
+   */
+  LArCompactSubsetConstChannelVector (size_t febIndex,
+                                      const LArCompactSubsetVector* subset);
+
+
+  /**
+   * @brief Return the size of this vector (number of channels for this FEB).
+   */
+  size_t size() const;
+
+
+  /**
+   * @brief Vector indexing.  Returns a channel proxy.
+   * @param i Channel index within the vector.
+   */
+  LArCompactSubsetConstChannelProxy operator[] (size_t i) const;
+
+
+protected:
+  /// The index of the FEB with which this vector is associated.
+  size_t m_febIndex;
+
+  /// The subset within which we live.
+  const LArCompactSubsetVector* m_subset;
+};
 
 
 //==========================================================================
@@ -432,11 +497,11 @@ public:
    * @param subset The subset within which we live.
    */
   LArCompactSubsetConstFebPair (size_t febIndex,
-                                LArCompactSubsetVector& subset);
+                                const LArCompactSubsetVector& subset);
 
 
   const FebId& first;
-  LArCompactSubsetChannelVector second;
+  LArCompactSubsetConstChannelVector second;
 };
 
 
@@ -466,6 +531,9 @@ public:
   class iterator
   {
   public:
+    typedef long difference_type;
+
+
     /**
      * @brief Constructor.
      * @param febIndex The FEB index to which we point.
@@ -506,6 +574,13 @@ public:
     iterator operator+ (size_t delta) const;
 
 
+    /**
+     * @brief Iterator difference.
+     * @param other Other iterator for difference.
+     */
+    difference_type operator- (const iterator& other) const;
+
+
   private:
     /// Index we're currently referencing.
     size_t m_febIndex;
@@ -515,8 +590,71 @@ public:
   };
 
 
-  /// Need this type defined, but we don't do anything with it.
-  class const_iterator {};
+  /**
+   * @brief const_iterator class.
+   * This dereferences into LArCompactSubsetConstFebPair.
+   * The iteration variable is the FEB index.
+   */
+  class const_iterator
+  {
+  public:
+    typedef long difference_type;
+
+
+    /**
+     * @brief Constructor.
+     * @param febIndex The FEB index to which we point.
+     * @param subset The subset within which we live.
+     */
+    const_iterator (size_t febIndex,
+                    const LArCompactSubsetVector& subset);
+
+
+    /**
+     * @brief `Dereference' the iterator.
+     */
+    LArCompactSubsetConstFebPair operator*();
+
+
+    /**
+     * @brief Compare iterators for equality.
+     */
+    bool operator== (const const_iterator& other) const;
+
+
+    /**
+     * @brief Compare iterators for inequality.
+     */
+    bool operator!= (const const_iterator& other) const;
+
+
+    /**
+     * @brief Advance iterator.
+     */
+    const_iterator& operator++();
+
+
+    /**
+     * @brief Adjust iterator.
+     * @param delta Amount by which to advance the iterator.
+     */
+    const_iterator operator+ (size_t delta) const;
+
+
+    /**
+     * @brief Iterator difference.
+     * @param other Other iterator for difference.
+     */
+    difference_type operator- (const const_iterator& other) const;
+
+
+  private:
+    /// Index we're currently referencing.
+    size_t m_febIndex;
+
+    /// The subset within which we live.
+    const LArCompactSubsetVector& m_subset;
+  };
 
 
   /**
@@ -555,6 +693,14 @@ public:
   iterator end();
 
 
+  /// Begin iterator.
+  const_iterator begin() const;
+
+
+  /// End iterator.
+  const_iterator end() const;
+
+
   /**
    * @brief Change the size of the vector.
    * @param sz New size.
@@ -571,7 +717,7 @@ public:
    * @brief Release any allocated but unused storage.
    * Called by the P->T converter after conversion is complete.
    */
-  void trim();
+  void shrink_to_fit();
 
 
   //======
@@ -582,6 +728,13 @@ public:
    * @param febIndex Index of the desired FEB ID.
    */
   FebId& febIdRef (size_t febIndex);
+
+
+  /**
+   * @brief Return a reference to a FEB ID variable.
+   * @param febIndex Index of the desired FEB ID.
+   */
+  const FebId& febIdRef (size_t febIndex) const;
 
 
   //======
@@ -694,7 +847,20 @@ public:
                 size_t tbin,
                 size_t chanSize,
                 const LArVectorProxy& from);
-    
+
+
+  /**
+   * @brief Helper used by LArConditionsSubset::assign.
+   * @param otherBeg Start of the range to copy.
+   * @param otherEnd End of the range to copy.
+   * @param to The subset to which to copy.
+   * @param copier Helper to copy a single payload object.
+   */
+  template <class T, class OTHERIT, class COPIER>
+  static void copySubset (OTHERIT otherBeg,
+                          OTHERIT otherEnd,
+                          LArCompactSubsetVector& to,
+                          COPIER copier);
 
 
 private:

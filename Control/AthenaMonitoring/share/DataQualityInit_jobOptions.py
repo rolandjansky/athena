@@ -50,6 +50,6 @@ InDetFlags.doMonitoringPixel=DQMonFlags.doPixelMon()
 InDetFlags.doMonitoringSCT=DQMonFlags.doSCTMon()
 InDetFlags.doMonitoringTRT=DQMonFlags.doTRTMon()
 InDetFlags.doMonitoringGlobal=DQMonFlags.doInDetGlobalMon()
-InDetFlags.doMonitoringPrimaryVertexingEnhanced=DQMonFlags.doInDetGlobalMon()
+#InDetFlags.doMonitoringPrimaryVertexingEnhanced=DQMonFlags.doInDetGlobalMon()
 InDetFlags.doMonitoringAlignment=DQMonFlags.doInDetAlignMon()
 

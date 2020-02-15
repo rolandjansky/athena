@@ -680,7 +680,7 @@ if rec.doWriteBS() and not recAlgs.doTrigger():
 
 pdr.flag_domain('tagraw')
 ## add in RawInfoSummaryForTagWriter
-if rec.doESD() and not rec.readESD() and rec.doTagRawSummary():
+if rec.doESD() and not rec.readESD() and (rec.doBeamBackgroundFiller() or rec.doTagRawSummary()):
     try:
         include("EventTagRawAlgs/RawInfoSummaryForTagWriter_jobOptions.py")
     except:
@@ -690,7 +690,7 @@ if rec.doESD() and not rec.readESD() and rec.doTagRawSummary():
     pass
 # write the background word into EventInfo (Jamie Boyd)
 # need to go here for ordering reasons...
-if rec.doESD() and not rec.readESD():
+if rec.doESD() and not rec.readESD() and rec.doBeamBackgroundFiller():
     try:
         protectedInclude ("RecBackgroundAlgs/RecBackground_jobOptions.py")
     except Exception:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //-----------------------------------------------------------------------
 // File and Version Information:
@@ -240,10 +240,7 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::initialize()
     }
   }
   */
-  // pointer to detector manager:
-  //m_calo_dd_man = CaloDetDescrManager::instance(); 
   
-  //m_calo_id = m_calo_dd_man->getCaloCell_ID();
   ATH_CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
   
   ATH_CHECK(m_caloDepthTool.retrieve());

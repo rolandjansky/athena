@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "egammaCaloClusterSelector.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloUtils/CaloCellList.h"
-
+#include "CaloDetDescr/CaloDetDescrManager.h"
 egammaCaloClusterSelector::egammaCaloClusterSelector(const std::string& type, 
                                                      const std::string& name, 
                                                      const IInterface* parent) :
@@ -58,6 +58,7 @@ StatusCode egammaCaloClusterSelector::initialize()
 		  << ", must be zero or the number of Et bins: " <<  numBins);
     return StatusCode::FAILURE;
   }
+
   return StatusCode::SUCCESS;
 }
 
@@ -66,8 +67,9 @@ StatusCode egammaCaloClusterSelector::finalize()
   return StatusCode::SUCCESS;
 }
 
-bool egammaCaloClusterSelector::passSelection(const xAOD::CaloCluster* cluster) const
-{
+bool egammaCaloClusterSelector::passSelection(
+    const xAOD::CaloCluster* cluster, const CaloDetDescrManager& cmgr) const {
+  
   /* Minimum Cluster energy*/
   if ( cluster->et() < m_ClusterEtCut ){
     ATH_MSG_DEBUG("Cluster failed Energy Cut: dont make ROI");
@@ -105,7 +107,11 @@ bool egammaCaloClusterSelector::passSelection(const xAOD::CaloCluster* cluster) 
   static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
   const double emFrac = acc.isAvailable(*cluster)? acc(*cluster) : 0.;
   const double EMEnergy= cluster->e()* emFrac;
-  const double EMEt = EMEnergy/cosh(eta2);
+  double EMEt = EMEnergy/std::cosh(eta2);
+  const double rescaleFactor = 1.0/m_EMEtSplittingFraction;
+  if ((std::abs(cluster->eta()) > 1.37 && std::abs(cluster->eta()) < 1.52)) {
+    EMEt*=rescaleFactor;
+  }
   const double bin = findETBin(EMEt);
   /* Check for the minimum EM Et required this should be the 0th entry in EMEtRanges*/
   if (bin<0){
@@ -123,7 +129,7 @@ bool egammaCaloClusterSelector::passSelection(const xAOD::CaloCluster* cluster) 
     SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
     if(m_doReta){
       IegammaMiddleShape::Info info;
-      StatusCode sc = m_egammaMiddleShape->execute(*cluster, *cellcoll, info);
+      StatusCode sc = m_egammaMiddleShape->execute(*cluster, cmgr,*cellcoll, info);
       if ( sc.isFailure() ) {
         ATH_MSG_WARNING("call to Middle shape returns failure for execute");
         return false;
@@ -171,6 +177,7 @@ int egammaCaloClusterSelector::findETBin(double EMEt) const
 {
   const int numBins = m_EMEtRanges.size();
   int newBin = 0;
+
   while (newBin < numBins && EMEt > m_EMEtRanges[newBin]) {
     newBin++;
   }

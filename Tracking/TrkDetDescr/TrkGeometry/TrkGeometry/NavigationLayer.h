@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,9 +40,9 @@ namespace Trk {
       public:                
         /**Constructor - the surface representation is given by pointer (ownership passed)*/
         NavigationLayer(Surface* surfaceRepresentation, 
-                        Layer* previous=0,
-                        Layer* next=0,
-                        BinUtility* binUtil = 0);
+                        Layer* previous=nullptr,
+                        Layer* next=nullptr,
+                        BinUtility* binUtil = nullptr);
         
         /**Constructor - the surface representation is given by pointer (ownership passed)
             - spacer layer if needed            
@@ -54,7 +54,7 @@ namespace Trk {
         NavigationLayer(const NavigationLayer& lay);
                                       
         /**Destructor*/
-        virtual ~NavigationLayer();
+        virtual ~NavigationLayer() override;
         
         /** Assignment operator */
         NavigationLayer& operator=(const NavigationLayer& lay);
@@ -69,26 +69,26 @@ namespace Trk {
         const MaterialProperties* fullUpdateMaterialProperties() const;
         
         /** getting the MaterialProperties back - for pre-update*/ 
-        double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                       Trk::PropDirection dir) const override;
+        virtual double preUpdateMaterialFactor(const Trk::TrackParameters& par,
+                                               Trk::PropDirection dir) const override;
 
         /** getting the MaterialProperties back - for post-update*/ 
-        double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                         Trk::PropDirection dir) const override;
+        virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
+                                                 Trk::PropDirection dir) const override;
                                                                       
         /** getting the next/overlapping Surface */
-        const Surface* overlapSurface(const TrackParameters& tp, const Surface* sf = 0) const;
+        const Surface* overlapSurface(const TrackParameters& tp, const Surface* sf = nullptr) const;
         
         /** move the Layer */
         virtual void moveLayer( Amg::Transform3D&  )  override;
         /** move the Layer */
-        virtual void moveLayer ATLAS_NOT_CONST_THREAD_SAFE ( Amg::Transform3D&  ) const override;
+        virtual void moveLayer ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D&  ) const override;
     protected:
       /** Resize the layer to the tracking volume - not implemented */
       virtual void resizeLayer(const VolumeBounds&, double) override {}
       /** Resize the layer to the tracking volume - not implemented */
-      virtual void resizeLayer ATLAS_NOT_CONST_THREAD_SAFE(const VolumeBounds&,
-                                                           double) const override
+      virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                                                     double) const override
       {}
 
       /** Resize the layer to the tracking volume - not implemented */
@@ -97,9 +97,9 @@ namespace Trk {
                                             double) override
       {}
       /** Resize the layer to the tracking volume - not implemented */
-      virtual void resizeAndRepositionLayer ATLAS_NOT_CONST_THREAD_SAFE(const VolumeBounds&,
-                                                                        const Amg::Vector3D&,
-                                                                        double) const override
+      virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                                                                  const Amg::Vector3D&,
+                                                                  double) const override
       {}
 
       Surface*
@@ -114,7 +114,7 @@ namespace Trk {
 inline const Surface&            NavigationLayer::surfaceRepresentation() const { return (*m_surfaceRepresentation); }  
   
 inline const MaterialProperties* NavigationLayer::fullUpdateMaterialProperties() const 
-{ return 0; }
+{ return nullptr; }
 
 inline double NavigationLayer::preUpdateMaterialFactor(const TrackParameters&, PropDirection) const 
 { return 0; }
@@ -123,7 +123,7 @@ inline double NavigationLayer::postUpdateMaterialFactor(const TrackParameters&, 
 { return 0; }
 
 inline const Surface* NavigationLayer::overlapSurface(const TrackParameters&, const Surface*) const
-{ return 0; }
+{ return nullptr; }
 
 inline void NavigationLayer::moveLayer( Amg::Transform3D& ) 
 { }

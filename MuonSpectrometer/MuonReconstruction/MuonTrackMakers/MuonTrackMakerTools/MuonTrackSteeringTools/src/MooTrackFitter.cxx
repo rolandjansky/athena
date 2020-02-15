@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooTrackFitter.h"
@@ -28,7 +28,6 @@
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 
@@ -71,7 +70,7 @@ namespace Muon {
     ATH_CHECK( m_trackFitter.retrieve() );
     ATH_CHECK( m_trackFitterPrefit.retrieve() );
     ATH_CHECK( m_momentumEstimator.retrieve() );
-    ATH_CHECK( m_idHelperTool.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_hitHandler.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
@@ -498,7 +497,7 @@ namespace Muon {
       
       if( hit.info().status != MuPatHit::OnTrack || !id.is_valid() ) continue;
 
-      MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(id);
+      MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(id);
       MuonStationIndex::StIndex stIndex = MuonStationIndex::toStationIndex( chIndex );
       fitterData.stations.insert(stIndex);
       
@@ -507,10 +506,10 @@ namespace Muon {
         firstStation = stIndex;
       }
 
-      bool measuresPhi = m_idHelperTool->measuresPhi(id);
+      bool measuresPhi = m_idHelperSvc->measuresPhi(id);
 
-      if( !m_idHelperTool->isTgc(id) && !measuresPhi ){
-        bool isSmall = m_idHelperTool->isSmallChamber(id);
+      if( !m_idHelperSvc->isTgc(id) && !measuresPhi ){
+        bool isSmall = m_idHelperSvc->isSmallChamber(id);
 
         SLStationMap::iterator pos = fitterData.smallLargeChambersPerStation.find(stIndex);
         if( pos == fitterData.smallLargeChambersPerStation.end() ){
@@ -524,7 +523,7 @@ namespace Muon {
       }
 
 
-      bool isEndcap = m_idHelperTool->isEndcap(id);
+      bool isEndcap = m_idHelperSvc->isEndcap(id);
       if( isEndcap && !fitterData.hasEndcap ) fitterData.hasEndcap = true;
       if( !isEndcap && !fitterData.hasBarrel ) fitterData.hasBarrel = true;
 
@@ -542,14 +541,14 @@ namespace Muon {
         
         double rDrift = meas->localParameters()[Trk::locR];
         double rError = Amg::error(meas->localCovariance(),Trk::locR);
-        if( usePreciseHits && m_idHelperTool->isMdt(id) && fabs(rDrift) < 0.01 && rError > 4. ) {
+        if( usePreciseHits && m_idHelperSvc->isMdt(id) && fabs(rDrift) < 0.01 && rError > 4. ) {
           ATH_MSG_WARNING(" MDT hit error broad but expected precise error " );
         }
       }
       
       fitterData.measurements.push_back(meas);
 
-      if( !measuresPhi && m_idHelperTool->isTrigger(id) ) continue;
+      if( !measuresPhi && m_idHelperSvc->isTrigger(id) ) continue;
 
       if( lit == hitList.begin() ){
         currentChIndex = chIndex;
@@ -668,7 +667,7 @@ namespace Muon {
 
         // only perform SL overlap fit for MDT segments
         Identifier chId = m_edmHelperSvc->chamberId(*segInfo1->segment);
-        if( !m_idHelperTool->isMdt(chId) ) return false;
+        if( !m_idHelperSvc->isMdt(chId) ) return false;
 
         ATH_MSG_VERBOSE(" Special treatment for tracks with one station, a SL overlap and no phi hits " );
         
@@ -758,7 +757,7 @@ namespace Muon {
 	 delete overlapPos;overlapPos=0;
          return false;
         }
-        MuonStationIndex::StIndex firstSt = m_idHelperTool->stationIndex(firstId);
+        MuonStationIndex::StIndex firstSt = m_idHelperSvc->stationIndex(firstId);
         if( overlapStation == firstSt ){
           ATH_MSG_VERBOSE(" Adding fake in same station as overlap " );
 
@@ -911,8 +910,8 @@ namespace Muon {
       return 0;
     }
     // check whether phi measurement, exit if true
-    if( m_idHelperTool->measuresPhi(id) ) {
-      ATH_MSG_WARNING(" Measurement is a phi measurement! " << m_idHelperTool->toString(id) );
+    if( m_idHelperSvc->measuresPhi(id) ) {
+      ATH_MSG_WARNING(" Measurement is a phi measurement! " << m_idHelperSvc->toString(id) );
       return 0;
     }
     double length = 1e9; // initialize to large value
@@ -931,11 +930,11 @@ namespace Muon {
     // get channel length and detector element
     const Trk::TrkDetElementBase* detEl = 0;
     if( !rot ){
-      ATH_MSG_WARNING(" Measurement not a ROT "<< m_idHelperTool->toString(id) );
+      ATH_MSG_WARNING(" Measurement not a ROT "<< m_idHelperSvc->toString(id) );
       return 0;
     }
 
-    if( m_idHelperTool->mdtIdHelper().is_mdt(id) ){
+    if( m_idHelperSvc->isMdt(id) ){
       isMdt = true;
       const MuonGM::MdtReadoutElement* mdtDetEl = dynamic_cast<const MuonGM::MdtReadoutElement*>(rot->detectorElement());
       if( !mdtDetEl ) {
@@ -943,10 +942,10 @@ namespace Muon {
         return 0;
       }
       detEl = mdtDetEl;
-      int layer = m_idHelperTool->mdtIdHelper().tubeLayer(id);
-      int tube  = m_idHelperTool->mdtIdHelper().tube(id);
+      int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
+      int tube  = m_idHelperSvc->mdtIdHelper().tube(id);
       length    = mdtDetEl->getActiveTubeLength(layer,tube);
-    }else if( m_idHelperTool->isCsc(id) ){
+    }else if( m_idHelperSvc->isCsc(id) ){
       const MuonGM::CscReadoutElement* cscDetEl = dynamic_cast<const MuonGM::CscReadoutElement*>(rot->detectorElement());
       if( !cscDetEl ) {
         ATH_MSG_WARNING(" CSC without CscReadoutElement! " );
@@ -954,7 +953,7 @@ namespace Muon {
       }
       detEl = cscDetEl;
       length = cscDetEl->stripLength(id);
-    }else if( m_idHelperTool->isRpc(id) ){
+    }else if( m_idHelperSvc->isRpc(id) ){
       const MuonGM::RpcReadoutElement* rpcDetEl = dynamic_cast<const MuonGM::RpcReadoutElement*>(rot->detectorElement());
       if( !rpcDetEl ) {
         ATH_MSG_WARNING(" RPC without RpcReadoutElement! " );
@@ -962,15 +961,15 @@ namespace Muon {
       }
       detEl = rpcDetEl;
       length = rpcDetEl->StripLength(false); // eta-strip
-    }else if( m_idHelperTool->isTgc(id) ){
+    }else if( m_idHelperSvc->isTgc(id) ){
       const MuonGM::TgcReadoutElement* tgcDetEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(rot->detectorElement());
       if( !tgcDetEl ) {
         ATH_MSG_WARNING(" TGC without TgcReadoutElement! " );
         return 0;
       }
       detEl = tgcDetEl;
-      length = tgcDetEl->WireLength(m_idHelperTool->tgcIdHelper().gasGap(id),m_idHelperTool->tgcIdHelper().channel(id));
-    }else if( m_idHelperTool->issTgc(id) ){
+      length = tgcDetEl->WireLength(m_idHelperSvc->tgcIdHelper().gasGap(id),m_idHelperSvc->tgcIdHelper().channel(id));
+    }else if( m_idHelperSvc->issTgc(id) ){
       const MuonGM::sTgcReadoutElement* stgcDetEl = dynamic_cast<const MuonGM::sTgcReadoutElement*>(rot->detectorElement());
       if( !stgcDetEl || !stgcDetEl->getDesign(id) ) {
         ATH_MSG_WARNING(" STGC without sTgcReadoutElement! " );
@@ -978,8 +977,8 @@ namespace Muon {
       }
       detEl = stgcDetEl;
       const MuonGM::MuonChannelDesign* design = stgcDetEl->getDesign(id);
-      length = design->channelLength( m_idHelperTool->stgcIdHelper().channel(id) );
-    }else if( m_idHelperTool->isMM(id) ){
+      length = design->channelLength( m_idHelperSvc->stgcIdHelper().channel(id) );
+    }else if( m_idHelperSvc->isMM(id) ){
       const MuonGM::MMReadoutElement* mmDetEl = dynamic_cast<const MuonGM::MMReadoutElement*>(rot->detectorElement());
       if( !mmDetEl || !mmDetEl->getDesign(id) ) {
         ATH_MSG_WARNING(" STGC without sTgcReadoutElement! " );
@@ -987,12 +986,12 @@ namespace Muon {
       }
       detEl = mmDetEl;
       const MuonGM::MuonChannelDesign* design = mmDetEl->getDesign(id);
-      length = design->channelLength( m_idHelperTool->mmIdHelper().channel(id) );
+      length = design->channelLength( m_idHelperSvc->mmIdHelper().channel(id) );
     }
 
     // we need the detEl and channel length
     if( !detEl ) {
-      ATH_MSG_WARNING(" no detector element found for measurement: "<< m_idHelperTool->toString(id) );
+      ATH_MSG_WARNING(" no detector element found for measurement: "<< m_idHelperSvc->toString(id) );
       return 0;
     }
 
@@ -1123,7 +1122,7 @@ namespace Muon {
       const Amg::Vector3D* fakePos = meas.associatedSurface().localToGlobal(locpos);
 
       if( fakePos ){
-        msg(MSG::DEBUG) << MSG::DEBUG << " createFakePhiForMeasurement for:  " << m_idHelperTool->toStringChamber( id ) 
+        msg(MSG::DEBUG) << MSG::DEBUG << " createFakePhiForMeasurement for:  " << m_idHelperSvc->toStringChamber( id ) 
                << "   locY " << ly
                << "  errpr " << errPos << " phi " << fakePos->phi() << endmsg;
         
@@ -1223,10 +1222,10 @@ namespace Muon {
 
       // get station data
       const Identifier& chId = chit->chamberId();
-      MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(chId);
+      MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);
       StationPhiData& stData = stationDataMap[stIndex];
       if( chit->isMdt() ){
-        if( m_idHelperTool->isSmallChamber(chId) ) ++stData.nSmallChambers;
+        if( m_idHelperSvc->isSmallChamber(chId) ) ++stData.nSmallChambers;
         else                                       ++stData.nLargeChambers;
       }else{
         if( chit->phiProjection().nhits ) ++stData.nphiHits;
@@ -1295,49 +1294,49 @@ namespace Muon {
       double x =  rot->localParameters()[Trk::locX];
       double halfLength = 0.;
 
-      if( m_idHelperTool->isMdt(id) ){
+      if( m_idHelperSvc->isMdt(id) ){
 	const MuonGM::MdtReadoutElement* mdtDetEl = dynamic_cast<const MuonGM::MdtReadoutElement*>(rot->detectorElement());
 	if( mdtDetEl ) {
-	  int layer = m_idHelperTool->mdtIdHelper().tubeLayer(id);
-	  int tube  = m_idHelperTool->mdtIdHelper().tube(id);
+	  int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
+	  int tube  = m_idHelperSvc->mdtIdHelper().tube(id);
 	  halfLength = 0.5*mdtDetEl->getActiveTubeLength(layer,tube);
 	}
-      }else if( m_idHelperTool->isCsc(id) ) {
+      }else if( m_idHelperSvc->isCsc(id) ) {
         const MuonGM::CscReadoutElement* cscDetEl = dynamic_cast<const MuonGM::CscReadoutElement*>(rot->detectorElement());
         if( cscDetEl ) {
           halfLength = 0.5*cscDetEl->stripLength(id);
         }
-      }else if( m_idHelperTool->isRpc(id) ) {
+      }else if( m_idHelperSvc->isRpc(id) ) {
 	const MuonGM::RpcReadoutElement* rpcDetEl = dynamic_cast<const MuonGM::RpcReadoutElement*>(rot->detectorElement());
 	if( rpcDetEl ) {
 	  halfLength = 0.5*rpcDetEl->StripLength(false); // eta-strip
 	}
-      }else if( m_idHelperTool->isTgc(id) ){
+      }else if( m_idHelperSvc->isTgc(id) ){
 	const MuonGM::TgcReadoutElement* tgcDetEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(rot->detectorElement());
 	if( tgcDetEl ) {
-	  halfLength = 0.5*tgcDetEl->WireLength(m_idHelperTool->tgcIdHelper().gasGap(id),m_idHelperTool->tgcIdHelper().channel(id));
+	  halfLength = 0.5*tgcDetEl->WireLength(m_idHelperSvc->tgcIdHelper().gasGap(id),m_idHelperSvc->tgcIdHelper().channel(id));
 	}
-      }else if( m_idHelperTool->issTgc(id) ){
+      }else if( m_idHelperSvc->issTgc(id) ){
 	const MuonGM::sTgcReadoutElement* stgcDetEl = dynamic_cast<const MuonGM::sTgcReadoutElement*>(rot->detectorElement());
 	if( stgcDetEl ){
 	  const MuonGM::MuonChannelDesign* design = stgcDetEl->getDesign(id);
 	  if( design ){
-	    halfLength = 0.5*design->channelLength( m_idHelperTool->stgcIdHelper().channel(id) );
+	    halfLength = 0.5*design->channelLength( m_idHelperSvc->stgcIdHelper().channel(id) );
 	  }
 	}
-      }else if( m_idHelperTool->isMM(id) ){
+      }else if( m_idHelperSvc->isMM(id) ){
 	const MuonGM::MMReadoutElement* mmDetEl = dynamic_cast<const MuonGM::MMReadoutElement*>(rot->detectorElement());
 	if( mmDetEl ) {
 	  const MuonGM::MuonChannelDesign* design = mmDetEl->getDesign(id);
 	  if( design ){
-	    halfLength = 0.5*design->channelLength( m_idHelperTool->mmIdHelper().channel(id) );
+	    halfLength = 0.5*design->channelLength( m_idHelperSvc->mmIdHelper().channel(id) );
 	  }
 	}
       }
       Amg::Vector2D lpLeft(x,-halfLength);
       const Amg::Vector3D* gposLeft = surf.localToGlobal(lpLeft);
       if( !gposLeft ){
-        ATH_MSG_WARNING(" Failed calculation left phi for "<< m_idHelperTool->toString(id) );
+        ATH_MSG_WARNING(" Failed calculation left phi for "<< m_idHelperSvc->toString(id) );
         continue;
       }
       double phiLeft = gposLeft->phi();
@@ -1346,7 +1345,7 @@ namespace Muon {
       Amg::Vector2D lpRight(x,halfLength);
       const Amg::Vector3D* gposRight = surf.localToGlobal(lpRight);
       if( !gposRight ){
-        ATH_MSG_WARNING(" Failed calculation right phi for "<< m_idHelperTool->toString(id) );
+        ATH_MSG_WARNING(" Failed calculation right phi for "<< m_idHelperSvc->toString(id) );
         continue;
       }
       double phiRight = gposRight->phi();
@@ -1530,7 +1529,7 @@ namespace Muon {
 
         // only perform SL overlap fit for MDT segments
         Identifier chId = m_edmHelperSvc->chamberId(*segInfo1->segment);
-        if( m_idHelperTool->isMdt(chId) ) {
+        if( m_idHelperSvc->isMdt(chId) ) {
         
           IMuonSegmentInOverlapResolvingTool::SegmentMatchResult result = m_overlapResolver->matchResult(*segInfo1->segment,*segInfo2->segment);
           
@@ -1967,7 +1966,7 @@ namespace Muon {
     for( ;hit!=hit_end;++hit ){
       const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(*hit);
       if( rot ){
-	if(  m_idHelperTool->issTgc( rot->identify() )  ){
+	if(  m_idHelperSvc->issTgc( rot->identify() )  ){
 	  rotsNSW.push_back(rot->clone());
 	  continue;
 	}
@@ -1983,7 +1982,7 @@ namespace Muon {
         for( ;mit!=mit_end; ++mit ) {
           rots.push_back( *mit );
           ids.insert( (*mit)->identify() );
-          MuonStationIndex::StIndex stIndex =  m_idHelperTool->stationIndex( (*mit)->identify() );
+          MuonStationIndex::StIndex stIndex =  m_idHelperSvc->stationIndex( (*mit)->identify() );
           stations.insert(stIndex);
         }
       }else{
@@ -2017,7 +2016,7 @@ namespace Muon {
         if( ids.count( (*pit)->identify() ) ) continue;
         
         // do not add CSCs as they really should be on a segment
-        if( m_idHelperTool->isCsc( (*pit)->identify() ) || m_idHelperTool->issTgc( (*pit)->identify() ) ) continue;
+        if( m_idHelperSvc->isCsc( (*pit)->identify() ) || m_idHelperSvc->issTgc( (*pit)->identify() ) ) continue;
 
         roadPhiHits.push_back( *pit );
       }
@@ -2230,13 +2229,13 @@ namespace Muon {
       double dr = Amg::error(mdt->localCovariance(),Trk::locR);
 
       // create identifier
-      TrkDriftCircleMath::MdtId mdtid( m_idHelperTool->mdtIdHelper().isBarrel(id),m_idHelperTool->mdtIdHelper().multilayer(id)-1, 
-                                       m_idHelperTool->mdtIdHelper().tubeLayer(id)-1, m_idHelperTool->mdtIdHelper().tube(id)-1 );
+      TrkDriftCircleMath::MdtId mdtid( m_idHelperSvc->mdtIdHelper().isBarrel(id),m_idHelperSvc->mdtIdHelper().multilayer(id)-1, 
+                                       m_idHelperSvc->mdtIdHelper().tubeLayer(id)-1, m_idHelperSvc->mdtIdHelper().tube(id)-1 );
 
       // create new DriftCircle
       TrkDriftCircleMath::DriftCircle dc( lpos, r, dr, TrkDriftCircleMath::DriftCircle::InTime, mdtid, index, mdt );
       TrkDriftCircleMath::DCOnTrack dcOnTrack(dc,1.,1.);
-      ATH_MSG_VERBOSE(" new MDT hit " << m_idHelperTool->toString( id ) );
+      ATH_MSG_VERBOSE(" new MDT hit " << m_idHelperSvc->toString( id ) );
       
       dcs.push_back( dcOnTrack );
       indexIdMap.push_back( std::make_pair(id,false) );
@@ -2291,7 +2290,7 @@ namespace Muon {
       std::vector< std::pair<Identifier,bool> >::iterator iit_end = indexIdMap.end();
       for( ;iit!=iit_end;++iit ){
         if(iit->second){
-          ATH_MSG_DEBUG(" removing hit " << m_idHelperTool->toString( iit->first ) );
+          ATH_MSG_DEBUG(" removing hit " << m_idHelperSvc->toString( iit->first ) );
           removedIdentifiers.insert( iit->first );
         }
       }
@@ -2312,7 +2311,7 @@ namespace Muon {
     std::set<Identifier>::iterator iit_end = removedIdentifiers.end();
     for( ;iit!=iit_end;++iit ){
       if( msgLvl(MSG::VERBOSE) ) {
-        msg(MSG::VERBOSE) << m_idHelperTool->toString( *iit ) << endmsg;
+        msg(MSG::VERBOSE) << m_idHelperSvc->toString( *iit ) << endmsg;
       }
       m_hitHandler->remove(*iit,fitterData.hitList);
     }
@@ -2423,7 +2422,7 @@ namespace Muon {
 
       // get identifier, if it has no identifier or is not a muon hit continue
       Identifier id = m_edmHelperSvc->getIdentifier(*meas);
-      if( !id.is_valid() || !m_idHelperTool->mdtIdHelper().is_muon(id) ) {
+      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) {
         ATH_MSG_VERBOSE(" adding state with measurement without valid identifier " << m_printer->print(*pars) );
         currentTrack->tsos.push_back(*tit);
         continue;
@@ -2432,7 +2431,7 @@ namespace Muon {
       if( nperigees == 1 ) ATH_MSG_WARNING(" found muon measurement inbetween the two perigees, this should not happen " );
 
       // add station index for MDT and CSC hits
-      if( !m_idHelperTool->isTrigger(id) ) currentTrack->stations.insert(m_idHelperTool->stationIndex(id));
+      if( !m_idHelperSvc->isTrigger(id) ) currentTrack->stations.insert(m_idHelperSvc->stationIndex(id));
 
       ATH_MSG_VERBOSE(" adding  " << m_printer->print(*meas) );
 
@@ -2532,12 +2531,12 @@ namespace Muon {
         if( !meas ) continue;
         
         Identifier id = m_edmHelperSvc->getIdentifier(*meas);
-        if( !id.is_valid() || !m_idHelperTool->mdtIdHelper().is_muon(id) ) continue;
+        if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
 
-        if( m_idHelperTool->isMdt(id) ){
+        if( m_idHelperSvc->isMdt(id) ){
           if( !firstMeas ) firstMeas = *tit;
           lastMeas = *tit;
-        }else if( m_idHelperTool->measuresPhi(id) ) {
+        }else if( m_idHelperSvc->measuresPhi(id) ) {
           phiMeas = *tit;
         }
       }

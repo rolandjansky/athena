@@ -1,12 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentOverlapRemovalTool.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "MuonSegment/MuonSegment.h"
 
@@ -20,7 +16,6 @@ namespace Muon {
 
   MuonSegmentOverlapRemovalTool::MuonSegmentOverlapRemovalTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
-      m_idHelperTool("Muon::MuonIdHelpers/MuonIdHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
     declareInterface<IMuonSegmentOverlapRemovalTool>(this);
@@ -29,49 +24,13 @@ namespace Muon {
     declareProperty("OverlapFractionCut",m_overlapFractionCut = 0.8,"Cut overlap fraction, if fraction is smaller than cut both segments are kept");
   }
 
-
-  MuonSegmentOverlapRemovalTool::~MuonSegmentOverlapRemovalTool(){}
-
-
   StatusCode MuonSegmentOverlapRemovalTool::initialize()
   {
-    StatusCode sc = AlgTool::initialize(); 
-    if ( sc.isFailure() ) {
-      return sc;
-    }
-
-    sc = m_edmHelperSvc.retrieve();
-    if (sc.isSuccess()){
-      ATH_MSG_INFO("Retrieved " << m_edmHelperSvc );
-    }else{
-      ATH_MSG_FATAL("Could not get " << m_edmHelperSvc ); 
-      return sc;
-    }
-
-    sc = m_printer.retrieve();
-    if (sc.isSuccess()){
-      ATH_MSG_INFO("Retrieved " << m_printer );
-    }else{
-      ATH_MSG_FATAL("Could not get " << m_printer ); 
-      return sc;
-    }
-
-    sc = m_idHelperTool.retrieve();
-    if (sc.isSuccess()){
-      ATH_MSG_INFO("Retrieved " << m_idHelperTool );
-    }else{
-      ATH_MSG_FATAL("Could not get " << m_idHelperTool ); 
-      return sc;
-    }
-
-    
+    ATH_CHECK(AlgTool::initialize()); 
+    ATH_CHECK(m_edmHelperSvc.retrieve());
+    ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     return StatusCode::SUCCESS;
-  }
-  StatusCode MuonSegmentOverlapRemovalTool::finalize()
-  {
-    StatusCode sc = AlgTool::finalize(); 
-    if( sc.isFailure() ) return StatusCode::FAILURE;
-    return sc;
   }
 
   void MuonSegmentOverlapRemovalTool::removeDuplicates( Trk::SegmentCollection* segments ) const {
@@ -99,7 +58,7 @@ namespace Muon {
       }
       MuonSegmentKey sk(*seg);
       Identifier chId = m_edmHelperSvc->chamberId(*seg);
-      bool isCsc = m_idHelperTool->isCsc(chId);
+      bool isCsc = m_idHelperSvc->isCsc(chId);
 
       // should this segment be inserted?
       bool insertAsGood(true);
@@ -327,7 +286,7 @@ namespace Muon {
       MuonSegment* seg=(*sit).get();
       MuonSegmentKey sk(*seg);
       Identifier chId = m_edmHelperSvc->chamberId(*seg);
-      bool isCsc = m_idHelperTool->isCsc(chId);
+      bool isCsc = m_idHelperSvc->isCsc(chId);
 
       // should this segment be inserted?
       bool insertAsGood(true);

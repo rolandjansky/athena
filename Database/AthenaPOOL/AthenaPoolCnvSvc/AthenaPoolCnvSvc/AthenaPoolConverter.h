@@ -70,7 +70,7 @@ public:
    static const CLID& classID();
 
    /// Implement cleanUp for AthenaPoolConverter to do nothing.
-   virtual StatusCode cleanUp() override;
+   virtual StatusCode cleanUp(const std::string& output) override;
 
 
 protected:
@@ -98,9 +98,9 @@ protected:
    /// Set POOL placement hint for a given type.
    /// @param tname [IN] type name.
    /// @param key [IN] SG key.
-   virtual void setPlacementWithType(const std::string& tname, const std::string& key, const std::string& output);
+   virtual Placement setPlacementWithType(const std::string& tname, const std::string& key, const std::string& output);
    /// Set POOL placement hint; pure virtual method implemented by classes templated by type
-   virtual void setPlacement(const std::string& key, const std::string& output) = 0;
+   virtual Placement setPlacement(const std::string& key, const std::string& output) = 0;
 
    /// @return data object from the converter.
    virtual const DataObject* getDataObject() const;
@@ -109,7 +109,6 @@ protected:
 
 protected: // data
    ServiceHandle<IAthenaPoolCnvSvc> m_athenaPoolCnvSvc;
-   Placement*            m_placement;
    RootType              m_classDesc;
 
    typedef std::map<std::string, std::string>         StringMap;

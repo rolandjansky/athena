@@ -91,8 +91,8 @@ class RungeKuttaUtils
   /////////////////////////////////////////////////////////////////////////////////
 
 public:
-  RungeKuttaUtils(){};
-  virtual ~RungeKuttaUtils(){};
+  RungeKuttaUtils()= default;
+  virtual ~RungeKuttaUtils()= default;
 
   /////////////////////////////////////////////////////////////////////////////////
   // Step estimators to surface
@@ -100,9 +100,9 @@ public:
 
   double stepEstimator(int, double*, const double*, bool&) const;
   double stepEstimatorToCone(double* ATH_RESTRICT, const double* ATH_RESTRICT, bool&) const;
-  double stepEstimatorToPlane(double* ATH_RESTRICT, const double* ATH_RESTRICT, bool&) const;
+  double stepEstimatorToPlane(const double* ATH_RESTRICT, const double* ATH_RESTRICT, bool&) const;
   double stepEstimatorToCylinder(double* ATH_RESTRICT, const double* ATH_RESTRICT, bool&) const;
-  double stepEstimatorToStraightLine(double* ATH_RESTRICT, const double* ATH_RESTRICT, bool&) const;
+  double stepEstimatorToStraightLine(const double* ATH_RESTRICT, const double* ATH_RESTRICT, bool&) const;
 
   /////////////////////////////////////////////////////////////////////////////////
   // Step estimators to surfaces
@@ -161,7 +161,7 @@ public:
                               double* ATH_RESTRICT) const;
   void transformGlobalToCone(const Trk::Surface*,
                              bool,
-                             double* ATH_RESTRICT,
+                             const double* ATH_RESTRICT,
                              double* ATH_RESTRICT,
                              double* ATH_RESTRICT) const;
   void transformGlobalToDisc(const Trk::Surface*,
@@ -220,7 +220,7 @@ public:
   void jacobianTransformCurvilinearToDisc(double* ATH_RESTRICT, double* ATH_RESTRICT) const;
   void jacobianTransformCurvilinearToPlane(double* ATH_RESTRICT, double* ATH_RESTRICT) const;
   void jacobianTransformCurvilinearToCylinder(double* ATH_RESTRICT, double* ATH_RESTRICT) const;
-  void jacobianTransformCurvilinearToStraightLine(double* ATH_RESTRICT, double* ATH_RESTRICT) const;
+  void jacobianTransformCurvilinearToStraightLine(const double* ATH_RESTRICT, double* ATH_RESTRICT) const;
 
 private:
   /////////////////////////////////////////////////////////////////////////////////

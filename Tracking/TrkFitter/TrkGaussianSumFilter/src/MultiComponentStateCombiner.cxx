@@ -20,8 +20,7 @@ Trk::MultiComponentStateCombiner::combine(const Trk::MultiComponentState& uncomb
                                           const bool useMode,
                                           const double fractionPDFused)
 {
-  std::unique_ptr<Trk::ComponentParameters> combinedComponent =
-    compute(&uncombinedState, useMode, fractionPDFused);
+  std::unique_ptr<Trk::ComponentParameters> combinedComponent = compute(&uncombinedState, useMode, fractionPDFused);
   return std::move(combinedComponent->first);
 }
 
@@ -93,19 +92,14 @@ Trk::MultiComponentStateCombiner::combineWithWeight(Trk::ComponentParameters& me
     } else if (parameterDifference[2] < -M_PI) {
       parameterDifference[2] += 2 * M_PI;
     }
-    AmgSymMatrix(5) unity;
-    for (int i(0); i < 5; ++i) {
-      for (int j(0); j < 5; ++j) {
-        unity(i, j) = parameterDifference(i) * parameterDifference(j);
-      }
-    }
-    covariancePart2 = firstWeight * secondWeight * unity;
+
+    covariancePart2 = firstWeight * secondWeight * parameterDifference * parameterDifference.transpose();
     (*covariance) = covariancePart1 / totalWeight + covariancePart2 / (totalWeight * totalWeight);
 
     mergeTo.first->updateParameters(mean, covariance);
     mergeTo.second = totalWeight;
   } else {
-    mergeTo.first->updateParameters(mean, 0);
+    mergeTo.first->updateParameters(mean, nullptr);
     mergeTo.second = totalWeight;
   }
 }
@@ -175,6 +169,8 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
     // associated error matrix.
     const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
 
+    // Calculate the combined covariance matrix 
+    // \sigma = \Sum_{m=1}^{M} w_{m}(\sigma_m + (\mu_m-\mu)(\mu_m-\mu)^{T})
     if (measuredCov) {
       // Changed from errorMatrixInMeasurementFrame
 
@@ -191,18 +187,11 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
         if (remainingComponentIterator == component)
           continue;
 
-        AmgVector(5) parameterDifference =
-          parameters - ((*remainingComponentIterator).first)->parameters();
+        AmgVector(5) parameterDifference = parameters - ((*remainingComponentIterator).first)->parameters();
 
         double remainingComponentIteratorWeight = (*remainingComponentIterator).second;
 
-        AmgSymMatrix(5) unity;
-        for (int i(0); i < 5; ++i) {
-          for (int j(0); j < 5; ++j) {
-            unity(i, j) = parameterDifference(i) * parameterDifference(j);
-          }
-        }
-        covariancePart2 += weight * remainingComponentIteratorWeight * unity;
+        covariancePart2 += weight * remainingComponentIteratorWeight * parameterDifference * parameterDifference.transpose();
 
       } // end loop over remaining components
 
@@ -226,7 +215,7 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
   if (useMode && dimension == 5) {
 
     // Calculate the mode of the q/p distribution
-    std::array<double,10> modes = Trk::MultiComponentStateModeCalculator::calculateMode(*uncombinedState);
+    std::array<double, 10> modes = Trk::MultiComponentStateModeCalculator::calculateMode(*uncombinedState);
 
     //  Replace mean with mode if qOverP mode is not 0
     if (modes[4] != 0) {
@@ -292,11 +281,11 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
   double theta = mean[Trk::theta];
   double qoverp = mean[Trk::qOverP];
   if (firstMeasuredCov)
-    combinedTrackParameters.reset(firstParameters->associatedSurface().createTrackParameters(
-      loc1, loc2, phi, theta, qoverp, covariance));
+    combinedTrackParameters.reset(
+      firstParameters->associatedSurface().createTrackParameters(loc1, loc2, phi, theta, qoverp, covariance));
   else {
-    combinedTrackParameters.reset(firstParameters->associatedSurface().createTrackParameters(
-      loc1, loc2, phi, theta, qoverp, nullptr));
+    combinedTrackParameters.reset(
+      firstParameters->associatedSurface().createTrackParameters(loc1, loc2, phi, theta, qoverp, nullptr));
     delete covariance;
   }
 

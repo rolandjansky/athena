@@ -15,14 +15,14 @@ if "TimeStamp" not in dir():
       ts=strptime(date+'/UTC','%Y-%m-%d:%H:%M:%S/%Z')
       TimeStamp=int(timegm(ts))*1000000000L
    except ValueError:
-      print "ERROR in time specification, use e.g. 2007-05-25:14:01:00"
+      printfunc ("ERROR in time specification, use e.g. 2007-05-25:14:01:00")
       
 
 from LArCalibProcessing.TimeStampToRunLumi import TimeStampToRunLumi
 
 rlb=TimeStampToRunLumi(TimeStamp)
 if rlb is None:
-   print "WARNING: Failed to convert time",TimeStamp,"into a run/lumi number"
+   printfunc ("WARNING: Failed to convert time",TimeStamp,"into a run/lumi number")
    myRunNumber=999999
    myLumiBlock=0 
 else:
@@ -33,7 +33,7 @@ if "RunNumber" in dir():
    myRunNumber=RunNumber
    myLumiBlock=0
 
-print "Working on run",myRunNumber,"LB",myLumiBlock,"Timestamp:",TimeStamp
+printfunc ("Working on run",myRunNumber,"LB",myLumiBlock,"Timestamp:",TimeStamp)
 
 if "GlobalTag" not in dir():
     GlobalTag     = 'CONDBR2-BLKPA-2015-05'
