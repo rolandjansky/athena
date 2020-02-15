@@ -46,7 +46,7 @@ class  ConfiguredNewTrackingSiPattern:
 
          topSequence += InDetPRD_Association
          if (InDetFlags.doPrintConfigurables()):
-            print InDetPRD_Association
+            printfunc (InDetPRD_Association)
 
       # ------------------------------------------------------------
       #
@@ -127,7 +127,7 @@ class  ConfiguredNewTrackingSiPattern:
          #InDetSiSpacePointsSeedMaker.OutputLevel = VERBOSE
          ToolSvc += InDetSiSpacePointsSeedMaker
          if (InDetFlags.doPrintConfigurables()):
-            print InDetSiSpacePointsSeedMaker
+            printfunc (InDetSiSpacePointsSeedMaker)
             
          #
          # --- Z-coordinates primary vertices finder (only for collisions)
@@ -147,7 +147,7 @@ class  ConfiguredNewTrackingSiPattern:
                
             ToolSvc += InDetZvertexMaker
             if (InDetFlags.doPrintConfigurables()):
-               print InDetZvertexMaker
+               printfunc (InDetZvertexMaker)
 
          else:
             InDetZvertexMaker = None
@@ -164,7 +164,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                                         SCTManagerLocation = InDetKeys.SCT_Manager(),         
                                                                         RoadWidth          = NewTrackingCuts.RoadWidth())
          if (InDetFlags.doPrintConfigurables()):
-            print      InDetSiDetElementsRoadMaker
+            printfunc (     InDetSiDetElementsRoadMaker)
          # Condition algorithm for InDet__SiDetElementsRoadMaker_xk
          if DetFlags.haveRIO.pixel_on():
              # Condition algorithm for SiCombinatorialTrackFinder_xk
@@ -305,7 +305,7 @@ class  ConfiguredNewTrackingSiPattern:
          #InDetSiTrackMaker.OutputLevel = VERBOSE				  
          ToolSvc += InDetSiTrackMaker
          if (InDetFlags.doPrintConfigurables()):
-            print InDetSiTrackMaker
+            printfunc (InDetSiTrackMaker)
          #
          # set output track collection name
         #
@@ -353,7 +353,7 @@ class  ConfiguredNewTrackingSiPattern:
          #InDetSiSPSeededTrackFinder.OutputLevel =VERBOSE 
          topSequence += InDetSiSPSeededTrackFinder
          if (InDetFlags.doPrintConfigurables()):
-            print InDetSiSPSeededTrackFinder
+            printfunc (InDetSiSPSeededTrackFinder)
 
          if not InDetFlags.doSGDeletion():
             if InDetFlags.doTruth():
@@ -446,7 +446,7 @@ class  ConfiguredNewTrackingSiPattern:
 
          ToolSvc += InDetAmbiTrackSelectionTool
          if (InDetFlags.doPrintConfigurables()):
-            print InDetAmbiTrackSelectionTool
+            printfunc (InDetAmbiTrackSelectionTool)
          #
          # --- set up different Scoring Tool for collisions and cosmics
          #
@@ -492,7 +492,7 @@ class  ConfiguredNewTrackingSiPattern:
 
          ToolSvc += InDetAmbiScoringTool
          if (InDetFlags.doPrintConfigurables()):
-            print InDetAmbiScoringTool
+            printfunc (InDetAmbiScoringTool)
          #
          # --- load Ambiguity Processor
          #
@@ -563,8 +563,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                  RefitPrds          = True)
            InDetAmbiguityScoreProcessor = None
 
-         print "DEBUG change to 'NnPixelClusterSplitProbTool' in globals() %s" % ("yes" if globals().has_key('NnPixelClusterSplitProbTool') == 'NnPixelClusterSplitProbTool' in globals() else "NO")
-         if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM")  and globals().has_key('NnPixelClusterSplitProbTool'):
+         if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM")  and 'NnPixelClusterSplitProbTool' in globals():
            if InDetAmbiguityScoreProcessor : 
               InDetAmbiguityScoreProcessor.SplitProbTool             = NnPixelClusterSplitProbTool
               InDetAmbiguityScoreProcessor.sharedProbCut             = prob1
@@ -596,7 +595,7 @@ class  ConfiguredNewTrackingSiPattern:
          
          ToolSvc += InDetAmbiguityProcessor
          if (InDetFlags.doPrintConfigurables()):
-            print InDetAmbiguityProcessor
+            printfunc (InDetAmbiguityProcessor)
 
          # add InDetAmbiguityScoreProcessor
          if InDetAmbiguityScoreProcessor :
@@ -620,7 +619,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                         AmbiguityScoreProcessor =  InDetAmbiguityScoreProcessor ) ## TODO: check the case when it is None object
          topSequence += InDetAmbiguityScore
          if (InDetFlags.doPrintConfigurables()):
-            print InDetAmbiguityScore
+            printfunc (InDetAmbiguityScore)
 
 
          #
@@ -635,7 +634,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                         AmbiguityProcessor = InDetAmbiguityProcessor)
          topSequence += InDetAmbiguitySolver
          if (InDetFlags.doPrintConfigurables()):
-            print InDetAmbiguitySolver
+            printfunc (InDetAmbiguitySolver)
 
          #
          # --- Delete Silicon Sp-Seeded tracks

@@ -22,7 +22,7 @@ Trk::GlueVolumesDescriptor::GlueVolumesDescriptor(const std::map<Trk::BoundarySu
        m_glueFaces.push_back(searchIter->first);
 }
 
-void Trk::GlueVolumesDescriptor::registerGlueVolumes(Trk::BoundarySurfaceFace bsf, std::vector<const Trk::TrackingVolume*>&gvs) const
+void Trk::GlueVolumesDescriptor::registerGlueVolumes(Trk::BoundarySurfaceFace bsf, std::vector<const Trk::TrackingVolume*>&gvs)
 {
   // register the face
   Trk::GlueVolumeIterator searchIter = m_glueVolumes.begin();
@@ -36,8 +36,8 @@ void Trk::GlueVolumesDescriptor::registerGlueVolumes(Trk::BoundarySurfaceFace bs
 const std::vector<const Trk::TrackingVolume*>& Trk::GlueVolumesDescriptor::glueVolumes(Trk::BoundarySurfaceFace bsf) const
 {
 
-  Trk::GlueVolumeIterator searchIter = m_glueVolumes.begin();
-  Trk::GlueVolumeIterator endIter    = m_glueVolumes.end(); 
+  Trk::GlueVolumeConstIterator searchIter = m_glueVolumes.begin();
+  Trk::GlueVolumeConstIterator endIter    = m_glueVolumes.end(); 
 
   searchIter = m_glueVolumes.find(bsf);
   if (searchIter != endIter) return searchIter->second;

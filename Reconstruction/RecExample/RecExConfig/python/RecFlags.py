@@ -63,6 +63,15 @@ class doTagRawSummary(JobProperty):
     StoredValue=True
 #
 #
+class doBeamBackgroundFiller(JobProperty):
+    """ Activate BeamBackgroundWordFiller 
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+#
+#
+
 class doDPD(JobProperty):
     """ If True computes DPD objects and writes them
     """
@@ -1013,7 +1022,7 @@ jobproperties.add_Container(Rec)
 #jobproperties.Rec.RecAlgs.import_JobProperties('RecExConfig.RecAlgsFlags')
 
 # I want always the following flags in the Rec container
-_list_Rec=[TAGFromRDO, doTagRawSummary , \
+_list_Rec=[TAGFromRDO, doTagRawSummary , doBeamBackgroundFiller, \
 OutputLevel, RootHistoOutput, RootNtupleOutput, UserAlgs, UserExecs, UserFlags, doDPD, DPDMakerScripts, LoadGeometry, doAOD, doAODCaloCells, doESD,\
 doAODall, doCBNT, doPyDump, doMonitoring, doCheckDictionary, doCheckJOT,CBNTAthenaAware,\
 doDetailedAuditor, doSGAuditor, doFastMemoryAuditor, doMemoryAuditor, OutputSuffix, OutputFileNameForRecoStep, doPerfMon, doDetailedPerfMon, doSemiDetailedPerfMon, doRecoTiming, doDumpMC, doDumpPoolInputContent, doDumpProperties,\

@@ -132,6 +132,8 @@ class TileCalibUtils{
   static unsigned int badtiming_definition_chan() {return BADTIMING_DEFINITION_CHAN;}
   /** @brief Python compatibility function */
   static unsigned int wrongbcid_definition_chan() {return WRONGBCID_DEFINITION_CHAN;}
+  /** @brief Python compatibility function */
+  static unsigned int timingdmubcoffset_definition_chan() {return TIMINGDMUBCOFFSET_DEFINITION_CHAN;}
 
   static const unsigned int MAX_ROS      =  5;  /**< @brief Number of ROSs               */
   static const unsigned int MAX_DRAWER   = 64;  /**< @brief Number of drawers in ROS 1-4 */
@@ -149,6 +151,7 @@ class TileCalibUtils{
   static const unsigned int NOGAINL1_DEFINITION_CHAN = 2;   /**< @brief Channel used for storing of NoGainLevel1 channel definitions */
   static const unsigned int BADTIMING_DEFINITION_CHAN = 3;   /**< @brief Channel used for storing of bad timing channel definitions */
   static const unsigned int WRONGBCID_DEFINITION_CHAN = 4;   /**< @brief Channel used for storing of wrong BCID channel definitions */
+  static const unsigned int TIMINGDMUBCOFFSET_DEFINITION_CHAN = 5;   /**< @brief Channel used for storing of affected timing channel definitions */
 };
 
 #endif

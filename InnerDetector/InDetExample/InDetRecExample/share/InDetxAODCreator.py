@@ -6,7 +6,7 @@ from RecExConfig.ObjKeyStore   import cfgKeyStore
 def getCollectionNameIfInFile(coll_type,coll_name) :
     from RecExConfig.AutoConfiguration import IsInInputFile
     if not IsInInputFile(coll_type,coll_name) :
-        print 'DEBUG getRecTrackParticleNameIfInFile set %s' % coll_name
+        printfunc ('DEBUG getRecTrackParticleNameIfInFile set %s' % coll_name)
         return coll_name
     else :
         return ""
@@ -30,9 +30,9 @@ doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracki
                     and not InDetFlags.doLowPtLargeD0() and InDetFlags.doParticleConversion()
 
 if doCreation:
-    print "Creating xAOD::TrackParticles from Trk::Tracks"
+    printfunc ("Creating xAOD::TrackParticles from Trk::Tracks")
 if doConversion:
-    print "Converting Rec::TrackParticles to xAOD::TrackParticles"
+    printfunc ("Converting Rec::TrackParticles to xAOD::TrackParticles")
 
 
 
@@ -89,7 +89,7 @@ def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
 
     ToolSvc += InDetxAODParticleCreatorTool
     if InDetFlags.doPrintConfigurables():
-        print InDetxAODParticleCreatorTool
+        printfunc (InDetxAODParticleCreatorTool)
     return InDetxAODParticleCreatorTool
 
 

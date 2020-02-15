@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -41,11 +41,6 @@ TauPi0ClusterScaler::~TauPi0ClusterScaler()
 
 
 StatusCode TauPi0ClusterScaler::initialize()
-{
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TauPi0ClusterScaler::eventInitialize()
 {
   return StatusCode::SUCCESS;
 }
@@ -341,7 +336,3 @@ void TauPi0ClusterScaler::subtractChargedEnergyFromNeutralPFOs(xAOD::PFOContaine
     }
 }
 
-StatusCode TauPi0ClusterScaler::eventFinalize() {
-  
-  return StatusCode::SUCCESS;
-}

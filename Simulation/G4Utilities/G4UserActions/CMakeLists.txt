@@ -22,7 +22,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/G4Sim/MCTruthBase
                           Simulation/G4Sim/SimHelpers
                           Simulation/G4Utilities/TrackWriteFastSim
-                          Control/AthToolSupport/AsgTools
                           Simulation/G4Utilities/G4DebuggingTools
                           Tools/PathResolver )
 

@@ -3,9 +3,15 @@ from __future__ import with_statement
 import sys
 import os
 
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
+
+import six
+
 def _make_jobo(job):
     import tempfile
-    jobo = tempfile.NamedTemporaryFile(suffix='-jobo.py')
+    jobo = tempfile.NamedTemporaryFile(suffix='-jobo.py', mode='w')
     import textwrap
     job = textwrap.dedent (job)
     jobo.writelines([l+os.linesep for l in job.splitlines()])
@@ -14,14 +20,13 @@ def _make_jobo(job):
 
 def _run_jobo(job, msg, logfile_name=None):
     import os,atexit,tempfile,shutil,glob,time
-    import commands
-    sc,out = commands.getstatusoutput ('which athena.py')
+    sc,out = subprocess.getstatusoutput ('which athena.py')
     if sc != 0:
         raise RuntimeError ("could not locate 'athena.py'")
     app = out
     jobo = _make_jobo(job)
 
-    sc,out = commands.getstatusoutput ('which sh')
+    sc,out = subprocess.getstatusoutput ('which sh')
     if sc != 0:
         raise RuntimeError ("could not locate 'sh'")
     sh = out
@@ -30,7 +35,8 @@ def _run_jobo(job, msg, logfile_name=None):
         import os, tempfile
         logfile = tempfile.NamedTemporaryFile (prefix='test_pickling_job_',
                                                suffix='.logfile.txt',
-                                               dir=os.getcwd())
+                                               dir=os.getcwd(),
+                                               mode='w+')
     else:
         import os
         if os.path.exists (logfile_name):
@@ -40,9 +46,11 @@ def _run_jobo(job, msg, logfile_name=None):
     out = []
     cmd = [sh, app, jobo.name]
     import subprocess as sub
+    encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
     app_handle = sub.Popen (args=[sh, app, jobo.name],
                             stdout=logfile,
-                            stderr=logfile)
+                            stderr=logfile,
+                            **encargs)
     while app_handle.poll() is None:
         time.sleep (5)
         pass
@@ -81,7 +89,7 @@ def main():
         pass
     else:
         parser.print_help()
-        print "you need to give a joboption name to execute !"
+        print ("you need to give a joboption name to execute !")
         sys.exit (1)
         pass
     

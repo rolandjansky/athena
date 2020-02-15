@@ -7,12 +7,6 @@
 TrigConf::HLTPrescalesSet::HLTPrescalesSet()
 {}
 
-TrigConf::HLTPrescalesSet::HLTPrescalesSet(const TrigConf::HLTPrescalesSet & o)
-   : DataStructure(o.m_data)
-{
-   update();
-}
-
 TrigConf::HLTPrescalesSet::HLTPrescalesSet(const boost::property_tree::ptree & data) 
    : DataStructure(data)
 {
@@ -25,8 +19,8 @@ TrigConf::HLTPrescalesSet::~HLTPrescalesSet()
 void
 TrigConf::HLTPrescalesSet::update()
 {
-   m_name = m_data.get_child("name").get_value<std::string>();
-   const auto & prescales = m_data.get_child("prescales");
+   m_name = data().get_child("name").get_value<std::string>();
+   const auto & prescales = data().get_child("prescales");
    for( auto & p : prescales ) {
 
       double prescaleValue = p.second.get_child("prescale").get_value<double>();
@@ -34,7 +28,7 @@ TrigConf::HLTPrescalesSet::update()
       ps.prescale = prescaleValue < 0 ? -prescaleValue : prescaleValue;
       ps.enabled = (prescaleValue > 0);
       boost::optional<bool> enabledField = p.second.get_optional<bool>("enabled");
-      if( ! enabledField ) {
+      if( enabledField ) {
          ps.enabled = *enabledField;
       }
 
@@ -68,3 +62,19 @@ const TrigConf::HLTPrescalesSet::HLTPrescale &
 TrigConf::HLTPrescalesSet::prescale(uint32_t chainHash) const {
    return m_prescalesByHash.at(chainHash);
 }
+
+
+void
+TrigConf::HLTPrescalesSet::printPrescaleSet(bool full) const
+{
+   std::cout << "Name '" << name() << "'" << std::endl;
+   std::cout << "Prescales: " << size() << std::endl;
+   if(full) {
+      int c(0);
+      for( auto & ps : m_prescales ) {
+         std::cout << "  " << c++ << ": " << ps.first << " -> " << ps.second.prescale << (ps.second.enabled ? "" : " (disabled)" ) << std::endl;
+      }
+   }
+   std::cout << "The PrescaleSet " << (ownsData() ? "owns" : "does not own") << " the ptree" << std::endl;
+}
+

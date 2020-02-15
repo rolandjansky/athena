@@ -5,7 +5,7 @@ try:
     from CaloRec.CaloRecConf import CaloCellMaker                
 except:
     mlog.error("could not import CaloRec.CaloCellMaker")
-    print traceback.format_exc()
+    mlog.error (traceback.format_exc())
    
 theCaloCellMakerLG=CaloCellMaker("CaloCellMakerLG")
 theCaloCellMakerLG.CaloCellsOutputName = "AllCaloLG"
@@ -117,10 +117,10 @@ if not hasattr( ToolSvc, "CaloCellContainerCheckerToolHG" ):
 else:
     theCaloCellMakerHG.CaloCellMakerToolNames += ["CaloCellContainerCheckerToolHG"]
 
-print theCaloCellMakerLG
-print ToolSvc.TileCellBuilderLG
+printfunc (theCaloCellMakerLG)
+printfunc (ToolSvc.TileCellBuilderLG)
 
-print "####################################################################################"
+printfunc ("####################################################################################")
 
-print theCaloCellMakerHG
-print ToolSvc.TileCellBuilderHG
+printfunc (theCaloCellMakerHG)
+printfunc (ToolSvc.TileCellBuilderHG)

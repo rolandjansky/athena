@@ -1,5 +1,3 @@
-# $Id: CMakeLists.txt 787195 2016-11-29 19:49:18Z krasznaa $
-
 # The name of the package:
 atlas_subdir( EventLoop )
 
@@ -10,27 +8,25 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/D3PDTools/SampleHandler
    PRIVATE
    Control/AthToolSupport/AsgTools
-   Control/xAODRootAccess )
+   Control/xAODRootAccess
+   Tools/PathResolver )
 
 # Find the needed external(s):
-find_package( ROOT COMPONENTS Core RIO Hist Tree TreePlayer Proof ProofPlayer )
+find_package( ROOT COMPONENTS Core RIO Hist Tree TreePlayer )
 find_package( GTest )
 
 # Component(s) in the package:
 atlas_add_root_dictionary( EventLoop
    EventLoopDictSource
-   ROOT_HEADERS EventLoop/Algorithm.h EventLoop/BackgroundDriver.h
-   EventLoop/BackgroundJob.h EventLoop/BackgroundTSelector.h
-   EventLoop/BackgroundWorker.h EventLoop/BatchDriver.h
+   ROOT_HEADERS EventLoop/Algorithm.h EventLoop/AnaAlgorithmWrapper.h 
+   EventLoop/BatchDriver.h
    EventLoop/BatchJob.h EventLoop/BatchSegment.h EventLoop/BatchSample.h
-   EventLoop/BatchWorker.h EventLoop/CondorDriver.h EventLoop/DirectDriver.h
-   EventLoop/D3PDReaderSvc.h EventLoop/GEDriver.h EventLoop/Job.h
+   EventLoop/CondorDriver.h EventLoop/DirectDriver.h
+   EventLoop/GEDriver.h EventLoop/Job.h EventLoop/KubernetesDriver.h
    EventLoop/LLDriver.h EventLoop/LSFDriver.h EventLoop/LocalDriver.h
-   EventLoop/OutputStream.h EventLoop/MetricsSvc.h EventLoop/ProofArgs.h
-   EventLoop/ProofDriver.h EventLoop/ProofTSelector.h EventLoop/SoGEDriver.h
-   EventLoop/StatusCode.h EventLoop/TEventSvc.h EventLoop/TorqueDriver.h
-   EventLoop/UnitTestAlg.h EventLoop/UnitTestAlg1.h EventLoop/VomsProxySvc.h
-   EventLoop/Worker.h EventLoop/ProofWorker.h EventLoop/SlurmDriver.h
+   EventLoop/OutputStream.h EventLoop/MetricsSvc.h EventLoop/SoGEDriver.h
+   EventLoop/StatusCode.h EventLoop/TorqueDriver.h
+   EventLoop/VomsProxySvc.h EventLoop/SlurmDriver.h
    Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )
 
@@ -39,37 +35,27 @@ atlas_add_library( EventLoop
    PUBLIC_HEADERS EventLoop
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} RootCoreUtils
-   SampleHandler
-   PRIVATE_LINK_LIBRARIES AsgTools xAODRootAccess )
+   SampleHandler AnaAlgorithmLib
+   PRIVATE_LINK_LIBRARIES AsgTools xAODRootAccess PathResolver )
 
-# Test(s) in the package:
-function( _add_gtest cxx_name )
-   get_filename_component( test_name ${cxx_name} NAME_WE )
-   atlas_add_test( ${test_name}
-      SOURCES test/${test_name}.cxx
-      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} RootCoreUtils AsgTools
-      SampleHandler EventLoop )
-endfunction( _add_gtest )
+target_compile_definitions (EventLoop PUBLIC USE_CMAKE)
 
-file( GLOB _gtests test/gt_*.cxx )
-foreach( gtest ${_gtests} )
-   _add_gtest( ${gtest} )
-endforeach()
+file (GLOB util_sources RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/util/[a-zA-Z0-9]*.cxx")
+foreach (source ${util_sources})
+  string (REGEX REPLACE "util/(.*).cxx" "\\1" util ${source})
+  atlas_add_executable (${util} ${source} LINK_LIBRARIES EventLoop)
+endforeach (source ${util_sources})
 
-function( _add_test cxx_name )
-   get_filename_component( test_name ${cxx_name} NAME_WE )
-   atlas_add_test( ${test_name}
-      SOURCES test/${test_name}.cxx
+atlas_add_test (EventLoop_gt_OutputStreamData
+      SOURCES test/gt_OutputStreamData.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils SampleHandler EventLoop )
-endfunction( _add_test )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop AsgTestingLib )
 
-file( GLOB _tests test/ut_*.cxx )
-foreach( test ${_tests} )
-   _add_gtest( ${test} )
-endforeach()
+atlas_add_test (EventLoop_gt_SubmitDirManager
+      SOURCES test/gt_SubmitDirManager.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop AsgTestingLib )
 
 # Install files from the package:
-atlas_install_scripts( scripts/el_retrieve scripts/el_wait )
-atlas_install_data( data/*.root )
+atlas_install_scripts( scripts/el_retrieve scripts/el_resubmit scripts/el_wait scripts/el_build_docker )
+atlas_install_data( data/*.root data/Dockerfile data/docker_analysis_setup.sh data/*.yml )

@@ -135,7 +135,7 @@ do_track_thinning = False
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 MUON5TrackThinningTool = DerivationFramework__TrackParticleThinning(name                    = "MUON5TrackThinningTool",
-                                                                    ThinningService         = MUON5ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = streamName,
                                                                     SelectionString         = "abs(DFCommonInDetTrackZ0AtPV) < 10.0",
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 if do_track_thinning:
@@ -184,7 +184,7 @@ from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramew
 
 # Egamma clusters associated with electrons
 MUON5ElectronEgammaCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "MUON5ElectronEgammaCThinningTool",
-                                                                             ThinningService         = MUON5ThinningHelper.ThinningSvc(),
+                                                                             StreamName              = streamName,
                                                                              SGKey                   = "Electrons",
                                                                              CaloClCollectionSGKey   = "egammaClusters",
                                                                              SelectionString         = "Electrons.pt >= 4*GeV",

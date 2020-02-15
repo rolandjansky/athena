@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,18 +15,18 @@
 #include "TrkVolumes/Volume.h"
 
 Trk::Layer::Layer() :
-  m_surfaceArray(0),
-  m_layerMaterialProperties(0),
+  m_surfaceArray(nullptr),
+  m_layerMaterialProperties(nullptr),
   m_layerThickness(0.),
-  m_overlapDescriptor(0),
-  m_previousLayer(0),
-  m_nextLayer(0),
-  m_binUtility(0),
-  m_enclosingTrackingVolume(0),
-  m_enclosingDetachedTrackingVolume(0),
+  m_overlapDescriptor(nullptr),
+  m_previousLayer(nullptr),
+  m_nextLayer(nullptr),
+  m_binUtility(nullptr),
+  m_enclosingTrackingVolume(nullptr),
+  m_enclosingDetachedTrackingVolume(nullptr),
   m_index(-1),
   m_layerType(Trk::active),
-  m_representingVolume(0),
+  m_representingVolume(nullptr),
   m_ref(0.)
 {}
 
@@ -34,18 +34,18 @@ Trk::Layer::Layer(const Trk::LayerMaterialProperties& laymatprop,
                   double thickness,
                   Trk::OverlapDescriptor* olap,
                   int laytyp) :
-  m_surfaceArray(0),
+  m_surfaceArray(nullptr),
   m_layerMaterialProperties(SharedObject<LayerMaterialProperties>(laymatprop.clone())),
   m_layerThickness(thickness),
   m_overlapDescriptor(olap),
-  m_previousLayer(0),
-  m_nextLayer(0),
-  m_binUtility(0),
-  m_enclosingTrackingVolume(0),
-  m_enclosingDetachedTrackingVolume(0),
+  m_previousLayer(nullptr),
+  m_nextLayer(nullptr),
+  m_binUtility(nullptr),
+  m_enclosingTrackingVolume(nullptr),
+  m_enclosingDetachedTrackingVolume(nullptr),
   m_index(-1),
   m_layerType(laytyp),
-  m_representingVolume(0),
+  m_representingVolume(nullptr),
   m_ref(0.)
 {}
         
@@ -54,17 +54,17 @@ Trk::Layer::Layer(Trk::SurfaceArray* surfaceArray,
                   Trk::OverlapDescriptor* olap,
                   int laytyp) :
   m_surfaceArray(surfaceArray),
-  m_layerMaterialProperties(SharedObject<LayerMaterialProperties>(0)),
+  m_layerMaterialProperties(SharedObject<LayerMaterialProperties>(nullptr)),
   m_layerThickness(thickness),
   m_overlapDescriptor(olap),
-  m_previousLayer(0),
-  m_nextLayer(0),
-  m_binUtility(0),
-  m_enclosingTrackingVolume(0),
-  m_enclosingDetachedTrackingVolume(0),
+  m_previousLayer(nullptr),
+  m_nextLayer(nullptr),
+  m_binUtility(nullptr),
+  m_enclosingTrackingVolume(nullptr),
+  m_enclosingDetachedTrackingVolume(nullptr),
   m_index(-1),
   m_layerType(laytyp),
-  m_representingVolume(0),
+  m_representingVolume(nullptr),
   m_ref(0.)
 {}
                 
@@ -77,30 +77,30 @@ Trk::Layer::Layer(Trk::SurfaceArray* surfaceArray,
   m_layerMaterialProperties(SharedObject<LayerMaterialProperties>(laymatprop.clone())),
   m_layerThickness(thickness),
   m_overlapDescriptor(olap),
-  m_previousLayer(0),
-  m_nextLayer(0),
-  m_binUtility(0),
-  m_enclosingTrackingVolume(0),
-  m_enclosingDetachedTrackingVolume(0),
+  m_previousLayer(nullptr),
+  m_nextLayer(nullptr),
+  m_binUtility(nullptr),
+  m_enclosingTrackingVolume(nullptr),
+  m_enclosingDetachedTrackingVolume(nullptr),
   m_index(-1),
   m_layerType(laytyp),
-  m_representingVolume(0),
+  m_representingVolume(nullptr),
   m_ref(0.)
 {}
 
 Trk::Layer::Layer(const Trk::Layer& lay) :
-  m_surfaceArray(lay.m_surfaceArray ? lay.m_surfaceArray->clone() : 0),
+  m_surfaceArray(lay.m_surfaceArray ? lay.m_surfaceArray->clone() : nullptr),
   m_layerMaterialProperties(lay.m_layerMaterialProperties),
   m_layerThickness(lay.m_layerThickness),
-  m_overlapDescriptor(lay.m_overlapDescriptor ? lay.m_overlapDescriptor->clone() : 0),
-  m_previousLayer(0),
-  m_nextLayer(0),
-  m_binUtility(0),
-  m_enclosingTrackingVolume(0),
-  m_enclosingDetachedTrackingVolume(0),
+  m_overlapDescriptor(lay.m_overlapDescriptor ? lay.m_overlapDescriptor->clone() : nullptr),
+  m_previousLayer(nullptr),
+  m_nextLayer(nullptr),
+  m_binUtility(nullptr),
+  m_enclosingTrackingVolume(nullptr),
+  m_enclosingDetachedTrackingVolume(nullptr),
   m_index(-1),
   m_layerType(lay.m_layerType),
-  m_representingVolume(lay.m_representingVolume ?lay.m_representingVolume->clone() : 0),
+  m_representingVolume(lay.m_representingVolume ?lay.m_representingVolume->clone() : nullptr),
   m_ref(lay.m_ref)
 {}
   
@@ -120,8 +120,8 @@ Trk::Layer& Trk::Layer::operator=(const Trk::Layer& lay)
     delete m_surfaceArray;
     m_enclosingTrackingVolume           = lay.m_enclosingTrackingVolume;
     m_enclosingDetachedTrackingVolume   = lay.m_enclosingDetachedTrackingVolume;
-    m_overlapDescriptor                 = (lay.m_overlapDescriptor) ? lay.m_overlapDescriptor->clone() : 0;
-    m_surfaceArray                      = (lay.m_surfaceArray) ? lay.m_surfaceArray->clone() : 0;
+    m_overlapDescriptor                 = (lay.m_overlapDescriptor) ? lay.m_overlapDescriptor->clone() : nullptr;
+    m_surfaceArray                      = (lay.m_surfaceArray) ? lay.m_surfaceArray->clone() : nullptr;
     m_layerMaterialProperties.reset(lay.m_layerMaterialProperties->clone());
     // just assign by pointer
     m_nextLayer               = lay.m_nextLayer;
@@ -129,7 +129,7 @@ Trk::Layer& Trk::Layer::operator=(const Trk::Layer& lay)
     m_binUtility              = lay.m_binUtility;
     m_index                   = lay.m_index;
     m_layerType               = lay.m_layerType;
-    m_representingVolume      = (lay.m_representingVolume) ? lay.m_representingVolume->clone() : 0;
+    m_representingVolume      = (lay.m_representingVolume) ? lay.m_representingVolume->clone() : nullptr;
     m_ref                     = lay.m_ref;
   }
   return (*this);
@@ -138,19 +138,19 @@ Trk::Layer& Trk::Layer::operator=(const Trk::Layer& lay)
 const Trk::Surface* Trk::Layer::subSurface(const Amg::Vector3D& gp) const
 {
   if (m_surfaceArray) return m_surfaceArray->object(gp);
-  return 0;
+  return nullptr;
 }                  
 
 const Trk::Surface* Trk::Layer::subSurface(const Amg::Vector2D& lp) const
 {
   if (m_surfaceArray) return m_surfaceArray->object(lp);
-  return 0;
+  return nullptr;
 }
 
 const Trk::Surface* Trk::Layer::subSurfaceReference(unsigned int idx) const
 {
    // the reference surface
-   const Trk::Surface* referenceSurface = 0;
+   const Trk::Surface* referenceSurface = nullptr;
    if (m_surfaceArray){    
       // get a reference surface
       const std::vector<const Trk::Surface*>& surfaces = m_surfaceArray->arrayObjects();
@@ -194,13 +194,13 @@ const Trk::Layer* Trk::Layer::nextLayer(bool skipNavLayer) const
 
 const Trk::Layer* Trk::Layer::nextLayer(const Amg::Vector3D& gp, const Amg::Vector3D& mom) const {
    // no binutility -> no chance to find out the direction
-   if (!m_binUtility) return 0;
+   if (!m_binUtility) return nullptr;
    return (m_binUtility->orderDirection(gp,mom) == Trk::next) ? m_nextLayer : m_previousLayer;
 }
 
 const Trk::MaterialProperties* Trk::Layer::fullUpdateMaterialProperties(const Trk::TrackParameters& parm) const {
     if (m_layerMaterialProperties.get()) return m_layerMaterialProperties->fullMaterial(parm.position());
-    return 0;
+    return nullptr;
   }
 
 bool Trk::Layer::needsMaterialProperties() const {
@@ -280,7 +280,5 @@ size_t Trk::Layer::compatibleSurfaces(std::vector<Trk::SurfaceIntersection>& cSu
 
 inline bool Trk::Layer::hasSubStructure(bool resolveSensitive) const 
 {
-    if (resolveSensitive && m_surfaceArray)
-        return true;
-    return false;
+    return resolveSensitive && m_surfaceArray;
 }

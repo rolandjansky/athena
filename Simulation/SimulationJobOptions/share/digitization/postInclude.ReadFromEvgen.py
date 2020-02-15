@@ -43,13 +43,13 @@ else:
 itemlist = StreamRDO.MetaDataItemList
 
 if itemlist.count( "IOVMetaDataContainer#*" ):
-    print 'ZLM found it!'
+    printfunc ('ZLM found it!')
     itemlist[ itemlist.index( "IOVMetaDataContainer#*" ) ] = "IOVMetaDataContainer#_TagInfo"
 else:
     itemlist += [ "IOVMetaDataContainer#_TagInfo" ]
 
-print 'ZLM container thingy:',itemlist
+printfunc ('ZLM container thingy:',itemlist)
 
 itemlist += [ "IOVMetaDataContainer#_Digitization_Parameters" ]
 
-print StreamRDO.MetaDataItemList
+printfunc (StreamRDO.MetaDataItemList)

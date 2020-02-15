@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -80,16 +80,16 @@ StatusCode Trk::LayerMaterialAnalyser::initialize()
     m_validationTree->Branch("LayerBins",             &m_layerBins,            "lBins/I");
     m_validationTree->Branch("LayerBins0",            &m_layerBins0,           "lBins0/I");
     m_validationTree->Branch("LayerBins1",            &m_layerBins1,           "lBins1/I");
-    m_validationTree->Branch("LayerBin0",             m_bin0,                  "lBin0[lBins]/I");
-    m_validationTree->Branch("LayerBin1",             m_bin1,                  "lBin1[lBins]/I");
-    m_validationTree->Branch("LayerBinCounter",       m_binCounter,            "lBinC[lBins]/I");
-    m_validationTree->Branch("LayerThickness",        m_thickness,             "lt[lBins]/F");
-    m_validationTree->Branch("LayerX0",               m_X0,                    "lX0[lBins]/F");
-    m_validationTree->Branch("LayerL0",               m_L0,                    "lL0[lBins]/F");
-    m_validationTree->Branch("LayerA",                m_A,                     "lA[lBins]/F");
-    m_validationTree->Branch("LayerZ",                m_Z,                     "lZ[lBins]/F");
-    m_validationTree->Branch("LayerRo",               m_Rho,                   "lRho[lBins]/F");
-    m_validationTree->Branch("LayerElements",         m_elements,              "lElements[lBins]/I");
+    m_validationTree->Branch("LayerBin0",             m_bin0.data(),           "lBin0[lBins]/I");
+    m_validationTree->Branch("LayerBin1",             m_bin1.data(),           "lBin1[lBins]/I");
+    m_validationTree->Branch("LayerBinCounter",       m_binCounter.data(),     "lBinC[lBins]/I");
+    m_validationTree->Branch("LayerThickness",        m_thickness.data(),      "lt[lBins]/F");
+    m_validationTree->Branch("LayerX0",               m_X0.data(),             "lX0[lBins]/F");
+    m_validationTree->Branch("LayerL0",               m_L0.data(),             "lL0[lBins]/F");
+    m_validationTree->Branch("LayerA",                m_A.data(),              "lA[lBins]/F");
+    m_validationTree->Branch("LayerZ",                m_Z.data(),              "lZ[lBins]/F");
+    m_validationTree->Branch("LayerRo",               m_Rho.data(),            "lRho[lBins]/F");
+    m_validationTree->Branch("LayerElements",         m_elements.data(),       "lElements[lBins]/I");
     
     // now register the Tree
     if (service("THistSvc",tHistSvc).isFailure()) {

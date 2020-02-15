@@ -930,7 +930,7 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
          not 100% transitive comparison functor.
       */
       ATH_MSG_DEBUG("sorting vector with stable_sort ");
-      stable_sort(trackTSOS->begin(), trackTSOS->end(), CompFunc);
+      std::stable_sort(trackTSOS->begin(), trackTSOS->end(), CompFunc);
     } else {
       trackTSOS->sort(CompFunc); // respects DV object ownership
     }

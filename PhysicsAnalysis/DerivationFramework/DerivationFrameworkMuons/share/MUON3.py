@@ -23,6 +23,18 @@ if not hasattr(ToolSvc,"IDTrackCaloDepositsDecoratorTool"):
     ToolSvc += DecoTool
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_MUON3Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_MUON3Stream )
+MUON3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+MUON3Stream.AcceptAlgs(["MUON3Kernel"])
+# Special lines for thinning
+# Thinning service name must match the one passed to the thinning tools
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+#====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
 # enum    MuonType {
@@ -134,21 +146,19 @@ ToolSvc += MUON3SkimmingTool1
 thinning_expression1 = '||'.join(thinningORs)
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 MUON3ThinningTool1 = DerivationFramework__TrackParticleThinning(name                    = "MUON3ThinningTool1",
-                                                                ThinningService         = "MUON3ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 SelectionString         = thinning_expression1,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = False)
+                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON3ThinningTool1
 
 # keep tracks around muons
 thinning_expression2 = ""
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 MUON3ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON3ThinningTool2",
-                                                                    ThinningService         = "MUON3ThinningSvc",
+                                                                    StreamName              = streamName,
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression2,
                                                                     ConeSize                = 0.5,
-                                                                    ApplyAnd                = False,
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON3ThinningTool2
 #====================================================================
@@ -160,19 +170,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("MUON3Ker
                                                                        SkimmingTools = [MUON3SkimmingTool1],
                                                                        ThinningTools = [MUON3ThinningTool1, MUON3ThinningTool2]
                                                                        )
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_MUON3Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_MUON3Stream )
-MUON3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-MUON3Stream.AcceptAlgs(["MUON3Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="MUON3ThinningSvc", outStreams=[evtStream] )
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================

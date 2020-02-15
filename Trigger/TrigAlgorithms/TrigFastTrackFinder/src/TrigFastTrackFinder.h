@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,14 +67,15 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
  public:
   
   TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TrigFastTrackFinder();
-  HLT::ErrorCode hltInitialize();
-  HLT::ErrorCode hltFinalize();
-  HLT::ErrorCode hltStart();
+  virtual ~TrigFastTrackFinder();
+  virtual HLT::ErrorCode hltInitialize() override;
+  virtual HLT::ErrorCode hltFinalize() override;
+  virtual HLT::ErrorCode hltStart() override;
 
-  StatusCode execute();
+  virtual StatusCode execute() override;
+  virtual
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
-			    HLT::TriggerElement* outputTE);
+			    HLT::TriggerElement* outputTE) override;
 
   StatusCode findTracks(InDet::SiTrackMakerEventData_xk &event_data,
                         const TrigRoiDescriptor& roi,

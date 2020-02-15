@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,20 +9,21 @@
 #ifndef DERIVATIONFRAMEWORK_TRACKMEASUREMENTTHINNING_H
 #define DERIVATIONFRAMEWORK_TRACKMEASUREMENTTHINNING_H
 
-#include<string>
+#include <string>
+#include <atomic>
 
 // Gaudi & Athena basics
+#include "StoreGate/ThinningHandleKey.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // DerivationFramework includes
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 
 namespace ExpressionParsing {
   class ExpressionParser;
 }
-
-class IThinningSvc;
 
 namespace DerivationFramework {
 
@@ -30,34 +31,35 @@ namespace DerivationFramework {
   
       @author David Salek -at- cern.ch
      */
-  class TrackMeasurementThinning : public AthAlgTool, public IThinningTool {
+  class TrackMeasurementThinning : public extends<AthAlgTool, IThinningTool> {
     
   public: 
     /** Constructor with parameters */
     TrackMeasurementThinning( const std::string& t, const std::string& n, const IInterface* p );
     
     /** Destructor */
-    ~TrackMeasurementThinning();
+    virtual ~TrackMeasurementThinning();
     
     // Athena algtool's Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  finalize() override;
     
     /** Check that the current event passes this filter */
-    virtual StatusCode doThinning() const;
+    virtual StatusCode doThinning() const override;
  
   private:
-    ServiceHandle<IThinningSvc> m_thinningSvc;
-
     //Expression for object thinning selection
     std::string m_expression;
     ExpressionParsing::ExpressionParser *m_parser;
     std::string m_selectionString;
 
-    mutable unsigned int m_ntot;
-    mutable unsigned int m_npass;
-    std::string m_SGKey;
-    bool m_and;
+    mutable std::atomic<unsigned int> m_ntot;
+    mutable std::atomic<unsigned int> m_npass;
+    StringProperty m_streamName
+      { this, "StreamName", "", "Name of the stream being thinned" };
+
+    SG::ThinningHandleKey<xAOD::TrackMeasurementValidationContainer> m_SGKey
+    { this, "TrackMeasurementValidationKey", "PixelClusters", "" };
   }; 
   
 }

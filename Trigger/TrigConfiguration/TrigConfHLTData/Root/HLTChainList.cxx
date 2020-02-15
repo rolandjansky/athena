@@ -88,7 +88,7 @@ TrigConf::HLTChainList::applyPrescaleSet(const HLTPrescaleSet* pss) {
             } else {
                const HLTPrescale& l2ps = pss->getPrescale( ch->mergeCounter.l2, HLTLevel::L2 );
                const HLTPrescale& efps = pss->getPrescale( ch->mergeCounter.ef, HLTLevel::EF );
-               HLTUtils::mergeL2EFPrescales( ch, l2ps, efps);
+               HLTTEUtils::mergeL2EFPrescales( ch, l2ps, efps);
             }
          }
       } else {

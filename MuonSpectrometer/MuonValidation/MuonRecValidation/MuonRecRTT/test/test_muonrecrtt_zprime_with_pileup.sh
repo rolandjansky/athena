@@ -45,7 +45,7 @@ case $ArtProcess in
      echo "Processing files: " ${infile}
      unset  ATHENA_NUM_PROC
 
-     Reco_tf.py --maxEvents=-1 --inputRDOFile=${infile} --outputAODFile=valid1.361405.Sherpa_CT10_Zmumu_Pt280_500_CVetoBVeto_with_pileup.AOD.pool.root $ValOption --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup' --postExec 'r2e:topSequence.BeamBackgroundFiller.Enable = False'
+     Reco_tf.py --maxEvents=-1 --inputRDOFile=${infile} --outputAODFile=valid1.361405.Sherpa_CT10_Zmumu_Pt280_500_CVetoBVeto_with_pileup.AOD.pool.root $ValOption --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'
 
      echo  "art-result: $? reco_${ArtProcess}"
      ls -lR

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONCHAMBERHOLERECOVERYTOOL_H
@@ -11,8 +11,15 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+
 #include "MuonCondData/MdtCondDbData.h"
 #include "TrkTrack/Track.h"
 
@@ -31,17 +38,9 @@ class StoreGateSvc;
 class MdtCondDbData;
 class MuonStationIntersectSvc;
 
-namespace Muon {
-  class IMdtDriftCircleOnTrackCreator;
-  class IMuonClusterOnTrackCreator;
-  class MuonEDMPrinterTool;
-}
-
 namespace Trk {
   class Track;
   class MagneticFieldProperties;
-  class IExtrapolator;
-  class IResidualPullCalculator;
 }
 
 namespace Muon {

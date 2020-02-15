@@ -49,8 +49,8 @@ class TrigTauRecMergedMT: public AthAlgorithm {
 
   TauEventData m_tauEventData;
 
-  void setEmptyTauTrack( xAOD::TauJet* &tauJet,
-			 xAOD::TauTrackContainer* &tauTrackCont);
+  void setEmptyTauTrack( xAOD::TauJet* tauJet,
+			 xAOD::TauTrackContainer* tauTrackContainer );
 
   enum TAUEFCALOMON{
     NoROIDescr=0,
@@ -96,6 +96,7 @@ class TrigTauRecMergedMT: public AthAlgorithm {
   SG::ReadHandleKey< xAOD::TrackParticleContainer > m_tracksKey  { this, "Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
   SG::ReadHandleKey< xAOD::VertexContainer> m_vertexKey          { this, "Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
   SG::ReadHandleKey< xAOD::TauJetContainer> m_trigTauJetKey      { this, "Key_trigTauJetInputContainer", "HLT_taujet", "input taujet container" };
+  SG::ReadHandleKey< xAOD::TauTrackContainer> m_trigTauTrackInKey      { this, "Key_trigTauTrackInputContainer", "HLT_tautrack_input", "input tautrack container" };
   
   SG::WriteHandleKey< xAOD::JetContainer > m_trigtauSeedOutKey   { this,"TrigTauJetOutputKey","HLT_seed_tau_jet","Key for output jets which are seed for tau jets"};
   SG::WriteHandleKey< xAOD::TauJetContainer > m_trigtauRecOutKey {this,"Key_trigTauJetOutputContainer","HLT_taujet","Output taujet container"};
@@ -120,12 +121,14 @@ class TrigTauRecMergedMT: public AthAlgorithm {
      ATH_MSG_FATAL("Proviced non-null containters, not initializing please provide null containers: ");
      return StatusCode::FAILURE;
    }
-   for( const V* v : *oldContainer ){
-     V* newV = new V();
-     // Put objects into new container
-     container->push_back(newV);
-     // Copy across aux store
-     *newV = *v;
+   if(oldContainer != nullptr){
+     for( const V* v : *oldContainer ){
+       V* newV = new V();
+       // Put objects into new container
+       container->push_back(newV);
+       // Copy across aux store
+       *newV = *v;
+     }
    }
    return StatusCode::SUCCESS;
   }

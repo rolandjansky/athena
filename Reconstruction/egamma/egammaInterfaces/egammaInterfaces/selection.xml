@@ -9,7 +9,6 @@
   <class name="IegammaBackShape" />
   <class name="IegammaBaseTool" />
   <class name="IegammaCheckEnergyDepositTool" />
-  <class name="IegammaEnergyPositionAllSamples" />
   <class name="IegammaIso" />
   <class name="IegammaMiddleShape" />
   <class name="IegammaPreSamplerShape" />
@@ -17,8 +16,6 @@
   <class name="IegammaStripsShape" />
   <class name="IegammaSwTool" />
   <class name="IegammaTrkRefitterTool" />
-  <class name="Iegammaqweta1c" />
-  <class name="Iegammaqweta2c" />
   <class name="IegammaMVASvc" />
 </lcgdict>
 

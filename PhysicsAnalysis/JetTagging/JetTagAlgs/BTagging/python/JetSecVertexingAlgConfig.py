@@ -3,12 +3,11 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
-from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactoryCfg
 from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
 Analysis__JetSecVertexingAlg=CompFactory.Analysis__JetSecVertexingAlg
 
-def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVFinder="", Associator="", JetSVLink="", **options):
+def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVFinder="", Associator="", **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The tool's name.
@@ -21,7 +20,10 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVF
 
     jetcol = JetCollection
 
-    jetFitterVF = acc.popToolsAndMerge(JetFitterVariablesFactoryCfg('JFVarFactory'))
+    if SVFinder == 'JetFitter':
+        JetSVLink = 'JFVtx'
+    if SVFinder == 'SV1':
+        JetSVLink = 'SecVtx'
 
     varFactory = acc.popToolsAndMerge(MSVVariablesFactoryCfg("MSVVarFactory"))
 
@@ -36,7 +38,6 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVF
     options['BTagJFVtxCollectionName'] = btagname + JetSVLink
     options['BTagSVCollectionName'] = btagname + JetSVLink
     options['JetSecVtxLinkName'] = options['JetCollectionName'] + '.' + JetSVLink
-    options.setdefault('JetFitterVariableFactory', jetFitterVF)
     options.setdefault('MSVVariableFactory', varFactory)
     options['name'] = (jetcol + '_' + SVFinder + '_secvtx').lower()
 

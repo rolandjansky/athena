@@ -66,7 +66,7 @@ private:
   
   /// A function that initializes the decor handles, but also checks the naming convention
   template<class T> StatusCode initializeDecorKeys(SG::WriteDecorHandleKeyArray<T>& keys, 
-						   std::string name);
+						   const std::string& name);
     
   /** @brief helper class to contain write decoration handles */
   template<class T> struct writeDecorHandles {

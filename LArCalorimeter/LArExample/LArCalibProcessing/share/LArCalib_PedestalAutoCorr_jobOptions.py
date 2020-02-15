@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###############################################################################
 #
@@ -165,10 +167,10 @@ if not 'DBConnectionCOOL' in dir():
    DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"   
 
 if not 'OutputPedAutoCorrRootFileDir' in dir():
-   OutputPedAutoCorrRootFileDir  = commands.getoutput("pwd")
+   OutputPedAutoCorrRootFileDir  = subprocess.getoutput("pwd")
    
 if not 'OutputPedAutoCorrPoolFileDir' in dir():
-   OutputPedAutoCorrPoolFileDir  = commands.getoutput("pwd")
+   OutputPedAutoCorrPoolFileDir  = subprocess.getoutput("pwd")
 
 if not 'PedLArCalibFolderTag' in dir():
    rs=FolderTagResover()
@@ -428,7 +430,7 @@ except:
 #except:
 #   iovtemp=1284030331
 
-#print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
+#printfunc ("Setting timestamp for run ",RunNumberList[0]," to ",iovtemp)
 #svcMgr.IOVDbSvc.forceTimestamp = 1283145454
 #svcMgr.IOVDbSvc.forceTimestamp = iovtemp
 
@@ -716,4 +718,4 @@ svcMgr.ChronoStatSvc.OutputLevel  = INFO
 ###########################################################################
 #svcMgr.IOVDbSvc.OutputLevel = DEBUG 
 
-print condSeq
+printfunc (condSeq)

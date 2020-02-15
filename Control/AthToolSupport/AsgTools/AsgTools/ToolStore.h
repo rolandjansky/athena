@@ -1,7 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-//
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-//
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_TOOLSTORE_H
 #define ASGTOOLS_TOOLSTORE_H
 
@@ -10,7 +10,7 @@
 
 // Local include(s):
 #include "AsgTools/IAsgTool.h"
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 namespace asg {
 

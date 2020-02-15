@@ -34,7 +34,7 @@ class MuonCombinedMuonCandidateAlg : public AthAlgorithm
   ToolHandle<MuonCombined::IMuonCandidateTool> m_muonCandidateTool;
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_muonTrackParticleLocation{this,"MuonSpectrometerTrackParticleLocation","MuonSpectrometerTrackParticles","MS Track Particle collection"};
   SG::WriteHandleKey<MuonCandidateCollection> m_candidateCollectionName{this,"MuonCandidateLocation","MuonCandidates","Muon candidate collection"};
-  SG::WriteHandleKey<TrackCollection> m_msOnlyTracks{this,"MSOnlyExtrapolatedTrackLocation","MSOnlyExtrapolatedMuonTracks","MS extrapolated muon tracks"};
+  SG::WriteHandleKey<TrackCollection> m_msOnlyTracks{this,"MSOnlyExtrapolatedTrackLocation","MSOnlyExtrapolatedTracks","MS extrapolated muon tracks"};
 };
 
 

@@ -35,6 +35,7 @@ class ExecStep(Step):
         self.perfmon = True
         self.auto_report_result = True
         self.required = True
+        self.depends_on_previous = True
 
     def construct_name(self):
         if self.name and self.type == 'other':

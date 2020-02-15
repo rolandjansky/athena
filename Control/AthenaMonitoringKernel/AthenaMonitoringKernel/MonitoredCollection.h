@@ -58,6 +58,10 @@ namespace Monitored {
              std::function<double(const typename ObjectsCollection<T>::const_value_type&)> converterToDouble) {
     return ObjectsCollection<T>(std::move(name), collection, std::move(converterToDouble));
   }
+  template <class T> ObjectsCollection<T>
+  Collection(std::string name, const T&& collection,
+             std::function<double(const typename ObjectsCollection<T>::const_value_type&)> converterToDouble) = delete;
+
 
   namespace detail {
     /// Get element type for containers
@@ -84,10 +88,11 @@ namespace Monitored {
 
     /// @brief .     \if empty doc string required due to doxygen bug 787131 \endif
     friend ValuesCollection<T> Collection<T>(std::string name, const T& collection);
+    friend ValuesCollection<T> Collection<T>(std::string name, const T&& collection);
 
     ValuesCollection(ValuesCollection&&) = default;
 
-    const std::vector<double> getVectorRepresentation() const override {
+    std::vector<double> getVectorRepresentation() const override {
       return convertToDouble( m_collection );
     }
 
@@ -97,13 +102,18 @@ namespace Monitored {
     virtual bool hasStringRepresentation() const override {
       return std::is_constructible<std::string, value_type>::value;
     }
+    virtual size_t size() const override {
+      return std::size(m_collection);
+    }
 
   private:
     const T& m_collection;
+    
 
     ValuesCollection(std::string vname, const T& collection)
-        : IMonitoredVariable(std::move(vname)), m_collection(collection) {
+      : IMonitoredVariable(std::move(vname)), m_collection{collection} {
     }
+
     ValuesCollection(ValuesCollection const&) = delete;
     ValuesCollection& operator=(ValuesCollection const&) = delete;
 
@@ -149,7 +159,7 @@ namespace Monitored {
 
     ObjectsCollection(ObjectsCollection&&) = default;
 
-    const std::vector<double> getVectorRepresentation() const override {
+    std::vector<double> getVectorRepresentation() const override {
       // Reserve space and fill vector
       std::vector<double> result;
       result.reserve(std::size(m_collection));
@@ -164,7 +174,10 @@ namespace Monitored {
     virtual bool hasStringRepresentation() const override {
       return false;
     };
-
+    virtual size_t size() const override {
+      return std::size(m_collection);
+    }
+    
   private:
     const T& m_collection;
     std::function<double(const const_value_type&)> m_converterToDouble;
@@ -172,7 +185,7 @@ namespace Monitored {
     ObjectsCollection(std::string name, const T& collection,
                       std::function<double(const const_value_type&)> converterToDouble)
         : IMonitoredVariable(std::move(name)),
-          m_collection(collection),
+      m_collection(std::move(collection)),
           m_converterToDouble(std::move(converterToDouble)) {}
     ObjectsCollection(ObjectsCollection const&) = delete;
     ObjectsCollection& operator=(ObjectsCollection const&) = delete;

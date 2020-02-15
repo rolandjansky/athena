@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from __future__ import absolute_import
 
@@ -34,6 +34,8 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
                 'momwidthhi': 'inf',
                 'smclo': '0',
                 'smchi': 'inf',                
+		'jvtlo': '0',
+		'jvthi': 'inf',
     }
 
     if parameter not in  defaults:
@@ -56,6 +58,7 @@ def scaleFactors(parameter):
         'djdphi': 0.1,
         'qjmass': 1000.,
         'momwidth': 1.0,
+        'jvt': 0.01,
     }
     return defaults[parameter]
         

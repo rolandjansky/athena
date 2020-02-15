@@ -17,10 +17,11 @@ namespace Monitored {
     virtual ~IMonitoredVariable() {}
 
     const std::string& name() const { return m_name; }
-    virtual const std::vector<double> getVectorRepresentation() const = 0;
+    virtual std::vector<double> getVectorRepresentation() const = 0;
     virtual std::vector<std::string> getStringVectorRepresentation() const = 0;
     virtual bool hasStringRepresentation() const = 0; //!< indcates that the stored content can be converted to strings
-
+    virtual size_t size() const = 0; //!< gives size of vector representation
+    
   protected:
 
     IMonitoredVariable(std::string name)

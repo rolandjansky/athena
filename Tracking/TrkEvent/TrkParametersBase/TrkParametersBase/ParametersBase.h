@@ -88,7 +88,7 @@ namespace Trk
       
     /** Return the measurement frame - this is needed for alignment, in particular for StraightLine and Perigee Surface
 	- the default implementation is the the RotationMatrix3D of the transform */
-    virtual const Amg::RotationMatrix3D measurementFrame() const = 0;
+    virtual Amg::RotationMatrix3D measurementFrame() const = 0;
       
     /** Access method for the position */
     virtual const Amg::Vector3D& position() const = 0;

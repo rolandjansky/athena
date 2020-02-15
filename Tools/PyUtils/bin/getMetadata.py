@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 __author__ = "Will Buttinger"
@@ -10,7 +10,9 @@ __doc__ = """Extract dataset parameters from AMI, and write them to a text file.
 
 import logging
 
-
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 #pinched from pandatools!
 def readDsFromFile(txtName):
@@ -86,9 +88,8 @@ def main():
         fieldDefaults[str(field)] = None
         
 
-    import commands
     #check the voms proxy 
-    status,out = commands.getstatusoutput("voms-proxy-info -fqan -exists")
+    status,out = subprocess.getstatusoutput("voms-proxy-info -fqan -exists")
     if status!=0:
         logging.error("Please renew your certificate with this command: voms-proxy-init -voms atlas");
         return -1
@@ -131,7 +132,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__,formatter_class=RawTextHelpFormatter)
     parser.add_argument('--inDS',nargs='+',default=[""],help="List of datasets to retrieve parameters for")
     parser.add_argument('--inDsTxt',default="",help="Alternative to --inDS, can specify the datasets from an input file")
-    parser.add_argument('--fields',nargs='+',help="List of parameters to extract. Available parameters are: \n\n  %s\n\nYou can also include any from:\n  %s\nYou can also do keyword_xxx to add a bool branch for keywords" % ("\n  ".join(paramExplains),", ".join(fieldDefaults.keys()+extraFieldDefaults.keys())),default=["dataset_number","crossSection","kFactor","genFiltEff"])
+    parser.add_argument('--fields',nargs='+',help="List of parameters to extract. Available parameters are: \n\n  %s\n\nYou can also include any from:\n  %s\nYou can also do keyword_xxx to add a bool branch for keywords" % ("\n  ".join(paramExplains),", ".join(list(fieldDefaults.keys())+list(extraFieldDefaults.keys()))),default=["dataset_number","crossSection","kFactor","genFiltEff"])
     parser.add_argument('--timestamp',default=current_time,help="The timestamp to query parameters at, specified in Universal Central Time (UCT). If left blank, will take the current time")
     parser.add_argument('--physicsGroups',nargs='+',default=["PMG,MCGN"],help="Physics group from which to retrieve parameters, listed in order of priority (highest first). Default value is 'PMG,MCGN' (i.e. try to use PMG values, fallback on MCGN values if unavailable). Allowed groups are:\n   PMG (this is the PMG's group name), BPHY, COSM, DAPR, EGAM, EXOT, FTAG, HIGG, HION, IDET, IDTR, JETM, LARG, MCGN (this is the AMI default group name), MDET, MUON, PHYS, REPR, SIMU, STDM, SUSY, TAUP, TCAL, TDAQ, THLT, TOPQ, TRIG, UPGR, VALI")
 

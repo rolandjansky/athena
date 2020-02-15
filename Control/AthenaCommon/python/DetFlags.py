@@ -194,7 +194,6 @@ class DetFlags:
             self.Truth_setOn()            
             self.BField_setOn()
             self.LVL1_setOn()            
-            self.FTK_setOn()            
         def all_setOff (self):
             self.Forward_setOff()
             self.ID_setOff()
@@ -230,7 +229,7 @@ class DetFlags:
         def any_on (self):
             return self.ID_on() | self.Calo_on() | self.Muon_on() | self.Forward_on() | self.Truth_on() | self.BField_on() | self.FTK_on()
         def allOn (self):
-            return self.ID_allOn() & self.Calo_allOn() & self.Muon_allOn() & self.Forward_on() & self.Truth_on() & self.BField_on() & self.FTK_on()
+            return self.ID_allOn() & self.Calo_allOn() & self.Muon_allOn() & self.Forward_on() & self.Truth_on() & self.BField_on()
 
     # ORed task
     class ORedTask:
@@ -419,7 +418,7 @@ class DetFlags:
         cls._setAllTask('BField','setOff')
 
     def FTK_setOn (cls):
-        cls._setAllTask('FTK','setOn')
+        pass
     def FTK_setOff (cls):
         cls._setAllTask('FTK','setOff')
 

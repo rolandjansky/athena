@@ -128,7 +128,7 @@ public:
 
   typedef std::vector<Segment> Segments;
 
-  struct sortByNunspoilAndChsq : public std::binary_function<class Segment, class Segment, bool>
+  struct sortByNunspoilAndChsq
   {
     bool operator()(const Segment& seg1, const Segment& seg2 )
     {

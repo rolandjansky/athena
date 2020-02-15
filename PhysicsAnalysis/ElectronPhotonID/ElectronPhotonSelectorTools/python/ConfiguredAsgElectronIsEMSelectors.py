@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        ConfiguredAsgElectronIsEMSelectors
@@ -15,6 +15,7 @@
 from PATCore.HelperUtils import *
 from AthenaCommon import CfgMgr
 import sys
+import six
 
 # Import the needed stuff specific to the ElectronPhotonSelectorTools
 from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronIsEMSelector
@@ -32,7 +33,7 @@ def ConfiguredAsgElectronIsEMSelector( name, quality, menu=electronPIDmenu.menuD
         raise
 
     # Get the label for user data
-    tmpName = (ntuple[1]).func_name
+    tmpName = six.get_function_code(ntuple[1]).co_name
     labelName = "is" + ((tmpName.split("Selector")[0]).split("IsEM")[1])
 
     # Create and instance of the tool

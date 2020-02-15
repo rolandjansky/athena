@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUAXISSETTER_H
@@ -23,31 +23,22 @@
 
 class TauAxisSetter : public TauRecToolBase {
 public:
-
     TauAxisSetter(const std::string& name);
     ASG_TOOL_CLASS2(TauAxisSetter, TauRecToolBase, ITauToolBase);
+
     ~TauAxisSetter();
 
-    virtual StatusCode initialize();
-    virtual StatusCode eventInitialize();
-    virtual StatusCode finalize();
-    virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
-    virtual StatusCode execute(xAOD::TauJet& pTau);
-
-    virtual void print() const { }
-
-
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode finalize() override;
 
 private:
-    std::string m_tauContainerKey;
-    
     double m_clusterCone;
     /** 
      * enable cell origin correction 
      * eta and phi of the cells are corrected wrt to the origin of the tau vertex
      */
-    bool m_doCellCorrection;
-    bool m_doAxisCorrection;
+    bool m_doVertexCorrection;
 };
 
 #endif

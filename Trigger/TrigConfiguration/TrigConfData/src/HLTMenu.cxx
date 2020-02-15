@@ -20,29 +20,40 @@ TrigConf::HLTMenu::~HLTMenu()
 std::size_t 
 TrigConf::HLTMenu::size() const
 {
-   return m_data.get_child("chains").size();
+   return data().get_child("chains").size();
 }
 
 std::string
 TrigConf::HLTMenu::name() const
 {
-   return m_data.get_child("name").data();
+   return getAttribute("name");
 }
 
 TrigConf::HLTMenu::const_iterator
 TrigConf::HLTMenu::begin() const
 {
-   auto & pt = m_data.get_child("chains");
-   auto ci = const_iterator(pt, 0,  [](auto x){return Chain(x.second);});
-   return ci;
+   return {data().get_child("chains"), 0,  [](auto & x){return Chain(x.second);}};
 }
 
 TrigConf::HLTMenu::const_iterator
 TrigConf::HLTMenu::end() const
 {
-   auto & pt = m_data.get_child("chains");
-   TrigConf::HLTMenu::const_iterator x = { pt, pt.size(), [](auto x){return Chain(x.second);} };
-   return x;
+   auto & pt = data().get_child("chains");
+   return { pt, pt.size(), [](auto & x){return Chain(x.second);} };
 }
 
 
+
+void
+TrigConf::HLTMenu::printMenu(bool full) const
+{
+   cout << "HLT menu '" << name() << "'" << endl;
+   cout << "Chains: " << size() << endl;
+   if(full) {
+      int c(0);
+      for( auto & chain : *this ) {
+         cout << "  " << c++ << ": " << chain.name() << endl;
+      }
+   }
+   cout << "The HLTMenu " << (ownsData() ? "owns" : "does not own") << " the ptree" << endl;
+}

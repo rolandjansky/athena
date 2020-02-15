@@ -1,22 +1,22 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonSelectionTool.h 299883 2014-03-28 17:34:16Z krasznaa $
 #ifndef MUONSELECTORTOOLS_MUONSELECTIONTOOL_H
 #define MUONSELECTORTOOLS_MUONSELECTIONTOOL_H
 
-// Framework include(s):
 #include "AsgTools/AsgTool.h"
 #include "PATCore/IAsgSelectionTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+
 #include "TFile.h"
 #include "TH2D.h"
-#include "TSystem.h" // Replace with PathResolver   
+#include "TSystem.h" // Replace with PathResolver
+#include "TMVA/Reader.h"
 
-// Local include(s):
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+
 
 namespace CP {
 
@@ -96,6 +96,7 @@ namespace CP {
       /// Returns true if the muon passes the standard MCP low pt cuts. To set the value on the muon, instead call setPassesLowPtEfficiencyCuts(xAOD::Muon&) const
       virtual bool passedLowPtEfficiencyCuts(const xAOD::Muon&) const override;
       virtual bool passedLowPtEfficiencyCuts(const xAOD::Muon&, xAOD::Muon::Quality thisMu_quality) const override;
+      bool passedLowPtEfficiencyMVACut(const xAOD::Muon&) const;
 
       /// Returns true if a CB muon fails a pt- and eta-dependent cut on the relative CB q/p error
       virtual bool passedErrorCutCB(const xAOD::Muon&) const override;
@@ -121,7 +122,6 @@ namespace CP {
      const std::string m_name;
       /// Maximum pseudorapidity for the selected muons
      double m_maxEta;
-     /// xAOD::Muon::Quality m_quality;
      int  m_quality;
      bool m_isSimulation;
      
@@ -135,6 +135,16 @@ namespace CP {
      bool m_PixCutOff;
      bool m_SiHolesCutOff;
      bool m_TurnOffMomCorr;
+     bool m_useAllAuthors;
+     bool m_use2stationMuonsHighPt;
+     bool m_useMVALowPt;
+     
+     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
+
+     std::string m_MVAreaderFile_EVEN_MuidCB;
+     std::string m_MVAreaderFile_ODD_MuidCB;
+     std::string m_MVAreaderFile_EVEN_MuGirl;
+     std::string m_MVAreaderFile_ODD_MuGirl;
 
      /// Checks for each histogram  
      StatusCode getHist( TFile* file, const char* histName, TH2D*& hist );
@@ -149,6 +159,31 @@ namespace CP {
      std::string m_calibration_version;
      // possible override for the calibration version
      std::string m_custom_dir;
+
+     //Need run number (or random run number) to apply period-dependent selections.
+     //If selection depends only on data taking year, this can be specified by passing
+     //argument needOnlyCorrectYear=true, in which case the random run number decoration
+     //from the pile-up reweighting tool is not needed.
+     unsigned int getRunNumber(bool needOnlyCorrectYear = false) const;
+
+     //TMVA readers for low-pT working point
+     TMVA::Reader* m_readerE_MUID;
+     TMVA::Reader* m_readerO_MUID;
+     TMVA::Reader* m_readerE_MUGIRL;
+     TMVA::Reader* m_readerO_MUGIRL;
+
+     //TMVA initialize function
+     void PrepareReader(TMVA::Reader* reader);
+
+     //variables for the TMVA readers
+     Float_t *m_lowPTmva_middleHoles;
+     Float_t *m_lowPTmva_muonSeg1ChamberIdx;
+     Float_t *m_lowPTmva_muonSeg2ChamberIdx;
+     Float_t *m_lowPTmva_momentumBalanceSig;
+     Float_t *m_lowPTmva_scatteringCurvatureSig;
+     Float_t *m_lowPTmva_scatteringNeighbourSig;
+     Float_t *m_lowPTmva_energyLoss;
+     Float_t *m_lowPTmva_muonSegmentDeltaEta;
 
    }; // class MuonSelectionTool
 

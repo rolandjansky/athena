@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "EMExtrapolationTools.h"
@@ -64,7 +64,7 @@ EMExtrapolationTools::initialize()
     if (sc.isFailure() || !m_trtId->is_valid()) {
       // TRT is not present for sLHC
       ATH_MSG_DEBUG("Could not get TRT_ID helper !");
-      m_trtId = 0;
+      m_trtId = nullptr;
     }
     ATH_MSG_DEBUG("m_trtId initialization successful");
   } else {
@@ -123,7 +123,7 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
     Trk::Perigee trkPar = getRescaledPerigee(trkPB, cluster);
     std::unique_ptr<Trk::CaloExtension> extension =
       m_perigeeParticleCaloExtensionTool->caloExtension(trkPar, direction, Trk::muon);
-    didExtension = extension.get() != nullptr;
+    didExtension = extension != nullptr;
     if (didExtension) {
       intersections = getIntersections(*extension, cluster);
     }
@@ -203,7 +203,7 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
   }
   // Negative tracks bend to the positive direction.
   // flip sign for positive ones
-  const bool flipSign = trkPB.charge() > 0 ? true : false;
+  const bool flipSign = trkPB.charge() > 0;
 
   for (const auto& p : intersections) {
     int i(0);
@@ -290,7 +290,7 @@ EMExtrapolationTools::getEtaPhiAtCalo(const xAOD::Vertex* vertex, float* etaAtCa
    * This in principle is an approximation
    */
   const Trk::TrackParameters* trkPar =
-    surface.createTrackParameters(vertex->position(), momentum.unit() * 1.e10, +1, 0);
+    surface.createTrackParameters(vertex->position(), momentum.unit() * 1.e10, +1, nullptr);
   bool success = getEtaPhiAtCalo(trkPar, etaAtCalo, phiAtCalo);
   delete trkPar;
   return success;
@@ -340,7 +340,7 @@ EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vertex, unsigned i
   Amg::Vector3D momentum(0., 0., 0.);
   if (vertex.nTrackParticles() <= index) {
     ATH_MSG_WARNING("Invalid track index");
-  } else if (vertex.vxTrackAtVertexAvailable() && vertex.vxTrackAtVertex().size()) {
+  } else if (vertex.vxTrackAtVertexAvailable() && !vertex.vxTrackAtVertex().empty()) {
     // Use the parameters at the vertex
     // (the tracks should be parallel but we will do the sum anyway)
     ATH_MSG_DEBUG("getMomentumAtVertex : getting from vxTrackAtVertex");
@@ -453,8 +453,8 @@ EMExtrapolationTools::getTRTsection(const xAOD::TrackParticle* trkPB) const
     ATH_MSG_DEBUG("No trt ID guessing TRT section based on eta: " << trkPB->eta());
     return (trkPB->eta() > 0 ? 1 : -1) * (fabs(trkPB->eta()) < 0.6 ? 1 : 2);
   }
-  const Trk::MeasurementBase* trkPar = 0;
-  if (trkPB->trackLink().isValid() && trkPB->track() != 0) {
+  const Trk::MeasurementBase* trkPar = nullptr;
+  if (trkPB->trackLink().isValid() && trkPB->track() != nullptr) {
     ATH_MSG_DEBUG("Will get TrackParameters from Trk::Track");
     const DataVector<const Trk::TrackStateOnSurface>* trackStates = trkPB->track()->trackStateOnSurfaces();
     if (!trackStates) {

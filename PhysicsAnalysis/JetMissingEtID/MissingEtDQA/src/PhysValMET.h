@@ -1,7 +1,5 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhysValMET.h 
@@ -20,7 +18,7 @@
 // Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "JetInterface/IJetUpdateJvt.h"
@@ -36,9 +34,6 @@
 class IMETMaker;
 class IAsgElectronLikelihoodTool;
 class IAsgPhotonIsEMSelector;
-namespace CP {
-  class IMuonSelectionTool;
-}
 namespace TauAnalysisTools {
   class ITauSelectionTool;
 }

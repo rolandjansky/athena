@@ -1,15 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//********************************************************************
-//
-// NAME:     CscCalibMonToolSlope.cxx
-// PACKAGE:  MuonCalibMonitoring  
-//
-// AUTHORS: Caleb Parnell-Lampen <lampen@physics.arizona.edu> 
-//
-// ********************************************************************
 
 #include "CscCalibMonToolSlope.h"
 
@@ -27,10 +18,6 @@
 #include "TH1F.h"
 #include "TH1I.h"
 #include "TF1.h"
-
-using namespace std;
-
-
 
 CscCalibMonToolSlope::CscCalibMonToolSlope(const std::string & type, const std::string & name, 
     const IInterface* parent) : 
@@ -89,13 +76,6 @@ CscCalibMonToolSlope::CscCalibMonToolSlope(const std::string & type, const std::
 
 }
 
-
-CscCalibMonToolSlope::~CscCalibMonToolSlope()
-{
-  ATH_MSG_INFO( "CscCalibMonToolSlope :  deleting CscCalibMonToolSlope "  );
-}
-
-
 StatusCode CscCalibMonToolSlope::finalize()
 {
   ATH_MSG_DEBUG( "Slope Finalizing " );
@@ -110,31 +90,23 @@ StatusCode CscCalibMonToolSlope::finalize()
   delete m_peaktOldColl;
   delete m_peaktDiffColl;
 
-
   return CscCalibMonToolBase::finalize();
 }
 
 StatusCode CscCalibMonToolSlope::initialize() 
 {
   m_onlyExpectPrecisionHashIds = true; 
-  StatusCode sc = CscCalibMonToolBase::initialize();
-
-  IdContext channelContext = m_muonIdHelperTool->cscIdHelper().channel_context();
+  ATH_CHECK(CscCalibMonToolBase::initialize());
 
   ATH_MSG_DEBUG( "Expected chamber layer is " << m_expectedChamberLayer );
 
   for(unsigned int hash = 0 ; hash <= m_maxHashId; hash++)
   {
     m_fracProfs.push_back(NULL);
-
-    Identifier id;
-
-
-
   }
   m_generic_path_csccalibmonitoring = "MUON_CSC_PULSER";
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -145,11 +117,11 @@ StatusCode CscCalibMonToolSlope::bookHistograms()
 
   if (newRunFlag())
   {
-    string name,title,xaxis,yaxis;
+    std::string name,title,xaxis,yaxis;
     int highbound,lowbound,nbins;
 
-    string geoPath = getGeoPath();
-    string path = getFullPath(geoPath, "Misc", "");
+    std::string geoPath = getGeoPath();
+    std::string path = getFullPath(geoPath, "Misc", "");
     MonGroup monGroup(this, path, run, ATTRIB_MANAGED );
 
     //num bad histograms
@@ -255,78 +227,78 @@ StatusCode CscCalibMonToolSlope::bookHistograms()
     monGroup.regHist(m_h_slopeMissingChans).ignore();
 
 
-    string peaktDataName        = "peakt";
-    string peaktDataTitle       = "Peaking Time";
-    string peaktSubDir          = "Peakt";
+    std::string peaktDataName        = "peakt";
+    std::string peaktDataTitle       = "Peaking Time";
+    std::string peaktSubDir          = "Peakt";
 
-    string slopeDataName        = "slope";
-    string slopeDataTitle       = "Pulser Gain Slope";
-    string slopeSubDir          = "Slope";
+    std::string slopeDataName        = "slope";
+    std::string slopeDataTitle       = "Pulser Gain Slope";
+    std::string slopeSubDir          = "Slope";
     
-    string slopeRatioDataName        = "slopeRatio";
-    string slopeRatioDataTitle       = "Ratio of N : N+1 Channel Slopes";
-    string slopeRatioSubDir          = "SlopeRatio";
+    std::string slopeRatioDataName        = "slopeRatio";
+    std::string slopeRatioDataTitle       = "Ratio of N : N+1 Channel Slopes";
+    std::string slopeRatioSubDir          = "SlopeRatio";
 
-    string interceptDataName    = "intercept";  
-    string interceptDataTitle    = "Intercept";
-    string interceptSubDir      = "Intercept";
+    std::string interceptDataName    = "intercept";  
+    std::string interceptDataTitle    = "Intercept";
+    std::string interceptSubDir      = "Intercept";
 
-    string chi2DataName         = "chi2";
-    string chi2DataTitle        = "Chi^2/ndf for gain slope fit";
-    string chi2SubDir           = "Chi2";
+    std::string chi2DataName         = "chi2";
+    std::string chi2DataTitle        = "Chi^2/ndf for gain slope fit";
+    std::string chi2SubDir           = "Chi2";
 
-    string deadDataName         = "dead";
-    string deadDataTitle        = "Dead";
-    string deadSubDir           = "Dead";
+    std::string deadDataName         = "dead";
+    std::string deadDataTitle        = "Dead";
+    std::string deadSubDir           = "Dead";
 
-    string fitResDataName         = "fitRes";
-    string fitResDataTitle        = "Fit Return Value";
-    string fitResSubDir           = "FitResult";
+    std::string fitResDataName         = "fitRes";
+    std::string fitResDataTitle        = "Fit Return Value";
+    std::string fitResSubDir           = "FitResult";
 
     //Set naming parameters for histogram category names
-    string newCatName       = "new";
-    string newCatTitle      = "New";
+    std::string newCatName       = "new";
+    std::string newCatTitle      = "New";
 
-    string oldCatName       = "old";
-    string oldCatTitle      = "COOL";
+    std::string oldCatName       = "old";
+    std::string oldCatTitle      = "COOL";
 
-    string diffCatName      = "diff";
-    string diffCatTitle     = "Difference Between New and COOL";
+    std::string diffCatName      = "diff";
+    std::string diffCatTitle     = "Difference Between New and COOL";
 
     //axis info
-    string peaktAxisLabel = "Peaking Time (ns)";
-    string peaktDiffAxisLabel = "Peaking Time Difference (ns)";
+    std::string peaktAxisLabel = "Peaking Time (ns)";
+    std::string peaktDiffAxisLabel = "Peaking Time Difference (ns)";
     int peaktNumBins = 100;
     float peaktLowBound = 0;
     float peaktHighBound = 100;
 
-    string slopeAxisLabel = "Gain (fC/ADC)";
-    string slopeDiffAxisLabel = "Gain Difference (fC/ADC)";
+    std::string slopeAxisLabel = "Gain (fC/ADC)";
+    std::string slopeDiffAxisLabel = "Gain Difference (fC/ADC)";
     int slopeNumBins =300;
     float slopeLowBound = 0;
     float slopeHighBound = 5;
     
-    string slopeRatioAxisLabel = "Ratio of N/(N+1) channel";
+    std::string slopeRatioAxisLabel = "Ratio of N/(N+1) channel";
     int slopeRatioNumBins = 500;
     float slopeRatioLowBound = 0;
     float slopeRatioHighBound = 5;
 
-    string interceptAxisLabel = "Intercept (ADC counts)";
+    std::string interceptAxisLabel = "Intercept (ADC counts)";
     int interceptNumBins = 200;
     float interceptLowBound = -100;
     float interceptHighBound = 100;
 
-    string chi2AxisLabel = "Chi^2/ndf";
+    std::string chi2AxisLabel = "Chi^2/ndf";
     int chi2NumBins = 1000;
     float chi2LowBound = 0;
     float chi2HighBound = 3000; 
 
-    string deadAxisLabel = "Is Dead";
+    std::string deadAxisLabel = "Is Dead";
     int deadNumBins = 3;
     float deadLowBound = -1.5;
     float deadHighBound = 1.5;
 
-    string fitResAxisLabel = "Fit Return Value";
+    std::string fitResAxisLabel = "Fit Return Value";
     int fitResNumBins =10000;
     float fitResLowBound = 0;
     float fitResHighBound = 10000;
@@ -439,7 +411,7 @@ StatusCode CscCalibMonToolSlope::handleParameter(const CscCalibResultCollection*
   ProcSetupInfo simpleSet;
 
   //--setup for this parameter
-  string parName = parVals->parName();
+  std::string parName = parVals->parName();
   /*if(parName == "peakt")
     {
     m_log << MSG::INFO << "Evaluating peaking times" << endmsg;
@@ -553,7 +525,7 @@ StatusCode CscCalibMonToolSlope::postProc()
 
 
 
-  IdContext chanContext = m_muonIdHelperTool->cscIdHelper().channel_context();
+  IdContext chanContext = m_idHelperSvc->cscIdHelper().channel_context();
 
   //Get the slopeReport, checking for pointer errors along the way
   const DataHandle<CscCalibReportContainer> repCont;
@@ -587,7 +559,7 @@ StatusCode CscCalibMonToolSlope::postProc()
   }
   
  //ampProfs 
-  const map<int,TProfile*> * ampProfs = slopeReport->getAmpProfs();
+  const std::map <int,TProfile*> * ampProfs = slopeReport->getAmpProfs();
   if(!ampProfs)
   {
     ATH_MSG_ERROR( "There are no amplitude profiles in the slope report! Can't find dead chans." );
@@ -595,13 +567,13 @@ StatusCode CscCalibMonToolSlope::postProc()
   }
 
   if(m_histAttenLevels){
-    map<int,TProfile*>::const_iterator profItr = ampProfs->begin();
-    map<int,TProfile*>::const_iterator profEnd = ampProfs->end();
+    std::map <int,TProfile*>::const_iterator profItr = ampProfs->begin();
+    std::map <int,TProfile*>::const_iterator profEnd = ampProfs->end();
     for(; profItr != profEnd; profItr++){
 
       float atten = profItr->first/2.0;
-      stringstream attenSS; attenSS << atten;
-      string attenStr = attenSS.str();
+      std::stringstream  attenSS; attenSS << atten;
+      std::string attenStr = attenSS.str();
 
       HistCollection * ampColl = new HistCollection(m_maxHashId +1, m_maxHashId +1);
       ampColl->ignoreY = true;
@@ -610,13 +582,13 @@ StatusCode CscCalibMonToolSlope::postProc()
       m_ampColls.push_back(ampColl);
 
 
-      string dataName = "amp_atten" + attenStr;
-      string dataTitle = "ADC response at attenuation " + attenStr + " db" ; 
-      string axisLabel = "ADC";
+      std::string dataName = "amp_atten" + attenStr;
+      std::string dataTitle = "ADC response at attenuation " + attenStr + " db" ; 
+      std::string axisLabel = "ADC";
       unsigned int numBins = 300; 
       float lowBound = 0;
       float highBound = 3000;
-      string subDir = "AmpAtten" + attenStr;
+      std::string subDir = "AmpAtten" + attenStr;
 
       bookHistCollection(ampColl, dataName, dataTitle, "", "", axisLabel, numBins, lowBound, highBound, subDir).ignore();
       for(unsigned int stripHash = 0; stripHash < m_maxHashId; stripHash++){
@@ -671,25 +643,25 @@ StatusCode CscCalibMonToolSlope::postProc()
     //These are the channels we will get detailed forr.
     for(unsigned int idItr = 0; idItr < m_maxHashId; idItr++)
     {
-      cerr << "Calgraph Address: " <<  (*calGraphs)[idItr] << endl;
+      ATH_MSG_ERROR("Calgraph Address: " <<  (*calGraphs)[idItr]);
       if(m_expectedHashIdsPrec.count(idItr) && (m_detailedHashIds[idItr] || (m_doAllDetailed) ) )
       {
-        cerr << "Doing detailed plots of hash " << idItr << endl;
+        ATH_MSG_ERROR("Doing detailed plots of hash " << idItr);
 
         Identifier chanId;
-        m_muonIdHelperTool->cscIdHelper().get_id(IdentifierHash(idItr), chanId, &chanContext);
-        int stationSize = m_muonIdHelperTool->cscIdHelper().stationName(chanId);
-        int stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(chanId);
-        int stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(chanId);
-        int wireLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(chanId);
-        int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(chanId);
-        int strip = m_muonIdHelperTool->cscIdHelper().strip(chanId);
+        m_idHelperSvc->cscIdHelper().get_id(IdentifierHash(idItr), chanId, &chanContext);
+        int stationSize = m_idHelperSvc->cscIdHelper().stationName(chanId);
+        int stationEta = m_idHelperSvc->cscIdHelper().stationEta(chanId);
+        int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(chanId);
+        int wireLayer = m_idHelperSvc->cscIdHelper().wireLayer(chanId);
+        int measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(chanId);
+        int strip = m_idHelperSvc->cscIdHelper().strip(chanId);
         int sector = getSector(stationPhi, stationSize);
 
-        string geoPath = getGeoPath(stationEta, sector, wireLayer, measuresPhi);
-        string calGraphPath = getFullPath(geoPath, "CalGraphs","");
-        string fracPath = getFullPath(geoPath,"FracProf","");
-        string bitHistPath = getFullPath(geoPath, "BitHists", "");
+        std::string geoPath = getGeoPath(stationEta, sector, wireLayer, measuresPhi);
+        std::string calGraphPath = getFullPath(geoPath, "CalGraphs","");
+        std::string fracPath = getFullPath(geoPath,"FracProf","");
+        std::string bitHistPath = getFullPath(geoPath, "BitHists", "");
 
         //Record calgraph
         TGraphErrors  * sourceGraph = 
@@ -700,14 +672,14 @@ StatusCode CscCalibMonToolSlope::postProc()
                          << idItr << " doesn't exist in CscCalibReport object!"  );
         }
         else {
-          stringstream name;
+          std::stringstream  name;
           name << "calfit" 
             << "_EC" << getEndCap(stationEta)
             << "_sector_" << sector 
             << "_layer_" << wireLayer
             << "_" << (measuresPhi ? "trans" : "prec")
             << "_strip_" 
-            << setfill('0') <<  setw(measuresPhi ? 2 : 3) 
+            << std::setfill ('0') <<  std::setw (measuresPhi ? 2 : 3) 
             << strip;
 
           sourceGraph->SetName(name.str().c_str());
@@ -724,14 +696,14 @@ StatusCode CscCalibMonToolSlope::postProc()
                          << idItr << ". Quitting retrieveHistos()."  );
         }
         else{
-          stringstream fracName;
+          std::stringstream  fracName;
           fracName << "frac_"
             << "_EC" << getEndCap(stationEta)
             << "_sector_" << sector 
             << "_layer_" << wireLayer
             << "_" << (measuresPhi ? "trans" : "prec")
             << "_strip_" 
-            << setfill('0') <<  setw(measuresPhi ? 2 : 3) 
+            << std::setfill ('0') <<  std::setw (measuresPhi ? 2 : 3) 
             << strip;
 
           sourceProf->SetName(fracName.str().c_str());
@@ -751,14 +723,14 @@ StatusCode CscCalibMonToolSlope::postProc()
           }
           else {
 
-            stringstream name2;
+            std::stringstream  name2;
             name2 << "h_bitMap"
               << "_EC" << getEndCap(stationEta)
               << "_sector_" << sector 
               << "_layer_" << wireLayer
               << "_" << (measuresPhi ? "trans" : "prec")
               << "_strip_" 
-              << setfill('0') <<  setw(measuresPhi ? 2 : 3) 
+              << std::setfill ('0') <<  std::setw (measuresPhi ? 2 : 3) 
               << strip;
             // TH1I * newHist2 = (TH1I*)bitHist->Clone(name2.str().c_str());
             bitHist->SetName(name2.str().c_str());
@@ -771,7 +743,7 @@ StatusCode CscCalibMonToolSlope::postProc()
 
       }//end if (m_detailedHashIds)
       else
-        cerr << "Skipping hash " << idItr << " " <<  m_expectedHashIdsPrec.count(idItr) << " " << m_doAllDetailed << endl;
+        ATH_MSG_ERROR("Skipping hash " << idItr << " " <<  m_expectedHashIdsPrec.count(idItr) << " " << m_doAllDetailed);
     }//end idItr loop
   }//if numBad > 0
   return StatusCode::SUCCESS;    
@@ -790,26 +762,26 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
   }
 
   //Loop through all channels in geometry:
-  vector<Identifier> ids = m_muonIdHelperTool->cscIdHelper().idVector();
-  vector<Identifier>::const_iterator chamItr = ids.begin();
-  vector<Identifier>::const_iterator chamEnd = ids.end();
+  std::vector <Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
+  std::vector <Identifier>::const_iterator chamItr = ids.begin();
+  std::vector <Identifier>::const_iterator chamEnd = ids.end();
   for(; chamItr != chamEnd; chamItr++)
   {
     ATH_MSG_VERBOSE( "in Chamber loop "  );
-    unsigned int stationSize = m_muonIdHelperTool->cscIdHelper().stationName(*chamItr); //51 = large, 50 = small
-    unsigned int stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(*chamItr);
-    int stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(*chamItr);
+    unsigned int stationSize = m_idHelperSvc->cscIdHelper().stationName(*chamItr); //51 = large, 50 = small
+    unsigned int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(*chamItr);
+    int stationEta = m_idHelperSvc->cscIdHelper().stationEta(*chamItr);
     unsigned int sector = getSector(stationPhi,stationSize);
 
-    vector<Identifier> stripVect;
-    m_muonIdHelperTool->cscIdHelper().idChannels(*chamItr,stripVect);
-    vector<Identifier>::const_iterator stripItr = stripVect.begin();
-    vector<Identifier>::const_iterator stripEnd = stripVect.end();
+    std::vector <Identifier> stripVect;
+    m_idHelperSvc->cscIdHelper().idChannels(*chamItr,stripVect);
+    std::vector <Identifier>::const_iterator stripItr = stripVect.begin();
+    std::vector <Identifier>::const_iterator stripEnd = stripVect.end();
     for(;stripItr != stripEnd; stripItr++)
     {
       ATH_MSG_VERBOSE( "in strip loop "  );
       IdentifierHash stripHash;
-      m_muonIdHelperTool->cscIdHelper().get_channel_hash(*stripItr,stripHash);
+      m_idHelperSvc->cscIdHelper().get_channel_hash(*stripItr,stripHash);
       if(!m_expectedHashIdsPrec.count((int)stripHash)){
         ATH_MSG_VERBOSE( "Skipping hash"  << (int)stripHash  );
         continue;
@@ -839,21 +811,21 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
       //Note, we don't ask for measuresPhi because there should be no
       //TGraphs with Y anyways.
       ATH_MSG_VERBOSE( "getting id info " );
-      unsigned int layer = m_muonIdHelperTool->cscIdHelper().wireLayer(*stripItr);
-      unsigned int strip = m_muonIdHelperTool->cscIdHelper().strip(*stripItr);
+      unsigned int layer = m_idHelperSvc->cscIdHelper().wireLayer(*stripItr);
+      unsigned int strip = m_idHelperSvc->cscIdHelper().strip(*stripItr);
       ATH_MSG_VERBOSE( "Got strip and layer"  );
       //initialize fractional deviation profile
       ATH_MSG_VERBOSE( "initializing profile "  );
 
-      stringstream nameStream;
-      nameStream.setf(ios::right,ios::adjustfield);
+      std::stringstream  nameStream;
+      nameStream.setf(std::ios::right,std::ios::adjustfield);
       nameStream << "dev_" 
         << "X"   //orientation
         << "_eta_" << stationEta
-        << "_sector_" << setw(2) << setfill('0') << sector
+        << "_sector_" << std::setw (2) << std::setfill ('0') << sector
         << "_layer_" << layer
         << "_strip_" << strip;
-      stringstream titleStream;
+      std::stringstream  titleStream;
       titleStream << "Fractional Deviation of Measured ADC From Fit ADC for Precision Direction"
         << ", Sector " << sector
         << ", Eta "     << stationEta
@@ -900,7 +872,7 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
 
         //Label bin with db amount
         ATH_MSG_VERBOSE( "labeling bin "  );
-        stringstream binLabel;
+        std::stringstream  binLabel;
         binLabel << db;    
         fracProf->GetXaxis()->SetBinLabel(itr+1, binLabel.str().c_str());
       }
@@ -934,26 +906,29 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
 StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & slopeReport)
 {//This function has grown a bit unwieldly, and duplicates info in sets and arrays. Can this be merged?
 
+  SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+  const CscCondDbData* readCdo{*readHandle};
+
   //****Find Dead channels
-  IdContext channelContext = m_muonIdHelperTool->cscIdHelper().channel_context(); 
+  IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context(); 
 
-  set<int> newDead, newUndead;
+  std::set <int> newDead, newUndead;
 
-  const set<int> * pulsedChambers = slopeReport.getPulsedChambers();
+  const std::set <int> * pulsedChambers = slopeReport.getPulsedChambers();
   if(!pulsedChambers)
   {
     ATH_MSG_ERROR( "No pulsed chambers stored in slopeReport! Skipping dead channel collecting!"  );
     return StatusCode::RECOVERABLE;
   }
 
-  const map<int,TProfile*> * ampProfs = slopeReport.getAmpProfs();
+  const std::map <int,TProfile*> * ampProfs = slopeReport.getAmpProfs();
   if(!ampProfs)
   {
     ATH_MSG_ERROR( "There are no amplitude profiles in the slope report! Can't find dead chans." );
     return StatusCode::RECOVERABLE;
   }
 
-  map<int,TProfile*>::const_iterator profItr = ampProfs->begin();
+  std::map <int,TProfile*>::const_iterator profItr = ampProfs->begin();
 
   int pulserLevel = profItr->first;
   ATH_MSG_INFO( "Looking for dead channels. Lowest attenuation level is " 
@@ -984,20 +959,20 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
     //if its dead
     float adc, ped;
     bool wasDead, isDead;
-    uint8_t statusWord;
+    int statusWord;
     for(unsigned int hashItr = 0; hashItr <= m_maxHashId ; hashItr++)
     {
       Identifier id;
-      m_muonIdHelperTool->cscIdHelper().get_id(hashItr,id, &channelContext);
-      int chamberLayer = m_muonIdHelperTool->cscIdHelper().chamberLayer(id);
+      m_idHelperSvc->cscIdHelper().get_id(hashItr,id, &channelContext);
+      int chamberLayer = m_idHelperSvc->cscIdHelper().chamberLayer(id);
       IdentifierHash chamberHash;
-      m_muonIdHelperTool->cscIdHelper().get_module_hash(id, chamberHash);
+      m_idHelperSvc->cscIdHelper().get_module_hash(id, chamberHash);
 
       if(chamberLayer == 2 && pulsedChambers->count((int)chamberHash))
       {//This is a good chamber layer and it is a pulsed chamber
 
-        m_cscCoolSvc->getStatus(statusWord, hashItr);
-        m_cscCoolSvc->getParameter(ped,"ped", hashItr);
+        ATH_CHECK(readCdo->readChannelStatus(hashItr, statusWord));
+        ATH_CHECK(readCdo->readChannelPed   (hashItr, ped       ));
         wasDead = statusWord & 0x1;
 
         adc = ampProf->GetBinContent( hashItr + 1 );
@@ -1045,31 +1020,31 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
       ATH_MSG_INFO( "There are " << newDead.size() 
                     << " newly dead channels and " << newUndead.size() 
                     << " newly live channels" );
-      ofstream out("deadInfo.cal");
+      std::ofstream  out("deadInfo.cal");
       out <<"00-00 " << newDead.size() + newUndead.size() << " dead_stat END_HEADER\n";
 
-      set<int>::const_iterator deadItr = newDead.begin(); 
-      set<int>::const_iterator deadEnd = newDead.end();
+      std::set <int>::const_iterator deadItr = newDead.begin(); 
+      std::set <int>::const_iterator deadEnd = newDead.end();
       for(; deadItr != deadEnd; deadItr++)
       {
         Identifier id;
-        m_muonIdHelperTool->cscIdHelper().get_id(*deadItr,id, &channelContext);
+        m_idHelperSvc->cscIdHelper().get_id(*deadItr,id, &channelContext);
         IdentifierHash chamHash;
-        m_muonIdHelperTool->cscIdHelper().get_module_hash(id, chamHash);
+        m_idHelperSvc->cscIdHelper().get_module_hash(id, chamHash);
         out << *deadItr << " " << (int)chamHash << " " 
-          << m_muonIdHelperTool->cscIdHelper().show_to_string(id, &channelContext) << " 1\n";
+          << m_idHelperSvc->cscIdHelper().show_to_string(id, &channelContext) << " 1\n";
       }
 
-      set<int>::const_iterator undeadItr = newUndead.begin(); 
-      set<int>::const_iterator undeadEnd = newUndead.end();
+      std::set <int>::const_iterator undeadItr = newUndead.begin(); 
+      std::set <int>::const_iterator undeadEnd = newUndead.end();
       for(; undeadItr != undeadEnd; undeadItr++)
       {
         Identifier id;
-        m_muonIdHelperTool->cscIdHelper().get_id(*undeadItr,id, &channelContext);
+        m_idHelperSvc->cscIdHelper().get_id(*undeadItr,id, &channelContext);
         IdentifierHash chamHash;
-        m_muonIdHelperTool->cscIdHelper().get_module_hash(id, chamHash);
+        m_idHelperSvc->cscIdHelper().get_module_hash(id, chamHash);
         out << *undeadItr << " " << (int)chamHash << " " 
-          << m_muonIdHelperTool->cscIdHelper().show_to_string(id, &channelContext)
+          << m_idHelperSvc->cscIdHelper().show_to_string(id, &channelContext)
           << "0\n";
       } 
       out.close();

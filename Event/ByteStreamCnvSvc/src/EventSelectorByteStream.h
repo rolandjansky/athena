@@ -25,6 +25,7 @@
 #include "AthenaKernel/IAthenaSelectorTool.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IEventShare.h"
+#include "AthenaKernel/ISecondaryEventSelector.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include "ByteStreamData/RawEvent.h"
@@ -37,7 +38,7 @@ class IROBDataProviderSvc;
 
 // Class EventSelectorByteStream.
 class EventSelectorByteStream :
-   public extends<::AthService, IEvtSelector, IEvtSelectorSeek, IEventShare, IIoComponent>
+   public extends<::AthService, IEvtSelector, IEvtSelectorSeek, IEventShare, IIoComponent, ISecondaryEventSelector>
 {
 public:
    /// Standard Constructor.
@@ -122,6 +123,20 @@ public:
    /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
    virtual StatusCode io_reinit() override;
 
+protected:
+   //-------------------------------------------------
+   // ISecondaryEventSelector
+   /// Handle file transition at the next iteration
+   virtual StatusCode nextHandleFileTransition(IEvtSelector::Context& it) const override;
+   /// Sync event count
+   virtual void syncEventCount(int count) const override;
+   /// Record AttributeList in StoreGate
+   virtual StatusCode recordAttributeList() const override;
+   /// Fill AttributeList with specific items from the selector and a suffix
+   virtual StatusCode fillAttributeList(coral::AttributeList *attrList, const std::string &suffix, bool copySource) const override;
+   // Disconnect DB if all events from the source FID were processed and the Selector moved to another file
+   virtual bool disconnectIfFinished(SG::SourceID fid) const override;
+
 private: // internal member functions
    /// Reinitialize the service when a @c fork() occured/was-issued
    StatusCode reinit();
@@ -129,10 +144,11 @@ private: // internal member functions
    void nextFile() const; 
    /// Search for event with number evtNum.
    int findEvent(int evtNum) const;
-   StatusCode buildEventAttributeList() const;
 
-private:
-   // property
+private: // properties
+   /// IsSecondary, know if this is an instance of secondary event selector
+   Gaudi::Property<bool> m_isSecondary{this, "IsSecondary", false, ""};
+
    Gaudi::Property<std::string> m_eventSourceName{this, "ByteStreamInputSvc", "", ""};
    Gaudi::Property<bool> m_procBadEvent{this, "ProcessBadEvent", false, ""}; //!< process bad events, which fail check_tree().
    Gaudi::Property<int>  m_maxBadEvts{this, "MaxBadEvents", -1, ""};         //!< number of bad events allowed before quitting.

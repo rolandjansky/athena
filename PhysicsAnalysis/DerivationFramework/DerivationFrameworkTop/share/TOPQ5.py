@@ -153,7 +153,7 @@ skimmingTools_lep.append(TOPQ5_SelectEvent)
 # THINNING TOOLS
 #====================================================================
 import DerivationFrameworkTop.TOPQCommonThinning
-thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('TOPQ5',TOPQ5ThinningHelper.ThinningSvc(), ToolSvc)
+thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('TOPQ5',streamName,TOPQ5ThinningHelper.ThinningSvc(), ToolSvc)
 
 #====================================================================
 # CREATE THE KERNEL(S)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,7 +30,7 @@
 // =============================================================================
 // Standard constructor
 // =============================================================================
-CP::ElectronChargeEfficiencyCorrectionTool::ElectronChargeEfficiencyCorrectionTool(std::string name) :
+CP::ElectronChargeEfficiencyCorrectionTool::ElectronChargeEfficiencyCorrectionTool(const std::string& name) :
   AsgTool(name),
   m_dataTypeOverwrite(-1),
   m_eventInfoCollectionName("EventInfo"),
@@ -50,9 +50,9 @@ CP::ElectronChargeEfficiencyCorrectionTool::ElectronChargeEfficiencyCorrectionTo
   m_filtered_sys_sets(),
   m_mySysConf(),
   m_affectingSys(),
-  m_appliedSystematics(0),
+  m_appliedSystematics(nullptr),
   m_sf_decoration_name("chargeIDEffiSF"),
-  m_sfDec(0)
+  m_sfDec(nullptr)
 {
   // Declare the needed properties
   declareProperty("CorrectionFileName",        m_filename,     "Name of the file with charge flipping rates");
@@ -99,7 +99,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
   TFile* rootFile = TFile::Open( rootfilename.c_str() );
 
   // protection against bad file
-  if ( rootFile==0 ) {
+  if ( rootFile==nullptr ) {
     ATH_MSG_ERROR ( " Was not able to open file: " <<  rootfilename << " ...... aborting" );
     return StatusCode::FAILURE;
   }
@@ -131,8 +131,9 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
   TList* keyListfolder = rootFile->GetListOfKeys();
   std::vector<std::string> names;
 
-  for ( int j=0; j<keyListfolder->GetEntries(); j++ ){
-    names.push_back(( keyListfolder->At(j)->GetName() ));
+  names.reserve(keyListfolder->GetEntries());
+for ( int j=0; j<keyListfolder->GetEntries(); j++ ){
+    names.emplace_back(( keyListfolder->At(j)->GetName() ));
   }
   std::sort(names.begin(), names.end());
 
@@ -158,11 +159,11 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
           ATH_MSG_VERBOSE("Found name 'RunNumber' in histid");
           std::string runlow = histid;
           runlow.erase(histid.find(Form("RunNumber") ),9);
-          runlow.erase(runlow.find("_"),runlow.size() );
+          runlow.erase(runlow.find('_'),runlow.size() );
           m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runlow.c_str())) );
           std::string runhigh = histid;
           runhigh.erase(histid.find(Form("RunNumber") ),9);
-          runhigh.erase(0,runhigh.find("_")+1);
+          runhigh.erase(0,runhigh.find('_')+1);
           m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
         }
         ATH_MSG_VERBOSE("Using histid (OS hid): " << histid);
@@ -196,11 +197,11 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
           ATH_MSG_VERBOSE("Found name 'RunNumber' in histid");
           std::string runlow = histid;
           runlow.erase(histid.find(Form("RunNumber") ),9);
-          runlow.erase(runlow.find("_"),runlow.size() );
+          runlow.erase(runlow.find('_'),runlow.size() );
 	  //          m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runlow.c_str())) );
           std::string runhigh = histid;
           runhigh.erase(histid.find(Form("RunNumber") ),9);
-          runhigh.erase(0,runhigh.find("_")+1);
+          runhigh.erase(0,runhigh.find('_')+1);
 	  //          m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
         }
         ATH_MSG_VERBOSE("Using histid (OS hid): " << histid);
@@ -232,20 +233,20 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
         histid.erase(histid.size()-3,3);// remove _SS, _OS
 
         std::string sysname = histid;
-        sysname.erase(sysname.find("_"),sysname.size());
+        sysname.erase(sysname.find('_'),sysname.size());
         m_systematics.push_back(sysname);
 
-        histid.erase(0,histid.find("_")+1);// remove _SS, _OS
+        histid.erase(0,histid.find('_')+1);// remove _SS, _OS
         ATH_MSG_VERBOSE("Using syst histid: " << histid);
 
         if (histid.find("RunNumber") != std::string::npos ) {
           std::string runlow = histid;
           runlow.erase(histid.find(Form("RunNumber") ),9);
-          runlow.erase(runlow.find("_"),runlow.size() );
+          runlow.erase(runlow.find('_'),runlow.size() );
 	  //        m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runlow.c_str())) );
           std::string runhigh = histid;
           runhigh.erase(histid.find(Form("RunNumber") ),9);
-          runhigh.erase(0,runhigh.find("_")+1);
+          runhigh.erase(0,runhigh.find('_')+1);
 	  //      m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
         }
         ATH_MSG_VERBOSE("Using histid (OS hid): " << histid);
@@ -255,7 +256,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
         std::string histid = ( names.at(j) );
         histid.erase(0,4);
         histid.erase(histid.size()-3,3);// remove _SS, _OS
-        histid.erase(0,histid.find("_")+1);// remove _SS, _OS
+        histid.erase(0,histid.find('_')+1);// remove _SS, _OS
         ATH_MSG_VERBOSE("Using histid (sys ? SS): " << histid);
         m_SF_SS[histid].push_back( (TH2*)rootFile->Get( names.at(j).c_str() ));
       }
@@ -266,7 +267,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
 
   /////////// checks ... --> same vector length... all files there?
 
-  if ( m_SF_OS.size() <1 || m_SF_SS.size() <1 || m_SF_SS.size()!=m_SF_OS.size() ) {
+  if ( m_SF_OS.empty() || m_SF_SS.empty() || m_SF_SS.size()!=m_SF_OS.size() ) {
     ATH_MSG_ERROR("OS/SS SF vectors not filled or of different size. -- Problem with files. -- Report to <hn-atlas-EGammaWG@cern.ch>");
     return StatusCode(CP::CorrectionCode::Error);
   }
@@ -342,7 +343,7 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
     return goodEle_result;
   }
 
-  if ( goodEle == false ) {
+  if ( !goodEle ) {
     // electron is background electron and should not be corrected
     return CP::CorrectionCode::Ok;
     ATH_MSG_DEBUG("Here goodele is false but CC ok");
@@ -376,7 +377,7 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
   // here determine, WHICH of the [histid] to choose (after cuuts on runnumber etc....)
   std::string cutRunNumber = "all";
 
-  if (m_RunNumbers.size()>0) {
+  if (!m_RunNumbers.empty()) {
     unsigned int runnumber = m_defaultRandomRunNumber;
     ATH_MSG_DEBUG("RandomRunNumber: " << runnumber << " " << m_useRandomRunNumber);
     if (m_useRandomRunNumber) {
@@ -492,7 +493,7 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
   ATH_MSG_DEBUG(" ... nominal SF: "   << sf);
 
 
-  if ( m_mySysConf.size()==0 ) {
+  if ( m_mySysConf.empty() ) {
     ATH_MSG_DEBUG(" ... nominal SF: "   << sf);
   }
   else if (*(m_mySysConf.begin()) == SystematicVariation ("EL_CHARGEID_STAT",  1)) { sf=(sf+(val_stat)); ATH_MSG_DEBUG("SF after STATup = "   << sf); }

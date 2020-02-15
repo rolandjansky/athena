@@ -1,7 +1,5 @@
-/* // -*- C++ -*- */
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -84,15 +82,9 @@
 //  +   +----------------------------------+----------------------------------+
 
 
-
-
-
-//#include "RPCgeometry/RPCGeometry.h"
-
 #ifndef LVL1_STANDALONE
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-//#include "RPCgeometry/RPCgeometrySvc.h"
+#include "MuonIdHelpers/RpcIdHelper.h"
 
 #endif
 
@@ -167,10 +159,8 @@ class RDOindex
     void pad_identifier(Identifier& id ) const;
 
     static void setRpcIdHelper(const RpcIdHelper*);
-    static void setMuonIdHelperTool(const Muon::MuonIdHelperTool*);
     
     private:
-    //static const RPCGeometry* s_rpcgeo;
     static const RpcIdHelper* s_rpcIdHelper;
 
 #endif

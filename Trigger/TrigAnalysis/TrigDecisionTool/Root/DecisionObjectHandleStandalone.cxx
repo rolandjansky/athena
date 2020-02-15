@@ -8,9 +8,9 @@
 #include "TrigDecisionTool/DecisionObjectHandleStandalone.h"
 
 // Include for the event store type:
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 #   include "AsgTools/SgTEvent.h"
-#elif defined(ASGTOOL_ATHENA)
+#elif !defined(XAOD_STANDALONE)
 #   include "StoreGate/StoreGateSvc.h"
 #else
 #   error "Wrong environment configuration detected!"
@@ -37,7 +37,7 @@ namespace Trig {
    const xAOD::TrigDecision*
    DecisionObjectHandleStandalone::getDecision() const {
 
-      if( ! m_decision ) {
+      if( ! m_decision && !m_deckey->empty() ) {
          const EventContext ctx = Gaudi::Hive::currentContext();
          SG::ReadHandle<xAOD::TrigDecision> decisionReadHandle = SG::makeHandle(*m_deckey, ctx);
          if( ! decisionReadHandle.isValid() ) {
@@ -57,7 +57,7 @@ namespace Trig {
    const xAOD::TrigNavigation*
    DecisionObjectHandleStandalone::getNavigation() const {
 
-      if( ! m_navigation ) {
+      if( ! m_navigation && !m_navikey->empty() ) {
          const EventContext ctx = Gaudi::Hive::currentContext();
          SG::ReadHandle<xAOD::TrigNavigation> navReadHandle = SG::makeHandle(*m_navikey, ctx);
          if( ! navReadHandle.isValid() ) {

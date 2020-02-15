@@ -25,7 +25,7 @@ namespace TrigConf {
       /** Constructor initialized with configuration data 
        * @param data The data containing the L1 threshold 
        */
-      L1Threshold(const std::string & name, const ptree & data);
+      L1Threshold(const std::string & name, const std::string & type, const ptree & data);
 
       /** Destructor */
       ~L1Threshold();
@@ -50,13 +50,24 @@ namespace TrigConf {
 
       /** Accessor to the list of threshold values */
       std::vector<DataStructure> thresholdValues() const;
+
+      /** Accessor to the threshold value valid for this eta (EM thresholds only) */
+      DataStructure thresholdValue(int eta) const;
       
       /** Accessor to the cabling information
        *
        * If no cabling information is available then bool(cable()) is false
        */
       DataStructure cable() const;
-      
+
+   private:
+
+      /** Update the internal data after modification of the data object */
+      virtual void update();
+
+      std::string m_name{""};
+      std::string m_type{""};
+      unsigned int m_mapping{0}; ///< unique numberic identifier amongst thresholds of the same type
    };
 
 }

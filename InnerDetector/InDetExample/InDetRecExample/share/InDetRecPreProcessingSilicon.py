@@ -21,7 +21,7 @@ if InDetFlags.doPRDFormation():
                                                      BcmContainerName = InDetKeys.BCM_RDOs())
       topSequence += InDetBCM_ZeroSuppression
       if (InDetFlags.doPrintConfigurables()):
-         print InDetBCM_ZeroSuppression
+         printfunc (InDetBCM_ZeroSuppression)
    
    if DetFlags.makeRIO.pixel_on() or DetFlags.makeRIO.SCT_on():
       #
@@ -44,7 +44,7 @@ if InDetFlags.doPRDFormation():
 
       ToolSvc += InDetClusterMakerTool
       if (InDetFlags.doPrintConfigurables()):
-        print InDetClusterMakerTool
+        printfunc (InDetClusterMakerTool)
       
    #
    # -- Pixel Clusterization
@@ -79,7 +79,7 @@ if InDetFlags.doPRDFormation():
                                                                            useBeamSpotInfo          = useBeamConstraint)
             ToolSvc += NnPixelClusterSplitProbTool
             if (InDetFlags.doPrintConfigurables()):
-              print NnPixelClusterSplitProbTool
+              printfunc (NnPixelClusterSplitProbTool)
 
             # --- remember this prob tool  
             clusterSplitProbTool = NnPixelClusterSplitProbTool
@@ -99,7 +99,7 @@ if InDetFlags.doPRDFormation():
             
             ToolSvc += NnPixelClusterSplitter
             if (InDetFlags.doPrintConfigurables()):
-              print NnPixelClusterSplitter
+              printfunc (NnPixelClusterSplitter)
 
             # remember splitter tool  
             clusterSplitterTool = NnPixelClusterSplitter
@@ -115,7 +115,7 @@ if InDetFlags.doPRDFormation():
 
             ToolSvc += TotPixelClusterSplitter
             if (InDetFlags.doPrintConfigurables()):
-              print TotPixelClusterSplitter
+              printfunc (TotPixelClusterSplitter)
 
             # remember splitter tool    
             clusterSplitterTool = TotPixelClusterSplitter
@@ -137,7 +137,7 @@ if InDetFlags.doPRDFormation():
       
       ToolSvc += InDetMergedPixelsTool
       if (InDetFlags.doPrintConfigurables()):
-        print InDetMergedPixelsTool
+        printfunc (InDetMergedPixelsTool)
                     
       #
       # --- PixelGangedAmbiguitiesFinder tool (public)
@@ -146,7 +146,7 @@ if InDetFlags.doPRDFormation():
       InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder(name = "InDetPixelGangedAmbiguitiesFinder")
       ToolSvc += InDetPixelGangedAmbiguitiesFinder
       if (InDetFlags.doPrintConfigurables()):
-        print InDetPixelGangedAmbiguitiesFinder
+        printfunc (InDetPixelGangedAmbiguitiesFinder)
             
       #
       # --- PixelClusterization algorithm
@@ -159,7 +159,7 @@ if InDetFlags.doPRDFormation():
                                                             ClustersName            = InDetKeys.PixelClusters())
       topSequence += InDetPixelClusterization
       if (InDetFlags.doPrintConfigurables()):
-         print InDetPixelClusterization
+         printfunc (InDetPixelClusterization)
 
       if InDetFlags.doSplitReco() :
         InDetPixelClusterizationPU = InDet__PixelClusterization(name                    = "InDetPixelClusterizationPU",
@@ -170,7 +170,7 @@ if InDetFlags.doPRDFormation():
                                                                 AmbiguitiesMap = "PixelClusterAmbiguitiesMapPU")
         topSequence += InDetPixelClusterizationPU
         if (InDetFlags.doPrintConfigurables()):
-          print InDetPixelClusterizationPU
+          printfunc (InDetPixelClusterizationPU)
 
    #
    # --- SCT Clusterization
@@ -191,7 +191,7 @@ if InDetFlags.doPRDFormation():
             InDetSCT_ClusteringTool.timeBins = "X1X" 
 
       if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ClusteringTool
+        printfunc (InDetSCT_ClusteringTool)
             
 
       #
@@ -210,7 +210,7 @@ if InDetFlags.doPRDFormation():
         InDetSCT_Clusterization.maxFiredStrips = 0
       topSequence += InDetSCT_Clusterization
       if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_Clusterization
+        printfunc (InDetSCT_Clusterization)
 
       if InDetFlags.doSplitReco() :
         InDetSCT_ClusterizationPU = InDet__SCT_Clusterization(name                    = "InDetSCT_ClusterizationPU",
@@ -225,7 +225,7 @@ if InDetFlags.doPRDFormation():
           InDetSCT_ClusterizationPU.maxFiredStrips = 0
         topSequence += InDetSCT_ClusterizationPU
         if (InDetFlags.doPrintConfigurables()):
-          print InDetSCT_ClusterizationPU
+          printfunc (InDetSCT_ClusterizationPU)
 
 #
 # ----------- form SpacePoints from clusters in SCT and Pixels
@@ -246,7 +246,7 @@ if InDetFlags.doSpacePointFormation():
 
    ToolSvc += InDetSiSpacePointMakerTool
    if (InDetFlags.doPrintConfigurables()):
-     print InDetSiSpacePointMakerTool
+     printfunc (InDetSiSpacePointMakerTool)
    
    #
    # SiTrackerSpacePointFinder algorithm
@@ -300,9 +300,9 @@ if InDetFlags.doSpacePointFormation():
 
    topSequence += InDetSiTrackerSpacePointFinder
    if (InDetFlags.doPrintConfigurables()):
-     print InDetSiTrackerSpacePointFinder
+     printfunc (InDetSiTrackerSpacePointFinder)
      if (InDetFlags.doDBM()):
-       print InDetSiTrackerSpacePointFinderDBM
+       printfunc (InDetSiTrackerSpacePointFinderDBM)
 
 # this truth must only be done if you do PRD and SpacePointformation
 # If you only do the latter (== running on ESD) then the needed input (simdata)
@@ -332,7 +332,7 @@ if InDetFlags.doPRDFormation() and InDetFlags.doSpacePointFormation():
 
       topSequence += InDetPRD_MultiTruthMakerSi
       if (InDetFlags.doPrintConfigurables()):
-        print InDetPRD_MultiTruthMakerSi
+        printfunc (InDetPRD_MultiTruthMakerSi)
 
       if InDetFlags.doSplitReco() :
         InDetPRD_MultiTruthMakerSiPU = InDet__PRD_MultiTruthMaker (name                        = 'InDetPRD_MultiTruthMakerSiPU',
@@ -355,8 +355,8 @@ if InDetFlags.doPRDFormation() and InDetFlags.doSpacePointFormation():
            InDetPRD_MultiTruthMakerSiPU.SimDataMapNameSCT         = ""
            InDetPRD_MultiTruthMakerSiPU.TruthNameSCT              = ""
 
-        print InDetPRD_MultiTruthMakerSiPU
+        printfunc (InDetPRD_MultiTruthMakerSiPU)
         InDetPRD_MultiTruthMakerSiPU.OutputLevel=VERBOSE
         topSequence += InDetPRD_MultiTruthMakerSiPU
         if (InDetFlags.doPrintConfigurables()):
-          print InDetPRD_MultiTruthMakerSiPU
+          printfunc (InDetPRD_MultiTruthMakerSiPU)

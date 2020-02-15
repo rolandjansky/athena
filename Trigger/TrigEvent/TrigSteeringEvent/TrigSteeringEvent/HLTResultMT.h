@@ -1,9 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSTEERINGEVENT_HLTResultMT_H
 #define TRIGSTEERINGEVENT_HLTResultMT_H
+
+// Trigger includes
+#include "TrigSteeringEvent/OnlineErrorCode.h"
 
 // Athena includes
 #include "AthenaKernel/CLASS_DEF.h"
@@ -118,7 +121,7 @@ namespace HLT {
 
     // ------------------------- Error codes getters/setters -------------------
     // The event processing status is stored as one bit-mask word corresponding to eformat::helper::Status
-    // and n optional error codes. Online HLT framework uses them to store hltonl::PSCErrorCode.
+    // and n optional error codes. Online HLT framework uses them to store HLT::OnlineErrorCode.
 
     /// Full event status reference getter (1 bit-mask status word + error code words)
     const std::vector<uint32_t>& getStatus() const;
@@ -127,13 +130,13 @@ namespace HLT {
     const eformat::helper::Status getFirstStatusWord() const;
 
     /// Error codes getter  (by value) - strips off the first bit-mask status word
-    const std::vector<uint32_t> getErrorCodes() const;
+    const std::vector<HLT::OnlineErrorCode> getErrorCodes() const;
 
     /// Replace the full status words with the given data
     void setStatus(const std::vector<uint32_t>& status);
 
     /// Replace error codes with the given codes
-    void setErrorCodes(const std::vector<uint32_t>& errorCodes,
+    void setErrorCodes(const std::vector<HLT::OnlineErrorCode>& errorCodes,
                        const eformat::helper::Status firstStatusWord = {
                          eformat::GenericStatus::DATA_CORRUPTION,
                          eformat::FullEventStatus::PSC_PROBLEM
@@ -141,9 +144,10 @@ namespace HLT {
 
     /** @brief Append an error code
      *
-     *  Makes the current first word |= new first word
+     *  Makes the current first word |= new first word and appends errorCode
+     *  to the vector of optional error codes
      **/
-    void addErrorCode(const uint32_t& errorCode,
+    void addErrorCode(const HLT::OnlineErrorCode& errorCode,
                       const eformat::helper::Status firstStatusWord = {
                         eformat::GenericStatus::DATA_CORRUPTION,
                         eformat::FullEventStatus::PSC_PROBLEM

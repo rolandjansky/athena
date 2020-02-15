@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ############################################
 #                                          #
@@ -6,6 +6,8 @@
 #                                          #
 # Creation: David Cote (DESY), August 2008 #
 ############################################
+
+from __future__ import print_function
 
 __doc__ = """Set of functions to configure DPD from PATJobTransforms"""
     
@@ -34,7 +36,7 @@ def ApplyPrescale(arg):
         stream=MSMgr.GetStream( name )
         origVal=stream.GetPrescale()
         stream.SetPrescale( prescale )
-        print "INFO ApplyPrescale - SET prescale value %i to stream"%prescale,name,"(original value:",origVal,")"
+        print ("INFO ApplyPrescale - SET prescale value %i to stream"%prescale,name,"(original value:",origVal,")")
     else:
-        print "WARNING ApplyPrescale - unable to get stream "+name+". No additional prescale applied."
+        print ("WARNING ApplyPrescale - unable to get stream "+name+". No additional prescale applied.")
     return

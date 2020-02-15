@@ -52,10 +52,10 @@ if( NOT SIMULATIONBASE )
   if( ATHENAPOOLUTILITIESTEST_FOUND )
     set( XAODJETATHENAPOOL_REFERENCE_TAG
          xAODJetAthenaPoolReference-01-00-00 )
-    run_tpcnv_test( xAODJetAthenaPool_20.7.2.2   AOD-20.7.2.2-full
+    run_tpcnv_legacy_test( xAODJetAthenaPool_20.7.2.2   AOD-20.7.2.2-full
                      REQUIRED_LIBRARIES xAODJetAthenaPoolPoolCnv
                      REFERENCE_TAG ${XAODJETATHENAPOOL_REFERENCE_TAG} )
-    run_tpcnv_test( xAODJetAthenaPool_21.0.79   AOD-21.0.79-full
+    run_tpcnv_legacy_test( xAODJetAthenaPool_21.0.79   AOD-21.0.79-full
                      REQUIRED_LIBRARIES xAODJetAthenaPoolPoolCnv
                      REFERENCE_TAG ${XAODJETATHENAPOOL_REFERENCE_TAG} )
   else()

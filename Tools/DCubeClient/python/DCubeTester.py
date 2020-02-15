@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ##
 # @file DCubeClient/python/DCubeTester.py
 # @author Krzysztof Daniel Ciba (Krzyszotf.Ciba@NOSPAMgmail.com)
@@ -381,7 +381,7 @@ class DCubeTester( DCubeObject ):
         if ( self.node.getAttribute('pwarn') ):
             try:
                 pwarn = float ( self.node.getAttribute('pwarn').strip() )
-            except TypeError, value:
+            except TypeError as value:
                 raise DCubeException( "histogram %s pvalue limit for WARN is NAN" % self.node.getAttribute('name') )
             self.info("overriding pvalue limits for histogram %s: new WARN limit is pwarn=%s" % ( self.node.getAttribute('name'), pwarn ) )
         else:
@@ -390,7 +390,7 @@ class DCubeTester( DCubeObject ):
         if ( self.node.getAttribute('pfail') ):
             try:
                 pfail = float ( self.node.getAttribute('pfail').strip() )
-            except TypeError, value:
+            except TypeError as value:
                 raise DCubeException( "histogram %s pvalue limit for FAIL is NAN" % self.node.getAttribute('name') )
             self.info("overriding pvalue limits for histogram %s: new FAIL limit is pfail=%s" % ( self.node.getAttribute('name'), pfail ) )
         else:

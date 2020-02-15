@@ -216,19 +216,19 @@ namespace InDet {
     void production3Sp(EventData& data) const;
     void production3Sp
     (EventData& data,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
      int,int,float,float) const;
 
     void production3SpWithoutField(EventData& data) const;
     void production3SpWithoutField
     (EventData& data,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
      int,int,float) const;
 
     bool isUsed(const Trk::SpacePoint*, const Trk::PRDtoTrackMap &prd_to_track_map) const;

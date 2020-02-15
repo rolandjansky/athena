@@ -81,9 +81,6 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
         ATH_MSG_WARNING("Failed to preNext() CounterTool.");
     }
     if (m_evtCount > m_skipEvents && (m_skipEventSequence.empty() || m_evtCount != m_skipEventSequence.front())) {
-      if (!eventStore()->clearStore().isSuccess()) {
-        ATH_MSG_WARNING("Cannot clear Store");
-      }
       if (!recordAttributeList().isSuccess()) {
         ATH_MSG_ERROR("Failed to record AttributeList.");
         return(StatusCode::FAILURE);

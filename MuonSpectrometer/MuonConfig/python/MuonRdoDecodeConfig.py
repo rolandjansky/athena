@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -6,12 +6,15 @@ from AthenaCommon.Constants import DEBUG, INFO
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
 class MuonPrdCacheNames(object):
-    MdtCache  = "MdtPrdCache"
-    CscCache  = "CscPrdCache"
-    RpcCache  = "RpcPrdCache"
-    TgcCache  = "TgcPrdCache"
-    sTgcCache = "sTgcPrdCache"
-    MmCache   = "MmPrdCache"  
+    MdtCache       = "MdtPrdCache"
+    CscCache       = "CscPrdCache"
+    CscStripCache  = "CscStripPrdCache"
+    RpcCache       = "RpcPrdCache"
+    TgcCache       = "TgcPrdCache"
+    sTgcCache      = "sTgcPrdCache"
+    MmCache        = "MmPrdCache"
+    RpcCoinCache   = "RpcCoinCache"  
+    TgcCoinCache   = "TgcCoinCache"
 
 ## This configuration function creates the IdentifiableCaches for PRD
 #
@@ -21,12 +24,18 @@ def MuonPrdCacheCfg():
     acc = ComponentAccumulator()
 
     MuonPRDCacheCreator=CompFactory.MuonPRDCacheCreator
-    cacheCreator = MuonPRDCacheCreator(MdtCacheKey  = MuonPrdCacheNames.MdtCache,
-                                       CscCacheKey  = MuonPrdCacheNames.CscCache,
-                                       RpcCacheKey  = MuonPrdCacheNames.RpcCache,
-                                       TgcCacheKey  = MuonPrdCacheNames.TgcCache,
-                                       sTgcCacheKey = MuonPrdCacheNames.sTgcCache,
-                                       MmCacheKey   = MuonPrdCacheNames.MmCache)
+    cacheCreator = MuonPRDCacheCreator(CscStripCacheKey  = MuonPrdCacheNames.CscStripCache,
+                                       MdtCacheKey       = MuonPrdCacheNames.MdtCache,
+                                       CscCacheKey       = MuonPrdCacheNames.CscCache,
+                                       RpcCacheKey       = MuonPrdCacheNames.RpcCache,
+                                       TgcCacheKey       = MuonPrdCacheNames.TgcCache,
+                                       sTgcCacheKey      = MuonPrdCacheNames.sTgcCache,
+                                       MmCacheKey        = MuonPrdCacheNames.MmCache,
+                                       TgcCoinCacheKey   = MuonPrdCacheNames.TgcCoinCache,
+                                       RpcCoinCacheKey   = MuonPrdCacheNames.RpcCoinCache,
+                                       )
+
+    cacheCreator.OutputLevel = DEBUG
     acc.addEventAlgo( cacheCreator, primary=True )
     return acc
 
@@ -142,8 +151,8 @@ def CscRDODecodeCfg(flags, forTrigger=False):
     from MuonConfig.MuonCablingConfig import CSCCablingConfigCfg # Not yet been prepared
     acc.merge( CSCCablingConfigCfg(flags) )
 
-    from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
-    acc.merge( CscCoolStrSvcCfg(flags)  )
+    from MuonConfig.MuonCondAlgConfig import CscCondDbAlgCfg
+    acc.merge( CscCondDbAlgCfg(flags)  )
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg

@@ -1,13 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// MooSegmentCombinationFinder.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #include "MooSegmentCombinationFinder.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentQuality.h"
@@ -21,17 +16,10 @@
 #include "TrkEventPrimitives/FitQuality.h" 
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 
+//================ Constructor =================================================
 
-#include "GaudiKernel/IAuditor.h"
-
-  //================ Constructor =================================================
-
-Muon::MooSegmentCombinationFinder::MooSegmentCombinationFinder(const std::string& t,
-                       const std::string& n,
-                       const IInterface*  p )
-    :
+Muon::MooSegmentCombinationFinder::MooSegmentCombinationFinder(const std::string& t, const std::string& n, const IInterface* p) :
     AthAlgTool(t,n,p),
     m_houghPatternFinder("Muon::MuonHoughPatternFinderTool/MuonHoughPatternFinderTool")
   {
@@ -46,7 +34,7 @@ Muon::MooSegmentCombinationFinder::initialize()
 {    
   ATH_CHECK( m_edmPrinter.retrieve() );
   ATH_CHECK( m_edmHelperSvc.retrieve() );
-  ATH_CHECK( m_idHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
 
   if( m_doCscSegments ){
     ATH_CHECK( m_csc2dSegmentFinder.retrieve() );
@@ -345,7 +333,7 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection( const MuonSegmentCo
 
       // get chamber identifier, chamber index and station index
       Identifier chid = m_edmHelperSvc->chamberId( *segments->front() );
-      Muon::MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chid);
+      Muon::MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(chid);
 
       // add segments to region segment map, remove ambigueties (missing at the moment)
       RSMapIt rsit = segMap.find( chIndex );
@@ -428,7 +416,7 @@ std::pair<int,int> Muon::MooSegmentCombinationFinder::hitsInMultilayer( const Mu
   for(;it!=itEnd;++it){
     const Muon::MdtDriftCircleOnTrack* mdt = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(*it);
     if( mdt ){
-      int ml = m_idHelperTool->mdtIdHelper().multilayer(mdt->identify());
+      int ml = m_idHelperSvc->mdtIdHelper().multilayer(mdt->identify());
       if( ml == 1 ) ++nMl1;
       if( ml == 2 ) ++nMl2;
     }

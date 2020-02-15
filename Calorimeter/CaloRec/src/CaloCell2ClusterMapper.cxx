@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -43,8 +43,6 @@
 CaloCell2ClusterMapper::CaloCell2ClusterMapper(const std::string& name, 
 					       ISvcLocator* pSvcLocator) 
   : AthReentrantAlgorithm(name, pSvcLocator),
-    m_calo_dd_man(0),
-    m_calo_id(0),
     m_mapOutputKey(""),
     m_clusterKey("")
 {
@@ -64,10 +62,6 @@ CaloCell2ClusterMapper::~CaloCell2ClusterMapper()
 //###############################################################################
 
 StatusCode CaloCell2ClusterMapper::initialize() {
-  // pointer to detector manager:
-  m_calo_dd_man = CaloDetDescrManager::instance();
-  m_calo_id = m_calo_dd_man->getCaloCell_ID();
-
   return StatusCode::SUCCESS;
 }
 
@@ -89,8 +83,11 @@ StatusCode CaloCell2ClusterMapper::execute(const EventContext& ctx) const {
   ATH_CHECK( cell2ClusterMap.record(std::make_unique<CaloCell2ClusterMap>
                                     (SG::VIEW_ELEMENTS)) );
 
+   const CaloCell_ID*               calo_id  = nullptr;
+   ATH_CHECK(detStore()->retrieve(calo_id,"CaloCell_ID"));
+
   // resize it to total range of IdentifierHash for all calos
-  Identifier::size_type maxRange = m_calo_id->calo_cell_hash_max();
+  Identifier::size_type maxRange = calo_id->calo_cell_hash_max();
   cell2ClusterMap->resize(maxRange);
   
   SG::ReadHandle<CaloClusterContainer> clusColl(m_clusterKey, ctx);
@@ -116,7 +113,7 @@ StatusCode CaloCell2ClusterMapper::execute(const EventContext& ctx) const {
     CaloCluster::cell_iterator cellIterEnd = clus->cell_end();
     for (; cellIter != cellIterEnd; cellIter++) {
       // look up the IdentifierHash for the current cell
-      IdentifierHash myHashId = m_calo_id->calo_cell_hash((*cellIter)->ID());
+      IdentifierHash myHashId = calo_id->calo_cell_hash((*cellIter)->ID());
       // get the existing? Navigable for this cell
       Navigable<CaloClusterContainer> *theNav = (*cell2ClusterMap)[myHashId];
       if (!theNav) {
@@ -190,7 +187,7 @@ StatusCode CaloCell2ClusterMapper::execute(const EventContext& ctx) const {
             for (; cellIter != cellIterEnd; cellIter++) {
               pCell = (*cellIter);
               // look up the IdentifierHash for the current cell
-              IdentifierHash myHashId = m_calo_id->calo_cell_hash(pCell->ID());
+              IdentifierHash myHashId = calo_id->calo_cell_hash(pCell->ID());
               if (((unsigned int) myHashId) == iHash)
                 break;
               else

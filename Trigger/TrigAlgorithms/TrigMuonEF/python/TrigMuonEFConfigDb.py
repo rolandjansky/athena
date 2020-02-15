@@ -54,6 +54,11 @@ addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_CombinedStauTrackBuilder", "TMEF_Combi
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonStauSegmentRegionRecoveryTool", "TMEF_MuonStauSegmentRegionRecoveryTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_CombinedStauTrackBuilderFit", "TMEF_CombinedStauTrackBuilderFit")
 
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MdtRawDataProviderTool", "TMEF_MdtRawDataProviderTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_CscRawDataProviderTool", "TMEF_CscRawDataProviderTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_RpcRawDataProviderTool", "TMEF_RpcRawDataProviderTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_TgcRawDataProviderTool", "TMEF_TgcRawDataProviderTool")
+
 addAlgorithm("TrigMuonEF.TrigMuonEFConfig.TrigMuonEFTrackIsolationConfig", "TrigMuonEFTrackIsolation")
 
 addAlgorithm("TrigMuonEF.TrigMuonEFConfig.TrigMuonEFFSRoiMakerConfig","TrigMuonEFFSRoiMaker")

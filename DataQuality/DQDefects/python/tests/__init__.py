@@ -55,7 +55,7 @@ def test_database_creation():
 @with_setup(create_database, teardown_database)
 def test_database_creation_unicode():
     assert exists("test_defects.db")
-    log.info("Created database %s", unicode(TEST_DATABASE))
+    log.info("Created database %s", six.ensure_text(TEST_DATABASE))
     
 @with_setup(create_database, teardown_database)
 def test_database_retrieval():

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
@@ -7,24 +7,22 @@
 
 IOVMetaDataContainer::~IOVMetaDataContainer()
 {
-    // delete payload
-    delete (m_payload);
+  delete (m_payload);
 }
 
 bool
 IOVMetaDataContainer::merge(CondAttrListCollection* payload)
-{ 
-    // If payload container doesn't exist, create it
-    bool result;
-    if (m_payload) {
-        // Exists
-//         std::cout << "IOVMetaDataContainer::merge - folder name " << m_folderName << std::endl;
-        result = m_payload->merge(payload);
-    }
-    else {
-        // Must make a new payload container
-        m_payload = new IOVPayloadContainer;
-        result = m_payload->merge(payload);
-    }
-    return (result);
+{
+  return m_payload->merge(payload);
+}
+
+void IOVMetaDataContainer::dump(std::ostringstream& stream) const
+{
+  stream << "IOVMetaDataContainer ::" << std::endl;
+  stream << "Ppayload size : " << m_payload->size() << std::endl;
+  stream << "IOVs and attribute lists : " << std::endl;
+
+  for(CondAttrListCollection* attListCol : *m_payload ) {
+    attListCol->dump(stream);
+  }
 }

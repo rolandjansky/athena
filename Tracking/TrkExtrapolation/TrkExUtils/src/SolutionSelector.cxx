@@ -11,10 +11,10 @@
 #include <math.h>
 
 Trk::SolutionSelector::SolutionSelector()
-{}
+= default;
 
 Trk::SolutionSelector::~SolutionSelector()
-{}
+= default;
 
 Trk::SelectedSolution Trk::SolutionSelector::select(Trk::PropDirection dir, double pl1, double pl2)
 {

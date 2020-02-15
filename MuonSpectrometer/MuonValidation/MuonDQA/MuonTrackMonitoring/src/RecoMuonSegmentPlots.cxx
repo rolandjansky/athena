@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackMonitoring/RecoMuonSegmentPlots.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
-
 
 RecoMuonSegmentPlots::RecoMuonSegmentPlots(PlotBase* pParent, std::string sDir, bool detail):PlotBase(pParent, sDir)
   ,  m_oMuonSegmentPlots(NULL)

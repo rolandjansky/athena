@@ -126,7 +126,7 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
            topSequence.MuonTruthDecorationAlg.BarcodeOffset = 10000000
 
    except:
-       print "Failed to read /Simulation/Parameters/ metadata"
+       printfunc ("Failed to read /Simulation/Parameters/ metadata")
        pass
 
 #load default tools:
@@ -167,7 +167,7 @@ if muonRecFlags.doStandalone():
             if truthStrategy in ['MC15', 'MC18', 'MC18LLP']:
                 topSequence.MuonSegmentTruthAssociationAlg.BarcodeOffset = 10000000
         except:
-            print "Failed to read /Simulation/Parameters/ metadata"
+            printfunc ("Failed to read /Simulation/Parameters/ metadata")
             pass
 
 #--------------------------------------------------------------------------

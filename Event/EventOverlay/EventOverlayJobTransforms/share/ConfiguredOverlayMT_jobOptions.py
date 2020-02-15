@@ -42,7 +42,8 @@ from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 ServiceMgr.DoubleEventSelector.InputCollections = athenaCommonFlags.PoolRDOInput()
 ServiceMgr.SecondaryEventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
-ServiceMgr.DoubleEventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
+if athenaCommonFlags.SkipEvents.statusOn:
+    ServiceMgr.DoubleEventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
 # Properly generate event context
 from AthenaCommon.ConcurrencyFlags import jobproperties as jp

@@ -14,9 +14,9 @@
 
 // Infrastructure include(s):
 #include "AsgTools/AsgMetadataTool.h"
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   include "AthenaKernel/IMetaDataTool.h"
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
 
 // EDM include(s):
 #include "xAODMetaData/FileMetaData.h"
@@ -39,9 +39,9 @@ namespace xAODMaker {
    /// $Date: 2015-07-17 11:12:14 +0200 (Fri, 17 Jul 2015) $
    ///
    class FileMetaDataTool : public asg::AsgMetadataTool
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
                           , public virtual ::IMetaDataTool
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
    {
 
       /// Declare the correct constructor for Athena

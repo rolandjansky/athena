@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,6 +16,7 @@
 //Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#include "CxxUtils/checker_macros.h"
 
 
 class MsgStream;
@@ -63,7 +64,7 @@ namespace Trk {
     bool inside(const Amg::Vector3D& , double tol=0.) const override;
          
     /** Method to decompose the Bounds into boundarySurfaces */
-    const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const override;
+    const std::vector<const Trk::Surface*>* decomposeToSurfaces ATLAS_NOT_THREAD_SAFE (const Amg::Transform3D& transform) const override;
     
     /** Provide accessor for BoundarySurfaces */
     ObjectAccessor boundarySurfaceAccessor(const Amg::Vector3D& gp,
@@ -71,13 +72,13 @@ namespace Trk {
                                            bool forceInside=false) const override;
                                                 
     /**This method returns the outer Volume*/
-    Volume* outer() const;
+    const Volume* outer() const;
     
     /**This method returns the inner Volume*/
-    Volume* inner() const;    
+    const Volume* inner() const;    
     
     /**This method returns bounds orientation*/
-    const std::vector<bool> boundsOrientation() const;
+    std::vector<bool> boundsOrientation() const;
     
     /** Output Method for MsgStream*/
     MsgStream& dump(MsgStream& sl) const override;
@@ -96,7 +97,7 @@ namespace Trk {
        has to be implemented if Subtracteds are used more widely */
     EightObjectsAccessor m_objectAccessor;
 
-    mutable std::vector<bool> m_boundsOrientation;        
+    mutable std::vector<bool> m_boundsOrientation ATLAS_THREAD_SAFE;        
     
  };
 
@@ -108,16 +109,16 @@ namespace Trk {
    return (m_outer->inside(pos,tol) && !m_inner->inside(pos,-tol) );
  }
 
- inline Volume* SubtractedVolumeBounds::outer() const { return m_outer; }
+ inline const Volume* SubtractedVolumeBounds::outer() const { return m_outer; }
  
- inline Volume* SubtractedVolumeBounds::inner() const { return m_inner; }
+ inline const Volume* SubtractedVolumeBounds::inner() const { return m_inner; }
 
  inline ObjectAccessor SubtractedVolumeBounds::boundarySurfaceAccessor(const Amg::Vector3D&,
                                                                        const Amg::Vector3D&,
                                                                        bool) const
  { return Trk::ObjectAccessor(m_objectAccessor); }
                         
- inline const std::vector<bool> SubtractedVolumeBounds::boundsOrientation() const
+ inline std::vector<bool> SubtractedVolumeBounds::boundsOrientation() const
   { return(m_boundsOrientation); }
 
 }

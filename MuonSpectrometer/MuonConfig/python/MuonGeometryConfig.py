@@ -127,7 +127,7 @@ def MuonGeoModelCfg(flags):
     acc.addCondAlgo(MuonDetectorManagerCond)
 
     gms.DetectorTools += [ detTool ]
-
+    
     acc.addService( Muon__MuonIdHelperSvc("MuonIdHelperSvc",
         HasCSC=flags.Detector.GeometryCSC,
         HasSTgc=flags.Detector.GeometrysTGC,

@@ -57,6 +57,10 @@ MdtVsTgcRawDataValAlg::SortMDTSegments(const xAOD::MuonSegmentContainer *newsegm
     // Loop through contained ROTs and identify used stations
     for(unsigned int iROT=0; iROT<segm->numberOfContainedROTs(); ++iROT){
       const Trk::RIO_OnTrack* rio = segm->rioOnTrack(iROT);
+      if(!rio){
+	ATH_MSG_DEBUG("No RIO");
+	continue;
+      }
       Identifier id = rio->identify();
       
       // Identify MDT Endcap Segments

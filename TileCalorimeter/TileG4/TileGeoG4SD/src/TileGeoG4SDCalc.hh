@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -33,6 +33,9 @@
 
 // Geant4 headers
 #include "G4Types.hh"
+
+//CLHEP headers
+#include "CLHEP/Units/SystemOfUnits.h"
 
 // STL headers
 #include <vector>
@@ -106,6 +109,8 @@ private:
 
   TileSDOptions m_options;
 
+  Gaudi::Property<double> m_birk1{this, "birk1",0.0130 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2), "exp. values from NIM 80 (1970) 239-244"};
+  Gaudi::Property<double> m_birk2{this, "birk1",9.6e-6 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2), "exp. values from NIM 80 (1970) 239-244"};
 
   /** @brief Keep hit time */
   bool m_keepHitTime;

@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 
 from JetMonitoring.HistoDefinitionHelpers import createHistoDefTool as hdef
@@ -6,6 +8,7 @@ from JetMonitoring.HistoDefinitionHelpers import mergeHistoDefinition
 from JetMonitoring.JetMonitoringConf import JetAttributeHisto, JetSelectorAttributeRunII
 from JetMonitoring.JetHistoManager import jetHistoManager as jhm
 
+import six
 
 
 class AttributeHistoManager(object):
@@ -14,7 +17,7 @@ class AttributeHistoManager(object):
         self.jhm = jhm
         
     def buildKnownTools(self, compactSpecification):
-        for name, spec in compactSpecification.iteritems():
+        for name, spec in six.iteritems(compactSpecification):
             if len(spec) == 2 :
                 binning, attributeInfo = spec
                 self.add1DHistoTool(name, binning, attributeInfo)
@@ -26,7 +29,7 @@ class AttributeHistoManager(object):
     def add1DHistoTool(self, name, binning, attributeInfo,**otherArgs):
 
         if self.jhm.hasTool(name):
-            print "ERROR  JetAttributeHisto with name ", name ," already exists. Can't add a new one"
+            print ("ERROR  JetAttributeHisto with name ", name ," already exists. Can't add a new one")
             return None
 
         tool = create1DHistoTool(name, binning, attributeInfo, **otherArgs)
@@ -36,7 +39,7 @@ class AttributeHistoManager(object):
 
     def add2DHistoTool(self, name, binning=None, attributeInfo1=None, attributeInfo2=None,**otherArgs):        
         if self.jhm.hasTool(name):
-            print "ERROR  JetAttributeHisto with name ", name ," already exists. Can't add a new one"
+            print ("ERROR  JetAttributeHisto with name ", name ," already exists. Can't add a new one")
             return None
 
         tool = create2DHistoTool(name, binning, attributeInfo1, attributeInfo2, **otherArgs)
@@ -55,7 +58,7 @@ class AttributeHistoManager(object):
 
         if None in (t1, t2):
             missing = n1 if t1 is None else n2
-            print "ERROR : can't build 2D histo", name, "  : ",missing, " is unknonw"
+            print ("ERROR : can't build 2D histo", name, "  : ",missing, " is unknonw")
             return None
         
         binning = mergeHistoDefinition( t1.HistoDef, t2.HistoDef)
@@ -71,10 +74,10 @@ class AttributeHistoManager(object):
 
     def addSelector(self, selectString, name="", typ="float"):
         if name != "" and self.jhm.hasTool(name) :
-            print "ERROR  JetSelectorAttributeRunII with name ", name ," already exists. Can't add a new one"
+            print ("ERROR  JetSelectorAttributeRunII with name ", name ," already exists. Can't add a new one")
             return None
         if  self.jhm.hasTool(selectString) :
-            print "ERROR  JetSelectorAttributeRunII  ", selectString ," already exists. Can't add a new one"
+            print ("ERROR  JetSelectorAttributeRunII  ", selectString ," already exists. Can't add a new one")
             return None        
         tool = createAttSelector( selectString, name=name, typ=typ)
         # selectors are public tools :

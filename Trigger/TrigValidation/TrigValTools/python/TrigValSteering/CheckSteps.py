@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -11,6 +11,7 @@ import os
 import re
 import subprocess
 import json
+import six
 
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs
@@ -127,8 +128,9 @@ class LogMergeStep(Step):
                 self.log_files.append(f)
 
     def merge_logs(self):
+        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
         try:
-            with open(self.merged_name, 'w') as merged_file:
+            with open(self.merged_name, 'w', **encargs) as merged_file:
                 for log_name in self.log_files:
                     if not os.path.isfile(log_name):
                         if self.warn_if_missing:
@@ -136,7 +138,7 @@ class LogMergeStep(Step):
                             merged_file.write(
                                 '### WARNING Missing {} ###\n'.format(log_name))
                         continue
-                    with open(log_name) as log_file:
+                    with open(log_name, **encargs) as log_file:
                         merged_file.write('### {} ###\n'.format(log_name))
                         for line in log_file:
                             merged_file.write(line)
@@ -266,10 +268,11 @@ class RegTestStep(RefComparisonStep):
         if not os.path.isfile(log_file):
             self.log.error('%s input file %s is missing', self.name, log_file)
             return False
-        with open(log_file) as f_in:
+        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
+        with open(log_file, **encargs) as f_in:
             matches = re.findall('{}.*$'.format(self.regex),
                                  f_in.read(), re.MULTILINE)
-            with open(self.input_file, 'w') as f_out:
+            with open(self.input_file, 'w', **encargs) as f_out:
                 for line in matches:
                     f_out.write(line+'\n')
         return True
@@ -495,7 +498,8 @@ class ZeroCountsStep(Step):
                 self.name, input_file)
             return -1
         lines_checked = 0
-        with open(input_file) as f_in:
+        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
+        with open(input_file, **encargs) as f_in:
             for line in f_in.readlines():
                 split_line = line.split()
                 lines_checked += 1

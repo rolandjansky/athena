@@ -4,20 +4,40 @@
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 
+from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
 from OverlayCopyAlgs.OverlayCopyAlgsConfig import \
     CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyMcEventCollectionCfg, \
     CopyTimingsCfg, CopyTrackRecordCollectionsCfg
 from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoOverlayCfg
 
+
+def OverlayMainServicesCfg(flags):
+    """Configure event loop for overlay"""
+    acc = MainServicesThreadedCfg(flags)
+    if not flags.Overlay.DataOverlay:
+        if flags.Concurrency.NumThreads > 0:
+            AthenaHiveEventLoopMgr = CompFactory.AthenaHiveEventLoopMgr
+            elmgr = AthenaHiveEventLoopMgr()
+        else:
+            AthenaEventLoopMgr = CompFactory.AthenaEventLoopMgr
+            elmgr = AthenaEventLoopMgr()
+        elmgr.UseSecondaryEventNumber = True
+        acc.addService(elmgr)
+    return acc
+
+
 def OverlayMainCfg(configFlags):
     """Main overlay steering configuration"""
 
     # Construct our accumulator to run
-    acc = MainServicesThreadedCfg(configFlags)
+    acc = OverlayMainServicesCfg(configFlags)
     acc.merge(PoolReadCfg(configFlags))
+    acc.merge(PoolWriteCfg(configFlags))
 
     # Add event info overlay
     acc.merge(EventInfoOverlayCfg(configFlags))
@@ -28,5 +48,9 @@ def OverlayMainCfg(configFlags):
     acc.merge(CopyTimingsCfg(configFlags))
     acc.merge(CopyCaloCalibrationHitContainersCfg(configFlags))
     acc.merge(CopyTrackRecordCollectionsCfg(configFlags))
+
+    # Inner detector
+    if configFlags.Detector.OverlaySCT:
+        acc.merge(SCTOverlayCfg(configFlags))
 
     return acc

@@ -127,7 +127,7 @@ StatusCode egammaTrackSlimmer::execute (const EventContext& ctx) const {
   for( ; el_itr != el_end; ++el_itr ) {
 
     auto trackParticleLinks = (*el_itr)->trackParticleLinks();
-    for (auto link :  trackParticleLinks){
+    for (const auto& link :  trackParticleLinks){
       if( ! link.isValid() ){
         continue;
       }
@@ -156,7 +156,7 @@ StatusCode egammaTrackSlimmer::execute (const EventContext& ctx) const {
   for( ; ph_itr != ph_end; ++ph_itr ) {
 
     auto vertexLinks= (*ph_itr) ->vertexLinks();
-    for ( auto vxlink :  vertexLinks){
+    for ( const auto& vxlink :  vertexLinks){
       if( ! vxlink.isValid() ){
         continue;
       }
@@ -168,7 +168,7 @@ StatusCode egammaTrackSlimmer::execute (const EventContext& ctx) const {
       }
     
       auto trackParticleLinks = vx->trackParticleLinks();
-      for ( auto link :  trackParticleLinks){
+      for ( const auto& link :  trackParticleLinks){
         if( ! link.isValid() ){
           continue;
         }

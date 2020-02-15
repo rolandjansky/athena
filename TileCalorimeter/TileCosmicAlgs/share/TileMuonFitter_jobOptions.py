@@ -54,7 +54,7 @@ if theTileCosmicMuonGetter and theTileCosmicMuonGetter.configured() :
     else:
         theTileCosmicMuonGetter.TileMuonFitter().DoHoughTransform = True
         theTileCosmicMuonGetter.TileMuonFitter().TileCosmicMuonKey = "TileCosmicMuonHT"
-    print theTileCosmicMuonGetter.TileMuonFitter()
+    printfunc (theTileCosmicMuonGetter.TileMuonFitter())
     
     
     #==============================================================
@@ -73,4 +73,4 @@ if theTileCosmicMuonGetter and theTileCosmicMuonGetter.configured() :
         theTileMuonFitter2.CaloCellContainer = 'AllCalo'
         theTileMuonFitter2.OutputLevel= INFO
         topSequence += theTileMuonFitter2
-        print theTileMuonFitter2
+        printfunc (theTileMuonFitter2)

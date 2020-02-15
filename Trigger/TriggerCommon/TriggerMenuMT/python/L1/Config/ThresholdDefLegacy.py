@@ -266,12 +266,8 @@ class ThresholdDefLegacy:
                 LegacyThreshold('HA%iIM' % thrV, 'TAU').addThrValue(thrV)   
         
         ThresholdValue.setDefaults('TAU', {'isobits' : '00100', 'use_relIso' : True })
-        if isV6 or isHI:
-            for thrV in [12,20,25]:
-                LegacyThreshold('HA%iIT' % thrV, 'TAU').addThrValue(thrV)
-        else:
-            for thrV in [12,20]:
-                LegacyThreshold('HA%iIT' % thrV, 'TAU').addThrValue(thrV)
+        for thrV in [12,20,25]:
+            LegacyThreshold('HA%iIT' % thrV, 'TAU').addThrValue(thrV)
   
         ThresholdValue.setDefaults('TAU', {'isobits' : '01000', 'use_relIso' : True })
         for thrV in [12,20]:

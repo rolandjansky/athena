@@ -29,24 +29,15 @@ public:
     //-------------------------------------------------------------
     ~TauTrackFilter();
 
-    virtual StatusCode initialize();
-    virtual StatusCode execute(xAOD::TauJet& pTau);
-    virtual StatusCode finalize();
-    virtual StatusCode eventInitialize() { return StatusCode::SUCCESS; }
-    virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
-
-    virtual void print() const { }
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode finalize() override;
 
 private:
-    std::string m_configPath;
-    std::string m_trackContainerName;
-    std::string m_tauTrackConName;
     std::vector<bool> m_TrkPass;
     int m_nProng;
     int m_flag;
-
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleInputContainer{this,"Key_trackParticleInputContainer","InDetTrackParticles","track key"};
-
 };
 
 #endif

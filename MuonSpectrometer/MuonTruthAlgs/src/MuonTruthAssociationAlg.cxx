@@ -1,11 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonTruthAssociationAlg.cxx
-//   Implementation file for class MuonTruthAssociationAlg
-///////////////////////////////////////////////////////////////////
 
 #include "MuonTruthAssociationAlg.h"
 #include "TrkTrack/Track.h"
@@ -17,14 +12,13 @@
 
 // Constructor with parameters:
 MuonTruthAssociationAlg::MuonTruthAssociationAlg(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
-  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+  AthAlgorithm(name,pSvcLocator)
 {}
 
 // Initialize method:
 StatusCode MuonTruthAssociationAlg::initialize()
 {
-  ATH_CHECK(m_idHelper.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   m_muonTruthParticleContainerName=m_muonTruthParticleContainerName.key()+".recoMuonLink";
   ATH_CHECK(m_muonTruthParticleContainerName.initialize());
   m_muonTruthParticleLink=m_muonName+".truthParticleLink";
@@ -151,10 +145,10 @@ StatusCode MuonTruthAssociationAlg::execute()
 		      if( !crot->containedROTs().empty() && crot->containedROTs().front() ) id=crot->containedROTs().front()->identify();
 		    }
 		  }
-		  if(!m_idHelper->isMuon(id)) continue;
-		  bool measPhi = m_idHelper->measuresPhi(id);
-		  bool isTgc = m_idHelper->isTgc(id);
-		  Muon::MuonStationIndex::ChIndex chIndex = !isTgc ? m_idHelper->chamberIndex(id) : Muon::MuonStationIndex::ChUnknown;
+		  if(!m_idHelperSvc->isMuon(id)) continue;
+		  bool measPhi = m_idHelperSvc->measuresPhi(id);
+		  bool isTgc = m_idHelperSvc->isTgc(id);
+		  Muon::MuonStationIndex::ChIndex chIndex = !isTgc ? m_idHelperSvc->chamberIndex(id) : Muon::MuonStationIndex::ChUnknown;
 		  bool found=false;
 		  for(unsigned int i=0;i<mdtTruth.size();i++){
 		    if(id==mdtTruth[i]){
@@ -168,7 +162,7 @@ StatusCode MuonTruthAssociationAlg::execute()
 		  for(unsigned int i=0;i<cscTruth.size();i++){
 		    if(id==cscTruth[i]){
 		      if( measPhi ) {
-			Muon::MuonStationIndex::PhiIndex index = m_idHelper->phiIndex(id);
+			Muon::MuonStationIndex::PhiIndex index = m_idHelperSvc->phiIndex(id);
 			if(nphiHitsPerChamberLayer[index]==999) nphiHitsPerChamberLayer[index]=1;
 			else ++nphiHitsPerChamberLayer[index];
 		      }
@@ -183,7 +177,7 @@ StatusCode MuonTruthAssociationAlg::execute()
 		  if(found) continue;
 		  for(unsigned int i=0;i<rpcTruth.size();i++){
 		    if(id==rpcTruth[i]){
-		      int index = m_idHelper->phiIndex(id);
+		      int index = m_idHelperSvc->phiIndex(id);
 		      if( measPhi ){
 			if(nphiHitsPerChamberLayer[index]==999) nphiHitsPerChamberLayer[index]=1;
 			else ++nphiHitsPerChamberLayer[index];
@@ -199,7 +193,7 @@ StatusCode MuonTruthAssociationAlg::execute()
 		  if(found) continue;
 		  for(unsigned int i=0;i<tgcTruth.size();i++){
 		    if(id==tgcTruth[i]){
-		      int index = m_idHelper->phiIndex(id);
+		      int index = m_idHelperSvc->phiIndex(id);
 		      if( measPhi ){
 			if(nphiHitsPerChamberLayer[index]==999) nphiHitsPerChamberLayer[index]=1;
 			else ++nphiHitsPerChamberLayer[index];
@@ -220,13 +214,13 @@ StatusCode MuonTruthAssociationAlg::execute()
 		    bool found=false;
 		    for(unsigned int j=0;j<mdtTruth.size();j++){
 		      Identifier id(mdtTruth[j]);
-		      if(m_idHelper->chamberIndex(id)==(Muon::MuonStationIndex::ChIndex)i){ nprecHitsPerChamberLayer[i]=0; found=true; break;}
+		      if(m_idHelperSvc->chamberIndex(id)==(Muon::MuonStationIndex::ChIndex)i){ nprecHitsPerChamberLayer[i]=0; found=true; break;}
 		    }
 		    if(found) continue;
 		    for(unsigned int j=0;j<cscTruth.size();j++){
 		      Identifier id(cscTruth[j]);
-		      if(!m_idHelper->measuresPhi(id)){
-			if(m_idHelper->chamberIndex(id)==(Muon::MuonStationIndex::ChIndex)i){ nprecHitsPerChamberLayer[i]=0; break;}
+		      if(!m_idHelperSvc->measuresPhi(id)){
+			if(m_idHelperSvc->chamberIndex(id)==(Muon::MuonStationIndex::ChIndex)i){ nprecHitsPerChamberLayer[i]=0; break;}
 		      }
 		    }
 		  }
@@ -236,22 +230,22 @@ StatusCode MuonTruthAssociationAlg::execute()
 		    bool found=false;
 		    for(unsigned int j=0;j<cscTruth.size();j++){
 		      Identifier id(cscTruth[j]);
-		      if(m_idHelper->measuresPhi(id)){
-			if(m_idHelper->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; found=true; break;}
+		      if(m_idHelperSvc->measuresPhi(id)){
+			if(m_idHelperSvc->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; found=true; break;}
 		      }
 		    }
 		    if(found) continue;
 		    for(unsigned int j=0;j<rpcTruth.size();j++){
 		      Identifier id(rpcTruth[j]);
-		      if(m_idHelper->measuresPhi(id)){
-			if(m_idHelper->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; found=true; break;}
+		      if(m_idHelperSvc->measuresPhi(id)){
+			if(m_idHelperSvc->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; found=true; break;}
 		      }
 		    }
 		    if(found) continue;
 		    for(unsigned int j=0;j<tgcTruth.size();j++){
 		      Identifier id(tgcTruth[j]);
-		      if(m_idHelper->measuresPhi(id)){
-			if(m_idHelper->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; break;}
+		      if(m_idHelperSvc->measuresPhi(id)){
+			if(m_idHelperSvc->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; break;}
 		      }
 		    }
 		  }
@@ -261,15 +255,15 @@ StatusCode MuonTruthAssociationAlg::execute()
 		    bool found=false;
 		    for(unsigned int j=0;j<rpcTruth.size();j++){
 		      Identifier id(rpcTruth[j]);
-		      if(!m_idHelper->measuresPhi(id)){
-			if(m_idHelper->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; found=true; break;}
+		      if(!m_idHelperSvc->measuresPhi(id)){
+			if(m_idHelperSvc->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; found=true; break;}
 		      }
 		    }
 		    if(found) continue;
 		    for(unsigned int j=0;j<tgcTruth.size();j++){
 		      Identifier id(tgcTruth[j]);
-		      if(!m_idHelper->measuresPhi(id)){
-			if(m_idHelper->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; break;}
+		      if(!m_idHelperSvc->measuresPhi(id)){
+			if(m_idHelperSvc->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; break;}
 		      }
 		    }
 		  }
@@ -334,10 +328,3 @@ StatusCode MuonTruthAssociationAlg::execute()
   }
     return StatusCode::SUCCESS;
 }
-
-// Finalize method:
-StatusCode MuonTruthAssociationAlg::finalize() 
-{
-    return StatusCode::SUCCESS;
-}
-

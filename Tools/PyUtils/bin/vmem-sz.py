@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #@purpose: get the inclusive and exclusive vmem sizes of a library
+
+from __future__ import print_function
 
 __author__ = "Sebastien Binet <binet@cern.ch>"
 __doc__    = "get the inclusive and exclusive vmem sizes of a library"
@@ -13,11 +15,11 @@ import argparse
 import ctypes
 import os
 import sys
-import user
 
 ## 3rd-party imports
 from PyUtils.Decorators import forking as forking
 from PerfMonComps.PyMonUtils import loaded_libs, pymon
+import six
 
 _veto_libs = [
     'resource.so', # from python std-lib 'resource'...
@@ -51,42 +53,42 @@ def dep_libs(libname):
 @forking
 def analyze (libname):
     bkg_libs = loaded_libs()
-    #print "::: bkg_libs:",map(os.path.basename, bkg_libs)
+    #print ("::: bkg_libs:",map(os.path.basename, bkg_libs))
     vmem0,vmem1,libs = load_lib (libname)
     dVmemOffset = vmem1-vmem0
-    #print "vmem0=%s vmem1=%s libs=%s" % (vmem0, vmem1, len(libs))
+    #print ("vmem0=%s vmem1=%s libs=%s" % (vmem0, vmem1, len(libs)))
     linked_libs = [os.path.basename(lib)
                    for lib in libs
                    if (not (lib in bkg_libs) and
                        os.path.basename(lib) != os.path.basename(libname)
                        and os.access(lib, os.R_OK))]
-    #print "::: linked_libs:",linked_libs
+    #print ("::: linked_libs:",linked_libs)
 
     # load all linked-in libs
     def load_linked_in_libs(linked_libs):
         all_good = True
         for l in linked_libs:
             try:
-                #print " - loading [%s]..." % l
+                #print (" - loading [%s]..." % l)
                 lib_loader (l)
-            except Exception, err:
-                print "** problem loading [%s]\n%s" % (l,err)
+            except Exception as err:
+                print ("** problem loading [%s]\n%s" % (l,err))
                 all_good = False
                 pass
         return all_good
-    #print "--> loading all linked-in libs..."
+    #print ("--> loading all linked-in libs...")
     NRETRY = 10
-    for _ in xrange(NRETRY):
+    for _ in range(NRETRY):
         ok = load_linked_in_libs(linked_libs)
         if ok:
             break
     else:
-        print "** err: could not reliably load all libs (after %s retries)"%NRETRY
+        print ("** err: could not reliably load all libs (after %s retries)"%NRETRY)
         
-    #print "--> loading all linked-in libs... [done]"
+    #print ("--> loading all linked-in libs... [done]")
 
     vmem0,vmem1,libs = load_lib (libname)
-    #print "vmem0=%s vmem1=%s libs=%s" % (vmem0, vmem1, len(libs))
+    #print ("vmem0=%s vmem1=%s libs=%s" % (vmem0, vmem1, len(libs)))
     dVmemLib = vmem1-vmem0
     return (dVmemLib, dVmemOffset, len(linked_libs), len(bkg_libs))
 
@@ -103,7 +105,7 @@ def analyze_libraries (libnames, detailed=False):
         _print("::  nbr linked: %s" % stats[2])
         _print("::  dVmem-self: %8.3f Mb" % stats[0])
         _print("::  dVmem-all : %8.3f Mb" % stats[1])
-        #print "::  bkg-libs: %s" % stats[3]
+        #print ("::  bkg-libs: %s" % stats[3])
         lib_stats[bname] = dict(
             vmem_self=  stats[0],
             vmem_all=   stats[1],
@@ -124,20 +126,17 @@ def analyze_libraries (libnames, detailed=False):
 def save_stats (lib_stats, fname=None):
     if fname is None:
         fname = "vmem-stats-sz.csv"
-    print ":: saving vmem statistics in [%s]..."%fname
+    print (":: saving vmem statistics in [%s]..."%fname)
     import csv, os
     if os.path.exists (fname):
         os.remove (fname)
     o = csv.writer (open(fname, "w"), delimiter=';')
-    map (o.writerow,
-         [ ['nbr libraries', len(lib_stats)],
-           ['lib name', 'dvmem-self (Mb)', 'dvmem-all (Mb)', 'nbr linked-libs'],
-           ])
-    map (o.writerow,
-         [ [os.path.basename(k), v['vmem_self'], v['vmem_all'], v['nbr_linked']]
-           for k,v in lib_stats.iteritems() ]
-         )
-    print ":: saving vmem statistics in [%s]... [done]"%fname
+    o.writerow (['nbr libraries', len(lib_stats)])
+    o.writerow (['lib name', 'dvmem-self (Mb)', 'dvmem-all (Mb)', 'nbr linked-libs'])
+    for k,v in six.iteritems(lib_stats):
+        o.writerow ([os.path.basename(k), v['vmem_self'], v['vmem_all'], v['nbr_linked']])
+
+    print (":: saving vmem statistics in [%s]... [done]"%fname)
     
 def main():
     import sys
@@ -160,11 +159,11 @@ def main():
     libnames = args.libnames
     doDetailed = args.detailed
     
-    print ":: inspecting libraries: %s" % libnames
+    print (":: inspecting libraries: %s" % libnames)
     display,lib_stats = analyze_libraries (libnames, doDetailed)
 
     for l in display:
-        print l
+        print (l)
     save_stats (lib_stats)
     
     return lib_stats

@@ -64,9 +64,7 @@ namespace SH
 
     if (!m_isRead)
     {
-      // rationale: took the setup from https://twiki.cern.ch/twiki/bin/viewauth/Atlas/AtlasEosFAQPage#I_call_eos_from_inside_a_script
-      //   then I modified it to pick the correct version.
-      m_list = RCU::Shell::exec_read ("/afs/cern.ch/project/eos/installation/atlas/bin/eos.select ls -l " + m_dir);
+      m_list = RCU::Shell::exec_read ("eos ls -l " + m_dir);
       m_isRead = true;
     }
 

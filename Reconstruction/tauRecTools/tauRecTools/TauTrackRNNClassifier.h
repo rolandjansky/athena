@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUTRACKRNNCLASSIFIER_H
@@ -57,7 +57,6 @@ public:
 
 private:
   ToolHandleArray<TrackRNN> m_vClassifier;
-  std::string m_tauTrackConName;
   std::vector<std::string> m_vClassifierNames;//optional
 
 }; // class TauTrackRNNClassifier

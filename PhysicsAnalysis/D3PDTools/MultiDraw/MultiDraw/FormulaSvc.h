@@ -46,7 +46,7 @@ namespace MD
   /// guarantee: strong
   /// failures: formula service not configured
   /// requires: worker != 0
-  FormulaSvc *formulas (EL::Worker *worker);
+  FormulaSvc *formulas (EL::IWorker *worker);
 
 
 

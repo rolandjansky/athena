@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACK_ALIGNMENTEFFECTSONTRACK_H
@@ -55,7 +55,7 @@ namespace Trk
     void updateVectorOfAffectedTSOS( std::vector< Identifier>& ) ;
   
     /// Returns true if the effects of this  AlignmentEffectsOnTrack apply to all remaining TrackStatesOnSurface of the Track.
-    bool effectsLastFromNowOn() const { return m_affectedTSOS.size()==0; }
+    bool effectsLastFromNowOn() const { return m_affectedTSOS.empty(); }
 
     /// The surface on which this offset is expressed.
     const Trk::Surface& associatedSurface() const;

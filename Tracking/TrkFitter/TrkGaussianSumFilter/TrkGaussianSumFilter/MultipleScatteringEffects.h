@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -16,9 +16,9 @@ decription           : Class for describing multiple scattering effects only.
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkEventPrimitives/PropDirection.h"
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
+#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include "GaudiKernel/ToolHandle.h"

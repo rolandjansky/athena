@@ -17,19 +17,8 @@
 // EDM include(s):
 #include "xAODTau/TauJet.h"
 
-#define TRT_CHECK_BOOL( dec, action )		\
-  do {						\
-    if (!dec) {					\
-      ATH_MSG_ERROR("TauRecTools failed");	\
-      return action;				\
-    }						\
-  } while(0)
-
 namespace tauRecTools
 {
-
-  void createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TLorentzVector>& vPi0s);
-  
   xAOD::TauTrack::TrackFlagType isolateClassifiedBits(xAOD::TauTrack::TrackFlagType flag);
   bool sortTracks(const ElementLink<xAOD::TauTrackContainer> &l1, const ElementLink<xAOD::TauTrackContainer> &l2);
 

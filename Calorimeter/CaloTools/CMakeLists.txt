@@ -31,7 +31,7 @@ atlas_depends_on_subdirs(
    LumiBlock/LumiBlockComps
    TileCalorimeter/TileConditions
    TileCalorimeter/TileEvent
-   Trigger/TrigAnalysis/TrigAnalysisInterfaces
+   Control/CxxUtils
    PRIVATE
    Calorimeter/CaloCondBlobObjs
    Control/AthAllocators
@@ -56,7 +56,7 @@ atlas_add_component( CaloTools
    CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib
    AthenaPoolUtilities AtlasDetDescr Identifier GaudiKernel LArIdentifier
    LArRecEvent LArToolsLib LumiBlockCompsLib TileConditionsLib TileEvent
-   CaloCondBlobObjs AthAllocators IdDictParser xAODBase xAODEventInfo
+   CxxUtils CaloCondBlobObjs AthAllocators IdDictParser xAODBase xAODEventInfo
    TileIdentifier LArRawConditions )
 
 # Install files from the package:

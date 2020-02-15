@@ -14,13 +14,24 @@ exot15Seq = CfgMgr.AthSequencer("EXOT15Sequence")
 
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT15Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT15Stream )
+EXOT15Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT15Stream.AcceptAlgs(["EXOT15Kernel"])
+
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+#====================================================================
 # THINNING TOOLS
 #====================================================================
 
 thinning_expression = "(InDetTrackParticles.pt > 1.0*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 3)"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 EXOT15TPThinningTool = DerivationFramework__TrackParticleThinning( name              = "EXOT15TPThinningTool",
-                                                                ThinningService         = "EXOT15ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 SelectionString         = thinning_expression,
                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                 ApplyAnd                = False)
@@ -98,19 +109,6 @@ if SkipTriggerRequirement:
 else:
     exot15Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT15Kernel", SkimmingTools = [EXOT15ORSkimmingTool])
 #exot15Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT15Kernel", ThinningTools = [EXOT15TPThinningTool])
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EXOT15Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT15Stream )
-EXOT15Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT15Stream.AcceptAlgs(["EXOT15Kernel"])
-
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="EXOT15ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

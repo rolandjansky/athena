@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOLOCALHADCALIB_GETLCWEIGHTS_H
@@ -174,12 +174,7 @@ class GetLCWeights : public AthAlgorithm
    */
 
   std::string m_ClassificationType;
-
   int m_ClassificationTypeNumber;
-
-  const CaloDetDescrManager* m_calo_dd_man; 
-  
-  const CaloCell_ID* m_calo_id;
 
 };
 

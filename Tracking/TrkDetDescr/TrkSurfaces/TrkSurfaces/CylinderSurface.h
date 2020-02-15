@@ -103,7 +103,7 @@ public:
                                                                            double phi,
                                                                            double theta,
                                                                            double qop,
-                                                                           AmgSymMatrix(5) * cov = 0) const override
+                                                                           AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Charged, CylinderSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
@@ -112,7 +112,7 @@ public:
   virtual ParametersT<5, Charged, CylinderSurface>* createTrackParameters(const Amg::Vector3D& position,
                                                                           const Amg::Vector3D& momentum,
                                                                           double charge,
-                                                                          AmgSymMatrix(5) * cov = 0) const override
+                                                                          AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Charged, CylinderSurface>(position, momentum, charge, *this, cov);
   }
@@ -123,7 +123,7 @@ public:
                                                                              double phi,
                                                                              double theta,
                                                                              double qop,
-                                                                             AmgSymMatrix(5) * cov = 0) const override
+                                                                             AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Neutral, CylinderSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
@@ -132,7 +132,7 @@ public:
   virtual ParametersT<5, Neutral, CylinderSurface>* createNeutralParameters(const Amg::Vector3D& position,
                                                                             const Amg::Vector3D& momentum,
                                                                             double charge,
-                                                                            AmgSymMatrix(5) * cov = 0) const override
+                                                                            AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Neutral, CylinderSurface>(position, momentum, charge, *this, cov);
   }
@@ -161,7 +161,7 @@ public:
 
   /** Return the measurement frame - this is needed for alignment, in particular for StraightLine and Perigee Surface
       - the default implementation is the the RotationMatrix3D of the transform */
-  virtual const Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos,
+  virtual Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos,
                                                        const Amg::Vector3D& glomom) const override;
 
   /** Return the surface type */
@@ -195,7 +195,7 @@ public:
   virtual bool insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck& bchk) const override;
 
   /** Specialized for CylinderSurface : LocalParameters to Vector2D */
-  virtual const Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const override;
+  virtual Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const override;
 
   /** Specialized for CylinderSurface : LocalToGlobal method without dynamic memory allocation */
   virtual void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const override;
@@ -311,7 +311,7 @@ CylinderSurface::insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCh
   return bounds().inside(locpos, bchk);
 }
 
-inline const Amg::Vector2D
+inline Amg::Vector2D
 CylinderSurface::localParametersToPosition(const LocalParameters& locpars) const
 {
   if (locpars.contains(Trk::locRPhi) && locpars.contains(Trk::locZ))

@@ -29,6 +29,8 @@ namespace TrigConf {
 
       /** Constructor */
       L1PrescalesSet();
+      L1PrescalesSet(const L1PrescalesSet &) = default;
+      L1PrescalesSet(L1PrescalesSet&&) = default;
 
       /** Constructor initialized with configuration data 
        * @param data The data containing the L1 prescales 

@@ -241,7 +241,6 @@ def TMEF_MatchMaker(name='TMEF_MatchMaker',**kwargs):
     kwargs.setdefault("AmbiguityProcessor", "MuonAmbiProcessor")
     kwargs.setdefault("MatchQuality", "TMEF_MatchQuality")
     kwargs.setdefault("CaloTSOS", "TMEF_CaloTrackStateOnSurface") # not in Muid?
-#    kwargs.setdefault("OutwardsTrackBuilder", "TMEF_OutwardsCombinedMuonTrackBuilder") # extra in Muid (not yet configured here)
     kwargs.setdefault("TrackBuilder", "TMEF_CombinedMuonTrackBuilder")
     kwargs.setdefault("TrackQuery", "TMEF_MuonTrackQuery")
     kwargs.setdefault("Propagator", "TMEF_Propagator")
@@ -314,17 +313,6 @@ def TMEF_MuonCombinedPropagator(name='TMEF_MuonCombinedPropagator',**kwargs):
     from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator
     return Trk__RungeKuttaPropagator(name, **kwargs)
 
-def TMEF_OutwardsMuonTrackCleaner(name='TMEF_OutwardsMuonTrackCleaner',**kwargs):
-    if TriggerFlags.run2Config=='2016':
-        kwargs.setdefault('PullCut',    3.0)
-        kwargs.setdefault('PullCutPhi', 3.0)
-    else:
-        kwargs.setdefault('PullCut',    4.0)
-        kwargs.setdefault('PullCutPhi', 4.0)
-    kwargs.setdefault('Fitter',     'TMEF_MuonCombinedTrackFitter')
-    kwargs.setdefault('SLFitter',   'TMEF_iPatSLFitter')
-    return CfgMgr.Muon__MuonTrackCleaner(name, **kwargs)
-
 def TMEF_MuonCombinedTrackFitter(name='TMEF_MuonCombinedTrackFitter',**kwargs):
     kwargs.setdefault('ExtrapolationTool',     'AtlasExtrapolator')#gpt
     kwargs.setdefault('NavigatorTool',         ToolSvc.MuonNavigator)
@@ -345,23 +333,11 @@ def TMEF_MuonCombinedTrackFitter(name='TMEF_MuonCombinedTrackFitter',**kwargs):
     from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
     return  Trk__GlobalChi2Fitter(name, **kwargs)
 
-def TMEF_OutwardsCombinedMuonTrackBuilder(name='TMEF_OutwardsCombinedMuonTrackBuilder',**kwargs):
-    kwargs.setdefault('Cleaner', 'TMEF_OutwardsMuonTrackCleaner')
-    kwargs.setdefault('Fitter',  'TMEF_MuonCombinedTrackFitter')
-    kwargs.setdefault('TrackSummaryTool', 'TMEF_TrackSummaryTool')#gpt
-    kwargs.setdefault('MuonHoleRecovery', 'MuonSegmentRegionRecoveryTool')#gpt
-    kwargs.setdefault('AllowCleanerVeto', False)
-    kwargs.setdefault("TrackQuery", "TMEF_MuonTrackQuery")
-    from MuidTrackBuilder.MuidTrackBuilderConf import Rec__OutwardsCombinedMuonTrackBuilder
-    return Rec__OutwardsCombinedMuonTrackBuilder(name, **kwargs)
-
 def TMEF_MuonCombinedFitTagTool(name="TMEF_MuonCombinedFitTagTool",**kwargs):
     kwargs.setdefault("TrackBuilder",         'TMEF_CombinedMuonTrackBuilder' )
     if not TriggerFlags.run2Config == '2016':
-        kwargs.setdefault("OutwardsTrackBuilder", '')
         kwargs.setdefault("MuonRecovery",         '' )
     else:
-        kwargs.setdefault("OutwardsTrackBuilder", 'TMEF_OutwardsCombinedMuonTrackBuilder')
         kwargs.setdefault("MuonRecovery",         'TMEF_MuidMuonRecovery' )
     kwargs.setdefault("TrackQuery",           'TMEF_MuonTrackQuery' )
     kwargs.setdefault("MatchQuality",         'TMEF_MatchQuality' )
@@ -464,6 +440,30 @@ def TMEF_CombinedStauTrackBuilderFit( name='TMEF_CombinedStauTrackBuilderFit', *
    kwargs.setdefault('MdtRotCreator'                 , CfgGetter.getPublicTool('MdtDriftCircleOnTrackCreatorStau') )
    return TMEF_CombinedMuonTrackBuilder(name,**kwargs )
 
+def TMEF_MdtRawDataProviderTool(name="TMEF_MdtRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "MdtROD_Decoder")
+    if DetFlags.overlay.MDT_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation",overlayFlags.dataStore()+"+MDTCSM")
+    return CfgMgr.Muon__MDT_RawDataProviderTool(name,**kwargs)
+
+def TMEF_RpcRawDataProviderTool(name = "TMEF_RpcRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "RpcROD_Decoder")
+    if DetFlags.overlay.RPC_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+RPCPAD")
+    return CfgMgr.Muon__RPC_RawDataProviderTool(name,**kwargs)
+
+def TMEF_TgcRawDataProviderTool(name = "TMEF_TgcRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "TgcROD_Decoder")
+    if DetFlags.overlay.TGC_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+TGCRDO")
+    return CfgMgr.Muon__TGC_RawDataProviderTool(name,**kwargs)
+
+def TMEF_CscRawDataProviderTool(name = "TMEF_CscRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "CscROD_Decoder")
+    if DetFlags.overlay.CSC_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+CSCRDO")
+    return CfgMgr.Muon__CSC_RawDataProviderTool(name,**kwargs)
+
 # TrigMuonEF classes
 class TrigMuonEFTrackBuilderConfig ():
     __slots__ = ()
@@ -497,9 +497,10 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
         CfgGetter.getPublicTool("MooTrackFitter").SLFit=False
 
-        self.MdtRawDataProvider = "MdtRawDataProviderTool"
-        self.RpcRawDataProvider = "RpcRawDataProviderTool"
-        self.TgcRawDataProvider = "TgcRawDataProviderTool"
+        self.MdtRawDataProvider = "TMEF_MdtRawDataProviderTool"
+        self.CscRawDataProvider = "TMEF_CscRawDataProviderTool"
+        self.RpcRawDataProvider = "TMEF_RpcRawDataProviderTool"
+        self.TgcRawDataProvider = "TMEF_TgcRawDataProviderTool"
 
         #Need to run non-MT version of decoding tools
         #Need different PRD container names to run offline and trigger in same jobs

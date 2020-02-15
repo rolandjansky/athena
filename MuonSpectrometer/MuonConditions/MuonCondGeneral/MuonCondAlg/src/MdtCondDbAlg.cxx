@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/MdtCondDbAlg.h"
@@ -9,12 +9,10 @@
 MdtCondDbAlg::MdtCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
     AthReentrantAlgorithm(name, pSvcLocator),
     m_condSvc("CondSvc", name),
-    m_condMapTool("MDT_MapConversion"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+    m_condMapTool("MDT_MapConversion")
   {
  
     declareProperty("MDT_MapConversion", m_condMapTool);
-    declareProperty("IdHelper"         , m_idHelper   );
 
     declareProperty("isOnline"         , m_isOnline               );
     declareProperty("isData"           , m_isData                 );
@@ -29,7 +27,7 @@ MdtCondDbAlg::initialize(){
 
     ATH_MSG_DEBUG( "initializing " << name() );                
     ATH_CHECK(m_condSvc .retrieve());
-    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_writeKey.initialize());
     ATH_CHECK(m_readKey_folder_da_pshv.initialize());
     ATH_CHECK(m_readKey_folder_da_psv0.initialize());
@@ -156,7 +154,7 @@ MdtCondDbAlg::loadDataPsHv(EventIDRange & rangeW, MdtCondDbData* writeCdo, const
                 int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
                 std::string chamber_name = tokens2[2];
                 Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-                Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
+                Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
                 thename = chamber_name+"_multilayer"+tokens2[3];
                 writeCdo->setDeadMultilayer(thename, MultiLayerId);
                 writeCdo->setDeadChamber   (ChamberId);
@@ -166,7 +164,7 @@ MdtCondDbAlg::loadDataPsHv(EventIDRange & rangeW, MdtCondDbData* writeCdo, const
                 int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
                 std::string chamber_name = tokens2[2];
                 Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-                Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
+                Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
                 thename = chamber_name+"_multilayer"+tokens2[3];
                 writeCdo->setDeadMultilayer(thename, MultiLayerId);
                 writeCdo->setDeadChamber   (ChamberId);
@@ -244,7 +242,7 @@ MdtCondDbAlg::loadDataPsHv(EventIDRange & rangeW, MdtCondDbData* writeCdo, const
             std::string chamber_name     = tokens2[2];
             std::string thename          = chamber_name+"_"+tokens2[3];
             Identifier ChamberId         = m_condMapTool->ConvertToOffline(chamber_name);
-            Identifier MultiLayerId      = m_idHelper->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
+            Identifier MultiLayerId      = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
             chamberML_V0[MultiLayerId]   = setPointsV0_name;
             mlname[MultiLayerId]         = thename;
       
@@ -274,7 +272,7 @@ MdtCondDbAlg::loadDataPsHv(EventIDRange & rangeW, MdtCondDbData* writeCdo, const
             std::string chamber_name     = tokens2[2];
             std::string thename          = chamber_name+"_"+tokens2[3];
             Identifier ChamberId         = m_condMapTool->ConvertToOffline(chamber_name);
-            Identifier MultiLayerId      = m_idHelper->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
+            Identifier MultiLayerId      = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
             chamberML_V1[MultiLayerId]   = setPointsV1_name;
             mlname[MultiLayerId]         = thename;
           
@@ -411,7 +409,7 @@ MdtCondDbAlg::loadDataHv(EventIDRange & rangeW, MdtCondDbData* writeCdo, const E
 	            int multilayer = 1;
 	            std::string chamber_name = tokens2[0];
 	            Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-	            Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId,multilayer, 1, 1);
+	            Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer, 1, 1);
                 thename = chamber_name+"_multilayer1";
                 writeCdo->setDeadMultilayer(thename, MultiLayerId);
                 writeCdo->setDeadChamber   (ChamberId);
@@ -421,7 +419,7 @@ MdtCondDbAlg::loadDataHv(EventIDRange & rangeW, MdtCondDbData* writeCdo, const E
 	            int multilayer = 1;
 	            std::string chamber_name = tokens2[0];
 	            Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-	            Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
+	            Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
                 thename = chamber_name+"_multilayer1";
                 writeCdo->setDeadMultilayer(thename, MultiLayerId);
                 writeCdo->setDeadChamber   (ChamberId);
@@ -431,7 +429,7 @@ MdtCondDbAlg::loadDataHv(EventIDRange & rangeW, MdtCondDbData* writeCdo, const E
 	            int multilayer = 2;
 	            std::string chamber_name = tokens2[0];
 	            Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-	            Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
+	            Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
                 thename = chamber_name+"_multilayer2";
                 writeCdo->setDeadMultilayer(thename, MultiLayerId);
                 writeCdo->setDeadChamber   (ChamberId);
@@ -441,7 +439,7 @@ MdtCondDbAlg::loadDataHv(EventIDRange & rangeW, MdtCondDbData* writeCdo, const E
 	            int multilayer = 2;
 	            std::string chamber_name = tokens2[0];
 	            Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-	            Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
+	            Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
                 thename = chamber_name+"_multilayer2";
                 writeCdo->setDeadMultilayer(thename, MultiLayerId);
                 writeCdo->setDeadChamber   (ChamberId);
@@ -658,7 +656,7 @@ MdtCondDbAlg::loadMcDeadElements(EventIDRange & rangeW, MdtCondDbData* writeCdo,
                 int ml    = atoi(const_cast<char*>((tokens[i].substr(0,1)).c_str()));
                 int layer = atoi(const_cast<char*>((tokens[i].substr(1,2)).c_str()));
                 int tube  = atoi(const_cast<char*>((tokens[i].substr(2  )).c_str()));
-                Identifier ChannelId = m_idHelper->mdtIdHelper().channelID(ChamberId, ml, layer, tube);
+                Identifier ChannelId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, ml, layer, tube);
                 thename = chamber_name+"_"+tokens[i];
                 writeCdo->setDeadTube   (thename, ChannelId);
                 writeCdo->setDeadChamber(ChamberId);
@@ -668,7 +666,7 @@ MdtCondDbAlg::loadMcDeadElements(EventIDRange & rangeW, MdtCondDbData* writeCdo,
         for(unsigned int i=0; i<tokens_mlayer.size(); i++){
             if(tokens_mlayer[i]!="0"){
                 int ml = atoi(const_cast<char*>((tokens_mlayer[i].substr(0)).c_str()));
-                Identifier ChannelId = m_idHelper->mdtIdHelper().channelID(ChamberId,ml,1,1);
+                Identifier ChannelId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,ml,1,1);
                 thename = chamber_name+"_"+tokens[i];
                 writeCdo->setDeadMultilayer(thename, ChannelId);
                 writeCdo->setDeadChamber   (ChamberId);
@@ -679,7 +677,7 @@ MdtCondDbAlg::loadMcDeadElements(EventIDRange & rangeW, MdtCondDbData* writeCdo,
             if(tokens_layer[i]!="0"){
                 int ml    = atoi(const_cast<char*>((tokens_layer[i].substr(0,1)).c_str()));
                 int layer = atoi(const_cast<char*>((tokens_layer[i].substr(1  )).c_str()));
-                Identifier ChannelId = m_idHelper->mdtIdHelper().channelID(ChamberId, ml, layer, 1);
+                Identifier ChannelId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, ml, layer, 1);
                 thename = chamber_name+"_"+tokens[i];
                 writeCdo->setDeadLayer  (thename, ChannelId);
                 writeCdo->setDeadChamber(ChamberId);
@@ -738,7 +736,7 @@ MdtCondDbAlg::loadMcDeadTubes(EventIDRange & rangeW, MdtCondDbData* writeCdo, co
             int tube  = atoi(const_cast<char*>((tokens[i].substr(2  )).c_str()));
             thename   = chamber_name+"_"+tokens[i];
             tube_list = tokens[i]+".";
-            Identifier ChannelId = m_idHelper->mdtIdHelper().channelID(ChamberId, ml, layer, tube); 
+            Identifier ChannelId = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, ml, layer, tube); 
 		    writeCdo->setDeadTube(thename, ChannelId);
         }
 		writeCdo->setDeadChamber(ChamberId);
@@ -797,7 +795,7 @@ MdtCondDbAlg::loadMcNoisyChannels(EventIDRange & rangeW, MdtCondDbData* writeCdo
                 int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
                 std::string chamber_name = tokens2[2];
                 Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-                Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
+                Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
                 thename = chamber_name+"_multilayer"+tokens2[3];
                 writeCdo->setDeadMultilayer(thename, MultiLayerId);
                 writeCdo->setDeadChamber   (ChamberId);
@@ -806,7 +804,7 @@ MdtCondDbAlg::loadMcNoisyChannels(EventIDRange & rangeW, MdtCondDbData* writeCdo
                 int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
                 std::string chamber_name = tokens2[2];
                 Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-                Identifier MultiLayerId  = m_idHelper->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
+                Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
                 thename = chamber_name+"_multilayer"+tokens2[3];
                 writeCdo->setDeadMultilayer(thename, MultiLayerId);
                 writeCdo->setDeadChamber   (ChamberId);

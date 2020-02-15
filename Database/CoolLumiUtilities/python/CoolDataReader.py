@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # CoolDataReader
@@ -24,6 +24,7 @@
 # The CoolDataReader uses the LumiDBHandler internally to cache multiple CoolConnections
 #
 
+from __future__ import print_function
 from PyCool import cool
 
 # Get our global DB handler object
@@ -89,12 +90,12 @@ class CoolDataReader:
         self.data = []
 
         # Open the DB connection here if needed
-        if self.folder == None:
+        if self.folder is None:
             dbHandler = LumiDBHandler()
             self.folder = dbHandler.getFolder(self.dbstr, self.folderstr)
             
-            if self.folder == None:
-                print "Can't access DB", self.dbstr, 'folder', self.folderstr, '!'
+            if self.folder is None:
+                print("Can't access DB", self.dbstr, 'folder', self.folderstr, '!')
                 return self.data
 
         # Create the channel list
@@ -125,11 +126,11 @@ class CoolDataReader:
 
                 # Remeber how many we have read for next time
                 if self.verbose:
-                    print 'CoolDataReader.readData() - loaded %d channels from %d' % (jchan, ichan)
+                    print('CoolDataReader.readData() - loaded %d channels from %d' % (jchan, ichan))
                 ichan += jchan
 
                 if self.verbose:
-                    print 'CoolDataReader.readData() - browsing', self.iovstart, self.iovend, 'with channel', channels, 'and tag', self.tag
+                    print('CoolDataReader.readData() - browsing', self.iovstart, self.iovend, 'with channel', channels, 'and tag', self.tag)
 
                 self.readChannelList(channels)
 
@@ -143,27 +144,27 @@ class CoolDataReader:
         # Open iterator over our defined IOV range
         try:
             itr = self.folder.browseObjects(self.iovstart, self.iovend, channels, self.tag)
-        except Exception, e:
-            print 'CoolDataReader.readData() - exception reading folder:', self.folderstr
-            print e
-            print 'CoolDataReader.readData() - will try to reconnect (once)'
+        except Exception as e:
+            print('CoolDataReader.readData() - exception reading folder:', self.folderstr)
+            print(e)
+            print('CoolDataReader.readData() - will try to reconnect (once)')
 
             # Force re-opening connection
             dbHandler = LumiDBHandler()
             dbHandler.verbose = True
             self.folder = dbHandler.getFolder(self.dbstr, self.folderstr, force=True)
             
-            if self.folder == None:
-                print 'CoolDataReader.readData() - forced re-opening failed!'
+            if self.folder is None:
+                print('CoolDataReader.readData() - forced re-opening failed!')
                 return self.data
 
             # OK, lets try reading this again
-            print 'CoolDataReader.readData() - trying to re-read re-opened folder!'
+            print('CoolDataReader.readData() - trying to re-read re-opened folder!')
             try:
                 itr = self.folder.browseObjects(self.iovstart, self.iovend, channels, self.tag)
-            except Exception, e:
-                print 'CoolDataReader.readData() - exception reading folder:', self.folderstr
-                print e
+            except Exception as e:
+                print('CoolDataReader.readData() - exception reading folder:', self.folderstr)
+                print(e)
                 return self.data
                 
         while itr.goToNext():

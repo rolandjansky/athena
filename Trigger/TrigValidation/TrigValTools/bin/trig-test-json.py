@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 # This script parses outputs of trigger nightly test post-processing steps
@@ -13,6 +13,7 @@ import sys
 import logging
 import os.path
 from collections import OrderedDict
+import six
 
 
 class LastUpdatedOrderedDict(OrderedDict):
@@ -63,7 +64,7 @@ def convert_to_megabytes(number, unit):
         "GB": 1024,
         'TB': 1024**2
     }
-    for unit_name, mult in multipliers.iteritems():
+    for unit_name, mult in six.iteritems(multipliers):
         if unit_name == unit:
             return float(number)*mult
     logging.error("Unit conversion failed from {} to MB".format(unit))

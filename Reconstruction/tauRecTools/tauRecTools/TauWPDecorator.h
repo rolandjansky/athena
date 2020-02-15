@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUWPDECORATOR_H
@@ -32,19 +32,13 @@ public:
     ASG_TOOL_CLASS2(TauWPDecorator, TauRecToolBase, ITauToolBase)
     ~TauWPDecorator();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode execute(xAOD::TauJet& pTau);
-    
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+
     virtual StatusCode retrieveHistos(int nProng);
     virtual StatusCode storeLimits(int nProng);
     virtual double transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi);
-
-    virtual void print() const { }
-    virtual StatusCode eventInitialize();
-    virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
-    virtual void cleanup(xAOD::TauJet* ) { }
-
 
 private:
     std::string m_file0P;

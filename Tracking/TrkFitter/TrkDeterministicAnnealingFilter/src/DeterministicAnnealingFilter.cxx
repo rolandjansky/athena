@@ -36,7 +36,6 @@
 #include "TrkValInterfaces/IValidationNtupleTool.h"
 
 #include "TrkEventUtils/TrkParametersComparisonFunction.h"
-//#include "TrkEventUtils/PrepRawDataComparisonFunction.h"
 #include "TrkEventUtils/MeasurementBaseComparisonFunction.h"
 
 #include "TrkFitterInterfaces/IForwardKalmanFitter.h"

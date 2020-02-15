@@ -23,7 +23,6 @@
 
 // STL includes
 #include <list>
-#include <functional>
 
 // FrameWork includes
 #include "GaudiKernel/IAlgTool.h"
@@ -46,17 +45,6 @@ class IOverlapTool : virtual public IAlgTool,
                      virtual public IProperty
 { 
 
-  /////////////////////////////////////////////////////////////////// 
-  // Private typedefs: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-  typedef std::binary_function<const INavigable4Momentum&, // first argument
-                               const INavigable4Momentum&, // second argument
-                               bool                        // result type
-                              > OverlapFilter_t;
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
 
   /** Destructor: 

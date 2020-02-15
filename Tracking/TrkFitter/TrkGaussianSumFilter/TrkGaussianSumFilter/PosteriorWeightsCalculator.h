@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -23,18 +23,14 @@ description          : Class to calculate the weighting of state components
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
 
-
 namespace Trk {
 
-class  PosteriorWeightsCalculator
+class PosteriorWeightsCalculator
 {
 public:
-  
-  std::unique_ptr<std::vector<Trk::ComponentParameters>>  weights(MultiComponentState&&, 
-                                                                  const MeasurementBase&) const;
+  std::unique_ptr<std::vector<Trk::ComponentParameters>> weights(MultiComponentState&&, const MeasurementBase&) const;
 
 private:
-
   /** Function to calculate the determinant and  chi2 of a measurement for a 1D hit */
   std::pair<double, double> calculateWeight_1D(const TrackParameters* componentTrackParameters,
                                                const AmgSymMatrix(5) * predictedCov,
@@ -74,8 +70,8 @@ PosteriorWeightsCalculator::calculateWeight_T(const TrackParameters* componentTr
   // Calculate the residual
   AmgVector(DIM) r = measPar - H * componentTrackParameters->parameters();
 
-  // Residual covariance. Posterior weights is calculated used predicted state and measurement. Therefore add
-  // covariances
+  // Residual covariance. Posterior weights is calculated used predicted state and measurement.
+  // Therefore add covariances
   AmgSymMatrix(DIM) R(measCov + H * (*predictedCov) * H.transpose());
 
   // compute determinant of residual
@@ -83,10 +79,10 @@ PosteriorWeightsCalculator::calculateWeight_T(const TrackParameters* componentTr
 
   if (det == 0) {
     // ATH_MSG_WARNING( "Determinant is 0, cannot invert matrix... Ignoring component" );
-    return std::pair<double,double>(0,0) ;
+    return std::pair<double, double>(0, 0);
   }
   // Compute Chi2
-  return std::pair<double,double> (det,(1. / (double)DIM) * ((r.transpose() * R.inverse() * r)(0, 0)));
+  return std::pair<double, double>(det, (1. / (double)DIM) * ((r.transpose() * R.inverse() * r)(0, 0)));
 }
 
 } // end Trk namespace

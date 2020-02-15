@@ -26,6 +26,8 @@ namespace TrigConf {
        * @param data The data containing the HLT menu 
        */
       HLTMenu(const ptree & data);
+      HLTMenu(const HLTMenu&) = default;
+      HLTMenu(HLTMenu&&) = default;
 
       /** Destructor */
       ~HLTMenu();
@@ -50,6 +52,9 @@ namespace TrigConf {
        * Needed for range-based loops
        */
       const_iterator end() const;
+
+      /** print overview of L1 Menu */
+      void printMenu(bool full = false) const;
    };
 }
 

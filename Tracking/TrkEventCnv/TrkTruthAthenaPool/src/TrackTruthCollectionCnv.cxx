@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackTruthCollectionCnv.h"
@@ -43,7 +43,7 @@ TrackTruthCollectionPERS* TrackTruthCollectionCnv::createPersistent(TrackTruthCo
 //================================================================
 TrackTruthCollection* TrackTruthCollectionCnv::createTransient() {
   MsgStream log(msgSvc(), "TrackTruthCollectionCnv" );
-  std::auto_ptr<TrackTruthCollection> trans(new TrackTruthCollection());
+  std::unique_ptr<TrackTruthCollection> trans(new TrackTruthCollection());
 
   if (compareClassGuid(s_p2_guid)) {
     log<<MSG::DEBUG<<"Read TrackTruthCollection_p2. GUID="<<m_classID.toString()<<endmsg;

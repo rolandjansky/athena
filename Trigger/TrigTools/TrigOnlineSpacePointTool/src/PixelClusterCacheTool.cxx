@@ -8,7 +8,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "Identifier/IdentifierHash.h" 
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"

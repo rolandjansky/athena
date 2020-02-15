@@ -8,7 +8,7 @@ using xAOD::JetContainer;
 
 //**********************************************************************
 TriggerJetGroomerTool::TriggerJetGroomerTool(const std::string& name): 
-  AsgTool(name), m_groomer("") {
+  AsgTool(name), m_groomer("",this),m_modifiers(this),m_jetPseudoJetRetriever("",this) {
   declareProperty("JetGroomer", m_groomer);
   declareProperty("JetModifiers", m_modifiers);
   declareProperty("JetPseudojetRetriever", m_jetPseudoJetRetriever);

@@ -228,7 +228,6 @@ defaultOptions['setModifiers']=[#Common modifiers for MC and data
                                 'detailedErrorStreams',
                                 'optimizeChainOrder',    
                                 'enableHotIDMasking',
-                                'openThresholdRPCCabling',
                                 #special streaming setup
                                 #'enable7BitL1TTStreaming',
 ]
@@ -263,7 +262,6 @@ else:           # More data modifiers
                                 #'disablePixels',
                                 #'disableSCTBarrel',
                                 'useDynamicAlignFolders',
-                                'enableALFAMon',
     ]
 
 #make some more common trig cost operations easier to setup

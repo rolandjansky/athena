@@ -18,7 +18,7 @@ namespace Monitored {
     HistogramFiller2DProfile(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller(definition, provider) {}
 
-    virtual HistogramFiller2DProfile* clone() override {
+    virtual HistogramFiller2DProfile* clone() const override {
       return new HistogramFiller2DProfile( *this );
     }
 
@@ -28,10 +28,15 @@ namespace Monitored {
         return 0;
       }
 
+      // handling of the cutmask
+      auto cutMaskValuePair = getCutMaskFunc();
+      if (cutMaskValuePair.first == 0) { return 0; }
+      auto cutMaskAccessor = cutMaskValuePair.second;
+
       auto histogram = this->histogram<TProfile2D>();
-      auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
-      auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
-      auto valuesVector3 = m_monVariables[2].get().getVectorRepresentation();
+      const auto valuesVector1{m_monVariables[0].get().getVectorRepresentation()};
+      const auto valuesVector2{m_monVariables[1].get().getVectorRepresentation()};
+      const auto valuesVector3{m_monVariables[2].get().getVectorRepresentation()};
       std::lock_guard<std::mutex> lock(*(this->m_mutex));
       /*HERE NEED TO INCLUDE CASE IN WHICH SOME VARIABLES ARE SCALAR AND SOME VARIABLES ARE VECTORS
       unsigned i(0);
@@ -42,16 +47,21 @@ namespace Monitored {
       //For now lets just consider the case in which all variables are of the same length
       if ( m_monWeight && m_monWeight->getVectorRepresentation().size()==valuesVector1.size() ) {
         // Weighted fill
-        auto weightVector = m_monWeight->getVectorRepresentation();
+        const auto weightVector{m_monWeight->getVectorRepresentation()};
         double value1,value2,value3,weight;
+        size_t idx = 0;
         for (const auto& zipped : boost::combine(valuesVector1,valuesVector2,valuesVector3,weightVector)) {
-          boost::tie(value1,value2,value3,weight) = zipped;
-          histogram->Fill(value1,value2,value3,weight);
+          if (cutMaskAccessor(idx++)) { 
+            boost::tie(value1,value2,value3,weight) = zipped;
+            histogram->Fill(value1,value2,value3,weight);
+          }
         }
       } else {
         // Unweighted fill
         for (unsigned i = 0; i < std::size(valuesVector1); ++i) {
-          histogram->Fill(valuesVector1[i], valuesVector2[i], valuesVector3[i]);
+          if (cutMaskAccessor(i)) {
+            histogram->Fill(valuesVector1[i], valuesVector2[i], valuesVector3[i]);
+          }
         }
       }
       return std::size(valuesVector1);

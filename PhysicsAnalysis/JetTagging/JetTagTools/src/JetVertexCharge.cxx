@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -25,8 +25,8 @@
 
 #include "xAODMuon/MuonContainer.h"
 
-#include "MuonSelectorTools/IMuonSelectionTool.h" 
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h" 
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "TMVA/Reader.h"
 #include "TList.h"
 #include "TObjString.h"

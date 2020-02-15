@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENT_LOOP_JOB_HH
@@ -24,6 +24,8 @@
 #include <EventLoop/Global.h>
 
 #include <vector>
+#include <AnaAlgorithm/Global.h>
+#include <EventLoop/JobConfig.h>
 #include <SampleHandler/SampleHandler.h>
 #include <SampleHandler/MetaObject.h>
 
@@ -87,10 +89,9 @@ namespace EL
     /// failures: out of memory II
     /// invariant: alg != 0
   public:
-    typedef std::vector<EL::Algorithm*>::const_iterator algsIter;
-    algsIter algsBegin () const;
-    algsIter algsEnd () const;
+    void algsAdd (std::unique_ptr<Algorithm> val_algorithm);
     void algsAdd (Algorithm *alg_swallow);
+    void algsAdd (const AnaAlgorithmConfig& config);
 
 
     /// \brief add a clone of the given algorithm
@@ -138,14 +139,6 @@ namespace EL
     bool outputHas (const std::string& name) const;
 
 
-    /// effects: register this job to use the D3PDReader
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// failures: D3PDReaderSvc not available
-  public:
-    void useD3PDReader ();
-
-
     /// effects: register this job to use XAODs
     /// guarantee: strong
     /// failures: out of memory II
@@ -162,6 +155,13 @@ namespace EL
     const SH::MetaObject *options () const;
 
 
+    /// \brief the \ref JobConfig object we are wrapping
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    const JobConfig& jobConfig () const noexcept;
+
+
     /// description: the name of the option for overwriting the
     ///   submission directory.  if you set this to a non-zero value
     ///   it will remove any existing submit-directory before trying
@@ -172,6 +172,17 @@ namespace EL
     ///   to delete it manually.
   public:
     static const std::string optRemoveSubmitDir;
+
+
+    /// \brief the submit-dir mode (allowed values: "no-clobber",
+    /// "overwrite", "unique", "unique-link")
+  public:
+    static const std::string optSubmitDirMode;
+
+    /// \brief the date-format to use when generating unique
+    /// submission directory names
+  public:
+    static const std::string optUniqueDateFormat;
 
 
     /// description: the name of the option used for setting the
@@ -320,6 +331,10 @@ namespace EL
     static const std::string optPerfTree;
 
 
+    /// \brief the option to select whether our input is xAODs
+  public:
+    static const std::string optXAODInput;
+
     /// description: the option to select the access mode for xAODs.
     ///   this can be "branch" for branch access, or "class" for
     ///   access.  if this option isn't specified EventLoop will pick
@@ -369,6 +384,11 @@ namespace EL
     static const std::string optBackgroundProcess;
 
 
+    /// \brief the output sample name
+  public:
+    static const std::string optOutputSampleName;
+
+
     /// description: grid-specific options
     /// rationale: these are named so as to correspond to prun equivalents,
     ///   bare the optGrid prefix.
@@ -389,6 +409,12 @@ namespace EL
     static const std::string optGridExpress;
     static const std::string optGridNoSubmit;
     static const std::string optGridMergeOutput;
+    static const std::string optGridUseContElementBoundary;
+    static const std::string optGridAddNthFieldOfInDSToLFN;
+    static const std::string optGridWorkingGroup;
+    static const std::string optGridShowCmd;
+    static const std::string optGridCpuTimePerEvent;
+    static const std::string optGridMaxWalltime;
     static const std::string optTmpDir;
     static const std::string optRootVer;
     static const std::string optCmtConfig;
@@ -410,6 +436,96 @@ namespace EL
     /// rationale: these options are for configuring batch drivers
   public:
     static const std::string optBatchSharedFileSystem;
+    /// The content of this string will be executed in the job script on the worker node
+    /// before the main executable is run.
+    static const std::string optBatchSlurmExtraConfigLines;
+    /// Append a command before the main executable is called
+    /// This is useful is you want to execute the command e.g. within shifter.
+    static const std::string optBatchSlurmWrapperExec;
+    /// This overrides the asetup command if you need to use a custom one
+    static const std::string optBatchSetupCommand;
+
+    /// \brief this is the name of the docker image, when using docker
+    /// with a supported batch driver
+    static const std::string optDockerImage;
+
+    /// \brief any extra options we may want to pass to docker
+    static const std::string optDockerOptions;
+
+    /// \brief the job submission configuration file (used by some
+    /// drivers that need more complex configuration)
+    static const std::string optBatchConfigFile;
+
+    /// \brief the job submission setup file.  unlike \ref
+    /// optBatchConfigFile this only gets used once per submission
+    /// instead of once per job.
+    static const std::string optBatchSetupFile;
+
+
+  public:
+    /// @name Options controlling the memory monitoring behaviour of the job
+    /// @{
+
+    /// The minimal per-event resident memory increase for triggering an error
+    ///
+    /// This is the main setting for triggering a failure in memory-leaking
+    /// analysis jobs. It sets the limit on the per-event resident memory
+    /// increase of the job for it to be still successful. It is an integer
+    /// property, setting the limit in kilobytes.
+    ///
+    static const std::string optMemResidentPerEventIncreaseLimit;
+
+    /// The minimal per-event virtual memory increase for triggering an error
+    ///
+    /// Implemented very similarly to @c optMemResidentPerEventIncreaseLimit.
+    /// But since normally we don't care about the virtual memory usage of the
+    /// jobs that much, it is set to zero by default. Making
+    /// @c optMemResidentPerEventIncreaseLimit control the behaviour of the
+    /// job.
+    ///
+    static const std::string optMemVirtualPerEventIncreaseLimit;
+
+    /// The minimal resident memory increase necessary to trigger an error
+    ///
+    /// It is an integer property, setting the limit in kilobytes. Jobs have
+    /// to increase their resident memory usage by this amount to trigger a
+    /// failure.
+    ///
+    static const std::string optMemResidentIncreaseLimit;
+
+    /// The minimal virtual memory increase necessary to trigger an error
+    ///
+    /// Implemented very similarly to @c optMemResidentIncreaseLimit. Since
+    /// normally the virtual memory usage is not considered in producing a
+    /// failure, it is set to zero by default.
+    ///
+    static const std::string optMemVirtualIncreaseLimit;
+
+    /// Failure behaviour of the code when a "significant memory leak" is found
+    ///
+    /// This flag allows the user to select what should happen when the code
+    /// finds a memory leak in the job that is larger than the values set by
+    /// @c optMemResidentPerEventIncreaseLimit,
+    /// @c optMemVirtualPerEventIncreaseLimit, @c optMemResidentIncreaseLimit
+    /// and @c optMemVirtualIncreaseLimit.
+    ///
+    /// It's a boolean property. When set to @c true, the job fails if a
+    /// significant memory leak is detected. If set to @c false, only a warning
+    /// is printed.
+    ///
+    static const std::string optMemFailOnLeak;
+
+    /// @}
+
+
+    /// \brief the name of the histogram output stream
+    ///
+    /// Normally users don't need to worry about the histogram output
+    /// stream, and it just gets created for you automatically, but in
+    /// some situations you will need to reconfigure the histogram
+    /// output stream.
+    static const std::string histogramStreamName;
+
 
 
     //
@@ -422,11 +538,13 @@ namespace EL
   private:
     SH::SampleHandler m_sampleHandler;
   private:
-    std::vector<EL::Algorithm*> m_algs;
-  private:
     std::vector<EL::OutputStream> m_output;
   private:
     SH::MetaObject m_options;
+
+    /// \brief the \ref JobConfig object we use
+  private:
+    EL::JobConfig m_jobConfig;
   };
 }
 

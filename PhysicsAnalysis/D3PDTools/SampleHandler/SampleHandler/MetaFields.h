@@ -40,6 +40,10 @@ namespace SH
     /// \brief the default value for \ref gridFilter
     static const std::string gridFilter_default;
 
+    /// \brief the field containing the source options for datasets on
+    /// the grid
+    static const std::string gridSourceOptions;
+
     /// \brief the original sample from which this sample was
     ///   derived
     static const std::string sourceSample;

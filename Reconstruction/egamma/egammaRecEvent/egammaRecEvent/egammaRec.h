@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMARECEVENT_EGAMMA_H
@@ -52,7 +52,7 @@ public:
   const xAOD::CaloCluster* caloCluster(size_t index = 0) const;
 
   /// @brief ElementLink to the xAOD::CaloCluster/s that match the electron candidate
-  const ElementLink<xAOD::CaloClusterContainer> caloClusterElementLink(size_t index = 0) const;
+  ElementLink<xAOD::CaloClusterContainer> caloClusterElementLink(size_t index = 0) const;
 
   /// @brief set Pointer to the xAOD::CaloCluster
   void setCaloClusters(const std::vector<ElementLink<xAOD::CaloClusterContainer>>& links);
@@ -64,7 +64,7 @@ public:
   const xAOD::TrackParticle* trackParticle(size_t index = 0) const;
 
   /// @brief ElementLink to the xAOD::TrackParticle/s that match the electron candidate
-  const ElementLink<xAOD::TrackParticleContainer> trackParticleElementLink(size_t index = 0) const;
+  ElementLink<xAOD::TrackParticleContainer> trackParticleElementLink(size_t index = 0) const;
 
   /// @brief Set the ElementLinks to the xAOD::TrackParticle/s that match the electron candidate
   void setTrackParticles(const std::vector<ElementLink<xAOD::TrackParticleContainer>>& links);
@@ -76,16 +76,16 @@ public:
   const xAOD::Vertex* vertex(size_t index = 0) const;
 
   /// @brief ElementLink to the xAOD::vertex/es that match the electron candidate
-  const ElementLink<xAOD::VertexContainer> vertexElementLink(size_t index = 0) const;
+  ElementLink<xAOD::VertexContainer> vertexElementLink(size_t index = 0) const;
 
   /// @brief set Pointer to the xAOD::vertex/vertices that match  the photon candidate
   void setVertices(const std::vector<ElementLink<xAOD::VertexContainer>>& links);
 
   /// @brief Push back another vertex
-  void pushBackVertex(const ElementLink<xAOD::VertexContainer> vertexElementLink);
+  void pushBackVertex(const ElementLink<xAOD::VertexContainer>& vertexElementLink);
 
   /// @brief Push front another vertex
-  void pushFrontVertex(const ElementLink<xAOD::VertexContainer> vertexElementLink);
+  void pushFrontVertex(const ElementLink<xAOD::VertexContainer>& vertexElementLink);
 
   /// @name matching variables for the best match track
   /// @{

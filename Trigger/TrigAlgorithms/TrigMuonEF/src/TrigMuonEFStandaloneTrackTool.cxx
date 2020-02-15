@@ -2540,7 +2540,7 @@ int TrigMuonEFStandaloneTrackTool::segmentMonitoring(const std::vector< const Mu
     }//if FitQuality() valid
     int nMdt = 0; int nCsc = 0; int nRpc = 0; int nTgc = 0;
     for(unsigned int irio=0; irio < (*segment)->numberOfContainedROTs(); ++irio) {
-      
+
       Trk::RIO_OnTrack* rio = const_cast<Trk::RIO_OnTrack*> ((*segment)->rioOnTrack(irio));
       if(!rio) continue;
       Identifier rioId = rio->identify();

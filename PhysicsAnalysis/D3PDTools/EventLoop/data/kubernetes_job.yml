@@ -1,0 +1,36 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+# a version of the standard configuration file for use with my unit test
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: eventloop-%%JOBINDEX%%-
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: job
+        image: %%DOCKERIMAGE%%
+        command:
+        - bash
+        - -c 
+        - |
+          echo world
+          echo my job index is $JOB_INDEX
+          %%COMMAND%%
+        env:
+        - name: JOB_INDEX
+          value: "%%JOBINDEX%%"
+        volumeMounts:
+        - mountPath: %%SUBMITDIR%%
+          name: submit-dir
+      volumes:
+      - name: submit-dir
+        hostPath:
+          # directory location on host
+          path: %%SUBMITDIR%%
+          # this field is optional
+          type: Directory

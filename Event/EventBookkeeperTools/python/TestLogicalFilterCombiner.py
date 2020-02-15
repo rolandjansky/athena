@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##==============================================================================
 ## Name:        TestLogicalFilterCombiner.py  (completely inspired from LogicalFilterCombiner.py)
@@ -109,8 +109,10 @@ class TestLogicalFilterCombiner( PyAthena.AthFilterAlgorithm ):
 
             self.msg.debug("String changed internally to:\n%s", self.cmd)
 
-        except Exception, e:
+        except Exception as e:
             self.msg.fatal("Not a valid Python string. Exception: %s" % e)
+            import traceback
+            self.msg.fatal(traceback.format_exc())
             return False
 
         self.msg.info("Filter string validated")

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //! This class implements a tool to decorate the tau with a link to the matched electron as well as its llh score and OLR decision(s)
@@ -29,13 +29,9 @@ class TauEleOLRDecorator: virtual public TauRecToolBase
   
   virtual ~TauEleOLRDecorator();
 
-  virtual StatusCode eventInitialize();
-  
-  virtual StatusCode initialize();
-
-  virtual StatusCode execute(xAOD::TauJet&);
-
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(xAOD::TauJet&) override;
+  virtual StatusCode finalize() override;
 
  private:
   std::unique_ptr<AsgElectronLikelihoodTool> m_tEMLHTool;

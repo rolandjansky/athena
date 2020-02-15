@@ -29,9 +29,9 @@ BookkeeperTool::BookkeeperTool(const std::string& name)
     "The default name of the xAOD::CutBookkeeperContainer for input files");
   declareProperty("CutFlowCollName", m_cutflowCollName = "CutBookkeepersFile",
     "The default name of the xAOD::CutBookkeeperContainer for CutFlowSvc");
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   declareInterface< ::IMetaDataTool >( this );
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
 }
 
 

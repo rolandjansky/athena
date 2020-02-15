@@ -18,7 +18,7 @@
 #include <exception>
 #include "TrigDecisionTool/ExpertMethods.h"
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigNavigation/AccessProxy.h"
 #endif
@@ -76,7 +76,7 @@ const LVL1CTP::Lvl1Item* Trig::ExpertMethods::getItemDetails(const std::string& 
   return cgm()->item(chain);
 }
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 const HLT::NavigationCore* Trig::ExpertMethods::getNavigation() const
 {
   if (!(checkExperimentalAndExpertMethods())) return 0;
@@ -104,27 +104,28 @@ Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
 
 
 bool Trig::ExpertMethods::isHLTTruncated() const {
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
-    const HLT::HLTResult* res(0);
-    const xAOD::TrigDecision* trigDec(0);
-    auto navigation = getNavigation();
-    bool contains_xAOD_decision = cgm()->store()->transientContains<xAOD::TrigDecision>("xTrigDecision");
-    if(!contains_xAOD_decision){
-        if(!navigation || navigation->getAccessProxy()->retrieve(res, "HLTResult_HLT").isFailure()) {
-            ATH_MSG_WARNING("TDT has not ben able to get HLTResult_HLT");
-            return false;
-        }
-        return res->isHLTResultTruncated();   
+
+  SG::ReadHandleKey<xAOD::TrigDecision>* trigDecRH = cgm()->xAODTrigDecisionKey();
+  if (trigDecRH && !trigDecRH->empty()) {
+    SG::ReadHandle<xAOD::TrigDecision> trigDec = SG::makeHandle(*trigDecRH);
+    if(!trigDec.isValid()) {
+      ATH_MSG_WARNING("TDT has not been able to retrieve xTrigDecision");
+    } else {
+      return trigDec->efTruncated();
     }
-    else {
-        if(cgm()->store()->retrieve(trigDec,"xTrigDecision").isFailure()){
-            ATH_MSG_WARNING("TDT has not been able to retrieve xTrigDecision");
-            return false;
-        }
-        return trigDec->efTruncated();
-    }
+  }
+
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+  const HLT::HLTResult* res(nullptr);
+  auto navigation = getNavigation();
+  if(!navigation || navigation->getAccessProxy()->retrieve(res, "HLTResult_HLT").isFailure()) {
+    ATH_MSG_WARNING("TDT has not ben able to get HLTResult_HLT");
+    return false;
+  }
+  return res->isHLTResultTruncated();   
 #else
-ATH_MSG_ERROR("isHLTTruncated only supported in full Athena");
-return false;
+  ATH_MSG_ERROR("isHLTTruncated only supported with a xAOD::TrigDecision ReadHandle (Runs 2,3) or in full Athena (Run 2)");
+  return false;
 #endif
+  
 }

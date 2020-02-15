@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSPSeededTrackFinder/SiSPSeededTrackFinder.h"
@@ -447,7 +447,7 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent(const EventContext& ctx) const {
   unsigned int nsp = 0;
   if (not m_SpacePointsPixelKey.empty()) {
     SG::ReadHandle<SpacePointContainer> spacePointsPixel{m_SpacePointsPixelKey, ctx};
-    if (not spacePointsPixel.isValid()) {
+    if (spacePointsPixel.isValid()) {
       for (const SpacePointCollection* spc: *spacePointsPixel) {
         nsp += spc->size();
       }
@@ -463,7 +463,7 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent(const EventContext& ctx) const {
   nsp = 0;
   if (not m_SpacePointsSCTKey.empty()) {
     SG::ReadHandle<SpacePointContainer> spacePointsSCT{m_SpacePointsSCTKey, ctx};
-    if (not spacePointsSCT.isValid()) {
+    if (spacePointsSCT.isValid()) {
       for (const SpacePointCollection* spc: *spacePointsSCT) {
         nsp += spc->size();
       }

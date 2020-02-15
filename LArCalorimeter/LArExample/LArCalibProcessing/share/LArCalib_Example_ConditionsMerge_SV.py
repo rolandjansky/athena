@@ -71,15 +71,15 @@ svcMgr.EventSelector.RunNumber = 2147483647
 
 OutputFileOFC="LArConditionsOFC_"+str(runNoForFileName)+".pool.root"
 if os.access(OutputFileOFC,os.F_OK):
-  print "File",OutputFileOFC,"exists already, removing ...."
+  printfunc ("File",OutputFileOFC,"exists already, removing ....")
   os.remove(OutputFileOFC)
 
 
-print svcMgr.IOVDbSvc.Folders
+printfunc (svcMgr.IOVDbSvc.Folders)
 
-print "============ Single bin OFC ============="
-print outObjectsOFC
-print outTagsOFC
+printfunc ("============ Single bin OFC =============")
+printfunc (outObjectsOFC)
+printfunc (outTagsOFC)
 
 from LArCalibTools.LArCalibToolsConf import LArBlockCorrections
 topSequence+=LArBlockCorrections()

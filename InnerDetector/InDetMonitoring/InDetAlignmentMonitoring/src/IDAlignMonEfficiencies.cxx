@@ -47,7 +47,7 @@
 #include "TrackSelectionTool.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"                    
+#include "PixelReadoutGeometry/PixelDetectorManager.h"                    
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 
 // *********************************************************************

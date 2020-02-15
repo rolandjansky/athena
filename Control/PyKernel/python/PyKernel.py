@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """core module for an interactive analysis
 
@@ -19,7 +21,7 @@ __docformat__ = "restructuredtext en"
 import re
 import types
 import cppyy
-import PyKHist
+from . import PyKHist
 from math import *
 from AthenaCommon.SystemOfUnits import *
 
@@ -202,23 +204,23 @@ def fill (hist, classAndKey, value, criteria="True", nEvent=100):
         bufEvent = 100
 
     # convert class&key to a store gate access
-    commandSG = "obj = None"
+    commandSG = "None"
     if classAndKey != "":
-        commandSG = "obj = "+_parseString(classAndKey)
+        commandSG = _parseString(classAndKey)
 
     # build commands
     if callable(value):
         # if function pointer
-        commandV = "vX = value()"
+        commandV = "value()"
     else:
         # if string, parse value/criteria     
-        commandV = "vX = "+_parseString(value)
+        commandV = _parseString(value)
     if callable(criteria):
         # if function pointer        
-        commandC = "vC = criteria()"
+        commandC = "criteria()"
     else:
         # if string, parse value/criteria             
-        commandC = "vC = "+_parseString(criteria)
+        commandC = _parseString(criteria)
 
     # initialize application mgr
     theApp.initialize()
@@ -231,7 +233,7 @@ def fill (hist, classAndKey, value, criteria="True", nEvent=100):
         # get object from SG
         theApp.nextEvent()
         try:
-            exec commandSG
+            obj = eval(commandSG)
 
             # check if the obj is a vector-like class
             if hasattr(obj,'size') and hasattr(obj,'__getitem__'):
@@ -254,10 +256,10 @@ def fill (hist, classAndKey, value, criteria="True", nEvent=100):
             else:
                 x = obj
 
-            # exec value/criteria commands
+            # eval value/criteria commands
             try:
-                exec commandV
-                exec commandC
+                vX = eval(commandV)
+                vC = eval(commandC)
 
                 # evaluate vC/vX. "vC" and "vX" must be consistent with commands
                 if vC:
@@ -368,29 +370,29 @@ def fill2 (hist, classAndKey, valueX, valueY, criteria="True", nEvent=100):
         bufEvent = 100
 
     # convert class&key to a store gate access
-    commandSG = "obj = None"
+    commandSG = "None"
     if classAndKey != "":
-        commandSG = "obj = "+_parseString(classAndKey)
+        commandSG = _parseString(classAndKey)
     
     # build commands
     if callable(valueX):
         # if function pointer
-        commandX = "vX = valueX()"
+        commandX = "valueX()"
     else:
         # if string, parse value/criteria     
-        commandX = "vX = "+_parseString(valueX)
+        commandX = _parseString(valueX)
     if callable(valueY):
         # if function pointer
-        commandY = "vY = valueY()"
+        commandY = "valueY()"
     else:
         # if string, parse value/criteria     
-        commandY = "vY = "+_parseString(valueY)
+        commandY = _parseString(valueY)
     if callable(criteria):
         # if function pointer        
-        commandC = "vC = criteria()"
+        commandC = "criteria()"
     else:
         # if string, parse value/criteria             
-        commandC = "vC = "+_parseString(criteria)
+        commandC = _parseString(criteria)
 
     # initialize application mgr
     theApp.initialize()
@@ -404,7 +406,7 @@ def fill2 (hist, classAndKey, valueX, valueY, criteria="True", nEvent=100):
         # get object from SG
         theApp.nextEvent()        
         try:
-            exec commandSG
+            obj = eval(commandSG)
 
             # check if the obj is a vector-like class
             if hasattr(obj,'size') and hasattr(obj,'__getitem__'):
@@ -427,11 +429,11 @@ def fill2 (hist, classAndKey, valueX, valueY, criteria="True", nEvent=100):
             else:
                 x = obj
 
-            # exec value/criteria commands
+            # eval value/criteria commands
             try:
-                exec commandX
-                exec commandY                
-                exec commandC
+                vX = eval(commandX)
+                vY = eval(commandY)
+                vC = eval(commandC)
 
                 # evaluate vC/vX. "vC" and "vX" must be consistent with commands
                 if vC:
@@ -565,29 +567,29 @@ def fillProf (hist, classAndKey, valueX, valueY, criteria="True", nEvent=100):
         bufEvent = 100
 
     # convert class&key to a store gate access
-    commandSG = "obj = None"
+    commandSG = "None"
     if classAndKey != "":
-        commandSG = "obj = "+_parseString(classAndKey)
+        commandSG = _parseString(classAndKey)
     
     # build commands
     if callable(valueX):
         # if function pointer
-        commandX = "vX = valueX()"
+        commandX = "valueX()"
     else:
         # if string, parse value/criteria     
-        commandX = "vX = "+_parseString(valueX)
+        commandX = _parseString(valueX)
     if callable(valueY):
         # if function pointer
-        commandY = "vY = valueY()"
+        commandY = "valueY()"
     else:
         # if string, parse value/criteria     
-        commandY = "vY = "+_parseString(valueY)
+        commandY = _parseString(valueY)
     if callable(criteria):
         # if function pointer        
-        commandC = "vC = criteria()"
+        commandC = "criteria()"
     else:
         # if string, parse value/criteria             
-        commandC = "vC = "+_parseString(criteria)
+        commandC = _parseString(criteria)
 
     # initialize application mgr
     theApp.initialize()
@@ -601,7 +603,7 @@ def fillProf (hist, classAndKey, valueX, valueY, criteria="True", nEvent=100):
         # get object from SG
         theApp.nextEvent()        
         try:
-            exec commandSG
+            obj = eval(commandSG)
 
             # check if the obj is a vector-like class
             if hasattr(obj,'size') and hasattr(obj,'__getitem__'):
@@ -624,11 +626,11 @@ def fillProf (hist, classAndKey, valueX, valueY, criteria="True", nEvent=100):
             else:
                 x = obj
 
-            # exec value/criteria commands
+            # eval value/criteria commands
             try:
-                exec commandX
-                exec commandY                
-                exec commandC
+                vX = eval(commandX)
+                vY = eval(commandY)
+                vC = eval(commandC)
 
                 # evaluate vC/vX. "vC" and "vX" must be consistent with commands
                 if vC:
@@ -745,7 +747,7 @@ def dumpSG ():
       athena> dumpSG()
       
     '''
-    print GNS.StoreGate.pointer().dump()
+    print (GNS.StoreGate.pointer().dump())
 
 
 # book 1D/2D-histogram

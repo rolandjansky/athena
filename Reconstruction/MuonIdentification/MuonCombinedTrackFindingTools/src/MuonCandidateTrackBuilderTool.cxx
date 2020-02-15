@@ -1,19 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCandidateTrackBuilderTool.h"
-
-#include "MuonRecToolInterfaces/IMuonSegmentTrackBuilder.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 
 #include "MuonLayerEvent/MuonCandidate.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "MuonSegment/MuonSegment.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-#include "Identifier/Identifier.h"
 
 namespace Muon {
 
@@ -21,7 +16,6 @@ namespace Muon {
     AthAlgTool(type,name,parent),
     m_muonTrackBuilder("Muon::MooTrackBuilder/MooMuonTrackBuilder"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_reOrderMeasurements(true),
     m_trackFitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder")
   {
@@ -33,17 +27,11 @@ namespace Muon {
     declareProperty("MuonTrackBuilder",           m_trackFitter );    
   }
 
-  MuonCandidateTrackBuilderTool::~MuonCandidateTrackBuilderTool() { }
-
-  StatusCode MuonCandidateTrackBuilderTool::finalize() {
-    return StatusCode::SUCCESS;
-  }
-
   StatusCode MuonCandidateTrackBuilderTool::initialize() {
 
     ATH_CHECK(m_muonTrackBuilder.retrieve());
     ATH_CHECK(m_printer.retrieve());
-    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_trackFitter.retrieve());
 
@@ -97,16 +85,16 @@ namespace Muon {
      // check if valid ID
        if( !id.is_valid() ) continue;
      // check if muon
-        if (!m_idHelper->isMuon(id)) continue;
+        if (!m_idHelperSvc->isMuon(id)) continue;
         
-        if(m_idHelper->isEndcap(id)) { 
+        if(m_idHelperSvc->isEndcap(id)) { 
          isEndcap = true;
         } else {
          isBarrel = true;
         }
-        if(m_idHelper->isTrigger(id)) continue; 
+        if(m_idHelperSvc->isTrigger(id)) continue; 
 
-        if(m_idHelper->isSmallChamber(id)) { 
+        if(m_idHelperSvc->isSmallChamber(id)) { 
          isSmall = true;
         } else {
          isLarge = true;
@@ -116,7 +104,7 @@ namespace Muon {
        
       if(m_reOrderMeasurements) {
 	// reorder measurements using SortMeas (defined in header file)
-	std::stable_sort(containedMeasurements.begin(),containedMeasurements.end(),SortMeas(&*m_edmHelperSvc,&*m_idHelper,isEndcap));
+	std::stable_sort(containedMeasurements.begin(),containedMeasurements.end(),SortMeas(&*m_edmHelperSvc,&*m_idHelperSvc,isEndcap));
       }
       // insert in measurements list
       measurements.insert( measurements.end(),
@@ -133,7 +121,7 @@ namespace Muon {
     if(m_reOrderMeasurements&&reorderAllMeasurements) {
       // reorder measurements using SortMeas (defined in header file)
       ATH_MSG_VERBOSE(" reorder all measurements before " <<  m_printer->print(measurements)) ;
-      std::stable_sort(measurements.begin(),measurements.end(),SortMeas(&*m_edmHelperSvc,&*m_idHelper,isEndcap));
+      std::stable_sort(measurements.begin(),measurements.end(),SortMeas(&*m_edmHelperSvc,&*m_idHelperSvc,isEndcap));
     }
 
     ATH_MSG_VERBOSE( m_printer->print(measurements)) ;

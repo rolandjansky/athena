@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArCondFEBIdChanMap.h"
@@ -14,7 +14,7 @@ void LArCondFEBIdChanMap::dump(std::ostream& out, const LArOnlineID* onlineID) c
     const FEBIdVector& febIdVec=m_febIdVecs[iCoolChannel];
     FEBIdVector::const_iterator it=febIdVec.begin();
     FEBIdVector::const_iterator it_e=febIdVec.end();
-    for (;it!=it_e;it++) {
+    for (;it!=it_e;++it) {
       out << "                   " << (*it) << "(0x" << std::hex << *it << std::dec << ")";
       if (onlineID) {
 	const HWIdentifier hwid((*it));

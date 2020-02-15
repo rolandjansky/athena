@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSEGMENTPERFORMANCEALG_H
@@ -11,8 +11,6 @@
 #include <vector>
 #include <fstream>
 #include "xAODMuon/MuonSegmentContainer.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 
 class MuonSegmentPerformanceAlg : public AthAlgorithm {
  public:
@@ -50,8 +48,6 @@ class MuonSegmentPerformanceAlg : public AthAlgorithm {
   std::vector< std::vector<int> > m_ntruth;
   std::vector< std::vector<int> > m_nfound;
   std::vector< std::vector<int> > m_nfake;
-
-  ToolHandle<Muon::MuonIdHelperTool>  m_idHelper;
 
 };
 

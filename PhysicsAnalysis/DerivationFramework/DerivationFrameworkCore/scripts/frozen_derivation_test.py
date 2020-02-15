@@ -110,7 +110,8 @@ def compare_files(cleanHeadDir,uniqId,pwd,isPatchedOnly):
 
     comparison_command = ( 'acmd.py diff-root ' + cleanDir + '/DAOD_PHYSVAL.pool.root '
                            'patched_derivation_test/DAOD_PHYSVAL.pool.root ' 
-                           '--error-mode resilient ' 
+                           '--error-mode resilient '
+                           '--nan-equal '
                            '--entries 20 > patched_derivation_test/diff-root.DAOD.log 2>&1' )
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 

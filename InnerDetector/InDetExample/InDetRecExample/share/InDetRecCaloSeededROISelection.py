@@ -14,7 +14,7 @@ from egammaCaloTools import egammaCaloToolsConf
 egammaCaloClusterROISelector = ToolFactory( egammaCaloToolsConf.egammaCaloClusterSelector,
                                             name = 'caloClusterROISelector',
                                             egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
-                                            EMEtRanges = [2200.],
+                                            EMEtRanges = [2300.],
                                             EMFCuts = [0.7],
                                             RetaCut = [0.65],
                                             HadLeakCut = [0.14]
@@ -27,7 +27,7 @@ InDetCaloClusterROIBuilder = InDet__CaloClusterROI_Builder(name = "InDetCaloClus
                                                            EMEnergyOnly = True)
 
 if (InDetFlags.doPrintConfigurables()):
-    print InDetCaloClusterROIBuilder
+    printfunc (InDetCaloClusterROIBuilder)
 
 #
 # --- now load the algorithm
@@ -42,5 +42,5 @@ InDetCaloClusterROISelector = InDet__CaloClusterROI_Selector (name              
 
 topSequence += InDetCaloClusterROISelector
 if (InDetFlags.doPrintConfigurables()):
-    print InDetCaloClusterROISelector
+    printfunc (InDetCaloClusterROISelector)
 

@@ -23,10 +23,10 @@ using namespace std;
 // various utils
 std::set<std::string> getL1ThresholdsOfChain(const HLT::SteeringChain* chain, TrigConf::ITrigConfigSvc* config) {
   // find the configuration of item seeding it
-  std::vector<std::string> tesout = TrigConf::HLTUtils::implicitChainTEs(*(chain->getConfigChain()), *(config->sequenceList()) );
+  std::vector<std::string> tesout = TrigConf::HLTTEUtils::implicitChainTEs(*(chain->getConfigChain()), *(config->sequenceList()) );
   std::set<std::string> tesoutset(tesout.begin(), tesout.end());
 
-  std::set<std::string> tes = TrigConf::HLTUtils::inputTEs(tesoutset, *(config->sequenceList()) );
+  std::set<std::string> tes = TrigConf::HLTTEUtils::inputTEs(tesoutset, *(config->sequenceList()) );
 
   return tes;
 }

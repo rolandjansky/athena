@@ -65,7 +65,8 @@ else:
   ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "TREE_BRANCH_OFFSETTAB_LEN ='100'" ]
   if 'athenaCommonFlags' in dir() and athenaCommonFlags.FilesInput():
     ServiceMgr.EventSelector.InputCollections   = athenaCommonFlags.FilesInput()
-    ServiceMgr.EventSelector.SkipEvents         = athenaCommonFlags.SkipEvents()
+    if athenaCommonFlags.SkipEvents.statusOn:
+      ServiceMgr.EventSelector.SkipEvents       = athenaCommonFlags.SkipEvents()
 
 
 # ---- Beam Spot service

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -61,14 +61,11 @@ public:
     //-------------------------------------------------------------
     //! Algorithm functions
     //-------------------------------------------------------------
-    virtual StatusCode initialize();
-    virtual StatusCode eventInitialize();
-    virtual StatusCode execute(xAOD::TauJet& pTau);
-    virtual StatusCode eventFinalize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode finalize() override;
     
-    virtual void print() const { }
-    
+private:
     //-------------------------------------------------------------
     //! Extrapolate track eta and phi to the calorimeter middle surface
     //-------------------------------------------------------------
@@ -92,10 +89,6 @@ public:
                                            const xAOD::Vertex* tauOrigin,
                                            double maxDeltaZ0);
 
-    void  getDeltaZ0Values(std::vector<float>& vDeltaZ0coreTrks, std::vector<float>& vDeltaZ0wideTrks);
-    void  resetDeltaZ0Cache();
-
-private:
     //-------------------------------------------------------------
     //! Some internally used functions
     //-------------------------------------------------------------
@@ -124,16 +117,12 @@ private:
     bool m_applyZ0cut;
     bool m_storeInOtherTrks;
     bool m_removeDuplicateCoreTracks;
-    std::vector<float> m_vDeltaZ0coreTrks;
-    std::vector<float> m_vDeltaZ0wideTrks;
-
+    
     //-------------------------------------------------------------
     // Bypass TrackSelectorTool / Extrapolation
     //-------------------------------------------------------------
-
     bool m_bypassSelector;
     bool m_bypassExtrapolator;
-    Gaudi::Property<bool> m_useOldCalo{this,"useOldCalo",false,"If true, it uses the CaloExtensionTool for calculating track extrapolation. Otherwise, it allows the code to read from the cache created by CaloExtensionBuilderalg."};
 
     //-------------------------------------------------------------
     // Sets of EM/Had samplings for track extrapolation 

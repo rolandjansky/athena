@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,14 +51,14 @@ namespace Trk {
         // Default constructor
         IApproachDescriptor(ApproachSurfaces* aSurfaces, bool rebuild=true) :
             m_approachSurfaces(aSurfaces),
-            m_approachSurfaceArraySurface(0),
-            m_approachSurfaceArray(0),
+            m_approachSurfaceArraySurface(nullptr),
+            m_approachSurfaceArray(nullptr),
             m_rebuild(rebuild)
         {}
         
         // Default constructor
-        IApproachDescriptor(BinnedArray<ApproachSurfaces>* aSurfaceArray, Surface* aSurfaceArraySurface = 0):
-            m_approachSurfaces(0),
+        IApproachDescriptor(BinnedArray<ApproachSurfaces>* aSurfaceArray, Surface* aSurfaceArraySurface = nullptr):
+            m_approachSurfaces(nullptr),
             m_approachSurfaceArraySurface(aSurfaceArraySurface),
             m_approachSurfaceArray(aSurfaceArray),
             m_rebuild(false)
@@ -87,9 +87,9 @@ namespace Trk {
       
         // Copy constructor - private
         IApproachDescriptor(const IApproachDescriptor&):
-            m_approachSurfaces(0),
-            m_approachSurfaceArraySurface(0),
-            m_approachSurfaceArray(0)
+            m_approachSurfaces(nullptr),
+            m_approachSurfaceArraySurface(nullptr),
+            m_approachSurfaceArray(nullptr)
         {}
         
       protected:

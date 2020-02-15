@@ -97,7 +97,7 @@ if jobproperties.Beam.beamType()=='collisions':
   
 #ToolSvc += InDetTRT_Monitoring_Tool
 if (InDetFlags.doPrintConfigurables()):
-  print InDetTRT_Monitoring_Tool
+  printfunc (InDetTRT_Monitoring_Tool)
 
 
 #-------------------------------------------------------------
@@ -117,7 +117,7 @@ InDetTRTMonMan = AthenaMonManager( "TRTMonManager",
 
 topSequence += InDetTRTMonMan
 if (InDetFlags.doPrintConfigurables()):
-  print InDetTRTMonMan
+  printfunc (InDetTRTMonMan)
 
 
 

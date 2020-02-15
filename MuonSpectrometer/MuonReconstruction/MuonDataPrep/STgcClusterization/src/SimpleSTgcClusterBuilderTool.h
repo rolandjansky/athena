@@ -4,7 +4,7 @@
 #ifndef SimpleSTgcClusterBuilderTool_h
 #define SimpleSTgcClusterBuilderTool_h
 
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "STgcClusterization/ISTgcClusterBuilderTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
@@ -50,8 +50,7 @@ namespace Muon
     double m_chargeCut;
     bool m_allowHoles;
 
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     std::vector<std::set<unsigned int>> m_clustersStripNum[3][5];
     std::vector<std::vector<Muon::sTgcPrepData>> m_clusters[3][5];

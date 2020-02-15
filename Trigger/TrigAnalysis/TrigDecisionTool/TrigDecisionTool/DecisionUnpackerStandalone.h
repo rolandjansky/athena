@@ -9,7 +9,6 @@
 #define TRIGDECISIONTOOL_DECISIONUNPACKERSTANDALONE_H
 
 // ASG include(s):
-#include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/AsgMessaging.h"
 
 // Trigger configuration include(s):

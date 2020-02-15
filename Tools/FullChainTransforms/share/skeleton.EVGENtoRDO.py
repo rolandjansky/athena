@@ -257,7 +257,7 @@ if hasattr(runArgs, "jobNumber"):
 from AthenaCommon.GlobalFlags import globalflags
 if hasattr(runArgs,"geometryVersion"):
     # strip _VALIDATION
-    print "stripping _VALIDATION"
+    printfunc ("stripping _VALIDATION")
     if runArgs.geometryVersion.endswith("_VALIDATION"):
         pos=runArgs.geometryVersion.find("_VALIDATION")
         globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion[:pos] )
@@ -451,7 +451,7 @@ if hasattr(runArgs,"DataRunNumber"):
         fast_chain_log.info( 'Overriding run number to be: %s ', runArgs.DataRunNumber )
         digitizationFlags.dataRunNumber=runArgs.DataRunNumber
 
-print "lvl1: -14... " + str(DetFlags.digitize.LVL1_on())
+printfunc ("lvl1: -14... " + str(DetFlags.digitize.LVL1_on()))
 
 ### Set digitize all except forward detectors
 DetFlags.digitize.all_setOn()

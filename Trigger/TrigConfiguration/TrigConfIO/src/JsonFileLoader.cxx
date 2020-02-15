@@ -119,7 +119,7 @@ TrigConf::JsonFileLoader::loadFile( const std::string & filename,
    if( ! loadFile( filename, pt, pathToChild) )
       return false;
 
-   data.setData(pt);
+   data.setData(std::move(pt));
 
    return true;
 }

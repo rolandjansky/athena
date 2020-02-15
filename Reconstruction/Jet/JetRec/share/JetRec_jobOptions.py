@@ -13,7 +13,6 @@
 from JetRec.JetRecStandard import jtm,jetlog
 myname = "JetRec_jobOptions.py: "
 jetlog.info( myname + "Begin." )
-jtm.usePublic = False
 from JetRec.JetRecFlags import jetFlags, JetContentDetail
 # jetFlags.separateJetAlgs.set_Value(True)
 # jetFlags.timeJetToolRunner.set_Value(2)

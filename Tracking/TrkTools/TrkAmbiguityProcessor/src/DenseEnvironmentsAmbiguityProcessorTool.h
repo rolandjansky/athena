@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DenseEnvironmentsAmbiguityProcessorTool_H
@@ -138,8 +138,8 @@ namespace Trk {
 
          /** helper for monitoring and validation: does success/failure counting */
          void increment_by_eta(EStatType type, const Track* track, bool updateAll=true);
-         void dumpStatType(std::ostream &out, const std::string &head, EStatType type, unsigned short iw=9) const;
-         void dump(std::ostream &out, bool try_brem_fit) const;
+         void dumpStatType(MsgStream &out, const std::string &head, EStatType type, unsigned short iw=9) const;
+         void dump(MsgStream &out, bool try_brem_fit) const;
 
          const std::vector<float>  &etaBounds() const { return *m_etabounds; }  //!< eta intervals for internal monitoring
 
@@ -374,7 +374,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::increment_by_eta(E
    }
 }
 
-void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::dumpStatType(std::ostream &out,
+void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::dumpStatType(MsgStream &out,
                                                                            const std::string &head,
                                                                            EStatType type,
                                                                            unsigned short iw) const {

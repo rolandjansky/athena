@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 "exec" "`which python`" "-tt" "$0" "$@";
 
@@ -8,7 +8,7 @@
 # This script allows you to run ROOT from python.
 # It has been heavily based (err... stolen) on athena.py from Wim
 
-import user
+from __future__ import print_function
 
 __version__ = '$Revision$'
 __author__  = 'Sebastien Binet (binet@cern.ch)'
@@ -26,7 +26,7 @@ _userlongopts = [ "batch", "interactive", "no-display", "debug=", "command=",
 
 ### explanation of the options -----------------------------------------------
 def _help_and_exit( reason = None ):
-   print """Accepted command line options:
+   print ("""Accepted command line options:
  -b, --batch                          ...  batch mode
  -i, --interactive                    ...  interactive mode [default]
      --no-display                           prompt, but no graphics display
@@ -35,7 +35,7 @@ def _help_and_exit( reason = None ):
  -v, --version                        ...  print version number
  -,-- [arg1,...]                      ...  additional arguments passed directly 
                                            to user scripts (left untouched)
- [<file1>.py [<file2>.py [...]]]      ...  scripts to run"""
+ [<file1>.py [<file2>.py [...]]]      ...  scripts to run""")
 
    sys.exit( 1 )
 
@@ -62,11 +62,11 @@ for arg in sys.argv[1:]:
 try:
    optlist, args = getopt.getopt( opts, _useropts, _userlongopts )
 except getopt.error:
-   print sys.exc_value
+   print (sys.exc_value)
    _help_and_exit()
 
 if args:
-   print "Unhandled arguments:", args
+   print ("Unhandled arguments:", args)
    _help_and_exit()
 
 for opt, arg in optlist:
@@ -83,7 +83,7 @@ for opt, arg in optlist:
    elif opt in ("-h", "--help"):
       _help_and_exit()
    elif opt in ("-v", "--version"):
-      print __version__
+      print (__version__)
       sys.exit(0)
 
 if optlist: del opt, arg
@@ -129,13 +129,13 @@ else:
    del readline, rlcompleter
 
 ### ROOT loading ------------------------------------------------------------
-print sys.ps1+"loading ROOT..."
+print (sys.ps1+"loading ROOT...")
 import ROOT
-print sys.ps1+"loading ROOT... [ok]"
+print (sys.ps1+"loading ROOT... [ok]")
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gStyle.SetPalette(1)      # less ugly palette colors
 ROOT.gStyle.SetOptStat(111111) #
-print sys.ps1+"loaded pyroot style... [ok]"
+print (sys.ps1+"loaded pyroot style... [ok]")
 
 ### execution ----------------------------------------------------------------
 if not runBatch:
@@ -148,14 +148,15 @@ if not runBatch:
 del fhistory
 
 if command:
-   print sys.ps1+'executing CLI (-c) command: "%s"' % command
-   exec command
+   print (sys.ps1+'executing CLI (-c) command: "%s"' % command)
+   exec (command)
 del command
 
+from past.builtins import execfile
 for script in scripts:
    try:
       execfile( script )
-   except Exception, e:
+   except Exception as e:
       if isinstance(e,SystemExit):
          raise
 
@@ -179,5 +180,5 @@ else:
        sys.exit(0)
    else:
        # done, back to the user
-       print sys.ps1+"entering interactive session..."
+       print (sys.ps1+"entering interactive session...")
        pass

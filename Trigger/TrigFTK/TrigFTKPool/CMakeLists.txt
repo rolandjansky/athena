@@ -37,3 +37,17 @@ atlas_add_dictionary( TrigFTKPoolDict
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib AthContainers AthenaPoolCnvSvcLib AthenaPoolUtilities TrigFTKPool )
 
+atlas_add_test( FTKAthTrackCnv_p1_test
+                SOURCES
+                test/FTKAthTrackCnv_p1_test.cxx
+                LINK_LIBRARIES TrigFTKPool )
+
+atlas_add_test( FTKTrackFitterStatsCnv_p1_test
+                SOURCES
+                test/FTKTrackFitterStatsCnv_p1_test.cxx
+                LINK_LIBRARIES TrigFTKPool )
+
+atlas_add_test( FTKTestDataCnv_p0_test
+                SOURCES
+                test/FTKTestDataCnv_p0_test.cxx
+                LINK_LIBRARIES TrigFTKPool )

@@ -18,14 +18,14 @@
 #include "MuonPattern/MuonPatternCollection.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
 #include <string>
 
 static const InterfaceID IID_MuonEDMPrinterTool("Muon::MuonEDMPrinterTool",1,0);
 
-class Identifier;
 class MsgStream;
 
 namespace Trk {
@@ -34,21 +34,14 @@ namespace Trk {
   class ResidualPull;
   class MeasurementBase;
   class PrepRawData;
-  class ITrackSummaryHelperTool;  
 }
 
 namespace Muon{
-  
-  class MuonIdHelperTool;
   class MuonSegment;
   class MuonSegmentCombination;
   class MuonPattern;
   class MuonPatternCombination;
   class MuonPatternChamberIntersect;
-}
-
-namespace Muon{
-
   /**
      @brief Helper tool to print EDM objects to string in a fix format
 
@@ -59,13 +52,10 @@ namespace Muon{
     MuonEDMPrinterTool(const std::string&,const std::string&,const IInterface*);
 
     /** @brief destructor */
-    ~MuonEDMPrinterTool ();
+    ~MuonEDMPrinterTool () {};
     
     /** @brief AlgTool initilize */
     StatusCode initialize();
-    
-    /** @brief AlgTool finalize */
-    StatusCode finalize();
     
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MuonEDMPrinterTool; }
@@ -139,7 +129,7 @@ namespace Muon{
 
   private:
     
-    ToolHandle<MuonIdHelperTool>  m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };

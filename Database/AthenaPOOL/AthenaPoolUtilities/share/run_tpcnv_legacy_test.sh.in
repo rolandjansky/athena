@@ -1,0 +1,34 @@
+#!/bin/sh
+
+for libroot in @ARG_REQUIRED_LIBRARIES@; do
+  fullpath=""
+  for p in `echo $LD_LIBRARY_PATH | tr : ' ' `; do
+    thispath="$p/@CMAKE_SHARED_LIBRARY_PREFIX@${libroot}@CMAKE_SHARED_LIBRARY_SUFFIX@"
+    if [ -r "$thispath" ]; then
+      fullpath="$thispath"
+    fi
+  done
+  if [ "$fullpath" = "" ]; then
+    echo "WARNING: Library $libroot not found; skipping test @testName@"
+    # Signal post_tpcnvtest.sh to skip the reffile comparison.
+    touch @testName@-SKIPPED
+    exit 0
+  fi
+done
+rm -f @testName@-SKIPPED
+
+reffile=`echo @CMAKE_CURRENT_SOURCE_DIR@/share/@refName@.pool.root*.ref`
+if [ -f "$reffile" ] &&
+    [ "@CMAKE_CURRENT_SOURCE_DIR@" != "@CMAKE_CURRENT_BINARY_DIR@" ]; then
+    refbase=`basename $reffile`
+    @CMAKE_COMMAND@ -E make_directory ../share
+    @CMAKE_COMMAND@ -E create_symlink \
+     $reffile ../share/$refbase
+fi
+
+testdir=@testName@
+rm -rf $testdir
+mkdir $testdir
+cd $testdir
+
+athena.py @pkgName@/@testName@_test.py

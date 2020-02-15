@@ -80,6 +80,8 @@ StatusCode TRTMonitoringRun3_Alg::initialize() {
     using namespace Monitored;
     
     ATH_MSG_VERBOSE("Initializing TRT Monitoring");
+    // initialize superclass
+    ATH_CHECK( AthMonitorAlgorithm::initialize() );
     
     // Retrieve detector manager.
     ATH_CHECK( detStore()->retrieve(m_mgr, "TRT") );

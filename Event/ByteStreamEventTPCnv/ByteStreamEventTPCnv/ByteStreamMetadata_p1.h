@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMEVENTTPCNV_BYTESTREAMMETADATA_P1_H
@@ -34,7 +34,6 @@ public: // Non-static members
 friend class ByteStreamMetadataCnv_p1;
 friend class PoolFilePeeker;
 
-private:
    unsigned int m_runNumber;
    unsigned int m_numEvents;
    unsigned int m_maxEvents;

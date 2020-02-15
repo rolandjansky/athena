@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUPI0CLUSTERCREATOR_H
@@ -26,21 +26,14 @@ public:
     ASG_TOOL_CLASS2(TauPi0ClusterCreator, TauRecToolBase, ITauToolBase);
     virtual ~TauPi0ClusterCreator();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode eventInitialize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
 						xAOD::PFOContainer& hadronicClusterPFOContainer,
 						xAOD::CaloClusterContainer& pi0CaloClusContainer,
-						const xAOD::CaloClusterContainer& pPi0CaloClusContainer);
-    virtual StatusCode eventFinalize();
-
-    virtual void print() const { }
-
+						const xAOD::CaloClusterContainer& pPi0CaloClusContainer) override;
     
 private:
-
-
     /** @brief fraction of cluster enegry in central EM1 cells */
     float getEM1CoreFrac( const xAOD::CaloCluster* /*pi0Candidate*/);
     

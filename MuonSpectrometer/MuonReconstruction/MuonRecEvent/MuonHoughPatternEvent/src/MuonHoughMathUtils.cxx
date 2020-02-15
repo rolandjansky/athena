@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughMathUtils.h"
@@ -8,12 +8,10 @@
 #include <sstream>
 #include <iostream>
 #include <cassert>
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 MuonHoughMathUtils::MuonHoughMathUtils()
-{
-}
-
-MuonHoughMathUtils::~MuonHoughMathUtils()
 {
 }
 
@@ -27,7 +25,8 @@ int MuonHoughMathUtils::sgn(double d)const
 
 int MuonHoughMathUtils::step(double d, double x0)const
 {
-  if (d==x0) {std::cout << "WARNING: Possible mistake in Step function" << std::endl;}
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughMathUtils::step");
+  if (d==x0) {if (log.level()<=MSG::WARNING) log << MSG::WARNING << "WARNING: Possible mistake in Step function" << endmsg;}
   if (d<=x0) {return 0;}
   if (d>x0) {return 1;}
   return -1;
@@ -36,7 +35,7 @@ int MuonHoughMathUtils::step(double d, double x0)const
 double MuonHoughMathUtils::signedDistanceToLine(double x0, double y0, double r0, double phi)const //distance from (x0,y0) to the line (r0,phi) , phi in [-Pi,Pi] ,different phi than in calculateangle() (==angle(2))
 {
   CxxUtils::sincos scphi(phi);
-  double distance = scphi.apply(x0,-y0) - r0; //x0*scphi.sn-y0*scphi.cs-r0;
+  double distance = scphi.apply(x0,-y0) - r0;
   return distance;
 }
 
@@ -150,15 +149,13 @@ double MuonHoughMathUtils::distanceToLine3D(double x0,double y0,double z0, doubl
 
 double MuonHoughMathUtils::distanceOfLineToOrigin2D(double a, double b)const
 {
-  //  return signedDistanceOfLineToOrigin2D(0,b,std::atan(a));
-
   return std::abs(b/(std::sqrt(a*a+1)));
 }
 
 double MuonHoughMathUtils::signedDistanceOfLineToOrigin2D(double x, double y, double phi)const
 {
   CxxUtils::sincos scphi(phi);
-  return scphi.apply(x,-y); //(-y*scphi.cs+x*scphi.sn);
+  return scphi.apply(x,-y);
 }
 
 std::vector<double> MuonHoughMathUtils::shortestPointOfLineToOrigin3D(double x, double y, double z, double phi, double theta)const // actually this is the 3d-point closest to origin in xy-plane
@@ -210,8 +207,6 @@ std::vector<double> MuonHoughMathUtils::shortestPointOfLineToOrigin(double x, do
   x3[1]= scphi.sn*sctheta.sn;
   x3[2]= sctheta.cs;
 
-  // sqrt(x3^2) == 1; !
-
   double time=0;
   double x5=0;
   x5 = dotProduct(x1,x3);
@@ -230,10 +225,6 @@ std::vector<double> MuonHoughMathUtils::shortestPointOfLineToOrigin(double x, do
 bool MuonHoughMathUtils::lineThroughCylinder(double x_0, double y_0, double z_0, double phi, double theta, double r_cyl, double z_cyl)const
 {
    // if there is one, then track will be split
-  // C:x^2+y^2=r_cyl^2 , |z|<z_cyl
-  // l:(x_0,y_0,z_0)+t*(cos(phi)*sin(theta),sin(phi)*sin(theta),cos(theta))
-
-  //  assert(z_cyl>=0);
   assert(r_cyl>=0);
 
   CxxUtils::sincos scphi(phi);
@@ -255,29 +246,15 @@ bool MuonHoughMathUtils::lineThroughCylinder(double x_0, double y_0, double z_0,
   if (r_2<r_cyl) {return true;}
 
   // 2 -- check if there is an intersection with the circle x^2 + y^2 = r_cyl^2 and the line y=px+q, p = tan(phi), q = y_0 - x_0 tan(phi) <--> r_cyl^2 = (px+q)^2 + x^2
-  // D = b^2-4ac   a= (p^2+1) = (1/cos^2), b = 2pq, c = q^2-r_cyl^2 
-  // D = 4 (r_cyl^2 * a - q^2)
-  // D = 4 /cos^2 (r_cyl^2 - (y_0*cos - x_0*sin)^2)
-  
-  double r_0 = scphi.apply(-x_0,y_0); // y_0*scphi.cs - x_0*scphi.sn;
-
-  // D = 4* (scphi.cs*scphi.cs)* ( r_cyl*r_cyl  - r_0*r_0)
-  
-  // D>0 <--> |r_0| < r_cyl
+  double r_0 = scphi.apply(-x_0,y_0);
 
   if (std::abs(r_0) > r_cyl) return false; 
 
   // 3 -- check if the intersection is cylinder: for -z_cyl<z<z_cyl
-
-  // x_1,2 = (-b+-sqrt(D) / 2a) = .. = - sin * r_0 +- cos * sqrt(r_cyl^2-r_0^2)
-
   double s_1 = - scphi.sn * r_0;
   double s_2 = scphi.cs * std::sqrt(r_cyl*r_cyl-r_0*r_0);
 
   x_1 = s_1 + s_2;
-
-  // t = (x-x_0)/cos(phi)* sin(theta)
-  // z = z_0 + t * cos(theta) = z_0 + (x-x_0) * cos(theta) / (cos(phi) * sin(theta) )
 
   double inv_angle = 1/(scphi.cs * tantheta);
 
@@ -387,7 +364,7 @@ void MuonHoughMathUtils::extrapolateCurvedRoad(const Amg::Vector3D& roadpos, con
   
   double tantheta = sctheta.sn/sctheta.cs;
 
-  double r0 = scphi.apply(roadpos.x(),-roadpos.y()); // - roadpos.y()*scphi.cs + roadpos.x()*scphi.sn ;
+  double r0 = scphi.apply(roadpos.x(),-roadpos.y());
   double charge = 1.;
   if ( r0 < 0) charge = -1.;
   double invcurvature =  charge/roadmom.mag();
@@ -412,14 +389,10 @@ void MuonHoughMathUtils::extrapolateCurvedRoad(const Amg::Vector3D& roadpos, con
       double len = posr - fabs(r0);
       double diffr = posr-MuonHough::radius_cylinder;
       rotationangle = diffr*invcurvature/sctheta.sn;
-      //      std::cout << " road x " << roadpos.x()<< " y "  << roadpos.y() << " z " << roadpos.z() << std::endl;
-      //      std::cout << " Position xe " << xe << " y " << ye << " z " << ze << std::endl;
       xe = roadpos.x() + lenr * scphi.cs;
       ye = roadpos.y() + lenr * scphi.sn;
       ze = roadpos.z() + len/tantheta + diffr*rotationangle;
       thetan = std::atan2(1.,1/tantheta + 2*rotationangle);
-      //      std::cout << " Extrapolated Position  xe " << xe << " y " << ye << " z " << ze << std::endl;
-      //     m_log << MSG::VERBOSE << " Barrel extrapolation " <<endmsg;
     }
   } else {
     double lext=0., rotationangle=0.;
@@ -428,44 +401,24 @@ void MuonHoughMathUtils::extrapolateCurvedRoad(const Amg::Vector3D& roadpos, con
       double diffz = pos.z()-sign*MuonHough::z_cylinder;
       rotationangle = diffz*invcurvature/sctheta.cs;
       lext = (pos.z()-roadpos.z())*tantheta - diffz*rotationangle;
-      // m_log << MSG::VERBOSE << " Forward extrapolation " <<endmsg;
-      
     } else {
       // Forward OutSide EC Toroid
       double effcurv = invcurvature/sctheta.cs;
       rotationangle = sign*(MuonHough::z_end-MuonHough::z_cylinder)*effcurv;
       lext = (pos.z()-roadpos.z())*tantheta + (MuonHough::z_magnetic_range_squared - 2*sign*pos.z()*MuonHough::z_magnetic_range)*effcurv;
-      // m_log << MSG::VERBOSE << " Forward Outside EC Toroid extrapolation " <<endmsg;
     }
     xe = roadpos.x() + lext * scphi.cs;
     ye = roadpos.y() + lext * scphi.sn;
-    //ze = pos.z();
     double dx = tantheta - 2*rotationangle;
     if (dx !=0)  thetan = std::atan2(1.,1/dx);
   }
 
-// In case direction theta is rotated for low momenta: flip direction vector 
+  // In case direction theta is rotated for low momenta: flip direction vector 
   CxxUtils::sincos scthetan(thetan);
-
-   //   std::cout << " thetan: " << thetan << " rotationangle: " << rotationangle << std::endl;
-
-   if (sctheta.cs*scthetan.cs+sctheta.sn*scthetan.sn < 0) {
-     //     std::cout<< " flip direction" << std::endl;
-     roaddire = Amg::Vector3D(scthetan.sn*scphi.cs,scthetan.sn*scphi.sn,-scthetan.cs);
-   } else {
-     //     std::cout<< " no flip" << std::endl;
-     roaddire = Amg::Vector3D(scthetan.sn*scphi.cs,scthetan.sn*scphi.sn,scthetan.cs);
-   }
-   roadpose = Amg::Vector3D(xe,ye,ze);
-   
-//    std::cout << " direction theta " << theta << " new " << thetan << std::endl;
-//    if (std::abs(theta-thetan) > 0.1 ) std::cout << " Large theta difference " << std::endl;
-//    std::cout << " position x " << pos.x() << " y  " << pos.y() << " r " << posr << " z " << pos.z() << std::endl;
-//    double dr = std::sqrt(roadpose.x()*roadpose.x() + roadpose.y()*roadpose.y()) - posr;
-//    double dz = roadpose.z() - pos.z();
-//    double dist = std::sqrt(dr*dr+dz*dz); 
-//    std::cout << " Extrapol position x " << roadpose.x() << " y  " << roadpose.y() << " r " << std::sqrt(roadpose.x()*roadpose.x() + roadpose.y()*roadpose.y()) <<" z " << roadpose.z() << " Distance " << dist << std::endl;
-//    if ( dist > 100.) std::cout << " Large Distance " << dist << " dR " << dr << " dZ " << dz << std::endl;    
-//    std::cout << " charge " << charge << " curvature " << roadmom.mag() << " inv curvature " << invcurvature << std::endl;
-
+  if (sctheta.cs*scthetan.cs+sctheta.sn*scthetan.sn < 0) {
+    roaddire = Amg::Vector3D(scthetan.sn*scphi.cs,scthetan.sn*scphi.sn,-scthetan.cs);
+  } else {
+    roaddire = Amg::Vector3D(scthetan.sn*scphi.cs,scthetan.sn*scphi.sn,scthetan.cs);
+  }
+  roadpose = Amg::Vector3D(xe,ye,ze);
 }

@@ -57,9 +57,12 @@ function( _setup_python_package name file md5 )
 endfunction( _setup_python_package )
 
 # Install pyAMI:
+#_setup_python_package( pyAMI
+#   ${CMAKE_CURRENT_SOURCE_DIR}/src/pyAMI-5.0.3.2.tar.gz
+#   2fe796f738baeae72e5837ebc0d072c1 )
 _setup_python_package( pyAMI
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/pyAMI-5.0.3.2.tar.gz
-   2fe796f738baeae72e5837ebc0d072c1 )
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/pyAMI-5.0.3.2-patched.tar.gz
+   77b1830e5aaf24a36cd12e0dfb623a55 )
 
 # Clean up:
 unset( _setup_python_package )

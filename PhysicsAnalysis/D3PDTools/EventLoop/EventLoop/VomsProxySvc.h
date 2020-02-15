@@ -28,7 +28,7 @@ namespace EL
 
     /// description: the name of the service
   public:
-    static const std::string& name ();
+    static const std::string& algServiceName ();
 
 
     /// effects: test the invariant of this object
