@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #COOLOFL_INDET /Indet/Align InDetAlign-RUN2-BLK-UPD4-13 
 #logging.debug( "%s, %s, %s, %s" %(pcaltag.tag,pcaltag.folder,pcaltag.schema,pcaltag.status) )
 #pcaltag.tag COOLOFL_INDET
 #p3caltag.folder /Indet/Align
 #pcaltag.schema InDetAlign-RUN2-BLK-UPD4-13 
 #pcaltag.status 1
+
+from __future__ import print_function
 
 import time
 from PyCool import cool
@@ -33,9 +35,9 @@ def getDBNumberFromUPD4(run, tag, foldername, connstr):
       payload = obj.payload()
       payload_string =  "%s" %( payload )
       DB_number =  payload_string.split()[-1].split("]")[0].split("[")[1] 
-      #print "since [r,l]: [", obj.since() >> 32,',',obj.since()%0x100000000,']',
-      #print "payload  : %s" %(DB_number)
-      #print 
+      #print ("since [r,l]: [", obj.since() >> 32,',',obj.since()%0x100000000,']',)
+      #print ("payload  : %s" %(DB_number))
+      #print ()
    return DB_number
 
 def getRunNumberFromUPD1(DB_number, tag, run, foldername, connstr):
@@ -54,15 +56,15 @@ def getRunNumberFromUPD1(DB_number, tag, run, foldername, connstr):
                               cool.ValidityKeyMax,
                               cool.ChannelSelection.all(),
                               tag)
-   print "ref", DB_number
+   print ("ref", DB_number)
    for obj in objs:
       payload = obj.payload()
       payload_string =  "%s" %( payload )
       test_number =  payload_string.split()[-1].split("]")[0].split("[")[1] 
-      #print test_number
+      #print (test_number)
       run_string = obj.since() >> 32,',',obj.since()%0x100000000
-      #print "since [r,l]: [", obj.since() >> 32,',',obj.since()%0x100000000,']',
-      #print "payload  : %s" %(test_number)
+      #print ("since [r,l]: [", obj.since() >> 32,',',obj.since()%0x100000000,']', end='')
+      #print ("payload  : %s" %(test_number))
       if test_number == DB_number:
          return run_string 
    return 0
@@ -93,13 +95,13 @@ connstr = 'COOLOFL_INDET/CONDBR2'
 
 if foldername == '/TRT/Align':
    connstr = 'COOLOFL_TRT/CONDBR2'
-#print connstr
-#print foldername
+#print (connstr)
+#print (foldername)
 
 DB_number = getDBNumberFromUPD4(run, upd4_tag, foldername, connstr)
 run = getRunNumberFromUPD1(DB_number, upd1_tag, run,  foldername, connstr)
 if run:
-   print "first run in UPD1 tag with matching UPD4 conditions is run %i"  %(run[0])
+   print ("first run in UPD1 tag with matching UPD4 conditions is run %i"  %(run[0]))
 else:
-   print "no matching conditions found in UPD1 tag!!!"
+   print ("no matching conditions found in UPD1 tag!!!")
 
