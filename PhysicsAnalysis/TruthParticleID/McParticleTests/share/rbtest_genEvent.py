@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import user
 import os
 import sys
-import commands
 from AthenaCommon import ChapPy
 
 ###-----------------------------------------------------
@@ -16,8 +17,8 @@ from TestTools.iobench import doValidation
 from TestTools.iobench import ScOutput
 from TestTools.iobench import BenchSequence
 
-print "#"*80
-print "## testing McEventCollection (read/back) persistency..."
+print ("#"*80)
+print ("## testing McEventCollection (read/back) persistency...")
 bench = BenchSequence( "McEventCollection (read/back) persistency" )
 
 ###-----------------------------------------------------
@@ -51,9 +52,9 @@ topSequence.GenEventAsciiWriter.McWriter.Output = '%(AsciiChk)s';
 
 if 0:
     ###-----------------------------------------------------
-    print "\n"
-    print "#"*80
-    print "## Testing [reading 12.0.4 data]..."
+    print ("\n")
+    print ("#"*80)
+    print ("## Testing [reading 12.0.4 data]...")
     jobOptions = [
         ChapPy.JobOptionsCmd( templateJobO % {
             'InputFile'  : asciiFiles['rel_1204']['in'],
@@ -68,21 +69,21 @@ if 0:
     athena.run()
 
     ###-----------------------------------------------------
-    print "\n"
-    print "#"*80
+    print ("\n")
+    print ("#"*80)
     bench += doValidation(asciiFiles,'rel_1204')
     pass
 
-print ""
-print "#"*80
+print ("")
+print ("#"*80)
 bench.printStatus()
-print "## Bye."
-print "#"*80
+print ("## Bye.")
+print ("#"*80)
 
 # ###-----------------------------------------------------
-# print "\n"
-# print "#"*80
-# print "## Testing [reading 10.0.4 data]..."
+# print ("\n")
+# print ("#"*80)
+# print ("## Testing [reading 10.0.4 data]...")
 # jobOptions = [
 #     ChapPy.JobOptionsCmd( templateJobO % {
 #     'InputFile'  : asciiFiles['rel_1004']['in'],
@@ -97,14 +98,14 @@ print "#"*80
 # athena.run()
 
 # ###-----------------------------------------------------
-# print "\n"
-# print "#"*80
+# print ("\n")
+# print ("#"*80)
 # bench += doValidation(asciiFiles,'rel_1004')
 
 # ###-----------------------------------------------------
-# print "\n"
-# print "#"*80
-# print "## Testing [reading 11.0.41 data]..."
+# print ("\n")
+# print ("#"*80)
+# print ("## Testing [reading 11.0.41 data]...")
 # jobOptions = [
 #     ChapPy.JobOptionsCmd( templateJobO % {
 #     'InputFile'  : asciiFiles['rel_11041']['in'],
@@ -119,7 +120,7 @@ print "#"*80
 # athena.run()
 
 # ###-----------------------------------------------------
-# print "\n"
-# print "#"*80
+# print ("\n")
+# print ("#"*80)
 # bench += doValidation(asciiFiles,'rel_11041')
 
