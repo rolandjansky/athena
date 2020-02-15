@@ -25,12 +25,12 @@ Overlay_tf.py \
 --conditionsTag OFLCOND-MC16-SDR-20 \
 --geometryVersion ATLAS-R2-2016-01-00-01 \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' \
---preInclude 'Overlay:SimulationJobOptions/preInclude.TruthOnlyConfig.py' \
+--preInclude 'Overlay:SimulationJobOptions/preInclude.PixelOnlyConfig.py,SimulationJobOptions/preInclude.TruthOnlyConfig.py' \
 --imf False \
 --athenaopts '"--config-only=ConfigLegacy.pkl"'
 
 Overlay_tf.py \
---inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
+--inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
 --inputRDO_BKGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root \
 --outputRDOFile legacyMcOverlayRDO.pool.root \
 --maxEvents $events \
@@ -38,7 +38,7 @@ Overlay_tf.py \
 --geometryVersion ATLAS-R2-2016-01-00-01 \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' \
 --postExec 'job+=CfgMgr.JobOptsDumperAlg(FileName="OverlayLegacyConfig.txt");' \
---preInclude 'Overlay:SimulationJobOptions/preInclude.TruthOnlyConfig.py' \
+--preInclude 'Overlay:SimulationJobOptions/preInclude.PixelOnlyConfig.py,SimulationJobOptions/preInclude.TruthOnlyConfig.py' \
 --imf False
 
 rc=$?
@@ -48,7 +48,7 @@ mv log.Overlay log.OverlayLegacy
 rc2=-9999
 if [ $rc -eq 0 ]
 then
-    OverlayTest.py Truth -t 1 -n $events 2>&1 | tee log.OverlayTest
+    OverlayTest.py Pixel -t 1 -n $events 2>&1 | tee log.OverlayTest
     rc2=$?
 fi
 echo  "art-result: $rc2 configNew"

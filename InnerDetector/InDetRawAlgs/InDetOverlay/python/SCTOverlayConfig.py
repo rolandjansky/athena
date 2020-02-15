@@ -7,6 +7,28 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
+def SCT_ConfigurationConditionsCfg(flags, **kwargs):
+    """Return a ComponentAccumulator for SCT configuration conditions"""
+    # Temporary until available in the central location
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+    acc = SCT_GeometryCfg(flags)
+
+    SCT_ConfigurationConditionsTool = CompFactory.SCT_ConfigurationConditionsTool
+    acc.addPublicTool(SCT_ConfigurationConditionsTool())
+
+    channelFolder = "/SCT/DAQ/Config/Chip"
+    moduleFolder = "/SCT/DAQ/Config/Module"
+    murFolder = "/SCT/DAQ/Config/MUR"
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
+    acc.merge(addFolders(flags, [channelFolder, moduleFolder, murFolder],
+                         "SCT", className="CondAttrListVec"))
+    SCT_ConfigurationCondAlg = CompFactory.SCT_ConfigurationCondAlg
+    acc.addCondAlgo(SCT_ConfigurationCondAlg(ReadKeyChannel=channelFolder,
+                                             ReadKeyModule=moduleFolder,
+                                             ReadKeyMur=murFolder))
+    return acc
+
+
 def SCTRawDataProviderAlgCfg(flags, name="SCTRawDataProvider", **kwargs):
     """Return a ComponentAccumulator for SCT raw data provider"""
     # Temporary until available in the central location
@@ -20,24 +42,16 @@ def SCTRawDataProviderAlgCfg(flags, name="SCTRawDataProvider", **kwargs):
     alg = SCTRawDataProvider(name, **kwargs)
     acc.addEventAlgo(alg)
 
-    # load the SCTEventFlagWriter
-    SCT_ConfigurationConditionsTool = CompFactory.SCT_ConfigurationConditionsTool
-    acc.addPublicTool(SCT_ConfigurationConditionsTool())
+    return acc
 
-    channelFolder = "/SCT/DAQ/Config/Chip"
-    moduleFolder = "/SCT/DAQ/Config/Module"
-    murFolder = "/SCT/DAQ/Config/MUR"
-    SCT_ConfigurationCondAlg = CompFactory.SCT_ConfigurationCondAlg
-    acc.addCondAlgo(SCT_ConfigurationCondAlg(ReadKeyChannel = channelFolder,
-                                             ReadKeyModule = moduleFolder,
-                                             ReadKeyMur = murFolder))
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
-    acc.merge(addFolders(flags, [channelFolder, moduleFolder, murFolder], "SCT", className="CondAttrListVec"))
 
+def SCTEventFlagWriterCfg(flags, **kwargs):
+    """Return a ComponentAccumulator for SCT event flag writer"""
+    # Temporary until available in the central location
+    acc = ComponentAccumulator()
     SCTEventFlagWriter = CompFactory.SCTEventFlagWriter
     alg = SCTEventFlagWriter()
     acc.addEventAlgo(alg)
-
     return acc
 
 
@@ -45,12 +59,18 @@ def SCTDataOverlayExtraCfg(flags, **kwargs):
     """Return a ComponentAccumulator with SCT data overlay specifics"""
     acc = ComponentAccumulator()
 
-    # We need to convert BS to RDO for data overlay
-    acc.merge(SCTRawDataProviderAlgCfg(flags))
-
     # Add SCT cabling conditions
     from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
     acc.merge(SCT_CablingCondAlgCfg(flags))
+
+    # Add SCT configuration conditions
+    acc.merge(SCT_ConfigurationConditionsCfg(flags))
+
+    # We need to convert BS to RDO for data overlay
+    acc.merge(SCTRawDataProviderAlgCfg(flags))
+
+    # Add SCT event flag writer
+    acc.merge(SCTEventFlagWriterCfg(flags))
 
     return acc
 
