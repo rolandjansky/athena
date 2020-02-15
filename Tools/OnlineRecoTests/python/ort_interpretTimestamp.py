@@ -2,8 +2,14 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import os,sys,string,commands
+from __future__ import print_function
+
+import os,sys
 from datetime import datetime
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 
 def getFile(timestampfile):
@@ -12,7 +18,7 @@ def getFile(timestampfile):
     tsfArr = timestampfile.split("/")
     tmpstampfile = tsfArr[len(tsfArr)-1]
     cmd = "export http_proxy=\"http://atlasgw.cern.ch:3128/\"; wget -O %s %s" % (tmpstampfile,timestampfile)
-    s,o = commands.getstatusoutput(cmd)
+    s,o = subprocess.getstatusoutput(cmd)
     timestampfile = tmpstampfile
 
   ## file exists?
@@ -55,7 +61,7 @@ def interpretNewTimestamp(newtimestampfile,prvtimestampfile=""):
 
 def updatePreviousTimestamp(newtimestampfile,prvtimestampfile):
   cpcmd = "cp -f %s %s" % (getFile(newtimestampfile),prvtimestampfile)
-  s,o = commands.getstatusoutput(cpcmd)
+  s,o = subprocess.getstatusoutput(cpcmd)
   return s
 
 
