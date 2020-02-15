@@ -206,7 +206,10 @@ namespace std {
 template<>
 struct hash<Identifier>
 {
-  size_t operator()(const Identifier& id) const { return id.get_compact(); }
+  size_t operator()(const Identifier& id) const
+  {
+    return static_cast<size_t>(id.get_compact());
+  }
 };
 }
 

@@ -35,7 +35,10 @@ namespace std {
 template<>
 struct hash<HWIdentifier>
 {
-  size_t operator()(const HWIdentifier& id) const { return id.get_compact(); }
+  size_t operator()(const HWIdentifier& id) const
+  {
+    return static_cast<size_t>(id.get_compact());
+  }
 };
 }
 
