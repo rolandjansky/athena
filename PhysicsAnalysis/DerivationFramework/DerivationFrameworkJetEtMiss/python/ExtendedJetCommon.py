@@ -279,10 +279,12 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb', suffix = 
     calibtoolname = 'DFJetCalib_'+jetalg
     jetaugtool = getJetAugmentationTool(jetalg, suffix)
 
+    rhoKey = 'auto'
     if '_BTagging' in jetalg:
         jetalg_basename = jetalg[:jetalg.find('_BTagging')]
     elif 'PFlowCustomVtx' in jetalg:
         jetalg_basename = 'AntiKt4EMPFlow'
+        rhoKey = 'Kt4PFlowCustomVtxEventShape'
     else:
         jetalg_basename = jetalg
             
@@ -322,6 +324,8 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb', suffix = 
         if isMC and isAF2:
             configdict['AntiKt4EMTopo'] = ('JES_MC15Prerecommendation_AFII_June2015_rel21.config',
                                            'JetArea_Residual_EtaJES_GSC')
+            configdict['AntiKt4EMPFlow'] = ('JES_MC16Recommendation_AFII_PFlow_Apr2019_Rel21.config',
+                                            'JetArea_Residual_EtaJES_GSC_Smear')
 
         config,calibseq = configdict[jetalg_basename]
 
@@ -332,6 +336,7 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb', suffix = 
         calibtool = CfgMgr.JetCalibrationTool(
             calibtoolname,
             JetCollection=jetalg_basename,
+            RhoKey=rhoKey,
             ConfigFile=config,
             CalibSequence=calibseq,
             IsData=isdata
