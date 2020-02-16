@@ -32,6 +32,15 @@ def getHLTMenuFileName( flags=None ):
     hltMenuFileName = hltMenuFileName.replace("_newJO","")
     return hltMenuFileName
 
+# L1 Prescales set json file name
+def getL1PrescalesSetFileName( flags=None ):
+    if flags is None:
+        from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
+        l1PrescalesSetFileName = 'L1PrescalesSet_'+tf.triggerMenuSetup()+'_'+tf.menuVersion()+'.json'
+    else:
+        l1PrescalesSetFileName = 'L1PrescalesSet_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
+    return l1PrescalesSetFileName
+
 
 # HLT Prescales set json file name
 def getHLTPrescalesSetFileName( flags=None ):
@@ -42,10 +51,34 @@ def getHLTPrescalesSetFileName( flags=None ):
         hltPrescalesSetFileName = 'HLTPrescalesSet_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
     return hltPrescalesSetFileName
 
+# Creates an L1 Prescale file from the menu
+# this is a temporary solution, in the final version the L1PrescalesSet file should come from the menu
+def createL1PrescalesFileFromMenu( flags=None ):
+    log = logging.getLogger('TrigConfigSvcCfg')
+    menuFN = getL1MenuFileName( flags )
+    with open(menuFN,'r') as fh:
+        data = json.load(fh)
+        pso = odict()
+        pso['filetype'] = 'l1prescale'
+        pso['name'] = data['name']
+        pso['cutValues'] = odict()
+        ps = pso['cutValues']
+        for name, item in sorted(data['items'].items()):
+            ps[name] = odict([
+                ("cut", 1),
+                ("enabled", True),
+                ("info", "prescale: 1")
+            ])
+    psFN = getL1PrescalesSetFileName( flags )
+    with open(psFN, 'w') as outfile:
+        json.dump(pso, outfile, indent = 4)
+        log.info("Generated default L1 prescale set %s", outfile.name)
+
 
 # Creates an HLT Prescale file from the menu
 # this is a temporary solution, in the final version the HLTPrescalesSet file should come from the menu
 def createHLTPrescalesFileFromMenu( flags=None ):
+    log = logging.getLogger('TrigConfigSvcCfg')
     menuFN = getHLTMenuFileName( flags )
     with open(menuFN,'r') as fh:
         data = json.load(fh)
@@ -60,11 +93,13 @@ def createHLTPrescalesFileFromMenu( flags=None ):
                 ("name", chName),
                 ("counter", ch['counter']),
                 ("hash", ch['nameHash']),
-                ("prescale", 1)
+                ("prescale", 1),
+                ("enabled", 1)
             ])
     psFN = getHLTPrescalesSetFileName( flags )
     with open(psFN, 'w') as outfile:
         json.dump(pso, outfile, indent = 4)
+        log.info("Generated default HLT prescale set %s", outfile.name)
 
 
 def getTrigConfigFromFlag( flags=None ):
@@ -189,12 +224,15 @@ def setupHLTPrescaleCondAlg( flags = None ):
 
     if tc["source"] == "COOL":
         if flags is None: # old style config
-            from AthenaCommon.AlgSequence import AthSequencer
-            condSequence = AthSequencer("AthCondSeq")
-            condSequence += hltPrescaleCondAlg
             from IOVDbSvc.CondDB import conddb
             conddb.addFolder( "TRIGGER", getHLTPrescaleFolderName(), className="AthenaAttributeList" )
             log.info("Adding folder %s to conddb", getHLTPrescaleFolderName() )
+    # add the hltPrescaleCondAlg to condseq
+    if flags is None: # old style config
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSequence = AthSequencer("AthCondSeq")
+        condSequence += hltPrescaleCondAlg
+        log.info("Adding HLTPrescaleCondAlg to AthCondSeq")
     return hltPrescaleCondAlg
 
 
