@@ -18,28 +18,57 @@ from BTagging.JetCollectionToTrainingMaps import preTagDL2JetToTrainingMap,postT
 preTagDL2JetToTrainingMap[CustomPFJetContainerName]  = preTagDL2JetToTrainingMap['AntiKt4EMPFlow']
 postTagDL2JetToTrainingMap[CustomPFJetContainerName] = postTagDL2JetToTrainingMap['AntiKt4EMPFlow']
 
+# Also creating a custom JetTrackVtxAssociation to be used for the custom pflow jets
+if hasattr(ToolSvc,'jetrun') and hasattr(ToolSvc,'tvassoc'):
+    tvassocCustom = getattr(ToolSvc,'tvassoc').clone('tvassocCustom')
+    tvassocCustom.VertexContainer = HggVertexContainerName
+    tvassocCustom.TrackVertexAssociation = 'JetTrackVtxAssocCustom'
+    ToolSvc += tvassocCustom
+    getattr(ToolSvc,'jetrun').Tools.append(tvassocCustom)
+
 # Build custom pflow jets
 addConstModJets("AntiKt", 0.4, "PFlow", [], HIGG1D1Seq, "HIGG1D1Jets", customVxColl=SuffixForHggCollection, ptmin=5000, ptminFilter=10000, ghostArea=0.01, calibOpt="arj:pflow")
 topSequence += defineEDAlg(0.4,"PFlowCustomVtx")
 
 # Augment PFlow fJVT (+Jvt)
-getPFlowfJVT(jetalg=CustomPFJetContainerName,algname="JetForwardPFlowCustomVtxHggJvtToolAlg",sequence=HIGG1D1Seq,primaryVertexCont="HggPrimaryVertices",overlapLabel="passOR")
+getPFlowfJVT(jetalg=CustomPFJetContainerName,algname="JetForwardPFlowCustomVtxHggJvtToolAlg",sequence=HIGG1D1Seq,primaryVertexCont=HggVertexContainerName,overlapLabel="passOR")
 
 # Updating jet moments
 customJetTool = getattr(ToolSvc,CustomPFJetContainerName+'Jets')
 customJetTool.unlock()
-newList = []
+newModList = []
 for cjm in customJetTool.JetModifiers:
     cjmName = cjm.getName()
-    if cjmName in ['trksummoms','jvf','jvt','jetorigin_setpv']:
+    if cjmName in ['trkmoms','trksummoms','jvf','jvt','jetorigin_setpv']:
         print 'HIGG1D1.py Updating jet moments, cloning the tool',cjmName
         nt = getattr(ToolSvc,cjmName).clone(cjmName+'Custom')
         nt.VertexContainer = HggVertexContainerName
+        if cjmName in ['trkmoms','trksummoms','jvf']:
+            nt.TrackVertexAssociation = 'JetTrackVtxAssocCustom'
         ToolSvc += nt
-        newList.append(nt)
+        newModList.append(nt)
     else:
-        newList.append(cjm)
-customJetTool.JetModifiers = newList
+        newModList.append(cjm)
+customJetTool.JetModifiers = newModList
+
+
+# What about gtrackget, trackget and ConstitModPFlowCustomVtx_CHSHgg ?
+# trackget --> probably for real track jets ==> do not care ?
+# ConstitModPFlowCustomVtx_CHSHgg --> trackvertex association probably not used by default
+# gtrackget : so used to associate track to jet in pflow jet building (a priori would not be needed. but we want the track before the pflow alg is run)
+newGetList = []
+for pgt in customJetTool.PseudoJetGetters:
+    pgtName = pgt.getName()
+    if pgtName == 'gtrackget':
+        print 'HIGG1D1.py Updating jet getter, cloning the tool',cjmName
+        nt = getattr(ToolSvc,pgtName).clone(pgtName+'Custom')
+        nt.TrackVertexAssociation = 'JetTrackVtxAssocCustom'
+        ToolSvc += nt
+        newGetList.append(nt)
+    else:
+        newGetList.append(pgt)
+customJetTool.PseudoJetGetters = newGetList
+
 
 # Recomputing the track IP with respect to the Hgg vertex; keep the same prefix as the AODFix one, because it is hardcoded for DL2 purpose
 from BTagging.BTaggingConf import Analysis__BTagTrackAugmenterAlg
@@ -82,3 +111,4 @@ for empfbttN in ['thisBTagSecVertexing_AntiKt4EMPFlow','myBTagTool_AntiKt4EMPFlo
                     svtxTHList.append(ToolSvc.NewJetFitterVxFinder_AODFix)
             empfbtt.SecVtxFinderList = svtxTHList
                 
+
