@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Core configuration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -60,7 +60,7 @@ if __name__=="__main__":
     
     cfg.printConfig(withDetails = True, summariseProps = True)
               
-    f=open("MuonReconstruction.pkl","w")
+    f=open("MuonReconstruction.pkl","wb")
     cfg.store(f)
     f.close()
     
