@@ -10,9 +10,10 @@
 #include <cmath>
 #include <vector>
 
+static const InterfaceID IID_INSWCalibTool("Muon::INSWCalibTool",1,0);
 
 namespace Muon {
-  static const InterfaceID IID_INSWCalibTool("Muon::INSWCalibTool",1,0);
+
   class MM_RawData;
 
   class INSWCalibTool : virtual public IAlgTool {

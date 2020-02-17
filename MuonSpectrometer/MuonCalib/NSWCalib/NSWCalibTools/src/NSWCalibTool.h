@@ -24,10 +24,7 @@
 #include "TF1.h"
 #include <vector>
 
-class MM_RawDataCollection;
-
 namespace Muon {
-  class IMuonRawDataProviderTool;
 
   class NSWCalibTool : virtual public INSWCalibTool, public AthAlgTool {
 
