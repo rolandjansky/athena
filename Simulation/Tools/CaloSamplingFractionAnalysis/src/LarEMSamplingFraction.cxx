@@ -434,15 +434,6 @@ StatusCode LarEMSamplingFraction::execute()
   ATH_MSG_INFO( "Read "<<hitnumber<<" G4Hits from TileHitVec");
  }
 
-
-
-
-
-
-
-
-
-	
 	for(auto& cell:cell_info_map) {
     m_cell_identifier                   ->push_back(cell.second.cell_identifier);
     m_cell_sampling                     ->push_back(cell.second.cell_sampling);

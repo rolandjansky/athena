@@ -12,12 +12,6 @@ void LarEMSamplingFraction_barrel()
   new TCanvas("ELAr_hit_barrel","ELAr_hit_barrel");
   mytree->Draw("(energy_hit[0]+energy_hit[1]+energy_hit[2]+energy_hit[3])");
 
-  //new TCanvas("SF","SF");
-  //mytree->Draw("Sum$(energy_active_total)/Sum$(energy_active_total+energy_inactive_total):mc_eta>>SF(14,0,1.4,20,0.15,0.25)","","colz");
-
-  //new TCanvas("LAr_barrel","LAr_barrel");
-  //mytree->Draw("(energy_active_total[0]+energy_active_total[1]+energy_active_total[2]+energy_active_total[3]):mc_eta>>LAr_barrel(56,0,1.4,50,7000,12000)","","colz");
-
   TCanvas* c;
   c=new TCanvas("SF_LAr_barrel_calibhit","SF_LAr_barrel_calibhit");
   mytree->Draw("(energy_active_total[0]+energy_active_total[1]+energy_active_total[2]+energy_active_total[3])/(energy_active_total[0]+energy_active_total[1]+energy_active_total[2]+energy_active_total[3]+energy_inactive_total[0]+energy_inactive_total[1]+energy_inactive_total[2]+energy_inactive_total[3]):mc_eta>>SF_LAr_barrel_calibhit(56,0,1.4,140,0.18,0.25)","","colz");
@@ -33,7 +27,7 @@ void LarEMSamplingFraction_barrel()
   c->SetGridy();
   
   c=new TCanvas("SF_LAr_barrel","SF_LAr_barrel");
-  mytree->Draw("(energy_hit[0]+energy_hit[1]+energy_hit[2]+energy_hit[3])/(energy_active_total[0]+energy_active_total[1]+energy_active_total[2]+energy_active_total[3]+energy_inactive_total[0]+energy_inactive_total[1]+energy_inactive_total[2]+energy_inactive_total[3]):mc_eta>>SF_LAr_barrel(56,0,1.4,140,0.16,0.23)","","colz",1000);
+  mytree->Draw("(energy_hit[0]+energy_hit[1]+energy_hit[2]+energy_hit[3])/(energy_active_total[0]+energy_active_total[1]+energy_active_total[2]+energy_active_total[3]+energy_inactive_total[0]+energy_inactive_total[1]+energy_inactive_total[2]+energy_inactive_total[3]):mc_eta>>SF_LAr_barrel(56,0,1.4,140,0.16,0.23)","","colz");
   TH2* SF_LAr_barrel=(TH2*)gDirectory->Get("SF_LAr_barrel");
   SF_LAr_barrel->SetStats(0);
   SF_LAr_barrel->SetTitle("Sampling fraction LAr EM barrel");
@@ -57,7 +51,7 @@ void LarEMSamplingFraction_barrel()
     TF1* func=(TF1*)res->At(i);
     TString text=Form("%4.2f < #eta < %4.2f = %7.5f +- %7.5f",func->GetXmin(),func->GetXmax(),func->GetParameter(0),func->GetParError(0));
     //cout<<"i="<<i<<" "<<res->At(i)->ClassName()<<" : "<<res->At(i)->GetName()<<endl;
-    cout<<"Sampling fraction : "<<text<<endl;
+    std::cout<<"Sampling fraction : "<<text<<std::endl;
     pt->AddText(text);
   }
   
