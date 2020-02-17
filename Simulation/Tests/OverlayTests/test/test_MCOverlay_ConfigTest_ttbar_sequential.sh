@@ -1,11 +1,10 @@
 #!/bin/sh
 
-# art-description: MC+data Overlay with MT support, running with 8 threads, new config
+# art-description: MC+MC Overlay with MT support, running sequentially, new config
 # art-type: grid
-# art-athena-mt: 8
 # art-include: master/Athena
 
-# art-output: dataOverlayRDO.pool.root
+# art-output: mcOverlayRDO.pool.root
 # art-output: log.*
 # art-output: mem.summary.*
 # art-output: mem.full.*
@@ -15,7 +14,7 @@
 
 set -o pipefail
 
-OverlayTest.py -d -n 100 -t 8 2>&1 | tee log.OverlayTest
+OverlayTest.py -n 10 -t 0 2>&1 | tee log.OverlayTest
 
 rc=$?
 echo "art-result: $rc overlay"
