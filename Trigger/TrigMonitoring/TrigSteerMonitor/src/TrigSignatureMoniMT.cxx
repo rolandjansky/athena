@@ -51,11 +51,15 @@ StatusCode TrigSignatureMoniMT::start() {
     }
 
     if( gotL1Menu && !chain.l1item().empty() ) {
-      TrigConf::L1Item item = l1MenuHandle->item(chain.l1item());
-      for ( const std::string & group : item.bunchgroups() ) {
-        if ( group != "BGRP0" ) {
-          m_chainIDToBunchMap[HLT::Identifier(chain.name())].insert(group);
-        }
+      try {
+	TrigConf::L1Item item = l1MenuHandle->item(chain.l1item());
+	for ( const std::string & group : item.bunchgroups() ) {
+	  if ( group != "BGRP0" ) {
+	    m_chainIDToBunchMap[HLT::Identifier(chain.name())].insert(group);
+	  }
+	}
+      } catch(...) {
+	ATH_MSG_WARNING("The item " << chain.l1item() << " is not part of the L1 menu" );
       }
     }
   }
