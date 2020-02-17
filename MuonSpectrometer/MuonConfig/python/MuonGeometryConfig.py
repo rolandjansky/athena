@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -124,7 +124,7 @@ def MuonGeoModelCfg(flags):
     detTool.CachingFlag = 1
 
     if enableAlignment:
-        from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
+        MuonDetectorCondAlg = CompFactory.MuonDetectorCondAlg
         MuonDetectorManagerCond = MuonDetectorCondAlg()
         MuonDetectorManagerCond.MuonDetectorTool = detTool
         acc.addCondAlgo(MuonDetectorManagerCond)
