@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 ## @file   TrigPSCPythonSetup.py
@@ -76,7 +76,7 @@ else:
    del logLevel
 
    from AthenaCommon.Logging import logging
-   log = logging.getLogger('TrigPSCPythonSetup')
+   psclog = logging.getLogger('TrigPSCPythonSetup')
 
    ## file inclusion and tracing
    from AthenaCommon.Include import IncludeError, include
@@ -198,13 +198,14 @@ else:
          jocat = cPickle.load(f)   # basic job properties
          jocfg = cPickle.load(f)   # some specialized services
          jocat.update(jocfg)       # merge the two dictionaries
-         log.info('Dumping joboptions to "%s.json"', fname)
+         psclog.info('Dumping joboptions to "%s.json"', fname)
          create_joboptions_json(jocat, fname+".json")
 
       if PscConfig.exitAfterDump:
          theApp.exit(0)
+   else:
+      # storeJobOptionsCatalogue calls setup() itself, so we only need it here
+      theApp.setup()
 
-   del log
-
-   ### setup everything ---------------------------------------------------------
-   theApp.setup()
+   ### Cleanup
+   del psclog
