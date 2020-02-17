@@ -65,12 +65,11 @@ StatusCode topoEgammaBuilder::initialize()
   }
 
   if ( m_doElectrons && m_doPhotons ){
-    ATH_MSG_INFO("<<<<<<<< Retrieving ambiguity tool <<<<<<<<<");
+    ATH_MSG_DEBUG("Retrieving ambiguity tool");
     if (not m_ambiguityTool.isSet()) {
-      ATH_MSG_INFO("<<<<<<< Ambiguity tool IS NOT set");
+      ATH_MSG_DEBUG("Ambiguity tool IS NOT set. Not using it");
     }
     else { 
-      ATH_MSG_INFO("<<<<<<< Ambituity tool is SET");
       ATH_CHECK( m_ambiguityTool.retrieve() );
     }
   }
