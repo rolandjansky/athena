@@ -1,17 +1,14 @@
 """Define methods to construct configured TRT Digitization tools and algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-TRTDigitizationTool, TRTDigitization=CompFactory.getComps("TRTDigitizationTool","TRTDigitization",)
 from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_XeToolCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_ArToolCfg
 from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_KrToolCfg
-PileUpXingFolder=CompFactory.PileUpXingFolder
-PartPropSvc=CompFactory.PartPropSvc
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
@@ -34,6 +31,7 @@ def TRT_RangeCfg(flags, name="TRTRange", **kwargs):
     kwargs.setdefault("LastXing", TRT_LastXing())
     kwargs.setdefault("CacheRefreshFrequency", 1.0) #default 0 no dataproxy reset
     kwargs.setdefault("ItemList", ["TRTUncompressedHitCollection#TRTUncompressedHits"])
+    PileUpXingFolder = CompFactory.PileUpXingFolder
     return PileUpXingFolder(name, **kwargs)
 
 
@@ -41,6 +39,7 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     """Return ComponentAccumulator with common TRT digitization tool config"""
     acc = TRT_GeometryCfg(flags)
     acc.merge(MagneticFieldSvcCfg(flags))
+    PartPropSvc = CompFactory.PartPropSvc
     acc.addService(PartPropSvc(InputFile="PDGTABLE.MeV"))
     if flags.Detector.Overlay and not flags.Input.isMC:
         acc.merge(addFolders(flags, "/TRT/Cond/DigVers", "TRT_OFL", tag="TRTCondDigVers-Collisions-01", db="OFLP200"))
@@ -61,6 +60,7 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", TRT_FirstXing())
         kwargs.setdefault("LastXing", TRT_LastXing())
+    TRTDigitizationTool = CompFactory.TRTDigitizationTool
     tool = TRTDigitizationTool(name, **kwargs)
     acc.setPrivateTools(tool)
     return acc
@@ -157,6 +157,7 @@ def TRT_OverlayDigitizationBasicCfg(flags, **kwargs):
     if flags.Concurrency.NumThreads > 0:
         kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
 
+    TRTDigitization = CompFactory.TRTDigitization
     acc.addEventAlgo(TRTDigitization(name="TRT_OverlayDigitization", **kwargs))
     return acc
 
