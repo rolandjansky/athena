@@ -36,6 +36,8 @@ _preInclude="\
 HITtoRDO:Digitization/ForceUseOfAlgorithms.py,\
 SimulationJobOptions/preInclude.LArOnlyConfig.py,\
 SimulationJobOptions/preInclude.PixelOnlyConfig.py,\
+SimulationJobOptions/preInclude.SCTOnlyConfig.py,\
+SimulationJobOptions/preInclude.TRTOnlyConfig.py,\
 SimulationJobOptions/preInclude.TruthOnlyConfig.py\
 "
 
