@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# art-description: Run athenaHLT to test preloaded partition running
+# art-description: PhysicsP1_pp_run3_v1 menu athenaHLT test imitating partition with preloaded data at P1
 # art-type: build
 # art-include: master/Athena
 
@@ -36,12 +36,21 @@ ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = ''
 ex.explicit_input = True
-ex.args = '-f ./raw._0001.data -C "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.HltEventLoopMgr.forceRunNumber=%d; ServiceMgr.HltEventLoopMgr.forceStartOfRunTime=%d" -R 999999 --sor-time=now --detector-mask=all' % (run, sor)
+ex.args = '-f ./raw._0001.data'
+ex.args += ' -c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
+ex.args += ' -C "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.HltEventLoopMgr.forceRunNumber=%d; ServiceMgr.HltEventLoopMgr.forceStartOfRunTime=%d"' % (run, sor)
+ex.args += ' -R 999999 --sor-time=now --detector-mask=all'
+ex.args += ' -M --dump-config'  # For SMK generation
+ex.perfmon = False  # Cannot use PerfMon with -M
 
 test = Test.Test()
 test.art_type = 'build'
 test.exec_steps = [ex_rm, ex_bs, ex]
 test.check_steps = CheckSteps.default_check_steps(test)
+
+# Overwrite default histogram file name for checks
+for step in [test.get_step(name) for name in ['HistCount', 'RootComp', 'ChainDump']]:
+  step.input_file = 'r0000999999_athenaHLT_HLT-Histogramming.root'
 
 import sys
 sys.exit(test.run())
