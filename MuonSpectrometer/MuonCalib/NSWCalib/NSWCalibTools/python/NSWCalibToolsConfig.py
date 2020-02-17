@@ -10,4 +10,5 @@ def MMCalibSmearingTool(name="MMCalibSmearingTool",extraFlags=None,**kwargs):
 def STgcCalibSmearingTool(name="STgcCalibSmearingTool",extraFlags=None,**kwargs):
     return CfgMgr.Muon__NSWCalibSmearingTool(name,**kwargs)
 
-
+def NSWCalibTool(name="NSWCalibTool",extraFlags=None,**kwargs):
+    return CfgMgr.Muon__NSWCalibTool(name,**kwargs)

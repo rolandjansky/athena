@@ -12,7 +12,7 @@ Muon::NSWCalibTool::NSWCalibTool(const std::string& t,
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_magFieldSvc("AtlasFieldSvc",n)
 {
-  declareInterface<Muon::INSWCalibTool>(this);
+  declareInterface<INSWCalibTool>(this);
 
   declareProperty("MagFieldSvc",   m_magFieldSvc, "Magnetic Field Service");
   declareProperty("DriftVelocity", m_vDrift = 47., "Drift Velocity");
@@ -23,6 +23,7 @@ Muon::NSWCalibTool::NSWCalibTool(const std::string& t,
 
 StatusCode Muon::NSWCalibTool::initialize()
 {
+
   ATH_MSG_DEBUG("In initialize()");
   ATH_CHECK(m_magFieldSvc.retrieve());
   // initialize the MuonIdHelperTool and check the configuration
@@ -36,6 +37,7 @@ StatusCode Muon::NSWCalibTool::initialize()
    m_lorentzAngleFunction->SetParameters(0,58.87, -2.983, -10.62, 2.818);
 
   return StatusCode::SUCCESS;
+
 }
 
 StatusCode Muon::NSWCalibTool::calibrate( const Muon::MM_RawData* mmRawData, const Amg::Vector3D& globalPos, double& dist_drift, double& distRes_drift, double& calib_charge)

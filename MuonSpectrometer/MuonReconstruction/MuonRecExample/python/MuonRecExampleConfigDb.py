@@ -104,7 +104,7 @@ addTool( "Muon::MuonTruthSummaryTool","MuonTruthSummaryTool")
 
 addTool( "Muon::MuonClusterizationTool","MuonClusterizationTool" )
 
-addTool( "Muon::NSWCalibTool", "NSWCalibTool")
+addTool( "NSWCalibTools.NSWCalibToolsConfig.NSWCalibTool","NSWCalibTool" )
 
 # Set some Muon Properties in the global ResidualPullCalculator
 # Those values should be in the C++ defaults really
