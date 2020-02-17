@@ -173,15 +173,19 @@ StatusCode MuonPerformanceAlg::execute()
 
   for (const auto truthMu: *TruthMuons){
     MuonLink link;
-    if( truthMu->pt() < 2000. || fabs(truthMu->eta()) > 2.5 ) continue;
     const int& theType   = truthMu->auxdata<int>("truthType");
     const int& theOrigin = truthMu->auxdata<int>("truthOrigin");
+    ATH_MSG_VERBOSE("Truth muon: pt " << truthMu->pt() << " eta " << truthMu->eta() );
+    ATH_MSG_VERBOSE("first loop: type "<< theType << " origin " << theOrigin );
+    if( truthMu->pt() < 2000. || fabs(truthMu->eta()) > 2.8 ) continue;
+    if(fabs(truthMu->eta()) > 2.5) ATH_MSG_VERBOSE(" SA |eta| > 2.5 muon with truth prec layers " << (int) truthMu->auxdata<uint8_t>("nprecLayers"));
+    
+    if(fabs(truthMu->eta()) > 2.5&& (int) truthMu->auxdata<uint8_t>("nprecLayers") <2 ) continue;
     if( theType != 6 && theType != 7 ) continue;
     if( theOrigin == 0 || theOrigin > 17 ) continue;
-    ATH_MSG_VERBOSE("first loop: type "<< theType << " origin " << theOrigin );
     bool insideID = false;
     if( fabs(truthMu->eta()) < 2.0 ) insideID = true;
-    ATH_MSG_VERBOSE("Truth muon: pt " << truthMu->pt() << " eta " << truthMu->eta() );
+    ATH_MSG_VERBOSE("Accepted Truth muon: pt " << truthMu->pt() << " eta " << truthMu->eta() );
 
     if(!insideID) m_ntruth[0]+=1;
     if(!insideID) m_ntruth[8]+=1;
@@ -208,18 +212,19 @@ StatusCode MuonPerformanceAlg::execute()
       if(insideID) for(int n=7; n<11; n++) m_ntruth10[n]+=1;
     } 
 
-    if( truthMu->isAvailable< MuonLink >("recoMuonLink") ) link = truthMu->auxdata< MuonLink >("recoMuonLink");
-    else {
-      ATH_MSG_VERBOSE("No muon found for " << "pt " << truthMu->pt() << " eta " << truthMu->eta() << " precisionHits " << truthMu->auxdata<uint8_t>("nprecLayers") );
-      print(" Muon not found  by CaloTag and Calolikelihood ",  truthMu );
-      print(" Muon not found by MuidSA ", truthMu);
-      print(" Muon not found by MuTagIMO ", truthMu);
-      print(" Muon not found by MuGirl ", truthMu); 
-      print(" Muon not found by MuidCo ", truthMu);
-      print(" Combined Muon not found ", truthMu);
-    }
-    ATH_MSG_VERBOSE(" link " << link.isValid() );
-    if( link.isValid() ){
+    if( truthMu->isAvailable< MuonLink >("recoMuonLink") ) {
+       link = truthMu->auxdata< MuonLink >("recoMuonLink");
+//    } else {
+//      ATH_MSG_VERBOSE("No muon found for " << "pt " << truthMu->pt() << " eta " << truthMu->eta() << " precisionHits " << truthMu->auxdata<uint8_t>("nprecLayers") );
+//      print(" Muon not found  by CaloTag and Calolikelihood ",  truthMu );
+//      print(" Muon not found by MuidSA ", truthMu);
+//      print(" Muon not found by MuTagIMO ", truthMu);
+//      print(" Muon not found by MuGirl ", truthMu); 
+//      print(" Muon not found by MuidCo ", truthMu);
+//      print(" Combined Muon not found ", truthMu);
+//    }
+     ATH_MSG_VERBOSE(" link " << link.isValid() );
+     if( link.isValid() ){
         bool loose = false;
         bool medium = false;
         bool tight = false;
@@ -347,15 +352,16 @@ StatusCode MuonPerformanceAlg::execute()
             if(truthMu->pt() > 10000.) m_nfound10[8]+=1;
           } else if(!medium) print(" Muon not found by Tight endcap ", truthMu);
         }
-    } else {
-      print(" No link Muon not found  by CaloTag and Calolikelihood ",  truthMu );
-      print(" No link Muon not found by MuidSA ", truthMu);
-      print(" No link Muon not found by MuTagIMO ", truthMu);
-      print(" No link Muon not found by MuGirl ", truthMu); 
-      print(" No link Muon not found by MuidCo ", truthMu);
-      print(" No link Combined Muon not found ", truthMu);
-    }
-
+     } else {
+       print(" No link Muon not found  by CaloTag and Calolikelihood ",  truthMu );
+       print(" No link Muon not found by MuidSA ", truthMu);
+       print(" No link Muon not found by MuTagIMO ", truthMu);
+       print(" No link Muon not found by MuGirl ", truthMu); 
+       print(" No link Muon not found by MuidCo ", truthMu);
+       print(" No link Combined Muon not found ", truthMu);
+     }
+    } // end valid link
+  }
 
     for (const auto truthMu: *TruthMuons){
       MuonLink link;
@@ -364,14 +370,14 @@ StatusCode MuonPerformanceAlg::execute()
       const int& theOrigin = truthMu->auxdata<int>("truthOrigin");
       if( theType != 6 && theType != 7 ) continue;
       if( theOrigin == 0 || theOrigin > 17 ) continue;
+      if(fabs(truthMu->eta()) > 2.5&& (int) truthMu->auxdata<uint8_t>("nprecLayers") <2 ) continue;
       bool insideID = false;
-      if( truthMu->isAvailable< MuonLink >("recoMuonLink") ) link = truthMu->auxdata< MuonLink >("recoMuonLink");
-      else {
-      }
-      if( link.isValid() ){
+      if( truthMu->isAvailable< MuonLink >("recoMuonLink") ) {
+        link = truthMu->auxdata< MuonLink >("recoMuonLink");
+       if( link.isValid() ){
 	const xAOD::TrackParticle* tp  = (*link)->primaryTrackParticle();
         if(tp) {
-	  if( (*link)->pt() < 2000. || fabs((*link)->eta()) > 2.5 ) continue;
+	  if( (*link)->pt() < 2000. || fabs((*link)->eta()) > 2.8 ) continue;
 	  if( fabs((*link)->eta()) < 2.0 ) insideID = true;
           bool loose = false;
           bool medium = false;
@@ -449,9 +455,9 @@ StatusCode MuonPerformanceAlg::execute()
 	      if(tight) m_nfoundr10[8]+=1;
             }
 	  }
-          
         } else ATH_MSG_VERBOSE("No Track particle found on recoMuonLink");
-      }
+       } // not valid muonLink
+      } // no muonLink
     }
 
 
@@ -464,7 +470,7 @@ StatusCode MuonPerformanceAlg::execute()
     ATH_MSG_VERBOSE("Retrieved muons " << Muons->size());
 
     for(const auto mu : *Muons){
-      if( mu->pt() < 2000. || fabs(mu->eta()) > 2.5 ) continue;
+      if( mu->pt() < 2000. || fabs(mu->eta()) > 2.8 ) continue;
       const xAOD::TrackParticle* tp  = mu->primaryTrackParticle();
 
       if(tp) {
@@ -575,7 +581,7 @@ StatusCode MuonPerformanceAlg::execute()
         }
       }
     }
-  }       
+        
 
   return StatusCode::SUCCESS;
   
