@@ -303,7 +303,7 @@ bool MuonTrackPerformanceAlg::goodTruthTrack( const Muon::IMuonTrackTruthTool::T
     if( trackRecord->GetMomentum().mag() < m_momentumCutSim ) return false; 
   }
   if( !selectPdg(trackRecord->GetPDGCode()) ) return false;
-  if( m_isCombined && fabs(trackRecord->GetMomentum().eta()) > 2.5 ) return false;
+  if( m_isCombined && fabs(trackRecord->GetMomentum().eta()) > 2.8 ) return false;
   int hits = entry.mdtHits.size();
   if(m_idHelperSvc->hasCSC()) hits += entry.cscHits.size();
   if(m_idHelperSvc->hasMM()) hits += entry.mmHits.size();

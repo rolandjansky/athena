@@ -10,6 +10,10 @@
 # art-output: mem.summary.*
 # art-output: mem.full.*
 # art-output: runargs.*
+# art-output: *.pkl
+# art-output: *Config.txt
+
+set -o pipefail
 
 events=2
 
@@ -33,6 +37,7 @@ Overlay_tf.py \
 --conditionsTag OFLCOND-MC16-SDR-20 \
 --geometryVersion ATLAS-R2-2016-01-00-01 \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False);' \
+--postExec 'job+=CfgMgr.JobOptsDumperAlg(FileName="OverlayLegacyConfig.txt");' \
 --preInclude 'Overlay:SimulationJobOptions/preInclude.SCTOnlyConfig.py,SimulationJobOptions/preInclude.TruthOnlyConfig.py' \
 --imf False
 
@@ -43,7 +48,7 @@ mv log.Overlay log.OverlayLegacy
 rc2=-9999
 if [ $rc -eq 0 ]
 then
-    OverlayTest.py SCT -t 0 -n $events 2>&1 | tee log.OverlayTest
+    OverlayTest.py SCT -t 1 -n $events 2>&1 | tee log.OverlayTest
     rc2=$?
 fi
 echo  "art-result: $rc2 configNew"

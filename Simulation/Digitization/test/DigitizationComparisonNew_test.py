@@ -59,8 +59,8 @@ acc.merge(writeDigitizationMetadata(ConfigFlags))
 # Inner Detector
 # acc.merge(BCM_DigitizationCfg(ConfigFlags))
 acc.merge(PixelDigitizationCfg(ConfigFlags))
-# acc.merge(SCT_DigitizationCfg(ConfigFlags))
-# acc.merge(TRT_DigitizationCfg(ConfigFlags))
+acc.merge(SCT_DigitizationCfg(ConfigFlags))
+acc.merge(TRT_DigitizationCfg(ConfigFlags))
 
 # Calorimeter
 acc.merge(LArTriggerDigitizationCfg(ConfigFlags))
@@ -83,6 +83,8 @@ acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList.remove("xAOD::EventAuxInfo
 # Calorimeter truth output from DigiOutput.py#0082
 acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["CaloCalibrationHitContainer#*"]
 acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["TileHitVector#MBTSHits"]
+# FIXME hack to match in random seed
+acc.getSequence("AthAlgSeq").StandardPileUpToolsAlg.PileUpTools["TRTDigitizationTool"].RandomSeedOffset = 170
 
 # Dump config
 acc.getService("StoreGateSvc").Dump = True

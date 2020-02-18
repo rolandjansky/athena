@@ -31,7 +31,7 @@
 class ISvcLocator;
 template <class TYPE> class SvcFactory;
 
-class AthDictLoaderSvc
+class ATLAS_CHECK_THREAD_SAFETY AthDictLoaderSvc
   : virtual public ::IDictLoaderSvc,
             public ::AthService
 { 

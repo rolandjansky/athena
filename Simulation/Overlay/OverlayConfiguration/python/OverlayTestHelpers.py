@@ -60,6 +60,7 @@ def setupOverlayTestDetectorFlags(configFlags, detectors):
 def defaultTestFlags(configFlags, args):
     """Fill default overlay flags for testing"""
     configFlags.GeoModel.Align.Dynamic = False
+    configFlags.Digitization.DoInnerDetectorNoise = False
     if args.data:
         configFlags.Input.isMC = False  # TODO: this one should be autodetected
         configFlags.Input.Files = defaultTestFiles.HITS_DATA_OVERLAY
