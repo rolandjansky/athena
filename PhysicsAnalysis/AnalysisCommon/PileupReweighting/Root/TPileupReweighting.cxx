@@ -1910,7 +1910,7 @@ void CP::TPileupReweighting::normalizeHistogram(TH1* hist){
                   bin = hist->GetBin(binx,biny,binz);
                   Double_t value = hist->GetBinContent(bin);
                   Double_t normalizer = proj->GetBinContent(binx);
-                  if(fabs(normalizer)>0.00001) {
+                  if(normalizer!=0.0) {
                      hist->SetBinContent(bin,value/normalizer);
                   } else {
                      skipNorm=true;
@@ -1922,7 +1922,7 @@ void CP::TPileupReweighting::normalizeHistogram(TH1* hist){
          if(skipNorm && m_debugging) Warning("normalizeHistogram","Skipped normalization in hist %s",hist->GetName());
       } else {
          //normalize to the sum of weights 
-         if(fabs(hist->GetSumOfWeights())>0.000000001) {
+         if(hist->GetSumOfWeights()!=0.0) {
             hist->Scale(1.0/hist->GetSumOfWeights());
          } else {
             if (m_debugging) Warning("normalizeHistogram","Skipping Normalizing histogram %s to ~zero: %f",hist->GetName(),hist->GetSumOfWeights());
