@@ -358,7 +358,13 @@ namespace Muon {
 
 	//interleave the phi hits
 	std::vector<const Trk::MeasurementBase*> vec2;
-        unsigned int netas = (*sit)->numberOfContainedROTs();
+	std::vector<const Trk::RIO_OnTrack*> etaHits;
+	for(unsigned int irot=0;irot<(*sit)->numberOfContainedROTs();irot++){
+	  const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>((*sit)->rioOnTrack(irot));
+	  if( rot ) etaHits.push_back(rot);
+	}
+        unsigned int netas = etaHits.size();
+	ATH_MSG_DEBUG("got "<<netas<<" eta hits and "<<etaHitsRedone.size()<<" redone eta hits");
         bool useEtaHitsRedone = false;
         if(etaHitsRedone.size()>netas) {
           ATH_MSG_VERBOSE(" Found additional eta hits " << etaHitsRedone.size() - netas);
@@ -371,6 +377,7 @@ namespace Muon {
 	// pseudo measurement for vtx
 	Trk::PseudoMeasurementOnTrack* pseudoVtx = nullptr;
 	if(m_ipConstraint) {
+	  ATH_MSG_DEBUG("add pseudo vertex");
 	  double errVtx = 100.;
 	  Amg::MatrixX covVtx(1,1);
 	  covVtx(0,0) = errVtx*errVtx;
@@ -379,20 +386,19 @@ namespace Muon {
 	  pseudoVtx = new Trk::PseudoMeasurementOnTrack(Trk::LocalParameters( Trk::DefinedParameter(0,Trk::locX) ), covVtx,perVtx);
 	  vec2.push_back(pseudoVtx);
 	}
-
 	unsigned int iEta(0),iPhi(0);
 	ATH_MSG_VERBOSE( "There are " << (*sit)->numberOfContainedROTs() << " & " << phiHits.size() << " eta and phi hits" );
 	while(true) {
 	  float phiZ(999999.),etaZ(999999.);
 	  if(iPhi < phiHits.size()) phiZ = fabs(phiHits[iPhi]->globalPosition().z());
-	  if(iEta < (*sit)->numberOfContainedROTs()) etaZ = fabs((*sit)->rioOnTrack(iEta)->globalPosition().z());
+	  if(iEta < etaHits.size()) etaZ = fabs(etaHits[iEta]->globalPosition().z());
 	  if( phiZ < etaZ ) {
 	    vec2.push_back(phiHits[iPhi]);
 	    iPhi++;
 	  }
 	  else {
 	    if(!useEtaHitsRedone) {
-              vec2.push_back((*sit)->rioOnTrack(iEta));
+              vec2.push_back(etaHits[iEta]);
             } else {
               vec2.push_back(etaHitsRedone[iEta]);
             }
