@@ -14,25 +14,10 @@
 namespace asg {
 
    template< class T >
-   Property* AsgTool::declareProperty( const std::string& name, T& loc,
-                                       const std::string& ) {
-
-      // Declare the property using the property manager:
-      return m_ppropmgr->declareProperty( name, loc );
-   }
-
-   template< class T >
-   StatusCode AsgTool::setProperty( const std::string& name, const T& val ) {
-
-      // Set the property using the property manager:
-      return m_ppropmgr->setProperty( name, val );
-   }
-
-   template< class T >
    const T* AsgTool::getProperty( const std::string& name ) const {
 
       // Get the property object (if it exists):
-      const Property* prop = m_ppropmgr->getProperty( name );
+      const Property* prop = m_properties->getProperty( name );
       if( ! prop ) {
          ATH_MSG_WARNING( "Property with name \"" << name << "\" not found" );
          return 0;

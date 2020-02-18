@@ -16,8 +16,6 @@
 #   include "AsgTools/AsgComponent.h"
 #   include "AsgTools/SgTEvent.h"
    // Forward declaration(s):
-   class Property;
-   class PropertyMgr;
 #else // XAOD_STANDALONE
 #   include "AthenaBaseComps/AthAlgTool.h"
 #endif // XAOD_STANDALONE
@@ -62,18 +60,6 @@ namespace asg {
 
       /// @name Property management functions
       /// @{
-
-      /// Declare a tool property in standalone mode
-      template< class T >
-      Property* declareProperty( const std::string& name, T& loc,
-                                 const std::string& doc = "" );
-
-      /// Set a string property in standalone mode
-      StatusCode setProperty( const std::string& name,
-                              const char* value );
-      /// Set a property in standalone mode
-      template< class T >
-      StatusCode setProperty( const std::string& name, const T& val );
 
       /// Get a non-constant pointer to the property manager
       PropertyMgr* getPropertyMgr();
@@ -123,7 +109,6 @@ namespace asg {
 
    private:
 #ifdef XAOD_STANDALONE
-      PropertyMgr* m_ppropmgr; ///< Standalone property manager
       mutable SgTEvent m_event; ///< Wrapper around TEvent/TStore
 #endif // XAOD_STANDALONE
 
