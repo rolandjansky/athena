@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,7 +38,7 @@ RODHeaderCollection * RODHeaderCollectionCnv::createTransient()
   if( compareClassGuid( tlp1_guid ) )     
     {
      // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr< RODHeaderCollection_PERS > pers_ref( poolReadObject< RODHeaderCollection_PERS >() );
+      std::unique_ptr< RODHeaderCollection_PERS > pers_ref( poolReadObject< RODHeaderCollection_PERS >() );
       p_collection = m_TPConverter_tlp1.createTransient( pers_ref.get(), mlog );
    
     }else  throw std::runtime_error( "Unsupported persistent version of RODHeaderCollection" );
