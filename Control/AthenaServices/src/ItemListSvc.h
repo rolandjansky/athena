@@ -51,7 +51,7 @@ namespace item {
   };
 }
 
-class ItemListSvc : public extends<AthService, IItemListSvc>
+class ATLAS_CHECK_THREAD_SAFETY ItemListSvc : public extends<AthService, IItemListSvc>
 { 
 
 public: 
