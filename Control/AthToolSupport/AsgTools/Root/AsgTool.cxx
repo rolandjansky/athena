@@ -69,11 +69,11 @@ namespace asg {
 #ifndef XAOD_STANDALONE
                     getType(name), getName(name), getParent(name)
 #else // not XAOD_STANDALONE
-                    this
+                    name
 #endif // not XAOD_STANDALONE
                     )
 #ifdef XAOD_STANDALONE
-      , m_name( name ), m_ppropmgr( new PropertyMgr() ), m_event()
+      , m_ppropmgr( new PropertyMgr() ), m_event()
 #endif // XAOD_STANDALONE
    {
 #ifdef XAOD_STANDALONE
@@ -122,11 +122,6 @@ namespace asg {
    const PropertyMgr* AsgTool::getPropertyMgr() const {
 
       return m_ppropmgr;
-   }
-
-   const std::string& AsgTool::name() const {
-
-      return m_name;
    }
 
    void AsgTool::setName( const std::string& name ) {

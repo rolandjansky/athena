@@ -44,8 +44,7 @@ namespace EL
 #endif
                 )
 #ifdef XAOD_STANDALONE
-    : AsgMessaging (name)
-    , m_name (name)
+    : AsgComponent (name)
     , m_properties (new PropertyMgr)
     , m_inputMetaStore  (asg::SgTEventMeta::InputStore, nullptr)
     , m_outputMetaStore (asg::SgTEventMeta::OutputStore, nullptr)
@@ -443,14 +442,6 @@ namespace EL
   hasBeginInputFile () const noexcept
   {
     return m_hasBeginInputFile;
-  }
-
-
-
-  const std::string& AnaAlgorithm ::
-  name () const
-  {
-    return m_name;
   }
 #endif
 

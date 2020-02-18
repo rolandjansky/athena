@@ -13,6 +13,7 @@
 // Environment specific include(s):
 #ifdef XAOD_STANDALONE
 #   include "AsgMessaging/AsgMessaging.h"
+#   include "AsgTools/AsgComponent.h"
 #   include "AsgTools/SgTEvent.h"
    // Forward declaration(s):
    class Property;
@@ -28,7 +29,7 @@ namespace asg {
 #ifndef XAOD_STANDALONE
    typedef ::AthAlgTool AsgToolBase;
 #else // not XAOD_STANDALONE
-   typedef AsgMessaging AsgToolBase;
+   typedef AsgComponent AsgToolBase;
 #endif // not XAOD_STANDALONE
 
    /// Base class for the dual-use tool implementation classes
@@ -84,8 +85,6 @@ namespace asg {
       /// @name Tool name handling functions
       /// @{
 
-      /// Return the name of the tool
-      virtual const std::string& name() const;
       /// Set the name of the tool
       virtual void setName( const std::string& name );
 
@@ -124,7 +123,6 @@ namespace asg {
 
    private:
 #ifdef XAOD_STANDALONE
-      std::string m_name; ///< The name of the tool instance
       PropertyMgr* m_ppropmgr; ///< Standalone property manager
       mutable SgTEvent m_event; ///< Wrapper around TEvent/TStore
 #endif // XAOD_STANDALONE

@@ -13,7 +13,7 @@
 #include <AnaAlgorithm/Global.h>
 
 #ifdef XAOD_STANDALONE
-#include <AsgTools/AsgMessaging.h>
+#include <AsgTools/AsgComponent.h>
 #include <AsgTools/SgTEvent.h>
 #include <AsgTools/SgTEventMeta.h>
 #include <memory>
@@ -75,7 +75,7 @@ namespace EL
 
   class AnaAlgorithm
 #ifdef XAOD_STANDALONE
-    : public asg::AsgMessaging, public INamedInterface
+    : public asg::AsgComponent
 #else
     : public AthHistogramAlgorithm, virtual public IIncidentListener
 #endif
@@ -491,26 +491,10 @@ namespace EL
 #endif
 
 
-    //
-    // inherited interface
-    //
-
-#ifdef XAOD_STANDALONE
-  public:
-    virtual const std::string& name () const final;
-#endif
-
-
 
     //
     // private interface
     //
-
-#ifdef XAOD_STANDALONE
-    /// \brief the name of the algorithm
-  private:
-    std::string m_name;
-#endif
 
 #ifdef XAOD_STANDALONE
     /// \brief the property manager
