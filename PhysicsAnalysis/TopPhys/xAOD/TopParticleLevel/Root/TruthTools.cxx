@@ -22,15 +22,14 @@
 #include <functional>
 #include <iostream>
 
-#include "AsgTools/MessageCheck.h"
+#include "TopParticleLevel/MsgCategory.h"
+using namespace TopParticleLevel;
 
 namespace top {
   namespace truth {
     
     void getRecoMuonHistory(const xAOD::Muon* muon, bool doPartonHistory, bool verbose)
     {
-      using namespace asg::msgUserCode;
-      
       if(verbose) ATH_MSG_INFO("getRecoMuonHistory:: ---------------entering in function-----------------");
       if(!muon) return;
       
@@ -77,8 +76,6 @@ namespace top {
     ////getTruthMuonHistory/////
     void getTruthMuonHistory(const xAOD::TruthParticle* truthmu, bool doPartonHistory, bool verbose)
     {
-      using namespace asg::msgUserCode;
-      
       if(verbose)  ATH_MSG_INFO("getTruthMuonHistory:: entering in function");
       
       if(!truthmu && verbose) ATH_MSG_INFO("getTruthMuonHistory:: -> called on empty truth muon");
@@ -142,7 +139,7 @@ namespace top {
       if(verbose)
       {
         ATH_MSG_INFO("getTruthMuonHistory::---decay chain---");
-        if(truthmu) printDecayChain(truthmu);
+        if(truthmu) printDecayChain(truthmu, msg(MSG::Level::INFO));
         else ATH_MSG_INFO("getTruthMuonHistory::->not available");
         ATH_MSG_INFO("getTruthMuonHistory::LepParticleOriginFlag="<<static_cast<int>(lepParticleOriginFlag));
         if(truthmu) ATH_MSG_INFO("getTruthMuonHistory::-->truth muon pdgId="<<truthmu->pdgId()<<" barcode="<<truthmu->barcode()<<" pt="<<truthmu->pt());
@@ -177,8 +174,6 @@ namespace top {
     /////getTruthMuonPartonHistory/////
     top::LepPartonOriginFlag getTruthMuonPartonHistory(const xAOD::TruthParticle* truthmu, top::LepParticleOriginFlag lepParticleOriginFlag, const xAOD::TruthParticle* truthmu_mother, const xAOD::TruthParticle* truthmu_Bmother, const xAOD::TruthParticle* truthmu_Cmother,  const xAOD::TruthParticle* truthmu_DirectBosonMother, bool verbose)
     {
-      using namespace asg::msgUserCode;
-      
       const xAOD::TruthParticle* truthmu_PartonMother=0;
       const xAOD::TruthParticle* truthmu_TopMother=0;
       top::LepPartonOriginFlag lepPartonOriginFlag=top::LepPartonOriginFlag::Unknown;
@@ -333,8 +328,6 @@ namespace top {
     
     const xAOD::TruthParticle* getFirstNonLeptonParent(const xAOD::TruthParticle* truthPart, bool verbose)
     {
-      using namespace asg::msgUserCode;
-      
       if(!truthPart) return 0;
       
       const xAOD::TruthParticle* parent=getFirstDifferentParent(truthPart);
@@ -355,8 +348,6 @@ namespace top {
     
     const xAOD::TruthParticle* getFirstSpecificParent(const xAOD::TruthParticle* truthPart, int pdgId, bool absolute, bool verbose)
     {
-      using namespace asg::msgUserCode;
-      
       if(!truthPart) return 0;
       
       const xAOD::TruthParticle* parent=getFirstDifferentParent(truthPart);
@@ -384,8 +375,6 @@ namespace top {
     
     const xAOD::TruthParticle* getFirstParentAmongList(const xAOD::TruthParticle* truthPart, std::vector<int> &pdgIds, bool absolute, bool verbose)
     {
-      using namespace asg::msgUserCode;
-      
       if(!truthPart) return 0;
       
       const xAOD::TruthParticle* parent=getFirstDifferentParent(truthPart);
@@ -422,8 +411,6 @@ namespace top {
     
     const xAOD::TruthParticle* getFirstPartonParent(const xAOD::TruthParticle* truthPart, bool verbose)
     {
-      using namespace asg::msgUserCode;
-      
       if(!truthPart) return 0;
       
       const xAOD::TruthParticle* parent=getFirstDifferentParent(truthPart);
@@ -444,8 +431,6 @@ namespace top {
     
     const xAOD::TruthParticle* getFirstDifferentParentExcludingHadrons(const xAOD::TruthParticle* truthPart, int whichHadrons, bool verbose)
     {
-      using namespace asg::msgUserCode;
-      
       if(!truthPart) return 0;
       const xAOD::TruthParticle* parent=getFirstDifferentParent(truthPart);
       int niterations=0;
@@ -470,8 +455,6 @@ namespace top {
     
     const xAOD::TruthParticle* getFirstDifferentParent(const xAOD::TruthParticle* truthPart, bool verbose)
     {
-      using namespace asg::msgUserCode;
-      
       if(!truthPart)
       {
         ATH_MSG_WARNING(" called top::truth::getFirstDifferentParent on a null pointer");
@@ -828,9 +811,6 @@ namespace top {
              (bTauIsHadron && MC::PID::isTau(motherPdgId)))) {
           return false;
         }
-        // } else {
-        //     std::cout << "Mother is: " << motherPdgId << ", " << mother->status() << std::endl;
-        // }
 
         // If we allow chained matching (I.e. not only _direct_ decays) and
         // the mother particle does come from a hadron, return false

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/TreeManager.h"
@@ -7,6 +7,9 @@
 #include "TFile.h"
 
 #include <iostream>
+
+#include "TopEventSelectionTools/MsgCategory.h"
+using namespace TopEventSelectionTools;
 
 namespace top {
   TreeManager::TreeManager() :
@@ -35,7 +38,7 @@ namespace top {
   void TreeManager::initialize(const std::string& name, TFile* outputFile, const int nEventAutoFlush,
                                const int basketSizePrimitive, const int basketSizeVector) {
     if (m_tree) {
-      std::cerr << "Tried to call initialize, but tree is already created. Doing nothing." << std::endl;
+      ATH_MSG_WARNING("Tried to call initialize, but tree is already created. Doing nothing.");
       return;
     }
 

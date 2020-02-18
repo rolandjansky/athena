@@ -1,10 +1,13 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopObjectSelectionTools/MuonMC15.h"
 
 #include "TopEvent/EventTools.h"
+
+#include "TopObjectSelectionTools/MsgCategory.h"
+using namespace TopObjectSelectionTools;
 
 namespace top {
   MuonMC15::MuonMC15(const double ptcut, IsolationBase* isolation, const bool applyTTVACut) :
@@ -55,8 +58,8 @@ namespace top {
     // TTVA:
     // see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TrackingCPEOYE2015#Track_to_Vertex_Association
     if (!mu.isAvailable<float>("d0sig")) {
-      std::cout << "d0 significance not found for muon. "
-                << "Maybe no primary vertex? Won't accept." << std::endl;
+      ATH_MSG_WARNING("d0 significance not found for muon. "
+          << "Maybe no primary vertex? Won't accept.");
       return false;
     }
 
@@ -64,8 +67,8 @@ namespace top {
     if (std::abs(d0sig) >= 3) return false;
 
     if (!mu.isAvailable<float>("delta_z0_sintheta")) {
-      std::cout << "delta z0*sin(theta) not found for muon. "
-                << "Maybe no primary vertex? Won't accept." << std::endl;
+      ATH_MSG_WARNING("delta z0*sin(theta) not found for muon. "
+          << "Maybe no primary vertex? Won't accept.");
       return false;
     }
 

@@ -1181,7 +1181,7 @@ namespace top {
   }
 
   /**
-   * @brief Print all the SF values to cout
+   * @brief Print all the SF values to msg stream
    */
   void ScaleFactorRetriever::print(const top::Event& event) {
     ATH_MSG_INFO("ScaleFactors");

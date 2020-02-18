@@ -53,7 +53,7 @@ namespace top {
      *
      * Usually this goes to the log file, so you know what you ran with.
      *
-     * @param Where the print-out should go, e.g. cout.
+     * @param Where the print-out should go, e.g. msg stream.
      */
     virtual void print(std::ostream&) const override;
   protected:

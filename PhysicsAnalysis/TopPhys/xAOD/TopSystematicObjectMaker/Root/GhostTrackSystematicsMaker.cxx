@@ -333,7 +333,6 @@ namespace top {
 
     ///-- SMEARING --///
     for (const auto& syst : m_systs.smearing) {
-      //std::cout << "[A] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
       top::check(applySmearingSystematic(nominalJets, &(*m_tools.smearing), syst),
                  "Failure to apply GhostTrackSystematic");
     }
@@ -347,7 +346,6 @@ namespace top {
 
       top::check(biasingTool, "Failure to selected biasing tool");
       for (const auto& syst : m_systs.bias) {
-        //std::cout << "[B] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
         top::check(applyBiasingSystematic(nominalJets, biasingTool, syst),
                    "Failure to apply GhostTrackSystematic");
       }
@@ -364,7 +362,6 @@ namespace top {
 
       if (randomRunNumber == 0) {
         for (const auto& syst : m_systs.bias) {
-          //std::cout << "[B.1] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
           top::check(applyNoOpSystematic(nominalJets, syst),
                      "Failure to apply GhostTrackSystematic");
         }
@@ -382,7 +379,6 @@ namespace top {
         }
         top::check(biasingTool, "Failure to selected biasing tool");
         for (const auto& syst : m_systs.bias) {
-          //std::cout << "[B.2] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
           top::check(applyBiasingSystematic(nominalJets, biasingTool, syst),
                      "Failure to apply GhostTrackSystematic");
         }
@@ -391,14 +387,12 @@ namespace top {
 
     ///-- TRUTH FILTER --///
     for (const auto& syst : m_systs.truthFilter) {
-      //std::cout << "[C] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
       top::check(applyTruthFilterSystematic(nominalJets, &(*m_tools.truthFilter), syst),
                  "Failure to apply GhostTrackSystematic");
     }
 
     ///-- JET TRACK FILTER --///
     for (const auto& syst : m_systs.jetTrackFilter) {
-      //std::cout << "[D] SYSTEMATIC = " << m_config->systematicName(syst.hash()) << std::endl;
       top::check(applyJetTrackFilterSystematic(nominalJets, &(*m_tools.jetTrackFilter), syst),
                  "Failure to apply GhostTrackSystematic");
     }

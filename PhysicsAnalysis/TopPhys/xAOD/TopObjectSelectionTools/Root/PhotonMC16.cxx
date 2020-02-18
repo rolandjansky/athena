@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopObjectSelectionTools/PhotonMC16.h"
@@ -9,6 +9,9 @@
 #include <string>
 
 #include "TopEvent/EventTools.h"
+
+#include "TopObjectSelectionTools/MsgCategory.h"
+using namespace TopObjectSelectionTools;
 
 namespace top {
   PhotonMC16::PhotonMC16(double ptcut, double etamax, IsolationBase* isolation, bool usePhotonShowerShapeVariables) :
@@ -95,9 +98,7 @@ namespace top {
               || (ph.OQ() & 67108864) != 0))) return false;
       }
       catch (const SG::ExcBadAuxVar& e) {
-        std::cout <<
-        "WARNING - Didn't find the necessary photon shower shapes variables for photon cleaning! This might be a derivation issue, skipping from now on."
-                  << std::endl;
+        ATH_MSG_WARNING("Didn't find the necessary photon shower shapes variables for photon cleaning! This might be a derivation issue, skipping from now on.");
         m_usePhotonShowerShapeVariables = false;
       }
     }

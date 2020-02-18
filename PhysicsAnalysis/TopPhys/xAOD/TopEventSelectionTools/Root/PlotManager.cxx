@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "EventLoop/Worker.h"
@@ -70,12 +70,7 @@ namespace top {
       m_wk->addOutput(h);
     }
 
-    if (m_histograms.find(hname) != m_histograms.end()) {
-      std::cout << "ERROR: Running addHist with " << hname << std::endl;
-      std::cout << "but that histogram already exists" << std::endl;
-      std::cout << "will not continue" << std::endl;
-      exit(1);
-    }
+    checkDuplicate(hname);
 
     h->Sumw2();
     m_histograms.insert(make_pair(hname, h));
@@ -93,12 +88,7 @@ namespace top {
       m_wk->addOutput(h);
     }
 
-    if (m_histograms.find(hname) != m_histograms.end()) {
-      std::cout << "ERROR: Running addHist with " << hname << std::endl;
-      std::cout << "but that histogram already exists" << std::endl;
-      std::cout << "will not continue" << std::endl;
-      exit(1);
-    }
+    checkDuplicate(hname);
 
     h->Sumw2();
     m_histograms.insert(make_pair(hname, h));
@@ -122,12 +112,7 @@ namespace top {
       m_wk->addOutput(h);
     }
 
-    if (m_histograms.find(hname) != m_histograms.end()) {
-      std::cout << "ERROR: Running addHist with " << hname << std::endl;
-      std::cout << "but that histogram already exists" << std::endl;
-      std::cout << "will not continue" << std::endl;
-      exit(1);
-    }
+    checkDuplicate(hname);
 
     h->Sumw2();
     m_histograms.insert(make_pair(hname, h));
@@ -151,12 +136,7 @@ namespace top {
       m_wk->addOutput(h);
     }
 
-    if (m_histograms.find(hname) != m_histograms.end()) {
-      std::cout << "ERROR: Running addHist with " << hname << std::endl;
-      std::cout << "but that histogram already exists" << std::endl;
-      std::cout << "will not continue" << std::endl;
-      exit(1);
-    }
+    checkDuplicate(hname);
 
     h->Sumw2();
     m_histograms.insert(make_pair(hname, h));
@@ -164,8 +144,7 @@ namespace top {
 
   TH1* PlotManager::hist(const std::string& name) const {
     if (m_histograms.find(name) == m_histograms.end()) {
-      std::cout << "Histogram doesn\'t exist: " << name << std::endl;
-      exit(1);
+      throw std::runtime_error("PlotManager::hist: Histogram " + name + " does not exist.");
     }
 
     return m_histograms[name];
@@ -174,5 +153,11 @@ namespace top {
   void PlotManager::scaleHistograms(double sf) const {
     for (std::unordered_map<std::string, TH1*>::iterator it = begin(m_histograms); it != end(m_histograms); ++it)
       it->second->Scale(sf);
+  }
+
+  void PlotManager::checkDuplicate(const std::string& hname) const {
+    if (m_histograms.find(hname) != m_histograms.end()) {
+      throw std::runtime_error("PlotManager::addHist: Histogram " + hname + " to add already exists.");
+    }
   }
 }

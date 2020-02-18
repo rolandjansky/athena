@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/JetFtagEffPlots.h"
@@ -18,6 +18,9 @@
 
 // Systematic include(s):
 #include "PATInterfaces/SystematicSet.h"
+
+#include "TopEventSelectionTools/MsgCategory.h"
+using namespace TopEventSelectionTools;
 
 namespace top {
   const double JetFtagEffPlots::toGeV = 0.001;
@@ -115,7 +118,7 @@ namespace top {
     // No option were set, run only nominal
     if (!m_doNominal && !m_doMuRup && !m_doMuRdown && !m_doMuFup
         && !m_doMuFdown && !m_doVar3cup && !m_doVar3cdown && !m_doFSRup && !m_doFSRdown) {
-      std::cout << "No variation has been set. Assuming nominal." << std::endl;
+      ATH_MSG_INFO("No variation has been set. Assuming nominal.");
       m_doNominal = true;
     }
 

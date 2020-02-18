@@ -9,7 +9,7 @@
 
 namespace top {
 /**
- * @brief Print some information about the event to the screen using cout.
+ * @brief Print some information about the event to the screen.
  *
  * Prints the run number, event number, mu, and lists of 4-vectors for good
  * electrons, muons and jets and the event missing ET.
