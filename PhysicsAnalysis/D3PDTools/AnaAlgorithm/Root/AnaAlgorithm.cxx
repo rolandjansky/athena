@@ -45,7 +45,6 @@ namespace EL
                 )
 #ifdef XAOD_STANDALONE
     : AsgComponent (name)
-    , m_properties (new PropertyMgr)
     , m_inputMetaStore  (asg::SgTEventMeta::InputStore, nullptr)
     , m_outputMetaStore (asg::SgTEventMeta::OutputStore, nullptr)
 #else
@@ -55,7 +54,6 @@ namespace EL
 #endif
   {
 #ifdef XAOD_STANDALONE
-    msg().declarePropertyFor (*this);
     declareProperty ("RootStreamName", m_treeStreamName = "ANALYSIS",
                      "Name of the stream to put trees into");
 #endif

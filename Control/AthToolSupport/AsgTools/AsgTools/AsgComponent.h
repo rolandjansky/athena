@@ -2,6 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+/// \author Nils Krumnack
+
 #ifndef ASGTOOLS_ASGCOMPONENT_H
 #define ASGTOOLS_ASGCOMPONENT_H
 
@@ -13,6 +15,9 @@
 #include <AsgMessaging/AsgMessaging.h>
 #include <AsgMessaging/MessageCheck.h>
 #include <AsgMessaging/MsgLevel.h>
+
+class Property;
+class PropertyMgr;
 
 namespace asg
 {
@@ -47,6 +52,36 @@ namespace asg
 
 
     //
+    // properties interface
+    //
+
+    /// \brief declare an algorithm property
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    template<typename T> Property *
+    declareProperty (const std::string& name, T& loc,
+                     const std::string& doc = "");
+
+
+    /// \brief set a property with a given value
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II\n
+    ///   invalid property type
+    /// \{
+  public:
+    template<typename T> ::StatusCode
+    setProperty (const std::string& name, T&& value);
+    ::StatusCode setProperty (const std::string& name, const char *value);
+    /// \}
+
+
+
+    //
     // inherited interface
     //
 
@@ -60,13 +95,18 @@ namespace asg
     // private interface
     //
 
-    // for some reason AsgTool allows to set/override the tool name.
-    // this friend declaration allows that.
+    // for some reason AsgTool allows to set/override the tool name
+    // and be able to get properties/the property manager.  this
+    // friend declaration allows that.
     friend class AsgTool;
 
     /// \brief the name of the component
   private:
     std::string m_name;
+
+    /// \brief the property manager
+  private:
+    std::unique_ptr<PropertyMgr> m_properties;
   };
 }
 

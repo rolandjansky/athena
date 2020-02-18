@@ -31,11 +31,6 @@ class TH2;
 class TH3;
 class TTree;
 class ISvcLocator;
-#ifdef XAOD_STANDALONE
-class Property;
-class PropertyMgr;
-#else
-#endif
 
 namespace EL
 {
@@ -267,34 +262,6 @@ namespace EL
 
 
     //
-    // properties interface
-    //
-
-#ifdef XAOD_STANDALONE
-    /// \brief declare an algorithm property
-    /// \par Guarantee
-    ///   strong
-    /// \par Failures
-    ///   out of memory II
-  public:
-    template<typename T> Property *
-    declareProperty (const std::string& name, T& loc,
-                     const std::string& doc = "");
-
-    /// \brief set a property with a given value
-    /// \par Guarantee
-    ///   strong
-    /// \par Failures
-    ///   out of memory II\n
-    ///   invalid property type
-  public:
-    template<typename T> ::StatusCode
-    setProperty (const std::string& name, T&& value);
-#endif
-
-
-
-    //
     // virtual interface
     //
 
@@ -495,12 +462,6 @@ namespace EL
     //
     // private interface
     //
-
-#ifdef XAOD_STANDALONE
-    /// \brief the property manager
-  private:
-    std::unique_ptr<PropertyMgr> m_properties;
-#endif
 
 #ifdef XAOD_STANDALONE
     /// \brief the value of \ref evtStore

@@ -1,6 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+/// \author Nils Krumnack
 
 //
 // includes
@@ -18,7 +20,9 @@ namespace asg
   AsgComponent (const std::string& val_name)
     : AsgMessaging (this)
     , m_name (val_name)
+    , m_properties (new PropertyMgr)
   {
+    msg().declarePropertyFor (*this);
   }
 
 
@@ -26,6 +30,22 @@ namespace asg
   AsgComponent ::
   ~AsgComponent ()
   {
+  }
+
+
+
+  /// See the comments for PropertyMgr::setProperty to see why this
+  /// function specialisation is needed, and why it has this exact form.
+  ///
+  /// @param name The name of the string property to set
+  /// @param value The value of the string property to set
+  /// @returns <code>StatusCode::SUCCESS</code> if the call was successful,
+  ///          <code>StatusCode::FAILURE</code> otherwise
+  ///
+  StatusCode AsgComponent ::
+  setProperty (const std::string& name, const char *value)
+  {
+    return m_properties->setProperty (name, value);
   }
 
 

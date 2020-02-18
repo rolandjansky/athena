@@ -12,6 +12,7 @@
 // Local include(s):
 #include "AsgTools/IAsgTool.h"
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgComponent.h"
 #include "AsgTools/AsgMetadataTool.h"
 #include "AsgTools/ToolStore.h"
 
@@ -22,8 +23,7 @@
 
 // Helper macro for declaring the setProperty functions to the dictionary:
 #define SETPROPERTY_INSTAN( TYPE )                                            \
-   template StatusCode asg::AsgTool::setProperty< TYPE >( const std::string&, \
-                                                          const TYPE& )
+   template StatusCode asg::AsgComponent::setProperty< TYPE >( const std::string&, TYPE&& )
 
 // Declare all possible setProperty template instantiations to Reflex:
 SETPROPERTY_INSTAN( bool );
