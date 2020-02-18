@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <limits>
 #include "CxxUtils/features.h"
-#include <immintrin.h>
+#include "CxxUtils/vectorize.h"
 
 #if !defined(__GNUC__)
 #define __builtin_assume_aligned(X, N) X
@@ -17,33 +17,35 @@
 #endif
 #endif
 
+ATH_ENABLE_VECTORIZATION;
+
 namespace GSFUtils {
 /*
  * findMinimumIndex
- */
-/* Here we have 4 implementations
- * - Using AVX2 instructions
- * - using SSE4.1 / SSE2 instruction
- * - One "scalar"
- *-  One using STL
  *
+ * For FindMinimumIndex at x86_64 we have
+ * AVX2 and SSE versions
+ * These assume that the number of elements is a multiple
+ * of 8 and are to be used for sizeable inputs.
+ *
+ * We also provide a default "scalar" implementation
+ *
+ * FindMinimumSTL 
  * One of the issues we have see in that gcc8.3 and clang8 (02/2020)
  * optimise differently the STL version. See also
  * https://its.cern.ch/jira/projects/ATLASRECTS/issues/ATLASRECTS-5244
- * Ideally the "STL" version should work the same or better than
- * the "scalar" but seems to be slower in gcc
  *
- * The method FindMinimumIndex assumes that the number of elements is multiple
- * of 8.
+ * We also provide FindMinimumPair that returns the two smallest values
+ *
  */
 #if HAVE_FUNCTION_MULTIVERSIONING
+#if defined(__x86_64__)
+#include <immintrin.h>
 /*
  *
- * AVX2
- * list of AVX2 intrinsics used
- *
- *
- *  _mm256_set1_epi32
+ * AVX2 intrinsics used :
+ * 
+ * _mm256_set1_epi32
  *  Broadcast 32-bit integer a to all elements of dst. This intrinsic may generate the vpbroadcastd.
  *  https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm256_set1_epi32&expand=4657,4949
  *
@@ -111,19 +113,15 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
   }
   return minIndex;
 }
-
 /*
  * SSE
- *
  * SSE2 does not have a blend/select instruction.
  * Instruction describes in
  * https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm_b&expand=431,452&techs=SSE4_1
- *
  * We AND &
  * - a with the NOT of the mask
  * - b with the mask
- * The result is the OR
- *
+ * - The we OR the above 2
  */
 #if defined(__SSE4_1__)
 static const auto mm_blendv_epi8 = _mm_blendv_epi8;
@@ -136,7 +134,7 @@ SSE2_mm_blendv_epi8(__m128i a, __m128i b, __m128i mask)
 static const auto mm_blendv_epi8 = SSE2_mm_blendv_epi8;
 #endif /* on SSE4.1 vs SSE2 for the blend instructions*/
 /*
- * list of SSE intrinsics used
+ * SSE intrinsics used
  *
  *  _mm_set1_epi32
  *  Broadcast 32-bit integer a to all elements of dst.
@@ -219,10 +217,13 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
   }
   return minIndex;
 }
-/* Fall back to a simple scalar version*/
-__attribute__((target("default")))
+#endif //end of x86_64 versions
 
+
+/* Always fall back to a simple default version with no intrinsics */
+__attribute__((target("default")))
 #endif // HAVE_FUNCTION_MULTIVERSIONING
+
 int32_t
 findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
 {
@@ -251,6 +252,9 @@ findMinimumIndexSTL(const floatPtrRestrict distancesIn, const int n)
   return std::distance(array, std::min_element(array, array + n));
 }
 
+/*
+ * Find the index of the 2 smaller values
+ */ 
 std::pair<int32_t, int32_t>
 findMinimumIndexPair(const floatPtrRestrict distancesIn, const int n)
 {
