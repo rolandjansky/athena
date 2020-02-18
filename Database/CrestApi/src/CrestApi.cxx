@@ -869,6 +869,8 @@ namespace Crest {
     return respond;
   }
 
+// REQUEST METHODS
+
   void CrestClient::storePayload(const std::string& tag, uint64_t since, const std::string& js) {
     if (m_mode == FILESYSTEM_MODE) {
       storePayloadDump(tag, since, js);
@@ -876,10 +878,6 @@ namespace Crest {
     }
     storePayloadRequest(tag, since, js);
   }
-
-// REQUEST METHODS
-
-
 
 
   struct data {
@@ -959,6 +957,11 @@ namespace Crest {
 
       /* always cleanup */
       curl_easy_cleanup(curl);
+      curl_formfree(formpost);
+      curl_slist_free_all (headers);
+
+      curl_formfree(lastptr);      
+      curl_global_cleanup(); 
 
       return s;
     }
@@ -1027,6 +1030,10 @@ namespace Crest {
 
       /* always cleanup */
       curl_easy_cleanup(curl);
+      curl_slist_free_all (headers);
+      
+      curl_global_cleanup();
+
       return s;
     }
 
@@ -1240,6 +1247,12 @@ namespace Crest {
 
       // always cleanup
       curl_easy_cleanup(curl);
+      curl_formfree(formpost);
+      curl_slist_free_all (headers);
+
+      curl_formfree(lastptr);      
+      curl_global_cleanup();
+
       return s;
     }
     std::string mes = "CrestClient::storeBatchPayload";

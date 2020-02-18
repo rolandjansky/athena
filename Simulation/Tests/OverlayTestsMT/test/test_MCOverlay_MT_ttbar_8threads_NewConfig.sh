@@ -10,6 +10,10 @@
 # art-output: mem.summary.*
 # art-output: mem.full.*
 # art-output: runargs.*
+# art-output: *.pkl
+# art-output: *Config.txt
+
+set -o pipefail
 
 OverlayTest.py -n 100 -t 8 2>&1 | tee log.OverlayTest
 
