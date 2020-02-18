@@ -1,0 +1,12 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ASGTOOLS_ASGCOMPONENT_ICC
+#define ASGTOOLS_ASGCOMPONENT_ICC
+
+namespace asg
+{
+}
+
+#endif
