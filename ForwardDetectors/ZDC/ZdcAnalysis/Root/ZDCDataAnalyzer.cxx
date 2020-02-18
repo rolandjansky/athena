@@ -143,6 +143,12 @@ void ZDCDataAnalyzer::SetFitTimeMax(float tmax) {
   }
 }
 
+
+void ZDCDataAnalyzer::SetSaveFitFunc(bool save) {
+  ZDCPulseAnalyzer::SetSaveFitFunc(save);
+}
+
+
 void ZDCDataAnalyzer::SetTauT0Values(const ZDCModuleBoolArray& fixTau1, const ZDCModuleBoolArray& fixTau2,
                                      const ZDCModuleFloatArray& tau1, const ZDCModuleFloatArray& tau2,
                                      const ZDCModuleFloatArray& t0HG, const ZDCModuleFloatArray& t0LG)
