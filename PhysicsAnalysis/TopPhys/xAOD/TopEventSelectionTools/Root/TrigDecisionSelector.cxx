@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/TrigDecisionSelector.h"
@@ -14,11 +14,6 @@ namespace top {
     m_triggers = config->allTriggers_Tight(selectorName);
     for (auto s: config->allTriggers_Loose(selectorName))
       if (std::find(m_triggers.begin(), m_triggers.end(), s) == m_triggers.end()) m_triggers.push_back(s);
-
-    std::cout << "Triggers for selector = " << selectorName << std::endl;
-    for (auto s : m_triggers) {
-      std::cout << "--" << s << "--" << std::endl;
-    }
   }
 
   bool TrigDecisionSelector::apply(const top::Event& event) const {

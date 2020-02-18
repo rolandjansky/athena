@@ -187,7 +187,7 @@ namespace top {
  * @param filenames A vector of filenames to check.
  * @return The total yield for all files.
  */
-  unsigned int checkFiles(const std::vector<std::string>& filenames);
+  size_t checkFiles(const std::vector<std::string>& filenames);
 
 /**
  * @brief So that we can load external libraries with (1) extra event selection

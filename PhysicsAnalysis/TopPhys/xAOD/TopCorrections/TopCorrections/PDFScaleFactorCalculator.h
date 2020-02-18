@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef PDFSCALEFACTORCALCULATOR
@@ -62,9 +62,10 @@ namespace top {
      * variable.
      */
     void printAvailablePDFs() const {
-      std::cout << "List of available PDFs:" << std::endl;
+      ATH_MSG_INFO("List of available PDFs:");
       for (const std::string& pdfname : LHAPDF::availablePDFSets())
-        std::cout << "    " << pdfname << std::endl;
+        msg(MSG::Level::INFO) << "    " << pdfname << "\n";
+      msg(MSG::Level::INFO) << std::endl;
     }
 
   private:

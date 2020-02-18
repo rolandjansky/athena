@@ -15,6 +15,9 @@
 
 #include "TopConfiguration/Tokenize.h"
 
+#include "TopConfiguration/MsgCategory.h"
+using namespace TopConfiguration;
+
 namespace top {
   TopConfig::TopConfig() :
     // Prevent any more configuration
@@ -682,16 +685,12 @@ namespace top {
             }
           }
         } else {
-          std::cout <<
-            "WARNING: Could not parse derivation release from the file metadata. We cannot check that correct jet collection is used for b-tagging. You are on your own."
-                    << std::endl;
+          ATH_MSG_WARNING("Could not parse derivation release from the file metadata. We cannot check that correct jet collection is used for b-tagging. You are on your own.");
         }
         // try to parse the derivation release, we need the release number
       } catch (std::logic_error& e) {
-        std::cout << e.what() << std::endl;
-        std::cout <<
-          "WARNING: Could not obtain derivation release from the file metadata. We cannot check that correct jet collection is used for b-tagging. You are on your own."
-                  << std::endl;
+        ATH_MSG_WARNING(e.what());
+        ATH_MSG_WARNING("Could not obtain derivation release from the file metadata. We cannot check that correct jet collection is used for b-tagging. You are on your own.");
       }
     }
 
@@ -793,21 +792,21 @@ namespace top {
         try{
           auto simulatorName = m_aodMetaData->get("/Simulation/Parameters", "Simulator");
           bool aodMetaDataIsAFII = m_aodMetaData->isAFII();
-          std::cout << "AodMetaData :: Simulation Type " << simulatorName << " -> " << "Setting IsAFII to " <<
-            aodMetaDataIsAFII << std::endl;
+          ATH_MSG_INFO("AodMetaData :: Simulation Type " << simulatorName << " -> " << "Setting IsAFII to " <<
+            aodMetaDataIsAFII);
           this->setIsAFII(aodMetaDataIsAFII);
           auto generatorsName = m_aodMetaData->get("/TagInfo", "generators");
-          std::cout << "AodMetaData :: Generators Type " << generatorsName << std::endl;
+          ATH_MSG_INFO("AodMetaData :: Generators Type " << generatorsName);
           this->setGenerators(generatorsName);
           auto AMITagName = m_aodMetaData->get("/TagInfo", "AMITag");
-          std::cout << "AodMetaData :: AMITag " << AMITagName << std::endl;
+          ATH_MSG_INFO("AodMetaData :: AMITag " << AMITagName);
           this->setAMITag(AMITagName);
         }
         catch (const std::logic_error& aodMetaDataError) {
-          std::cout << "An error was encountered handling AodMetaData : " << aodMetaDataError.what() << std::endl;
-          std::cout << "We will attempt to read the IsAFII flag from your config." << std::endl;
+          ATH_MSG_WARNING("An error was encountered handling AodMetaData : " << aodMetaDataError.what());
+          ATH_MSG_WARNING("We will attempt to read the IsAFII flag from your config.");
           this->ReadIsAFII(settings);
-          std::cout << "Unfortunately, we can not read MC generators and AMITag without valid MetaData." << std::endl;
+          ATH_MSG_WARNING("Unfortunately, we can not read MC generators and AMITag without valid MetaData.");
           this->setGenerators("unknown");
           this->setAMITag("unknown");
         }
@@ -822,9 +821,7 @@ namespace top {
       tokenize(settings->value("FilterBranches"), branches, ",");
 
       if (branches.size() == 0) {
-        std::cout <<
-          "WARNING: You provided \"Filterbranches\" option but you did not provide any meaningful values. Ignoring" <<
-          std::endl;
+        ATH_MSG_WARNING("You provided \"Filterbranches\" option but you did not provide any meaningful values. Ignoring");
       }
       this->setFilterBranches(branches);
     }
@@ -929,7 +926,7 @@ namespace top {
     // SetAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround
     m_outputFileSetAutoFlushZero = false;
     if (settings->value("OutputFileSetAutoFlushZero") != "False") {
-      std::cout << "OutputFileSetAutoFlushZero is deprecated in favour of more custom memory options" << std::endl;
+      ATH_MSG_WARNING("OutputFileSetAutoFlushZero is deprecated in favour of more custom memory options");
     }
     // Configurable TTree options (ANALYSISTO-463)
     if (settings->value("OutputFileNEventAutoFlush") != "") {
@@ -1149,9 +1146,7 @@ namespace top {
     } else if (settings->value("StoreJetTruthLabels") == "True") {
       this->jetStoreTruthLabels(true);
     } else {
-      std::cout <<
-        "WARNING TopConfig::setConfigSettings: Unrecognized option for \"StoreJetTruthLabels\", assuming True" <<
-        std::endl;
+      ATH_MSG_WARNING("TopConfig::setConfigSettings: Unrecognized option for \"StoreJetTruthLabels\", assuming True");
       this->jetStoreTruthLabels(true);
     }
 
@@ -1220,9 +1215,8 @@ namespace top {
     if (settings->value("HLLHC") == "True") {
       this->HLLHC(true);
       if (settings->value("TDPPath").compare("dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data") == 0) {
-        std::cout << "TopConfig::setConfigSettings  HLLHC is set to True, but the TDPPath is set to default " <<
-          settings->value("TDPPath") << ". Changing to dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data" <<
-          std::endl;
+        ATH_MSG_WARNING("TopConfig::setConfigSettings  HLLHC is set to True, but the TDPPath is set to default " <<
+          settings->value("TDPPath") << ". Changing to dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data");
         this->setTDPPath("dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data");
       }
     }
@@ -1238,9 +1232,8 @@ namespace top {
     const std::string LHAPDFBase = settings->value("LHAPDFBaseSet");
     if (LHAPDFBase.find_first_not_of(' ') != std::string::npos) {
       // should only set one base PDF set
-      if (LHAPDFBase.find(' ') != std::string::npos) std::cout << "LHAPDFBaseSet: " << LHAPDFBase
-                                                               <<
-          " <<<<< only one PDF set allowed for recomputing XF1,XF2 !!!" << std::endl;
+      if (LHAPDFBase.find(' ') != std::string::npos)
+        ATH_MSG_WARNING("LHAPDFBaseSet: " << LHAPDFBase << " -- only one PDF set allowed for recomputing XF1,XF2 !!!");
       m_lhapdf_options.baseLHAPDF = LHAPDFBase;
     }
     // if not already present, add to the list of PDF sets
@@ -1308,21 +1301,19 @@ namespace top {
       } else if (btagAlg_btagWP.size() == 1) {
         tag = btagAlg_btagWP.at(0);
       } else {
-        std::cerr << "Error with btag ALGORITHM_NAME:WP. Incorrect format." << std::endl;
+        ATH_MSG_ERROR("Cannot parse b-tagging ALGORITHM_NAME:WP. Incorrect format.");
         continue;
       }
 
-      std::cout << "TopConfig ==========================================================> " << alg << ", " << tag <<
-        std::endl;
+      ATH_MSG_INFO("BTagging algorithm: " << alg << ", " << tag);
       std::string formatedWP = FormatedWP(tag);
       std::pair<std::string, std::string> alg_tag = std::make_pair(alg, tag);
       // take care that no WP is taken twice
       if (std::find(m_chosen_btaggingWP.begin(), m_chosen_btaggingWP.end(), alg_tag) == m_chosen_btaggingWP.end()) {
         m_chosen_btaggingWP.push_back(alg_tag);
-        std::cout << "chosen btag alg, WP  ===============================================> " << alg_tag.first <<
-          ", " << alg_tag.second << std::endl;
+        ATH_MSG_INFO("Chosen btag alg, WP: " << alg_tag.first << ", " << alg_tag.second);
       } else {
-        std::cout << "alg, WP " << alg_tag.first << " " << alg_tag.second << " already choosen" << std::endl;
+        ATH_MSG_INFO("alg, WP " << alg_tag.first << " " << alg_tag.second << " already choosen");
       }
     }
 
@@ -1451,9 +1442,9 @@ namespace top {
                 "TopConfig: can't convert provided PRW down Data SF into float"
         };
       }
-      std::cout << "Custom PRW scale-factors - nominal:" << SFs_tokens[0] << "=" << m_pileup_reweighting.custom_SF[0] <<
+      ATH_MSG_INFO("Custom PRW scale-factors - nominal:" << SFs_tokens[0] << "=" << m_pileup_reweighting.custom_SF[0] <<
         " up:" << SFs_tokens[1] << "=" << m_pileup_reweighting.custom_SF[1] << " down:" << SFs_tokens[2] << "=" <<
-        m_pileup_reweighting.custom_SF[2] << std::endl;
+        m_pileup_reweighting.custom_SF[2]);
     }
 
     if (m_pileup_reweighting.apply && settings->value("PRWPeriodAssignments") != " ") {
@@ -1891,7 +1882,7 @@ namespace top {
     if (isSystAll(syststr) || isSystNominal(syststr)) return true;
 
     if (syststr.find(" ") != std::string::npos) {
-      std::cout << "ERROR getSystematicsList: systematic string can't contain white spaces" << std::endl;
+      ATH_MSG_ERROR("getSystematicsList: systematic string can't contain white spaces");
       return false;
     }
 
@@ -2077,11 +2068,7 @@ namespace top {
   }
 
   void TopConfig::fixConfiguration() {
-    std::cout << std::endl;
-    std::cout << std::endl;
-    std::cout << "TopConfig::fixConfiguration()" << std::endl;
-    std::cout << std::endl;
-    std::cout << std::endl;
+    ATH_MSG_INFO("TopConfig::fixConfiguration()");
     // Prevent the user from changing anything
     // Yes, this is deliberate
     m_configFixed = true;
@@ -2925,7 +2912,7 @@ namespace top {
       index = (*Itr).second;
     }
     if (index == 99999) {
-      std::cout << "ttreeIndex is crazy, something has gone wrong with the hash value = " << hash << std::endl;
+      ATH_MSG_WARNING("ttreeIndex is crazy, something has gone wrong with the hash value = " << hash);
     }
     return index;
   }
@@ -2938,7 +2925,7 @@ namespace top {
       index = (*Itr).second;
     }
     if (index == 99999) {
-      std::cout << "ttreeIndex is crazy, something has gone wrong with the hash value = " << hash << std::endl;
+      ATH_MSG_WARNING("ttreeIndex is crazy, something has gone wrong with the hash value = " << hash);
     }
     return index;
   }

@@ -19,6 +19,9 @@
 // Systematic include(s):
 #include "PATInterfaces/SystematicSet.h"
 
+#include "TopEventSelectionTools/MsgCategory.h"
+using namespace TopEventSelectionTools;
+
 namespace top {
   const double JetFlavorPlots::toGeV = 0.001;
 
@@ -71,10 +74,7 @@ namespace top {
       else if (s == "radiationlow" || s == "RADIATIONLOW" || s == "RadiationLow" ||
                s == "radiationLow") m_doRadLow = true;
       else {
-        std::cout << "ERROR: Can't understand argument " << s << " for JETFLAVORPLOTS." << std::endl;
-        throw std::runtime_error {
-                "ERROR: Can't understand argument " + s + "For JETFLAVORPLOTS"
-        };
+        throw std::runtime_error("ERROR: Can't understand argument " + s + "For JETFLAVORPLOTS");
       }
     }
     //If neither nominal or radiation has been selected, assume it's nominal
@@ -98,13 +98,14 @@ namespace top {
     std::vector<double> etaBinning;
     formatBinning(m_ptBins, ptBinning);
     formatBinning(m_etaBins, etaBinning);
-    std::cout << "INFO: Here is the binning used for JETFLAVORPLOTS in selection " << name << ":" << std::endl;
-    std::cout << "pt: ";
-    for (auto pt:ptBinning) std::cout << pt << " ";
-    std::cout << std::endl;
-    std::cout << "abseta: ";
-    for (auto eta:etaBinning) std::cout << eta << " ";
-    std::cout << std::endl;
+    std::ostream& msgInfo = msg(MSG::Level::INFO);
+    msgInfo << "Here is the binning used for JETFLAVORPLOTS in selection " << name << ":\n";
+    msgInfo << "pt: ";
+    for (auto pt:ptBinning) msgInfo << pt << " ";
+    msgInfo << "\n";
+    msgInfo << "abseta: ";
+    for (auto eta:etaBinning) msgInfo << eta << " ";
+    msgInfo << std::endl;
 
     if (m_config->doTightEvents()) {
       if (m_doNominal) BookHistograms(m_hists, ptBinning, etaBinning);
@@ -256,7 +257,11 @@ namespace top {
       }
     }
 
-    if (throwWarning) std::cout << "Warning! Number of jets in the event is " << event.m_jets.size() << ", but histograms have been booked up to " << m_nJetsMax << ". Exclusive histograms in number of jets have not been filled.\n";
+    if (throwWarning){
+      ATH_MSG_WARNING("Warning! Number of jets in the event is " << event.m_jets.size()
+          << ", but histograms have been booked up to " << m_nJetsMax
+          << ". Exclusive histograms in number of jets have not been filled.\n");
+    }
   }
 
 // function to translate the binnings into vector of bin edges

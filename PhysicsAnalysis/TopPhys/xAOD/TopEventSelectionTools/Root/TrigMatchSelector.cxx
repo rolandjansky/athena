@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/TrigMatchSelector.h"
@@ -17,20 +17,6 @@ namespace top {
     m_electronTriggers_Loose = config->electronTriggers_Loose(selectorName);
     m_muonTriggers_Loose = config->muonTriggers_Loose(selectorName);
     m_tauTriggers_Loose = config->tauTriggers_Loose(selectorName);
-
-    std::cout << "Triggers Matching for selector = " << selectorName << std::endl;
-    for (auto s : m_electronTriggers_Tight)
-      std::cout << "--Electron Trigger (Tight) = " << s << "--" << std::endl;
-    for (auto s : m_muonTriggers_Tight)
-      std::cout << "--Muon Trigger (Tight) = " << s << "--" << std::endl;
-    for (auto s : m_tauTriggers_Tight)
-      std::cout << "--Tau Trigger (Tight) = " << s << "--" << std::endl;
-    for (auto s : m_electronTriggers_Loose)
-      std::cout << "--Electron Trigger (Loose) = " << s << "--" << std::endl;
-    for (auto s : m_muonTriggers_Loose)
-      std::cout << "--Muon Trigger (Loose) = " << s << "--" << std::endl;
-    for (auto s : m_tauTriggers_Loose)
-      std::cout << "--Tau Trigger (Loose) = " << s << "--" << std::endl;
   }
 
   bool TrigMatchSelector::apply(const top::Event& event) const {

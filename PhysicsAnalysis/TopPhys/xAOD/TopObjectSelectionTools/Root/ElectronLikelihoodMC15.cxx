@@ -1,11 +1,14 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopObjectSelectionTools/ElectronLikelihoodMC15.h"
 #include "TopEvent/EventTools.h"
 #include "ElectronPhotonSelectorTools/AsgElectronChargeIDSelectorTool.h"
 #include <iostream>
+
+#include "TopObjectSelectionTools/MsgCategory.h"
+using namespace TopObjectSelectionTools;
 
 namespace top {
   ElectronLikelihoodMC15::ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack,
@@ -119,15 +122,15 @@ namespace top {
     //WARNING: and this electron is vetoed from the selection
     try {
       if (el.auxdataConst<int>("DFCommonElectronsLHLoose") != 1) {
-        std::cerr << "This electron fails the DFCommonElectronsLHLoose and has an incorrect decoration." << std::endl;
-        std::cerr << " pt (" << el.pt() << "), eta (" << el.eta() << ")" << std::endl;
+        ATH_MSG_ERROR("This electron fails the DFCommonElectronsLHLoose and has an incorrect decoration.\n pt ("
+            << el.pt() << "), eta (" << el.eta() << ")");
         return false;
       }
     }
     catch (const SG::ExcAuxTypeMismatch& e) {
       if (el.auxdataConst<char>("DFCommonElectronsLHLoose") != 1) {
-        std::cerr << "This electron fails the DFCommonElectronsLHLoose and has an incorrect decoration." << std::endl;
-        std::cerr << " pt (" << el.pt() << "), eta (" << el.eta() << ")" << std::endl;
+        ATH_MSG_ERROR("This electron fails the DFCommonElectronsLHLoose and has an incorrect decoration.\n pt ("
+            << el.pt() << "), eta (" << el.eta() << ")");
         return false;
       }
     }
@@ -179,8 +182,7 @@ namespace top {
     // TTVA:
     // see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TrackingCPEOYE2015#Track_to_Vertex_Association
     if (!el.isAvailable<float>("d0sig")) {
-      std::cout << "d0 significance not found for electron. "
-                << "Maybe no primary vertex? Won't accept." << std::endl;
+      ATH_MSG_WARNING("d0 significance not found for electron. Maybe no primary vertex? Won't accept.");
       return false;
     }
 
@@ -188,8 +190,7 @@ namespace top {
     if (std::abs(d0sig) >= 5) return false;
 
     if (!el.isAvailable<float>("delta_z0_sintheta")) {
-      std::cout << "delta z0*sin(theta) not found for electron. "
-                << "Maybe no primary vertex? Won't accept." << std::endl;
+      ATH_MSG_WARNING("delta z0*sin(theta) not found for electron. Maybe no primary vertex? Won't accept.");
       return false;
     }
 

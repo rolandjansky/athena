@@ -65,10 +65,10 @@ namespace top {
  * Lots of the xAOD functions need checking to see if they work or not.  I guess
  * we take the approach that if it didn't work, we should not really try to
  * recover but just print a message and quit as soon as we can.  So, this will
- * either return nothing or quit your program.
+ * either return nothing or quit your program via exception.
  *
  * @param thingToCheck The thing to check.  If it's false then print the error
- * message and quit.
+ * message via std::runtime_error exception.
  */
   void check(bool thingToCheck, const std::string& usefulFailureMessage);
 

@@ -578,9 +578,7 @@ namespace top {
     std::ifstream input(filename.c_str());
 
     if (!input) {
-      std::cout << "Configuration file does not exist, " << filename << std::endl;
-      std::cout << "Can't continue" << std::endl;
-      exit(1);
+      throw std::runtime_error("Configuration file does not exist: " + filename);
     }
 
     struct SelectionData {
@@ -594,7 +592,6 @@ namespace top {
     //for the key-value pairs
     while (std::getline(input, line)) {
       std::string newstring(line);
-      //std::cout << newstring << '\n';
 
       if (newstring.find("#") != std::string::npos) newstring = newstring.substr(0, newstring.find("#"));
 
