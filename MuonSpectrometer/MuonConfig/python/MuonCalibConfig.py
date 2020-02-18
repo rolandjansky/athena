@@ -68,7 +68,6 @@ def _setupMdtCondDB(flags):
 # end of function setupMdtCondDB()
 
 def MdtCalibrationToolCfg(flags, **kwargs):
-    from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationTool    
     result=MdtCalibrationDbToolCfg(flags, **kwargs)
     mdt_calibibration_db_tool = result.getPrimary()
     
@@ -83,12 +82,12 @@ def MdtCalibrationToolCfg(flags, **kwargs):
     result.merge(acc)
     kwargs.setdefault("MagFieldSvc",  mag_field_svc )
     
+    MdtCalibrationTool = CompFactory.MdtCalibrationTool
     mdt_calibration_tool = MdtCalibrationTool(**kwargs)
     result.setPrivateTools(mdt_calibration_tool)
     return result
 
 def MdtCalibrationDbToolCfg(flags, **kwargs):
-    from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationDbTool    
     # We need the conditions objects to have been created.
     result = MdtCalibDbAlgCfg(flags, **kwargs)
         
@@ -96,6 +95,7 @@ def MdtCalibrationDbToolCfg(flags, **kwargs):
     kwargs.setdefault("CreateWireSagFunctions", flags.Muon.Calib.correctMdtRtWireSag)
     kwargs.setdefault("CreateSlewingFunctions", flags.Muon.Calib.correctMdtRtForTimeSlewing)
     
+    MdtCalibrationDbTool = CompFactory.MdtCalibrationDbTool
     mdt_calibration_db_tool = MdtCalibrationDbTool(**kwargs)
     result.setPrivateTools(mdt_calibration_db_tool)
     return result
