@@ -19,11 +19,18 @@ StatusCode JobOptsDumperAlg::initialize() {
   IJobOptionsSvc* p_jobOptionSvc;
   ATH_CHECK(service("JobOptionsSvc", p_jobOptionSvc));
 
+  std::vector<std::string> options;
   for (const std::string& compName :  p_jobOptionSvc->getClients()) {
     for (const auto& props:  *p_jobOptionSvc->getProperties(compName)) {
-      fout << compName << "." << props->name() << " = " << props->toString() << std::endl;
-    } 
-    fout << std::endl;
+      std::ostringstream os;
+      os << compName << "." << props->name() << " = " << props->toString() << std::endl;
+      options.emplace_back(os.str());
+    }
+  }
+
+  std::sort(options.begin(), options.end()); 
+  for (const std::string& opt : options) {
+    fout << opt << std::endl;
   }
   fout.close();
   return StatusCode::SUCCESS;
