@@ -41,7 +41,6 @@ from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDAOD_IDTIDEStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDTIDEStream )
 IDTIDE1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-IDTIDE1Stream.AcceptAlgs( accept_algs )
 
 #idtideSeq = CfgMgr.AthSequencer("IDTIDE1Sequence")
 #DerivationFrameworkJob += idtideSeq
@@ -314,6 +313,8 @@ if IsMonteCarlo:
   else :
     logger.info('IDPVM decorations to track particles already applied to input file not adding again.')
 
+# Set the accept algs for the stream
+IDTIDE1Stream.AcceptAlgs( accept_algs )
 
 #====================================================================
 # CONTENT LIST  
