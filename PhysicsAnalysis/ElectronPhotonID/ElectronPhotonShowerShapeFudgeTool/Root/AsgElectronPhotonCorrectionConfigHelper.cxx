@@ -73,6 +73,8 @@ std::vector<float> AsgConfigHelper::HelperFloat(const std::string& input,  TEnv&
 std::vector<int> AsgConfigHelper::HelperInt(const std::string& input, TEnv& env){
   return AsgConfigHelper::Helper<int> (input, env);  
 }
-
+std::vector<std::string> AsgConfigHelper::HelperString(const std::string& input, TEnv& env){
+  return AsgConfigHelper::Helper<std::string> (input, env);  
+}
 
 
