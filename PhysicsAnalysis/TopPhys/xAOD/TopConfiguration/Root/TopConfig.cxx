@@ -107,8 +107,9 @@ namespace top {
     m_doMCGeneratorWeights(false),
     m_doMCGeneratorWeightsInNominalTrees(false),
     m_nominalWeightNames(),
-    m_detectedNominalWeightName("SetMe"),
-    m_detectedNominalWeightIndex(0),
+    m_nominalWeightName("SetMe"),
+    m_nominalWeightIndex(-1),
+    m_MCweightsSize(-1),
     // Top Parton History
     m_doTopPartonHistory(false),
     m_isTopPartonHistoryRegisteredInNtuple(false),
@@ -735,6 +736,13 @@ namespace top {
       for (std::string &weight : m_nominalWeightNames) {
         boost::trim(weight);
         boost::trim_if(weight, boost::is_any_of("\"\'"));
+      }
+
+      try {
+        m_nominalWeightIndex = std::stoi(settings->value("NominalWeightFallbackIndex"));
+      } catch (std::invalid_argument &e) {
+        std::cout << "Failed to parse NominalWeightFallbackIndex value: " << settings->value("NominalWeightFallbackIndex") << std::endl;
+        throw;
       }
 
       // Save the Top Parton History

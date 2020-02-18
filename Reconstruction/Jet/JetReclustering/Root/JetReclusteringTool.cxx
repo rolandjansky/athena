@@ -106,6 +106,14 @@ JetReclusteringTool::JetReclusteringTool(std::string name) :
   declareProperty("GhostTruthBHadronsLabel",           m_ghostTruthBHadronsLabel = "");
   declareProperty("GhostTruthCHadronsInputContainer",  m_ghostTruthCHadronsInputContainer = "");
   declareProperty("GhostTruthCHadronsLabel",           m_ghostTruthCHadronsLabel = "");
+  declareProperty("GhostTruthTopQuarksInputContainer", m_ghostTruthTQuarksInputContainer = "");
+  declareProperty("GhostTruthTopQuarksLabel",          m_ghostTruthTQuarksLabel = "");
+  declareProperty("GhostTruthWBosonsInputContainer",   m_ghostTruthWBosonsInputContainer = "");
+  declareProperty("GhostTruthWBosonsLabel",            m_ghostTruthWBosonsLabel = "");
+  declareProperty("GhostTruthZBosonsInputContainer",   m_ghostTruthZBosonsInputContainer = "");
+  declareProperty("GhostTruthZBosonsLabel",            m_ghostTruthZBosonsLabel = "");
+  declareProperty("GhostTruthHBosonsInputContainer",   m_ghostTruthHBosonsInputContainer = "");
+  declareProperty("GhostTruthHBosonsLabel",            m_ghostTruthHBosonsLabel = "");
   declareProperty("GhostScale",                m_ghostScale = 1e-20);
 
 }

@@ -20,6 +20,7 @@
 #include "xAODRootAccess/TEvent.h"
 #else
 #include "POOLRootAccess/TEvent.h"
+#include "GaudiKernel/SmartIF.h"
 #endif
 
 // Boost for argument parsing
@@ -95,7 +96,7 @@ int main(int argc, char **argv) {
   }
   ANA_MSG_INFO("Using xAOD access");
 #else
-  auto app = std::unique_ptr<IAppMgrUI>(POOL::Init());
+  SmartIF<IAppMgrUI> app = POOL::Init();
   ANA_MSG_INFO("Using POOL access");
 #endif
 

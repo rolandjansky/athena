@@ -86,6 +86,17 @@ namespace top {
     return eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
   }
 
+  size_t MCweightsSize(TFile* inputFile, const std::string& eventInfoName) {
+    xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);
+    top::check(xaodEvent.readFrom(inputFile), "Tools::MCweightsSize Failed to read file in");
+
+    xaodEvent.getEntry(0);
+    const xAOD::EventInfo* eventInfo(0);
+    top::check(xaodEvent.retrieve(eventInfo, eventInfoName), "Tools::isFileSimulation Failed to get " + eventInfoName);
+
+    return eventInfo->mcEventWeights().size();
+  }
+
   bool isTruthDxAOD(TFile* inputFile) {
     TTree* metaData = dynamic_cast<TTree*> (inputFile->Get("MetaData"));
 
@@ -196,6 +207,44 @@ namespace top {
     }
 
     return rawEntries;
+  }
+
+  void renameCutBookkeepers(std::vector<std::string>& bookkeeper_names,
+      const std::vector<std::string>& pmg_weight_names) {
+
+    // prefix in the bookkeeper names to remove
+    static const std::string name_prefix = "AllExecutedEvents_NonNominalMCWeight_";
+
+    // check if we have more than one MC generator weight, in that case we have to do the renaming
+    if (pmg_weight_names.size() > 1) {
+      if (bookkeeper_names.size() != pmg_weight_names.size()) {
+        // The number of AllExecutedEvents_ bookkeepers does not match the number of weights retrieved by PMGTool
+        // we cannot match the bookkeepers to weights by indices in this case
+        throw std::runtime_error("ERROR: The number of CutBookkeepers does not match the number of MC generator weights in metadata! Cannot match nominal MC weight to nominal sum of weights!");
+      }
+
+      // rename the bookkeepers based on the weight names from PMGTool
+      // this names are then also written into the sumWeights TTree in output files
+      for (std::string &name : bookkeeper_names) {
+        if (name == "AllExecutedEvents") {
+          name = pmg_weight_names.at(0);
+        } else {
+          // erase "AllExecutedEvents_NonNominalMCWeight_" prefix
+          int index = std::stoi(name.erase(0, name_prefix.size()));
+          name = pmg_weight_names.at(index);
+        }
+      }
+    } else {
+      // expect only one MC weight in this sample, hence only one AllExecutedEvents* bookeeeper
+      if (bookkeeper_names.size() == 1) {
+        bookkeeper_names[0] = "nominal";
+      } else {
+        std::cout << "WARNING: PMGTruthWeightTool reports no extra MC generator weight variations, "
+          << "but this sample does not have exactly one AllExecutedEvents* bookkeeper!\n"
+          << "Expect trouble, because this means we can't guarantee that proper CutBookkeeper "
+          << "is used for the sum of weights!" << std::endl;
+      }
+    }
   }
 
   xAOD::TEvent::EAuxMode guessAccessMode(const std::string& filename, const std::string& electronCollectionName) {

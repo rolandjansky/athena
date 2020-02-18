@@ -517,7 +517,7 @@ namespace top {
             }
 
             ///-- Charge Mis ID --///
-            if (m_electronEffChargeID_exists) {
+            if (m_electronEffChargeMisID_exists) {
               ///-- Charge Mis ID STAT_UP --///
               top::check(m_electronEffSFChargeMisID->applySystematicVariation(
                            m_systChargeMisID_STAT_UP), "Failed to set systematic");
@@ -546,7 +546,7 @@ namespace top {
               top::check(m_electronEffSFChargeMisID->applySystematicVariation(m_systNominal),
                          "Failed to set systematic");
             }
-            if (m_electronEffChargeIDLoose_exists) {
+            if (m_electronEffChargeMisIDLoose_exists) {
               ///-- Charge Mis ID STAT_UP --///
               top::check(m_electronEffSFChargeMisIDLoose->applySystematicVariation(
                            m_systChargeMisID_STAT_UP), "Failed to set systematic");

@@ -25,8 +25,8 @@ GetConditionsFromMetaData()
 #====================================================================
 from PyUtils import AthFile
 af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0])
-project_tag = af.fileinfos['metadata']['/TagInfo']['project_name']
-beam_energy = af.fileinfos['metadata']['/TagInfo']['beam_energy']
+if 'project_name' in af.fileinfos['metadata']['/TagInfo']: project_tag = af.fileinfos['metadata']['/TagInfo']['project_name']
+else: project_tag = ""
 print '+++++++++++++++++++++++++++++++ project tag: ',project_tag,' +++++++++++++++++++++++++++++++'
 
 #====================================================================
@@ -50,9 +50,9 @@ if not HIDerivationFlags.isSimulation():
     TriggerDict = GetTriggers(project_tag, HIDerivationFlags.doMinBiasSelection(), DerivationName)
     for i, key in enumerate(TriggerDict):
 	    #Event selection based on DF jets for HI
-	    expression = expression + '(' + key + ' && count(' + MainJetCollection + 'AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
+	    expression = expression + '(' + key + ' && count(' + MainJetCollection + 'AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) ' + '|| (' + key + ' && count(' + MainJetCollection + 'AntiKt2HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
 	    #Event selection based also on non-DF jets for pp
-	    if HIDerivationFlags.isPP and BookDFJetCollection: expression = expression + '|| (' + key + ' && count(AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
+	    if HIDerivationFlags.isPP and BookDFJetCollection: expression = expression + '|| (' + key + ' && count(AntiKt4HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) ' + '|| (' + key + ' && count(AntiKt2HIJets.pt >' + str(TriggerDict[key]) + '*GeV) >=1 ) '
 	    if not i == len(TriggerDict) - 1:
 		    expression = expression + ' || ' 
 	    
