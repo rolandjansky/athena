@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/MLLWindowSelector.h"
@@ -23,8 +23,7 @@ namespace top {
       lepton0 = event.m_muons[0];
       lepton1 = event.m_muons[1];
     } else {
-      std::cout << "need two charged leptons of the same flavour" << std::endl;
-      exit(1);
+      throw std::runtime_error("MLLWindowSelector::apply: Need two same-flavour electrons or muons");
     }
 
     const double mll = top::invariantMass(*lepton0, *lepton1);
@@ -49,8 +48,7 @@ namespace top {
       lepton0 = (*event.m_muons)[0];
       lepton1 = (*event.m_muons)[1];
     } else {
-      std::cout << "need two charged leptons of the same flavour" << std::endl;
-      exit(1);
+      throw std::runtime_error("MLLWindowSelector::applyParticleLevel: Need two same-flavour electrons or muons");
     }
 
     const double mll = top::invariantMass(*lepton0, *lepton1);

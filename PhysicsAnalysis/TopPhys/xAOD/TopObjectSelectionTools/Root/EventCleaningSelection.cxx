@@ -173,15 +173,11 @@ namespace top {
 
         if (starts_with(cut, "GTRIGDEC ")) {
           if (selectionHasTriggerCut || selectionHasTriggerCut_Loose || selectionHasTriggerCut_Tight) {
-            ATH_MSG_ERROR(
-              "A *TRIGDEC* selector has already been used for selection " << sel.m_name << " - you can't have two.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("You have multiple TRIGDEC selectors for selection "
+                + sel.m_name + ". Only one per selection is allowed.");
           }
           if (!m_config->useGlobalTrigger()) {
-            ATH_MSG_ERROR("The GTRIGDEC selector cannot be used without UseGlobalLeptonTriggerSF.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("The GTRIGDEC selector cannot be used without UseGlobalLeptonTriggerSF option.");
           }
           selectionHasTriggerCut = true;
           allTriggers_perSelector_Tight->insert(std::make_pair(sel.m_name,
@@ -208,17 +204,12 @@ namespace top {
 
         if (starts_with(cut, "TRIGDEC_TIGHT ")) {
           if (selectionHasTriggerCut_Tight) {
-            ATH_MSG_ERROR(
-              "TRIGDEC_TIGHT has already been used for selection " << sel.m_name << " - you can't use it twice.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("You have multiple TRIGDEC_TIGHT selectors for selection "
+                + sel.m_name + ". Only one per selection is allowed.");
           }
           if (selectionHasTriggerCut) {
-            ATH_MSG_ERROR(
-              "TRIGDEC_TIGHT is used but TRIGDEC is also been used for selection" << sel.m_name <<
-                " - you can't use both at the same time.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("Both TRIGDEC and TRIGDEC_TIGHT selectors used for selection "
+                + sel.m_name + ". Only one of the two per selection is allowed.");
           }
           selectionHasTriggerCut_Tight = true;
           ATH_MSG_INFO("Tight Triggers for Selection \t" << sel.m_name << "\tare " << cut);
@@ -261,17 +252,12 @@ namespace top {
         } // Cut requested is TRIGDEC_TIGHT
         else if (starts_with(cut, "TRIGDEC_LOOSE ")) {
           if (selectionHasTriggerCut_Loose) {
-            ATH_MSG_ERROR(
-              "TRIGDEC_LOOSE has already been used for selection " << sel.m_name << " - you can't use it twice.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("You have multiple TRIGDEC_LOOSE selectors for selection "
+                + sel.m_name + ". Only one per selection is allowed.");
           }
           if (selectionHasTriggerCut) {
-            ATH_MSG_ERROR(
-              "TRIGDEC_LOOSE is used but TRIGDEC is also been used for selection" << sel.m_name <<
-                " - you can't use both at the same time.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("Both TRIGDEC and TRIGDEC_LOOSE selectors used for selection "
+                + sel.m_name + ". Only one of the two per selection is allowed.");
           }
           selectionHasTriggerCut_Loose = true;
           ATH_MSG_INFO("Loose Triggers for Selection \t" << sel.m_name << "\tare " << cut);
@@ -314,24 +300,16 @@ namespace top {
         } // Cut requested is TRIGDEC_LOOSE
         else if (starts_with(cut, "TRIGDEC ")) {
           if (selectionHasTriggerCut) {
-            ATH_MSG_ERROR(
-              "TRIGDEC/GTRIGDEC has already been used for selection " << sel.m_name << " - you can't use it twice.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("GTRIGDEC/TRIGDEC already used for selection "
+                + sel.m_name + ". Cannot be used multiple times.");
           }
           if (selectionHasTriggerCut_Tight) {
-            ATH_MSG_ERROR(
-              "TRIGDEC is used but TRIGDEC_TIGHT is also been used for selection" << sel.m_name <<
-                " - you can't use both at the same time.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("Both TRIGDEC and TRIGDEC_TIGHT already used for selection "
+                + sel.m_name + ". Cannot be used simultaneously.");
           }
           if (selectionHasTriggerCut_Loose) {
-            ATH_MSG_ERROR(
-              "TRIGDEC is used but TRIGDEC_LOOSE is also been used for selection" << sel.m_name <<
-                " - you can't use both at the same time.");
-            ATH_MSG_ERROR("Exiting...");
-            exit(1);
+            throw std::runtime_error("Both TRIGDEC and TRIGDEC_LOOSE already used for selection "
+                + sel.m_name + ". Cannot be used simultaneously.");
           }
           selectionHasTriggerCut = true;
           ATH_MSG_INFO("Triggers for Selection \t" << sel.m_name << "\tare " << cut);

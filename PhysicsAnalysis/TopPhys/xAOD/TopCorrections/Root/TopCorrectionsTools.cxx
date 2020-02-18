@@ -1,19 +1,23 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopCorrections/TopCorrectionsTools.h"
 #include <iostream>
 
+#include "TopCorrections/MsgCategory.h"
+using namespace TopCorrections;
+
 namespace top {
   // B-tagging naming tool
   std::string bTagNamedSystCheck(std::shared_ptr<top::TopConfig> config, const std::string systCollection,
                                  const std::string tagWP, bool verbose = false) {
-    if (verbose) std::cout << "Searching for " << systCollection << " for WP " << tagWP << std::endl;
+    //  TODO -- to be reworked to use new message level settings to be implemented
+    if (verbose) ATH_MSG_INFO("Searching for " << systCollection << " for WP " << tagWP);
     for (auto name : config->btagging_namedSysts(tagWP)) {
-      if (verbose) std::cout << "...Possible matches : " << name << std::endl;
+      if (verbose) ATH_MSG_INFO("...Possible matches : ");
       if (systCollection.find(betterBtagNamedSyst(name)) != std::string::npos) {
-        if (verbose) std::cout << "......Matched!" << std::endl;
+        if (verbose) ATH_MSG_INFO("......Matched!");
         if (systCollection.find("up") != std::string::npos) return name + "__1up";
         else if (systCollection.find("down") != std::string::npos) return name + "__1down";
         else return name;

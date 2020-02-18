@@ -297,7 +297,7 @@ namespace top {
                 const top::topSFSyst SFsyst) const;
 
     /**
-     * @brief Print all the SF values to cout
+     * @brief Print all the SF values to msg stream
      */
     void print(const top::Event& event);
 

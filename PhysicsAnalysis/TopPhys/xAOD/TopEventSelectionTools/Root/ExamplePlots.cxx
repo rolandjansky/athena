@@ -159,8 +159,6 @@ namespace top {
     //before, we were plotting tight and loose together
     if (event.m_isLoose) return true;
 
-    //std::cout << event << std::endl;
-
     double eventWeight = 1.;
     if (top::isSimulation(event)) eventWeight = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 

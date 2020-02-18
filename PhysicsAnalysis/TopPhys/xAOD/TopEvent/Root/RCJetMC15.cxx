@@ -554,30 +554,7 @@ void RCJetMC15::getEMTopoClusters(std::vector<fastjet::PseudoJet>& clusters, con
       if (clus_itr->e() > 0) {
         TLorentzVector temp_p4;
 
-        //std::cout << "SubJetRaw ConstitScale pt = " << subjet_raw->jetP4(xAOD::JetEMScaleMomentum).pt() << std::endl;
-        //std::cout << "SubJetRaw ConstitScale pt = " << subjet_raw->jetP4(xAOD::JetConstitScaleMomentum).pt() <<
-        // std::endl;
-        //std::cout << "SubJetRaw calibrated pt   = " << subjet_raw->jetP4().pt() << std::endl;
-
-        //	      const xAOD::CaloCluster* clus_raw = static_cast<const xAOD::CaloCluster*>(clus_itr->rawConstituent());
-
-        // std::cout << "Cluster is a " << typeid(clus_itr).name() << std::endl;
-        // std::cout <<"Cluster E = " << clus_itr->e() << std::endl;
-        //std::cout <<"Cluster raw type = " << clus_raw->type() << std::endl;
-
-
-        //std::cout <<"Cluster EM E = " << clus_raw->getRawE() << std::endl;
-        //std::cout <<"Cluster LC E = " << clus_raw->calE() << std::endl;
-
-        //std::cout <<"Cluster raw pt = " << clus_itr->pt(xAOD::CaloCluster_v1::State(0)) << std::endl;
-        //std::cout <<"Cluster cal pt = " << clus_raw->pt(xAOD::CaloCluster_v1::State(1)) << std::endl;
-
-        //std::cout <<"Cluster EM pT = " << clus_itr->pt() << std::endl;
-        //std::cout <<"Cluster LC pT = " << clus_itr->pt() << std::endl;
-
-        //    double sf = subjet_raw->jetP4().pt() / subjet_raw->jetP4(xAOD::JetEMScaleMomentum).pt();
         double sf = 1.0;
-        //std::cout << "SF = " << sf << std::endl;
         temp_p4.SetPtEtaPhiM(clus_itr->pt() * sf, clus_itr->eta(), clus_itr->phi(), clus_itr->m());
 
         clusters.push_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));
@@ -597,21 +574,9 @@ void RCJetMC15::getLCTopoClusters(std::vector<fastjet::PseudoJet>& clusters, con
 
 
   for (auto cluster : *myClusters) {
-    //const xAOD::CaloCluster* cluster_raw = static_cast<const xAOD::CaloCluster*>(cluster->rawConstituents());
-
-    // std::cout << "Cluster E default = " << cluster->e() <<  std::endl;
-    // std::cout << "Cluster Eta default = " << cluster->eta() <<  std::endl;
-
-    // std::cout <<" Cluster E getCalE = " << cluster->calE() << std::endl;
-    // std::cout <<" Cluster E getCalEta = " << cluster->calEta() << std::endl;
-
-    // std::cout <<"Cluster cal pt(E) = " << cluster->e(xAOD::CaloCluster_v1::State(1)) << std::endl;
-
     for (auto subjet : rcjet->getConstituents()) {
       const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
 
-      //      //const xAOD::CaloCluster* cluster_raw = static_cast<const
-      // xAOD::CaloCluster*>(cluster->rawConstituents());
       float dR = subjet_raw->p4().DeltaR(cluster->p4());
       if (dR < 0.4) {
         TLorentzVector temp_p4;

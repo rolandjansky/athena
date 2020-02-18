@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopAnalysis/EventSelection.h"
@@ -26,6 +26,9 @@
 
 #include "TopEventSelectionTools/FakesMMConfigs.h"
 #include "TopEventSelectionTools/NJetBtagSelector.h"
+
+#include "TopAnalysis/MsgCategory.h"
+using namespace TopAnalysis;
 
 namespace top {
   EventSelection::EventSelection(const std::string& name, const std::vector<std::string>& cutNames, TFile* outputFile,
@@ -150,8 +153,7 @@ namespace top {
       if (tool != nullptr) {
         m_allCuts.emplace_back(std::move(tool));
       } else {
-        std::cout << "Could not find " << currentCutName << std::endl;
-        exit(1);
+        throw std::runtime_error("Could not find " + currentCutName);
       }
 
       // Initlal and GRL
@@ -389,7 +391,6 @@ namespace top {
 
     for (const auto& currentCut : m_allCuts) {
       const bool passed = currentCut->apply(event);
-      //std::cout << (*it)->name() << " " << passed << std::endl;
 
       if (!passed) break;
 
@@ -486,7 +487,6 @@ namespace top {
 
     for (const auto& currentCut : m_allCuts) {
       const bool passed = currentCut->applyParticleLevel(plEvent);
-      //std::cout << (*it)->name() << " " << passed << std::endl;
 
       if (!passed) break;
 
@@ -521,7 +521,6 @@ namespace top {
       // we use applyParticleLevel, because in the end upgrade events are smeared
       // truth level, so we can just re-use this function
       const bool passed = currentCut->applyParticleLevel(upgradeEvent);
-      //std::cout << (*it)->name() << " " << passed << std::endl;
 
       if (!passed) break;
 
@@ -539,123 +538,124 @@ namespace top {
 
   void EventSelection::finalise() const {
     //2dp, neater output for numbers
-    std::cout << std::right;
-    if (m_isMC) std::cout << std::fixed << std::setprecision(2);
+    std::ostream& msgInfo = msg(MSG::Level::INFO);
+    msgInfo << std::right;
+    if (m_isMC) msgInfo << std::fixed << std::setprecision(2);
 
     if (m_config->doTightEvents()) {
       //channel name
-      std::cout << " - " << m_name << " cutflow:\n";
+      msgInfo << " - " << m_name << " cutflow:\n";
 
       //some headings
-      std::cout << std::setw(7) << "" <<
+      msgInfo << std::setw(7) << "" <<
         std::setw(30) << "cut" <<
         std::setw(15) << "events";
 
       if (m_isMC)
-        std::cout << std::setw(15) << "mc weights" <<
+        msgInfo << std::setw(15) << "mc weights" <<
           std::setw(15) << "mc*pu weights" <<
           std::setw(15) << "lepton SF" <<
           std::setw(15) << "b-tag SF";
 
       if (m_cutflowParticleLevel) {
-        std::cout << std::setw(15) << "particle level";
+        msgInfo << std::setw(15) << "particle level";
       }
 
       if (m_cutflowParticleLevelMCWeights) {
-        std::cout << std::setw(15) << "particle level mc";
+        msgInfo << std::setw(15) << "particle level mc";
       }
 
       if (m_cutflowUpgradeLevel) {
-        std::cout << std::setw(15) << "upgrade level";
+        msgInfo << std::setw(15) << "upgrade level";
       }
 
-      std::cout << "\n";
+      msgInfo << "\n";
 
       //cutflow table content
       for (int i = 1; i <= m_cutflow->GetNbinsX(); ++i) {
-        std::cout << "    " << std::setw(3) << i
-                  << std::setw(30) << m_cutflow->GetXaxis()->GetBinLabel(i)
-                  << std::setw(15) << m_cutflow->GetBinContent(i);
+        msgInfo << "    " << std::setw(3) << i
+          << std::setw(30) << m_cutflow->GetXaxis()->GetBinLabel(i)
+          << std::setw(15) << m_cutflow->GetBinContent(i);
 
         if (m_isMC)
-          std::cout << std::setw(15) << m_cutflowMCWeights->GetBinContent(i)
-                    << std::setw(15) << m_cutflowMCPUWeights->GetBinContent(i)
-                    << std::setw(15) << m_cutflowScaleFactors->GetBinContent(i)
-                    << std::setw(15) << m_cutflowBScaleFactors->GetBinContent(i);
+          msgInfo << std::setw(15) << m_cutflowMCWeights->GetBinContent(i)
+            << std::setw(15) << m_cutflowMCPUWeights->GetBinContent(i)
+            << std::setw(15) << m_cutflowScaleFactors->GetBinContent(i)
+            << std::setw(15) << m_cutflowBScaleFactors->GetBinContent(i);
 
         if (m_cutflowParticleLevel) {
-          std::cout << std::setw(15) << m_cutflowParticleLevel->GetBinContent(i);
+          msgInfo << std::setw(15) << m_cutflowParticleLevel->GetBinContent(i);
         }
 
         if (m_cutflowParticleLevelMCWeights) {
-          std::cout << std::setw(15) << m_cutflowParticleLevelMCWeights->GetBinContent(i);
+          msgInfo << std::setw(15) << m_cutflowParticleLevelMCWeights->GetBinContent(i);
         }
 
         if (m_cutflowUpgradeLevel) {
-          std::cout << std::setw(15) << m_cutflowUpgradeLevel->GetBinContent(i);
+          msgInfo << std::setw(15) << m_cutflowUpgradeLevel->GetBinContent(i);
         }
 
-        std::cout << "\n";
+        msgInfo << "\n";
       }
     }
     if (m_config->doLooseEvents()) {
       //channel name
-      std::cout << " - " << m_name << " cutflow (Loose):\n";
+      msgInfo << " - " << m_name << " cutflow (Loose):\n";
 
       //some headings
-      std::cout << std::setw(7) << "" <<
+      msgInfo << std::setw(7) << "" <<
         std::setw(30) << "cut" <<
         std::setw(15) << "events";
 
       if (m_isMC)
-        std::cout << std::setw(15) << "mc weights" <<
+        msgInfo << std::setw(15) << "mc weights" <<
           std::setw(15) << "mc*pu weights" <<
           std::setw(15) << "lepton SF" <<
           std::setw(15) << "b-tag SF";
 
       if (m_cutflowParticleLevel) {
-        std::cout << std::setw(15) << "particle level";
+        msgInfo << std::setw(15) << "particle level";
       }
 
       if (m_cutflowParticleLevelMCWeights) {
-        std::cout << std::setw(15) << "particle level mc";
+        msgInfo << std::setw(15) << "particle level mc";
       }
 
       if (m_cutflowUpgradeLevel) {
-        std::cout << std::setw(15) << "upgrade level";
+        msgInfo << std::setw(15) << "upgrade level";
       }
 
 
-      std::cout << "\n";
+      msgInfo << "\n";
 
       //cutflow table content
       for (int i = 1; i <= m_cutflow_Loose->GetNbinsX(); ++i) {
-        std::cout << "    " << std::setw(3) << i
-                  << std::setw(30) << m_cutflow_Loose->GetXaxis()->GetBinLabel(i)
-                  << std::setw(15) << m_cutflow_Loose->GetBinContent(i);
+        msgInfo << "    " << std::setw(3) << i
+          << std::setw(30) << m_cutflow_Loose->GetXaxis()->GetBinLabel(i)
+          << std::setw(15) << m_cutflow_Loose->GetBinContent(i);
 
         if (m_isMC)
-          std::cout << std::setw(15) << m_cutflowMCWeights_Loose->GetBinContent(i)
-                    << std::setw(15) << m_cutflowMCPUWeights_Loose->GetBinContent(i)
-                    << std::setw(15) << m_cutflowScaleFactors_Loose->GetBinContent(i)
-                    << std::setw(15) << m_cutflowBScaleFactors_Loose->GetBinContent(i);
+          msgInfo << std::setw(15) << m_cutflowMCWeights_Loose->GetBinContent(i)
+            << std::setw(15) << m_cutflowMCPUWeights_Loose->GetBinContent(i)
+            << std::setw(15) << m_cutflowScaleFactors_Loose->GetBinContent(i)
+            << std::setw(15) << m_cutflowBScaleFactors_Loose->GetBinContent(i);
 
         if (m_cutflowParticleLevel) {
-          std::cout << std::setw(15) << m_cutflowParticleLevel->GetBinContent(i);
+          msgInfo << std::setw(15) << m_cutflowParticleLevel->GetBinContent(i);
         }
 
         if (m_cutflowParticleLevelMCWeights) {
-          std::cout << std::setw(15) << m_cutflowParticleLevelMCWeights->GetBinContent(i);
+          msgInfo << std::setw(15) << m_cutflowParticleLevelMCWeights->GetBinContent(i);
         }
 
         if (m_cutflowUpgradeLevel) {
-          std::cout << std::setw(15) << m_cutflowUpgradeLevel->GetBinContent(i);
+          msgInfo << std::setw(15) << m_cutflowUpgradeLevel->GetBinContent(i);
         }
 
-        std::cout << "\n";
+        msgInfo << "\n";
       }
     }
-    std::cout << "\n";
+    msgInfo << "\n";
   }
 
   const std::string EventSelection::name() const {
@@ -676,21 +676,21 @@ namespace top {
   }
 
   void EventSelection::printCuts() {
-    std::cout << " - " << m_name << ":\n";
+    std::ostream& msgInfo = msg(MSG::Level::INFO);
+    msgInfo << "\n - " << m_name << ":\n";
     if (m_config->doTightEvents()) {
       for (int i = 1; i <= m_cutflow->GetNbinsX(); ++i) {
-        std::cout << "    " << std::setw(3) << i
-                  << std::setw(30) << m_cutflow->GetXaxis()->GetBinLabel(i)
-                  << "\n";
+        msgInfo << "    " << std::setw(3) << i
+          << std::setw(30) << m_cutflow->GetXaxis()->GetBinLabel(i)
+          << "\n";
       }
     } else if (m_config->doLooseEvents()) {
       for (int i = 1; i <= m_cutflow_Loose->GetNbinsX(); ++i) {
-        std::cout << "    " << std::setw(3) << i
-                  << std::setw(30) << m_cutflow_Loose->GetXaxis()->GetBinLabel(i)
-                  << "\n";
+        msgInfo << "    " << std::setw(3) << i
+          << std::setw(30) << m_cutflow_Loose->GetXaxis()->GetBinLabel(i)
+          << "\n";
       }
     }
-
-    std::cout << "\n";
+    msgInfo << std::endl;
   }
 }
