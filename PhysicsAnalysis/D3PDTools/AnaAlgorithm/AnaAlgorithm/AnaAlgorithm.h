@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -422,13 +422,6 @@ namespace EL
   public:
     void setWk (IWorker *val_wk);
 
-    /// \brief add an object to release when this algorithm gets
-    /// destructed
-    ///
-    /// This is mostly used to attach private tools to the algorithm.
-  public:
-    void addCleanup (const std::shared_ptr<void>& cleanup);
-
 
     /// \brief whether we have an implementation for \ref
     /// fileExecute
@@ -519,13 +512,6 @@ namespace EL
     /// \brief the value of \ref hasBeginInputFile
   private:
     bool m_hasBeginInputFile {false};
-
-#ifdef XAOD_STANDALONE
-    /// \brief a list of objects to clean up when releasing the
-    /// algorithm
-  private:
-    std::vector<std::shared_ptr<void> > m_cleanup;
-#endif
   };
 }
 

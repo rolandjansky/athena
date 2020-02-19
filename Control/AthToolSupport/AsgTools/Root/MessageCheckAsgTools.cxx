@@ -19,6 +19,7 @@
 
 namespace asg
 {
+  ANA_MSG_SOURCE (msgComponentConfig, "AsgTools.ComponentConfig")
   ANA_MSG_SOURCE (msgProperty, "AsgTools.Property")
   ANA_MSG_SOURCE (msgToolHandle, "AsgTools.AnaToolHandle")
 }

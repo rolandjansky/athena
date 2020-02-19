@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -416,14 +416,6 @@ namespace EL
     if (m_wk)
       throw std::logic_error ("set wk twice on algorithm " + name());
     m_wk = val_wk;
-  }
-
-
-
-  void AnaAlgorithm ::
-  addCleanup (const std::shared_ptr<void>& cleanup)
-  {
-    m_cleanup.push_back (cleanup);
   }
 
 

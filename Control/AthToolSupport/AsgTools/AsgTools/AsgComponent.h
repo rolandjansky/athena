@@ -11,10 +11,11 @@
 #error "This header should only be used in XAOD_STANDALONE"
 #else
 
-#include <AsgTools/IAsgComponent.h>
 #include <AsgMessaging/AsgMessaging.h>
 #include <AsgMessaging/MessageCheck.h>
 #include <AsgMessaging/MsgLevel.h>
+#include <AsgTools/IAsgComponent.h>
+#include <vector>
 
 class Property;
 class PropertyMgr;
@@ -48,6 +49,14 @@ namespace asg
     /// standard destructor
   public:
     ~AsgComponent();
+
+
+    /// \brief add an object to release when this component gets
+    /// destructed
+    ///
+    /// This is mostly used to attach private tools to the component.
+  public:
+    void addCleanup (const std::shared_ptr<void>& cleanup);
 
 
 
@@ -107,6 +116,11 @@ namespace asg
     /// \brief the property manager
   private:
     std::unique_ptr<PropertyMgr> m_properties;
+
+    /// \brief a list of objects to clean up when releasing the
+    /// component
+  private:
+    std::vector<std::shared_ptr<void> > m_cleanup;
   };
 }
 

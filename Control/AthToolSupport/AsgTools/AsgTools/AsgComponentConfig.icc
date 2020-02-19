@@ -1,0 +1,67 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+
+//
+// includes
+//
+
+#include <AsgTools/TProperty.h>
+#include <AsgTools/MessageCheck.h>
+
+//
+// method implementations
+//
+
+namespace asg
+{
+  // This template specialization for `AsgComponent` contains most of
+  // the actual logic for creating/configuring components, allowing
+  // the templated version of the function to rely on this one.
+  template<> StatusCode AsgComponentConfig ::
+  makeComponentExpert<AsgComponent> (std::unique_ptr<AsgComponent>& component,
+                                     const std::string& newCommand) const;
+
+
+
+  template<typename T> StatusCode AsgComponentConfig ::
+  makeComponentExpert (std::unique_ptr<T>& component,
+                       const std::string& newCommand) const
+  {
+    using namespace msgComponentConfig;
+
+    // for `AsgComponent` we have a non-templated implementation
+    std::unique_ptr<AsgComponent> baseComponent;
+    if (makeComponentExpert (baseComponent, newCommand).isFailure())
+      return StatusCode::FAILURE;
+
+    // note: I delay releasing the baseComponent after I check the
+    // `dynamic_cast` succeeded, this way it is held temporarily by
+    // two smart pointers, but it simplifies the code.
+    component.reset (dynamic_cast<T*>(baseComponent.get()));
+    if (component == nullptr)
+    {
+      ANA_MSG_ERROR ("component " << type() << "/" << name() << " not of required type");
+      return StatusCode::FAILURE;
+    }
+    baseComponent.release();
+
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  template<typename T> StatusCode AsgComponentConfig ::
+  setProperty (const std::string& name, const T& value)
+  {
+    using namespace asg::msgProperty;
+    std::string valueString;
+    ANA_CHECK (asg::detail::GetCastStringHelper<T>::get (value, valueString));
+    setPropertyFromString (name, std::move (valueString));
+    return StatusCode::SUCCESS;
+  }
+}
