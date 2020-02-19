@@ -476,10 +476,6 @@ void MagField::AtlasFieldSvc::getField(const double *xyz, double *bxyz, double *
             deriv[i] = 0.;
           }
       }
-      // check NaN in input
-      if ( x!=x || y!=y || z!=z ) {
-        ATH_MSG_WARNING( "getField() was called for xyz = " << x << "," << y << "," << z );
-      }
       return;
     }
   }
