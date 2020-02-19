@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexSeedFinderUtils/GaussianTrackDensity.h"
@@ -7,8 +7,9 @@
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "GaudiKernel/PhysicalConstants.h"
-
+#include <limits>
 #include <algorithm>
+#include <cmath>
 
 namespace Trk
 {
@@ -166,7 +167,7 @@ namespace Trk
     }
     for (const auto& entry : overlaps)
     {
-      sum += exp(entry.second.c_0+z*(entry.second.c_1 + z*entry.second.c_2));
+      sum += std::exp(entry.second.c_0+z*(entry.second.c_1 + z*entry.second.c_2));
     }
     return sum;
   }
@@ -204,7 +205,7 @@ namespace Trk
     for (const auto& entry : overlaps)
     {
       if (entry.second.lowerBound > z || entry.second.upperBound < z) continue;
-      double delta = exp(entry.second.c_0+z*(entry.second.c_1 + z*entry.second.c_2));
+      double delta = std::exp(entry.second.c_0+z*(entry.second.c_1 + z*entry.second.c_2));
       density += delta;
       double qPrime = entry.second.c_1 + 2*z*entry.second.c_2;
       double deltaPrime = delta * qPrime;
@@ -213,7 +214,8 @@ namespace Trk
     }
   }
 
-  std::pair<double,double> GaussianTrackDensity::TrackDensity::globalMaximumWithWidth (MsgStream& msg) const
+  std::pair<double,double> 
+  GaussianTrackDensity::TrackDensity::globalMaximumWithWidth (MsgStream& msg) const
   {
     // strategy:
     // the global maximum must be somewhere near a track...
@@ -228,7 +230,8 @@ namespace Trk
     double maximumPosition = 0.0;
     double maximumDensity = 0.0;
     double maxCurvature = 0. ;
-    
+    const std::pair<double,double> invalidResult(0.,std::numeric_limits<double>::quiet_NaN());
+    if (m_trackMap.empty()) return invalidResult;
     for (const auto& entry : m_trackMap)
     {
       double trialZ = entry.first.parameters()[Trk::z0];
@@ -251,8 +254,8 @@ namespace Trk
       msg << MSG::DEBUG << "Global maximum at density of 0; track map contains "
           <<  m_trackMap.size() << " tracks" << endmsg;
     }
-
-    return {maximumPosition,std::pow(-(maximumDensity/maxCurvature),0.5)};
+    if (maxCurvature == 0.) return invalidResult;
+    return {maximumPosition,std::sqrt(-maximumDensity/maxCurvature)};
   }
 
   /**
@@ -293,11 +296,11 @@ namespace Trk
     const double quadraticTerm = -cov_dd / (2*covDeterminant);
     double discriminant = linearTerm*linearTerm - 4*quadraticTerm*(constantTerm + 2*z0SignificanceCut);
     if (discriminant < 0) return;
-    discriminant = sqrt(discriminant);
+    discriminant = std::sqrt(discriminant);
     const double zMax = (-linearTerm - discriminant)/(2*quadraticTerm);
     const double zMin = (-linearTerm + discriminant)/(2*quadraticTerm);
     m_maxRange = std::max(m_maxRange, std::max(zMax-z0, z0-zMin));
-    constantTerm -= log(2*Gaudi::Units::pi*sqrt(covDeterminant));
+    constantTerm -= std::log(2*M_PI*std::sqrt(covDeterminant));
     m_trackMap.emplace(std::piecewise_construct,
                        std::forward_as_tuple(itrk),
                        std::forward_as_tuple(constantTerm, linearTerm, quadraticTerm, zMin, zMax));
