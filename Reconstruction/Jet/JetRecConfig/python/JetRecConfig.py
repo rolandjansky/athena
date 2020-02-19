@@ -210,14 +210,6 @@ def expandPrereqs(reqtype,prereqs):
             return None              
     return reqdefs
 
-########################################################################
-# For each modifier in the given list with a configurable input container
-# name ("JetContainer"), configure it to containerName.
-def configureContainerName(modifiers, containerName):
-    for mod in modifiers:
-        if "JetContainer" in mod.properties():
-            mod.JetContainer = containerName
-
 
 ########################################################################
 # Function producing an EventShapeAlg to calculate
@@ -475,7 +467,6 @@ def getJetRecTool(jetname, finder, pjs, mods):
         JetFinder = finder,
         JetModifiers = mods
     )
-    configureContainerName(jetrec.JetModifiers, jetname)
     return jetrec
 
 

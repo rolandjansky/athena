@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetECPSFractionTool.h
@@ -21,37 +21,27 @@
 ///   ECPSFraction: Fraction of jet energy in the ECPS
 ///
 
-#include "AsgTools/AsgTool.h"
-#include "StoreGate/WriteDecorHandleKey.h"
-#include "JetInterface/IJetDecorator.h"
+#include "JetRec/JetModifierBase.h"
 
-class JetECPSFractionTool : public asg::AsgTool,
-                            virtual public IJetDecorator{
-  ASG_TOOL_CLASS(JetECPSFractionTool, IJetDecorator)
-
+class JetECPSFractionTool : public JetModifierBase {
+  ASG_TOOL_CLASS(JetECPSFractionTool, IJetModifier)
+    
 public:
 
   // Constructor from tool name.
   JetECPSFractionTool(std::string myname);
 
-  // Inherited method to decorate a jet.
-  virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
-
-  // Inherited from AsgTool
-  virtual StatusCode initialize() override;
+  // Inherited method to modify a jet.
+  // Calls width and puts the result on the jet.
+  int modifyJet(xAOD::Jet& jet) const;
 
   // Local method to calculate and return the energy fraction.
   double energyFraction(const xAOD::Jet& jet) const;
 
 private:
 
-  Gaudi::Property<double> m_fraclimit{this, "ECPSFractionThreshold", 0.8,
-      "Threshold for identifying a cluser as ECPS"};
-  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "",
-      "SG key for input jet container"};
-
-  SG::WriteDecorHandleKey<xAOD::JetContainer> m_fracKey{this, "ECPSFractionDecorKey", "ECPSFraction",
-      "Name for output ECPS fraction decoration"};
+  // Properties.
+  double m_fraclimit;
 
 };
 
