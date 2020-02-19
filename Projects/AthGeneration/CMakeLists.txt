@@ -4,18 +4,8 @@
 cmake_minimum_required( VERSION 3.6 )
 file( READ ${CMAKE_SOURCE_DIR}/version.txt _version )
 string( STRIP ${_version} _version )
-project( Athena VERSION ${_version} LANGUAGES C CXX Fortran )
+project( AthGeneration VERSION ${_version} LANGUAGES C CXX Fortran )
 unset( _version )
-
-# Set the versions of the TDAQ externals to pick up for the build.
-set( TDAQ-COMMON_VERSION "03-04-01" CACHE STRING
-   "The version of tdaq-common to use for the build" )
-set( TDAQ_VERSION "08-03-01" CACHE STRING
-   "The version of tdaq to use for the build" )
-set( TDAQ-COMMON_ATROOT
-   "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}"
-   CACHE PATH "The directory to pick up tdaq-common from" )
-mark_as_advanced( TDAQ-COMMON_ATROOT )
 
 # Configure flake8:
 set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E7,E9,W6 --enable-extension ATL902 --extend-ignore E701,E702,E741"

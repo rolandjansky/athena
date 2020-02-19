@@ -50,7 +50,6 @@ env_setup() {
 
     # Set up the environment variables for finding LCG and the TDAQ externals:
     source ${scriptsdir}/LCG_RELEASE_BASE.sh
-    source ${scriptsdir}/TDAQ_RELEASE_BASE.sh
 
     # Set up the AthGenerationExternals project:
     extDir=${BUILDDIR}/install/AthGenerationExternals/${version}/InstallArea

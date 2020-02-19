@@ -1,11 +1,8 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # File taking care of pointing the downstream projects at the right
 # version of the externals.
 #
-
-# Set the versions of the TDAQ projects:
-set( TDAQ-COMMON_VERSION "@TDAQ-COMMON_VERSION@" )
-set( TDAQ-COMMON_ATROOT "@TDAQ-COMMON_ATROOT@" )
 
 # Find Gaudi:
 find_package( Gaudi REQUIRED )
