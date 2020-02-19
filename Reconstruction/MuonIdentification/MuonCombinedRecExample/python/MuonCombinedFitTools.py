@@ -165,13 +165,7 @@ def MuonCombinedPropagator( name='MuonCombinedPropagator', **kwargs ):
 
 def MuonTrackQuery( name="MuonTrackQuery", **kwargs ):
      kwargs.setdefault("MdtRotCreator",   getPublicTool("MdtDriftCircleOnTrackCreator") )
-     if TriggerFlags.MuonSlice.doTrigMuonConfig:
-         trigTrackBuilder = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder",
-                                              TrackSummaryTool=getPublicTool("MuonTrackSummaryTool"))
-         kwargs.setdefault("Fitter", trigTrackBuilder)
-     else:
-         kwargs.setdefault("Fitter",          getPublicTool("CombinedMuonTrackBuilder") )
-
+     kwargs.setdefault("Fitter", getPublicTool("iPatFitter"))
      return CfgMgr.Rec__MuonTrackQuery(name,**kwargs)
 
 def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwargs ):
@@ -222,6 +216,8 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     kwargs.setdefault("Vertex3DSigmaZ"                , 60.*mm)
     kwargs.setdefault("UseCaloTG"                     , False )
     kwargs.setdefault("CaloMaterialProvider"          , getPublicTool("MuonMaterialProviderTool"))
+    kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
+    kwargs.setdefault("TrackQuery"                    , getPrivateTool("MuonTrackQuery") )
 
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("MuonHoleRecovery"              , "" )
@@ -278,6 +274,8 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     kwargs.setdefault("Vertex3DSigmaZ"                , 60.*mm)
     kwargs.setdefault("UseCaloTG"                     , True ) #
     kwargs.setdefault("CaloMaterialProvider"          , getPublicTool("MuonMaterialProviderTool"))
+    kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
+    kwargs.setdefault("TrackQuery"                    , getPrivateTool("MuonTrackQuery") )
 
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("MuonHoleRecovery"              , "" )

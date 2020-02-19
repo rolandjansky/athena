@@ -233,7 +233,7 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
 
 def TMEF_MuonTrackQuery(name='TMEF_MuonTrackQuery',**kwargs):
     kwargs.setdefault("MdtRotCreator","MdtDriftCircleOnTrackCreator")
-    kwargs.setdefault("Fitter", 'TMEF_CombinedMuonTrackBuilder')
+    kwargs.setdefault("Fitter", 'TMEF_iPatFitter')
     return CfgMgr.Rec__MuonTrackQuery(name,**kwargs)
 
 
