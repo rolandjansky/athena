@@ -1,4 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 import math
 from ROOT import *
@@ -24,10 +25,10 @@ def drawCylinderLayer(g4CylTree,cylLayer,tgCylTree,saveLocation) :
         if binsphi > numbinsphi : numbinsphi = binsphi 
         
         
-        print '----------------------------------------------------------------'
-        print '  Layer: ', clname, ' ( LayerIndex : ',evt.cylLayerIndex, ')'
-        print '    r, halflength  : ', radius, halfz
-        print '    bins (z/phi)   : ', evt.cylMatBinsZ, evt.cylMatBinsPhi
+        print ('----------------------------------------------------------------')
+        print ('  Layer: ', clname, ' ( LayerIndex : ',evt.cylLayerIndex, ')')
+        print ('    r, halflength  : ', radius, halfz)
+        print ('    bins (z/phi)   : ', evt.cylMatBinsZ, evt.cylMatBinsPhi)
         
         
         # create the x0 histogram
@@ -102,7 +103,7 @@ def drawCylinderLayer(g4CylTree,cylLayer,tgCylTree,saveLocation) :
         x0range = gDirectory.Get(clname+'range')
         x0maxProf = 1.2*x0range.GetXaxis().GetXmax()
     except TypeError :
-        print '  -> TTree does not exist in TrackingGeometry '    
+        print ('  -> TTree does not exist in TrackingGeometry ')
     x0mapG4       = TH3F(clname+'x0mapG4',clname+'x0mapG4', numbinsphi,-math.pi,math.pi,numbinsz,-halfz+position,halfz+position,50,0.,x0maxProf)
     try :
         g4CylTree.Draw('PathInX0:DensedHitZ:DensedHitPhi>>'+clname+'x0mapG4','','')
@@ -117,7 +118,7 @@ def drawCylinderLayer(g4CylTree,cylLayer,tgCylTree,saveLocation) :
         x0mapG4Prof.SetBit(kMustCleanup)        
         x0mapG4Prof.Draw('colz')                             
     except TypeError :
-        print '  -> TTree does not exist in TrackingGeometry '        
+        print ('  -> TTree does not exist in TrackingGeometry ')
     canvasX0map.cd(2)
     x0mapTG = TH3F(clname+'x0mapTG',clname+'x0mapTG',numbinsphi,-math.pi,math.pi,numbinsz,-halfz+position,halfz+position,50,0.,x0maxProf)
     try :
@@ -133,7 +134,7 @@ def drawCylinderLayer(g4CylTree,cylLayer,tgCylTree,saveLocation) :
         x0mapTGProf.SetBit(kMustCleanup)        
         x0mapTGProf.Draw('colz')
     except TypeError :
-        print '  -> TTree does not exist in Geant4 '                                     
+        print ('  -> TTree does not exist in Geant4 ')
     canvasX0map.cd(3)
     clmap_x0.GetZaxis().SetRangeUser(0.,x0max)
     clmap_x0.GetXaxis().SetTitle('z [mm]')
@@ -154,7 +155,7 @@ def drawCylinderLayer(g4CylTree,cylLayer,tgCylTree,saveLocation) :
         x0mapDiff.Divide(x0mapG4Prof)
         x0mapDiff.Draw('colz')
     except UnboundLocalError :
-        print '  -> No TrackingGeometry/G4 histograms to divide'
+        print ('  -> No TrackingGeometry/G4 histograms to divide')
 
 
     canvasX0map.SaveAs(saveLocation+'/LayerMaterial_CylinderLayer_'+str(evt.cylLayerIndex)+'.png')
@@ -201,11 +202,11 @@ def drawDiscLayer(g4DiscTree,discLayer,tgDiscTree,saveLocation) :
         if binsR > numbinsr     : numbinsr = binsR
         if binsPhi > numbinsphi : numbinsphi = binsPhi
         
-        print '----------------------------------------------------------------'
-        print '  Layer: ', dlname, ' ( LayerIndex : ',evt.discLayerIndex, ')'
-        print '    position       : ', position
-        print '    innerR/outerR  : ', innerR, outerR
-        print '    bins (r/phi)   : ', binsR, binsPhi
+        print ('----------------------------------------------------------------')
+        print ('  Layer: ', dlname, ' ( LayerIndex : ',evt.discLayerIndex, ')')
+        print ('    position       : ', position)
+        print ('    innerR/outerR  : ', innerR, outerR)
+        print ('    bins (r/phi)   : ', binsR, binsPhi)
 
         # POLAR plot needs to be in -pi,pi,-pi,pi, NOT yet fixed
 
@@ -281,7 +282,7 @@ def drawDiscLayer(g4DiscTree,discLayer,tgDiscTree,saveLocation) :
         x0range = gDirectory.Get(dlname+'range')
         x0maxProf = 1.2*x0range.GetXaxis().GetXmax()
     except TypeError :
-        print '  -> TTree does not exist in TrackingGeometry '    
+        print ('  -> TTree does not exist in TrackingGeometry ')
     x0mapG4 = TH3F(dlname+'x0mapG4',dlname+'x0mapG4',numbinsr,-1.1*outerR,1.1*outerR,numbinsr,-1.1*outerR,1.1*outerR,50,0.,x0maxProf)
     try : 
         g4DiscTree.Draw('PathInX0:DensedHitY:DensedHitX>>'+dlname+'x0mapG4','','')
@@ -296,7 +297,7 @@ def drawDiscLayer(g4DiscTree,discLayer,tgDiscTree,saveLocation) :
         x0mapG4Prof.SetBit(kMustCleanup)        
         x0mapG4Prof.Draw('colz')                            
     except TypeError :
-        print '  -> TTree does not exist in TrackingGeometry '
+        print ('  -> TTree does not exist in TrackingGeometry ')
     canvasX0map.cd(2) 
     try : 
         x0mapTG = TH3F(dlname+'x0mapTG',dlname+'x0mapTG',numbinsr,-1.1*outerR,1.1*outerR,numbinsr,-1.1*outerR,1.1*outerR,50,0.,x0maxProf)
@@ -312,7 +313,7 @@ def drawDiscLayer(g4DiscTree,discLayer,tgDiscTree,saveLocation) :
         x0mapTGProf.SetBit(kMustCleanup)        
         x0mapTGProf.Draw('colz')       
     except TypeError :
-        print '  -> TTree does not exist in Geant4 '                         
+        print ('  -> TTree does not exist in Geant4 ')
     canvasX0map.cd(3)
     dlmap_x0.SetLineColor(kWhite)
     dlmap_x0.GetZaxis().SetRangeUser(0.,1.1*x0max)
@@ -329,7 +330,7 @@ def drawDiscLayer(g4DiscTree,discLayer,tgDiscTree,saveLocation) :
         x0mapDiff.Divide(x0mapG4Prof)
         x0mapDiff.Draw('colz')        
     except UnboundLocalError :
-        print '  -> No TrackingGeometry/G4 histograms to divide'           
+        print ('  -> No TrackingGeometry/G4 histograms to divide')
 
     canvasX0map.SaveAs(saveLocation+'/LayerMaterial_DiscLayer_'+str(evt.discLayerIndex)+'.png')
     
