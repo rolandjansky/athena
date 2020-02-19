@@ -129,8 +129,8 @@ public:
   TProfile* h_d0vsphi;
   TProfile* h_d0vsphi_rec;
 
-  //TH2F*     h2d_d0vsphi;
-  //TH2F*     h2d_d0vsphi_rec;
+  TH2F*     h2d_d0vsphi;
+  TH2F*     h2d_d0vsphi_rec;
 
 
   TH1F* h_chain;
@@ -191,6 +191,12 @@ public:
   TH1F* h_trkdd0_residual;
   TH1F* h_trkdz0_residual;
 
+
+  // Efficiency plateau cuts
+  double m_pTCut;
+  double m_etaCut;
+  double m_d0Cut;
+  double m_z0Cut;
 
   int      m_nVtx;
 
