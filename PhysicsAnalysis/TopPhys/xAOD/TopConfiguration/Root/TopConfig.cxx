@@ -731,10 +731,35 @@ namespace top {
       }
 
       // load the nominal weight names that we should try to get the real nominal weight name
-      boost::split(m_nominalWeightNames, settings->value("NominalWeightNames"), boost::is_any_of(","));
-      for (std::string &weight : m_nominalWeightNames) {
-        boost::trim(weight);
-        boost::trim_if(weight, boost::is_any_of("\"\'"));
+      const std::string& tmp = settings->value("NominalWeightNames");
+
+      // Remove the whitespaces between the names but keep
+      // the whitespaces within quotation marks
+      std::string trimmedName = "";
+      bool deleteSpaces = true;
+      bool start = false;
+      for(unsigned int i = 0; i < tmp.size(); ++i) {
+        if(tmp[i] == '\"') {
+          start ? start = false : start = true;
+          if(start) {
+            deleteSpaces = false;
+          }
+        }
+        if(!start) {
+          deleteSpaces = true;
+        }
+        if(deleteSpaces) {
+          if(tmp[i] != ' ') {
+            trimmedName += tmp[i];
+          }
+        } else {
+          trimmedName += tmp[i];
+        }
+      }
+      boost::split(m_nominalWeightNames, trimmedName, boost::is_any_of(","));
+      // now remove all occurences of '"'
+      for (std::string& iname : m_nominalWeightNames) {
+        iname.erase(std::remove(iname.begin(), iname.end(), '"'), iname.end());
       }
 
       try {
