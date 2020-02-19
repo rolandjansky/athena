@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
 
 
 
-#ifndef ASG_MESSAGING__MESSAGE_PRINTER_MOCK_H
-#define ASG_MESSAGING__MESSAGE_PRINTER_MOCK_H
+#ifndef ASG_TESTING__MESSAGE_PRINTER_MOCK_H
+#define ASG_TESTING__MESSAGE_PRINTER_MOCK_H
 
 #include <AsgMessaging/IMessagePrinter.h>
 #include <gmock/gmock.h>
