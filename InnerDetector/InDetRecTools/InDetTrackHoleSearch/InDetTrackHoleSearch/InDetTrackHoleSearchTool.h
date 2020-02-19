@@ -171,19 +171,10 @@ namespace InDet
       */
       const Trk::TrackStateOnSurface* createHoleTSOS(const Trk::TrackParameters* trackPar) const;
 
-
-      /**  This method returns true, if the detector element the input parameters correspond to is sensitive detector material,
-	   otherwise it returns false.
-      */
-      bool isSensitive(const Trk::TrackParameters* parameters, bool &isgood) const ;
-
       /** This Method creates a new Track from the TSOS of the input track combined with the TSOS from listOfHoles
        */
       const Trk::Track*  addHolesToTrack(const Trk::Track& oldTrack, 
 					 std::vector<const Trk::TrackStateOnSurface*>* listOfHoles) const;
-
-      /** This method checks the SCT ABCD chip and SCT strip where the track passes through is bad or not */
-      bool isBadSCTChipStrip(const Identifier& waferId, const Trk::TrackParameters& parameters, const InDetDD::SiDetectorElement& siElement) const;
     };
 
 } // end of namespace
