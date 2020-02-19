@@ -3,9 +3,14 @@
 */
 #include "MbtsFexMT.h"
 
-MbtsFexMT::MbtsFexMT(const std::string& name, ISvcLocator* pSvcLocator) :
-AthReentrantAlgorithm(name, pSvcLocator)
+MbtsFexMT::MbtsFexMT(const std::string& name, ISvcLocator* pSvcLocator):
+AthReentrantAlgorithm(name, pSvcLocator),
+m_dataAccessSvc( "TrigCaloDataAccessSvc/TrigCaloDataAccessSvc", name )
 {
+// declareProperty("RoIs", m_roiCollectionKey = std::string("OutputRoIs"), "RoIs to read in");
+//   declareProperty("CellsName", m_cellContainerKey = std::string("CellsClusters"), "Calo cells container");
+  declareProperty("TrigDataAccessMT",m_dataAccessSvc,"Data Access for LVL2 Calo Algorithms in MT");
+  m_calocellcollectionKey = "AllCalo";
 }
 
 MbtsFexMT::~MbtsFexMT()
@@ -14,82 +19,87 @@ MbtsFexMT::~MbtsFexMT()
 
 StatusCode MbtsFexMT::initialize()
 {
-  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
-  return StatusCode::SUCCESS;
+  ATH_CHECK( m_calocellcollectionKey.initialize() );
+  ATH_CHECK(m_MbtsKey.initialize());
+     ATH_CHECK( m_cellContainerKey.initialize() );
+   ATH_CHECK( m_dataAccessSvc.retrieve() );
+   if (! m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
+   return StatusCode::SUCCESS;
 }
 StatusCode MbtsFexMT::finalize()
 {
   return StatusCode::SUCCESS;
 }
 
+
 StatusCode MbtsFexMT::execute(const EventContext& context) const
 {
-  SG::ReadHandle<TileTBID> MbtsHelper(m_tileTBID, context );
+
+  CaloConstCellContainer c(SG::VIEW_ELEMENTS);
+  m_dataAccessSvc->loadFullCollections( context, c).ignore();
+
+
+  SG::ReadHandle<CaloCellContainer> CaloContainer(m_calocellcollectionKey,context);
+
+  const EventIDBase eventInfo = context.eventID();
+    uint32_t lumiBlock = eventInfo.lumi_block();
+    uint32_t runNumber = eventInfo.run_number();
+    uint32_t bcid = eventInfo.bunch_crossing_id();
+    uint32_t eventn = eventInfo.event_number();
+
+    ATH_MSG_DEBUG("EVENT INFO : " << lumiBlock << " " << runNumber << " " << bcid << " " << eventn);
+
+    double triggerEnergies{};
+    double triggerTimes{};
+    double triggerEta{} ;
+      double triggerPhi{} ;
+
+	for ( auto CaloContainerIndx : *CaloContainer) {
+
+  Identifier triggerID = CaloContainerIndx->ID();
+	if ( CaloContainerIndx->caloDDE()->is_tile() ) continue;
+	for ( auto hltcell : c) {
+		const CaloDetDescrElement* hltdde = hltcell->caloDDE();
+		if ( hltdde && hltdde->is_tile() ) continue;
+		if ( triggerID == hltcell->ID() ) {
+    triggerEnergies = CaloContainerIndx->energy();
+triggerEta = CaloContainerIndx->eta();
+triggerPhi = CaloContainerIndx->phi();
+
+			ATH_MSG_DEBUG("Cell info: " << CaloContainerIndx->energy() << " " << CaloContainerIndx->energy() << " " << CaloContainerIndx->eta() << " " << CaloContainerIndx->phi());
+}
+}
+  } // end of for CaloContainerIndx
+
+
+  auto mon_triggerEnergies = Monitored::Scalar<double>("triggerEnergies",triggerEnergies);
+  auto mon_triggerEta = Monitored::Scalar<double>("eta",triggerEta);
+  auto mon_triggerPhi = Monitored::Scalar<double>("phi",triggerPhi);
+  // auto mon_triggerTimes = Monitored::Scalar<int>("triggerTimes ",triggerTimes);
+  Monitored::Group(m_monTool,mon_triggerEnergies,mon_triggerEta,mon_triggerPhi);
+
+  // Recording Data
+  SG::WriteHandle<xAOD::TrigCompositeContainer> mbtsHandle (m_MbtsKey, context);
+
+  auto MbtsContainer = std::make_unique< xAOD::TrigCompositeContainer >();
+  auto MbtsAuxContainer = std::make_unique< xAOD::TrigCompositeAuxContainer>();
+  MbtsContainer->setStore(MbtsAuxContainer.get());
+
+
+  xAOD::TrigComposite * mbts = new xAOD::TrigComposite();
+  MbtsContainer->push_back(mbts);
+
+  mbts->setDetail("triggerEnergies", triggerEnergies);
+  // mbts->setDetail("triggerTimes",triggerTimes);
+  mbts->setDetail("triggerPhi", triggerEta);
+  mbts->setDetail("triggerEta", triggerPhi);
 
 
 
-  // Pack values into vectors.
-  for( m_itt=m_itBegin; m_itt != m_itEnd; ++m_itt ){
-    Identifier id=(*m_itt)->ID();
-
-    // MBTS Id type is  "side"  +/- 1
-    int type_id = m_tileTBID->type(id);
-
-    // MBTS Id channel is "eta"  0-1   zero is closer to beam pipe
-    unsigned int channel_id = m_tileTBID->channel(id);
-
-    // MBTS Id module is "phi"  0-7
-    unsigned int module_id = m_tileTBID->module(id);
-
-    ATH_MSG_DEBUG("type_id = " << type_id);
-    ATH_MSG_DEBUG("channel_id = " << channel_id);
-    ATH_MSG_DEBUG("module_id = " << module_id);
-
-    // Catch errors
-    if(abs(type_id) != 1) {
-      ATH_MSG_WARNING("MBTS identifier type is out of range");
-      continue;
-    }
-    if( channel_id > 1 ){
-	    ATH_MSG_WARNING("MBTS identifier channel is out of range");
-      continue;
-    }
-    if( module_id > 7 ){
-	    ATH_MSG_WARNING("MBTS identifier module is out of range");
-      continue;
-    }
-
-    bit_pos = 0; // The position of the bit
-
-    if(type_id == -1) { // C-side
-      bit_pos += 16;
-    }
-
-    bit_pos += channel_id*8;
-    bit_pos += module_id;
-
-    unsigned int nTriggerEnergies = m_triggerEnergies.size();
-    if(bit_pos > (nTriggerEnergies-1)) {
-      ATH_MSG_ERROR("Bit pos " << bit_pos << " is greater than the size of the energy vector " << nTriggerEnergies);
-    }
-    else {
-      m_triggerEnergies[bit_pos] = (*m_itt)->energy();
-      m_triggerID[bit_pos] = bit_pos;
-      ATH_MSG_DEBUG("Counter id = " << bit_pos << ", energy = " << m_triggerEnergies[bit_pos] << " pC");
-    }
-
-    unsigned int nTriggerTimes = m_triggerTimes.size();
-    if(bit_pos > (nTriggerTimes-1)) {
-      ATH_MSG_ERROR("Bit pos " << bit_pos << " is greater than the size of the time vector " << nTriggerTimes);
-    }
-    else {
-      m_triggerTimes[bit_pos] = (*m_itt)->time();
-	    ATH_MSG_DEBUG("Counter id = " << bit_pos << ", time = " << m_triggerTimes[bit_pos] << " ns");
-    }
-  }
+  ATH_CHECK(mbtsHandle.record( std::move( MbtsContainer), std::move( MbtsAuxContainer ) ) );
 
 
-  /** A pointer for access to the Tile Test Beam Identifier helper. */
+
 
 return StatusCode::SUCCESS;
 }
