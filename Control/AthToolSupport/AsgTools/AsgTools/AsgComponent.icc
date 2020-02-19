@@ -25,9 +25,9 @@ namespace asg
 
 
   template<typename T> ::StatusCode AsgComponent ::
-  setProperty (const std::string& name, T&& value)
+  setProperty (const std::string& name, const T& value)
   {
-    return m_properties->setProperty (name, std::forward<T>(value));
+    return m_properties->setProperty (name, value);
   }
 }
 
