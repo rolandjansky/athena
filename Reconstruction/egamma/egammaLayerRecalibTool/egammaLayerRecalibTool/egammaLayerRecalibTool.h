@@ -1,7 +1,7 @@
 // Dear Emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -67,7 +67,7 @@ struct GetAmountHVPSGuillaume : public GetAmountBase
 {
   virtual float operator()(const StdCalibrationInputs & input) const;
 private:
-  virtual GetAmountHVPSGuillaume* clone() const { return 0; };
+  virtual GetAmountHVPSGuillaume* clone() const { return nullptr; };
   corr_HV_EMBPS m_tool;
 };
 
@@ -84,13 +84,13 @@ protected:
 
 struct GetAmountHisto1D : public GetAmountBase
 {
-  GetAmountHisto1D(const TH1& histo) : m_histo(static_cast<TH1*>(histo.Clone())) { m_histo->SetDirectory(0); };
-  GetAmountHisto1D(const GetAmountHisto1D & oth) : m_histo(static_cast<TH1*>(oth.m_histo->Clone())) { m_histo->SetDirectory(0); };
+  GetAmountHisto1D(const TH1& histo) : m_histo(static_cast<TH1*>(histo.Clone())) { m_histo->SetDirectory(nullptr); };
+  GetAmountHisto1D(const GetAmountHisto1D & oth) : m_histo(static_cast<TH1*>(oth.m_histo->Clone())) { m_histo->SetDirectory(nullptr); };
   GetAmountHisto1D& operator= (const GetAmountHisto1D & oth){
     if (this != &oth) // protect against invalid self-assignment
       {
 	m_histo.reset(static_cast<TH1*>(oth.m_histo->Clone()));
-	m_histo->SetDirectory(0);
+	m_histo->SetDirectory(nullptr);
       }
     return *this;
   }
@@ -135,7 +135,7 @@ struct GetAmountHisto1DErrorDown : public GetAmountHisto1D
 
 struct GetAmountHisto2D : public GetAmountBase
 {
-  GetAmountHisto2D(const TH2F& histo) : m_histo(histo) { m_histo.SetDirectory(0); };
+  GetAmountHisto2D(const TH2F& histo) : m_histo(histo) { m_histo.SetDirectory(nullptr); };
   virtual GetAmountHisto2D* clone() const { return new GetAmountHisto2D(*this); };
   virtual float operator()(const StdCalibrationInputs & input) const;
 protected:

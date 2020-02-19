@@ -1,29 +1,31 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <utility>
 
 #include "IsolationPlots.h"
 
 namespace Egamma{
 
 
-  IsolationPlots::IsolationPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir), 
-												 m_sParticleType(sParticleType),
-												 etcone20 (0),
-												 etcone30 (0),
-												 etcone40 (0),
-												 etcone20corr(0),   
-												 etcone30corr(0),   
-												 etcone40corr(0),   
-												 ptcone20(0),       
-												 ptcone30(0),       
-												 ptcone40(0),       
-												 nucone20(0),       
-												 nucone30(0),       
-												 nucone40(0),       
-												 topoetcone20(0),   
-												 topoetcone30(0),   
-												 topoetcone40(0)   
+  IsolationPlots::IsolationPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType):PlotBase(pParent, sDir), 
+												 m_sParticleType(std::move(sParticleType)),
+												 etcone20 (nullptr),
+												 etcone30 (nullptr),
+												 etcone40 (nullptr),
+												 etcone20corr(nullptr),   
+												 etcone30corr(nullptr),   
+												 etcone40corr(nullptr),   
+												 ptcone20(nullptr),       
+												 ptcone30(nullptr),       
+												 ptcone40(nullptr),       
+												 nucone20(nullptr),       
+												 nucone30(nullptr),       
+												 nucone40(nullptr),       
+												 topoetcone20(nullptr),   
+												 topoetcone30(nullptr),   
+												 topoetcone40(nullptr)   
     {}
 
   void IsolationPlots::initializePlots(){

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -14,20 +14,33 @@ std::array<float, 4> get_MVAradius(float eta)
   if (eta / 0.025 < 57)
   {
     static const float
-      X0IN = 1.6,          // 1.7 X0 before strips
-      X0S1 = 6.0,          //  6  X0 till end of strips
+      X0IN = 1.6;
+    static const float
+      // 1.7 X0 before strips
+      X0S1 = 6.0;
+    static const float
+      //  6  X0 till end of strips
       //            BEND1 = 152.1000,    // first 3 bends radii (cm)
       //            BEND2 = 155.9659,
       //            BEND3 = 159.7202,
-      ETASTEP = 0.8,       // where lead changes
+      ETASTEP = 0.8;
+    static const float
+      // where lead changes
       //            DENSHI = 2.137,      // cm/X0 high density
       //            DENSLO = 2.695,      // cm/X0  low density
-      X0THI = 23.74,       // total depth high density part (not indep?)
+      X0THI = 23.74;
+    static const float
+      // total depth high density part (not indep?)
       X0TLO = 19.177;     // total depth  low density part (not indep?)
 
     float X0T;
     //  float DENS, X0T, RLO, RHI;
-    float R12, R23, R0, R1, R2, R3;
+    float R12;
+    float R23;
+    float R0;
+    float R1;
+    float R2;
+    float R3;
 
     if (eta < ETASTEP) {
       //            DENS = DENSHI;
@@ -42,7 +55,7 @@ std::array<float, 4> get_MVAradius(float eta)
       //            RHI = BEND2;
     }
 
-    R0 = (X0IN) * cosh(eta);
+    R0 = (X0IN) * std::cosh(eta);
 
     //..   actual radius where S1 should end
 
@@ -50,11 +63,11 @@ std::array<float, 4> get_MVAradius(float eta)
 
     //..   total depth of calo at given eta
 
-    float RADLTOT = X0T*cosh(eta);
+    float RADLTOT = X0T*std::cosh(eta);
 
 
     if (eta < 0.5) {
-      R23 = 22 * cosh(eta);
+      R23 = 22 * std::cosh(eta);
     } else {
       R23 = 25;
     }
@@ -70,7 +83,10 @@ std::array<float, 4> get_MVAradius(float eta)
   }
   else
   {
-    double x0=0., x1=0., x2=0., x3=0.;
+    double x0=0.;
+    double x1=0.;
+    double x2=0.;
+    double x3=0.;
 
     float abs_ETA = std::abs(eta);
 

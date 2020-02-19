@@ -100,7 +100,7 @@ StatusCode egammaBackShape::execute(const xAOD::CaloCluster& cluster,
 
   // granularity in (eta,phi) in the pre sampler
   // CaloCellList needs both enums: subCalo and CaloSample
-  cmgr.decode_sample(subcalo, barrel, sampling_or_module,
+  CaloDetDescrManager::decode_sample(subcalo, barrel, sampling_or_module,
                            (CaloCell_ID::CaloSample)sam);
   // Get the corresponding grannularities : needs to know where you are
   //                  the easiest is to look for the CaloDetDescrElement

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -125,7 +125,8 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
 
   ATH_MSG_DEBUG("photonMonTool::bookHistogramsForOnePhoton()");
 
-  int start, end;
+  int start;
+  int end;
   start = 0;
   end = ENDCAP;
 
@@ -684,7 +685,7 @@ StatusCode photonMonTool::fillHistograms() {
   }
 
   // Get photon container
-  const xAOD::PhotonContainer* photon_container=0;
+  const xAOD::PhotonContainer* photon_container=nullptr;
   sc = m_storeGate->retrieve(photon_container, m_PhotonContainer);
   if(sc.isFailure() || !photon_container){
     ATH_MSG_VERBOSE("no photon container found in TDS");

@@ -91,7 +91,7 @@ StatusCode egammaLargeClusterMaker::execute(const EventContext& ctx,
     CaloCell_ID::SUBCALO subcalo=CaloCell_ID::LAREM;
     int sampling_or_module=0; 
 
-    dd_man->decode_sample(subcalo, barrel, sampling_or_module, 
+    CaloDetDescrManager::decode_sample(subcalo, barrel, sampling_or_module, 
             (CaloCell_ID::CaloSample) sam);
 
     // Get the corresponding grannularities : needs to know where you are

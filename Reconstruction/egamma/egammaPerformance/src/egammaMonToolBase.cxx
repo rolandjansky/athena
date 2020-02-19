@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ egammaMonToolBase::egammaMonToolBase(const std::string & type, const std::string
   m_region[FORWARD]="FORWARD";
 
   m_currentLB = 0;
-  m_storeGate = 0;
+  m_storeGate = nullptr;
 }
 
 egammaMonToolBase::~egammaMonToolBase()
@@ -90,29 +90,30 @@ StatusCode egammaMonToolBase::bookHistograms()
   return StatusCode::SUCCESS;
 }
 
-void egammaMonToolBase::bookTH1F(TH1* &h, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbins, float low, float high)
+void egammaMonToolBase::bookTH1F(TH1* &h, MonGroup& mygroup, const std::string& hname, const std::string& htitle, int nbins, float low, float high)
 {
   h = new TH1F(hname.c_str(),htitle.c_str(),nbins,low,high);
   regHist(h,mygroup).ignore();
 }
 
-void egammaMonToolBase::bookTH2F(TH2* &h, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbinsx, float xlow, float xhigh, int nbinsy, float ylow, float yhigh)
+void egammaMonToolBase::bookTH2F(TH2* &h, MonGroup& mygroup, const std::string& hname, const std::string& htitle, int nbinsx, float xlow, float xhigh, int nbinsy, float ylow, float yhigh)
 {
   h = new TH2F(hname.c_str(),htitle.c_str(),nbinsx,xlow,xhigh,nbinsy,ylow,yhigh);
   regHist(h,mygroup).ignore();
 }
 
-void egammaMonToolBase::bookTProfile(TProfile* &h, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbins, float xlow, float xhigh, float ylow, float yhigh)
+void egammaMonToolBase::bookTProfile(TProfile* &h, MonGroup& mygroup, const std::string& hname, const std::string& htitle, int nbins, float xlow, float xhigh, float ylow, float yhigh)
 {
   h = new TProfile(hname.c_str(),htitle.c_str(),nbins,xlow,xhigh,ylow,yhigh);
   regHist(h,mygroup).ignore();
 }
 
-void egammaMonToolBase::bookTH1FperRegion(std::vector<TH1*> &vhist, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbins, float low, float high, unsigned int min_region, unsigned int max_region)
+void egammaMonToolBase::bookTH1FperRegion(std::vector<TH1*> &vhist, MonGroup& mygroup, const std::string& hname, const std::string& htitle, int nbins, float low, float high, unsigned int min_region, unsigned int max_region)
 {
-  std::string name, title;
+  std::string name;
+  std::string title;
   
-  vhist.resize(NREGION,0);
+  vhist.resize(NREGION,nullptr);
   for(unsigned int ir=min_region;ir<=max_region;ir++) {
     // Create histograms
     name  = hname+"_"+m_region[ir];
@@ -125,11 +126,12 @@ void egammaMonToolBase::bookTH1FperRegion(std::vector<TH1*> &vhist, MonGroup& my
   }
 }
 
-void egammaMonToolBase::bookTH2FperRegion(std::vector<TH2*> &vhist, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbinsx, float xlow, float xhigh, int nbinsy, float ylow, float yhigh, unsigned int min_region, unsigned int max_region)
+void egammaMonToolBase::bookTH2FperRegion(std::vector<TH2*> &vhist, MonGroup& mygroup, const std::string& hname, const std::string& htitle, int nbinsx, float xlow, float xhigh, int nbinsy, float ylow, float yhigh, unsigned int min_region, unsigned int max_region)
 {
-  std::string name, title;
+  std::string name;
+  std::string title;
   
-  vhist.resize(NREGION,0);
+  vhist.resize(NREGION,nullptr);
   for(unsigned int ir=min_region;ir<=max_region;ir++) {
     // Create histograms
     name  = hname+"_"+m_region[ir];
@@ -249,10 +251,9 @@ void egammaMonToolBase::fillEfficiencies(TH1* h, TH1* href)
     h->SetBinContent(i,eps);
     h->SetBinError(i,err);
   }
-  return;
-}
+  }
 
-bool egammaMonToolBase::hasGoodTrigger(std::string comment){
+bool egammaMonToolBase::hasGoodTrigger(const std::string& comment){
 
   if (!m_UseTrigger) {
     ATH_MSG_DEBUG("No Trigger request for that monitoring tool");
@@ -261,12 +262,12 @@ bool egammaMonToolBase::hasGoodTrigger(std::string comment){
 
   ATH_MSG_DEBUG( "Size of " << comment << " Trigger vector = "<< m_Trigger.size() );
   bool triggerfound = false;
-  for (unsigned int i = 0 ; i < m_Trigger.size() ; ++i){
-    ATH_MSG_DEBUG(comment << " Trigger " << m_Trigger.at(i)  << " for that event ?");
-    if (m_trigdec->isPassed(m_Trigger.at(i)))
+  for (const auto & i : m_Trigger){
+    ATH_MSG_DEBUG(comment << " Trigger " << i  << " for that event ?");
+    if (m_trigdec->isPassed(i))
     {
       triggerfound=true;
-      ATH_MSG_DEBUG(comment << " Trigger " << m_Trigger.at(i)  << " found for that event");
+      ATH_MSG_DEBUG(comment << " Trigger " << i  << " found for that event");
     }
   }
   
@@ -276,9 +277,9 @@ bool egammaMonToolBase::hasGoodTrigger(std::string comment){
   if (!m_trigdec.retrieve().isFailure()){
     const std::vector<std::string>& vec = m_trigdec->getListOfTriggers();
     ATH_MSG_DEBUG( "Size of Trigger vector in xAOD file = "<< vec.size());
-    for (unsigned int i=0 ; i < vec.size() ; ++i) {
-      if (m_trigdec->isPassed(vec[i])) {
-	ATH_MSG_DEBUG("Active Trigger found : " << vec[i] );
+    for (const auto & i : vec) {
+      if (m_trigdec->isPassed(i)) {
+	ATH_MSG_DEBUG("Active Trigger found : " << i );
       }
       //      else {
       //	ATH_MSG_DEBUG("Passive Trigger found : " << vec[i] );

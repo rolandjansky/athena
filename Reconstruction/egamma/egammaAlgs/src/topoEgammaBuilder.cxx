@@ -240,9 +240,9 @@ StatusCode topoEgammaBuilder::doAmbiguityLinks(xAOD::ElectronContainer *electron
   ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
   static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
   ElementLink<xAOD::EgammaContainer> dummylink;
-  for (size_t photonIndex=0; photonIndex < photonContainer->size() ; ++photonIndex) {    
+  for (auto && photonIndex : *photonContainer) {    
 
-    xAOD::Photon* photon = photonContainer->at(photonIndex); 
+    xAOD::Photon* photon = photonIndex; 
     ELink(*photon)=dummylink;
 
     if(photon->author()!= xAOD::EgammaParameters::AuthorAmbiguous){
@@ -264,9 +264,9 @@ StatusCode topoEgammaBuilder::doAmbiguityLinks(xAOD::ElectronContainer *electron
       }
     }
   }
-  for (size_t electronIndex=0; electronIndex < electronContainer->size() ; ++electronIndex) {    
+  for (auto && electronIndex : *electronContainer) {    
 
-    xAOD::Electron* electron = electronContainer->at(electronIndex); 
+    xAOD::Electron* electron = electronIndex; 
     ELink(*electron)=dummylink;
     if(electron->author()!= xAOD::EgammaParameters::AuthorAmbiguous){
       continue;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhotonPlots.h"
@@ -11,7 +11,7 @@ using CLHEP::GeV;
 namespace Egamma{
 
 
-PhotonPlots::PhotonPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir), 
+PhotonPlots::PhotonPlots(PlotBase* pParent, const std::string& sDir, const std::string& sParticleType):PlotBase(pParent, sDir), 
 											 m_oKinAllPlots(this, "All/KinPlots/", "Reco " + sParticleType +" Photon"), 
 											 m_oShowerShapesAllPlots(this, "All/ShowerShapesPlots/", sParticleType  +" Photon"),
 //
@@ -28,7 +28,7 @@ PhotonPlots::PhotonPlots(PlotBase* pParent, std::string sDir, std::string sParti
 											 m_oKinIsoTightUncPlots(this, "IsoTight/KinPlotsUnc/", "Reco " + sParticleType +" Photon"),
 											 m_oKinIsoTightConvPlots(this, "IsoTight/KinPlotsConv/", "Reco " + sParticleType +" Photon"),
 											 m_sParticleType(sParticleType),
-											 m_nParticles(0)
+											 m_nParticles(nullptr)
 {}	
 
 void PhotonPlots::initializePlots(){
