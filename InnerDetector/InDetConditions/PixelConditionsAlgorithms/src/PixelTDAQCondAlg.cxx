@@ -20,7 +20,7 @@ StatusCode PixelTDAQCondAlg::initialize() {
   ATH_CHECK(m_condSvc.retrieve());
 
   ATH_CHECK(m_moduleDataKey.initialize());
-  ATH_CHECK(m_readKey.initialize());
+  ATH_CHECK(m_readKey.initialize(!m_readKey.empty()));
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
