@@ -34,6 +34,14 @@ namespace asg
 
 
 
+  void AsgComponent ::
+  addCleanup (const std::shared_ptr<void>& cleanup)
+  {
+    m_cleanup.push_back (cleanup);
+  }
+
+
+
   /// See the comments for PropertyMgr::setProperty to see why this
   /// function specialisation is needed, and why it has this exact form.
   ///
