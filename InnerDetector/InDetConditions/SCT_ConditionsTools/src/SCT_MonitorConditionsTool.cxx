@@ -113,7 +113,7 @@ SCT_MonitorConditionsTool::isGood(const Identifier& elementId, InDetConditions::
 bool 
 SCT_MonitorConditionsTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   Identifier elementId{m_pHelper->wafer_id(hashId)};
-  return isGood(elementId, ctx);
+  return isGood(elementId, ctx, InDetConditions::SCT_SIDE);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
