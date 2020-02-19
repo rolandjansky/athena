@@ -44,28 +44,31 @@ alg.MaxEta = 2.5
 #alg.MinQualit = 1 #Medium
 WPs = [
          # reconstruction WPs
-        "LowPt",
-        "Loose", 
-        "Medium", 
-        "Tight", 
+        #"LowPt",
+        #"Loose", 
+        #"Medium", 
+        #"Tight", 
         #"HighPt", 
         #"CaloTag",      
          # track-to-vertex-association WPs
-         #"TTVA",
+         "TTVA",
          # BadMuon veto SFs
         #"BadMuonVeto_HighPt",        
-        # isolation WPs
-       # "FCLooseIso",
-       # FCTightIso",              
-       # "FCTightTrackOnlyIso",              
-       #"FCLoose_FixedRadIso",        
-       #"FCTight_FixedRadIso",
-       #"FCTightTrackOnly_FixedRadIso",
-       #"FCTight_FixedRadIso",           
-       #"FixedCutHighPtTrackOnlyIso",
+        #"GradientIso",
+         # isolation WPs
+        "FCLooseIso",
+        "FCTightIso",              
+        "FCTightTrackOnlyIso",              
+        "FCLoose_FixedRadIso",        
+        "FCTight_FixedRadIso",
+        "FCTightTrackOnly_FixedRadIso",
+         
+        "FCTight_FixedRadIso",           
         
-       #"FixedCutPflowLooseIso",            
-       #"FixedCutPflowTightIso",
+        "FixedCutHighPtTrackOnlyIso",
+             
+        "FixedCutPflowLooseIso",            
+        "FixedCutPflowTightIso",
         
        
         
@@ -74,8 +77,10 @@ WPs = [
 for WP in WPs: 
     alg.EfficiencyTools += [GetMuonEfficiencyTool(WP,
                                                   Release="191111_Winter_PrecisionZ",
-                                                BreakDownSystematics=False, 
+                                                BreakDownSystematics=True, 
                                                 UncorrelateSystematics=False)]
+                                                
+    break
     alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, 
                                                 CustomInput = "/ptmp/mpp/junggjo9/Cluster/SFFiles/Feb_2020_iso/",
                                                 BreakDownSystematics=False, 

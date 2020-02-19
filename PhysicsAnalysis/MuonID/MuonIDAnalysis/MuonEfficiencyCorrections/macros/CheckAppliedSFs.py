@@ -146,12 +146,7 @@ def getArgParser():
     parser.add_argument('-o', '--outDir', help='Specify a destination directory', default="Plots")
     parser.add_argument('-l', '--label', help='Specify the dataset you used with MuonEfficiencyCorrectionsSFFilesTest', default="Internal")
     parser.add_argument('-w', '--WP', help='Specify a WP to plot', nargs='+', default=[])
-    parser.add_argument('--varType', help='Specify a variation type', nargs='+', default=["", 
-                                                                                          "MUON_EFF_RECO_SYS_LOWPT__1down", 
-                                                                                          "MUON_EFF_RECO_STAT_LOWPT__1down", 
-                                                                                          "MUON_EFF_RECO_SYS__1down",
-                                                                                          "MUON_EFF_RECO_STAT__1down"  
-                                                                                          ])
+    parser.add_argument('--varType', help='Specify a variation type', nargs='+', default=["", "MUON_EFF_RECO_SYS__1down", "MUON_EFF_RECO_STAT__1down", "MUON_EFF_RECO_SYS__1up" ])
     parser.add_argument('-c', '--SFConstituent', help='Specify if you want to plot nominal value, sys or stat error', nargs='+', default=["SF","DataEff","MCEff"])
     parser.add_argument('--bonusname', help='Specify a bonus name for the filename', default="")
     parser.add_argument('--bonuslabel', help='Specify a bonus label printed in the histogram', default="")
@@ -273,7 +268,7 @@ if __name__ == "__main__":
         if i > 0 and i % 2500 == 0: 
             print "INFO: %d/%d events processed"%(i, tree.GetEntries())
             
-        if  math.fabs(tree.Muon_eta) > 2.5  or math.fabs(tree.Muon_eta) < 0.1 or math.fabs(tree.Muon_pt) > 15.e3: continue        
+        if  math.fabs(tree.Muon_eta) > 2.5  or math.fabs(tree.Muon_eta) < 0.1 or tree.Muon_pt < 15.e3 : continue        
         for H in Histos: 
             H.fill()
         

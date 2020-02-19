@@ -27,12 +27,10 @@ namespace CP {
                 m_custom_file_HighEta(),
                 m_custom_file_LowPt(),
                 m_custom_file_LowPtCalo(),
-                m_custom_file_LowPtST(),
                 m_efficiency_decoration_name_data(),
                 m_efficiency_decoration_name_mc(),
                 m_sf_decoration_name(),
-                //m_calibration_version("200202_Precision_r21"),
-                m_calibration_version("191111_Winter_PrecisionZ"),
+                m_calibration_version("200202_Precision_r21"),
                 m_lowpt_threshold(15.e3),
                 m_affectingSys(),
                 m_filtered_sys_sets(),
@@ -51,7 +49,6 @@ namespace CP {
         declareProperty("CustomFileHighEta", m_custom_file_HighEta);
         declareProperty("CustomFileLowPt", m_custom_file_LowPt);
         declareProperty("CustomFileLowPtCalo", m_custom_file_LowPtCalo);
-        declareProperty("CustomFileLowPtST", m_custom_file_LowPtST);
         
         // Apply additional systematics to account for negelected pt dependency
         // in the maps themselves or for non-closure
@@ -155,8 +152,6 @@ namespace CP {
         if (!m_custom_file_HighEta.empty()) ATH_MSG_WARNING("Note: setting up with user specified High Eta input file " << m_custom_file_HighEta << " - this is not encouraged! ");
         if (!m_custom_file_LowPt.empty()) ATH_MSG_WARNING("Note: setting up with user specified Low Pt input file " << m_custom_file_LowPt << " - this is not encouraged! ");
         if (!m_custom_file_LowPtCalo.empty()) ATH_MSG_WARNING("Note: setting up with user specified Low Pt CaloTag input file " << m_custom_file_LowPtCalo << " - this is not encouraged! ");
-        if (!m_custom_file_LowPtST.empty()) ATH_MSG_WARNING("Note: setting up with user specified Low Pt SegmentTag input file " << m_custom_file_LowPtCalo << " - this is not encouraged! ");
-        
         if (m_custom_dir.empty()) ATH_MSG_INFO("Trying to initialize, with working point " << m_wp << ", using calibration release " << m_calibration_version);
 
         ATH_CHECK(LoadInputs());
@@ -351,12 +346,6 @@ namespace CP {
             return filename_Central();
         } else return resolve_file_location("Reco_CaloTag_JPsi.root");
     }
-    std::string MuonEfficiencyScaleFactors::filename_LowPtSegmentTag() const {
-        if (!m_custom_file_LowPtST.empty()) return resolve_file_location(m_custom_file_LowPtST);
-         else if (true || m_Type != CP::MuonEfficiencyType::Reco || m_lowpt_threshold < 0) {
-            return filename_Central();
-        } else return resolve_file_location("Reco_SegmentTag_JPsi.root");
-    }
     // load the SF histos
     
     StatusCode MuonEfficiencyScaleFactors::LoadInputs() {
@@ -412,15 +401,13 @@ namespace CP {
             filename_Calo(),
             filename_HighEta(),
             filename_LowPt(),
-            filename_LowPtCalo(),
-            filename_LowPtSegmentTag()
+            filename_LowPtCalo()
         };
         std::function<int(const std::string&)> get_bit = [this](const std::string& file_name){
                 if (file_name == filename_Central()) return EffiCollection::Central;
                 if (file_name == filename_LowPt()) return EffiCollection::CentralLowPt;
                 if (file_name == filename_Calo()) return EffiCollection::Calo;
                 if (file_name == filename_LowPtCalo()) return EffiCollection::CaloLowPt;
-                if (file_name == filename_LowPtSegmentTag()) return EffiCollection::SegmentTagLowPt;
                 // last file which remains is forward
                 return EffiCollection::Forward;
         };

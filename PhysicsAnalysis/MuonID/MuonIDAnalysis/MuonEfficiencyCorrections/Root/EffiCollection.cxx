@@ -17,7 +17,6 @@ namespace CP {
             m_forward_eff(),
             m_lowpt_central_eff(),
             m_lowpt_calo_eff(),
-            m_lowpt_st_eff(),
             m_syst_set(std::make_unique<SystematicSet>()){
 
         m_central_eff = std::make_shared<CollectionContainer>(m_ref_tool, CollectionType::Central);
@@ -33,12 +32,9 @@ namespace CP {
             m_lowpt_central_eff = std::make_shared<CollectionContainer>(m_ref_tool,CollectionType::CentralLowPt);
         } else m_lowpt_central_eff = m_central_eff;
        
-        if (m_ref_tool.lowPtTransition() > 0  && m_ref_tool.filename_LowPtCalo() != m_ref_tool.filename_Central()){
+         if (m_ref_tool.lowPtTransition() > 0  && m_ref_tool.filename_LowPtCalo() != m_ref_tool.filename_Central()){
             m_lowpt_calo_eff = std::make_shared<CollectionContainer>(m_ref_tool, CollectionType::CaloLowPt);
         } else m_lowpt_calo_eff = m_central_eff;
-        if (m_ref_tool.lowPtTransition() > 0  && m_ref_tool.filename_LowPtSegmentTag() != m_ref_tool.filename_Central()){
-            m_lowpt_st_eff = std::make_shared<CollectionContainer>(m_ref_tool, CollectionType::SegmentTagLowPt);
-        } else m_lowpt_st_eff = m_central_eff;
     }
     
     EffiCollection::EffiCollection(const EffiCollection* Nominal, const MuonEfficiencyScaleFactors& ref_tool, const std::string& syst, int syst_bit_map, bool is_up):
@@ -48,7 +44,6 @@ namespace CP {
             m_forward_eff(),
             m_lowpt_central_eff(),
             m_lowpt_calo_eff(),
-            m_lowpt_st_eff(),
             m_syst_set() {
     
         if (is_up) syst_bit_map |= EffiCollection::UpVariation;
@@ -67,7 +62,7 @@ namespace CP {
         m_calo_eff = make_variation(CollectionType::Calo);
         m_lowpt_central_eff = make_variation(CollectionType::CentralLowPt);
         m_lowpt_calo_eff = make_variation(CollectionType::CaloLowPt);
-        m_lowpt_st_eff = make_variation(CollectionType::SegmentTagLowPt);
+        
         
     }
     
@@ -77,7 +72,6 @@ namespace CP {
         if (Type == CollectionType::Calo) return m_calo_eff;
         if (Type == CollectionType::CentralLowPt) return m_lowpt_central_eff;
         if (Type == CollectionType::CaloLowPt) return m_lowpt_calo_eff;
-        if (Type == CollectionType::SegmentTagLowPt) return m_lowpt_st_eff;
         return std::shared_ptr<CollectionContainer>();
     }
     bool EffiCollection::CheckConsistency()  {
@@ -101,10 +95,6 @@ namespace CP {
             Error("EffiCollection()", "Consistency check for low-pt calo file failed"); 
             return false;
         }
-        if (!m_lowpt_st_eff || !m_lowpt_st_eff->CheckConsistency()) {
-            Error("EffiCollection()", "Consistency check for low-pt calo file failed"); 
-            return false;
-        }
         /// At this stage we know that all efficiencies have been loaded 
         /// successfully. We need to now to order the maps to make global
         /// bin numbers
@@ -120,7 +110,7 @@ namespace CP {
         assign_mapping(m_forward_eff.get());
         assign_mapping(m_lowpt_central_eff.get());
         assign_mapping(m_lowpt_calo_eff.get());
-        assign_mapping(m_lowpt_st_eff.get());
+       
         /// Systematic constructor has been called. We can now assemble
         /// the systematic variations
         if (!m_syst_set){
@@ -131,7 +121,7 @@ namespace CP {
                 return false;
             }
             for (const EffiCollection::CollectionType& file_type: {EffiCollection::Central, EffiCollection::Calo, EffiCollection::Forward,  
-                                         EffiCollection::CentralLowPt, EffiCollection::CaloLowPt, EffiCollection::SegmentTagLowPt}){
+                                         EffiCollection::CentralLowPt, EffiCollection::CaloLowPt}){
                     
                 std::shared_ptr<CollectionContainer> container = retrieveContainer(file_type);
                 if (container->isNominal()) continue;
@@ -158,8 +148,6 @@ namespace CP {
             }
             if (mu.author() == xAOD::Muon::CaloTag) {
                 return m_lowpt_calo_eff.get();
-            } else if (mu.type() == xAOD::Muon::SegmentTagged){
-                return m_lowpt_st_eff.get();
             }
             return m_lowpt_central_eff.get();
         }
@@ -177,7 +165,6 @@ namespace CP {
         if (m_calo_eff->isBinInMap(bin)) return m_calo_eff.get();
         if (m_lowpt_central_eff->isBinInMap(bin)) return m_lowpt_central_eff.get();
         if (m_lowpt_calo_eff->isBinInMap(bin)) return m_lowpt_calo_eff.get();
-        if (m_lowpt_st_eff->isBinInMap(bin)) return m_lowpt_st_eff.get();      
         return nullptr;
     }
             
@@ -204,9 +191,6 @@ namespace CP {
         if (m_lowpt_calo_eff != m_central_eff) {
             Nbins += m_lowpt_calo_eff->nBins();
         }
-        if (m_lowpt_st_eff != m_central_eff) {
-            Nbins += m_lowpt_st_eff->nBins();
-        }        
         return Nbins;
     }
     bool EffiCollection::SetSystematicBin(unsigned int Bin) {
@@ -216,8 +200,7 @@ namespace CP {
     }
     bool EffiCollection::IsLowPtBin(unsigned int Bin) const {
         return (m_central_eff != m_lowpt_central_eff && m_lowpt_central_eff->isBinInMap(Bin)) ||
-               (m_central_eff != m_lowpt_calo_eff && m_lowpt_calo_eff->isBinInMap(Bin)) ||
-               (m_lowpt_st_eff != m_lowpt_calo_eff && m_lowpt_st_eff->isBinInMap(Bin));
+               (m_central_eff != m_lowpt_calo_eff && m_lowpt_calo_eff->isBinInMap(Bin));
     }
     bool EffiCollection::IsForwardBin(unsigned int Bin) const {
         return m_forward_eff != m_central_eff && m_forward_eff->isBinInMap(Bin);
@@ -229,7 +212,6 @@ namespace CP {
         if (T == CollectionType::Forward) return "Forward";
         if (T == CollectionType::CentralLowPt) return "CentralLowPt";
         if (T == CollectionType::CaloLowPt) return "CaloLowPt";
-        if (T == CollectionType::SegmentTagLowPt) return "SegmentTagLowPt";        
         return "EffiCollection::FileTypeName() - WARNING: Unknown EffiCollection::CollectionType!";
     }
 
