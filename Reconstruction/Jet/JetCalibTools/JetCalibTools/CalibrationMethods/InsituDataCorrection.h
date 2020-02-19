@@ -46,6 +46,7 @@ class InsituDataCorrection
   double getInsituCorr(double pt, double eta, std::string calibstep) const;
   double getInsituCorr_JMS(double pt, double mass, double eta, std::string calibstep) const;
   TH2D * combineCalibration(TH2D *h2d, TH1D *h);
+  TH2D * invertHistogram(TH2D *h2d);
  
  private:
   TEnv * m_config;
@@ -55,6 +56,7 @@ class InsituDataCorrection
   std::unique_ptr<TH2D> m_insituCorr;
   std::unique_ptr<TH2D> m_insituCorr_JMS;
   double m_insituEtaMax, m_insituPtMin, m_insituPtMax, m_insituEtaMax_JMS, m_insituPtMin_JMS, m_insituPtMax_JMS, m_insituMassMin_JMS, m_insituMassMax_JMS;
+  double m_relhistoPtMax, m_abshistoPtMax;
   std::unique_ptr<TH2D> m_insituCorr_ResidualMCbased;
   double m_insituEtaMax_ResidualMCbased, m_insituPtMin_ResidualMCbased, m_insituPtMax_ResidualMCbased;
 

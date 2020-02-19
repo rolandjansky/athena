@@ -127,11 +127,10 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
     return StatusCode::FAILURE;
   }
 
+  //Large-R in situ JMS calibration
   if(m_applyInsituJMS){
     //Retrieve the name of root files containing the in-situ calibration histograms from the config
     TString insituJMS_filename = m_config->GetValue("InsituCalibrationFile_JMS","None");
-    //Retrieve the name of the histogram for the relative in-situ calibration
-    TString rel_histoname_JMS = m_config->GetValue("RelativeInsituCalibrationHistogram_JMS","");
     //Retrieve the name of the histogram for the absolute in-situ calibration
     TString abs_histoname_JMS = m_config->GetValue("AbsoluteInsituCalibrationHistogram_JMS","");
     //Retrieve the eta range for the in-situ JMS calibration
@@ -154,21 +153,20 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
 
     ATH_MSG_INFO("Reading In-situ correction factors from: " << insituJMS_filename);
 
-    rel_histoname_JMS.ReplaceAll("JETALGO",m_jetAlgo);  abs_histoname_JMS.ReplaceAll("JETALGO",m_jetAlgo);
+    abs_histoname_JMS.ReplaceAll("JETALGO",m_jetAlgo);
 
     if(m_applyRelativeandAbsoluteInsitu){
 
-      TH2D * rel_histo_JMS = (TH2D*)JetCalibUtils::GetHisto2(insituJMS_file,rel_histoname_JMS);
-      TH1D * abs_histo_JMS = (TH1D*)JetCalibUtils::GetHisto(insituJMS_file,abs_histoname_JMS);
+      TH2D * abs_histo_JMS = (TH2D*)JetCalibUtils::GetHisto2(insituJMS_file,abs_histoname_JMS);
 
-      if ( !rel_histo_JMS || !abs_histo_JMS ) {
-        ATH_MSG_FATAL( "\n  Tool configured for data, but no residual in-situ histograms could be retrieved. Aborting..." );
+      if ( !abs_histo_JMS ) {
+        ATH_MSG_FATAL( "\n  Tool configured for data, but no in-situ JMS histogram could be retrieved. Aborting..." );
         return StatusCode::FAILURE;
       }
       else {
         gROOT->cd();
         // combine in situ calibrations
-        m_insituCorr_JMS    = std::unique_ptr<TH2D>(combineCalibration(rel_histo_JMS,abs_histo_JMS));
+        m_insituCorr_JMS    = std::unique_ptr<TH2D>(invertHistogram(abs_histo_JMS));
 	m_insituEtaMax_JMS  = insitu_etarestriction_JMS;
         m_insituPtMin_JMS   = m_insituCorr_JMS->GetXaxis()->GetBinLowEdge(1);
         m_insituPtMax_JMS   = m_insituCorr_JMS->GetXaxis()->GetBinLowEdge(m_insituCorr_JMS->GetNbinsX()+1);
@@ -385,4 +383,15 @@ TH2D * InsituDataCorrection::combineCalibration(TH2D *h2d, TH1D *h) {
     }
   }
   return prod;
+}
+
+TH2D * InsituDataCorrection::invertHistogram(TH2D *h2d){
+  TH2D *inv = (TH2D*)h2d->Clone();
+  for (int xi=1;xi<=inv->GetNbinsX();xi++) {
+    for (int yi=1;yi<=inv->GetNbinsY();yi++) {
+      inv->SetBinContent(xi,yi,1./h2d->GetBinContent(xi,yi));
+
+    }
+  }
+  return inv;
 }
