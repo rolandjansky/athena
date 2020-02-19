@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAEVENT_EGPID_H
@@ -43,16 +43,16 @@ class egPID
   /** @brief Metod to define isEM variable */
   unsigned int isEM(const unsigned int mask = egammaPIDObs::ALL, 
 		    egammaPIDObs::PID = egammaPIDObs::IsEM, 
-		    bool *found = NULL) const;
+		    bool *found = nullptr) const;
   /** @brief Method to define isEMse variable */
-  unsigned int isEMsofte(const unsigned int mask = egammaPIDObs::ALL, bool *found = NULL) const;
+  unsigned int isEMsofte(const unsigned int mask = egammaPIDObs::ALL, bool *found = nullptr) const;
   /** @brief Method to define Object quality variable */
-  unsigned int IsGoodOQ(const unsigned int mask = egammaPIDObs::ALLOQ, bool *found = NULL) const;
+  unsigned int IsGoodOQ(const unsigned int mask = egammaPIDObs::ALLOQ, bool *found = nullptr) const;
   
   /** @brief retrieve egamma ID, as double to work for IsEM 
       and all possible weights as likelihood; 
       found, if not NULL, is set to true if found */
-  double egammaID(egammaPIDObs::PID, bool *found = NULL) const;
+  double egammaID(egammaPIDObs::PID, bool *found = nullptr) const;
   /** @brief set egamma ID, as double to work double values 
       and all possible weights as likelihood */
   bool set_egammaID(egammaPIDObs::PID, double);

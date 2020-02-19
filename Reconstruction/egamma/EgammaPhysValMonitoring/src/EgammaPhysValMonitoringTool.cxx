@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EgammaPhysValMonitoringTool.cxx 
@@ -46,8 +46,8 @@ EgammaPhysValMonitoringTool::EgammaPhysValMonitoringTool( const std::string& typ
 							  const std::string& name, 
 							  const IInterface* parent ):
   ManagedMonitorToolBase( type, name, parent ),
-  m_oElectronValidationPlots(0, "Electron/"),
-  m_oPhotonValidationPlots(0, "Photon/")
+  m_oElectronValidationPlots(nullptr, "Electron/"),
+  m_oPhotonValidationPlots(nullptr, "Photon/")
 {    
 }
 
@@ -310,7 +310,7 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoElecHistograms(const xAOD::Truth
              }
 	}
       
-    } else if(m_isMC){ if(Match(electron,11, truthParticles)!=0 ) isElecPrompt=true;}
+    } else if(m_isMC){ if(Match(electron,11, truthParticles)!=nullptr ) isElecPrompt=true;}
     
     
     m_oElectronValidationPlots.fill(*electron,isElecPrompt);
@@ -341,7 +341,7 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoFrwdElecHistograms(const xAOD::T
     if(!(frwdelectron->isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON))) continue;
     bool isElecPrompt=false;
     if (m_isMC) {
-      if((Match(frwdelectron,11, truthParticles)!=0 )) isElecPrompt=true;
+      if((Match(frwdelectron,11, truthParticles)!=nullptr )) isElecPrompt=true;
     }
     m_oElectronValidationPlots.fill(*frwdelectron,isElecPrompt);
     numoffrwdele++;
@@ -394,7 +394,7 @@ StatusCode EgammaPhysValMonitoringTool::fillRecoPhotHistograms(const xAOD::Truth
           }
        }
 
-    } else if(m_isMC){if(Match(photon,22, truthParticles)!=0 ) isPhotPrompt=true;}    
+    } else if(m_isMC){if(Match(photon,22, truthParticles)!=nullptr ) isPhotPrompt=true;}    
 
     m_oPhotonValidationPlots.fill(*photon, isPhotPrompt);
     if(photon->author()&xAOD::EgammaParameters::AuthorPhoton&&photon->pt()*0.001>7.)           numofPhot++;

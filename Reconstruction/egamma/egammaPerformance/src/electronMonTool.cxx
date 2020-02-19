@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -143,7 +143,8 @@ StatusCode electronMonTool::bookHistogramsForOneElectronType(electronHist& myHis
 
   ATH_MSG_DEBUG("electronMonTool::bookHistogramsForOneElectron()");
 
-  int start, end;
+  int start;
+  int end;
   start = 0;
   end = ENDCAP;
 
@@ -557,7 +558,7 @@ StatusCode electronMonTool::fillHistograms() {
   }
 
   // Get electron container
-  const xAOD::ElectronContainer* electron_container=0;
+  const xAOD::ElectronContainer* electron_container=nullptr;
   sc = m_storeGate->retrieve(electron_container, m_ElectronContainer);
   if(sc.isFailure() || !electron_container){
     ATH_MSG_VERBOSE("no electron container found in TDS");
