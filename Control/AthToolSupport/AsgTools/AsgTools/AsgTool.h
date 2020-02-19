@@ -75,6 +75,11 @@ namespace asg {
 
       /// @}
 
+     // this is just so that my template functions can find this
+     // method in the base class.
+   public:
+     using AsgToolBase::msg;
+
 #endif // XAOD_STANDALONE
 
 #ifndef XAOD_STANDALONE

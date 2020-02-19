@@ -4,6 +4,7 @@
 
 <lcgdict>
 
+   <class name="asg::AsgComponent" />
    <class name="asg::AsgComponentConfig" />
 
 </lcgdict>
