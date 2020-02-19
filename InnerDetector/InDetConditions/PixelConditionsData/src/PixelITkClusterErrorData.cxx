@@ -80,39 +80,16 @@ void PixelITkClusterErrorData::load(std::string file){
     // Data in the file is stored in the following columns:
     // pixelID : delta_x : delta_error_x : delta_y : delta_error_y
     //
-    
-    std::string line;
-    std::string var;
 
     std::string pixelId_str;
     double delta_x;
     double delta_error_x;
     double delta_y;
     double delta_error_y;    
-    
-    // TO DO - rewrite this with Boost tokenizer
-    
-    while( std::getline(infile,line) ){
-            
-      var = line.substr(0,line.find(" "));
-      pixelId_str = var;
-      line = line.substr(line.find(" ")+1,line.size());
 
-      var = line.substr(0,line.find(" "));
-      delta_x = std::stod(var);
-      line = line.substr(line.find(" ")+1,line.size());
-      
-      var = line.substr(0,line.find(" "));
-      delta_error_x = std::stod(var);
-      line = line.substr(line.find(" ")+1,line.size());
+    while(!infile.eof()){
 
-      var = line.substr(0,line.find(" "));
-      delta_y = std::stod(var);
-      line = line.substr(line.find(" ")+1,line.size());
-      
-      var = line.substr(0,line.find(" "));
-      delta_error_y = std::stod(var);
-      line = line.substr(line.find(" ")+1,line.size());
+      infile >> pixelId_str >> delta_x >> delta_error_x >> delta_y >> delta_error_y;
         
       Identifier pixelId;
       pixelId.set(pixelId_str);      
