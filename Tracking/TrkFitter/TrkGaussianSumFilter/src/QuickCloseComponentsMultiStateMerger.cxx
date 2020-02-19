@@ -26,7 +26,6 @@ Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(
                                                                                 const std::string& name,
                                                                                 const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_chronoSvc("ChronoStatSvc", name)
 {
 
   declareInterface<IMultiComponentStateMerger>(this);
@@ -37,14 +36,6 @@ Trk::QuickCloseComponentsMultiStateMerger::~QuickCloseComponentsMultiStateMerger
 StatusCode
 Trk::QuickCloseComponentsMultiStateMerger::initialize()
 {
-
-  // Request the Chrono Service
-  if (m_chronoSvc.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve service " << m_chronoSvc);
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("Retrieved service " << m_chronoSvc);
-
   if (m_maximumNumberOfComponents <= 0) {
     ATH_MSG_FATAL("Attempting to merge multi-state into zero components... stop being silly!");
     return StatusCode::FAILURE;
@@ -175,10 +166,6 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
     /*convert the index in an (i,j) pair*/
     int32_t mini = convert[minIndex].I;
     int32_t minj = convert[minIndex].J;
-    if (mini == minj) {
-      ATH_MSG_ERROR("Err keys are equal key1 " << mini << " key2 " << minj);
-      break;
-    }
     /*
      * Combine the components to be merged
      * statesToMerge[mini] becomes the merged
@@ -199,9 +186,7 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
     qonpCov[minj] = 0.;
     qonpG[minj] = 1e10;
 
-    // Reset old weights wrt to the new component that is not at positioned in mini
-    resetDistances(distances, mini, n);
-    // re-calculate distances wrt the new component 
+    // re-calculate distances wrt the new component at mini
     int32_t possibleNextMin = recalculateDistances(qonp, qonpCov, qonpG, distances, mini, n);
     //We might already got something smaller than the previous minimum
     //we can therefore use the new one directly
