@@ -9,7 +9,6 @@
    <class name="asg::AsgTool" />
    <class name="asg::AsgMetadataTool" />
    <class name="asg::IAsgComponent" />
-   <class name="asg::AsgComponent" />
 
    <!-- Helper types: -->
    <class name="asg::ToolStore" />

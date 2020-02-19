@@ -15,6 +15,7 @@
 #include <AsgMessaging/MessageCheck.h>
 #include <AsgMessaging/MsgLevel.h>
 #include <AsgTools/IAsgComponent.h>
+#include <memory>
 #include <vector>
 
 class Property;
