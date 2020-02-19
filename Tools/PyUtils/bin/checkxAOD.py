@@ -40,14 +40,14 @@ if __name__ == "__main__":
     # Set up categorization matching strings:
     # Set up categorization matching strings:
     categoryStrings = {
-        "MetaData" : ["^DataHeader", "(.*)_mems$", "(.*)_timings$", "^Token$", "^RawInfoSummaryForTag$"],
+        "MetaData" : ["^DataHeader", "(.*)_mems$", "(.*)_timings$", "^Token$", "^RawInfoSummaryForTag$", "^index_ref$"],
         "Trig"     : ["^HLT", "^LVL1", "^xTrig", "^Trig", "^CTP_Decision", "^TrigInDetTrackTruthMap", "^TrigNavigation", ".*TriggerTowers", "TileTTL1MBTS", "^TileL2Cnt", "RoIBResult","^_TRIGGER","^L1TopoRawData"],
         "MET"      : ["^MET", "^METMAP", "JEMEtSums"],
-        "EvtId"    : ["^ByteStreamEventInfo", "^EventInfo", "^McEventInfo", "^LumiBlockN", "^EventWeight", "^RunNumber", "^ConditionsRun", "^EventTime", "^BunchId", "^EventNumber","^IsTestBeam", "^IsSimulation", "^IsCalibration", "^AvgIntPerXing", "^ActualIntPerXing", "^RandomNumber"], 
+        "EvtId"    : ["^ByteStreamEventInfo", "^EventInfo", "^McEventInfo", "^LumiBlockN", "^EventWeight", "^RunNumber", "^ConditionsRun", "^EventTime", "^BunchId", "^EventNumber","^IsTestBeam", "^IsSimulation", "^IsCalibration", "^AvgIntPerXing", "^ActualIntPerXing", "^RandomNumber", "^McChannel"], 
         "tau"      : ["^Tau", "^CombinedStauTrackParticles", "^ExtrapolatedStauTrackParticles","^finalTauPi0s","^DiTauJets"],
-        "PFO"      : ["(.*)EventShape$", "^AntiKt4EMPFlowJets", "^JetETMissChargedParticleFlowObjects", "^JetETMissNeutralParticleFlowObjects"],
+        "PFO"      : ["(.*)EventShape$", "^AntiKt4EMPFlowJets", "^JetETMissChargedParticleFlowObjects", "^JetETMissNeutralParticleFlowObjects", "^CHSChargedParticleFlowObjects", "^CHSNeutralParticleFlowObjects"],
         "egamma"   : ["^GSF", "^ForwardElectron", "^egamma", "^Electron", "^Photon"],
-        "Muon"     : ["^Muon", "^TileMuObj", "^MS", "^SlowMuons", "^Staus", "(.*)MuonTrackParticles$", "MUCTPI_RDO", "^RPC", "^TGC", "^MDT", "^CSC", ".*MuonMeasurements$", "^ExtrapolatedMuonTracks", "^CombinedMuonTracks"],
+        "Muon"     : ["^Muon", "^TileMuObj", "^MS", "^SlowMuons", "^Staus", "(.*)MuonTrackParticles$", "MUCTPI_RDO", "^RPC", "^TGC", "^MDT", "^CSC", ".*MuonMeasurements$", "^ExtrapolatedMuonTracks", "^CombinedMuonTracks", "^NCB_MuonSegments"],
         "BTag"     : ["^BTag"],
         "InDet"    : ["^InDet", "^PrimaryVertices", "^ComTime_TRT", "^Pixel", "^TRT", "^SCT", "^BCM", "^CTP", "^Tracks", "^ResolvedForwardTracks", "^SplitClusterAmbiguityMap"],
         "Jet"      : ["^CamKt", "^AntiKt", "^Jet","^LCOriginTopoClusters","^EMOriginTopoClusters"],
