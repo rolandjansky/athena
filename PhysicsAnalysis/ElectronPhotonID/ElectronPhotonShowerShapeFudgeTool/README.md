@@ -9,30 +9,58 @@ It lives in `/head/athena/PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerS
 
 The tool is designed to be used embedded in a code which provides it with the objects which should be corrected. It is
 not able to open root files or retrieve trees or apply object selection itself, but only focuses on the correction of
-objects passed to it. The tool is designed to be as steerable as possible from the configuration file, so that it can be used for correcting a broad range of variables in a relatively simple way.
+objects passed to it. The tool is designed to be as steerable as possible from the configuration file, so that it can
+be used for correcting a broad range of variables in a relatively simple way.
 
-### Embedding the tool into your code
+### Instantiate the tool using AnaToolHandle
 
 The tool must be integrated in code which provides it with the objects which should be corrected. To include the tool,
-you need to `#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"`. All the other includes needed depend on the
-wrapping code which provides the objects to the tool.
+you need to include its interface via `#include "EgammaAnalysisInterfaces/IElectronPhotonVariableCorrectionTool.h"`. Also,
+you need to includ the according tool handler, for example `#include "AsgTools/AnaToolHandle.h"`. All the other includes
+needed depend on the wrapping code which provides the objects to the tool.
 
-In order to use the tool, it needs to be declared and initialized. In the constructor, the tool needs to be named so it can
-be distinguished. Then, the configuration file must be provided to the tool using `MyTool.setProperty("ConfigFile",/path/)`.
+To declare the tool via the tool handler, you need to do something like this:
+
+```C++
+asg::AnaToolHandle<IElectronPhotonVariableCorrectionTool> MyTool("ElectronPhotonVariableCorrectionTool");
+```
+
+The syntax of this command depends on your tool handler. Note that the string provided to the constructor defines which
+tool from the interface is constructed by the tool handler - it is **NOT** the name of the tool!
+
+### Instantiate the tool without using a Tool Handler
+
+As before, the tool must be integrated in code which provides it with the objects which should be corrected. To include
+the tool, you need to `#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"`. All the
+other includes needed depend on the wrapping code which provides the objects to the tool.
+
+In order to declare the tool, it needs to be named in the constructor, so it can be distinguished. This could look like
+this:
+
+```C++
+ElectronPhotonVariableCorrectionTool MyTool("MyTool");
+```
+
+### Initialization of the tool
+
+To initialize the tool, first the configuration file must be provided to the tool using
+`MyTool.setProperty("ConfigFile",/path/)`.
 Then, the initialize function must be called on the tool, so it can read out the configuration file and set itself up.
 This could look like this:
 
 ```C++
-ElectronPhotonVariableCorrectionTool MyTool("MyTool");
 std::string configFilePath = "ElectronPhotonShowerShapeFudgeTool/MyConfFile.conf";
 ANA_CHECK(MyTool.setProperty("ConfigFile",configFilePath));
 ANA_CHECK(MyTool.initialize());
 ```
 
-To correct an object, the object must be passed to the tool. **The tool will overwrite the original properties of the object**
--- it will however keep the original value, stored as `variableName_original`. This means that the tool cannot be run on const
-containers -- a shallow or deep copy must be used. Please refer to the official documentation / tutorials on how to shallow / deep
-copy a container. Note that you do not have to pass all photons in an event to the tool, just the ones you want to be corrected.
+### Usage of the tool for the correction of EGamma objects
+
+To correct an object, the object must be passed to the tool.
+**The tool will overwrite the original properties of the object** -- it will however keep the original value, stored as
+`variableName_original`. This means that the tool cannot be run on const containers -- a shallow or deep copy must be
+used. Please refer to the official documentation / tutorials on how to shallow / deep copy a container. Note that you
+do not have to pass all photons in an event to the tool, just the ones you want to be corrected.
 
 Assuming a writeable object is used, the code for correcting it using the tool looks for example like this:
 
@@ -42,7 +70,8 @@ ANA_CHECK(MyTool.applyCorrection(*photon));
 
 If electrons should be corrected, of course an electron should be passed to the tool instead.
 
-As mentioned before, the tool overwrites the original variable value but also stores the original values as `variableName_original`.
+As mentioned before, the tool overwrites the original variable value but also stores the original values as
+`variableName_original`.
 The variables can be accessed in the following way:
 
 ```C++
@@ -120,9 +149,9 @@ Parameter0GraphName: NameOfTheTGraphInTheRootFile
 ```
 
 If any of the **binned parameter types** is used, first the binning in eta and/or pt must be provided to the tool.
-This is done using the flags `EtaBins` and `PtBins`, respectively. The tool expects to be provided the lower bin edges of the
-binning. It also expects the binning to start at 0 and will fail if the lowest bin edge is not 0. The pt binning must
-be provided in MeV. For example, this looks like this:
+This is done using the flags `EtaBins` and `PtBins`, respectively. The tool expects to be provided the lower bin edges
+of the binning. It also expects the binning to start at 0 and will fail if the lowest bin edge is not 0. The pt
+binning must be provided in MeV. For example, this looks like this:
 
 ```bash
 EtaBins: 0.0; 0.6; 1.37; 1.52; 1.81; 2.37
@@ -130,11 +159,12 @@ PtBins: 0.0; 5000.; 100000.; 200000.; 500000.; 1500000.
 ```
 
 If your correction only affects objects in a certain phase space, please make sure that none of those objects are
-passed to the tool in the first place via the object selection in your correction code outside of the tool (see the according
-section above). This cannot be done inside of the tool! The region between 0 and when you start correcting the objects must then
-be filled by dummy values inside the configuration file.
+passed to the tool in the first place via the object selection in your correction code outside of the tool (see the
+according section above). This cannot be done inside of the tool! The region between 0 and when you start correcting
+the objects must then be filled by dummy values inside the configuration file.
 
-The bin values are given to the tool using the flag `Parameter*Values`, where `*` again is the number of the respective parameter. For example, this looks like this:
+The bin values are given to the tool using the flag `Parameter*Values`, where `*` again is the number of the
+respective parameter. For example, this looks like this:
 
 ```bash
 Parameter2Values: 1.; 0.9; 0.7; 0.45; 0.6; 1.1
@@ -143,16 +173,19 @@ Parameter2Values: 1.; 0.9; 0.7; 0.45; 0.6; 1.1
 For the **event density**, no further information must be given to the tool. The tool will extract the event density
 from the event and use it as the respective parameter.
 
-The tool supports the option to correct **unconverted and converted photons** differently. For this, the flags `ConvertedPhotonsOnly` and `UnconvertedPhotonsOnly` can be set to `YES`, for example like this:
+The tool supports the option to correct **unconverted and converted photons** differently. For this, the flags
+`ConvertedPhotonsOnly` and `UnconvertedPhotonsOnly` can be set to `YES`, for example like this:
 
 ```bash
 ConvertedPhotonsOnly: YES
 ```
 
-The tool will then check if the passed object is an (un-)converted photon, and fail with a `StatusCode::FAILURE` if the object type is not as expected. If a separation in unconverted and converted photons is not needed, simply omit these flags.
+The tool will then check if the passed object is an (un-)converted photon, and fail with a `StatusCode::FAILURE` if the
+object type is not as expected. If a separation in unconverted and converted photons is not needed, simply omit these flags.
 
-An **example configuration file** containing examples for all possible flags can be found in `./data/ElectronPhotonVariableCorrectionTool_ExampleConf.conf`.
-The complete list of example configuration files is (all in `./data/`):
+An **example configuration file** containing examples for all possible flags can be found in
+`./data/ElectronPhotonVariableCorrectionTool_ExampleConf.conf`. The complete list of example configuration files is
+(all in `./data/`):
 
 - `ElectronPhotonVariableCorrectionTool_ExampleConvertedPhotonConf.conf` for converted photons,
 - `ElectronPhotonVariableCorrectionTool_ExampleUnconvertedPhotonConf.conf` for unconverted photons,
@@ -160,7 +193,8 @@ The complete list of example configuration files is (all in `./data/`):
 - `ElectronPhotonVariableCorrectionTool_ExampleIsoCorrectionConf.conf` for the isolation correction,
 - `ElectronPhotonVariableCorrectionTool_ExampleConf.conf` general example showing what the tool can do and how all different possible parameters can be handled.
 
-The .root file currently used for testing is `/pnfs/desy.de/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/da/80/DAOD_HIGG1D2.18400890._000001.pool.root.1`
+The .root file currently used for testing is
+`/pnfs/desy.de/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/da/80/DAOD_HIGG1D2.18400890._000001.pool.root.1`.
 
 If you have any further questions or requests, please contact [Nils Gillwald](mailto:nils.gillwald@desy.de).
 
