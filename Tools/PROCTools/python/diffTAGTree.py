@@ -1,6 +1,8 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import sys,os
 sys.argv += [ '-b' ] # tell ROOT to not use graphics
@@ -106,7 +108,7 @@ def diffTTree(tOld,tNew,details=None):
                 else:
                     print(diffmsg)
 
-                if diffSummary.has_key(name):
+                if name in diffSummary:
                     diffSummary[name]+=1
                 else:
                     diffSummary[name]=1

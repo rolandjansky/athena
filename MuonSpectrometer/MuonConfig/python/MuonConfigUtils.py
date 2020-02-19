@@ -2,6 +2,7 @@
 
 # This file is just for shared functions etc used by this package.
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def SetupMuonStandaloneArguments():
     from argparse import ArgumentParser
@@ -71,7 +72,7 @@ def SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord):
     outstream.ForceRead = True
 
     # Fix for ATLASRECTS-5151
-    from  TrkEventCnvTools.TrkEventCnvToolsConf import Trk__EventCnvSuperTool
+    Trk__EventCnvSuperTool = CompFactory.Trk__EventCnvSuperTool
     cnvTool = Trk__EventCnvSuperTool(name = 'EventCnvSuperTool')
     cnvTool.MuonCnvTool.FixTGCs = True 
     cfg.addPublicTool(cnvTool)

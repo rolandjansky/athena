@@ -6,7 +6,16 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from argparse import ArgumentParser
 
-from AthenaConfiguration.TestDefaults import defaultTestFiles
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+
+
+def JobOptsDumperCfg(flags):
+    """Configure event loop for overlay"""
+    JobOptsDumperAlg = CompFactory.JobOptsDumperAlg
+    acc = ComponentAccumulator()
+    acc.addEventAlgo(JobOptsDumperAlg(FileName="OverlayTestConfig.txt"))
+    return acc
 
 
 def CommonTestArgumentParser(prog):
@@ -59,7 +68,9 @@ def setupOverlayTestDetectorFlags(configFlags, detectors):
 
 def defaultTestFlags(configFlags, args):
     """Fill default overlay flags for testing"""
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
     configFlags.GeoModel.Align.Dynamic = False
+    configFlags.Digitization.DoInnerDetectorNoise = False
     if args.data:
         configFlags.Input.isMC = False  # TODO: this one should be autodetected
         configFlags.Input.Files = defaultTestFiles.HITS_DATA_OVERLAY

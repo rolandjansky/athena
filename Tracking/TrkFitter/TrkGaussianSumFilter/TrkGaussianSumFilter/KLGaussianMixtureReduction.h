@@ -59,12 +59,14 @@ constexpr int32_t alignment =32;
 //find the  index of the smaller value
 
 #if HAVE_FUNCTION_MULTIVERSIONING
+#if defined(__x86_64__)
 __attribute__((target("avx2"))) 
 int32_t findMinimumIndex(const floatPtrRestrict distancesIn, const int32_t n);
 __attribute__((target("sse4.2,sse2"))) 
 int32_t findMinimumIndex(const floatPtrRestrict distancesIn, const int32_t n);
+#endif //x86_64 specific targets
 __attribute__((target("default"))) 
-#endif
+#endif// function multiversioning
 int32_t findMinimumIndex(const floatPtrRestrict distancesIn, const int32_t n);
 //find the index of the smaller value STL style
 int32_t findMinimumIndexSTL(const floatPtrRestrict distancesIn, const int n);
