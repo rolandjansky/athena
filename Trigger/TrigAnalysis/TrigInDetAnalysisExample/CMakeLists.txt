@@ -2,6 +2,7 @@
 # Package: TrigInDetAnalysisExample
 ################################################################################
 
+
 # Declare the package name:
 atlas_subdir( TrigInDetAnalysisExample )
 
@@ -27,7 +28,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaMonitoring
                           GaudiKernel
                           Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkTrack )
+                          Tracking/TrkEvent/TrkTrack
+                          Trigger/TrigSteer/TrigCompositeUtils )
 
 # External dependencies:
 find_package( HepMC )
@@ -38,7 +40,7 @@ atlas_add_library( TrigInDetAnalysisExampleLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigInDetAnalysisExample
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} EventInfo GeneratorObjects McParticleEvent muonEvent egammaEvent tauEvent VxVertex TrigInDetAnalysis TrigInDetAnalysisUtils TrigInDetEvent TrigSteeringEvent TrigDecisionToolLib TrigHLTMonitoringLib AthenaMonitoringLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} EventInfo GeneratorObjects McParticleEvent muonEvent egammaEvent tauEvent VxVertex TrigInDetAnalysis TrigInDetAnalysisUtils TrigInDetEvent TrigSteeringEvent TrigDecisionToolLib TrigHLTMonitoringLib AthenaMonitoringLib TrigCompositeUtilsLib 
                    PRIVATE_LINK_LIBRARIES GaudiKernel TrkParameters TrkTrack )
 
 atlas_add_component( TrigInDetAnalysisExample
