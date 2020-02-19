@@ -1,17 +1,14 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+
 # Declare the package name:
 atlas_subdir( AsgMessaging )
 
 # Dependencies are taken based on what environment we are in:
 if( XAOD_STANDALONE )
-   set( deps )
-   set( libs )
+   set( extra_libs )
 else()
-   set( deps GaudiKernel Control/AthenaBaseComps )
-   set( libs GaudiKernel AthenaBaseComps )
+   set( extra_libs GaudiKernel AthenaBaseComps )
 endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC ${deps} )
 
 # Decide which sources to use:
 if( XAOD_STANDALONE )
@@ -26,7 +23,7 @@ endif()
 atlas_add_library( AsgMessagingLib
    AsgMessaging/*.h AsgMessaging/*.icc ${sources}
    PUBLIC_HEADERS AsgMessaging
-   LINK_LIBRARIES ${libs} )
+   LINK_LIBRARIES CxxUtils ${extra_libs} )
 
 # Select which xml files to use for dictionary generation
 

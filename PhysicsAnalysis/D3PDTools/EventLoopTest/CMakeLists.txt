@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( EventLoopTest )
@@ -5,25 +6,7 @@ atlas_subdir( EventLoopTest )
 # External(s) needed for the build:
 find_package( GTest )
 find_package( GMock )
-
-# The package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTesting
-   PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   PhysicsAnalysis/D3PDTools/RootCoreUtils
-   PhysicsAnalysis/D3PDTools/SampleHandler
-   PhysicsAnalysis/D3PDTools/EventLoop
-   PhysicsAnalysis/D3PDTools/EventLoopGrid
-   PRIVATE
-   Control/AthToolSupport/AsgTools
-   Control/xAODRootAccess
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODMetaData )
-
-# Find the needed external(s):
 find_package( ROOT COMPONENTS Core RIO Hist Tree TreePlayer )
-find_package( GTest )
 
 # Component(s) in the package:
 atlas_add_root_dictionary( EventLoopTestLib
@@ -36,12 +19,11 @@ atlas_add_root_dictionary( EventLoopTestLib
 atlas_add_library( EventLoopTestLib
    EventLoopTest/*.h EventLoopTest/*.ihh Root/*.cxx ${EventLoopTestDictSource}
    PUBLIC_HEADERS EventLoopTest
+   DEFINITIONS USE_CMAKE
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${GMOCK_LIBRARIES} RootCoreUtils
    SampleHandler AnaAlgorithmLib EventLoop EventLoopGrid AsgTestingLib xAODEventInfo
    PRIVATE_LINK_LIBRARIES AsgTools xAODRootAccess xAODEventInfo xAODMetaData )
-
-target_compile_definitions (EventLoopTestLib PUBLIC USE_CMAKE)
 
 # Test(s) in the package:
 function( _add_gtest cxx_name )
@@ -54,7 +36,7 @@ function( _add_gtest cxx_name )
    atlas_add_test (${test_name}
       SOURCES test/${test_name}.cxx
       INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GMOCK_LIBRARIES} RootCoreUtils AsgTools
+      LINK_LIBRARIES ${GMOCK_LIBRARIES} RootCoreUtils AsgTools AsgTesting
       SampleHandler EventLoopTestLib xAODRootAccess ${EXTRA_ARGS})
    set_tests_properties (EventLoopTest_${test_name}_ctest PROPERTIES LABELS "EventLoopTest;EventLoop;SampleHandler;AnaAlgorithm" )
 endfunction( _add_gtest )
