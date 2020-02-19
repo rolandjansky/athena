@@ -28,6 +28,9 @@
 #include "CoreDumpSvc.h"
 #include "SetFatalHandler.h"
 
+// ROOT includes
+#include "TSystem.h"
+
 // Gaudi includes
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IAlgorithm.h"
@@ -59,9 +62,10 @@ namespace CoreDumpSvcHandler
 {
   typedef std::map<int, struct sigaction> SigHandler_t;
   
-  SigHandler_t oldSigHandler;       ///< old signal handlers
-  bool callOldHandler(true);        ///< forward calls to old handlers?
-  CoreDumpSvc* coreDumpSvc(nullptr);      ///< pointer to CoreDumpSvc
+  SigHandler_t oldSigHandler;         ///< old signal handlers
+  bool callOldHandler(true);          ///< forward calls to old handlers?
+  bool stackTrace(false);             ///< produce stack trace?
+  CoreDumpSvc* coreDumpSvc(nullptr);  ///< pointer to CoreDumpSvc
   
   /**
    * Signal handler for the CoreDumpSvc
@@ -91,6 +95,11 @@ namespace CoreDumpSvcHandler
     if (coreDumpSvc) {
       coreDumpSvc->setSigInfo(info);
       coreDumpSvc->print();
+    }
+
+    if (gSystem && stackTrace) {
+      std::cout << "Producing stack trace..." << std::endl;
+      gSystem->StackTrace();
     }
 
     if (callOldHandler) {
@@ -130,6 +139,7 @@ CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
   CoreDumpSvcHandler::coreDumpSvc = this;
   
   m_callOldHandler.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
+  m_stackTrace.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_coreDumpStream.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_fatalHandlerFlags.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   
@@ -146,6 +156,7 @@ CoreDumpSvc::~CoreDumpSvc()
 void CoreDumpSvc::propertyHandler(Property& p)
 {
   CoreDumpSvcHandler::callOldHandler = m_callOldHandler;
+  CoreDumpSvcHandler::stackTrace = m_stackTrace;
 
   if ( p.name()==m_coreDumpStream.name() ) {
     const std::string val = p.toString();
