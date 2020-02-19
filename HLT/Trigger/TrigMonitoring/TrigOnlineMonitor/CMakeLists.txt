@@ -5,31 +5,6 @@
 # Declare the package name:
 atlas_subdir( TrigOnlineMonitor )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Event/ByteStreamData
-                          GaudiKernel
-                          Trigger/TrigConfiguration/TrigConfInterfaces
-                          Trigger/TrigConfiguration/TrigConfData
-                          PRIVATE
-                          Control/AthenaInterprocess
-                          Control/AthenaKernel
-                          Control/AthenaMonitoring
-                          Event/ByteStreamCnvSvcBase
-                          Event/EventInfo
-                          MagneticField/MagFieldInterfaces
-                          Trigger/TrigConfiguration/TrigConfL1Data
-                          Trigger/TrigDataAccess/TrigROBDataProviderSvc
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigMonitoring/TrigMonitorBase
-                          Trigger/TrigSteer/TrigSteering
-                          Trigger/TrigT1/L1Topo/L1TopoConfig
-                          Trigger/TrigT1/L1Topo/L1TopoRDO
-                          Trigger/TrigT1/TrigT1Interfaces
-                          Trigger/TrigT1/TrigT1Result
-                          Trigger/TrigT1/TrigT1ResultByteStream )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( tdaq-common )
