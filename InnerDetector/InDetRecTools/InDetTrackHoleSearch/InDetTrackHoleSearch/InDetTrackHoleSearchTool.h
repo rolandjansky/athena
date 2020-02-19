@@ -112,33 +112,16 @@ namespace InDet
       
       /** Pointer to Extrapolator AlgTool*/
       ToolHandle< Trk::IExtrapolator >  m_extrapolator;
-
-      /** Handles to IConditionsSummaryTools for Pixels and SCT*/
-      ToolHandle <IInDetConditionsTool> m_sctCondSummaryTool{this, "SctSummaryTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
-      
-      ToolHandle< IInDetTestPixelLayerTool >  m_pixelLayerTool;
       ToolHandle<Trk::IBoundaryCheckTool> m_boundaryCheckTool;
-
-      /** Handle for IGeoModelSvc to retrieve geo model information */
-      ServiceHandle<IGeoModelSvc> m_geoModelSvc;
 
       /** Configure outwards hole search */
       bool m_extendedListOfHoles,m_cosmic;
-
-      /** Control usage of pixel, SCT and TRT info */
-      bool m_usepix, m_usesct;
-
-      /** Control check of bad SCT chip (should be false for ITk Strip) */
-      bool m_checkBadSCTChip;
 
       /** Min number of hits **/
       int m_minSiHits;
 
       /* searching for dead modules after the last measurement (needed for robustness of SW)*/
       bool m_countDeadModulesAfterLastHit;
-
-      /** eta and phi tolerances **/
-      float m_etatol, m_phitol; 
 
       /** number of warnings printed when no track parameters available **/
       mutable std::atomic_int m_warning;

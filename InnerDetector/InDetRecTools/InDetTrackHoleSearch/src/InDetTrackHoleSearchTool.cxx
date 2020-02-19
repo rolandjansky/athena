@@ -36,29 +36,17 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_atlasId(nullptr),
   m_extrapolator("Trk::Extrapolator"),
-  m_pixelLayerTool("InDet::InDetTestPixelLayerTool"),
   m_boundaryCheckTool("InDet::InDetBoundaryCheckTool"),
-  m_geoModelSvc("GeoModelSvc", n),
   m_extendedListOfHoles(false),
   m_cosmic(false),
-  m_usepix(true),
-  m_usesct(true),
-  m_checkBadSCTChip(true),
   m_warning(0) {
   declareInterface<ITrackHoleSearchTool>(this);
   declareProperty("Extrapolator"         , m_extrapolator);
-  declareProperty("PixelLayerTool"       , m_pixelLayerTool);
-  declareProperty("GeoModelService"      , m_geoModelSvc);
   declareProperty("BoundaryCheckTool"    , m_boundaryCheckTool);
   declareProperty("ExtendedListOfHoles"  , m_extendedListOfHoles = false);
   declareProperty("Cosmics"              , m_cosmic);
-  declareProperty("usePixel"             , m_usepix);
-  declareProperty("useSCT"               , m_usesct);
-  declareProperty("checkBadSCTChip"      , m_checkBadSCTChip);
   declareProperty("minSiHits"            , m_minSiHits = 3);  
   declareProperty("CountDeadModulesAfterLastHit", m_countDeadModulesAfterLastHit = true);  
-  declareProperty("phitol"               , m_phitol = 3.);
-  declareProperty("etatol"               , m_etatol = 3.);
 }
 
 //================ Destructor =================================================
@@ -76,30 +64,6 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize() {
   // Get TrkExtrapolator from ToolService
   ATH_CHECK(m_extrapolator.retrieve());
   ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
-
-  if (m_usepix) {
-    // Get InDetPixelLayerTool from ToolService
-    ATH_CHECK(m_pixelLayerTool.retrieve());
-    ATH_MSG_INFO("Retrieved tool " << m_pixelLayerTool);
-  }
-
-  if (m_usesct) {
-    // Get SctConditionsSummaryTool
-    ATH_CHECK(m_sctCondSummaryTool.retrieve());
-    ATH_MSG_INFO("Retrieved tool " << m_sctCondSummaryTool);
-  } else {
-    m_sctCondSummaryTool.disable();
-  }
-
-  if (m_checkBadSCTChip) {
-    // Check if ITk Strip is used because isBadSCTChipStrip method is valid only for SCT.
-    ATH_CHECK(m_geoModelSvc.retrieve());
-    if (m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN4 or
-        m_geoModelSvc->geoConfig()==GeoModel::GEO_ITk) {
-      ATH_MSG_WARNING("Since ITk Strip is used, m_checkBadSCTChip is turned off.");
-      m_checkBadSCTChip = false;
-    }
-  }
 
   if (m_extendedListOfHoles) ATH_MSG_INFO("Search for extended list of holes ");
 
