@@ -85,7 +85,7 @@ namespace asg
     /// \{
   public:
     template<typename T> ::StatusCode
-    setProperty (const std::string& name, T&& value);
+    setProperty (const std::string& name, const T& value);
     ::StatusCode setProperty (const std::string& name, const char *value);
     /// \}
 
