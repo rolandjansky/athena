@@ -104,6 +104,7 @@ namespace CP {
             /// measurement using the J/Psi or Upsilon resonance
             std::string filename_LowPt()const;
             std::string filename_LowPtCalo()const;
+            std::string filename_LowPtSegmentTag() const;
             
             /// If the pt of the muon is below that threshold the J/Psi or Upsilon
             /// map is used given that it's available.
@@ -154,6 +155,8 @@ namespace CP {
             std::string m_custom_file_HighEta;
             std::string m_custom_file_LowPt;
             std::string m_custom_file_LowPtCalo;
+            std::string m_custom_file_LowPtST;
+            
    
             // Decorate the data-monteCarlo & scale-factors
             // to the muon. Decoration names can be set flexile

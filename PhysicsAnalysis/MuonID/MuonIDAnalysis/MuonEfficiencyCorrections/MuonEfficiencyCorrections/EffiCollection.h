@@ -41,11 +41,11 @@ namespace CP {
                 Forward = 1<<2, 
                 CentralLowPt = 1<<3, 
                 CaloLowPt = 1<<4, 
-                
+                SegmentTagLowPt = 1<<5,
                 ZAnalysis = Central | Calo | Forward,
                 /// Distinguish these two because the systematics
                 /// are named with an extra LOWPT
-                JPsiAnalysis = CentralLowPt | CaloLowPt,                
+                JPsiAnalysis = CentralLowPt | CaloLowPt | SegmentTagLowPt,                
                
                
             };
@@ -112,6 +112,8 @@ namespace CP {
             std::shared_ptr<CollectionContainer> m_forward_eff;
             std::shared_ptr<CollectionContainer> m_lowpt_central_eff;
             std::shared_ptr<CollectionContainer> m_lowpt_calo_eff;
+            std::shared_ptr<CollectionContainer> m_lowpt_st_eff;
+            
 
             /// The systematic set is returned back to the MuonEfficiencyScaleFactors instance to register
             /// The known systematics to the global service
