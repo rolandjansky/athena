@@ -189,12 +189,15 @@ def setupHLTPrescaleCondAlg( flags = None ):
 
     if tc["source"] == "COOL":
         if flags is None: # old style config
-            from AthenaCommon.AlgSequence import AthSequencer
-            condSequence = AthSequencer("AthCondSeq")
-            condSequence += hltPrescaleCondAlg
             from IOVDbSvc.CondDB import conddb
             conddb.addFolder( "TRIGGER", getHLTPrescaleFolderName(), className="AthenaAttributeList" )
             log.info("Adding folder %s to conddb", getHLTPrescaleFolderName() )
+    # add the hltPrescaleCondAlg to condseq
+    if flags is None: # old style config
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSequence = AthSequencer("AthCondSeq")
+        condSequence += hltPrescaleCondAlg
+        log.info("Adding HLTPrescaleCondAlg to AthCondSeq")
     return hltPrescaleCondAlg
 
 
