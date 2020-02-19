@@ -70,7 +70,8 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
   double insitu_etarestriction_relativeandabsolute = m_config->GetValue("InsituEtaRestrictionRelativeandAbsolute",0.8);
   // Apply Insitu only to calo and TA mass calibrated jets (only for large jets)
   m_applyInsituCaloTAjets = m_config->GetValue("ApplyInsituCaloTAJets", false);
-
+  // Apply in situ JMS:
+  m_applyInsituJMS = m_config->GetValue("ApplyInsituJMS", false);
 
   //Find the absolute path to the insitu root file
   if ( !insitu_filename.EqualTo("None") ){
@@ -237,6 +238,7 @@ StatusCode InsituDataCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) co
 
   // For Large R jets: insitu needs to be apply also to calo mass calibrated jets and TA mass calibrated jets (by default it's only applied to combined mass calibrated jets)
   if(m_applyInsituCaloTAjets){
+
 	// calo mass calibrated jets
         xAOD::JetFourMom_t jetStartP4_calo;
   	xAOD::JetFourMom_t calibP4_calo;
@@ -245,7 +247,8 @@ StatusCode InsituDataCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) co
         }else{
           ATH_MSG_FATAL( "Cannot retrieve JetJMSScaleMomentumCalo jets" ); 
           return StatusCode::FAILURE; 
-        }       
+        }
+
   	if(m_applyResidualMCbasedInsitu) calibP4_calo=calibP4_calo*getInsituCorr( calibP4_calo.pt(), fabs(detectorEta), "ResidualMCbased" );
 
 	if(m_dev){
