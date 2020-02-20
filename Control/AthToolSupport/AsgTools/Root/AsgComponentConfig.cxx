@@ -160,7 +160,7 @@ namespace asg
       }
 
       AsgComponent *comp = reinterpret_cast<AsgComponent*>
-        (gInterpreter->Calc(("dynamic_cast<EL::AsgComponent*>(" + (boost::format (newCommand) % type % name).str() + ")").c_str()));
+        (gInterpreter->Calc(("dynamic_cast<asg::AsgComponent*>(" + (boost::format (newCommand) % type % name).str() + ")").c_str()));
       if (comp == nullptr)
       {
         ANA_MSG_ERROR ("failed to create component of type " << type);
