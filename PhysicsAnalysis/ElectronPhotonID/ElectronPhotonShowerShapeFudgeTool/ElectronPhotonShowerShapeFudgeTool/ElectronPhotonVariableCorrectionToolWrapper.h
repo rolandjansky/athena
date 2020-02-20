@@ -54,15 +54,5 @@ private:
     const StatusCode InitializeTools( const std::string& name, const std::vector<std::string>& confFiles, std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>>& toolHolder );
     const StatusCode GetCorrectionVariableName( std::string &variableName, const std::string& confFile ) const;
     const StatusCode FindAllConfigFiles( std::vector<std::string>& confFiles );
-    enum EGammaObjects{
-        Failure = 0,
-        unconvertedPhoton = 1,
-        convertedPhoton,
-        allPhotons,
-        allElectrons,
-        allEGammaObjects
-    }; //end enum EGammaObjects
-    ElectronPhotonVariableCorrectionToolWrapper::EGammaObjects StringToEGammaObject( const std::string& input ) const; //convert input string to egamma object type
-
 
 }; //end 

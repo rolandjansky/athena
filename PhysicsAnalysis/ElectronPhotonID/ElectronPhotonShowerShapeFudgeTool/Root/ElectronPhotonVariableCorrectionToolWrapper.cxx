@@ -216,19 +216,3 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::GetCorrectionVaria
     //everything worked out, so
     return StatusCode::SUCCESS;
 }
-
-ElectronPhotonVariableCorrectionToolWrapper::EGammaObjects ElectronPhotonVariableCorrectionToolWrapper::StringToEGammaObject( const std::string& input ) const
-{
-    // return object type which correction should be applied to
-    if( input == "unconvertedPhoton" ) return ElectronPhotonVariableCorrectionToolWrapper::EGammaObjects::unconvertedPhoton;
-    else if( input == "convertedPhoton" ) return ElectronPhotonVariableCorrectionToolWrapper::EGammaObjects::convertedPhoton;
-    else if( input == "allPhotons" ) return ElectronPhotonVariableCorrectionToolWrapper::EGammaObjects::allPhotons;
-    else if( input == "allElectrons" ) return ElectronPhotonVariableCorrectionToolWrapper::EGammaObjects::allElectrons;
-    else if( input == "allEGammaObjects" ) return ElectronPhotonVariableCorrectionToolWrapper::EGammaObjects::allEGammaObjects;
-    else 
-    {
-        // if not a proper object type, return failure type - check and fail on this!
-        ATH_MSG_ERROR(input.c_str() << " is not an allowed EGamma object type to apply corrections to.");
-        return ElectronPhotonVariableCorrectionToolWrapper::EGammaObjects::Failure;
-    }
-}
