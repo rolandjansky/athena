@@ -15,7 +15,6 @@
 namespace CP {
 
 class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
-                                 virtual public CP::ISystematicsTool,
                                  public asg::AsgMetadataTool {
     // Create a proper constructor for Athena
     ASG_TOOL_CLASS2( IsolationCorrectionTool, IIsolationCorrectionTool, CP::ISystematicsTool)
@@ -59,6 +58,8 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         virtual float GetDDCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) override;
 	void setDDVer(std::string a) { m_ddVersion = a; }; //temporary for test
 
+  void Print() { m_isol_corr->Print(); };
+
     private:
 	StatusCode get_simflavour_from_metadata(PATCore::ParticleDataType::DataType& result) ;
         float GetEtaPointing(const xAOD::Egamma* input) {return m_isol_corr->GetEtaPointing(input);};
@@ -86,6 +87,8 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         bool m_apply_dd, m_apply_ddDefault;
         bool m_correct_etcone;
         bool m_trouble_categories;
+        bool m_useLogLogFit;
+        bool m_forcePartType;
         bool m_metadata_retrieved;
 
 	// For systematcis
