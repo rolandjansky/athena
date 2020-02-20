@@ -1153,7 +1153,7 @@ namespace CP {
     bool extra_smearing = (m_extra_highpt_smearing and (muonInfo.sel_category >= 0) and not (muonInfo.sel_category == 4)); // Extra smearing, if selected, gets anyway only applied to non-3-station muons!
     bool highpt_smearing = (m_2stations_highpt_smearing and (muonInfo.sel_category == 3)); // Special highpt smearing, if selected, gets anyway only applied to missing-inner, 2-station muons only!
 
-    if((extra_smearing || highpt_smearing) && (m_Trel >= MCAST::Release::Recs2019_10_12)) {
+    if((extra_smearing || highpt_smearing) && (m_Trel >= MCAST::Release::Recs2019_10_12) && (mu.pt()>300*MCAST_GeVToMeV)) {
       
       double original_combined_pt = mu.pt()*MCAST_MeVToGeV;
       double smeared_combined_pt = 1. / (1./original_combined_pt*(1. + muonInfo.extra_g*muonInfo.smearDeltaCBOnly));
