@@ -153,7 +153,10 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
           m_decoder->fillCollection(robf[0], *rawChannelCollection);
         }
       } else {
-        rawChannelCollection->setFragGlobalCRC(TileROD_Decoder::NO_ROB);
+        ATH_MSG_DEBUG( "ROB  for " << ((isTMDB)?"TMDB ":"") << "drawer 0x" << MSG::hex << collID << MSG::dec << " not found in BS" );
+        uint32_t status = TileROD_Decoder::NO_ROB | TileROD_Decoder::CRC_ERR;
+        rawChannelCollection->setFragGlobalCRC(status);
+        ATH_MSG_DEBUG( "Status for " << ((isTMDB)?"TMDB ":"") << "drawer 0x" << MSG::hex << collID << " is 0x" << status << MSG::dec);
       }
     }
 

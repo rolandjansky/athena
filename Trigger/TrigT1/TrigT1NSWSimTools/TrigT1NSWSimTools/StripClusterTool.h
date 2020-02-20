@@ -62,7 +62,7 @@ namespace NSWL1 {
                       const std::string& name,
                       const IInterface* parent);
     virtual ~StripClusterTool();
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     virtual void handle (const Incident& inc);
     StatusCode cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips,std::vector<std::unique_ptr<StripClusterData>>& clusters);
   private:

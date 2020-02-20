@@ -25,12 +25,6 @@ elif ( DetFlags.detdescr.ID_on() ):
     if not hasattr(svcMgr,'InDetGeometryDBSvc'):
         from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
         svcMgr+=GeometryDBSvc("InDetGeometryDBSvc")
-        if InDetGeometryFlags.isSLHC():
-            #SLHC specific code
-            # General service builder tool for SLHC
-            from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatBuilderToolSLHC
-            InDetServMatBuilderToolSLHC = InDetServMatBuilderToolSLHC()
-            ToolSvc+=InDetServMatBuilderToolSLHC
 
     if ( DetFlags.detdescr.pixel_on() ):
         from AthenaCommon import CfgGetter
@@ -58,9 +52,8 @@ elif ( DetFlags.detdescr.ID_on() ):
                 from SCT_GeoModelXml.SCT_GeoModelXmlConf import SCT_GMX_DetectorTool
                 sctSLHCTool = SCT_GMX_DetectorTool()
             else:
-                from SCT_SLHC_GeoModel.SCT_SLHC_GeoModelConf import SCT_SLHC_DetectorTool
-                sctSLHCTool = SCT_SLHC_DetectorTool()
-                sctSLHCTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
+                print "Error: You are using a no longer supported version of the ITK Strip geoemetry building... please check your configuration!"
+                exit(1)
             GeoModelSvc.DetectorTools += [ sctSLHCTool ]
             if not hasattr(svcMgr,'SCTLorentzAngleSvc'):
                 from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
@@ -85,14 +78,10 @@ elif ( DetFlags.detdescr.ID_on() ):
         trtDetectorTool.useDynamicAlignFolders = InDetGeometryFlags.useDynamicAlignFolders()
         GeoModelSvc.DetectorTools += [ trtDetectorTool ]
 
-    from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
-    if InDetGeometryFlags.isSLHC():
-        #SLHC specific code
-        servMatTool = InDetServMatTool()
-        GeoModelSvc.DetectorTools += [ servMatTool ]
-        servMatTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
-    else:
-        GeoModelSvc.DetectorTools += [ InDetServMatTool() ]
+    if not InDetGeometryFlags.isSLHC():
+     #ITK uses a different method in InDetDetDesr/PixelLayouts for building services
+     from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
+     GeoModelSvc.DetectorTools += [ InDetServMatTool() ]
 
     # Make alignable
     from InDetCondFolders import InDetAlignFolders

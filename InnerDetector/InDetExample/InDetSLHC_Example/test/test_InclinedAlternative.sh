@@ -27,18 +27,19 @@ artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 name="InclinedAlternative"
 script="`basename \"$0\"`"
 evnt=$artdata/InDetSLHC_Example/inputs/EVNT.01485091._001049.pool.root.1
-hits_ref=$artdata/InDetSLHC_Example/inputs/InclinedDuals_HITS.root
+
 if [ $dosim -ne 0 ]; then
   hits=physval_alt.HITS.root
 else
-  hits="$hits_ref"
+  echo "Sim job not configured to run... no HITS input available for reco step, exiting test!"
+  exit
 fi
 if [ $dorec -ne 0 ]; then
   esd=physval_alt.ESD.root
   daod=physval_alt.DAOD_IDTRKVALID.root
 else
-  esd=$artdata/InDetSLHC_Example/inputs/InclinedDuals_ESD.root
-  daod=$artdata//InDetSLHC_Example/inputs/physval.DAOD_IDTRKVALID.root
+   echo "Reco job not configured to run... no input available for validation step, exiting test!"
+  exit
 fi
 #jo=$artdata/InDetSLHC_Example/jobOptions/PhysValITk_jobOptions.py moved to share/
 dcubemon_sim=SiHitValid_alt.root
@@ -112,9 +113,9 @@ fi
 
 if [ $dorec -ne 0 ]; then
 
-  if [ $dosim -ne 0 ] && [ ! -s "$hits" ] && [ -s "$hits_ref" ]; then
-    echo "$script: Sim_tf output '$hits' not created. Run Reco_tf on '$hits_ref' instead." 2>&1
-    hits="$hits_ref"
+  if [ $dosim -ne 0 ] && [ ! -s "$hits" ]; then
+    echo "$script: Sim_tf output '$hits_muons_1GeV' not created. Not running Reco_tf and stopping" 2>&1
+    exit 
   fi
 
   run ls -lL "$hits"

@@ -21,7 +21,8 @@ namespace egammaMonitoring {
   }
 
 
-  StatusCode EfficiencyPlot::divide( std::unique_ptr<IHistograms>  &pass,  std::unique_ptr<IHistograms> &total ) {
+
+  StatusCode EfficiencyPlot::divide( IHistograms *pass,  IHistograms* total ) {
 
     gROOT->ForceStyle();
     gStyle->SetOptStat(0);

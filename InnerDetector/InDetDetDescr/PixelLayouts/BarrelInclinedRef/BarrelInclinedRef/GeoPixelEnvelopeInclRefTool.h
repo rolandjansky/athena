@@ -16,6 +16,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 class IGeoPixelBarrelTool;
 class IGeoPixelEndcapTool;
+class IGeoBCMPrimeTool;
 class IPixelServicesTool;
 namespace InDet{
   class GeoComponent;
@@ -44,6 +45,7 @@ class GeoPixelEnvelopeInclRefTool : virtual public IGeoPixelEnvelopeTool, public
  private:
   ToolHandle<IGeoPixelBarrelTool> m_barrelTool;
   ToolHandle<IGeoPixelEndcapTool> m_endcapTool;
+  ToolHandle<IGeoBCMPrimeTool> m_bcmTool;
   ToolHandle<IPixelServicesTool> m_IDserviceTool;
   ToolHandle<IGeoPixelTrackingVolumeBuilder> m_tgBuilder;
 

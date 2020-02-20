@@ -15,6 +15,8 @@ topSequence = AlgSequence()
 # get ToolSvc
 ToolSvc = Service( "ToolSvc" )
 
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
 #### RPC ####
 
 if DetFlags.detdescr.RPC_on():

@@ -88,6 +88,11 @@ if primRPVLLDESDM.doHV():
     include("LongLivedParticleDPDMaker/PhysDESDM_HV.py")
     pass
 
+
+if primRPVLLDESDM.doTaus():
+    include("LongLivedParticleDPDMaker/PhysDESDM_Taus.py")
+    pass
+
 # ##########################################################################################
 # Second, filters I'm not sure of (move above this line if definitely needed)
 

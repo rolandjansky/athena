@@ -5,33 +5,14 @@
 # Declare the package name:
 atlas_subdir( TrigMissingETHypo )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigTools/TrigTimeAlgs
-                          PRIVATE
-                          Event/xAOD/xAODTrigMissingET
-                          GaudiKernel
-                          Trigger/TrigEvent/TrigMissingEtEvent )
-
-# External dependencies:
-find_package( CLHEP )
-
-# tag ROOTMathLibs was not recognized in automatic conversion in cmt2cmake
-
-# Component(s) in the package:
-atlas_add_library( TrigMissingETHypoLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigMissingETHypo
-                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES TrigInterfacesLib TrigTimeAlgsLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTrigMissingET GaudiKernel TrigMissingEtEvent )
-
 atlas_add_component( TrigMissingETHypo
+                     src/METHypo.cxx
+                     src/TEHypo.cxx
+                     src/XSHypo.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigInterfacesLib TrigTimeAlgsLib xAODTrigMissingET GaudiKernel TrigMissingEtEvent TrigMissingETHypoLib )
+                     LINK_LIBRARIES TrigInterfacesLib TrigTimeAlgsLib
+                     xAODTrigMissingET GaudiKernel TrigMissingEtEvent
+                     TrigEFMissingETLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

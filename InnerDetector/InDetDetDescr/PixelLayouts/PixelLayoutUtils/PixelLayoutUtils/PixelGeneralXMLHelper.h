@@ -58,6 +58,7 @@ class PixelGeneralXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
   bool isBarrelPresent() const;
   bool isEndcapPresentA() const;
   bool isEndcapPresentC() const;
+  bool isBCMPrimePresent() const;
     
  private:
 

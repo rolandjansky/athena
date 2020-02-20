@@ -12,17 +12,16 @@
 
 class StoreGateSvc;
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 //#include "MuonGeoModel/MuonDetectorManager.h"
 
 using namespace MuonGM;
+
+namespace Muon {
+    class MuonIdHelperTool;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 #include "AmdcMGM/AmdcMGMMisc.h"
@@ -53,6 +52,7 @@ public:
    StatusCode DoItCallback(IOVSVC_CALLBACK_ARGS);
 
 private:
+   ToolHandle<Muon::MuonIdHelperTool> m_muIdHelper;
 ///////////////////////////////////
 //Functions
 
@@ -199,12 +199,6 @@ private:
 
    int m_EmergencyOut ; //!< Optional stop at the end of initialisation
 
-   const MdtIdHelper * m_mdtId ; //!< IdHelper
-   const CscIdHelper * m_cscId ; //!< IdHelper
-   const RpcIdHelper * m_rpcId ; //!< IdHelper
-   const TgcIdHelper * m_tgcId ; //!< IdHelper
-
-   StoreGateSvc*   p_detStore    ; //!< Pointer On StoreGateSvc
    const MuonGM::MuonDetectorManager* p_MuonDetectorManager ; //!< Pointer On MuonDetectorManager
 
    double m_Mdt_MaxDiffZ  ; //!< Max deviation

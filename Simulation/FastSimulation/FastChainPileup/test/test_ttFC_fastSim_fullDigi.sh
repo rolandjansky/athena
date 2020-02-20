@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
+
 # art-description: test for job configuration ttFC_fastSim_fulldigi (Sim/Digi job)
 # art-type: grid
-#
-# specify branches of athena that are being targeted:
-#
 # art-include: 21.3/Athena
 # art-output: config.txt
+# art-output: *.root
+# art-output: dcube-rdo-truth
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --digiSteeringConf "SplitNoMerge" \
@@ -24,18 +24,36 @@ FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --DataRunNumber '284500' \
     --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' \
     --imf False
+rc=$?
+echo  "art-result: ${rc} EVNTtoRDO"
 
-echo "art-result: $? EVNTtoRDO step"
+inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_ttFC_fastSim_fullDigi"
+inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
+art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
+dcubeName="ttFC_fastSim_fullDigi"
+dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth.xml"
+dcubeRefRDO="${inputRefDir}/RDO_truth.root"
 
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-echo  "art-result: $? regression"
-#add an additional payload from the job (corollary file).
-# art-output: RDO_truth.root
-/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_fastSim_fullDigi RDO_truth.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/RDOTruthCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/RDO_TruthPlots_Refs/test_ttFC_fastSim_fullDigi.sh
+rc2=-9999
+rc3=-9999
+if [ ${rc} -eq 0 ]
+then
+    # Regression test
+    ArtPackage=$1
+    ArtJobName=$2
+    echo ArtJobName
+    echo $ArtJobName
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
 
+    # Histogram comparison with DCube
+    bash ${art_dcube} ${dcubeName} RDO_truth.root ${dcubeXmlRDO} ${dcubeRefRDO}
+    rc3=$?
+    if [ -d "dcube" ]
+    then
+       mv "dcube" "dcube-rdo-truth"
+    fi
 
-
-# art-output: dcube/
-echo  "art-result: $? histcomp"
+fi
+echo  "art-result: $rc2 regression"
+echo  "art-result: $rc3 dcubeRDO"

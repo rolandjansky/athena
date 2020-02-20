@@ -16,8 +16,15 @@ n
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 
-SuperCellBCIDAlg::SuperCellBCIDAlg( const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm( name, pSvcLocator), m_tool("CaloLumiBCIDTool/CaloLumiBCIDSCToolDefault")
+SuperCellBCIDAlg::SuperCellBCIDAlg( const std::string& name, ISvcLocator* pSvcLocator) 
+  : AthAlgorithm( name, pSvcLocator), 
+    m_tool("CaloLumiBCIDTool/CaloLumiBCIDSCToolDefault")
 {
+  declareProperty ("SCellContainerIn", m_sCellContainerIn = "SCellContainer",
+                   "SG key for the input supercell LAr channel container.");
+  declareProperty ("SCellContainerOut", m_sCellContainerOut = "SCellBCID",
+                   "SG key for the output supercell LAr channel container.");
+
 }
 
 StatusCode
@@ -33,7 +40,7 @@ SuperCellBCIDAlg::execute()
 {
 
 	const CaloCellContainer* scells_from_sg;
-	if ( evtStore()->retrieve(scells_from_sg,"SCell").isFailure() ){
+	if ( evtStore()->retrieve(scells_from_sg,m_sCellContainerIn).isFailure() ){
                 ATH_MSG_WARNING ("did not find cell container");
                 return StatusCode::SUCCESS;
         }
@@ -45,7 +52,7 @@ SuperCellBCIDAlg::execute()
 	int bcid = evt->bcid();
 	
 	CaloCellContainer* new_scell_cont = new CaloCellContainer(SG::OWN_ELEMENTS);
-	ATH_CHECK( evtStore()->record(new_scell_cont, "SCellBCID") );
+	ATH_CHECK( evtStore()->record(new_scell_cont, m_sCellContainerOut) );
 	new_scell_cont->reserve( scells_from_sg->size() );
 	for(auto sc : *scells_from_sg){
 		if ( !sc ) continue;

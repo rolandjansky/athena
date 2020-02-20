@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGTAUHYPO_HLTTAUTRACKROIUPDATER_H
 #define TRIGTAUHYPO_HLTTAUTRACKROIUPDATER_H
 
 #include "TrigInterfaces/FexAlgo.h"
+
+#include "MVAUtils/BDT.h"
 
 class HLTTauTrackRoiUpdater : public HLT::FexAlgo 
 { 
@@ -28,6 +30,14 @@ class HLTTauTrackRoiUpdater : public HLT::FexAlgo
 
   bool m_updateEta;  //<! flag to determine whether Roi eta should be updated using the track direction (true by default)
   bool m_updatePhi;  //<! flag to determine whether Roi phi should be updated using the track direction (false by default)
+
+  // use BDT to find best tauCore track
+  bool m_useBDT;
+  std::string m_BDTweights;
+  MVAUtils::BDT* m_reader; //!
+  std::map<TString, float*> m_BDTvars;
+
+  double getBDTscore( const xAOD::TauJet* tau, const Trk::Track* track, const Trk::Track* leadtrack );
 
 };
 #endif

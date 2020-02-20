@@ -35,16 +35,12 @@ RoutingDynAuto::RoutingDynAuto(const Athena::MsgStreamMember& msg, const PixelGe
 
   m_ISTexists = false;
 
-  InDetDD::SimpleServiceVolumeSchema schema;
-  schema.setPixelSchema();
-  m_simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper("PIXEL_PIXELSIMPLESERVICE_GEO_XML", schema, basics);
-  m_genXMLHelper = new PixelGeneralXMLHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
-  m_svcOtherXMLHelper = new PixelDynamicServiceXMLHelper("PIXEL_PIXELDYNAMICSERVICE_GEO_XML",basics);
+  m_simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper ("PIXEL_PIXELSIMPLESERVICE_GEO_XML", basics);
+  m_genXMLHelper       = new PixelGeneralXMLHelper       ("PIXEL_PIXELGENERAL_GEO_XML",       basics);
+  m_svcOtherXMLHelper  = new PixelDynamicServiceXMLHelper("PIXEL_PIXELDYNAMICSERVICE_GEO_XML",basics);
 
   m_routeBarrel = true;
-  m_routeEndcap = true;
-
-  
+  m_routeEndcap = true;  
 }
 
 void RoutingDynAuto::createRoutingVolumes(ServicesDynTracker& tracker)

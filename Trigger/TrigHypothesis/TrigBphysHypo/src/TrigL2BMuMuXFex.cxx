@@ -46,7 +46,7 @@
 #include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"                         
 #include "TrigInDetEvent/TrigL2Vertex.h"                         
 
-#include "TrigParticle/TrigL2BphysContainer.h"
+//#include "TrigParticle/TrigL2BphysContainer.h"
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
@@ -54,8 +54,6 @@
 
 
 #include <math.h>
-#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
-
 
 // temporary
 #include <iostream>

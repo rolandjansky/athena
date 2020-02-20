@@ -21,8 +21,6 @@
 
 // standard stuff
 #include <string>
-#include <map>
-#include <cmath> 
 
 #include "TrigInterfaces/ComboAlgo.h"
 #include "xAODMuon/Muon.h"

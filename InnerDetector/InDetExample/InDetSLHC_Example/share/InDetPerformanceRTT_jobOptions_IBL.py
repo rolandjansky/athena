@@ -63,6 +63,7 @@ rec.Commissioning=False
 from AthenaCommon.DetFlags import DetFlags 
 # --- switch on InnerDetector
 DetFlags.ID_setOn()
+DetFlags.BCM_setOff()
 # --- and switch off all the rest
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()

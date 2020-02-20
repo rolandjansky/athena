@@ -25,6 +25,8 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 
+#include "NSWCalibTools/INSWCalibSmearingTool.h"
+
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Geometry/Point3D.h"
@@ -47,8 +49,6 @@ namespace CLHEP{
   class HepRandomEngine;
 }
 
-class StoreGateSvc;
-class ActiveStoreSvc;
 class PileUpMergeSvc;
 
 class sTgcDigitContainer;
@@ -89,18 +89,6 @@ public:
       all the required SubEvents. */
   virtual StatusCode processAllSubEvents();
 
-  /** Just calls processAllSubEvents - leaving for back-compatibility
-      (IMuonDigitizationTool) */
-
-  /**
-     reads GEANT4 hits from StoreGate in each of detector
-     components corresponding to sTGC modules which are triplets
-     or doublets. A triplet has tree sensitive volumes and a
-     double has two. This method calls
-     sTgcDigitMaker::executeDigi, which digitizes every hit, for
-     every readout element, i.e., a sensitive volume of a
-     chamber. (IMuonDigitizationTool)
-  */
   StatusCode digitize();
 
   /** Finalize */
@@ -125,8 +113,7 @@ protected:
   std::string m_rndmEngineName;// name of random engine
 
 private:
-  ServiceHandle<StoreGateSvc>              m_sgSvc;
-  ActiveStoreSvc*                          m_activeStore;
+
   sTgcHitIdHelper*                         m_hitIdHelper;
   sTgcDigitContainer*                      m_digitContainer;
   const sTgcIdHelper*                      m_idHelper;
@@ -135,6 +122,9 @@ private:
   TimedHitCollection<sTGCSimHit>*   m_thpcsTGC;
   MuonSimDataCollection*                   m_sdoContainer;
   std::list<sTGCSimHitCollection*>  m_STGCHitCollList;
+
+  ToolHandle<Muon::INSWCalibSmearingTool> m_smearingTool;
+  BooleanProperty m_doSmearing;
 
   std::string m_inputHitCollectionName; // name of the input objects
   std::string m_outputDigitCollectionName; // name of the output digits
@@ -148,7 +138,6 @@ private:
   float m_neighborOnThreshold;
   float m_saturation;
   
-  //float m_ADC;
   bool  m_deadtimeON;
   bool  m_produceDeadDigits;
   float m_deadtimeStrip;
@@ -175,10 +164,6 @@ private:
 
   uint16_t bcTagging(const float digittime, const int channelType) const;
   int humanBC(uint16_t bctag);
-
-  //TFile *m_file;
-  //TH2F *m_SimHitOrg, *m_SimHitMerged, *m_SimHitDigitized, *m_SimHitDigitizedwPad, *m_SimHitDigitizedwoPad;
-  //TH1F *m_kineticEnergy, *m_EnergyDeposit;
 
 };
 

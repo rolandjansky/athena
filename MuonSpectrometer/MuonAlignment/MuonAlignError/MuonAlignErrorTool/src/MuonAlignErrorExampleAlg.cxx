@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAlignErrorTool/MuonAlignErrorExampleAlg.h"
@@ -72,21 +72,20 @@ void MuonAlignErrorExampleAlg::muonTrack (const Trk::Track* track) const {
 
     (*it)->getListOfHits(hits);
 
-    //std::set<Identifier> myidset_all;
     std::set<std::string> myidset_all;
     for(std::vector<const Trk::RIO_OnTrack*>::iterator jt(hits.begin()), end(hits.end()); jt!=end; ++jt) {
         // JOCHEN WAY
         Identifier myid = ((const Trk::RIO_OnTrack*)(*jt))->identify();
-        //myidset_all.insert(m_idHelperTool->chamberId(myid));
-      
-        // CAMILLA WAY
-        MuonCalib::MuonFixedId calibId = m_idTool->idToFixedId(myid);
-        if (!calibId.isValid()) {
-          continue;
-        }
-        std::string completename = hardwareName(calibId);
-	std::cout << "complete chamber name is " << completename << " chamber name is " << completename.substr(0, 2) << std::endl;
-        myidset_all.insert(completename.substr(0,2));
+
+        if (!(m_idHelperTool->isMM(myid)||m_idHelperTool->issTgc(myid))) {
+          // CAMILLA WAY
+          MuonCalib::MuonFixedId calibId = m_idTool->idToFixedId(myid);
+          if (!calibId.isValid()) {
+            continue;
+          }
+          std::string completename = hardwareName(calibId);
+          myidset_all.insert(completename.substr(0,2));
+        } else myidset_all.insert(m_idHelperTool->toStringStation(myid));
     }
     m_cham_per_dev->Fill(myidset_all.size());
 

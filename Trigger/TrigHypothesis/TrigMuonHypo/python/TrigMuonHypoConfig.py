@@ -11,6 +11,10 @@ import re
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
 ToolSvc += MuonBackExtrapolatorForMisalignedDet()
 
+if not hasattr(ToolSvc,"MuonSelectorTool"):    
+    from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool
+    ToolSvc += CP__MuonSelectionTool("MuonSelectorTool")
+
 trigMuonEFSAThresholds = {
     '0GeV'             : [ [0,9.9],              [ 0.100 ] ],
     '2GeV'             : [ [0,9.9],              [ 2.000 ] ],
@@ -34,9 +38,13 @@ trigMuonEFSAThresholds = {
     '30GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 25.0, 24.5, 23.0, 26.0] ],
     '40GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 31.5, 30.0, 28.5, 32.5] ], 
     '40GeV_barrelOnly' : [ [0,1.05,1.5,2.0,9.9], [ 31.5,1000.0,1000.0,1000.0]], 
-    '40GeV_uptoEC2'    : [ [0,1.05,1.5,2.0,9.9], [ 31.5, 30.0, 28.5,  1000.0]], 
+    '40GeV_uptoEC2'    : [ [0,1.05,1.5,2.0,9.9], [ 31.5, 30.0, 28.5,  1000.0]],
+    '40GeV_msonly'     : [ [0,1.05,1.5,2.0,9.9], [ 31.5, 30.0, 28.5, 32.5] ], 
+    '40GeV_msonlyCut'     : [ [0,1.05,1.5,2.0,9.9], [ 31.5, 30.0, 28.5, 32.5] ], 
     '50GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 45.0, 45.0, 45.0, 45.0] ], 
-    '50GeV_barrelOnly' : [ [0,1.05,1.5,2.0,9.9], [ 45.0,1000.0,1000.0,1000.0]], 
+    '50GeV_barrelOnly' : [ [0,1.05,1.5,2.0,9.9], [ 45.0,1000.0,1000.0,1000.0]],
+    '50GeV_msonly'     : [ [0,1.05,1.5,2.0,9.9], [ 45.0, 45.0, 45.0, 45.0] ], 
+    '50GeV_msonlyCut'     : [ [0,1.05,1.5,2.0,9.9], [ 45.0, 45.0, 45.0, 45.0] ], 
     '60GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 54.0, 54.0, 54.0, 54.0] ], 
     '60GeV_barrelOnly' : [ [0,1.05,1.5,2.0,9.9], [ 54.0,1000.0,1000.0,1000.0]], 
     '60GeV_msonlyCut'  : [ [0,1.05,1.5,2.0,9.9], [ 54.0, 54.0, 54.0, 54.0] ], 
@@ -294,6 +302,7 @@ muFastThresholds = {
     '30GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 17.83, 18.32, 20.46, 23.73] ],
     '36GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 23.94, 12.25, 19.80, 23.17] ],
     '40GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 29.54] ],
+    '50GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 29.54] ],
     '60GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 29.54] ],
     '80GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 29.54] ],
     '40GeV_uptoEC2_v15a'     : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 1000.] ],
@@ -381,6 +390,7 @@ muFastThresholdsForECWeakBRegion = {
     '30GeV_v15a'            : [ 14.41, 17.43 ],
     '36GeV_v15a'            : [ 10.78, 10.66],
     '40GeV_v15a'            : [ 15.07, 18.02 ],
+    '50GeV_v15a'            : [ 15.07, 18.02 ],
     '60GeV_v15a'            : [ 15.07, 18.02 ],
     '80GeV_v15a'            : [ 15.07, 18.02 ],
     '40GeV_uptoEC2_v15a'    : [ 15.07, 18.02 ],
@@ -1782,3 +1792,33 @@ class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :
         online     = TrigMuonIDTrackMultiHypoOnlineMonitoring()
 	
         self.AthenaMonTools = [ online ]
+
+
+class TrigMuonEFQualityHypoConfig(TrigMuonEFQualityHypo) :
+
+    __slots__ = []
+
+    def __new__( cls, *args, **kwargs ):
+        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
+        return super( TrigMuonEFQualityHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
+
+    def __init__( self, name, *args, **kwargs ):
+        super( TrigMuonEFQualityHypoConfig, self ).__init__( name )
+
+        try:
+            self.AcceptAll = False
+
+            if 'Loose' in args[1]:
+                self.LooseCut = True
+            else :
+                self.LooseCut = False
+
+
+        except LookupError:
+            if(args[1]=='passthrough') :
+                print 'Setting passthrough'
+                self.AcceptAll = True
+            else:
+                print 'args[1] = ', args[1]
+                raise Exception('TrigMuonEFQuality Hypo Misconfigured')
+

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
      
@@ -439,7 +439,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
 
 	for(; sp != spe; ++sp) {
 
-	  float r = (*sp)->r(); if(r > r_rmax || r < r_rmin) continue;
+	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax || (*sp)->r() < r_rmin) continue;
 	  InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp)); 
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
@@ -470,7 +470,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
 
 	for(; sp != spe; ++sp) {
 
-	  float r = (*sp)->r(); if(r > r_rmax || r < r_rmin) continue;
+	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax || (*sp)->r() < r_rmin) continue;
 	  InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp));
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
@@ -480,6 +480,30 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
       }
     }
   }
+
+  // Get sct overlap space points containers from store gate
+  //
+  if(m_useOverlap) {
+
+    if(m_spacepointsOverlap.isValid()) {
+
+      SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
+      SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
+
+      for (; sp!=spe; ++sp) {
+
+	if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax || (*sp)->r() < r_rmin) continue;
+
+	InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp)); if(!sps) continue;
+
+	int   ir = int(sps->radius()*irstep); if(ir>irmax) continue;
+	r_Sorted[ir].push_back(sps); ++r_map[ir];
+	if(r_map[ir]==1) r_index[m_nr++] = ir;
+	++m_ns;
+      }
+    }
+  }
+
   fillLists();
 }
 
@@ -932,7 +956,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
   if(m_diversss < m_diver   ) m_diversss = m_diver   ; 
   if(m_diverpps < m_diver   ) m_diverpps = m_diver   ;
   if(m_divermax < m_diversss) m_divermax = m_diversss;
-
+  
   if(fabs(m_etamin) < .1) m_etamin = -m_etamax ;
   m_dzdrmax0  = 1./tan(2.*atan(exp(-m_etamax)));
   m_dzdrmin0  = 1./tan(2.*atan(exp(-m_etamin)));
@@ -957,7 +981,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
   // Build radius-azimuthal sorted containers
   //
   const float pi2     = 2.*M_PI            ;
-  float ptm = 400.; if(m_ptmin < ptm) ptm = m_ptmin;
 
   int   NFmax    = 200            ;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,8 +34,8 @@ using namespace Trk;
 using namespace Muon;
 
 Muon::MmRdoToPrepDataTool::MmRdoToPrepDataTool(const std::string& t,
-					       const std::string& n,
-					       const IInterface*  p )
+                 const std::string& n,
+                 const IInterface*  p )
   :
   AthAlgTool(t,n,p),
   m_muonMgr(0),
@@ -49,9 +49,9 @@ Muon::MmRdoToPrepDataTool::MmRdoToPrepDataTool(const std::string& t,
 
   //  template for property decalration
   declareProperty("OutputCollection",    m_mmPrepDataContainerKey = std::string("MM_Measurements"),
-		  "Muon::MMPrepDataContainer to record");
+      "Muon::MMPrepDataContainer to record");
   declareProperty("InputCollection",    m_rdoContainerKey = std::string("MMRDO"),
-		  "Muon::MMPrepDataContainer to record");
+      "Muon::MMPrepDataContainer to record");
   
   declareProperty("MergePrds", m_merge = true);
   declareProperty("ClusterBuilderTool",m_clusterBuilderTool);
@@ -102,7 +102,7 @@ StatusCode Muon::MmRdoToPrepDataTool::finalize()
 }
 
 StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollection *rdoColl, 
-							std::vector<IdentifierHash>& idWithDataVect)
+              std::vector<IdentifierHash>& idWithDataVect)
 {
   ATH_MSG_DEBUG(" ***************** Start of process MM Collection");
 
@@ -138,7 +138,7 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
 
     if (StatusCode::SUCCESS != m_mmPrepDataContainer->addCollection(prdColl, hash)) {
       ATH_MSG_DEBUG("In processCollection - Couldn't record in the Container MM Collection with hashID = "
-		    << (int)hash );
+        << (int)hash );
       return StatusCode::FAILURE;
     }
 
@@ -220,7 +220,10 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
     if(!merge) {
       prdColl->push_back(new MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge));
     } else {
-       MMprds.push_back(MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge));
+       MMPrepData mpd = MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge);
+       // set the hash of the MMPrepData such that it contains the correct value in case it gets used in SimpleMMClusterBuilderTool::getClusters
+       mpd.setHashAndIndex(hash,0);
+       MMprds.push_back(mpd);
     } 
   }
 
@@ -304,7 +307,7 @@ void Muon::MmRdoToPrepDataTool::processRDOContainer( std::vector<IdentifierHash>
 
 // methods for ROB-based decoding
 StatusCode Muon::MmRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVect, 
-					       std::vector<IdentifierHash>& idWithDataVect )
+                 std::vector<IdentifierHash>& idWithDataVect )
 {
   // clear the output vector of selected data
   idWithDataVect.clear();
@@ -331,7 +334,7 @@ StatusCode Muon::MmRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVec
 } 
 
 StatusCode Muon::MmRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds, 
-					       const std::vector<IdentifierHash>& chamberHashInRobs )
+                 const std::vector<IdentifierHash>& chamberHashInRobs )
 {
   ATH_MSG_DEBUG("Size of the robIds" << robIds.size() );
   ATH_MSG_DEBUG("Size of the chamberHash" << chamberHashInRobs.size() );

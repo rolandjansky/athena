@@ -142,14 +142,14 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int cavernS
   for(unsigned int iring = 0; iring < nRings; iring++){
 
     int nsectors          = layerTmp->nsectors.at(iring);
-    double zpos           = cavernSide*layerTmp->ringpos.at(iring);
     double modzoff        = layerTmp->zoffset.at(iring);
     double mod0phioffset  = layerTmp->phioffset.at(iring);
     double thck           = layerTmp->thickness.at(iring);
     double innerR         = layerTmp->innerRadius.at(iring);
     double outerR         = layerTmp->outerRadius.at(iring);
     double centerR        = 0.5*(innerR+outerR);
-
+    double zpos           = cavernSide*(layerTmp->ringpos.at(iring)+0.5*(outerR-innerR)*tan(layerTmp->inclination.at(iring)));
+ 
     ATH_MSG_DEBUG("  DISC: building ring " << iring << " z=" << zpos <<  " zoffset="  << modzoff 
 		 << " phioffset=" << mod0phioffset << " thck=" << thck << " " << nsectors 
 		 << " innerR=" << innerR << " outerR=" << outerR << " centerR = <" << centerR << "> cavernSide=" << cavernSide);
@@ -273,9 +273,9 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int cav
   unsigned int nRings = layerTmp->ringpos.size();
   for(unsigned int iring = 0; iring < nRings; iring++){
     
-    double zpos = cavernSide*layerTmp->ringpos.at(iring);
     double innerR = layerTmp->innerRadius.at(iring);
     double outerR = layerTmp->outerRadius.at(iring);
+    double zpos = cavernSide*(layerTmp->ringpos.at(iring)+0.5*(outerR-innerR)*tan(layerTmp->inclination.at(iring)));
     
     // you need to correct the outer radius to fit the corners of the modules
     double phiOffset = layerTmp->phioffset.at(iring);

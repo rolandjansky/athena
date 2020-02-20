@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOFEXSIM_PUFIT_H
@@ -218,9 +218,8 @@ std::vector<float> Run_PUfit(const xAOD::JGTowerContainer* towers, float input_s
   std::vector<float> MET;
   float met = TMath::Sqrt(pxMiss*pxMiss + pyMiss*pyMiss);
   MET.push_back(met);
-  float phi = 0;
-  if(met != 0) TMath::ACos(pxMiss/met);
-  MET.push_back(phi);
+  MET.push_back(pxMiss);
+  MET.push_back(pyMiss);
 
   return MET;
 }

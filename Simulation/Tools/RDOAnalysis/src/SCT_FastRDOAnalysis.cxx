@@ -31,7 +31,6 @@ SCT_FastRDOAnalysis::SCT_FastRDOAnalysis(const std::string& name, ISvcLocator* p
   , m_siDetSCT(0)
   , m_siDetBrl(0)
   , m_siDetEc(0)
-  , m_siDetBlay(0)
   , m_siDetInPixLay(0)
   , m_siDetNtInPixLay(0)
   , m_siDetDBM(0)
@@ -70,7 +69,6 @@ SCT_FastRDOAnalysis::SCT_FastRDOAnalysis(const std::string& name, ISvcLocator* p
   , m_h_siDetSCT(0)
   , m_h_siDetBrl(0)
   , m_h_siDetEc(0)
-  , m_h_siDetBlay(0)
   , m_h_siDetInPixLay(0)
   , m_h_siDetNtInPixLay(0)
   , m_h_siDetDBM(0)
@@ -140,7 +138,6 @@ StatusCode SCT_FastRDOAnalysis::initialize() {
     m_tree->Branch("siDetSCT", &m_siDetSCT);
     m_tree->Branch("siDetBrl", &m_siDetBrl);
     m_tree->Branch("siDetEc", &m_siDetEc);
-    m_tree->Branch("siDetBlay", &m_siDetBlay);
     m_tree->Branch("siDetInPixLay", &m_siDetInPixLay);
     m_tree->Branch("siDetNtInPixLay", &m_siDetNtInPixLay);
     m_tree->Branch("siDetDBM", &m_siDetDBM);
@@ -227,10 +224,6 @@ StatusCode SCT_FastRDOAnalysis::initialize() {
   m_h_siDetEc = new TH1F("h_siDetEc", "siDetEc", 100, 0, 2);
   m_h_siDetEc->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetEc->GetName(), m_h_siDetEc));
-
-  m_h_siDetBlay = new TH1F("h_siDetBlay", "siDetBlay", 100, 0, 2);
-  m_h_siDetBlay->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetBlay->GetName(), m_h_siDetBlay));
 
   m_h_siDetInPixLay = new TH1F("h_siDetInPixLay", "siDetInPixLay", 100, 0, 2);
   m_h_siDetInPixLay->StatOverflows();
@@ -346,7 +339,6 @@ StatusCode SCT_FastRDOAnalysis::execute() {
   m_siDetSCT->clear();
   m_siDetBrl->clear();
   m_siDetEc->clear();
-  m_siDetBlay->clear();
   m_siDetInPixLay->clear();
   m_siDetNtInPixLay->clear();
   m_siDetDBM->clear();
@@ -412,7 +404,6 @@ StatusCode SCT_FastRDOAnalysis::execute() {
         const bool siDetSCT((*siDetEl).isSCT());
         const bool siDetBrl((*siDetEl).isBarrel());
         const bool siDetEc((*siDetEl).isEndcap());
-        const bool siDetBlay((*siDetEl).isBlayer());
         const bool siDetInPixLay((*siDetEl).isInnermostPixelLayer());
         const bool siDetNtInPixLay((*siDetEl).isNextToInnermostPixelLayer());
         const bool siDetDBM((*siDetEl).isDBM());
@@ -448,7 +439,6 @@ StatusCode SCT_FastRDOAnalysis::execute() {
         m_siDetSCT->push_back(siDetSCT);
         m_siDetBrl->push_back(siDetBrl);
         m_siDetEc->push_back(siDetEc);
-        m_siDetBlay->push_back(siDetBlay);
         m_siDetInPixLay->push_back(siDetInPixLay);
         m_siDetNtInPixLay->push_back(siDetNtInPixLay);
         m_siDetDBM->push_back(siDetDBM);
@@ -482,7 +472,6 @@ StatusCode SCT_FastRDOAnalysis::execute() {
         m_h_siDetSCT->Fill(siDetSCT);
         m_h_siDetBrl->Fill(siDetBrl);
         m_h_siDetEc->Fill(siDetEc);
-        m_h_siDetBlay->Fill(siDetBlay);
         m_h_siDetInPixLay->Fill(siDetInPixLay);
         m_h_siDetNtInPixLay->Fill(siDetNtInPixLay);
         m_h_siDetDBM->Fill(siDetDBM);

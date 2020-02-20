@@ -22,18 +22,11 @@
 
 #include "TrigEFBMuMuHypo.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
-
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include <math.h>
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "xAODTrigger/TrigPassBits.h"
-#include "TrigNavigation/Navigation.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
-
-#include "CLHEP/Geometry/Point3D.h"
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
@@ -225,7 +218,7 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
             
             //const ElementLinkVector<Rec::TrackParticleContainer> trackVector = (*bphysIter)->trackVector();
             //const ElementLinkVector<xAOD::TrackParticleContainer> trackVector = (*bphysIter)->trackParticleLinks();
-            const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*bphysIter)->trackParticleLinks();
+            const std::vector<ElementLink<xAOD::TrackParticleContainer> > &trackVector = (*bphysIter)->trackParticleLinks();
             
             if (trackVector.size() != 0) {
                 ATH_MSG_DEBUG(" got track vector size: " << trackVector.size() );

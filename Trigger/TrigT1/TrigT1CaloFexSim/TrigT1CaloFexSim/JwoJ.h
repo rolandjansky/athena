@@ -1,6 +1,6 @@
 /**
 
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
  */
 
@@ -26,7 +26,9 @@
  *@return @c std::vector<float>
  */
 std::vector<float> Run_JwoJ(const xAOD::JGTowerContainer* towers, const std::vector<TowerObject::Block> blocks, float rho, float pTcone_cut, bool useEtaBins, bool useNegTowers){
-  
+  /*
+    By this definition, if we set useNegTowers to true, then we will use all the towers. If we set it to false, then we veto them after pileup subtraction. 
+   */
   pTcone_cut*=Gaudi::Units::GeV;
   std::vector<float> Et_vals;
   float Ht = 0; float Htx = 0; float Hty = 0;
@@ -45,6 +47,10 @@ std::vector<float> Run_JwoJ(const xAOD::JGTowerContainer* towers, const std::vec
     
     if(useEtaBins){
       seed_Et -= rho;
+      if(!useNegTowers){
+	//If we set useNegTowers = False, then we would set all their ET = 0; This is set after pileup subtraction, which is a choice that could be studied, but seems reasonable. 
+	  if(seed_Et<0)seed_Et=0; 
+	}
       block_etx = seed_Et*TMath::Cos(block_phi);
       block_ety = seed_Et*TMath::Sin(block_phi);
 
@@ -60,6 +66,10 @@ std::vector<float> Run_JwoJ(const xAOD::JGTowerContainer* towers, const std::vec
     }else{
       if(TMath::Abs(blocks[b].Eta()) < 2.4){
 	seed_Et -= rho;
+	if(!useNegTowers){ 
+	  //If we set useNegTowers = False, then we would set all their ET = 0;
+	    if(seed_Et<0)seed_Et=0;
+	  }
 	block_etx = seed_Et*TMath::Cos(block_phi);
 	block_ety = seed_Et*TMath::Sin(block_phi);
 
