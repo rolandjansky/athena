@@ -28,8 +28,9 @@ namespace asg
 
 
   AsgComponent ::
-  ~AsgComponent ()
+  ~AsgComponent () noexcept
   {
+    delete m_properties;
   }
 
 

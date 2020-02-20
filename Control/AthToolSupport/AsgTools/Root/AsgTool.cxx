@@ -93,12 +93,12 @@ namespace asg {
 
    PropertyMgr* AsgTool::getPropertyMgr() {
 
-     return m_properties.get();
+     return m_properties;
    }
 
    const PropertyMgr* AsgTool::getPropertyMgr() const {
 
-     return m_properties.get();
+     return m_properties;
    }
 
    void AsgTool::setName( const std::string& name ) {
