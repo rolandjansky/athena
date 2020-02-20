@@ -28,7 +28,7 @@ def _algoTauCaloOnly(inputRoIs, clusters):
     algo.Key_trigTauJetInputContainer  = ""
     algo.Key_trigTauTrackInputContainer  = ""
     algo.Key_trigTauJetOutputContainer = recordable("HLT_TrigTauRecMerged_CaloOnly")
-    algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_dummy")
+    algo.Key_trigTauTrackOutputContainer = "HLT_tautrack_dummy"
     return algo
 
 def _algoTauCaloOnlyMVA(inputRoIs, clusters):
@@ -43,7 +43,7 @@ def _algoTauCaloOnlyMVA(inputRoIs, clusters):
     algo.Key_trigTauJetInputContainer  = ""
     algo.Key_trigTauTrackInputContainer  = ""
     algo.Key_trigTauJetOutputContainer = recordable("HLT_TrigTauRecMerged_CaloOnlyMVA")
-    algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_dummy")
+    algo.Key_trigTauTrackOutputContainer = "HLT_tautrack_dummy"
     return algo
 
 def _algoTauTrackRoiUpdater(inputRoIs, tracks):
