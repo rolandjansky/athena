@@ -92,6 +92,61 @@ StatusCode ElectronPhotonVariableCorrectionToolWrapper::initialize()
     return StatusCode::SUCCESS;
 }
 
+/* ========================================
+ * Apply correction
+ * ======================================== */
+
+const StatusCode ElectronPhotonVariableCorrectionToolWrapper::applyCorrection( xAOD::Photon& photon )
+{
+    bool isConvertedPhoton = xAOD::EgammaHelpers::isConvertedPhoton(&photon);
+
+    // check if need to run over converted or unconverted photons
+    if (isConvertedPhoton)
+    {
+        // correct variables on the converted photon
+        for (unsigned int convertedPhotonTool_itr = 0; convertedPhotonTool_itr < m_convertedPhotonTools.size(); convertedPhotonTool_itr++)
+        {
+            ANA_CHECK(m_convertedPhotonTools.at(convertedPhotonTool_itr)->applyCorrection(photon));
+        }
+    }
+    else
+    {
+        // correct variables on the converted photon
+        for (unsigned int unconvertedPhotonTool_itr = 0; unconvertedPhotonTool_itr < m_unconvertedPhotonTools.size(); unconvertedPhotonTool_itr++)
+        {
+            ANA_CHECK(m_unconvertedPhotonTools.at(unconvertedPhotonTool_itr)->applyCorrection(photon));
+        }
+    }
+    
+    // everything worked out, so
+    return StatusCode::SUCCESS;
+}
+const StatusCode ElectronPhotonVariableCorrectionToolWrapper::applyCorrection( xAOD::Electron& electron )
+{
+    // correct variables on the electron
+    for (unsigned int electronTool_itr = 0; electronTool_itr < m_electronTools.size(); electronTool_itr++)
+    {
+        ANA_CHECK(m_electronTools.at(electronTool_itr)->applyCorrection(electron));
+    }
+    // everything worked out, so
+    return StatusCode::SUCCESS;
+}
+
+/* ========================================
+ * Corrected Copy
+ * ======================================== */
+
+const StatusCode ElectronPhotonVariableCorrectionToolWrapper::correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon )
+{
+    out_photon = new xAOD::Photon(in_photon);
+    return applyCorrection(*out_photon);
+}
+
+const StatusCode ElectronPhotonVariableCorrectionToolWrapper::correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron)
+{
+    out_electron = new xAOD::Electron(in_electron);
+    return applyCorrection(*out_electron);
+}
 
 /* ========================================
  * Helper functions
