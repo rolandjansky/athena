@@ -27,7 +27,7 @@ namespace {
 
 // Helper macro for declaring the setProperty functions to the dictionary:
 #define SETPROPERTY_INSTAN( TYPE )                                            \
-   template StatusCode asg::AsgTool::setProperty< TYPE >( const std::string&, \
+   template StatusCode asg::AsgComponent::setProperty< TYPE >( const std::string&, \
                                                           const TYPE& )
 
 // Declare all possible setProperty template instantiations to Reflex:
