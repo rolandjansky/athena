@@ -26,6 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRawEvent/InDetRawData
 			  InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkMeasurementBase
@@ -40,7 +41,7 @@ atlas_add_component( TRT_ElectronPidTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel AthenaBaseComps AthenaPoolUtilities GaudiKernel TRT_ConditionsServicesLib InDetPrepRawData TrkEventPrimitives TrkParameters TrkToolInterfaces Identifier InDetIdentifier InDetRawData InDetReadoutGeometry InDetRIO_OnTrack TrkSurfaces TrkMeasurementBase TrkRIO_OnTrack TrkTrack TRT_ConditionsData xAODEventInfo)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel AthenaBaseComps AthenaPoolUtilities GaudiKernel TRT_ConditionsServicesLib InDetPrepRawData TrkEventPrimitives TrkParameters TrkToolInterfaces Identifier InDetIdentifier InDetRawData InDetReadoutGeometry TRT_ReadoutGeometry InDetRIO_OnTrack TrkSurfaces TrkMeasurementBase TrkRIO_OnTrack TrkTrack TRT_ConditionsData xAODEventInfo)
 
 # Install files from the package:
 atlas_install_headers( TRT_ElectronPidTools )

@@ -24,7 +24,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "TRT_ConditionsData/TRTDedxcorrection.h"
-#include "InDetReadoutGeometry/TRT_DetElementContainer.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TRT_ElectronPidTools/ITRT_LocalOccupancy.h"

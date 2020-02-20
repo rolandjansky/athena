@@ -8,8 +8,8 @@
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "InDetSimEvent/SiHit.h" // for SiHit, SiHit::xDep, etc
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
-#include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_BarrelModuleSideDesign.h"
 
 // CLHEP
 #include "CLHEP/Geometry/Point3D.h"

@@ -5,7 +5,7 @@
 #ifndef TRT_DetElementsRoadUtils_xk_h
 #define TRT_DetElementsRoadUtils_xk_h
 
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 ///////////////////////////////////////////////////////////////////
 // Output parameters: P[ 0]  - radius          centre of wafer

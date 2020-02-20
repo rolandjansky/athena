@@ -25,8 +25,7 @@ StripAnnulusDesign::StripAnnulusDesign(const SiDetectorDesign::Axis &stripDirect
                                const double &pitch,
                                const double &stripStartRadius,
                                const double &stripEndRadius) :
-    SCT_ModuleSideDesign(thickness, true, true, true, 1, 0, 0, 0, false, carrier,
-                         readoutSide, stripDirection, thicknessDirection) {
+    SCT_ModuleSideDesign(thickness, true, true, true, 1, 0, 0, 0, false, carrier, readoutSide, stripDirection, thicknessDirection) {
 
     m_nStrips = nStrips;
     m_pitch = pitch;
@@ -40,6 +39,10 @@ StripAnnulusDesign::StripAnnulusDesign(const SiDetectorDesign::Axis &stripDirect
     double length = m_stripEndRadius - m_stripStartRadius;
     std::unique_ptr<Trk::SurfaceBounds> m_bounds = std::make_unique<Trk::RectangleBounds>(width / 2.0, length / 2.0); // Awaiting new boundclass for Annulus shape
 }
+
+  StripAnnulusDesign::~StripAnnulusDesign() {
+    delete m_bounds;
+  }
 
 HepGeom::Point3D<double> StripAnnulusDesign::sensorCenter() const {
     double centerR = (m_stripStartRadius + m_stripEndRadius) * 0.5;

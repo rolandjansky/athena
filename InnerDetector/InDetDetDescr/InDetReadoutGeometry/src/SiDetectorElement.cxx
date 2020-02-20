@@ -17,9 +17,7 @@
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
-#include "InDetReadoutGeometry/StripStereoAnnulusDesign.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
 
@@ -739,9 +737,13 @@ namespace InDetDD {
     const GeoTrf::Transform3D& geoTransform = transformHit();
 
     double radialShift = 0.;
+
+    /*
+    Deprecated method for specialized ITk DetElement with different global frame - to be replaced!
     const InDetDD::StripStereoAnnulusDesign* testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
     if (testDesign) radialShift = testDesign->localModuleCentreRadius();
-
+    */
+    
     HepGeom::Point3D<double> centerGeoModel(radialShift, 0., 0.);
     m_centerCLHEP = Amg::EigenTransformToCLHEP(geoTransform) * centerGeoModel;
     m_center = Amg::Vector3D(m_centerCLHEP[0], m_centerCLHEP[1], m_centerCLHEP[2]);
@@ -948,7 +950,12 @@ namespace InDetDD {
                                double& phiMin, double& phiMax) const
   {
 
+     double radialShift = 0.;
+     /*
+    Deprecated method for specialized ITk DetElement with different global frame - to be replaced!
     const InDetDD::StripStereoAnnulusDesign* testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
+    if (testDesign) radialShift = testDesign->localModuleCentreRadius();//additional radial shift for sensors centred on beamline
+     */
 
     HepGeom::Point3D<double> corners[4];
     getCorners(corners);
@@ -957,13 +964,12 @@ namespace InDetDD {
 
     double phiOffset = 0.;
 
-    double radialShift = 0.;
-    if (testDesign) radialShift = testDesign->localModuleCentreRadius();//additional radial shift for sensors centred on beamline
+   
     const HepGeom::Transform3D rShift = HepGeom::TranslateX3D(radialShift);//in local frame, radius is x
 
     for (int i = 0; i < 4; i++) {
 
-      if (testDesign) corners[i].transform(rShift);
+      //if (testDesign) corners[i].transform(rShift); see comment re ITk...
 
       // m_tranform is already there as  part of the cache construction
       // This method seems to be used only as a helper for updateCache

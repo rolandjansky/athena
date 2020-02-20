@@ -3,7 +3,7 @@
 */
 
 #include "TRTStrawCondAlg.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 TRTStrawCondAlg::TRTStrawCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
