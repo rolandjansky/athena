@@ -56,6 +56,8 @@ StatusCode TestMCASTTool::initialize() {
   m_DebugFile = new TFile( "MCaST_Debug.root", "RECREATE", "Smearing and non-Smearing of Muons" );
   m_DebugTree = new TTree( "CorrectionsTree", "This Tree contains the information of the muon after smearing effects" );
 
+  m_DebugTree->Branch("Muon_Sel_Category", &m_SelCategory);
+
   m_Combined->Register(m_DebugTree);
   m_InnerDet->Register(m_DebugTree);
   m_MSExtr->Register(m_DebugTree);
@@ -68,7 +70,7 @@ StatusCode TestMCASTTool::execute() {
   //---\\---// Retrieving muons from container
   const xAOD::MuonContainer* muons = 0;
   ATH_CHECK( evtStore()->retrieve( muons, m_sgKey ) );
-  ATH_MSG_INFO( "Number of muons: " << muons->size() );
+  ATH_MSG_DEBUG( "Number of muons: " << muons->size() );
 
   //---\\---// Looping over muons
   xAOD::MuonContainer::const_iterator mu_itr = muons->begin();
@@ -123,6 +125,7 @@ StatusCode TestMCASTTool::execute() {
 
       std::string syst_name = ( *sysItr ).name();
 
+      m_SelCategory = mu->auxdata<int>("MCaST_Category");
       m_Combined->SetCalibPt(mu->pt(), syst_name);
       m_InnerDet->SetCalibPt(mu->auxdata<float>("InnerDetectorPt"), syst_name);
       m_MSExtr->SetCalibPt(mu->auxdata<float>("MuonSpectrometerPt"), syst_name);

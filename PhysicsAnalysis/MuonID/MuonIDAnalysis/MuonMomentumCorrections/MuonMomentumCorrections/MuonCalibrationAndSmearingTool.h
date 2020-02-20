@@ -31,6 +31,8 @@
 #define EPSILON 1.0E-6
 #define DEFAULT_INIT_VAL -999
 #define MCAST_MAX_PT 100000000
+#define MCAST_MeVToGeV 0.001
+#define MCAST_GeVToMeV 1000. 
 #define MZPDG 91.1876
 
 namespace CP {
@@ -86,6 +88,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
       double g2;
       double g3;
       double g4;
+      double extra_g;
       int    charge = 1;
       int    detRegion = 0;
       std::vector < float >  cbParsA;
@@ -95,6 +98,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
       double smearDeltaMS = 0;
       double smearDeltaID = 0;
       double smearDeltaCB = 0;
+      double smearDeltaCBOnly = 0;
       int    sel_category = -1;
     };
 
@@ -180,6 +184,8 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
 
     std::string m_year, m_algo, m_type, m_release;
     std::string m_FilesPath;
+    bool m_extra_highpt_smearing;
+    bool m_2stations_highpt_smearing;
     bool m_toroidOff;
     int m_Tsmear;
     int m_Tdata;
@@ -203,12 +209,10 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     std::vector<double> m_SUp_p1_ID, m_SUp_p2_ID, m_SUp_p2_ID_TAN, m_SUp_p0_MS, m_SUp_p1_MS, m_SUp_p2_MS;
     std::vector<double> m_SDw_p1_ID, m_SDw_p2_ID, m_SDw_p2_ID_TAN, m_SDw_p0_MS, m_SDw_p1_MS, m_SDw_p2_MS;
     std::vector<double> m_MC_p1_ID, m_MC_p2_ID, m_MC_p2_ID_TAN, m_MC_p0_MS, m_MC_p1_MS, m_MC_p2_MS;
-    // Special "p2" systematics for non-three-station muons
+    // Special "p2" systematics and corrections for non-three-station muons
     // Maps have two keys: detector region and category
-    int m_p2_MS_Categories;
-    std::map<std::pair<int, int>, double> m_p2_MS_Scaling;
-    std::map<std::pair<int, int>, double> m_p2_MS_SystUp;
-    std::map<std::pair<int, int>, double> m_p2_MS_SystDw;
+    int m_p1_p2_MS_Categories;
+    std::map<std::pair<int, int>, std::pair<double, double> > m_extra_p1_p2_MS_AlignedOnly, m_extra_p1_p2_MS_AlignedAndCorrected, m_extra_p1_p2_MS_Misaligned;
 
     std::vector<std::string> m_names;
     bool m_loadNames;

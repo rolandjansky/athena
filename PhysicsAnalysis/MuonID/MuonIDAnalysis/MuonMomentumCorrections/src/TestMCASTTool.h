@@ -44,6 +44,7 @@ namespace CP {
 
     TFile* m_DebugFile;
     TTree* m_DebugTree;
+    int m_SelCategory;
     std::unique_ptr<TrackInfo> m_Combined;
     std::unique_ptr<TrackInfo> m_InnerDet;
     std::unique_ptr<TrackInfo> m_MSExtr;
