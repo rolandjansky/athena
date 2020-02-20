@@ -149,22 +149,22 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
         }
     } // end loop over all function parameters
 
-    // ceck if this conf is only for correcting (un)converted photons
-    std::string convertedPhotonFlag = env.GetValue("ConvertedPhotonsOnly","NO");
-    std::string unconvertedPhotonFlag = env.GetValue("UnconvertedPhotonsOnly","NO");
-    if (convertedPhotonFlag.compare("YES") == 0)
+    // check to which EGamma object the conf file should be applied to, if flag is set
+    if (env.Lookup("ApplyTo"))
     {
-        //will only deal with converted photons
-        m_convertedPhotonsOnly = true;
+        std::string applyToObjectsFlag = env.GetValue("ApplyTo","Failure");
+        m_applyToObjects = StringToEGammaObject(applyToObjectsFlag);
+        // fail if not passed a proper type
+        if (m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::Failure)
+        {
+            ATH_MSG_ERROR("You did not correctly specify the object type in the ApplyTo flag.");
+            return StatusCode::FAILURE;
+        }
     }
-    if (unconvertedPhotonFlag.compare("YES") == 0)
+    // else fail
+    else
     {
-        //will only deal with unconverted photons
-        m_unconvertedPhotonsOnly = true;
-    }
-    if (m_convertedPhotonsOnly && m_unconvertedPhotonsOnly)
-    {
-        ATH_MSG_ERROR("You stated this conf file is only for unconverted and only for converted photons, which is contradictory. If you want to use it for both, don't specify any of these flags.");
+        ATH_MSG_ERROR("You did not specify to which objects this conf file should be applied to (ApplyTo).");
         return StatusCode::FAILURE;
     }
 
@@ -217,9 +217,9 @@ const StatusCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Pho
 
 const StatusCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Electron& electron )
 {   
-    if (m_convertedPhotonsOnly || m_unconvertedPhotonsOnly)
+    if (!(m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons || m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allEGammaObjects))
     {
-        ATH_MSG_ERROR("You want to correct electrons, but set either ConvertedPhotonsOnly or UnconvertedPhotonsOnly to \"YES\". Are you using the correct conf file?");
+        ATH_MSG_ERROR("You want to correct electrons, but passed a conf file with ApplyTo flag not set for electrons. Are you using the correct conf file?");
         return StatusCode::FAILURE;
     }
 
@@ -621,24 +621,46 @@ ElectronPhotonVariableCorrectionTool::ParameterType ElectronPhotonVariableCorrec
     }
 }
 
+ElectronPhotonVariableCorrectionTool::EGammaObjects ElectronPhotonVariableCorrectionTool::StringToEGammaObject( const std::string& input ) const
+{
+    // return object type which correction should be applied to
+    if( input == "unconvertedPhoton" ) return ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons;
+    else if( input == "convertedPhoton" ) return ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons;
+    else if( input == "allPhotons" ) return ElectronPhotonVariableCorrectionTool::EGammaObjects::allPhotons;
+    else if( input == "allElectrons" ) return ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons;
+    else if( input == "allEGammaObjects" ) return ElectronPhotonVariableCorrectionTool::EGammaObjects::allEGammaObjects;
+    else 
+    {
+        // if not a proper object type, return failure type - check and fail on this!
+        ATH_MSG_ERROR(input.c_str() << " is not an allowed EGamma object type to apply corrections to.");
+        return ElectronPhotonVariableCorrectionTool::EGammaObjects::Failure;
+    }
+}
+
 const StatusCode ElectronPhotonVariableCorrectionTool::PassedCorrectPhotonType(const xAOD::Photon& photon) const
 {
+    // check if conf file is set to be used for photons - fail if not
+    if (m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons)
+    {
+        ATH_MSG_ERROR("You specified in the conf file that it should be used for electrons, but passed it to a photon container in the wrapper.");
+        return StatusCode::FAILURE;
+    }
     //check if the passed photon type is the same as the requested photon type, if only one photon type was requested
-    if (m_convertedPhotonsOnly != m_unconvertedPhotonsOnly)
+    if (!(m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allPhotons || m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allEGammaObjects))
     {
         bool isConvertedPhoton = xAOD::EgammaHelpers::isConvertedPhoton(&photon);
         bool isUnconvertedPhoton = !isConvertedPhoton;
         //check if the correct photon was passed to the tool (unconverted/converted)
         //if the photon is not ((converted and converted requested) or (unconverted and unconverted requested)) fail
-        if (!((isConvertedPhoton && m_convertedPhotonsOnly) || (isUnconvertedPhoton && m_unconvertedPhotonsOnly)))
+        if (!((isConvertedPhoton && m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons) || (isUnconvertedPhoton && m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons)))
         {
-            if (m_convertedPhotonsOnly)
+            if (m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons)
             {
-                ATH_MSG_ERROR("You requested to only correct converted photons, but passed an unconverted one.");
+                ATH_MSG_ERROR("You specified in the conf file that it only should be used for converted photons, but passed it to the unconverted photons container in the wrapper.");
             }
             else
             {
-                ATH_MSG_ERROR("You requested to only correct unconverted photons, but passed a converted one.");
+                ATH_MSG_ERROR("You specified in the conf file that it only should be used for unconverted photons, but passed it to the converted photons container in the wrapper.");
             }
             return StatusCode::FAILURE;
         }

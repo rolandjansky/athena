@@ -53,7 +53,7 @@ public:
 
 private:
     // In order to do faster comparisons, use enum and not string for type of function parameter
-    enum ParameterType{
+    enum class ParameterType{
         Failure = 0,
         EtaDependentTGraph = 1,
         PtDependentTGraph,
@@ -62,6 +62,15 @@ private:
         EtaTimesPtBinned,
         EventDensity
     }; // end enum ParameterType
+    // Define the categories of EGamma objects tool can be applied to
+    enum class EGammaObjects{
+        Failure = 0,
+        unconvertedPhotons = 1,
+        convertedPhotons,
+        allPhotons,
+        allElectrons,
+        allEGammaObjects
+    }; //end enum EGammaObjects
     std::string m_configFile; //store the name of the conf file
     std::string m_correctionVariable; //store the name of the variable to correct
     std::string m_correctionFunctionString; //function to use for the variable correction
@@ -72,11 +81,11 @@ private:
     std::vector<std::vector<float>> m_binValues; //if needed, store a list of eta/pt dependent values
     std::vector<float> m_etaBins; //if needed, store a list of bin boundaries in eta
     std::vector<float> m_ptBins; //if needed, store a list of bin boundaries in pt
-    bool m_convertedPhotonsOnly = false; //set to true if correction is only for converted photons
-    bool m_unconvertedPhotonsOnly = false; //set to true if correction is only for unconverted photons
+    ElectronPhotonVariableCorrectionTool::EGammaObjects m_applyToObjects; //store to which objects the specific conf file settings are allowed to be applied to
     bool m_retreivedEtaBinning = false; //check if already retreived eta binning
     bool m_retreivedPtBinning = false; //check if already retreived pt binning
     ElectronPhotonVariableCorrectionTool::ParameterType StringToParameterType( const std::string& input ) const; //convert input string to a parameter function type
+    ElectronPhotonVariableCorrectionTool::EGammaObjects StringToEGammaObject( const std::string& input ) const; //convert input string to egamma object type
     const StatusCode PassedCorrectPhotonType(const xAOD::Photon& photon) const; //check if the correct type of photon was passed to the tool, if only (un)converted photons requested
     const StatusCode GetParameterInformationFromConf(TEnv& env, const int& parameter_number, const ElectronPhotonVariableCorrectionTool::ParameterType& type); //depending on parameter type, get the relevant information from conf file
     const StatusCode GetCorrectionParameters(std::vector<float>& properties, const float& pt, const float& absEta) const; //get the actual parameters entering the correction TF1
