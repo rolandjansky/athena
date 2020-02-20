@@ -304,15 +304,6 @@ def PixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
       conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg")
     if not conddb.folderRequested('PIXEL/PixReco'):
       conddb.addFolder('PIXEL_OFL','/PIXEL/PixReco')
-
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer("AthAlgSeq") #should be changed to AthCondSeq in master
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-    if geoFlags.isSLHC() and not hasattr(condSeq, 'PixelITkOfflineCalibCondAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelITkOfflineCalibCondAlg
-        condSeq += PixelITkOfflineCalibCondAlg(name="PixelITkOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
-        PixelITkOfflineCalibCondAlg.InputSource = 2
-
     return BasicPixelDigitizationTool(name, **kwargs)
 
 def PixelGeantinoTruthDigitizationTool(name="PixelGeantinoTruthDigitizationTool", **kwargs):
