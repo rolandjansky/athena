@@ -40,3 +40,12 @@ def getThreshold(chainDict, signature):
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainThresholdFromName
     return getChainThresholdFromName( name.split("_"), signature)
 
+
+def dimuDrComboHypoTool(chainDict):
+    from DecisionHandling.DecisionHandlingConf import dRMuMuComboHypoTool
+    name = chainDict['chainName']
+    print "ComboHypoTool drMuMu init: ", name
+    tool= dRMuMuComboHypoTool(name)
+    tool.DRcut=0.3
+    return tool
+

@@ -224,12 +224,13 @@ class InputMakerNode(AlgNode):
 from DecisionHandling.DecisionHandlingConf import ComboHypo
 class ComboMaker(AlgNode):
     def __init__(self, name, multiplicity):
-        #Alg = RecoFragmentsPool.retrieve( self.create, name )
+        Alg = RecoFragmentsPool.retrieve( self.create, name )
         log.debug("ComboMaker init: Alg %s", name)
-        Alg = ComboHypo(name)
+        #Alg = ComboHypo(name)
         AlgNode.__init__(self,  Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
         self.prop="MultiplicitiesMap"
         self.mult=list(multiplicity)
+        self._hypoToolConf = []
 
     def create (self, name):
         log.debug("ComboMaker.create %s",name)
@@ -258,8 +259,20 @@ class ComboMaker(AlgNode):
         cval = self.Alg.getProperties()[self.prop]
         return cval
 
-    def addComboHypoTools(self, tools):
-        self.Alg.ComboHypoTools = tools
+    def addComboHypoToolConfs(self, comboToolConfs):
+        self._hypoToolConf = [ HypoToolConf( tool ) for tool in comboToolConfs ]
+        for conf in self._hypoToolConf:
+            print "CACCA addComboHypoToolConfs %s %s "%(self.Alg.name(), conf.name)
+
+    def createComboHypoTools(self, chainDict):
+        # now configure hypotools
+        print "CACCA createComboHypoTools is called %s %d "%(self.Alg.name(), len(self._hypoToolConf))
+        for conf in self._hypoToolConf:
+            print "CACCA createComboHypoTools ", conf.name
+            conf.setConf( chainDict )
+            
+        self.Alg.ComboHypoTools = [conf.create() for conf in self._hypoToolConf]
+        print "Added comboTools in ", self.Alg
         
 
 
@@ -477,7 +490,7 @@ class Chain(object):
         return legs
 
 
-    def decodeHypoToolConfs(self):
+    def createHypoTools(self):
         """ This is extrapolating the hypotool configuration from the chain name"""
         log.debug("decodeHypoToolConfs for chain %s", self.name)
         from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInDict
@@ -500,6 +513,8 @@ class Chain(object):
             else:
                 for seq, onePartChainDict in zip(step.sequences, listOfChainDictsLegs):
                     seq.createHypoTools( onePartChainDict )
+
+            step.createComboHypoTools(listOfChainDictsLegs)
 
 
     def __repr__(self):
@@ -589,7 +604,7 @@ class CFSequence(object):
 
 
 
-class StepComp(object):
+class StepComponent(object):
     """ Class to build hte ChainStep, for including empty sequences"""
     def __init__(self, sequence, multiplicity,empty):
         self.sequence=sequence
@@ -598,7 +613,7 @@ class StepComp(object):
 
 class ChainStep(object):
     """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
-    def __init__(self, name,  Sequences=[], multiplicity=[1], comboTools=[]):
+    def __init__(self, name,  Sequences=[], multiplicity=[1], comboToolConfs=[]):
 
         self.name = name
         self.sequences=Sequences
@@ -606,15 +621,22 @@ class ChainStep(object):
         self.isCombo=sum(multiplicity)>1
         self.combo=None
         if self.isCombo:
-            self.makeCombo(Sequences, comboTools )
+            self.makeCombo(Sequences, comboToolConfs )
         self.decisions = []
 
-    def makeCombo(self, Sequences, comboTools=[]):
+    def makeCombo(self, Sequences, comboToolConfs=[]):
         if len(Sequences)==0:
             return
         hashableMult = tuple(self.multiplicity)
         self.combo =  RecoFragmentsPool.retrieve(createComboAlg, None, name=CFNaming.comboHypoName(self.name), multiplicity=hashableMult)
-        self.combo.addComboHypoTools(comboTools)
+        self.combo.addComboHypoToolConfs(comboToolConfs)
+
+    def createComboHypoTools(self, listOfChainDictsLegs):
+        if self.isCombo:
+            print "CACCA I'm in the step creator"
+            chainDict = listOfChainDictsLegs[0]
+            self.combo.createComboHypoTools(chainDict)
+        
         
 
 
