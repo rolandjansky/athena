@@ -5,7 +5,7 @@
 #include "TRTMonitoringRun3/TRTMonitoringRun3_Alg.h"
 
 #include "AthContainers/DataVector.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"

@@ -13,7 +13,7 @@
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TProfile_LW.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkTrack/TrackStateOnSurface.h"

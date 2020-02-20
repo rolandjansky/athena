@@ -21,7 +21,7 @@
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h" 
 //#include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
 #include "InDetIdentifier/TRT_ID.h"
-//#include "InDetReadoutGeometry/TRT_BaseElement.h"
+//#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 #include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
 

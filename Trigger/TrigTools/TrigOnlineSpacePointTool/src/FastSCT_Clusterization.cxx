@@ -4,7 +4,7 @@
 
 #include "FastSCT_Clusterization.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 

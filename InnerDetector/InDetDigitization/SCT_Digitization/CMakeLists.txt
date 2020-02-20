@@ -27,6 +27,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/SiPropertiesTool
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/SCT_ModuleDistortions
                           InnerDetector/InDetRawEvent/InDetSimData )
 
@@ -40,7 +41,7 @@ atlas_add_component( SCT_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CommissionEvent AthenaBaseComps AthenaKernel PileUpToolsLib Identifier xAODEventInfo GaudiKernel SiDigitization InDetRawData InDetSimEvent HitManagement GeneratorObjects SiPropertiesToolLib InDetIdentifier InDetReadoutGeometry InDetSimData )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CommissionEvent AthenaBaseComps AthenaKernel PileUpToolsLib Identifier xAODEventInfo GaudiKernel SiDigitization InDetRawData InDetSimEvent HitManagement GeneratorObjects SiPropertiesToolLib InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry InDetSimData )
 
 atlas_add_test( SCT_DigitizationMT_test
                 SCRIPT Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/HITS.04919495._001041.pool.root.1 --conditionsTag default:OFLCOND-RUN12-SDR-25 --digiSeedOffset1 170 --digiSeedOffset2 170 --geometryVersion ATLAS-R2-2015-03-01-00 --DataRunNumber 222525 --outputRDOFile mc15_2015_ttbar.RDO.pool.root --preInclude HITtoRDO:SimulationJobOptions/preInclude.SCTOnlyConfig.py,Digitization/ForceUseOfAlgorithms.py --postInclude Digitization/FixDataDependenciesForMT.py --skipEvents 0  --maxEvents 100 --athenaopts=--threads=10

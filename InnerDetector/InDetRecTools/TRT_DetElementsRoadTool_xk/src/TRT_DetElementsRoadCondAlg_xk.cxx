@@ -9,10 +9,10 @@
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsComparison.h"
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsLayer_xk.h"
 
-#include "InDetReadoutGeometry/TRT_Numerology.h"
-#include "InDetReadoutGeometry/TRT_BarrelElement.h"
-#include "InDetReadoutGeometry/TRT_EndcapElement.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_Numerology.h"
+#include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
+#include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 #include <memory>
 #include <utility>

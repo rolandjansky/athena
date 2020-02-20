@@ -23,7 +23,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
-#include "InDetReadoutGeometry/TRT_DetElementContainer.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "CommissionEvent/ComTime.h"
 #include "StoreGate/ReadHandleKey.h"
 

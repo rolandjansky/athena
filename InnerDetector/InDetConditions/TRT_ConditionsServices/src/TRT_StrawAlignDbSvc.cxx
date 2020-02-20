@@ -20,7 +20,7 @@
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 
 #include "Identifier/Identifier.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 
 TRT_StrawAlignDbSvc::TRT_StrawAlignDbSvc( const std::string& name,

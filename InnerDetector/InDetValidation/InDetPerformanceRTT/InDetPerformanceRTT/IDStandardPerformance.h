@@ -30,7 +30,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"

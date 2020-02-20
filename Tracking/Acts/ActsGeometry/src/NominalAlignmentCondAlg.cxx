@@ -9,7 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"

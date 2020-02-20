@@ -9,13 +9,13 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "InDetReadoutGeometry/TRT_BarrelElement.h" 
-#include "InDetReadoutGeometry/TRT_EndcapElement.h" 
+#include "TRT_ReadoutGeometry/TRT_BarrelElement.h" 
+#include "TRT_ReadoutGeometry/TRT_EndcapElement.h" 
 #include "InDetIdentifier/TRT_ID.h" 
 #include "Identifier/Identifier.h" 
 #include "Identifier/IdentifierHash.h" 
-#include "InDetReadoutGeometry/TRT_DetectorManager.h" 
-#include "InDetReadoutGeometry/TRT_Numerology.h" 
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h" 
+#include "TRT_ReadoutGeometry/TRT_Numerology.h" 
 
 #include <iostream>
 #include <fstream>
