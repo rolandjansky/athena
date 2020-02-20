@@ -42,6 +42,9 @@ namespace asg
     // public interface
     //
 
+    AsgComponent (const AsgComponent&) = delete;
+    AsgComponent& operator = (const AsgComponent&) = delete;
+
     /// standard constructor
   public:
     AsgComponent (const std::string& val_name);
@@ -49,7 +52,7 @@ namespace asg
 
     /// standard destructor
   public:
-    ~AsgComponent();
+    ~AsgComponent() noexcept;
 
 
     /// \brief add an object to release when this component gets
@@ -115,8 +118,11 @@ namespace asg
     std::string m_name;
 
     /// \brief the property manager
+    ///
+    /// This needs to be a simple pointer, or something funny happens
+    /// in the dictionaries in some of the CP tools.
   private:
-    std::unique_ptr<PropertyMgr> m_properties;
+    PropertyMgr *m_properties {nullptr};
 
     /// \brief a list of objects to clean up when releasing the
     /// component
