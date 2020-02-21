@@ -36,7 +36,7 @@ CscCondDbAlg::initialize(){
         }
     }
 
-    ATH_CHECK(m_readKey_folder_da_hv     .initialize());
+    ATH_CHECK(m_readKey_folder_da_hv     .initialize(!m_readKey_folder_da_hv.empty()));
     ATH_CHECK(m_readKey_folder_da_f001   .initialize());
     ATH_CHECK(m_readKey_folder_da_noise  .initialize());
     ATH_CHECK(m_readKey_folder_da_ped    .initialize());
