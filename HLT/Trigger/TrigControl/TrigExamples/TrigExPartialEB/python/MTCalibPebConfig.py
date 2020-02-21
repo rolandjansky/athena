@@ -120,10 +120,14 @@ def make_l1_seq():
     ctpUnpacker = CTPUnpackingTool(ForceEnableAllChains=True)
     # Can add other tools here if needed
 
+    from L1Decoder.L1DecoderConf import PrescalingEmulationTool
+    psEmulation = PrescalingEmulationTool()
+
     # Schedule the L1Decoder algo with the above tools
     from L1Decoder.L1DecoderConf import L1Decoder
     l1decoder = L1Decoder()
     l1decoder.ctpUnpacker = ctpUnpacker
+    l1decoder.prescaler = psEmulation
     all_algs.append(l1decoder)
 
     from AthenaCommon.CFElements import seqOR
