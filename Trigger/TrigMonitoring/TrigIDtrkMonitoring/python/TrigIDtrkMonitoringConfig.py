@@ -243,9 +243,9 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 if mt_chains:
                         tidatau.ntupleChainNames += [
                                 "Offline",
-                                "HLT_tau.*tracktwo.*idperf.*:key=HLT_xAODTracks_TauCore",
-                                "HLT_tau.*tracktwo.*idperf.*:key=HLT_xAODTracks_TauIso",
-                                "HLT_tau.*tracktwo.*idperf.*:key=HLT_xAODTracks_Tau"
+                                "HLT_tau.*idperf.*:key=HLT_xAODTracks_TauCore:roi=HLT_TAURoI",
+                                "HLT_tau.*idperf.*:key=HLT_xAODTracks_TauIso:roi=HLT_TAURoI",
+                                "HLT_tau.*idperf.*:key=HLT_xAODTracks_Tau:roi=HLT_TAURoI"
                         ]
                 else:
                         tidatau.ntupleChainNames += [
