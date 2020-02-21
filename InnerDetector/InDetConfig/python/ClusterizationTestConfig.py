@@ -25,6 +25,8 @@ def main(flags) :
 if __name__ == "__main__":
     import IDTestFlags
     flags = IDTestFlags.IDTestFlags_q221()
+    ##import InDetConfigFlags
+    ##flags = InDetConfigFlags.createInDetConfigFlags()
     ##from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ##flags = ConfigFlags
     flags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
@@ -33,6 +35,7 @@ if __name__ == "__main__":
     flags.Detector.SimulateSCT   = False
     flags.Detector.SimulateTRT   = False
     flags.GeoModel.Align.Dynamic    = False
+    flags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
     #######flags.InDetFlags.doPixelClusterSplitting = True
 
     flags.Input.Files=["myRDO.pool.root"]

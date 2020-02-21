@@ -20,15 +20,15 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         UseDeadmapConditions=True,
         UseDCSStateConditions=False,
         UseDCSStatusConditions=False,
-        UseDCSHVConditions=True,
-        UseDCSTemperatureConditions=True,
+###        UseDCSHVConditions=True,
+###        UseDCSTemperatureConditions=True,
         UseTDAQConditions=False,
     )
     # Digitization parameters
     CondArgs.update(
-        BunchSpace=25.0,
+####        BunchSpace=25.0,
 #        BarrelAnalogThreshold=[-1,-1,-1,-1],
-        BarrelToTThreshold=[-1, 5, 5, 5],
+        BarrelToTThreshold=[-1, 3, 5, 5], ###[-1, 5, 5, 5],
         BarrelCrossTalk=[0.06,0.06,0.06,0.06],
         BarrelThermalNoise=[160.0,160.0,160.0,160.0],
         BarrelNoiseOccupancy=[5e-8,5e-8,5e-8,5e-8],
@@ -63,7 +63,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     )
     if flags.Beam.Type == "cosmics":
         CondArgs.update(
-            UseComTime=True,
+            ####UseComTime=True,
             BarrelTimeJitter=[25.0,25.0,25.0,25.0],
             EndcapTimeJitter=[25.0,25.0,25.0],
             DBMTimeJitter=[25.0,25.0,25.0],
@@ -76,7 +76,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         )
     else:
         CondArgs.update(
-            UseComTime=False,
+            ###UseComTime=False,
             BarrelTimeJitter=[0.0,0.0,0.0,0.0],
             EndcapTimeJitter=[0.0,0.0,0.0],
             DBMTimeJitter=[0.0,0.0,0.0],
@@ -88,18 +88,23 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             DBMTimeOffset=[5.0,5.0,5.0]
         )
     # Charge calibration parameters
-    CondArgs.update(
-        DefaultCalibrationParameterA=70.2,
-        DefaultCalibrationParameterE=-3561.25,
-        DefaultCalibrationParameterC=26000.0
-    )
+    ###CondArgs.update(
+    ###    DefaultCalibrationParameterA=70.2,
+    ###    DefaultCalibrationParameterE=-3561.25,
+    ###    DefaultCalibrationParameterC=26000.0
+    ###)
     # DCS parameters
-    CondArgs.update(
-        DefaultBiasVoltage=150.0,
-        DefaultTemperature=-7.0
-    )
+    ###CondArgs.update(
+    ###    DefaultBiasVoltage=150.0,
+    ###    DefaultTemperature=-7.0
+    ###)
     # Cabling parameters
-    useCablingConditions = False
+    ###useCablingConditions = False
+
+    ###CondArgs.update(
+	###useCablingConditions = False
+	###)
+
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
     if flags.Input.isMC:
         # ITk:
@@ -145,25 +150,25 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             else:
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
 
-    CondArgs.update(
-        UseCablingConditions=useCablingConditions,
-        CablingMapToFile=False,
-        CablingMapFileName=IdMappingDat
-    )
+    ###CondArgs.update(
+    ###    UseCablingConditions=useCablingConditions,
+    ###    CablingMapToFile=False,
+    ###    CablingMapFileName=IdMappingDat
+    ###)
     # Distortion parameters
-    CondArgs.update(
-        DistortionInputSource=4,
-        DistortionVersion=1,
-        DistortionR1=0.1/1000,
-        DistortionR2=0.1/1000,
-        DistortionTwist=0.0005,
-        DistortionMean_R=0.12/1000,
-        DistortionRMS_R=0.08/1000,
-        DistortionMean_twist=-0.0005,
-        DistortionRMS_twist=0.0008,
-        DistortionWriteToFile=False,
-        DistortionFileName="PixelSurveyDistortions.txt"
-    )
+    ###CondArgs.update(
+    ###    DistortionInputSource=4,
+    ###    DistortionVersion=1,
+    ###    DistortionR1=0.1/1000,
+    ###    DistortionR2=0.1/1000,
+    ###    DistortionTwist=0.0005,
+    ###    DistortionMean_R=0.12/1000,
+    ###    DistortionRMS_R=0.08/1000,
+    ###    DistortionMean_twist=-0.0005,
+    ###    DistortionRMS_twist=0.0008,
+    ###    DistortionWriteToFile=False,
+    ###    DistortionFileName="PixelSurveyDistortions.txt"
+    ###)
     # set default kwargs
     CondArgs.update(kwargs)
     acc.addCondAlgo(CompFactory.PixelConfigCondAlg(name, **CondArgs))
@@ -263,10 +268,10 @@ def PixelChargeCalibCondAlgCfg(flags, name="PixelChargeCalibCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelChargeCalibCondAlg"""
     acc = ComponentAccumulator()
     acc.merge(addFolders(flags, "/PIXEL/PixCalib", "PIXEL_OFL", className="CondAttrListCollection"))
-    kwargs.setdefault("PixelDetEleCollKey", "PixelDetectorElementCollection")
-    kwargs.setdefault("PixelModuleData", "PixelModuleData")
+    ###kwargs.setdefault("PixelDetEleCollKey", "PixelDetectorElementCollection")
+    ###kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/PIXEL/PixCalib")
-    kwargs.setdefault("WriteKey", "PixelChargeCalibCondData")
+    ###kwargs.setdefault("WriteKey", "PixelChargeCalibCondData")
     acc.addCondAlgo(CompFactory.PixelChargeCalibCondAlg(name, **kwargs))
     return acc
 
@@ -288,9 +293,9 @@ def PixelDCSCondStateAlgCfg(flags, name="PixelDCSCondStateAlg", **kwargs):
     acc = ComponentAccumulator()
     if not flags.Input.isMC:
         acc.merge(addFolders(flags, "/PIXEL/DCS/FSMSTATE", "DCS_OFL", className="CondAttrListCollection"))
-    kwargs.setdefault("PixelModuleData", "PixelModuleData")
-    kwargs.setdefault("ReadKeyState", "/PIXEL/DCS/FSMSTATE")
-    kwargs.setdefault("WriteKeyState", "PixelDCSStateCondData")
+    ##kwargs.setdefault("PixelModuleData", "PixelModuleData")
+    ##kwargs.setdefault("ReadKeyState", "/PIXEL/DCS/FSMSTATE")
+    ##kwargs.setdefault("WriteKeyState", "PixelDCSStateCondData")
     acc.addCondAlgo(CompFactory.PixelDCSCondStateAlg(name, **kwargs))
     return acc
 
@@ -393,9 +398,9 @@ def PixelTDAQCondAlgCfg(flags, name="PixelTDAQCondAlg", **kwargs):
     acc = ComponentAccumulator()
     if flags.Common.isOnline:
         acc.merge(addFolders(flags, "/TDAQ/Resources/ATLAS/PIXEL/Modules", "TDAQ_ONL", className="CondAttrListCollection"))
-    kwargs.setdefault("PixelModuleData", "PixelModuleData")
-    kwargs.setdefault("ReadKey", "/TDAQ/Resources/ATLAS/PIXEL/Modules")
-    kwargs.setdefault("WriteKey", "PixelTDAQCondData")
+    ###########kwargs.setdefault("PixelModuleData", "PixelModuleData")
+    ###########kwargs.setdefault("ReadKey", "/TDAQ/Resources/ATLAS/PIXEL/Modules")
+    ###########kwargs.setdefault("WriteKey", "PixelTDAQCondData")
     acc.addCondAlgo(CompFactory.PixelTDAQCondAlg(name, **kwargs))
     return acc
 
