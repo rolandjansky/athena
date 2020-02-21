@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import MadGraphUtils
+import MadGraphUtils,os
 
 def getDictFromCard(card_loc,lowercase=False):
     card=open(card_loc)
@@ -94,3 +94,26 @@ def isNLO_from_run_card(run_card):
     else:
         f.close()
         return False
+
+def get_runArgs_info(runArgs):
+    if runArgs is None:
+        raise RuntimeError('runArgs must be provided!')
+    if hasattr(runArgs,'ecmEnergy'):
+        beamEnergy = runArgs.ecmEnergy / 2.
+    else:
+        raise RuntimeError("No center of mass energy found in runArgs.")
+    if hasattr(runArgs,'randomSeed'):
+        randomSeed = runArgs.randomSeed
+    else:
+        raise RuntimeError("No random seed found in runArgs.")
+    return beamEnergy,random_seed
+
+def get_physics_short():
+    FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
+    jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc') and f.endswith('.py'))]
+    if len(jofiles)==0:
+        raise RuntimeError('No job options found in '+FIRST_DIR)
+    joparts = os.path.basename(jofiles[0]).split('.')
+    if len(joparts)<2:
+        raise RuntimeError('Malformed job options file name: '+jofiles[0])
+    return joparts[1]
