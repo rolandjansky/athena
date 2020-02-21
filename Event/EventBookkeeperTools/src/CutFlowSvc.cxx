@@ -129,7 +129,7 @@ CutFlowSvc::addEvent( CutIdentifier cutID, double weight)
 {
   ATH_MSG_INFO("Adding event with weight "<< weight << "to cut " << cutID);
 
-  std::lock_guard<std::recursive_mutex> lock();
+  std::lock_guard<std::recursive_mutex> lock(m_addEventMutex);
 
   xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID);
   if (cbk == nullptr) {
