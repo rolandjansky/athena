@@ -58,12 +58,11 @@ if not ('RunningRTT' in dir()):
 rec.doCBNT=False
 
 from RecExConfig.RecFlags import rec
-rec.doTrigger=True
+rec.doTrigger=False
 from RecExConfig.RecAlgsFlags  import recAlgs
-recAlgs.doTrigger=True
+recAlgs.doTrigger=False
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.doTriggerConfigOnly=True
-
+TriggerFlags.doTriggerConfigOnly=False
 
 rec.doWriteAOD=False
 rec.doWriteESD=False
