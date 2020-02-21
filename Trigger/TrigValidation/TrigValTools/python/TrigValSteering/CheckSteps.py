@@ -12,6 +12,7 @@ import re
 import subprocess
 import json
 import six
+import glob
 
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs
@@ -183,6 +184,12 @@ class RootMergeStep(Step):
             old_name = os.path.splitext(self.merged_file)
             new_name = old_name[0] + self.rename_suffix + old_name[1]
             self.executable = 'mv {} {}; {}'.format(self.merged_file, new_name, self.executable)
+        file_list = self.input_file.split()
+        for file_name in file_list:
+            if len(glob.glob(file_name)) < 1:
+                self.log.warning('%s: file %s requested to be merged but does not exist', self.name, file_name)
+                self.result = 1
+                return self.result, '# (internal) {} in={} out={} -> failed'.format(self.name, self.input_file, self.merged_file)
         return super(RootMergeStep, self).run(dry_run)
 
 

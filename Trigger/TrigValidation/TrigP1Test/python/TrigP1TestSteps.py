@@ -7,7 +7,7 @@ Definitions of additional validation steps in Trigger ART tests relevant only fo
 The main common check steps are defined in the TrigValSteering.CheckSteps module.
 '''
 
-from TrigValTools.TrigValSteering import Step
+from TrigValTools.TrigValSteering import Step, CheckSteps
 import os
 import inspect
 
@@ -83,3 +83,41 @@ class TrigBSDumpGrepStep(Step.Step):
         if self.auto_report_result:
             self.report_result()
         return self.result, cmd
+
+
+class ExtractExpertMonitoring(CheckSteps.InputDependentStep):
+    '''
+    Step which extracts the EXPERT directory from an online monitoring file
+    produced by OH server into an offline-like expert-monitoring.root
+    '''
+    def __init__(self, name='ExtractExpertMonitoring'):
+        super(ExtractExpertMonitoring, self).__init__(name)
+        self.input_file = None
+        self.path_prefix = None
+        self.executable = 'rootcp'
+        self.args = '--recreate -r'
+        self.output_stream = Step.Step.OutputStream.STDOUT_ONLY
+
+    def configure(self, test):
+        self.args += ' {:s}:{:s}/HLT-Histogramming/*/EXPERT/* expert-monitoring.root'.format(self.input_file, self.path_prefix or '')
+        super(ExtractExpertMonitoring, self).configure(test)
+
+
+def default_check_steps_OHMon(test, hist_path):
+    steps = []
+    # Extract expert-monitoring.root file from OH server output
+    extract_hist = ExtractExpertMonitoring()
+    hist_path_split = hist_path.split(':')
+    if len(hist_path_split) > 1:
+        extract_hist.input_file = hist_path_split[0]
+        extract_hist.path_prefix = hist_path_split[1]
+    else:
+        extract_hist.input_file = hist_path
+    steps.append(extract_hist)
+    # Default check steps
+    steps.extend(CheckSteps.default_check_steps(test))
+    # Remove histogram merging step
+    matches = [step for step in steps if step.name == 'HistMerge']
+    for hm_step in matches:
+        steps.remove(hm_step)
+    return steps
