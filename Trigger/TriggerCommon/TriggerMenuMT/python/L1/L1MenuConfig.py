@@ -224,7 +224,7 @@ class L1MenuConfig(object):
         return None
 
 
-    def writeJSON(self, outputFile, destdir="./", screenprint = False):
+    def writeJSON(self, outputFile, destdir="./"):
         if self.generated:
             outputFile = destdir.rstrip('/') + '/' + outputFile
             L1MenuJSONConverter(l1menu = self.l1menu, outputFile = outputFile).writeJSON(pretty=True)
