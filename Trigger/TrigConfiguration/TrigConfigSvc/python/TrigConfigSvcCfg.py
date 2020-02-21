@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from PyUtils.Decorators import memoize
 from AthenaCommon.Logging import logging
@@ -156,7 +156,6 @@ def getL1ConfigSvc( flags = None ):
     from AthenaCommon.Logging import log
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
-    from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
     from AthenaCommon.AppMgr import theApp
     # generate menu file
     generatedFile = generateL1Menu( flags=flags )
@@ -165,7 +164,12 @@ def getL1ConfigSvc( flags = None ):
     l1ConfigSvc = TrigConf__LVL1ConfigSvc( "LVL1ConfigSvc" )
 
     l1ConfigSvc.ConfigSource = "XML"
-    l1XMLFile = findFileInXMLPATH( TriggerFlags.inputLVL1configFile() if flags is None else flags.Trigger.LVL1ConfigFile )
+    l1XMLFile = TriggerFlags.inputLVL1configFile() if flags is None else flags.Trigger.LVL1ConfigFile
+    # check if file exists in this directory otherwise add the package to aid path resolution
+    # also a '/' in the file name indicates that no package needs to be added
+    import os.path
+    if not ( "/" in l1XMLFile or os.path.isfile(l1XMLFile) ):
+        l1XMLFile = "TriggerMenuMT/" + l1XMLFile
     l1ConfigSvc.XMLMenuFile = l1XMLFile
     log.info( "For run 2 style menu access configured LVL1ConfigSvc with input file : %s", l1XMLFile )
 
