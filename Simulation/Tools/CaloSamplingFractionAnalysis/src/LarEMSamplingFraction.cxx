@@ -4,14 +4,9 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #include "LarEMSamplingFraction.h"
 
-//#include "xAODCaloEvent/CaloClusterContainer.h"
-//#include "CaloEvent/CaloCell.h"
-//#include "CaloUtils/CaloSamplingHelper.h"
 #include "CaloSimEvent/CaloCalibrationHit.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
-//#include "CaloDetDescr/CaloDetDescrManager.h"
-//#include "CaloIdentifier/CaloCell_ID.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "TileSimEvent/TileHitVector.h"
 
@@ -52,8 +47,6 @@ LarEMSamplingFraction::~LarEMSamplingFraction()
 StatusCode LarEMSamplingFraction::initialize()
 {
   //---- initialize the StoreGateSvc ptr ----------------
-  
-  cout<<"CHECKME initialize()"<<endl;
   
   ServiceHandle<ITHistSvc> histSvc("THistSvc",name()); 
   ATH_CHECK( histSvc.retrieve() );
@@ -135,18 +128,6 @@ StatusCode LarEMSamplingFraction::finalize()
 
 StatusCode LarEMSamplingFraction::execute()
 {
-  
-  /*
-  const DataHandle<xAOD::CaloClusterContainer> cc ;
-  StatusCode sc = evtStore()->retrieve(cc,m_clusterCollName);
-
-  if(sc != StatusCode::SUCCESS)
-  {
-    msg(MSG::ERROR) << "Could not retrieve ClusterContainer " << m_clusterCollName << " from StoreGate" << endmsg;
-    return sc;
-  }
-  */
-
   const DataHandle<CaloCalibrationHitContainer> cchc;
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
   std::vector<std::string>::iterator iter;
@@ -168,7 +149,6 @@ StatusCode LarEMSamplingFraction::execute()
       else
       {
 				v_cchc.push_back(cchc);
-				//cout<<"CHECKME successfully retrieved container "<<*iter<<endl;
 			}
     }
   }
@@ -258,7 +238,7 @@ StatusCode LarEMSamplingFraction::execute()
 	int count=0;
   for (it=v_cchc.begin();it!=v_cchc.end();it++)
   {
-		//cout<<" this is a loop on "<<m_CalibrationHitContainerNames[count]<<endl;
+		ATH_MSG_DEBUG( "loop on "<<m_CalibrationHitContainerNames[count]);
 		
 		CaloCalibrationHitContainer::const_iterator chIter  = (*it)->begin();
 		CaloCalibrationHitContainer::const_iterator chIterE = (*it)->end();
@@ -270,7 +250,6 @@ StatusCode LarEMSamplingFraction::execute()
 			double Etot   = (*chIter)->energyTotal();
 			double Eem    = (*chIter)->energyEM();
 			double Enonem = (*chIter)->energyNonEM();
-			//double Evis   = Eem + Enonem;
 			double Einv   = (*chIter)->energyInvisible();
 			double Eesc   = (*chIter)->energyEscaped();
  
@@ -293,7 +272,7 @@ StatusCode LarEMSamplingFraction::execute()
         }  
       }  
 			
-			  //cout<<" cellID "<<id<<" layer "<<sampling<<" energyTotal "<<Etot<<" Eem "<<Eem<<" Enonem "<<Enonem<<" Einv "<<Einv<<" Eesc "<<Eesc<<" Efactor="<<Efactor<<endl;
+			ATH_MSG_VERBOSE( "cellID "<<id<<" layer "<<sampling<<" energyTotal "<<Etot<<" Eem "<<Eem<<" Enonem "<<Enonem<<" Einv "<<Einv<<" Eesc "<<Eesc<<" Efactor="<<Efactor);
 			
 			if(sampling>=0 && sampling<=23)
 			{
@@ -333,8 +312,6 @@ StatusCode LarEMSamplingFraction::execute()
 			}
 			
 		}
-		
-    
     
     count++;
 	}
@@ -387,23 +364,23 @@ StatusCode LarEMSamplingFraction::execute()
    int hitnumber = 0;
    for (hi=(*iter).begin();hi!=(*iter).end();hi++)
    {
-          hitnumber++;
-          GeoLArHit ghit(**hi);
-          if (!ghit) continue;
-          const CaloDetDescrElement *hitElement = ghit.getDetDescrElement();
-          if(!hitElement) continue;
-          Identifier larhitid = hitElement->identify();
-          if(m_calo_dd_man->get_element(larhitid))
-          {
-           CaloCell_ID::CaloSample larlayer = m_calo_dd_man->get_element(larhitid)->getSampling();
-           energy_hit->at(larlayer)+=ghit.Energy();
-          }
+    hitnumber++;
+    GeoLArHit ghit(**hi);
+    if (!ghit) continue;
+    const CaloDetDescrElement *hitElement = ghit.getDetDescrElement();
+    if(!hitElement) continue;
+    Identifier larhitid = hitElement->identify();
+    if(m_calo_dd_man->get_element(larhitid))
+    {
+     CaloCell_ID::CaloSample larlayer = m_calo_dd_man->get_element(larhitid)->getSampling();
+     energy_hit->at(larlayer)+=ghit.Energy();
+    }
    } // End while LAr hits
    ATH_MSG_DEBUG( "Read "<<hitnumber<<" G4Hits from "<<lArKey[i]);
   }
   else
   {
-         ATH_MSG_INFO( "Can't retrieve LAr hits");
+   ATH_MSG_INFO( "Can't retrieve LAr hits");
   }// End statuscode success upon retrieval of hits
  }// End detector type loop
 
@@ -416,22 +393,21 @@ StatusCode LarEMSamplingFraction::execute()
    hitnumber++;
    Identifier pmt_id = (*i_hit).identify();
    Identifier cell_id = m_tileID->cell_id(pmt_id);
-   //const  CaloDetDescrElement* ddElement = m_tileMgr->get_cell_element(cell_id);
 
    if (m_calo_dd_man->get_element(cell_id))
-         {
-          CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(cell_id)->getSampling();
+   {
+    CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(cell_id)->getSampling();
 
-          //could there be more subhits??
-          for (int tilesubhit_i = 0; tilesubhit_i<(*i_hit).size(); tilesubhit_i++)
-          {
-           //!!
-           //std::cout <<"Tile subhit: "<<tilesubhit_i<<"/"<<(*i_hit).size()<< " E: "<<(*i_hit).energy(tilesubhit_i)<<std::endl;
-           energy_hit->at(layer) += (*i_hit).energy(tilesubhit_i);
-          }
-         }
+    //could there be more subhits??
+    for (int tilesubhit_i = 0; tilesubhit_i<(*i_hit).size(); tilesubhit_i++)
+    {
+     //!!
+     ATH_MSG_DEBUG( "Tile subhit: "<<tilesubhit_i<<"/"<<(*i_hit).size()<< " E: "<<(*i_hit).energy(tilesubhit_i) );
+     energy_hit->at(layer) += (*i_hit).energy(tilesubhit_i);
+    }
+   }
   }
-  ATH_MSG_INFO( "Read "<<hitnumber<<" G4Hits from TileHitVec");
+  ATH_MSG_DEBUG( "Read "<<hitnumber<<" G4Hits from TileHitVec");
  }
 
 	for(auto& cell:cell_info_map) {
