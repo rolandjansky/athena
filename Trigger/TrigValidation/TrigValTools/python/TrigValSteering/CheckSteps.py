@@ -605,6 +605,15 @@ class MessageCountStep(Step):
         return self.result, cmd
 
 
+def produces_log(step):
+    '''
+    Helper function checking whether a Step output_stream value
+    indicates that it will produce a log file
+    '''
+    return step.output_stream == Step.OutputStream.FILE_ONLY or \
+           step.output_stream == Step.OutputStream.FILE_AND_STDOUT
+
+
 def default_check_steps(test):
     '''
     Create the default list of check steps for a test. The configuration
@@ -617,7 +626,7 @@ def default_check_steps(test):
     # Log merging
     if len(test.exec_steps) == 1:
         exec_step = test.exec_steps[0]
-        if exec_step.type == 'athenaHLT':
+        if exec_step.type == 'athenaHLT' and produces_log(exec_step):
             logmerge = LogMergeStep()
             logmerge.merged_name = 'athena.log'
             logmerge.log_files = ['athenaHLT.log']
@@ -631,6 +640,8 @@ def default_check_steps(test):
         logmerge.merged_name = 'athena.log'
         logmerge.log_files = []
         for exec_step in test.exec_steps:
+            if not produces_log(exec_step):
+                continue
             logmerge.log_files.append(exec_step.get_log_file_name())
             if exec_step.type == 'athenaHLT':
                 logmerge.extra_log_regex = 'athenaHLT:.*(.out|.err)'
@@ -647,7 +658,7 @@ def default_check_steps(test):
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
-                    'PhysicsValidation', 'RAWtoALL', 'BSFTKCreator']
+                    'PhysicsValidation', 'RAWtoALL']
         reco_tf_logmerge.log_files = ['log.'+tf_name for tf_name in tf_names]
         reco_tf_logmerge.merged_name = 'athena.merged.log'
         log_to_zip = reco_tf_logmerge.merged_name
