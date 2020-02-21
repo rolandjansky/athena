@@ -103,7 +103,7 @@ def get_runArgs_info(runArgs):
     else:
         raise RuntimeError("No center of mass energy found in runArgs.")
     if hasattr(runArgs,'randomSeed'):
-        randomSeed = runArgs.randomSeed
+        random_seed = runArgs.randomSeed
     else:
         raise RuntimeError("No random seed found in runArgs.")
     return beamEnergy,random_seed

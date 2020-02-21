@@ -567,10 +567,7 @@ def generate_from_gridpack(nevents=-1,random_seed=-1,param_card=None,madspin_car
         check_reweight_card(MADGRAPH_GRIDPACK_LOCATION+'/Cards/reweight_card.dat')
 
     # Modify run card, then print
-    if not isNLO:
-        modify_run_card(MADGRAPH_GRIDPACK_LOCATION+'/Cards/run_card.dat',MADGRAPH_GRIDPACK_LOCATION+'/Cards/run_card.backup',{'python_seed' : random_seed})
-    else:
-        modify_run_card(MADGRAPH_GRIDPACK_LOCATION+'Cards/run_card.dat',MADGRAPH_GRIDPACK_LOCATION+'Cards/run_card.backup',{'nevents':str(nevents),'iseed':str(random_seed)})
+    modify_run_card(MADGRAPH_GRIDPACK_LOCATION+'/Cards/run_card.dat',MADGRAPH_GRIDPACK_LOCATION+'Cards/run_card.backup',{'nevents':str(nevents),'iseed':str(random_seed),'python_seed':str(random_seed)})
     print_cards(run_card=MADGRAPH_GRIDPACK_LOCATION+'/Cards/run_card.dat',param_card=MADGRAPH_GRIDPACK_LOCATION+'/Cards/param_card.dat',madspin_card=madspin_card,reweight_card=reweight_card)
 
     mglog.info('Generating events from gridpack')
@@ -1606,7 +1603,7 @@ def get_variations( gentype , masses , syst_mod , xqcut = None ):
 
 
 def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',masses=None,\
-                             nevts=None, njets=1, syst_mod=None,\
+                             nevents=None, njets=1, syst_mod=None,\
                              SLHAonly=False, keepOutput=False, SLHAexactCopy=False,\
                              writeGridpack=False,gridpackDirName=None,getnewruncard=False,MSSMCalc=False,pdlabel="'cteq6l1'",\
                              lhaid=10042,madspin_card=None):
@@ -1614,15 +1611,11 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
     beamEnergy,rand_seed = get_runArgs_info(runArgs)
 
     # Sensible defaults for number of events
-    if nevts is None: nevts = 10000.
+    if nevents is None: nevents = 10000.
 
-    if not os.environ.has_key('MADGRAPH_DATA'):
-        os.environ['MADGRAPH_DATA']=os.getcwd()
-        mglog.warning('Setting your MADGRAPH_DATA environmental variable to the working directory')
     # Set up production and decay strings
-    if nevts<1000 or nevts>10000000:
-        mglog.error('Bad idea to generate '+str(nevts)+' events.  MadGraph wont complain, but the job will never end.  Bailing out now.')
-        return -1,''
+    if nevents<1000 or nevents>10000000:
+        raise RuntimeError('Bad idea to generate '+str(nevents)+' events.  MadGraph wont complain, but the job will not behave.  Bailing out now.')
 
     process = strong_process_dict(njets,gentype)
 
@@ -1632,8 +1625,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
         # Generate the new process!
         thedir = new_process(card_loc=process)
         if 1==thedir:
-            mglog.error('Error in process generation!')
-            return -1,''
+            raise RuntimeError('Error in process generation!')
         mglog.info('Using process directory '+str(thedir))
 
     if MSSMCalc:
@@ -1644,8 +1636,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
         runMSSMCalc = subprocess.Popen([ os.environ['MADPATH']+'/Calculators/mssm/MSSMCalc'])
         runMSSMCalc.wait()
         if not os.access('param_card.dat',os.R_OK):
-            mglog.error('Problem generating param card!!  Will bail out...')
-            return -1,''
+            raise RuntimeError('Problem generating param card!!  Will bail out...')
     else:
         # Grab the param card and move the new masses into place
         if SLHAexactCopy:
@@ -1670,65 +1661,52 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
     if gridpackDirName is not None:
         if writeGridpack==False:
             mglog.info('Generating events from gridpack')
-            if generate_from_gridpack(nevents=int(nevts),random_seed=rand_seed,param_card='param_card.dat'):
-                mglog.error('Error generating events!')
-                return -1
+            if generate_from_gridpack(nevents=int(nevents),random_seed=rand_seed,param_card='param_card.dat'):
+                raise RuntimeError('Error generating events!')
             thedir=gridpackDirName
         else:
-            mglog.error('Wrong combination of arguments! writeGridpack='+str(writeGridpack)+' gridpackDirName='+str(gridpackDirName))
-            return -1
+            raise RuntimeError('Wrong combination of arguments! writeGridpack='+str(writeGridpack)+' gridpackDirName='+str(gridpackDirName))
     else:
 
         # Grab the run card and move it into place
         if 'phot' in gentype:
-            build_run_card(run_card_old='run_card.SMphot.dat',run_card_new='run_card.dat',
-                       xqcut=xqcut,nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact)
+            build_run_card(run_card_old='run_card.SMphot.dat',run_card_new='run_card.dat',runArgs=runArgs,
+                       settings={'xqcut':xqcut,'nevents':nevents,'scalefact':scalefact, 'alpsfact':alpsfact})
         else:
            if getnewruncard==True:
-               extras = { 'ktdurham':xqcut , 'lhe_version':'2.0' , 'cut_decays':'F' , 'pdlabel':pdlabel , 'lhaid':lhaid , 'drjj':0.0 }
-               build_run_card(run_card_old=get_default_runcard(thedir),run_card_new='run_card.dat',xqcut=0,
-                                      nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact,extras=extras)
+               settings = { 'ktdurham':xqcut , 'lhe_version':'2.0' , 'cut_decays':'F' , 'pdlabel':pdlabel , 'lhaid':lhaid , 'drjj':0.0,
+                          'xqcut':0, 'nevents':nevents, 'scalefact':scalefact, 'alpsfact':alpsfact}
+               build_run_card(run_card_old=get_default_runcard(thedir),run_card_new='run_card.dat',runArgs=runArgs,settings=settings)
            else:
-               build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
-                           xqcut=xqcut,nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact)
+               build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat', runArgs=runArgs,
+                       settings={'xqcut':xqcut,'nevents':nevents,'scalefact':scalefact, 'alpsfact':alpsfact})
 
         # Now do the actual event generation
         if generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',proc_dir=thedir,grid_pack=writeGridpack,madspin_card_loc=madspin_card):
-            mglog.error('Error generating events!')
-            return -1
+            raise RuntimeError('Error generating events!')
 
     # Move output files into the appropriate place, with the appropriate name
     the_spot = arrange_output(proc_dir=thedir,saveProcDir=keepOutput,runArgs=runArgs)
     if the_spot == '':
-        mglog.error('Error arranging output dataset!')
-        return -1
+        raise RuntimeError('Error arranging output dataset!')
 
     mglog.info('All done generating events!!')
     return [xqcut,the_spot]
 
 
 def SUSY_SM_Generation(runArgs = None, process='', gentype='SS',decaytype='direct',masses=None,\
-                       nevts=None, syst_mod=None,xqcut=None, SLHAonly=False, keepOutput=False, SLHAexactCopy=False,\
-                       writeGridpack=False,gridpackDirName=None,MSSMCalc=False,pdlabel="'cteq6l1'",lhaid=10042,\
-                       madspin_card=None,decays={},extras=None,paramCardPrefix='param_card.SM',fixEventWeightsForBridgeMode=False):
-    # Set beam energy
-    beamEnergy = 6500.
-    if hasattr(runArgs,'ecmEnergy'): beamEnergy = runArgs.ecmEnergy * 0.5
-
-    # Set random seed
-    rand_seed=1234
-    if hasattr(runArgs, "randomSeed"): rand_seed=runArgs.randomSeed
-
-    # Sensible defaults for number of events
-    if nevts is None: nevts = 10000.
+                       nevents=10000, syst_mod=None,xqcut=None, SLHAonly=False, keepOutput=False, SLHAexactCopy=False,\
+                       writeGridpack=False,gridpackDirName=None,MSSMCalc=False,\
+                       madspin_card=None,decays={},extras={},paramCardPrefix='param_card.SM',fixEventWeightsForBridgeMode=False):
+    # Now get a variety of info out of the runArgs
+    beamEnergy,rand_seed = get_runArgs_info(runArgs)
 
     if not os.environ.has_key('MADGRAPH_DATA'):
         os.environ['MADGRAPH_DATA']=os.getcwd()
         mglog.warning('Setting your MADGRAPH_DATA environmental variable to the working directory')
     # Set up production and decay strings
-    if nevts<1000 or nevts>10000000:
-        mglog.error('Bad idea to generate '+str(nevts)+' events.  MadGraph wont complain, but the job will never end.  Bailing out now.')
-        return -1,''
+    if nevents<1000 or nevents>10000000:
+        raise RuntimeError('Bad idea to generate '+str(nevents)+' events.  MadGraph wont complain, but the job will never end.  Bailing out now.')
 
     xqcut , alpsfact , scalefact = get_variations( gentype , masses , syst_mod , xqcut=xqcut )
 
@@ -1760,8 +1738,7 @@ output -f
 """
         thedir = new_process(card_loc=full_proc)
         if 1==thedir:
-            mglog.error('Error in process generation!')
-            return -1,''
+            raise RuntimeError('Error in process generation!')
         mglog.info('Using process directory '+str(thedir))
 
     if MSSMCalc:
@@ -1772,8 +1749,7 @@ output -f
         runMSSMCalc = subprocess.Popen([ os.environ['MADPATH']+'/Calculators/mssm/MSSMCalc'])
         runMSSMCalc.wait()
         if not os.access('param_card.dat',os.R_OK):
-            mglog.error('Problem generating param card!!  Will bail out...')
-            return -1,''
+            raise RuntimeError('Problem generating param card!!  Will bail out...')
     else:
         # Grab the param card and move the new masses into place
         if SLHAexactCopy:
@@ -1794,46 +1770,33 @@ output -f
         return [xqcut,'dummy']
 
     # Set up the extras dictionary
-    if extras is None:
-        extras = { 'ktdurham':xqcut , 'lhe_version':'2.0' , 'cut_decays':'F' , 'pdlabel':pdlabel , 'lhaid':lhaid , 'drjj':0.0 }
-    else:
-        if 'drjj' not in extras: extras['drjj']=0.0
-        if 'lhe_version' not in extras: extras['lhe_version']='2.0'
-        if 'cut_decays' not in extras: extras['cut_decays']='F'
-        if ('pdlabel' in extras and pdlabel is not None) or\
-           ('lhaid' in extras and lhaid is not None) or\
-           ('ktdurham' in extras and xqcut is not None):
-            mglog.error('Tried to define variables in two places.  Please pass pdlabel, lhaid, and ktduram ONLY through either the extras dictionary OR the function parameters')
-            return -1
-
-        if 'pdlabel' not in extras: extras['pdlabel']=pdlabel
-        if 'lhaid' not in extras: extras['lhaid']=lhaid
-        if 'ktdurham' not in extras: extras['ktdurham']=xqcut
+    if 'drjj' not in extras: extras['drjj']=0.0
+    if 'lhe_version' not in extras: extras['lhe_version']='3.0'
+    if 'cut_decays' not in extras: extras['cut_decays']='F'
+    if 'pdlabel' not in extras: extras['pdlabel']="'cteq6l1'"
+    if 'lhaid' not in extras: extras['lhaid']=10042
+    if 'ktdurham' not in extras: extras['ktdurham']=xqcut
 
     # Generate events!
     if gridpackDirName is not None:
         if writeGridpack==False:
             mglog.info('Generating events from gridpack')
-            if generate_from_gridpack(nevents=int(nevts),random_seed=rand_seed,param_card='param_card.dat'):
-                mglog.error('Error generating events!')
-                return -1
+            if generate_from_gridpack(nevents=int(nevents),random_seed=rand_seed,param_card='param_card.dat'):
+                raise RuntimeError('Error generating events!')
             thedir=gridpackDirName
         else:
-            mglog.error('Wrong combination of arguments! writeGridpack='+str(writeGridpack)+' gridpackDirName='+str(gridpackDirName))
-            return -1
+            raise RuntimeError('Wrong combination of arguments! writeGridpack='+str(writeGridpack)+' gridpackDirName='+str(gridpackDirName))
     else:
         # Grab the run card and move it into place
-        build_run_card(run_card_old=get_default_runcard(thedir),run_card_new='run_card.dat',xqcut=0,
-                       nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact,extras=extras)
+        extras.update({'nevents':nevents,'scalefact':scalefact,'alpsfact':alpsfact,'xqcut':0})
+        build_run_card(run_card_old=get_default_runcard(thedir),run_card_new='run_card.dat',runArgs=runArgs,settings=extras)
         if generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',proc_dir=thedir,grid_pack=writeGridpack,madspin_card_loc=madspin_card):
-            mglog.error('Error generating events!')
-            return -1
+            raise RuntimeError('Error generating events!')
 
     # Move output files into the appropriate place, with the appropriate name
     the_spot = arrange_output(proc_dir=thedir,saveProcDir=keepOutput,runArgs=runArgs,fixEventWeightsForBridgeMode=fixEventWeightsForBridgeMode)
     if the_spot == '':
-        mglog.error('Error arranging output dataset!')
-        return -1
+        raise RuntimeError('Error arranging output dataset!')
 
     mglog.info('All done generating events!!')
     return [xqcut,the_spot]
@@ -2080,43 +2043,27 @@ def build_param_card(param_card_old=None,param_card_new='param_card.dat',masses=
     newcard.close()
     return param_card_new
 
-def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
-                   xqcut=0.,nevts=60000,rand_seed=1234,beamEnergy=4000.,
-                   scalefact=-1.,alpsfact=-1.,extras={}):
+def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',runArgs=None,settings={}):
     """Build a new run_card.dat from an existing one.
-    Extras is a dictionary of keys (no spaces needed) and
-    values to replace as well.
+    This function goes to find your run card from somewhere in DATAPTH.
+    Settings is a dictionary of keys (no spaces needed) and values to replace.
     """
-    # Handle scalefact setting -- old setup makes this a little clunky
-    if 'scalefact' in extras:
-        if scalefact>0 and scalefact!=extras['scalefact']:
-            mglog.error('Scalefact set in both extras (%1.2f) and arguments to build_run_card (%1.2f)'%(extras['scalefact'],scalefact))
-            mglog.error('and not equal! Do not know what to do, so giving up')
-            raise RuntimeError('Inconsistent setting of scalefact')
-        elif scalefact<0:
-            scalefact=extras['scalefact']
-            del extras['scalefact']
-    # Otherwise set the default value
-    elif scalefact<=0:
-        scalefact=1.
-
-    # Handle alpsfact setting -- old setup makes this a little clunky
-    if 'alpsfact' in extras:
-        if alpsfact>0 and alpsfact!=extras['alpsfact']:
-            mglog.error('Alpsfact set in both extras (%1.2f) and arguments to build_run_card (%1.2f)'%(extras['alpsfact'],alpsfact))
-            mglog.error('and not equal! Do not know what to do, so giving up')
-            raise RuntimeError('Inconsistent setting of alpsfact')
-        elif alpsfact<0:
-            alpsfact=extras['alpsfact']
-            del extras['alpsfact']
-    # Otherwise set the default value
-    elif alpsfact<=0:
-        alpsfact=1.
-
     # guess NLO from run card -- not the most robust way to do this but otherwise arguments of build_run_card would need to change
     isNLO=isNLO_from_run_card(run_card_old)
     # add gobal PDF and scale uncertainty config to extras, except PDF or weights for syscal config are explictly set
-    MadGraphSystematicsUtils.setup_pdf_and_systematic_weights(MADGRAPH_PDFSETTING,extras,isNLO)    
+    MadGraphSystematicsUtils.setup_pdf_and_systematic_weights(MADGRAPH_PDFSETTING,settings,isNLO)
+
+    # Get some info out of the runArgs
+    if runArgs is not None:
+        beamEnergy,rand_seed = get_runArgs_info(runArgs)
+        if not 'iseed' in settings: settings['iseed']=rand_seed
+        if not isNLO and not 'python_seed' in settings: settings['python_seed']=rand_seed
+        if 'beamEnergy' in settings:
+            mglog.warning('Do not set beamEnergy in MG settings. The variables are ebeam1 and ebeam2. Will use your setting of '+str(settings['beamEnergy']))
+            beamEnergy=settings['beamEnergy']
+            settings.pop('beamEnergy')
+        if not 'ebeam1' in settings: settings['ebeam1']=beamEnergy
+        if not 'ebeam2' in settings: settings['ebeam2']=beamEnergy
 
     # Grab the old run card and move it into place
     # Get the run card from the installation
@@ -2127,74 +2074,15 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
         runcard.wait()
 
     if not os.access(run_card_old,os.R_OK):
-        mglog.info('Could not get run card '+run_card_old)
+        raise RuntimeError('Could not get run card '+run_card_old)
     if os.access(run_card_new,os.R_OK):
-        mglog.error('Old run card in the current directory. Dont want to clobber it. Please move it first.')
-        return -1
+        raise RuntimeError('Old run card in the current directory. Dont want to clobber it. Please move it first.')
 
-    oldcard = open(run_card_old,'r')
-    newcard = open(run_card_new,'w')
-    used_options = []
-    python_seed_set=False
-    for line in oldcard:
-        if '= xqcut ' in line:
-            newcard.write('%f   = xqcut   ! minimum kt jet measure between partons \n'%(xqcut))
-        elif ' nevents ' in line:
-            newcard.write('  %i       = nevents ! Number of unweighted events requested \n'%(nevts))
-        elif ' iseed ' in line:
-            newcard.write('   %i      = iseed   ! rnd seed (0=assigned automatically=default)) \n'%(rand_seed))
-        elif ' python_seed ' in line:
-            python_seed_set=True
-            newcard.write('   %i      = python_seed   ! python seed (hidden parameter) \n'%(rand_seed))
-        elif ' ebeam1 ' in line:
-            newcard.write('   %i      = ebeam1  ! beam 1 energy in GeV \n'%(int(beamEnergy)))
-        elif ' ebeam2 ' in line:
-            newcard.write('   %i      = ebeam2  ! beam 2 energy in GeV \n'%(int(beamEnergy)))
-        elif ' scalefact  ' in line:
-            newcard.write(' %3.2f     = scalefact        ! scale factor for event-by-event scales \n'%(scalefact))
-        elif ' alpsfact  ' in line:
-            newcard.write(' %3.2f     = alpsfact         ! scale factor for QCD emission vx \n'%(alpsfact))
-        else:
-            for ak in extras:
-                excludeList=['xqcut','nevents','iseed','ebeam1','ebeam2','scalefact','alpsfact','python_seed']
-                if ak in excludeList:
-                    mglog.error('You are trying to set "%s" with the extras parameter in build_run_card, this must be set in the build_run_card arguments instead.'%ak)
-                    raise RuntimeError('You are trying to set "%s" with the extras parameter in build_run_card, this must be set in the build_run_card arguments instead.'%ak)
-                    return -1
+    # Move to the new name, and then let modify run card do the job
+    os.rename(run_card_old,run_card_new)
+    modify_run_card(run_card=run_card_new,run_card_backup=run_card_old,settings=settings)
 
-                #if '='+ak.strip() in line.replace(' ',''):
-                actual_line=line.split('!')[0]
-                comment=''
-                if len(line.split('!'))>1:
-                    comment=line.split('!')[1]
-                if '='+ak.strip() in actual_line.replace(' ','') and (len(actual_line.strip().split(ak.strip())[1])==0 or actual_line.split(ak.strip())[1][0]==" "):
-                    newline=' '+str(extras[ak])+'    ='+actual_line.split('=')[-1]+'!'+comment
-                    newcard.write(newline )
-                    used_options += [ ak ]
-                    break
-                # if a setting is partly upper case in the run_card but the user gave a lower case name
-                # (e.g. reweight_PDF is written in the run card but reweight_pdf given by user)
-                # it will still be processed properly
-                elif '='+ak.strip() in actual_line.lower().replace(' ','') and (len(actual_line.lower().strip().split(ak.strip())[1])==0 or actual_line.lower().split(ak.strip())[1][0]==" "):
-                    newline=' '+str(extras[ak])+'    ='+actual_line.split('=')[-1]+'!'+comment
-                    newcard.write(newline )
-                    used_options += [ ak ]
-                    break
-
-            else: # Fell through the loop
-                newcard.write(line)
-    # Clean up options that weren't used
-    newcard.write('\n')
-    if not python_seed_set and not isNLO:
-        newcard.write('   %i      = python_seed   ! python seed (hidden parameter) \n'%(rand_seed))
-    for ak in extras:
-        if ak in used_options: continue
-        mglog.warning('Option '+ak+' was not in the default run_card.  Adding by hand a setting to '+str(extras[ak]) )
-        newcard.write( ' '+str(extras[ak])+'   = '+ak+'\n')
-    # Close up
-    oldcard.close()
-    newcard.close()
-    return run_card_new
+    return
 
 # New helper function - this is a bit of duplication with build_run_card but modify_run_card
 # is a bit more lightweight. build_run_card could be rewritten to call modify_run_card
