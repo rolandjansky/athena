@@ -50,6 +50,7 @@ using namespace ST;
 #include "tauRecTools/ITauToolBase.h"
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
+#include "IsolationSelection/IIsolationLowPtPLVTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
 
@@ -777,12 +778,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     CONFIG_EG_EFF_TOOL_KEY(m_elecEfficiencySFTool_id, toolName, "IdKey", eleId);
 
     // electron iso
-    toolName = "AsgElectronEfficiencyCorrectionTool_iso_" + m_eleId + m_eleIso_WP;
+    toolName = "AsgElectronEfficiencyCorrectionTool_iso_" + m_eleId + m_el_iso_fallback[m_eleIso_WP];
     // can't do the iso tool via the macro, it needs two properties set
     if ( !m_elecEfficiencySFTool_iso.isUserConfigured() ) {
 
-      if ( !check_isOption(m_eleIso_WP, m_el_iso_support) ) { //check if supported
-	ATH_MSG_WARNING( "Your electron Iso WP: " << m_eleIso_WP
+      if ( !check_isOption(m_el_iso_fallback[m_eleIso_WP], m_el_iso_support) ) { //check if supported
+	ATH_MSG_WARNING( "Your electron Iso WP: " << m_el_iso_fallback[m_eleIso_WP]
 			 << " is no longer supported. This will almost certainly cause a crash now.");
       }
 
@@ -790,7 +791,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("MapFilePath", m_eleEffMapFilePath) );
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IsoKey", m_eleIso_WP) );
+      ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IsoKey", m_el_iso_fallback[m_eleIso_WP]) );
       if (!isData()) {
         ATH_CHECK (m_elecEfficiencySFTool_iso.setProperty("ForceDataType", (int) data_type) );
       }
@@ -801,12 +802,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
    
 
     // electron iso high-pt
-    toolName = "AsgElectronEfficiencyCorrectionTool_isoHigPt_" + m_eleId + m_eleIsoHighPt_WP;
+    toolName = "AsgElectronEfficiencyCorrectionTool_isoHigPt_" + m_eleId + m_el_iso_fallback[m_eleIsoHighPt_WP];
     // can't do the iso tool via the macro, it needs two properties set
     if ( !m_elecEfficiencySFTool_isoHighPt.isUserConfigured() ) {
 
-      if ( !check_isOption(m_eleIsoHighPt_WP, m_el_iso_support) ) { //check if supported
-	ATH_MSG_WARNING( "Your electron high-pt Iso WP: " << m_eleIsoHighPt_WP
+      if ( !check_isOption(m_el_iso_fallback[m_eleIsoHighPt_WP], m_el_iso_support) ) { //check if supported
+	ATH_MSG_WARNING( "Your electron high-pt Iso WP: " << m_el_iso_fallback[m_eleIsoHighPt_WP]
 			 << " is no longer supported. This will almost certainly cause a crash now.");
       }
 
@@ -814,7 +815,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
       ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("MapFilePath", m_eleEffMapFilePath) );
       ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IsoKey", m_eleIsoHighPt_WP) );
+      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IsoKey", m_el_iso_fallback[m_eleIsoHighPt_WP]) );
       if (!isData()) {
         ATH_CHECK (m_elecEfficiencySFTool_isoHighPt.setProperty("ForceDataType", (int) data_type) );
       }
@@ -962,7 +963,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   }
 
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ElectronChargeFlipTaggerTool#Calculating_the_ECIDS_decision
-  std::string tmpIsoWP = m_eleIso_WP;
+  std::string tmpIsoWP = m_el_iso_fallback[m_eleIso_WP];
   std::string tmpIDWP = m_eleId;
   // Only Medium/TightIDs supported for now. Only Gradient and FCTight supported for now
   if (tmpIDWP != "MediumLLH" && tmpIDWP != "TightLLH") {
@@ -974,21 +975,21 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     tmpIsoWP = "Gradient";
   }
 
-  toolName = "AsgElectronEfficiencyCorrectionTool_chf_" + m_eleId + m_eleIso_WP + m_eleChID_WP;
+  toolName = "AsgElectronEfficiencyCorrectionTool_chf_" + m_eleId + m_el_iso_fallback[m_eleIso_WP] + m_eleChID_WP;
   CONFIG_EG_EFF_TOOL(m_elecEfficiencySFTool_chf, toolName, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/additional/efficiencySF.ChargeID."+tmpIDWP+"_d0z0_v13_"+tmpIsoWP+"_ECIDSloose.root");
   m_runECIS = m_eleChID_WP.empty() ? false : true;
 
   // Electron charge mis-identification SFs
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/LatestRecommendationsElectronIDRun2#Scale_factors_for_electrons_char
-  toolName = "ElectronChargeEfficiencyCorrectionTool_" + m_eleId + m_eleIso_WP;
+  toolName = "ElectronChargeEfficiencyCorrectionTool_" + m_eleId + m_el_iso_fallback[m_eleIso_WP];
   if ( !m_elecChargeEffCorrTool.isUserConfigured() ) {
     m_elecChargeEffCorrTool.setTypeAndName("CP::ElectronChargeEfficiencyCorrectionTool/"+toolName);
 
     // Reset this variable as more Iso WPs are supported for the below
-    std::string tmpIsoWP = m_eleIso_WP; 
+    std::string tmpIsoWP = m_el_iso_fallback[m_eleIso_WP]; 
     std::string tmpIDWP = m_eleId;
     if ( m_eleChIso && !check_isOption(tmpIsoWP, m_el_iso_support) ) { //check if supported
-      	ATH_MSG_WARNING( "Your electron Iso WP: " << m_eleIso_WP << " is no longer supported. This will almost certainly cause a crash now.");
+      	ATH_MSG_WARNING( "Your electron Iso WP: " << m_el_iso_fallback[m_eleIso_WP] << " is no longer supported. This will almost certainly cause a crash now.");
     }
     if (tmpIDWP != "MediumLLH" && tmpIDWP != "TightLLH" && !(tmpIDWP=="LooseAndBLayerLLH" && m_eleChIso==false) ) { //check if supported
          ATH_MSG_WARNING("Your Electron ID WP ("+tmpIDWP+") is not supported for charge ID SFs, falling back to MediumLLH for SF purposes");
@@ -1648,6 +1649,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_isoTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_isoTool.retrieve() );
   } else  ATH_CHECK( m_isoTool.retrieve() );
+ 
+  if (!m_isoToolLowPtPLV.isUserConfigured()) {
+    m_isoToolLowPtPLV.setTypeAndName("CP::IsolationLowPtPLVTool/IsoToolLowPtPLV");
+    ATH_CHECK( m_isoToolLowPtPLV.setProperty("OutputLevel", this->msg().level()) );
+    ATH_CHECK( m_isoToolLowPtPLV.retrieve() );
+  } else  ATH_CHECK( m_isoToolLowPtPLV.retrieve() );
  
 
   if (!m_isoBaselineTool.isUserConfigured()) {
