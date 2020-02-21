@@ -24,19 +24,21 @@ namespace asg
   // the templated version of the function to rely on this one.
   template<> StatusCode AsgComponentConfig ::
   makeComponentExpert<AsgComponent> (std::unique_ptr<AsgComponent>& component,
-                                     const std::string& newCommand) const;
+                                     const std::string& newCommand,
+                                     bool nestedNames) const;
 
 
 
   template<typename T> StatusCode AsgComponentConfig ::
   makeComponentExpert (std::unique_ptr<T>& component,
-                       const std::string& newCommand) const
+                       const std::string& newCommand,
+                       bool nestedNames) const
   {
     using namespace msgComponentConfig;
 
     // for `AsgComponent` we have a non-templated implementation
     std::unique_ptr<AsgComponent> baseComponent;
-    if (makeComponentExpert (baseComponent, newCommand).isFailure())
+    if (makeComponentExpert (baseComponent, newCommand, nestedNames).isFailure())
       return StatusCode::FAILURE;
 
     // note: I delay releasing the baseComponent after I check the

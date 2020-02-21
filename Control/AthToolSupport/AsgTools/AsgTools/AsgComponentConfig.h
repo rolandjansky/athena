@@ -177,7 +177,8 @@ namespace asg
   public:
     template<typename T> StatusCode
     makeComponentExpert (std::unique_ptr<T>& component,
-                         const std::string& newCommand) const;
+                         const std::string& newCommand,
+                         bool nestedNames) const;
 
 
 
