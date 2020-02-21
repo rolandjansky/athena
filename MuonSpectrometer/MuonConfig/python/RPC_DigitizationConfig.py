@@ -131,6 +131,9 @@ def RPC_OverlayDigitizationBasicCfg(flags, **kwargs):
     if flags.Concurrency.NumThreads > 0:
         kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
 
+    # Set common overlay extra inputs
+    kwargs.setdefault("ExtraInputs", flags.Overlay.ExtraInputs)
+
     RPC_Digitizer = CompFactory.RPC_Digitizer
     acc.addEventAlgo(RPC_Digitizer(name="RPC_OverlayDigitizer", **kwargs))
     return acc

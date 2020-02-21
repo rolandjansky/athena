@@ -267,6 +267,9 @@ def SCT_OverlayDigitizationBasicCfg(flags, **kwargs):
     if flags.Concurrency.NumThreads > 0:
         kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
 
+    # Set common overlay extra inputs
+    kwargs.setdefault("ExtraInputs", flags.Overlay.ExtraInputs)
+
     SCT_Digitization = CompFactory.SCT_Digitization
     acc.addEventAlgo(SCT_Digitization(name="SCT_OverlayDigitization", **kwargs))
     return acc

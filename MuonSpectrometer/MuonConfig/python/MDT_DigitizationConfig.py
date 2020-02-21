@@ -117,6 +117,9 @@ def MDT_OverlayDigitizationBasicCfg(flags, **kwargs):
     if flags.Concurrency.NumThreads > 0:
        kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
 
+    # Set common overlay extra inputs
+    kwargs.setdefault("ExtraInputs", flags.Overlay.ExtraInputs)
+
     MDT_Digitizer = CompFactory.MDT_Digitizer
     acc.addEventAlgo(MDT_Digitizer(name="MDT_OverlayDigitizer", **kwargs))
     return acc
