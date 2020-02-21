@@ -281,7 +281,7 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
           const bool hasYCoordinate = (det != SCT)and(det != TRT); // SCT & TRT do not have LocY
           if (hasYCoordinate) {
             fillHisto(m_residualy[det][region], residualLocY);
-            if (type!=INVALID_LAYER) fillHisto(m_residualy_perType[type], residualLocX);
+            if (type!=INVALID_LAYER) fillHisto(m_residualy_perType[type], residualLocY);
           }
           fillHisto(m_residualpullx[det][region], pullLocX);
           if (type!=INVALID_LAYER) fillHisto(m_residualpullx_perType[type], residualLocX);
