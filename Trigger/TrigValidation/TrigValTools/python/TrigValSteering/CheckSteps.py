@@ -493,6 +493,7 @@ class ZeroCountsStep(Step):
         super(ZeroCountsStep, self).__init__(name)
         self.input_file = 'HLTChain.txt,HLTTE.txt,L1AV.txt'
         self.auto_report_result = True
+        self.required = True
         self.__input_files__ = None
 
     def configure(self, test=None):
