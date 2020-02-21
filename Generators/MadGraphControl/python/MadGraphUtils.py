@@ -194,7 +194,7 @@ def get_default_runcard(proc_dir='PROC_mssm_0'):
             raise RuntimeError('Cannot find default run_card.dat or run_card_default.dat! I was looking here: %s'%run_card_loc)
 
 
-def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',proc_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cluster_type=None,cluster_queue=None,cluster_nb_retry=None,cluster_temp_path=None,extlhapath=None,madspin_card_loc=None,required_accuracy=0.01,nevents=None,runArgs=None,reweight_card_loc=None,bias_module=None):
+def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',proc_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cluster_type=None,cluster_queue=None,cluster_nb_retry=None,cluster_temp_path=None,extlhapath=None,madspin_card_loc=None,required_accuracy=0.01,runArgs=None,reweight_card_loc=None,bias_module=None):
     try:
         from __main__ import opts
         if opts.config_only:
@@ -218,7 +218,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',proc_di
 
     if is_gen_from_gridpack():
         mglog.info('Running event generation from gridpack (using smarter mode from generate() function)')
-        generate_from_gridpack(nevents=nevents,runArgs=runArgs,param_card=param_card_loc,madspin_card=madspin_card_loc,extlhapath=extlhapath,gridpack_compile=gridpack_compile,reweight_card=reweight_card_loc)
+        generate_from_gridpack(runArgs=runArgs,param_card=param_card_loc,madspin_card=madspin_card_loc,extlhapath=extlhapath,gridpack_compile=gridpack_compile,reweight_card=reweight_card_loc)
         return
 
     # Now get a variety of info out of the runArgs
@@ -283,7 +283,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',proc_di
         if not isNLO:
             modify_run_card(run_card=run_card_loc,run_card_backup=run_card_loc+'.tmp',settings={'gridpack':'true'},delete_backup=True)
         else:
-            my_settings = {'nevents':'1000','req_acc':str(req_acc)}
+            my_settings = {'nevents':'1000','req_acc':str(required_accuracy)}
             modify_run_card(run_card=run_card_loc,run_card_backup=run_card_loc+'.tmp',settings=my_settings,delete_backup=True)
     else:
         #Running in on-the-fly mode
@@ -479,6 +479,9 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',proc_di
         mygenerate = subprocess.Popen(['bin/generate_events','--name='+MADGRAPH_RUN_NAME],stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
         mygenerate.communicate()
 
+    # Get back to where we came from
+    os.chdir(currdir)
+
     if grid_pack:
         # Name dictacted by https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PmgMcSoftware
         gridpack_name='mc_'+str(int(beamEnergy*2/1000))+'TeV.'+get_physics_short()+'.GRID.tar.gz'
@@ -486,8 +489,6 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',proc_di
 
         if not isNLO:
             ### LO RUN ###
-
-            os.chdir(currdir)
             if madspin_card_loc:
                 shutil.copy((proc_dir+'/'+MADGRAPH_RUN_NAME+'_decayed_1_gridpack.tar.gz'),gridpack_name)
             else:
@@ -523,7 +524,6 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',proc_di
         else:
 
             ### NLO RUN ###
-            os.chdir('../')
             mglog.info('Package up proc_dir')
             os.rename(proc_dir,MADGRAPH_GRIDPACK_LOCATION)
             tar = subprocess.Popen(['tar','czf',gridpack_name,MADGRAPH_GRIDPACK_LOCATION,'--exclude=lib/PDFsets'])
@@ -532,15 +532,16 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',proc_di
 
         raise RuntimeError('Gridpack sucessfully created, exiting the transform. IGNORE ERRORS if running gridpack generation!')
 
-    os.chdir(currdir)
-
     resetLHAPDF(origLHAPATH=origLHAPATH,origLHAPDF_DATA_PATH=origLHAPDF_DATA_PATH)
 
     mglog.info('Finished at '+str(time.asctime()))
     return 0
 
 
-def generate_from_gridpack(nevents=-1,random_seed=-1,param_card=None,madspin_card=None,reweight_card=None,extlhapath=None, gridpack_compile=None):
+def generate_from_gridpack(runArgs=None,param_card=None,madspin_card=None,reweight_card=None,extlhapath=None, gridpack_compile=None):
+
+    # Get of info out of the runArgs
+    beamEnergy,random_seed = get_runArgs_info(runArgs)
 
     # Just in case
     setup_path_protection()
@@ -567,7 +568,7 @@ def generate_from_gridpack(nevents=-1,random_seed=-1,param_card=None,madspin_car
         check_reweight_card(MADGRAPH_GRIDPACK_LOCATION+'/Cards/reweight_card.dat')
 
     # Modify run card, then print
-    modify_run_card(MADGRAPH_GRIDPACK_LOCATION+'/Cards/run_card.dat',MADGRAPH_GRIDPACK_LOCATION+'Cards/run_card.backup',{'nevents':str(nevents),'iseed':str(random_seed),'python_seed':str(random_seed)})
+    modify_run_card(MADGRAPH_GRIDPACK_LOCATION+'/Cards/run_card.dat',MADGRAPH_GRIDPACK_LOCATION+'/Cards/run_card.backup',{'iseed':str(random_seed),'python_seed':str(random_seed)})
     print_cards(run_card=MADGRAPH_GRIDPACK_LOCATION+'/Cards/run_card.dat',param_card=MADGRAPH_GRIDPACK_LOCATION+'/Cards/param_card.dat',madspin_card=madspin_card,reweight_card=reweight_card)
 
     mglog.info('Generating events from gridpack')
@@ -576,6 +577,7 @@ def generate_from_gridpack(nevents=-1,random_seed=-1,param_card=None,madspin_car
     if not os.path.exists(MADGRAPH_GRIDPACK_LOCATION):
         raise RuntimeError('Gridpack directory not found at '+MADGRAPH_GRIDPACK_LOCATION)
 
+    nevents = getDictFromCard(MADGRAPH_GRIDPACK_LOCATION+'/Cards/run_card.dat')['nevents']
     mglog.info('>>>> FOUND GRIDPACK <<<<  <- This will be used for generation')
     mglog.info('Generation of '+str(int(nevents))+' events will be performed using the supplied gridpack with random seed '+str(random_seed))
     mglog.info('Started generating events at '+str(time.asctime()))
@@ -595,7 +597,7 @@ def generate_from_gridpack(nevents=-1,random_seed=-1,param_card=None,madspin_car
             mglog.error('/bin/run.sh not found at '+MADGRAPH_GRIDPACK_LOCATION)
             raise RuntimeError('Could not find run.sh executable')
         else:
-            mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+' bin/run.sh, starting generation.')
+            mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh, starting generation.')
         # hack script to add reweighting and systematics, if required
         hack_gridpack_script(MADGRAPH_GRIDPACK_LOCATION,reweight_card,madspin_card)
 
@@ -609,11 +611,11 @@ def generate_from_gridpack(nevents=-1,random_seed=-1,param_card=None,madspin_car
 
     else:
         ### NLO RUN ###
-        if not os.access(MADGRAPH_GRIDPACK_LOCATION+'bin/generate_events',os.R_OK):
+        if not os.access(MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events',os.R_OK):
             mglog.error('bin/generate_events not found at '+MADGRAPH_GRIDPACK_LOCATION)
             raise RuntimeError('Could not find generate_events executable')
         else:
-            mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+'bin/generate_events, starting generation.')
+            mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events, starting generation.')
 
         ### Editing config card
         config_card_loc=MADGRAPH_GRIDPACK_LOCATION+'/Cards/amcatnlo_configuration.txt'
@@ -1661,7 +1663,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
     if gridpackDirName is not None:
         if writeGridpack==False:
             mglog.info('Generating events from gridpack')
-            if generate_from_gridpack(nevents=int(nevents),random_seed=rand_seed,param_card='param_card.dat'):
+            if generate_from_gridpack(nevents=int(nevents),runArgs=runArgs,param_card='param_card.dat'):
                 raise RuntimeError('Error generating events!')
             thedir=gridpackDirName
         else:
@@ -1781,7 +1783,7 @@ output -f
     if gridpackDirName is not None:
         if writeGridpack==False:
             mglog.info('Generating events from gridpack')
-            if generate_from_gridpack(nevents=int(nevents),random_seed=rand_seed,param_card='param_card.dat'):
+            if generate_from_gridpack(nevents=int(nevents),runArgs=runArgs,param_card='param_card.dat'):
                 raise RuntimeError('Error generating events!')
             thedir=gridpackDirName
         else:
@@ -2090,7 +2092,7 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',ru
 def modify_run_card(run_card='Cards/run_card.dat',
                     run_card_backup='Cards/run_card_backup.dat',
                     settings={}, delete_backup = False):
-    mglog.info('Modifying run card located at '+run_card+'.')
+    mglog.info('Modifying run card located at '+run_card)
     if delete_backup:
         mglog.info('Deleting original run card.')
     else:
