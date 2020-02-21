@@ -2014,7 +2014,7 @@ namespace CP {
       }
     }
     else {
-      mc_val = m_FilesPath + "MC_values_" + m_algo + "_Rel17.2Sum13.dat";
+      mc_val = m_FilesPath + "MC_values_" + m_algo + "_" + m_year + "_" + m_release + ".dat"; 
     }
     ATH_MSG_DEBUG( "Checking Files - MC: " << mc_val );
 
