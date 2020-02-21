@@ -689,7 +689,7 @@ def default_check_steps(test):
     if log_to_check is not None:
         regtest.input_base_name = os.path.splitext(log_to_check)[0]
     if 'athenaHLT' in step_types:
-        regtest.regex = r'(?:HltEventLoopMgr(?!.*athenaHLT-)|REGTEST)'
+        regtest.regex = r'(?:HltEventLoopMgr(?!.*athenaHLT-)(?!.*DF_Pid)|REGTEST)'
     check_steps.append(regtest)
 
     # Tail (probably not so useful these days)
