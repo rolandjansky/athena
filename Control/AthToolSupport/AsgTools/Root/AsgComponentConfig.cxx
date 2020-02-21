@@ -270,7 +270,8 @@ namespace asg
 
   template<> StatusCode AsgComponentConfig ::
   makeComponentExpert<AsgComponent> (std::unique_ptr<AsgComponent>& component,
-                                     const std::string& newCommand) const
+                                     const std::string& newCommand,
+                                     bool nestedNames) const
   {
     using namespace msgComponentConfig;
 
@@ -280,7 +281,11 @@ namespace asg
       ANA_MSG_ERROR ("type \"" << m_type << "\" does not match format expression");
       return StatusCode::FAILURE;
     }
-    std::regex nameExpr ("[A-Za-z_][A-Za-z0-9_]*");
+    std::regex nameExpr;
+    if (nestedNames)
+      nameExpr = std::regex ("[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*");
+    else
+      nameExpr = std::regex ("[A-Za-z_][A-Za-z0-9_]*");
     if (!std::regex_match (m_name, nameExpr))
     {
       ANA_MSG_ERROR ("name \"" << m_name << "\" does not match format expression");
