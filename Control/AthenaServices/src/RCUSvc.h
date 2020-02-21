@@ -37,7 +37,7 @@ namespace Athena {
  * This service keeps a registry of RCU objects.  At EndEvent,
  * it declares them quiescent for the current event slot.
  */
-class RCUSvc
+class ATLAS_CHECK_THREAD_SAFETY RCUSvc
   : public extends<AthService, IRCUSvc, IIncidentListener>
 {
 public:
