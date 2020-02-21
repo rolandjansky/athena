@@ -12,11 +12,17 @@ if( NOT XAOD_STANDALONE )
     xAODTrigger )
 endif()
 
-# Add the package's library.
-atlas_add_library( TrigCompositeUtilsLib
-  TrigCompositeUtils/*.h TrigCompositeUtils/*.icc Root/*.cxx ${extra_srcs}
+# Add the package's stand alone library
+atlas_add_library( HLTUtilsLib
+  TrigCompositeUtils/HLTUtils.h Root/HLTUtils.cxx
   PUBLIC_HEADERS TrigCompositeUtils
-  LINK_LIBRARIES CxxUtils AsgMessagingLib ${extra_libs} )
+  LINK_LIBRARIES CxxUtils )
+
+# Add the package's dual use library.
+atlas_add_library( TrigCompositeUtilsLib
+  TrigCompositeUtils/HLTIdentifier.h TrigCompositeUtils/Combinators.h TrigCompositeUtils/TrigCompositeUtils.h TrigCompositeUtils/TrigCompositeUtils.icc Root/HLTIdentifier.cxx Root/Combinators.cxx ${extra_srcs}
+  PUBLIC_HEADERS TrigCompositeUtils
+  LINK_LIBRARIES HLTUtilsLib CxxUtils AsgMessagingLib ${extra_libs} )
 
 # Install files from the package.
 atlas_install_python_modules( python/*.py )
@@ -24,7 +30,7 @@ atlas_install_python_modules( python/*.py )
 # Executable(s).
 atlas_add_executable( trigconf_string2hash
   util/trigconf_string2hash.cxx
-  LINK_LIBRARIES TrigCompositeUtilsLib )
+  LINK_LIBRARIES HLTUtilsLib )
 
 # Unit test(s).
 if( NOT XAOD_STANDALONE )

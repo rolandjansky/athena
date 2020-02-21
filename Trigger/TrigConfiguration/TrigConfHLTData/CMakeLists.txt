@@ -19,6 +19,6 @@ atlas_add_library( TrigConfHLTData
    TrigConfHLTData/*.h Root/*.cxx
    PUBLIC_HEADERS TrigConfHLTData
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfL1Data TrigCompositeUtilsLib )
+   LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfL1Data HLTUtilsLib )
 
 atlas_install_python_modules( python/*.py )
