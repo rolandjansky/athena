@@ -74,6 +74,8 @@ TrigSignatureMoniMT                                INFO HLT_g140_loose_L1EM24VHI
 TrigSignatureMoniMT                                INFO HLT_g140_loose_L1EM24VHI decisions                    0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_g20_etcut_LArPEB_L1EM15   14        14        14        14        12        12        0         12
 TrigSignatureMoniMT                                INFO HLT_g20_etcut_LArPEB_L1EM15 decisions                    24        24        22        22        0
+TrigSignatureMoniMT                                INFO HLT_g35_medium_g25_medium_L12EM20VH2         2         0         0         0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_g35_medium_g25_medium_L12EM20VH decisions                    0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3            20        20        20        20        20        0         0         20
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3 decisions                      140       140       190       0         0
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_LArPEB_L1EM3     20        20        20        20        20        20        0         20
