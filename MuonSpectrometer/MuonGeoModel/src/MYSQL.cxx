@@ -136,17 +136,23 @@ TgcReadoutParams* MYSQL::GetTgcRPars(int jsta)
 Technology* MYSQL::GetTechnology(std::string name)
 {
   std::map<std::string,Technology* >::const_iterator it =  m_technologies.find(name);
+#ifndef NDEBUG
   MsgStream log(Athena::getMessageSvc(),"MuonGeoModel.MYSQL");
+#endif
   if (it!=m_technologies.end()) {
+#ifndef NDEBUG
     if (log.level()<=MSG::VERBOSE) {
       log << MSG::VERBOSE << "found the station technology name " << name << endmsg;
     }
+#endif
     return it->second;
   } else {
+#ifndef NDEBUG
     if (log.level()<=MSG::VERBOSE) {
       log << MSG::VERBOSE << "MYSQL:: Technology " << name << "+++++++++ not found!" << endmsg;
     }
-    return 0;
+#endif
+    return nullptr;
   }
 }
 
