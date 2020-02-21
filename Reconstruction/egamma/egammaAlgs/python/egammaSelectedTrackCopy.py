@@ -13,13 +13,9 @@ from egammaCaloTools import egammaCaloToolsConf
 
 egammaCaloClusterGSFSelector = ToolFactory(egammaCaloToolsConf.egammaCaloClusterSelector,
                                            name='caloClusterGSFSelector',
-                                           EMEtCut=2200.,
+                                           EMEtCut=2250.,
                                            EMEtSplittingFraction = 0.7,
-                                           EMFCut=0.5,
-                                           # 3x7/7x7=0.429. Below this
-                                           # there is more energy outside the
-                                           # 3x7 core than inside
-                                           RetaCut=0.42
+                                           EMFCut=0.5
                                            )
 
 egammaSelectedTrackCopy = AlgFactory(egammaAlgsConf.egammaSelectedTrackCopy,
