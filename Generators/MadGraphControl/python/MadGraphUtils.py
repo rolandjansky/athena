@@ -435,11 +435,8 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cl
         mglog.info('Tidying up gridpack (%s)...'%gridpack_name)
 
         if not isNLO:
-            ### LO RUN ###
-            if madspin_card:
-                shutil.copy((process_dir+'/'+MADGRAPH_RUN_NAME+'_decayed_1_gridpack.tar.gz'),gridpack_name)
-            else:
-                shutil.copy((process_dir+'/'+MADGRAPH_RUN_NAME+'_gridpack.tar.gz'),gridpack_name)
+            ### LO RUN - names with and without madspin ###
+            shutil.copy(glob.glob(process_dir+'/'+MADGRAPH_RUN_NAME+'_*gridpack.tar.gz')[0],gridpack_name)
 
             if gridpack_compile:
                 mkdir = subprocess.Popen(['mkdir','tmp%i/'%os.getpid()])
