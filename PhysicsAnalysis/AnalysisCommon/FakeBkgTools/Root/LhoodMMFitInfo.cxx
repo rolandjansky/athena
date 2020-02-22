@@ -78,13 +78,12 @@ void LhoodMMFitInfo::resizeVectors(unsigned nlep) {
     return;
   }
 
-  std::cout << "Being as asked to resize to " << nlep << std::endl;
   event_cat.resize(nlep);
   event_sumw2.resize(nlep);
   coeffs_num.resize(nlep);
   eventCount.resize(nlep);
 
-  for (int ilep = 0; ilep < nlep; ilep++) {
+  for (unsigned ilep = 0; ilep < nlep; ilep++) {
     coeffs_num[ilep].resize(pow(2,ilep+1));
     event_cat[ilep].resize(pow(2,ilep+1));
     event_sumw2[ilep].resize(pow(2,ilep+1));
@@ -94,13 +93,13 @@ void LhoodMMFitInfo::resizeVectors(unsigned nlep) {
   }
  
   normterms.resize(nlep);
-  for (int ilep = 0; ilep <nlep; ilep++) {
+  for (unsigned ilep = 0; ilep <nlep; ilep++) {
     normterms[ilep].resize(pow(2,2*(ilep+1)));
   }  
 
   OSfrac_num.resize(nlep);
   OSfrac_denom.resize(nlep);
-  for (int ilep = 0; ilep <nlep; ilep++) {
+  for (unsigned ilep = 0; ilep <nlep; ilep++) {
     OSfrac_num[ilep].resize(ilep+2);
     OSfrac_denom[ilep].resize(ilep+2);  
   }
