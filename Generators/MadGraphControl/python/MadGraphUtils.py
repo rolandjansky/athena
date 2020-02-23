@@ -136,23 +136,8 @@ def new_process(process='generate p p > t t~'):
     mglog.info('Modifying config paths to avoid use of afs:')
     mglog.info(option_paths)
 
-    # Get the original configuration information
-    if not is_NLO_run(process_dir=process_dir):
-        config_card=process_dir+'/Cards/me5_configuration.txt'
-    else:
-        config_card=process_dir+'/Cards/amcatnlo_configuration.txt'
-    with file(config_card, 'r') as original:
-        data = original.readlines()
-    with file(config_card, 'w') as modified:
-        for l in data:
-            written = False
-            for o in needed_options:
-                if o+' =' in l.split('#')[0] and o in option_paths:
-                    modified.write( o +' = '+option_paths[o]+'\n' )
-                    written = True
-                    break
-            if not written:
-                modified.write(l)
+    # Set the paths appropriately
+    modify_config_card(process_dir=process_dir,settings=option_paths,set_commented=False)
     # Done modifying paths
 
     return process_dir
@@ -190,7 +175,7 @@ def get_default_runcard(process_dir=MADGRAPH_GRIDPACK_LOCATION):
             raise RuntimeError('Cannot find default run_card.dat or run_card_default.dat! I was looking here: %s'%run_card)
 
 
-def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cluster_type=None,cluster_queue=None,cluster_nb_retry=None,cluster_temp_path=None,extlhapath=None,required_accuracy=0.01,runArgs=None,reweight_card=None,bias_module=None):
+def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,extlhapath=None,required_accuracy=0.01,runArgs=None,reweight_card=None,bias_module=None):
     if config_only_check(): return
 
     # Just in case
@@ -203,6 +188,8 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cl
         njobs = int(os.environ['ATHENA_PROC_NUMBER'])
         mglog.info('Lucky you - you are running on a full node queue.  Will re-configure for '+str(njobs)+' jobs.')
         mode = 2
+
+    cluster_type = get_cluster_type(process_dir=process_dir)
     if cluster_type is not None:
         mode = 1
 
@@ -226,20 +213,7 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cl
         from distutils.spawn import find_executable
         if find_executable('f2py2') is not None:
             mglog.info('found f2py2, will update configuration')
-            if isNLO:
-                config_card=process_dir+'/Cards/amcatnlo_configuration.txt'
-            else:
-                config_card=process_dir+'/Cards/me5_configuration.txt'
-            shutil.move(config_card,config_card+'.old')
-            oldcard = open(config_card+'.old','r')
-            newcard = open(config_card,'w')
-            for line in oldcard:
-                if 'f2py_compiler' in line:
-                    newcard.write(' f2py_compiler = f2py2\n')
-                else:
-                    newcard.write(line)
-            oldcard.close()
-            newcard.close()
+            modify_config_card(process_dir=process_dir,settings={'f2py_compiler':'f2py2'})
         elif find_executable('f2py') is not None:
             mglog.info('Found f2py, will use it for reweighting')
         else:
@@ -281,12 +255,12 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cl
             mglog.warning('Condor clusters do not allow links.  Will do more copying rather than linking')
             allow_links = False
 
-    (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(isNLO, process_dir=process_dir, extlhapath=extlhapath, allow_links=allow_links)
+    (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(process_dir=process_dir, extlhapath=extlhapath, allow_links=allow_links)
 
     mglog.info('For your information, the libraries available are (should include LHAPDF):')
     mglog.info( sorted( os.listdir( process_dir+'/lib/' ) ) )
 
-    setupFastjet(isNLO, process_dir=process_dir)
+    setupFastjet(process_dir=process_dir)
     if bias_module!=None:
         setup_bias_module(bias_module,run_card,process_dir)
 
@@ -319,34 +293,10 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cl
 
         if mode==1:
             mglog.info('Setting up parallel running system settings')
-
             setNCores(process_dir=os.getcwd(), Ncores=njobs)
-
-            config_card='Cards/me5_configuration.txt'
-            oldcard = open(config_card,'r')
-            newcard = open(config_card+'.tmp','w')
-
-            for line in oldcard:
-                if cluster_type!=None and 'cluster_type = ' in line:
-                    newcard.write('cluster_type = %s \n'%(cluster_type))
-                    mglog.info('Setting cluster type = %s in %s'%(cluster_type,config_card))
-                elif cluster_queue!=None and 'cluster_queue = ' in line:
-                    newcard.write('cluster_queue = %s \n'%(cluster_queue))
-                    mglog.info('Setting cluster queue = %s in %s'%(cluster_queue,config_card))
-                else:
-                    newcard.write(line)
-            oldcard.close()
-            newcard.close()
-            shutil.move(config_card+'.tmp',config_card)
-
-            mglog.info('New me5_configuration.txt card:')
-            configCard = subprocess.Popen(['cat',config_card])
-            configCard.wait()
-
             if cluster_type=='pbs':
                 mglog.info('Modifying bin/internal/cluster.py for PBS cluster running')
                 os.system("sed -i \"s:text += prog:text += './'+prog:g\" bin/internal/cluster.py")
-
         generate = subprocess.Popen(['bin/generate_events',str(mode),str(njobs),MADGRAPH_RUN_NAME],stdin=subprocess.PIPE)
         generate.communicate()
 
@@ -358,66 +308,6 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cl
         generate.communicate()
 
     elif isNLO:
-
-        ### Editing config card
-        config_card='Cards/amcatnlo_configuration.txt'
-        oldcard = open(config_card,'r')
-        newcard = open(config_card+'.tmp','w')
-
-        # Make sure params only set once
-        run_mode_set=False
-        auto_html_set=False
-        cltype_set=False
-        clqueue_set=False
-        nbcore_set=False
-        tmppath_set=False
-        cluster_nb_retry_set=False
-
-        for line in oldcard:
-            if 'run_mode =' in line:
-                if not run_mode_set:
-                    mglog.info('Setting run_mode = %i'%(mode))
-                    newcard.write('run_mode = %i \n'%(mode))
-                    run_mode_set=True
-            elif 'automatic_html_opening =' in line:
-                if not auto_html_set:
-                    mglog.info('Setting automatic_html_opening = %s'%('False'))
-                    newcard.write('automatic_html_opening = %s \n'%('False'))
-                    auto_html_set=True
-            elif 'cluster_type = ' in line and mode == 1 and cluster_type:
-                if not cltype_set:
-                    mglog.info('Setting cluster type = %s in %s'%(cluster_type,config_card))
-                    newcard.write('cluster_type = %s \n'%(cluster_type))
-                    cltype_set=True
-            elif 'cluster_queue = ' in line and mode == 1 and cluster_queue:
-                if not clqueue_set:
-                    mglog.info('Setting cluster queue = %s in %s'%(cluster_queue,config_card))
-                    newcard.write('cluster_queue = %s \n'%(cluster_queue))
-                    clqueue_set=True
-            elif 'cluster_nb_retry = ' in line and mode == 1 and cluster_nb_retry:
-                if not cluster_nb_retry_set:
-                    mglog.info('Setting cluster no. retries = %i in %s'%(cluster_nb_retry,config_card))
-                    newcard.write('cluster_nb_retry = %i \n'%(cluster_nb_retry))
-                    cluster_nb_retry_set=True
-            elif 'cluster_temp_path = ' in line and mode == 1 and cluster_temp_path:
-                if not tmppath_set:
-                    mglog.info('Setting cluster temp path = %s in %s'%(cluster_temp_path,config_card))
-                    newcard.write('cluster_temp_path = %s \n'%(cluster_temp_path))
-                    tmppath_set=True
-            elif 'nb_core = ' in line:
-                if not nbcore_set:
-                    mglog.info('Setting number of cores = %i in %s'%(njobs,config_card))
-                    newcard.write('nb_core = %i \n'%(njobs))
-                    nbcore_set=True
-            else:
-                newcard.write(line)
-        oldcard.close()
-        newcard.close()
-        shutil.move(config_card+'.tmp',config_card)
-
-        mglog.info( "amcatnlo_configuration.txt: "+config_card )
-        configCard = subprocess.Popen(['cat',config_card])
-        configCard.wait()
 
         mglog.info('Removing Cards/shower_card.dat to ensure we get parton level events only')
         remove_shower = subprocess.Popen(['rm','Cards/shower_card.dat'])
@@ -493,9 +383,9 @@ def generate_from_gridpack(runArgs=None,reweight_card=None,extlhapath=None, grid
     isNLO=is_NLO_run(process_dir=MADGRAPH_GRIDPACK_LOCATION)
     LHAPATH=os.environ['LHAPATH'].split(':')[0]
 
-    (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(isNLO, process_dir=MADGRAPH_GRIDPACK_LOCATION, extlhapath=extlhapath)
+    (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(process_dir=MADGRAPH_GRIDPACK_LOCATION, extlhapath=extlhapath)
 
-    setupFastjet(isNLO, process_dir=MADGRAPH_GRIDPACK_LOCATION)
+    setupFastjet(process_dir=MADGRAPH_GRIDPACK_LOCATION)
 
     # Ensure that we only do madspin at the end
     if os.access(MADGRAPH_GRIDPACK_LOCATION+'/Cards/madspin_card.dat',os.R_OK):
@@ -561,17 +451,6 @@ def generate_from_gridpack(runArgs=None,reweight_card=None,extlhapath=None, grid
             raise RuntimeError('Could not find generate_events executable')
         else:
             mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events, starting generation.')
-
-        ### Editing config card
-        config_card=MADGRAPH_GRIDPACK_LOCATION+'/Cards/amcatnlo_configuration.txt'
-
-        # Make sure params only set once
-        cltype_set=False
-        clqueue_set=False
-
-        mglog.info( "amcatnlo_configuration.txt: "+config_card )
-        configCard = subprocess.Popen(['cat',config_card])
-        configCard.wait()
 
         mglog.info('For your information, ls of '+currdir+':')
         mglog.info( sorted( os.listdir( currdir ) ) )
@@ -647,7 +526,9 @@ def generate_from_gridpack(runArgs=None,reweight_card=None,extlhapath=None, grid
     return 0
 
 
-def setupFastjet(isNLO, process_dir=None):
+def setupFastjet(process_dir=None):
+
+    isNLO=is_NLO_run(process_dir=process_dir)
 
     mglog.info('Path to fastjet install dir:%s'%os.environ['FASTJETPATH'])
     fastjetconfig = os.environ['FASTJETPATH']+'/bin/fastjet-config'
@@ -675,8 +556,10 @@ def setupFastjet(isNLO, process_dir=None):
 
     return
 
+
 def get_LHAPDF_DATA_PATH():
     return get_LHAPDF_PATHS()[1]
+
 
 def get_LHAPDF_PATHS():
     LHADATAPATH=None
@@ -727,7 +610,10 @@ def get_lhapdf_id_and_name(pdf):
 
     return pdfid,pdfname
 
-def setupLHAPDF(isNLO, process_dir=None, extlhapath=None, allow_links=True):
+
+def setupLHAPDF(process_dir=None, extlhapath=None, allow_links=True):
+
+    isNLO=is_NLO_run(process_dir=process_dir)
 
     origLHAPATH=os.environ['LHAPATH']
     origLHAPDF_DATA_PATH=os.environ['LHAPDF_DATA_PATH']
@@ -884,11 +770,9 @@ def setupLHAPDF(isNLO, process_dir=None, extlhapath=None, allow_links=True):
 
     return (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH)
 
+
 # Function to set the number of cores and the running mode in the run card
-def setNCores(process_dir=None, Ncores=None):
-    if process_dir is None:
-        mglog.warning('Cannot setNCores because no process dir was provided')
-        return
+def setNCores(process_dir, Ncores=None):
     my_Ncores = Ncores
     if Ncores is None and 'ATHENA_PROC_NUMBER' in os.environ:
         my_Ncores = int(os.environ['ATHENA_PROC_NUMBER'])
@@ -896,30 +780,7 @@ def setNCores(process_dir=None, Ncores=None):
         mglog.info('Setting up for serial run')
         my_Ncores = 1
 
-    if not is_NLO_run(process_dir=process_dir):
-        config_card=process_dir+'/Cards/me5_configuration.txt'
-    else:
-        config_card=process_dir+'/Cards/amcatnlo_configuration.txt'
-
-    import fileinput
-    # core configuration with the one we need
-    oldcard = open(config_card,'r')
-    newcard = open(config_card+'.tmp','w')
-    for line in oldcard.readlines():
-        if 'nb_core = ' in line:
-            mglog.info('Setting number of cores = %i in %s'%(my_Ncores,config_card))
-            newcard.write('nb_core = %i \n'%(my_Ncores))
-        elif 'run_mode = ' in line:
-            mglog.info('Setting run mode = %i in %s'%(0 if my_Ncores==1 else 2,config_card))
-            newcard.write('run_mode = %i \n'%(0 if my_Ncores==1 else 2))
-        elif 'automatic_html_opening =' in line:
-            mglog.info('Setting automatic_html_opening = %s'%('False'))
-            newcard.write('automatic_html_opening = %s \n'%('False'))
-        else:
-            newcard.write(line)
-    oldcard.close()
-    newcard.close()
-    shutil.move(config_card+'.tmp',config_card)
+    modify_config_card(process_dir=process_dir,settings={'nb_core':my_Ncores,'run_mode':(0 if my_Ncores==1 else 2),'automatic_html_opening':'False'})
 
 
 def resetLHAPDF(origLHAPATH='',origLHAPDF_DATA_PATH=''):
@@ -1558,13 +1419,12 @@ def SUSY_Generation(runArgs = None, process=None, gentype='SS', njets=1, decayty
     settings.update({'scalefact':scalefact,'alpsfact':alpsfact})
 
     # Generate events!
+    modify_run_card(process_dir=process_dir,runArgs=runArgs,settings=settings)
     if is_gen_from_gridpack():
-        modify_run_card(process_dir=process_dir,runArgs=runArgs,settings=settings)
         generate_from_gridpack(runArgs=runArgs)
     else:
         # Grab the run card and move it into place
-        modify_run_card(process_dir=process_dir,runArgs=runArgs,settings=settings)
-        generate(process_dir=process_dir,grid_pack=writeGridpack)
+        generate(runArgs=runArgs,process_dir=process_dir,grid_pack=writeGridpack)
 
     # Move output files into the appropriate place, with the appropriate name
     the_spot = arrange_output(process_dir=process_dir,saveProcDir=keepOutput,runArgs=runArgs,fixEventWeightsForBridgeMode=fixEventWeightsForBridgeMode)
@@ -1868,6 +1728,56 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
     if run_card_backup is None: os.unlink(run_card_old)
 
 
+def modify_config_card(config_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOCATION,settings={},set_commented=True):
+    """Build a new configuration from an existing one.
+    This function can get a fresh runcard from DATAPATH or start from the process directory.
+    Settings is a dictionary of keys (no spaces needed) and values to replace.
+    """
+    # Check for the default config card location
+    config_card=get_default_config_card(process_dir=process_dir)
+
+    # The format is similar to the run card, but backwards
+    mglog.info('Modifying config card located at '+config_card)
+    if config_card_backup is not None:
+        mglog.info('Keeping backup of original config card at '+config_card_backup)
+        config_card_old = config_card_backup
+    else:
+        config_card_old = config_card+'.old_to_be_deleted'
+    mglog.debug('Modifying config card settings: '+str(settings))
+    if os.path.isfile(config_card_old): os.unlink(config_card_old) # delete old backup
+    os.rename(config_card, config_card_old) # change name of original card
+
+    oldCard = open(config_card_old, 'r')
+    newCard = open(config_card, 'w')
+    used_settings = []
+    for line in iter(oldCard):
+        lmod = line if set_commented else line.split('#')[0]
+        if '=' in lmod:
+            modified = False
+            for setting in settings:
+                if not setting in lmod: continue
+                # Assume we hit
+                mglog.info('Setting '+setting.strip()+' to '+str(settings[setting]))
+                newCard.write(' '+str(setting.strip())+' = '+str(settings[setting])+'\n')
+                used_settings += [ setting.strip() ]
+                modified = True
+                break
+            if modified: continue
+        newCard.write(line)
+
+    # Clean up unused options
+    for asetting in settings:
+        if asetting in used_settings: continue
+        if settings[asetting]==None: continue
+        mglog.warning('Option '+asetting+' was not in the default config card.  Adding by hand a setting to '+str(settings[asetting]) )
+        newCard.write(' '+str(asetting)+' = '+str(settings[asetting])+'\n')
+    # close files
+    oldCard.close()
+    newCard.close()
+    mglog.info('Finished modification of config card.')
+    if config_card_backup is None: os.unlink(config_card_old)
+
+
 def print_cards_from_dir(process_dir=MADGRAPH_GRIDPACK_LOCATION):
     card_dir=process_dir+'/Cards/'
     print_cards(proc_card=card_dir+'proc_card_mg5.dat',run_card=card_dir+'run_card.dat',param_card=card_dir+'param_card.dat',\
@@ -1931,21 +1841,34 @@ def is_gen_from_gridpack():
     return False
 
 
-def is_NLO_run(process_dir=MADGRAPH_GRIDPACK_LOCATION):
-    isNLO=False
-
+def get_default_config_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
     lo_config_card=process_dir+'/Cards/me5_configuration.txt'
     nlo_config_card=process_dir+'/Cards/amcatnlo_configuration.txt'
 
     if os.access(lo_config_card,os.R_OK) and not os.access(nlo_config_card,os.R_OK):
-        isNLO=False
+        return lo_config_card
     elif os.access(nlo_config_card,os.R_OK) and not os.access(lo_config_card,os.R_OK):
-        isNLO=True
+        return nlo_config_card
+    elif os.access(nlo_config_card,os.R_OK) and os.access(lo_config_card,os.R_OK):
+        mglog.error('Found both types of config card in '+process_dir)
     else:
-        mglog.error("Neither configuration card found in "+process_dir+". Unable to determine LO or NLO process!")
-        RuntimeError('Unable to locate configuration card')
+        mglog.error('No config card in '+process_dir)
+    raise RuntimeError('Unable to locate configuration card')
 
-    return isNLO
+
+def get_cluster_type(process_dir=MADGRAPH_GRIDPACK_LOCATION):
+    card_in = open(get_default_config_card(process_dir=process_dir),'r')
+    for l in card_in.readlines():
+        if not 'cluster_type' in l.split('#')[0]: continue
+        cluster_type = l.split('#')[0].split('=')[1]
+        mglog.info('Returning cluster type: '+cluster_type)
+        return cluster_type
+    return None
+
+
+def is_NLO_run(process_dir=MADGRAPH_GRIDPACK_LOCATION):
+    # Very simple check based on the above config card grabbing
+    return get_default_config_card(process_dir=process_dir)==process_dir+'/Cards/amcatnlo_configuration.txt'
 
 
 def run_card_consistency_check(isNLO=False,process_dir='.'):
@@ -2078,3 +2001,15 @@ def hack_gridpack_script(reweight_card):
     shutil.move(runscript+'.tmp',runscript)
     st = os.stat(runscript)
     os.chmod(runscript, st.st_mode | stat.S_IEXEC)
+
+
+def check_reset_proc_number(opts):
+    if 'ATHENA_PROC_NUMBER' in os.environ:
+        mglog.info('Noticed that you have run with an athena MP-like whole-node setup.  Will re-configure now to make sure that the remainder of the job runs serially.')
+        njobs = os.environ.pop('ATHENA_PROC_NUMBER')
+        # Try to modify the opts underfoot
+        if not hasattr(opts,'nprocs'):
+            mglog.warning('Did not see option!')
+        else:
+            opts.nprocs = 0
+        mglog.debug(str(opts))
