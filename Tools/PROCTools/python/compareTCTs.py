@@ -1,11 +1,16 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 import os,sys
+from PROCTools.getFileLists import tctPath, findTCTFiles
 from PROCTools.getFileLists import *
 sys.argv += [ '-b' ] # tell ROOT to not use graphics
 from ROOT import TFile,TTree
 from PROCTools.diffTAGTree import diffTTree
+import six
 
 os.environ['STAGE_SVCCLASS']="atlascerngroupdisk"
 os.environ['STAGE_HOST']="castoratlast3"
@@ -28,11 +33,11 @@ def compareTreeFiles(rName,vName,details):
         vFile=TFile.Open(vName)
 
     if rFile is None:
-        print "Failed to open reference file",rName
+        print ("Failed to open reference file",rName)
         return (0,1)
     
     if vFile is None:
-        print "Failed to open validation file",vName
+        print ("Failed to open validation file",vName)
         return (0,1)
 
     rKeys=set()
@@ -41,13 +46,13 @@ def compareTreeFiles(rName,vName,details):
     vKeys=set()
     for k in vFile.GetListOfKeys():
         vKeys.add(k.GetName())
-    #print rKeys
-    #print vKeys
+    #print (rKeys)
+    #print (vKeys)
     keys=rKeys & vKeys
     keys -= ignoreTrees
         
     if len(keys)==0:
-        print "ERROR no common trees names found in files",rName,vName
+        print ("ERROR no common trees names found in files",rName,vName)
         return 0
 
     nGood=0
@@ -59,7 +64,7 @@ def compareTreeFiles(rName,vName,details):
             continue
         if not isinstance(vTree,TTree):
             continue
-        print "Comparing TTree",k
+        print ("Comparing TTree",k)
         (good,bad)=diffTTree(rTree,vTree,details)
         nGood+=good
         nBad+=bad
@@ -76,7 +81,7 @@ def diffPoolFiles(ref,chk,details,toIgnore = ['RecoTimingObj_p1_RAWtoESD_timings
         stat=df.status()
         del df
     except:
-        print "Exception caught while diff'ing POOL files"
+        print ("Exception caught while diff'ing POOL files")
         stat=True
     return stat 
 
@@ -86,27 +91,27 @@ def diffPickleFiles(ref,chk,details):
         chk_nlines = open(chk).readlines()
         if len(ref_nlines) == len(chk_nlines):
             stat=False
-            print "same number of lines!"
+            print ("same number of lines!")
         else :
-            print ref," has ",len(ref_nlines)," lines." 
-            print chk," has ",len(chk_nlines)," lines."
+            print (ref," has ",len(ref_nlines)," lines." )
+            print (chk," has ",len(chk_nlines)," lines.")
             stat=True
-        #print ref," has ",len(ref_nlines)," lines." 
-        #print chk," has ",len(chk_nlines)," lines."
+        #print (ref," has ",len(ref_nlines)," lines." )
+        #print (chk," has ",len(chk_nlines)," lines.")
         #for refer, check in zip(ref_nlines,chk_nlines):
         #    if refer != check:
-        #        print "Expected %r; got %r " % (refer,check)
+        #        print ("Expected %r; got %r " % (refer,check))
         #stat=False
     except:
         stat=True
-        print "Exception caught while comparinging jobReport(_RecoTrf)?.gpickle files"
+        print ("Exception caught while comparinging jobReport(_RecoTrf)?.gpickle files")
     return stat 
 
 
 if __name__ == "__main__":
     if len(sys.argv)<3 or sys.argv[1]=="-h" or sys.argv[1]=="--help":
-        print "Usage: compareTCTs.py --nRef=<refernce nightly number> --nVal=<validation nightly number> --rRef=<reference nightly> --rVal=<validation nightly> --details=<text file> --file=<pattern> --sum=<summary file> --refPath=<path to ref-nightly> --valPath=<path to val-nightly>"
-        print "  Example: compareTCTs.py --nRef=15.6.X.Y --nVal=15.6.X.Y-VAL --rel=rel_4"
+        print ("Usage: compareTCTs.py --nRef=<refernce nightly number> --nVal=<validation nightly number> --rRef=<reference nightly> --rVal=<validation nightly> --details=<text file> --file=<pattern> --sum=<summary file> --refPath=<path to ref-nightly> --valPath=<path to val-nightly>")
+        print ("  Example: compareTCTs.py --nRef=15.6.X.Y --nVal=15.6.X.Y-VAL --rel=rel_4")
         sys.exit(-1)
     
     import getopt
@@ -133,24 +138,24 @@ if __name__ == "__main__":
         if o=="--sum": sumFileName=a
         if o=="--refPath": refPath=a
         if o=="--valPath": valPath=a
-	if o=="--diff-root":
-	    if a=="True": diffroot=True
+        if o=="--diff-root":
+            if a=="True": diffroot=True
         
     if refPath is None:
         if nRef is None:
-            print "Reference nightly not defined! Please use --nRef parameter!"
+            print ("Reference nightly not defined! Please use --nRef parameter!")
             sys.exit(-1)
 
         if rRef is None:
-            print "Reference nightly number not defined! Please use --rRef parameter!"
+            print ("Reference nightly number not defined! Please use --rRef parameter!")
             sys.exit(-1)
 
     if valPath is None:
         if nVal is None:
-            print "Validation nightly not defined! Please use --nVal parameter!"
+            print ("Validation nightly not defined! Please use --nVal parameter!")
             sys.exit(-1)
         if rVal is None:
-            print "Validation nightly number not defined! Please use --rVal parameter!"
+            print ("Validation nightly number not defined! Please use --rVal parameter!")
             sys.exit(-1)
 
     if len(filePattern)==0:
@@ -177,8 +182,8 @@ if __name__ == "__main__":
             else:
                 pass
             
-    print "Comparing files matching:" 
-    print filePattern
+    print ("Comparing files matching:" )
+    print (filePattern)
 
     #Hack to process POOL files first (otherwise inifite loop)
     allPatterns = []
@@ -195,11 +200,11 @@ if __name__ == "__main__":
         valPath = tctPath(nVal, rVal);
 
     if not os.access(refPath, os.R_OK):
-        print "Can't access output of reference TCT at",refPath
+        print ("Can't access output of reference TCT at",refPath)
         sys.exit(-1)
 
     if not os.access(valPath, os.R_OK):
-        print "Can't access output of validation TCT at",valPath
+        print ("Can't access output of validation TCT at",valPath)
         sys.exit(-1)
    
     msg = "Reference TCT:\n"
@@ -207,7 +212,7 @@ if __name__ == "__main__":
     msg += "Validation TCT:\n"
     msg += valPath + "\n"
 
-    print msg
+    print (msg)
     if detailsFN is not None:
         details = open(detailsFN, "w")
         details.write(msg)
@@ -216,8 +221,8 @@ if __name__ == "__main__":
 
     ff = findTCTFiles(refPath,valPath)
     tctlist=ff.getCommonChains()
-    print "Output from findTCTFile.getCommonChains():"
-    print tctlist
+    print ("Output from findTCTFile.getCommonChains():")
+    print (tctlist)
         
     statPerChain=dict()
     
@@ -226,24 +231,24 @@ if __name__ == "__main__":
         nIdenticalFiles = 0
         nDifferentFiles = 0
         filesToCompare = ff.findFiles(pattern)
-        print "Will now look for files matching pattern:", pattern
-        print "The found files to compare:", filesToCompare
-        print "Comparing files matching [%s]" % pattern
+        print ("Will now look for files matching pattern:", pattern)
+        print ("The found files to compare:", filesToCompare)
+        print ("Comparing files matching [%s]" % pattern)
         Summary += "Comparing files matching [%s]\n" % pattern
         #for (tctName,r,v) in filesToCompare:
-        for name,rv in filesToCompare.iteritems():
-            #print "TCT:",name,":",len(rv)
-            print "Chain %s: Found %i files matching [%s]" % (name,len(rv),pattern)
+        for name,rv in six.iteritems (filesToCompare):
+            #print ("TCT:",name,":",len(rv))
+            print ("Chain %s: Found %i files matching [%s]" % (name,len(rv),pattern))
             for (r,v) in rv:
                 fileName=r.split('/')[-1]
-                print "Comparing files",fileName,"of TCT",name
+                print ("Comparing files",fileName,"of TCT",name)
                 identical=False
                 if (fileName.endswith(".pool.root") and not fileName.startswith("myTAG")):
                     if(r.startswith("/eos")): r = "root://eosatlas.cern.ch/"+r
                     if(v.startswith("/eos")): v = "root://eosatlas.cern.ch/"+v
                     if not diffroot: stat=diffPoolFiles(r,v,details)
                     else: 
-		        stat=os.system("acmd.py diff-root "+r+" "+v+" --error-mode resilient --ignore-leaves HITStoRDO_timings RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings --entries 10 > tmp.txt")
+                        stat=os.system("acmd.py diff-root "+r+" "+v+" --error-mode resilient --ignore-leaves HITStoRDO_timings RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings --entries 10 > tmp.txt")
                         os.system("cat tmp.txt|grep -v sync")
                         os.system("rm -f tmp.txt")
                     identical=not stat
@@ -259,44 +264,44 @@ if __name__ == "__main__":
                     stat=diffPickleFiles(r,v,details)
                     identical=not stat
                 else:
-                    print "ERROR: Don't know how to compare",fileName
+                    print ("ERROR: Don't know how to compare",fileName)
                 
                 if (identical): 
                     nIdenticalFiles+=1 
-                    if not statPerChain.has_key(name):
+                    if name not in statPerChain:
                         statPerChain[name]=False
                     else:
                         statPerChain[name]|=False
-                    print "Files are identical"
+                    print ("Files are identical")
                 else:
                     statPerChain[name]=True
                     nDifferentFiles+=1
-                    print "Files are not identical"
+                    print ("Files are not identical")
             
         Summary+="Found %i identical files and %i different files\n" % (nIdenticalFiles, nDifferentFiles)
-        print "Found %i identical files and %i different files\n" % (nIdenticalFiles, nDifferentFiles)
+        print ("Found %i identical files and %i different files\n" % (nIdenticalFiles, nDifferentFiles))
         
     if details is not None:
         details.write(Summary)
         details.close()
 
-    #print Summary
+    #print (Summary)
 
-    #print tctlist
+    #print (tctlist)
     #Check log,mem & cpu,
     complain=""
-    for (name,info) in tctlist.iteritems():
-        #print name,info,len(info)
+    for (name,info) in six.iteritems (tctlist):
+        #print (name,info,len(info))
         if len(info)<2: continue
-        print "\n"+name+":"
+        print ("\n"+name+":")
         if (info[0].loglines>0 and info[1].loglines>0):
             ratio=100.0*(info[1].loglines-info[0].loglines)/info[0].loglines
             ln="\tLoglines: %i -> %i (%.2f)" %  (info[0].loglines,info[1].loglines,ratio)
             if abs(ratio)>5:
-                print ln+"***"
+                print (ln+"***")
                 complain+=name+" "+ln+"***\n"
             else:
-                print ln
+                print (ln)
         if len(info[0].cpulist)>4 and len(info[1].cpulist)>4:
             #ESD
             cpu_r=info[0].cpulist[1]
@@ -305,10 +310,10 @@ if __name__ == "__main__":
                 ratio=100.0*(cpu_v-cpu_r)/cpu_r;
                 ln="\tESD CPU: %i -> %i (%.2f%%)" %  (cpu_r,cpu_v,ratio)
                 if abs(ratio)>15:
-                    print ln+"***"
+                    print (ln+"***")
                     complain+=name+" "+ln+"***\n"
                 else:
-                    print ln
+                    print (ln)
 
             #AOD
             cpu_r=info[0].cpulist[4]
@@ -317,10 +322,10 @@ if __name__ == "__main__":
                 ratio=100.0*(cpu_v-cpu_r)/cpu_r;
                 ln="\tAOD CPU: %i -> %i (%.2f%%)" %  (cpu_r,cpu_v,ratio)
                 if abs(ratio)>15:
-                    print ln+"***"
+                    print (ln+"***")
                     complain+=name+" "+ln+"***\n"
                 else:
-                    print ln
+                    print (ln)
                     
         if len(info[0].memlist)>4 and len(info[1].memlist)>4:
             mem_r=info[0].memlist[1]
@@ -329,10 +334,10 @@ if __name__ == "__main__":
                 ratio=100.0*(mem_v-mem_r)/mem_r;
                 ln="\tESD MEM: %i -> %i (%.2f%%)" %  (mem_r,mem_v,ratio)
                 if abs(ratio)>15:
-                    print ln+"***"
+                    print (ln+"***")
                     complain+=name+" "+ln+"***\n"
                 else:
-                    print ln
+                    print (ln)
 
             mem_r=info[0].memlist[4]
             mem_v=info[1].memlist[4]
@@ -340,22 +345,22 @@ if __name__ == "__main__":
                 ratio=100.0*(mem_v-mem_r)/mem_r;
                 ln="\tAOD MEM: %i -> %i (%.2f%%)" %  (mem_r,mem_v,ratio)
                 if abs(ratio)>15:
-                    print ln+"***"
+                    print (ln+"***")
                     complain+=name+" "+ln+"***\n"
                 else:
-                    print ln
+                    print (ln)
     
     isok=True
-    for f,s in statPerChain.iteritems():
+    for f,s in six.iteritems (statPerChain):
         if s:
-            print "%-70s CHANGED" % f
+            print ("%-70s CHANGED" % f)
             isok=False
         else:
-            print "%-70s IDENTICAL" % f
+            print ("%-70s IDENTICAL" % f)
 
     if sumFileName is not None:
         sumFile=open(sumFileName,"w")
-        for f,s in statPerChain.iteritems():
+        for f,s in six.iteritems (statPerChain):
             line = "%-70s" % f
             if s:
                 line += "CHANGED\n"
@@ -367,7 +372,7 @@ if __name__ == "__main__":
         sumFile.write(complain)
         sumFile.close()
         
-    #print statPerChain
+    #print (statPerChain)
     del diffTTree
     if not isok:
         sys.exit(-1)        

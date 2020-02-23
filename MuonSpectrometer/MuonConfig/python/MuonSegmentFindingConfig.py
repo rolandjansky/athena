@@ -29,7 +29,7 @@ from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
 from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg
 
 def MuonHoughPatternFinderTool(flags, **kwargs):
-    # Taken from https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecTools.py#L173     from MuonHoughPatternTools/MuonHoughPatternToolsConf import Muon__MuonHoughPatternFinderTool
+    # Taken from https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecTools.py#L173
 
     Muon__MuonHoughPatternFinderTool=CompFactory.Muon__MuonHoughPatternFinderTool
     

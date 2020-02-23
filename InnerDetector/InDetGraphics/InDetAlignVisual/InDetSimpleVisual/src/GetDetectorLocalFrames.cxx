@@ -18,11 +18,11 @@
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "InDetReadoutGeometry/TRT_Numerology.h"
+#include "TRT_ReadoutGeometry/TRT_Numerology.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include "EventPrimitives/EventPrimitives.h"
 

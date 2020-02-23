@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           Tools/PathResolver )
 
 # External dependencies:
@@ -23,7 +24,7 @@ atlas_add_component( TRT_Cabling
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps Identifier InDetIdentifier InDetReadoutGeometry PathResolver )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps Identifier InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry PathResolver )
 
 # Install files from the package:
 atlas_install_headers( TRT_Cabling )

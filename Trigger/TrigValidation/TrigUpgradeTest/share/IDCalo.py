@@ -46,14 +46,13 @@ if TriggerFlags.doID:
 
   #Adding vertexing
   from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-
   #TODO need to change the name of the output vertex collection to something recordable
   vtxAlgs = makeVertices( "egamma", "HLT_xAODTracks_FS", "HLT_xPrimVx"  )
   allViewAlgorithms += vtxAlgs
 
 
-   #Adding precision tracking
-  from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+  from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+  #Adding precision tracking
   PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "egamma", inputFTFtracks="TrigFastTrackFinder_Tracks_FS" )
 
   allViewAlgorithms += PTAlgs

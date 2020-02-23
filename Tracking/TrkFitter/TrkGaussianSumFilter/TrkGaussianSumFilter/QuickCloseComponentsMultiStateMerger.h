@@ -57,8 +57,6 @@ private:
                                                              12,
                                                              "Maximum number of components" };
 
-  ServiceHandle<IChronoStatSvc> m_chronoSvc; //!< Timing: The Gaudi time auditing service
-
   std::unique_ptr<MultiComponentState> mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
                                                           Trk::MultiComponentState&) const;
 };

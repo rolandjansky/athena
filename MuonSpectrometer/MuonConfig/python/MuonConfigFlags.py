@@ -92,7 +92,7 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.Calib.applyRtScaling", False) # TODO - apparently not needed, but currently used in MuonCalibConfig. Set false to match https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibFlags.py#0072
     mcf.addFlag("Muon.Calib.correctMdtRtWireSag", False) # Apply RT wiresag correction
     mcf.addFlag("Muon.Calib.mdtCalibrationSource", "MDT") # Source for MDT t0s and rts
-    mcf.addFlag("Muon.Calib.mdtPropagationSpeedBeta", 0.85) #
+    mcf.addFlag("Muon.Calib.mdtPropagationSpeedBeta", lambda prevFlags : 1.0 if prevFlags.Input.isMC else 0.85) #
      
     mcf.addFlag("Muon.Calib.CscPedFromLocalFile", False)  
     mcf.addFlag("Muon.Calib.CscNoiseFromLocalFile", False)  

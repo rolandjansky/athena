@@ -21,6 +21,10 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( CLHEP )
 
-# Install files from the package:
-atlas_install_headers( TrigInDetToolInterfaces )
-
+# Component(s) in the package:
+atlas_add_library( TrigInDetToolInterfacesLib
+                   TrigInDetToolInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS TrigInDetToolInterfaces
+                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ByteStreamData GaudiKernel IRegionSelector Identifier InDetPrepRawData TrigInDetEvent TrigInDetPattRecoEvent TrigSteeringEvent TrkEventPrimitives TrkTrack )

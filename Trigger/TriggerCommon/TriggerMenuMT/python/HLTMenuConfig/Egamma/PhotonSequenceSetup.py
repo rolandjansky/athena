@@ -5,6 +5,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 import AthenaCommon.CfgMgr as CfgMgr
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 # logger
 from AthenaCommon.Logging import logging
@@ -21,7 +22,7 @@ def fastPhotonMenuSequence():
     from TrigEgammaHypo.TrigL2PhotonFexMTConfig import L2PhotonFex_1
     thePhotonFex= L2PhotonFex_1()
     thePhotonFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
-    thePhotonFex.PhotonsName="TrigL2Photons"
+    thePhotonFex.PhotonsName=recordable("HLT_L2Photons")
     #thePhotonFex.RoIs="EMIDRoIs"
 
     l2PhotonViewsMaker = EventViewCreatorAlgorithm("IMl2Photon")

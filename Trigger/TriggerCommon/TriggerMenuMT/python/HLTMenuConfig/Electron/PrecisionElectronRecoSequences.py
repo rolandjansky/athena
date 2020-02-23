@@ -51,7 +51,8 @@ def precisionElectronRecoSequence(RoIs):
     PTTracks = []
     PTTrackParticles = []
 
-    from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking("electron", ViewVerifyTrk, inputFTFtracks= TrackCollection, rois= RoIs)
     PTSeq = seqAND("precisionTrackingInElectrons", PTAlgs)
     #electronPrecisionTrack += PTSeq

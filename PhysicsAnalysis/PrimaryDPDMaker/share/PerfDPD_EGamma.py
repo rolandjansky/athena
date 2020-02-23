@@ -173,7 +173,7 @@ ToolSvc += DESDM_EGAMMACellsInConeThinningPh
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EGammaTracksThinning
 DESDM_EGAMMATracksThinningTool = DerivationFramework__EGammaTracksThinning(  name = "DESDM_EGAMMATracksThinning",
-                                                                       ThinningService = "DESDM_EGAMMAThinningSvc",
+                                                                       StreamName = primDPD.WriteDESDM_EGAMMAStream.StreamName,
                                                                        tracksCollectionName   = "Tracks" ,
                                                                        electronContainerName = "Electrons",
                                                                        photonContainerName   = "Photons",

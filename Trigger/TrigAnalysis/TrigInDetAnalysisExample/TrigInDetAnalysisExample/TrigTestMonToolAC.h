@@ -143,6 +143,8 @@ public:
   bool m_containTracks;
 
   bool m_filter_on_roi;
+
+  bool m_legacy;
 };
 
 

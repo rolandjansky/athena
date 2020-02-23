@@ -118,7 +118,10 @@ def getJetCalibTool(jetcollection, context, data_type, calibseq = "", rhoname = 
         # We should revert this later on, set up now for validation purposes
         if context == "T0":
             _data_type = "data"
-        return defineJetCalibTool(jetcollection, _configfile, calibarea, _calibseq, _data_type, rhoname, pvname, gscdepth)
+        _pvname = ""
+        if "Residual" in calibseq or "GSC" in calibseq and gscdepth!="EM3":
+            _pvname = pvname
+        return defineJetCalibTool(jetcollection, _configfile, calibarea, _calibseq, _data_type, rhoname, _pvname, gscdepth)
     except KeyError as e:
         jetcaliblog.error("Context '{0}' not found for jet collection '{1}'".format(context,jetcollection))
         jetcaliblog.error("Options are '{0}".format(','.join(jetcontexts.keys())))

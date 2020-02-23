@@ -15,6 +15,16 @@ def createAndAddCondAlg(creator, the_name, **kwargs) :
             return
     cond_seq += creator(**kwargs)
 
+def createAndAddEventAlg(creator, the_name, **kwargs) :
+    from AthenaCommon.AlgSequence import AlgSequence
+    seq=AlgSequence()
+    log.debug('createAndAddEventAlg match ?  %s == %s ? %s ', seq.getChildren(), the_name, hasattr(seq,the_name) )
+    if hasattr(seq,the_name) :
+        return getattr(seq,the_name)
+    alg = creator(the_name,**kwargs)
+    seq += alg
+    return alg
+
 def setDefaults(kwargs, **def_kwargs) :
     def_kwargs.update(kwargs)
     return def_kwargs
@@ -63,7 +73,6 @@ def makePublicTool(tool_creator) :
         from AthenaCommon.AppMgr import ToolSvc
         name=kwargs.pop('name',None)
         private=kwargs.pop("private",False)
-
         if len(args) == 1 :
             if name is not None :
                 raise Exception('Name given as positional and keyword argument')
@@ -74,6 +83,7 @@ def makePublicTool(tool_creator) :
         orig_name = name
         default_prefix,name=splitDefaultPrefix(name)
         the_name =  kwargs.get('namePrefix',default_prefix) + name + kwargs.get('nameSuffix','')
+
         if private is True or the_name not in ToolSvc :
             if len(args) > 1 :
                 raise Exception('Too many positional arguments')
@@ -83,6 +93,7 @@ def makePublicTool(tool_creator) :
             if the_name != tool.name() :
                 raise Exception('Tool has not the exepected name %s but %s' % (the_name, tool.name()))
             if private is False :
+                print 'DEBUG add to ToolSvc %s' % (tool.name())
                 ToolSvc += tool
             return tool
         else :
@@ -393,10 +404,10 @@ def getInDetSCT_ClusterOnTrackTool(name='InDetSCT_ClusterOnTrackTool', **kwargs)
         kwargs = setDefaults(kwargs, LorentzAngleTool = getSCTLorentzAngleTool())
 
     kwargs = setDefaults(kwargs,
-        # CorrectionStrategy = -1,  # no position correction (test for bug #56477)
-        CorrectionStrategy = 0,  # do correct position bias
-        ErrorStrategy      = 2  # do use phi dependent errors
-        )
+                         # CorrectionStrategy = -1,  # no position correction (test for bug #56477)
+                         CorrectionStrategy = 0,  # do correct position bias
+                         ErrorStrategy      = 2  # do use phi dependent errors
+                        )
     from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
     return InDet__SCT_ClusterOnTrackTool (the_name, **kwargs)
 
@@ -1199,8 +1210,117 @@ def getInDetTRT_ExtensionTool(TrackingCuts=None, **kwargs) :
     elif InDetFlags.trtExtensionType() == 'DAF' :
         return getInDetTRT_TrackExtensionTool_DAF('InDetTRT_ExtensionTool',**kwargs)
 
-
 def getTRT_DetElementsRoadCondAlg(**kwargs):
     the_name=kwargs.pop("name","InDet__TRT_DetElementsRoadCondAlg_xk")
     from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadCondAlg_xk
     return InDet__TRT_DetElementsRoadCondAlg_xk(the_name, **kwargs)
+
+def getInDetROIInfoVecCondAlg(name='InDetROIInfoVecCondAlg',**kwargs) :
+    the_name = makeName(name, kwargs)
+    from InDetRecExample.InDetKeys import InDetKeys
+    kwargs=setDefaults(kwargs,
+                       InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer(),
+                       WriteKey                    = kwargs.get("namePrefix","")+"ROIInfoVec"+kwargs.get("nameSuffix",""),
+                       minPtEM                     = 5000.  # in MeV
+                       )
+    from InDetTrackScoringTools.InDetTrackScoringToolsConf import ROIInfoVecAlg
+    return ROIInfoVecAlg(the_name,**kwargs)
+
+@makePublicTool
+def getInDetAmbiScoringToolBase(name='InDetAmbiScoringTool', **kwargs) :
+    NewTrackingCuts = kwargs.pop("NewTrackingCuts")
+    the_name=makeName(name,kwargs)
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    from AthenaCommon.DetFlags              import DetFlags
+    have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
+    if have_calo_rois :
+        alg=createAndAddEventAlg(getInDetROIInfoVecCondAlg,"InDetROIInfoVecCondAlg")
+        kwargs=setDefaults(kwargs, CaloROIInfoName = alg.WriteKey )
+    from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
+    return InDet__InDetAmbiScoringTool(the_name,
+                                       **setDefaults(kwargs,
+                                                     Extrapolator            = getInDetExtrapolator(),
+                                                     SummaryTool             = getInDetTrackSummaryTool(),
+                                                     DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco(),
+                                                     useAmbigFcn             = True,  # this is NewTracking
+                                                     useTRT_AmbigFcn         = False,
+                                                     maxZImp                 = NewTrackingCuts.maxZImpact(),
+                                                     maxEta                  = NewTrackingCuts.maxEta(),
+                                                     usePixel                = NewTrackingCuts.usePixel(),
+                                                     useSCT                  = NewTrackingCuts.useSCT(),
+                                                     doEmCaloSeed            = have_calo_rois)
+                                       )
+
+def getInDetAmbiScoringTool(NewTrackingCuts, name='InDetAmbiScoringTool', **kwargs) :
+    return getInDetAmbiScoringToolBase(name+NewTrackingCuts.extension(),
+                                       **setDefaults( kwargs,
+                                                      NewTrackingCuts         = NewTrackingCuts,
+                                                      useAmbigFcn             = True,  # this is NewTracking
+                                                      useTRT_AmbigFcn         = False,
+                                                      minTRTonTrk             = 0,
+                                                      minTRTPrecisionFraction = 0,
+                                                      minPt                   = NewTrackingCuts.minPT(),
+                                                      maxRPhiImp              = NewTrackingCuts.maxPrimaryImpact(),
+                                                      minSiClusters           = NewTrackingCuts.minClusters(),
+                                                      minPixel                = NewTrackingCuts.minPixel(),
+                                                      maxSiHoles              = NewTrackingCuts.maxHoles(),
+                                                      maxPixelHoles           = NewTrackingCuts.maxPixelHoles(),
+                                                      maxSCTHoles             = NewTrackingCuts.maxSCTHoles(),
+                                                      maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles()))
+
+def getInDetTRT_SeededScoringTool(NewTrackingCuts, name='InDetTRT_SeededScoringTool',**kwargs) :
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    return getInDetAmbiScoringToolBase('InDetTRT_SeededScoringTool',
+                                       **setDefaults(kwargs,
+                                                     NewTrackingCuts         = NewTrackingCuts,
+                                                     useAmbigFcn             = not InDetFlags.doNewTracking(), # full search => use NewT
+                                                     useTRT_AmbigFcn         = InDetFlags.doNewTracking(),     # full search => use NewT
+                                                     minTRTonTrk             = NewTrackingCuts.minSecondaryTRTonTrk(),
+                                                     minTRTPrecisionFraction = NewTrackingCuts.minSecondaryTRTPrecFrac(),
+                                                     minPt                   = NewTrackingCuts.minSecondaryPt(),
+                                                     maxRPhiImp              = NewTrackingCuts.maxSecondaryImpact(),
+                                                     minSiClusters           = NewTrackingCuts.minSecondaryClusters(),
+                                                     maxSiHoles              = NewTrackingCuts.maxSecondaryHoles(),
+                                                     maxPixelHoles           = NewTrackingCuts.maxSecondaryPixelHoles(),
+                                                     maxSCTHoles             = NewTrackingCuts.maxSecondarySCTHoles(),
+                                                     maxDoubleHoles          = NewTrackingCuts.maxSecondaryDoubleHoles()))
+
+
+def getInDetExtenScoringTool(NewTrackingCuts,name='InDetExtenScoringTool', **kwargs) :
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.trackFitterType() in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter']:
+        kwargs=setDefaults(kwargs, minTRTPrecisionFraction = 0.2)
+    return getInDetAmbiScoringTool(NewTrackingCuts,
+                                   name,
+                                   **setDefaults(kwargs,
+                                                 minTRTonTrk             = NewTrackingCuts.minTRTonTrk(),
+                                                 minTRTPrecisionFraction = NewTrackingCuts.minTRTPrecFrac()))
+
+@makePublicTool
+def getInDetCosmicsScoringToolBase(name='InDetCosmicsScoringTool', **kwargs) :
+    NewTrackingCuts = kwargs.pop("NewTrackingCuts")
+    the_name=makeName(name,kwargs)
+    from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetCosmicScoringTool
+    return InDet__InDetCosmicScoringTool(the_name,
+                                         **setDefaults(kwargs,
+                                                       nWeightedClustersMin = NewTrackingCuts.nWeightedClustersMin(),
+                                                       minTRTHits           = 0,
+                                                       SummaryTool          = getInDetTrackSummaryTool()))
+
+def getInDetCosmicsScoringTool(NewTrackingCuts,name='InDetCosmicsScoringTool', **kwargs) :
+    return getInDetCosmicsScoringToolBase(name+NewTrackingCuts.extension(),
+                                          **setDefaults(kwargs, NewTrackingCuts=NewTrackingCuts))
+
+def getInDetCosmicExtenScoringTool(NewTrackingCuts, name='InDetCosmicExtenScoringTool',**kwargs) :
+    return getInDetCosmicsScoringToolBase('InDetCosmicExtenScoringTool',
+                                          **setDefaults(kwargs,
+                                                        NewTrackingCuts      = NewTrackingCuts,
+                                                        nWeightedClustersMin = 0,
+                                                        minTRTHits           = NewTrackingCuts.minTRTonTrk()))
+
+def getInDetCosmicScoringTool_TRT(NewTrackingCuts, name='InDetCosmicExtenScoringTool',**kwargs) :
+    return getInDetCosmicExtenScoringTool(NewTrackingCuts,
+                                          'InDetCosmicScoringTool_TRT',
+                                          **setDefaults(kwargs,
+                                                        minTRTHits  = NewTrackingCuts.minSecondaryTRTonTrk(),
+                                                        SummaryTool = TrackingCommon.getInDetTrackSummaryToolNoHoleSearch()))

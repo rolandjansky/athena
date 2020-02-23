@@ -237,7 +237,6 @@ def generateL1DecoderAndChains():
     L1UnpackingSeq = parOR("L1UnpackingSeq")
 
     l1Decoder = L1Decoder( RoIBResult="", L1TriggerResult="" )
-    l1Decoder.prescaler.EventInfo=""
     l1Decoder.L1DecoderSummaryKey = "L1DecoderSummary"
 
     ctpUnpacker = CTPUnpackingEmulationTool( ForceEnableAllChains=False , InputFilename="ctp.dat" )

@@ -20,7 +20,7 @@
 #include "SCT_GeoModel/SCT_Sensor.h"
 #include "SCT_GeoModel/SCT_Hybrid.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoLogVol.h"

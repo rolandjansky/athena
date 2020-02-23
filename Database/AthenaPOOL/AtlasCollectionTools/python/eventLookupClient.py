@@ -1,6 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import urllib, re, string, os, time, commands
+from __future__ import print_function
+
+import urllib, re, string, os, time
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 # client for eventLookup TAG service
 # author:  Marcin.Nowak@cern.ch
@@ -31,7 +37,7 @@ class eventLookupClient:
       except KeyError:
          self.certProxyFileName = '/tmp/x509up_u%s' % os.getuid()
       if not os.access(self.certProxyFileName, os.R_OK):
-         print 'EventLookup could not locate user GRID certificate proxy! (do voms-proxy-init)'
+         print ('EventLookup could not locate user GRID certificate proxy! (do voms-proxy-init)')
          return
       proxy = open(self.certProxyFileName)
       try:
@@ -58,20 +64,20 @@ class eventLookupClient:
             self.certDir = os.environ['X509_CERT_DIR']
          except KeyError:
             self.certDir = '/etc/grid-security/certificates'
-         rc, response = commands.getstatusoutput( 'uname -r' )
+         rc, response = subprocess.getstatusoutput( 'uname -r' )
          if 'el6' in response.split('.'):
-            if self.debug:  print "detected SLC6 for curl"
+            if self.debug:  print ("detected SLC6 for curl")
             self.curlCmd += ' --capath ' + self.certDir + ' --cacert ' + self.certProxyFileName
          else:
             self.curlCmd += ' -k '
          return self.curlCmd         
 
  
-   def doLookup(self, inputEvents, async=None, stream="", tokens="",
+   def doLookup(self, inputEvents, asyncFlag=None, stream="", tokens="",
                 amitag="", extract=False):
       """ contact the server and return a list of GUIDs
       inputEvents  - list of run-event pairs
-      async - request query procesing in a separate process, client will poll for results
+      asyncFlag - request query procesing in a separate process, client will poll for results
       stream - stream
       tokens - token names
       amitag - used to select reprocessing pass (default empty means the latest)
@@ -87,10 +93,10 @@ class eventLookupClient:
          sep = "\n"
          runs.add(run_ev[0]);
 
-      if async is None:
+      if asyncFlag is None:
          if len(runs) > 50 or len(inputEvents) > 1000:
-            async = True
-      if async:
+            asyncFlag = True
+      if asyncFlag:
          asyncStr = "true"
       else:
          asyncStr = "false"
@@ -108,11 +114,11 @@ class eventLookupClient:
          query_args['extract'] = "true"
 
       self.talkToServer(self.serverURL + self.lookupPage, query_args)
-      if not async:
+      if not asyncFlag:
          for line in self.output:
             if re.search("502 Bad Gateway", line):
                # usually signifies a timeout on the J2EE server
-               print "Timeout detected. Retrying in asynchronous mode"
+               print ("Timeout detected. Retrying in asynchronous mode")
                query_args['async'] = "true"
                self.talkToServer(self.serverURL + self.lookupPage, query_args)
                break
@@ -129,8 +135,8 @@ class eventLookupClient:
    def talkToServer(self, url, args):
       encoded_args = urllib.urlencode(args)
       if self.debug:
-         print "Contacting URL: " + url
-         print encoded_args
+         print ("Contacting URL: " + url)
+         print (encoded_args)
 
       for _try in range(1,6):
          response = urllib.urlopen(url, encoded_args)
@@ -142,7 +148,7 @@ class eventLookupClient:
                retry = True
          if retry:
             if self.debug:
-               print "Failed to connect to the server, try " + str(_try)
+               print ("Failed to connect to the server, try " + str(_try))
             time.sleep(self.connectionRefusedSleep)
          else:
             break
@@ -157,7 +163,7 @@ class eventLookupClient:
       mcarlo - if True ask for MC TAGs only
       """
 
-      if isinstance(inputEvents, basestring):
+      if isinstance(inputEvents, str):
          #events from a file
          runs_events = "<" + inputEvents
       else:
@@ -188,10 +194,10 @@ class eventLookupClient:
       cmd += args
       
       if self.debug:
-         print "Executing command: " + cmd
+         print ("Executing command: " + cmd)
 
       for _try in range(1,6):
-         self.rc, response = commands.getstatusoutput( cmd )
+         self.rc, response = subprocess.getstatusoutput( cmd )
          self.output = []
          retry = False
          for line in response.split('\n'):
@@ -200,7 +206,7 @@ class eventLookupClient:
                retry = True
          if retry:
             if self.debug:
-               print "Failed to connect to the server, try " + str(_try)
+               print ("Failed to connect to the server, try " + str(_try))
             time.sleep(self.connectionRefusedSleep)
          else:
             break
@@ -219,7 +225,7 @@ class eventLookupClient:
       tokpat = re.compile(r'[[]DB=(?P<FID>.*?)[]]')
       for line in self.output:
          if re.search(self.errorPattern, line, re.I):
-            #print " -- Error line matched: " + line
+            #print (" -- Error line matched: " + line)
             return None
          if stage == "readTags":
             if line[0:1] == ":":
@@ -235,7 +241,7 @@ class eventLookupClient:
                continue
             else:
                return (self.tagAttributes, self.tags)
-         if re.match("\{.*\}$", line):
+         if re.match("\\{.*\\}$", line):
             guids = eval(line)
             if type(guids).__name__!='dict':
                return None
@@ -260,33 +266,33 @@ class eventLookupClient:
       if type(output) == type('str'):  output = output.split('\n')
       for line in output:
          if re.search("certificate expired", line):
-            print "Your CA certificate proxy may have expired. The returned error is:\n" + line
+            print ("Your CA certificate proxy may have expired. The returned error is:\n" + line)
             return 2
          if re.search("SSL connect error", line):
-            print line
+            print (line)
             checkcmd = 'voms-proxy-info -exists -file '+self.certProxyFileName
-            rc, out = commands.getstatusoutput(checkcmd)
+            rc, out = subprocess.getstatusoutput(checkcmd)
             if rc==0:
                return 20  # reason not known
             if rc==1:
-               print "Certificate Proxy is NOT valid. Check with " + checkcmd
+               print ("Certificate Proxy is NOT valid. Check with " + checkcmd)
                return 21
-            print "Check if your Certificate Proxy is still valid: " + checkcmd
+            print ("Check if your Certificate Proxy is still valid: " + checkcmd)
             return 25
          if re.search("unable to use client certificate", line):
-            print line
+            print (line)
             return 22
          if self.remoteFile and re.match("NOT EXISTING", line):
-            print "File '" + self.remoteFile + "' not found on " + self.workerHost
+            print ("File '" + self.remoteFile + "' not found on " + self.workerHost)
             return 3
          if( re.search("AthenaeumException: No response from server", line)
              or re.search("ConnectException: Connection refused", line) ):
-            print "ERROR contacting " + self.workerHost
-            print error1
+            print ("ERROR contacting " + self.workerHost)
+            print (error1)
             return 4
          if re.search("AthenaeumException: Can't execute commad", line):
-            print "ERROR processing request on " + self.workerHost
-            print error1
+            print ("ERROR processing request on " + self.workerHost)
+            print (error1)
             return 5
       return None
       
@@ -302,7 +308,7 @@ class eventLookupClient:
                      }
       self.remoteFile = file
       if self.debug:
-         print "EventLookup waiting for server.  Remote file=" + file
+         print ("EventLookup waiting for server.  Remote file=" + file)
 
       ready = False  
       while not ready:
@@ -311,7 +317,7 @@ class eventLookupClient:
          for line in self.output:
             if re.match("NOT READY", line):
                if self.debug:
-                  print "received NOT READY"
+                  print ("received NOT READY")
                time.sleep(1)
                ready = False
 

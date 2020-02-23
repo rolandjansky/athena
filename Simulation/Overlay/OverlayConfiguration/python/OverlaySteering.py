@@ -9,7 +9,13 @@ from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 
+from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
 from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
+from InDetOverlay.TRTOverlayConfig import TRTOverlayCfg
+from MuonConfig.CscOverlayConfig import CscOverlayCfg
+from MuonConfig.MdtOverlayConfig import MdtOverlayCfg
+from MuonConfig.RpcOverlayConfig import RpcOverlayCfg
+from MuonConfig.TgcOverlayConfig import TgcOverlayCfg
 from OverlayCopyAlgs.OverlayCopyAlgsConfig import \
     CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyMcEventCollectionCfg, \
     CopyTimingsCfg, CopyTrackRecordCollectionsCfg
@@ -50,7 +56,21 @@ def OverlayMainCfg(configFlags):
     acc.merge(CopyTrackRecordCollectionsCfg(configFlags))
 
     # Inner detector
+    if configFlags.Detector.OverlayPixel:
+        acc.merge(PixelOverlayCfg(configFlags))
     if configFlags.Detector.OverlaySCT:
         acc.merge(SCTOverlayCfg(configFlags))
+    if configFlags.Detector.OverlayTRT:
+        acc.merge(TRTOverlayCfg(configFlags))
+
+    # Muon system
+    if configFlags.Detector.OverlayCSC:
+        acc.merge(CscOverlayCfg(configFlags))
+    if configFlags.Detector.OverlayMDT:
+        acc.merge(MdtOverlayCfg(configFlags))
+    if configFlags.Detector.OverlayRPC:
+        acc.merge(RpcOverlayCfg(configFlags))
+    if configFlags.Detector.OverlayTGC:
+        acc.merge(TgcOverlayCfg(configFlags))
 
     return acc

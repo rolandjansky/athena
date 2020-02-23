@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -97,8 +97,8 @@
  * string A' with T' bits, such that A mod P = A' mod P.  It is then easy
  * to show that the string M' = 2^U A' + B has the same CRC:
  *
- *   M  mod P = [(x^U mod P)(A  mod P)] mod P + B mod P
- *   M' mod P = [(x^U mod P)(A' mod P)] mod P + B mod P
+ *   M  mod P = [(2^U mod P)(A  mod P)] mod P + B mod P
+ *   M' mod P = [(2^U mod P)(A' mod P)] mod P + B mod P
  *
  * But A mod P = A' mod P, so therefore M mod P = M' mod P.
  *

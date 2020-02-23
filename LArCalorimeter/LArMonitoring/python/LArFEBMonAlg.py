@@ -22,6 +22,11 @@ def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
     larFEBMonAlg.SubDetNames=lArDQGlobals.SubDet
     larFEBMonAlg.Streams=lArDQGlobals.defaultStreamNames
 
+    # adding LArFebErrorSummary algo
+    from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
+    acc = LArFebErrorSummaryMakerCfg(inputFlags)
+    helper.resobj.merge(acc)
+
     if "COMP200" not in inputFlags.IOVDb.DatabaseInstance:
        iovDbSvc=helper.resobj.getService("IOVDbSvc")
        condLoader=helper.resobj.getCondAlgo("CondInputLoader")
@@ -37,14 +42,6 @@ def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
        obj='LArDSPThresholdsComplete'
        helper.resobj.addFolderList(inputFlags,[(fld,db,obj)])
        larFEBMonAlg.keyDSPThresholds="LArDSPThresholds"
-
-    #from AthenaCommon.Constants import VERBOSE
-    #larFEBMonAlg.OutputLevel=VERBOSE
-
-    # adding LArFebErrorSummary algo
-    from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
-    acc = LArFebErrorSummaryMakerCfg(inputFlags)
-    helper.resobj.merge(acc)
 
     Group = helper.addGroup(
         larFEBMonAlg,
@@ -361,7 +358,7 @@ if __name__=='__main__':
 
    from AthenaConfiguration.AllConfigFlags import ConfigFlags
    from AthenaCommon.Logging import log
-   from AthenaCommon.Constants import DEBUG
+   from AthenaCommon.Constants import DEBUG,WARNING
    from AthenaCommon.Configurable import Configurable
    Configurable.configurableRun3Behavior=1
    log.setLevel(DEBUG)
@@ -370,18 +367,20 @@ if __name__=='__main__':
    from LArMonitoring.LArMonConfigFlags import createLArMonConfigFlags
    createLArMonConfigFlags()
 
-   from AthenaConfiguration.TestDefaults import defaultTestFiles
-   ConfigFlags.Input.Files = defaultTestFiles.RAW
+   ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data",]
 
    ConfigFlags.Output.HISTFileName = 'LArFEBMonOutput.root'
-   ConfigFlags.DQ.enableLumiAccess = True
-   ConfigFlags.DQ.useTrigger = True
+   ConfigFlags.DQ.enableLumiAccess = False
+   ConfigFlags.DQ.useTrigger = False
    ConfigFlags.Beam.Type = 'collisions'
    ConfigFlags.lock()
 
+   from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+   cfg = MainServicesSerialCfg()
+
 
    from CaloRec.CaloRecoConfig import CaloRecoCfg
-   cfg=CaloRecoCfg(ConfigFlags)
+   cfg.merge(CaloRecoCfg(ConfigFlags))
 
    #from CaloD3PDMaker.CaloD3PDConfig import CaloD3PDCfg,CaloD3PDAlg
    #cfg.merge(CaloD3PDCfg(ConfigFlags, filename=ConfigFlags.Output.HISTFileName, streamname='CombinedMonitoring'))
@@ -396,4 +395,4 @@ if __name__=='__main__':
    cfg.store(f)
    f.close()
 
-   #cfg.run(100,OutputLevel=WARNING)
+   cfg.run(10,OutputLevel=WARNING)

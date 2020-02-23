@@ -14,7 +14,7 @@
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "StoreGate/ReadCondHandle.h"
 
 #include "TFile.h"

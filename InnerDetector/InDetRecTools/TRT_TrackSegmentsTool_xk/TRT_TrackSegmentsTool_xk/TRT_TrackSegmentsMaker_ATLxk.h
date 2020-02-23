@@ -27,7 +27,7 @@
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "TRT_TrackSegmentsTool_xk/TRT_DriftCircleLinkN_xk.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
 #include "TrkEventUtils/EventDataBase.h"

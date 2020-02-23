@@ -4,14 +4,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-PileUpXingFolder=CompFactory.PileUpXingFolder
 from PixelCabling.PixelCablingConfigNew import PixelCablingSvcCfg
-from PixelDigitization.PixelDigitizationConf import (
-    PixelDigitizationTool, PixelDigitization,
-    EnergyDepositionTool, SensorSimPlanarTool, SensorSim3DTool,
-    RD53SimTool, FEI4SimTool, FEI3SimTool,
-    RadDamageUtil, EfieldInterpolator
-)
 from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelCablingCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, 
     PixelDCSCondHVAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, 
@@ -56,6 +49,7 @@ def RadDamageUtilCfg(flags, name="RadDamageUtil", **kwargs):
     kwargs.setdefault("betaElectrons", 4.5e-16)
     kwargs.setdefault("betaHoles", 6.0e-16)
     kwargs.setdefault("saveDebugMaps", False)
+    RadDamageUtil = CompFactory.RadDamageUtil
     return RadDamageUtil(name, **kwargs)
 
 
@@ -64,6 +58,7 @@ def EfieldInterpolatorCfg(flags, name="EfieldInterpolator", **kwargs):
     kwargs.setdefault("initialized", False)
     kwargs.setdefault("useSpline", True)
     kwargs.setdefault("sensorDepth", 200)
+    EfieldInterpolator = CompFactory.EfieldInterpolator
     return EfieldInterpolator(name, **kwargs)
 
 
@@ -76,6 +71,7 @@ def EnergyDepositionToolCfg(flags, name="EnergyDepositionTool", **kwargs):
     kwargs.setdefault("doBichselBetaGammaCut", 0.7) # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)          # needs validation
     kwargs.setdefault("doPU", True)
+    EnergyDepositionTool = CompFactory.EnergyDepositionTool
     return EnergyDepositionTool(name, **kwargs)
 
 
@@ -86,6 +82,7 @@ def SensorSimPlanarToolCfg(flags, name="SensorSimPlanarTool", **kwargs):
     LorentzTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
     kwargs.setdefault("LorentzAngleTool", LorentzTool)
+    SensorSimPlanarTool = CompFactory.SensorSimPlanarTool
     acc.setPrivateTools(SensorSimPlanarTool(name, **kwargs))
     return acc
 
@@ -96,6 +93,7 @@ def SensorSim3DToolCfg(flags, name="SensorSim3DTool", **kwargs):
     SiTool = acc.popPrivateTools()
     acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
+    SensorSim3DTool = CompFactory.SensorSim3DTool
     acc.setPrivateTools(SensorSim3DTool(name, **kwargs))
     return acc
 
@@ -103,36 +101,46 @@ def SensorSim3DToolCfg(flags, name="SensorSim3DTool", **kwargs):
 def BarrelRD53SimToolCfg(flags, name="BarrelRD53SimTool", **kwargs):
     """Return a RD53SimTool configured for Barrel"""
     kwargs.setdefault("BarrelEC", 0)
+    kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
+    RD53SimTool = CompFactory.RD53SimTool
     return RD53SimTool(name, **kwargs)
 
 
 def EndcapRD53SimToolCfg(flags, name="EndcapRD53SimTool", **kwargs):
     """Return a RD53SimTool configured for Endcap"""
     kwargs.setdefault("BarrelEC", 2)
+    kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
+    RD53SimTool = CompFactory.RD53SimTool
     return RD53SimTool(name, **kwargs)
 
 
 def BarrelFEI4SimToolCfg(flags, name="BarrelFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Barrel"""
     kwargs.setdefault("BarrelEC", 0)
+    kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
+    FEI4SimTool = CompFactory.FEI4SimTool
     return FEI4SimTool(name, **kwargs)
 
 
 def DBMFEI4SimToolCfg(flags, name="DBMFEI4SimTool", **kwargs):
     """Return a FEI4SimTool configured for Endcap"""
     kwargs.setdefault("BarrelEC", 4)
+    kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
+    FEI4SimTool = CompFactory.FEI4SimTool
     return FEI4SimTool(name, **kwargs)
 
 
 def BarrelFEI3SimToolCfg(flags, name="BarrelFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Barrel"""
     kwargs.setdefault("BarrelEC", 0)
+    FEI3SimTool = CompFactory.FEI3SimTool
     return FEI3SimTool(name, **kwargs)
 
 
 def EndcapFEI3SimToolCfg(flags, name="EndcapFEI3SimTool", **kwargs):
     """Return a FEI3SimTool configured for Endcap"""
     kwargs.setdefault("BarrelEC", 2)
+    FEI3SimTool = CompFactory.FEI3SimTool
     return FEI3SimTool(name, **kwargs)
 
 
@@ -192,6 +200,8 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", Pixel_FirstXing(flags))
         kwargs.setdefault("LastXing", Pixel_LastXing(flags))
+
+    PixelDigitizationTool = CompFactory.PixelDigitizationTool
     acc.setPrivateTools(PixelDigitizationTool(name, **kwargs))
     return acc
 
@@ -205,6 +215,7 @@ def PixelDigitizationToolCfg(flags, name="PixelDigitizationTool", **kwargs):
 def PixelGeantinoTruthDigitizationToolCfg(flags, name="PixelGeantinoTruthDigitizationTool", **kwargs):
     """Return configured PixelDigitizationTool"""
     kwargs.setdefault("ParticleBarcodeVeto", 0)
+    PixelDigitizationTool = CompFactory.PixelDigitizationTool
     return PixelDigitizationTool(name, **kwargs)
 
 
@@ -234,8 +245,8 @@ def PixelDigitizationSplitNoMergePUToolCfg(flags, name="PixelDigitizationSplitNo
 def PixelOverlayDigitizationToolCfg(flags, name="PixelOverlayDigitizationTool", **kwargs):
     """Return ComponentAccumulator with PixelDigitizationTool configured for overlay"""
     kwargs.setdefault("OnlyUseContainerName", False)
-    kwargs.setdefault("RDOCollName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "PixelRDOs")
-    kwargs.setdefault("SDOCollName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "PixelSDO_Map")
+    kwargs.setdefault("RDOCollName", flags.Overlay.SigPrefix + "PixelRDOs")
+    kwargs.setdefault("SDOCollName", flags.Overlay.SigPrefix + "PixelSDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return PixelDigitizationBasicToolCfg(flags, name, **kwargs)
 
@@ -246,6 +257,7 @@ def PixelRangeCfg(flags, name="PixelRange", **kwargs):
     kwargs.setdefault("LastXing", Pixel_LastXing(flags))
     kwargs.setdefault("CacheRefreshFrequency", 1.0) # default 0 no dataproxy reset
     kwargs.setdefault("ItemList", ["SiHitCollection#PixelHits"])
+    PileUpXingFolder = CompFactory.PileUpXingFolder
     return PileUpXingFolder(name, **kwargs)
 
 
@@ -276,7 +288,12 @@ def PixelOverlayDigitizationBasicCfg(flags, **kwargs):
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(PixelOverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool
-    acc.addEventAlgo(PixelDigitization(**kwargs))
+
+    if flags.Concurrency.NumThreads > 0:
+        kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
+
+    PixelDigitization = CompFactory.PixelDigitization
+    acc.addEventAlgo(PixelDigitization(name="PixelOverlayDigitization", **kwargs))
     return acc
 
 

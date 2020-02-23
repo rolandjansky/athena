@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -13,8 +13,10 @@
 #include <AsgMessaging/MessageCheck.h>
 
 #include <AsgMessaging/MessageCheckLocal.h>
+#include <cassert>
 #include <mutex>
 #include <stdexcept>
+#include <unordered_map>
 
 #ifndef XAOD_STANDALONE
 #include <GaudiKernel/Bootstrap.h>

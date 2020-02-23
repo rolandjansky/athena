@@ -115,7 +115,7 @@ namespace MuonGM {
     delete m_muon;
   }
 
-  const MuonDetectorManager* MuonDetectorFactory001::getDetectorManager() const
+  MuonDetectorManager* MuonDetectorFactory001::getDetectorManager() const
   {
     return m_manager;
   }

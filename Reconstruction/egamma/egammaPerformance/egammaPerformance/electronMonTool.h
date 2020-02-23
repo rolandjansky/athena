@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -12,20 +12,21 @@
 #ifndef electronMonTool_H
 #define electronMonTool_H
 
-#include "egammaPerformance/egammaMonToolBase.h"
+#include "AthenaMonitoring/AthenaMonManager.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "AthenaMonitoring/AthenaMonManager.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "egammaPerformance/egammaMonToolBase.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include <vector>
-#include <string>
+#include "xAODEventInfo/EventInfo.h"
 #include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
 
 class electronHist
 {
@@ -109,7 +110,7 @@ class electronHist
     m_nElectrons(0),
     m_hLB_N(nullptr)
     {
-      m_nameOfElectronType = name;
+      m_nameOfElectronType = std::move(name);
       m_fullHistoList = FullHistoList;
     }
 

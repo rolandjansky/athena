@@ -10,7 +10,7 @@
 #include <set>
 #include <map>
 
-#include "GaudiKernel/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 #include "CxxUtils/checker_macros.h"
 
 /**

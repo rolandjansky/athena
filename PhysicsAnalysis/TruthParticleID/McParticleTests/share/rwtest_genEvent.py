@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import user
 import os
 import sys
-import commands
 from AthenaCommon import ChapPy
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###-----------------------------------------------------
 ## For compatibility with ATN tests
@@ -22,10 +27,10 @@ def timeofday():
 
 uuid = "%s_%s" % (os.getpid(),timeofday())
 
-print "#"*80
-print "## testing McEventCollection (read/write) persistency..."
-print "## Job uuid:",uuid
-print "#"*80
+print ("#"*80)
+print ("## testing McEventCollection (read/write) persistency...")
+print ("## Job uuid:",uuid)
+print ("#"*80)
 bench = BenchSequence( "McEventCollection (read/write) persistency" )
 
 ###-----------------------------------------------------
@@ -45,9 +50,9 @@ def doReadWriteTest( genName = "pythia", evtMax = 100 ):
     """A simple wrapper around the read/write tests..."""
     genName = genName.lower()
     ###-----------------------------------------------------
-    print ""
-    print "#"*80
-    print "## Testing [writing-%s]..." % genName
+    print ("")
+    print ("#"*80)
+    print ("## Testing [writing-%s]..." % genName)
     templateJobO = """
 OUTPUT='%(OutputFile)s';
 DUMPTUPLE=True;
@@ -76,12 +81,12 @@ jobproperties.PerfMonFlags.OutputFile = '%(PmonFile)s';
     else:
         inFile  = workDir(    "write.genevent.%s.%s.pmon.gz"   %(genName,uuid))
         outFile = workDir("out.write.genevent.%s.%s.pmon.root" %(genName,uuid))
-        print commands.getoutput( "perfmon.py %s -o %s" % ( inFile, outFile ) )
+        print (subprocess.getoutput( "perfmon.py %s -o %s" % ( inFile, outFile ) ))
                                  
     ###-----------------------------------------------------
-    print "\n"
-    print "#"*80
-    print "## Testing [reading-%s]..." % genName
+    print ("\n")
+    print ("#"*80)
+    print ("## Testing [reading-%s]..." % genName)
     templateJobO = """
 INPUT=['%(InputFile)s'];
 DUMPTUPLE=True;
@@ -107,11 +112,11 @@ jobproperties.PerfMonFlags.OutputFile = '%(PmonFile)s';
     else:
         inFile  = workDir(    "read.genevent.%s.%s.pmon.gz"   % (genName,uuid))
         outFile = workDir("out.read.genevent.%s.%s.pmon.root" % (genName,uuid))
-        print commands.getoutput( "perfmon.py %s -o %s" % ( inFile, outFile ) )
+        print (subprocess.getoutput( "perfmon.py %s -o %s" % ( inFile, outFile ) ))
 
     ###-----------------------------------------------------
-    print "\n"
-    print "#"*80
+    print ("\n")
+    print ("#"*80)
     return doTupleValidation(
         outFiles['gen_%s' % genName]['ref'].replace(".pool", ".tuple.root"),
         outFiles['gen_%s' % genName]['chk'].replace(".pool", ".tuple.root") )
@@ -125,13 +130,13 @@ for genName in [
     try:
         bench += doReadWriteTest( genName, evtMax )
     except KeyboardInterrupt:
-        print "\n*** user hit Ctrl-C ! ***"
-        print "*** skipping test [%s] ***" % genName
+        print ("\n*** user hit Ctrl-C ! ***")
+        print ("*** skipping test [%s] ***" % genName)
         continue
     pass
 
-print ""
-print "#"*80
+print ("")
+print ("#"*80)
 bench.printStatus()
-print "## Bye."
-print "#"*80
+print ("## Bye.")
+print ("#"*80)

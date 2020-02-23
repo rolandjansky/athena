@@ -24,7 +24,7 @@
 #include <EventPrimitives/EventPrimitives.h>
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "InDetReadoutGeometry/TRT_DetElementContainer.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class PixelID;

@@ -32,7 +32,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 #include "InDetPrepRawData/PixelCluster.h"

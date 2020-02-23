@@ -16,7 +16,7 @@
 
 //InnerDetector
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetRawData/SCT3_RawData.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 

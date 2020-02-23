@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -41,13 +41,13 @@ CTP_RDO* CTP_RDOCnv::createTransient() {
 
    if( this->compareClassGuid( p2_guid ) ) {
 
-      std::auto_ptr< CTP_RDO_p2 > pers_ref( this->poolReadObject< CTP_RDO_p2 >() );
+      std::unique_ptr< CTP_RDO_p2 > pers_ref( this->poolReadObject< CTP_RDO_p2 >() );
       MsgStream log( this->msgSvc(), "CTP_RDOCnv" );
       return TPConverter.createTransient( pers_ref.get(), log );
 
    } else if( this->compareClassGuid( p1_guid ) ) {
 
-      std::auto_ptr< CTP_RDO_p1 > pers_ref( this->poolReadObject< CTP_RDO_p1 >() );
+      std::unique_ptr< CTP_RDO_p1 > pers_ref( this->poolReadObject< CTP_RDO_p1 >() );
       MsgStream log( this->msgSvc(), "CTP_RDOCnv" );
       return TPConverter_p1.createTransient( pers_ref.get(), log );
 

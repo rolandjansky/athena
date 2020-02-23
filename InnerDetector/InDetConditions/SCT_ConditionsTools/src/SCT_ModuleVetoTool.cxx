@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -89,8 +89,10 @@ bool
 SCT_ModuleVetoTool::isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
 
+  const Identifier waferId{m_pHelper->wafer_id(elementId)};
+
   // Bad wafer in properties
-  if (m_localCondData.isBadWaferId(elementId)) return false;
+  if (m_localCondData.isBadWaferId(waferId)) return false;
   // If database is not used, all wafer IDs here should be good.
   if (not m_useDatabase) return true;
 
@@ -99,7 +101,7 @@ SCT_ModuleVetoTool::isGood(const Identifier& elementId, const EventContext& ctx,
   if (condData==nullptr) return true;
 
   // Return the result of database
-  return (not condData->isBadWaferId(elementId));
+  return (not condData->isBadWaferId(waferId));
 }
 
 bool 
@@ -111,7 +113,7 @@ SCT_ModuleVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarc
 bool 
 SCT_ModuleVetoTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   Identifier elementId{m_pHelper->wafer_id(hashId)};
-  return isGood(elementId, ctx);
+  return isGood(elementId, ctx, InDetConditions::SCT_SIDE);
 }
 
 bool

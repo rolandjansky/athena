@@ -297,12 +297,11 @@ egammaSelectedTrackCopy::Select(const EventContext& ctx,
   }
   /*
    * Cases where 
-   * - it passes  deltaEta[2] from last measurement 
-   * - and it is still inside the broad preselection window
+   * - it passes  deltaEta[2] from last measurement (rescaling should not affect the eta side)
    * - and we have a cluster with higher Et.
    * Rescale up the track to account for radiative loses and retry
    */
-  if (fabs(deltaEta[2]) < m_narrowDeltaEta && fabs(deltaPhi[2]) < m_broadDeltaPhi && cluster->et() > track->pt()) {
+  if (fabs(deltaEta[2]) < m_narrowDeltaEta && cluster->et() > track->pt()) {
     // Extrapolate from Perigee Rescaled
     std::array<double, 4> etaRes = { -999.0, -999.0, -999.0, -999.0 };
     std::array<double, 4> phiRes = { -999.0, -999.0, -999.0, -999.0 };

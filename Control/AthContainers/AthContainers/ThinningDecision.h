@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file AthContainers/ThinningDecision.h
@@ -12,6 +12,7 @@
 
 #ifndef ATHCONTAINERS_THINNINGDECISION_H
 #define ATHCONTAINERS_THINNINGDECISION_H
+#ifndef XAOD_STANDALONE
 
 
 #include "AthContainers/AuxVectorBase.h"
@@ -86,4 +87,5 @@ private:
 CLASS_DEF( SG::ThinningDecision, 74079355, 1 )
 
 
+#endif // XAOD_STANDALONE
 #endif // not ATHCONTAINERS_THINNINGDECISION_H

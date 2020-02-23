@@ -16,7 +16,7 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "TGraphErrors.h"
 #include "TF1.h"
