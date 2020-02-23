@@ -175,7 +175,7 @@ def get_default_runcard(process_dir=MADGRAPH_GRIDPACK_LOCATION):
             raise RuntimeError('Cannot find default run_card.dat or run_card_default.dat! I was looking here: %s'%run_card)
 
 
-def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,extlhapath=None,required_accuracy=0.01,runArgs=None,reweight_card=None,bias_module=None):
+def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,extlhapath=None,required_accuracy=0.01,runArgs=None,bias_module=None):
     if config_only_check(): return
 
     # Just in case
@@ -195,21 +195,17 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
 
     if is_gen_from_gridpack():
         mglog.info('Running event generation from gridpack (using smarter mode from generate() function)')
-        generate_from_gridpack(runArgs=runArgs,extlhapath=extlhapath,gridpack_compile=gridpack_compile,reweight_card=reweight_card)
+        generate_from_gridpack(runArgs=runArgs,extlhapath=extlhapath,gridpack_compile=gridpack_compile)
         return
 
     # Now get a variety of info out of the runArgs
     beamEnergy,random_seed = get_runArgs_info(runArgs)
 
-    # If we need to get the cards...
-    if reweight_card is not None and not os.access(reweight_card,os.R_OK):
-        raise RuntimeError('Could not find reweight card '+str(reweight_card))
-
     # Check if process is NLO or LO
     isNLO=is_NLO_run(process_dir=process_dir)
 
     # use f2py2 if f2py not available
-    if reweight_card is not None:
+    if get_reweight_card(process_dir=process_dir) is not None:
         from distutils.spawn import find_executable
         if find_executable('f2py2') is not None:
             mglog.info('found f2py2, will update configuration')
@@ -218,6 +214,7 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
             mglog.info('Found f2py, will use it for reweighting')
         else:
             raise RuntimeError('Could not find f2py or f2py2, needed for reweighting')
+        check_reweight_card(process_dir)
 
     if grid_pack:
         #Running in gridpack mode
@@ -235,15 +232,7 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
 
     mglog.info('Run '+MADGRAPH_RUN_NAME+' will be performed in mode '+str(mode)+' with '+str(njobs)+' jobs in parallel.')
 
-    if reweight_card:
-        mglog.info('Running reweighting module. Moving card (%s) into place.'%(reweight_card))
-        shutil.copyfile(reweight_card,process_dir+'/Cards/reweight_card.dat')
-        check_reweight_card(process_dir+'/Cards/reweight_card.dat')
-
     # Ensure that things are set up normally
-    if reweight_card is not None and not os.access(reweight_card,os.R_OK):
-        raise RuntimeError('No reweight card found at '+reweight_card)
-
     if not os.access(process_dir,os.R_OK):
         raise RuntimeError('No process directory found at '+process_dir)
     if not os.access(process_dir+'/bin/generate_events',os.R_OK):
@@ -258,7 +247,7 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
     (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(process_dir=process_dir, extlhapath=extlhapath, allow_links=allow_links)
 
     mglog.info('For your information, the libraries available are (should include LHAPDF):')
-    mglog.info( sorted( os.listdir( process_dir+'/lib/' ) ) )
+    ls_dir(process_dir+'/lib')
 
     setupFastjet(process_dir=process_dir)
     if bias_module!=None:
@@ -310,11 +299,9 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
     elif isNLO:
 
         mglog.info('Removing Cards/shower_card.dat to ensure we get parton level events only')
-        remove_shower = subprocess.Popen(['rm','Cards/shower_card.dat'])
-        remove_shower.wait()
-
-        mygenerate = subprocess.Popen(['bin/generate_events','--name='+MADGRAPH_RUN_NAME],stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
-        mygenerate.communicate()
+        os.unlink('Cards/shower_card.dat')
+        generate = subprocess.Popen(['bin/generate_events','--name='+MADGRAPH_RUN_NAME],stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+        generate.communicate()
 
     # Get back to where we came from
     os.chdir(currdir)
@@ -337,22 +324,19 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
                 untar.wait()
                 mglog.info('compile and clean up')
                 os.chdir('madevent/')
-                compile = subprocess.Popen(['./bin/compile'])
-                compile.wait()
+                compilep = subprocess.Popen(['./bin/compile'])
+                compilep.wait()
                 clean = subprocess.Popen(['./bin/clean4grid'])
                 clean.wait()
                 os.chdir('../')
                 mglog.info('remove old tarball')
-                remove_old = subprocess.Popen(['rm',('../'+gridpack_name)])
-                remove_old.wait()
+                os.unlink('../'+gridpack_name)
                 mglog.info('Package up new tarball')
                 tar = subprocess.Popen(['tar','cvzf','../'+gridpack_name,'--exclude=lib/PDFsets','.'])
                 tar.wait()
-
                 os.chdir('../')
                 mglog.info('Remove temporary directory')
-                remove_tmp = subprocess.Popen(['rm','-fr','tmp%i/'%os.getpid()])
-                remove_tmp.wait()
+                shutil.rmtree('tmp%i/'%os.getpid())
                 mglog.info('Tidying up complete!')
 
         else:
@@ -372,7 +356,7 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
     return 0
 
 
-def generate_from_gridpack(runArgs=None,reweight_card=None,extlhapath=None, gridpack_compile=None):
+def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None):
 
     # Get of info out of the runArgs
     beamEnergy,random_seed = get_runArgs_info(runArgs)
@@ -394,13 +378,8 @@ def generate_from_gridpack(runArgs=None,reweight_card=None,extlhapath=None, grid
     else:
         do_madspin=False
 
-    if reweight_card is not None:
-        if os.path.exists(reweight_card):
-            shutil.copy( reweight_card , MADGRAPH_GRIDPACK_LOCATION+'/Cards/reweight_card.dat' )
-            mglog.info( 'Moved reweight card into place: '+str(reweight_card) )
-        else:
-            mglog.info( 'Did not find reweight card '+str(reweight_card)+', using the one provided by gridpack' )
-        check_reweight_card(MADGRAPH_GRIDPACK_LOCATION+'/Cards/reweight_card.dat')
+    if get_reweight_card(process_dir=process_dir) is not None:
+        check_reweight_card(MADGRAPH_GRIDPACK_LOCATION)
 
     # Modify run card, then print
     modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings={'iseed':str(random_seed),'python_seed':str(random_seed)})
@@ -434,12 +413,10 @@ def generate_from_gridpack(runArgs=None,reweight_card=None,extlhapath=None, grid
         else:
             mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh, starting generation.')
         # hack script to add reweighting and systematics, if required
-        hack_gridpack_script(reweight_card)
+        hack_gridpack_script()
 
-        mglog.info('For your information, ls of '+currdir+':')
-        mglog.info( sorted( os.listdir( currdir ) ) )
-        mglog.info('For your information, ls of '+MADGRAPH_GRIDPACK_LOCATION+':')
-        mglog.info( sorted( os.listdir( MADGRAPH_GRIDPACK_LOCATION ) ) )
+        ls_dir(currdir)
+        ls_dir(MADGRAPH_GRIDPACK_LOCATION)
         run_card_consistency_check(isNLO=isNLO,process_dir=MADGRAPH_GRIDPACK_LOCATION)
         generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh',str(int(nevents)),str(int(random_seed))],stdin=subprocess.PIPE)
         generate.communicate()
@@ -447,15 +424,12 @@ def generate_from_gridpack(runArgs=None,reweight_card=None,extlhapath=None, grid
     else:
         ### NLO RUN ###
         if not os.access(MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events',os.R_OK):
-            mglog.error('bin/generate_events not found at '+MADGRAPH_GRIDPACK_LOCATION)
-            raise RuntimeError('Could not find generate_events executable')
+            raise RuntimeError('Could not find generate_events executable at '+MADGRAPH_GRIDPACK_LOCATION)
         else:
             mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events, starting generation.')
 
-        mglog.info('For your information, ls of '+currdir+':')
-        mglog.info( sorted( os.listdir( currdir ) ) )
-        mglog.info('For your information, ls of '+MADGRAPH_GRIDPACK_LOCATION+'/Events/:')
-        mglog.info( sorted( os.listdir( MADGRAPH_GRIDPACK_LOCATION+'/Events/' ) ) )
+        ls_dir(currdir)
+        ls_dir(MADGRAPH_GRIDPACK_LOCATION+'/Events/')
 
         if os.access(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+MADGRAPH_RUN_NAME, os.F_OK):
             mglog.info('Removing %s/Events/%s directory from gridpack generation.'%(MADGRAPH_GRIDPACK_LOCATION,MADGRAPH_RUN_NAME))
@@ -466,8 +440,7 @@ def generate_from_gridpack(runArgs=None,reweight_card=None,extlhapath=None, grid
             mglog.info('Removing %s/Events/%s_decayed_1 directory from gridpack generation.'%(MADGRAPH_GRIDPACK_LOCATION,MADGRAPH_RUN_NAME))
             shutil.rmtree(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+MADGRAPH_RUN_NAME+'_decayed_1')
 
-        mglog.info('For your information, ls of '+MADGRAPH_GRIDPACK_LOCATION+'/Events/:')
-        mglog.info( sorted( os.listdir( MADGRAPH_GRIDPACK_LOCATION+'/Events/' ) ) )
+        ls_dir(MADGRAPH_GRIDPACK_LOCATION+'/Events/')
 
         run_card_consistency_check(isNLO=isNLO,process_dir=MADGRAPH_GRIDPACK_LOCATION)
         if not gridpack_compile:
@@ -493,8 +466,7 @@ def generate_from_gridpack(runArgs=None,reweight_card=None,extlhapath=None, grid
     else:
         mglog.info('Events were already in place')
 
-    mglog.info('For your information, ls of '+currdir+':')
-    mglog.info( sorted( os.listdir( currdir ) ) )
+    ls_dir(currdir)
 
     mglog.info('Moving generated events to be in correct format for arrange_output().')
     mglog.info('Unzipping generated events.')
@@ -575,6 +547,7 @@ def get_LHAPDF_PATHS():
     if LHAPATH==None:
         mglog.error('Could not find path to LHAPDF installation')
     return LHAPATH,LHADATAPATH
+
 
 # function to get lhapdf id and name from either id or name
 def get_lhapdf_id_and_name(pdf):
@@ -738,23 +711,7 @@ def setupLHAPDF(process_dir=None, extlhapath=None, allow_links=True):
     mglog.info('lhapdf-config --datadir:      %s'%str(subprocess.Popen([lhapdfconfig, '--datadir'],stdout = subprocess.PIPE).stdout.read().strip()))
     mglog.info('lhapdf-config --pdfsets-path: %s'%str(subprocess.Popen([lhapdfconfig, '--pdfsets-path'],stdout = subprocess.PIPE).stdout.read().strip()))
 
-    if not isNLO:
-        config_card=process_dir+'/Cards/me5_configuration.txt'
-    else:
-        config_card=process_dir+'/Cards/amcatnlo_configuration.txt'
-
-    oldcard = open(config_card,'r')
-    newcard = open(config_card+'.tmp','w')
-
-    for line in oldcard:
-        if 'lhapdf = ' in line:
-            newcard.write('lhapdf = %s \n'%(lhapdfconfig))
-            mglog.info('Setting lhapdf = %s in %s'%(lhapdfconfig,config_card))
-        else:
-            newcard.write(line)
-    oldcard.close()
-    newcard.close()
-    shutil.move(config_card+'.tmp',config_card)
+    modify_config_card(process_dir=process_dir,settings={'lhapdf':lhapdfconfig})
 
     mglog.info('Creating links for LHAPDF')
     if os.path.islink(process_dir+'/lib/PDFsets'):
@@ -881,7 +838,7 @@ decay_events '''+run)
         mglog.info('LHE file zipped by MadGraph automatically. Nothing to do')
 
 
-def arrange_output(process_dir='PROC_mssm_0',lhe_version=None,saveProcDir=False,runArgs=None,madspin_card=None,fixEventWeightsForBridgeMode=False):
+def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveProcDir=False,runArgs=None,madspin_card=None,fixEventWeightsForBridgeMode=False):
     if config_only_check(): return
 
     # NLO is not *really* the question here, we need to know if we should look for weighted or
@@ -1155,7 +1112,14 @@ def setup_bias_module(bias_module,run_card,process_dir):
             gunzip.wait()
 
 
-def check_reweight_card(reweight_card):
+def get_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
+    if os.access(process_dir+'/Cards/reweight_card.dat',os.R_OK):
+        return process_dir+'/Cards/reweight_card.dat'
+    return None
+
+
+def check_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
+    reweight_card=get_reweight_card(process_dir=process_dir)
     shutil.move(reweight_card,reweight_card+'.old')
     oldcard = open(reweight_card+'.old','r')
     newcard = open(reweight_card,'w')
@@ -1932,10 +1896,12 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
     mglog.info('Finished checking run card - All OK!')
 
 
-def hack_gridpack_script(reweight_card):
+def hack_gridpack_script():
+    reweight_card = get_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION)
+
     need_to_add_rwgt=reweight_card!=None
 
-    run_card_dict=getDictFromCard(MADGRAPH_GRIDPACK_LOCATION+'/Cards/run_card.dat',lowercase=True)
+    run_card_dict=getDictFromCard(get_default_runcard(process_dir=MADGRAPH_GRIDPACK_LOCATION),lowercase=True)
 
     systematics_program=None
     if settingIsTrue(run_card_dict['use_syst']):
@@ -2013,3 +1979,8 @@ def check_reset_proc_number(opts):
         else:
             opts.nprocs = 0
         mglog.debug(str(opts))
+
+
+def ls_dir(directory):
+    mglog.info('For your information, ls of '+directory+':')
+    mglog.info( sorted( os.listdir( directory ) ) )
