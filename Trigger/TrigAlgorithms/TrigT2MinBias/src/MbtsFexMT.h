@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT2MINBIAS_MBTS_FEX_MT_H
@@ -29,10 +29,34 @@
 #include "TileConditions/TileEMScale.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloConstCellContainer.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/StatusCode.h"
+#include "TileByteStream/TileROD_Decoder.h"
+#include <iostream>
+#include <random>
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+
+#include <mutex>
+#include "AthenaBaseComps/AthService.h"
+#include "AthenaKernel/SlotSpecificObj.h"
+#include "LArByteStream/LArRodDecoder.h"
+#include "TileByteStream/TileROD_Decoder.h"
+#include "LArRawUtils/LArTT_Selector.h"
+#include "TileByteStream/TileCellCont.h"
+#include "TrigT2CaloCommon/LArCellCont.h"
+#include "LArRecEvent/LArFebEnergyCollection.h"
+#include "TileEvent/TileCellCollection.h"
+#include "TileEvent/TileL2Container.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "IRegionSelector/IRoiDescriptor.h"
+#include "IRegionSelector/IRegSelSvc.h"
+#include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "CaloIdentifier/TileID.h"
+#include "TileEvent/TileCell.h"
 
 #include <string>
 
@@ -49,18 +73,14 @@ public:
 
 private:
 
-  // SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-  	// SG::WriteHandleKey<ConstDataVector<CaloCellContainerVector> > m_cellContainerVKey;
-  	SG::WriteHandleKey<CaloConstCellContainer > m_cellContainerKey;
-    SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_MbtsKey{this,"MbtsKey","Undefined",""};
-          /// FIXME: Temporary (i hope) to get dependency needed by BS converter.
-          // SG::ReadCondHandleKey<TileEMScale> m_tileEMScaleKey;
-  	// SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey{ this, "BCIDAvgKey", "CaloBCIDAverage", "" };
-
-  	ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc;
-  	ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-
-	SG::ReadHandleKey<CaloCellContainer> m_calocellcollectionKey ;
+  ServiceHandle<TileROD_Decoder> m_tileDecoder { this, "tileDecoder", "Tool to decode Tile raw data" };
+  SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey ;
+  SG::WriteHandleKey<CaloConstCellContainer > m_cellContainerKey;
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_MbtsKey{this,"MbtsKey","Undefined",""};
+  SG::ReadHandleKey<TileTBID> m_TileHelperKey{this,"TileHelperKey", "DetectorStore+TileTBID"," "};
+  ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc;
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+  SG::ReadHandleKey<CaloCellContainer> m_calocellcollectionKey ;
 
 };
 #endif
