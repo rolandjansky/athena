@@ -62,6 +62,8 @@ private :
 	SG::AuxElement::Accessor<float>* acc_clusterIso;
 	SG::AuxElement::Accessor<float>* acc_Ore_clusterET;
 	SG::AuxElement::Accessor<float>* acc_Ore_clusterIso;
+	SG::AuxElement::Accessor<bool>* acc_Ore_clusterIso_12pass;
+	SG::AuxElement::Accessor<bool>* acc_Ore_clusterIso_20pass;
 	SG::AuxElement::Accessor<float>* acc_BC_clusterET;
 
         /** output name */
