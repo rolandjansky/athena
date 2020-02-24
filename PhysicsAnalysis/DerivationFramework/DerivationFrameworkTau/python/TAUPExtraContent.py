@@ -20,7 +20,6 @@ ExtraContentTaus                 = [   "TauJets.jetLink."
                                        + "isolFrac."
                                        + "IsTruthMatched."
                                        + "truthJetLink."
-                                       + "truthParticleLink."
                                        + "ptDetectorAxis."
                                        + "etaDetectorAxis."
                                        + "phiDetectorAxis."
@@ -42,7 +41,7 @@ ExtraContentTaus                 = [   "TauJets.jetLink."
                                        #+ "EMPOverTrkSysPCorrected."
                                        + "innerTrkAvgDist."
                                        #+ "innerTrkAvgDistCorrected."
-                                       + "ipSigLeadTrk.absipSigLeadTrk."
+                                       + "ipSigLeadTrk"
                                        #+ "ipSigLeadTrkCorrected."
                                        + "massTrkSys."
                                        #+ "massTrkSysCorrected."
@@ -60,7 +59,6 @@ ExtraContentTaus                 = [   "TauJets.jetLink."
                                        + "sumEMCellEtOverLeadTrkPt."
                                        + "hadLeakEt."
                                        + "secMaxStripEt."
-                                       + "ABS_ETA_LEAD_TRACK.TAU_ABSDELTAETA.TAU_ABSDELTAPHI."
                                        + "EMFracFixed."
                                        + "etHotShotWinOverPtLeadTrk."
                                        + "hadLeakFracFixed."
@@ -80,8 +78,6 @@ ExtraContentTaus                 = [   "TauJets.jetLink."
                                        + "phiPanTauCellBasedProto."
                                        + "mPanTauCellBased."
                                        + "mPanTauCellBasedProto."
-                                       + "seedTrackWidthPt500."
-                                       + "seedTrackWidthPt1000."
                                        + "clusterLinks."
                                        + "PanTau_isPanTauCandidate.PanTau_DecayModeProto.PanTau_BDTValue_1p0n_vs_1p1n.PanTau_BDTValue_1p1n_vs_1pXn.PanTau_BDTValue_3p0n_vs_3pXn.PanTau_BDTVar_Basic_NNeutralConsts.PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt.PanTau_BDTVar_Charged_StdDev_Et_WrtEtAllConsts.PanTau_BDTVar_Neutral_HLV_SumM.PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_1.PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_2.PanTau_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts.PanTau_BDTVar_Neutral_Ratio_EtOverEtAllConsts.PanTau_BDTVar_Neutral_Shots_NPhotonsInSeed.PanTau_BDTVar_Combined_DeltaR1stNeutralTo1stCharged.PanTau_DecayModeExtended",
                                        "TauChargedParticleFlowObjects",
@@ -90,7 +86,7 @@ ExtraContentTaus                 = [   "TauJets.jetLink."
                                        "TauShotParticleFlowObjects",
                                        "TauPi0Clusters"   ]
 ExtraContentTausTruth               = [ ]
-ExtraContentJetsTruth               = ["AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID"]
+ExtraContentJetsTruth               = ["AntiKt4TruthJets.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID"]
 
 # ==========================================================================================================================
 
@@ -98,7 +94,7 @@ ExtraContentTAUP1              =   ExtraContentPhotons                  \
                                  + ExtraContentElectrons                \
                                  + ExtraContentMuons                    \
                                  + ExtraContentTaus                     
-
+ 
 # ExtraContentTAUP2              =   ExtraContentTaus
 
 ExtraContentTAUP3              =   ExtraContentPhotons                  \
@@ -120,7 +116,7 @@ ExtraContentTruthTAUP1         =   ExtraContentPhotonsTruth             \
                                  + ExtraContentMuonsTruth               \
                                  + ExtraContentTausTruth                \
                                  + ExtraContentJetsTruth
-
+ 
 ExtraContentTruthTAUP2         =   ExtraContentElectronsTruth           \
                                  + ExtraContentMuonsTruth               \
                                  + ExtraContentTausTruth                \

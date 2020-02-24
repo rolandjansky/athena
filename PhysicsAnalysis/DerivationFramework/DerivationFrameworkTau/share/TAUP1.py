@@ -156,6 +156,15 @@ TAUP1seq += CfgMgr.DerivationFramework__DerivationKernel(
   ThinningTools             = thinningTools
   )
 
+
+#==============================================================================
+# Tau truth building/matching
+#==============================================================================
+# now part of MCTruthCommon
+if DerivationFrameworkIsMonteCarlo:
+  ToolSvc.DFCommonTauTruthMatchingTool.WriteVisibleNeutralFourMomentum = True
+
+
 # =============================================
 # Add the containers to the output stream (slimming done here)
 # =============================================
@@ -190,6 +199,7 @@ if DerivationFrameworkIsMonteCarlo:
                                         "xAOD::TruthParticleAuxContainer#TruthPhotonsAux.",
                                         "xAOD::TruthParticleContainer#TruthNeutrinos",
                                         "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux."]
+  TAUP1SlimmingHelper.SmartCollections += ["AntiKt4TruthJets"]
 
 TAUP1SlimmingHelper.IncludeMuonTriggerContent    = False
 TAUP1SlimmingHelper.IncludeTauTriggerContent     = True

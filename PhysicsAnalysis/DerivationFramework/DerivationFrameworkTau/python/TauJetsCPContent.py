@@ -3,9 +3,9 @@
 TauJetsCPContent = [
 "AntiKt4LCTopoJets",
 "InDetTrackParticles",
-"InDetTrackParticlesAux.phi.vertexLink.theta.qOverP.truthParticleLink.truthMatchProbability",
+"InDetTrackParticlesAux.phi.vertexLink.theta.qOverP.truthParticleLink.truthMatchProbability.eProbabilityHT",
 "TauJets",
-"TauJetsAux.pt.eta.phi.m.tauTrackLinks.jetLink.vertexLink.charge.isTauFlags.BDTJetScore.BDTEleScore.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.electronLink.EleMatchLikelihoodScore.pt_combined.eta_combined.phi_combined.m_combined.BDTJetScoreSigTrans.BDTEleScoreSigTrans.PanTau_DecayMode.RNNJetScore.RNNJetScoreSigTrans.seedJetWidth.seedJetJvt.BDTEleScore_retuned.BDTEleScoreSigTrans_retuned.BDTEleLoose_retuned.BDTEleMedium_retuned.BDTEleTight_retuned.seedTrackWidthPt1000.truthParticleLink",
+"TauJetsAux.pt.eta.phi.m.tauTrackLinks.jetLink.vertexLink.charge.isTauFlags.BDTJetScore.BDTEleScore.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.electronLink.EleMatchLikelihoodScore.pt_combined.eta_combined.phi_combined.m_combined.BDTJetScoreSigTrans.BDTEleScoreSigTrans.PanTau_DecayMode.RNNJetScore.RNNJetScoreSigTrans.seedJetWidth.seedJetJvt.BDTEleScore_retuned.BDTEleScoreSigTrans_retuned.BDTEleLoose_retuned.BDTEleMedium_retuned.BDTEleTight_retuned.seedTrackWidthPt1000.seedTrackWidthPt500.truthParticleLink",
 "TauTracks",
 "TauTracksAux.pt.eta.phi.flagSet.trackLinks.numberOfInnermostPixelLayerHits.numberOfPixelHits.numberOfSCTHits"
 ]
