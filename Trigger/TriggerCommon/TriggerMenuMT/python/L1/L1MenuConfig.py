@@ -234,11 +234,15 @@ class L1MenuConfig(object):
             return None
 
     def menuToLoad(self,silent=False):
-        menuToLoad = self.menuName
-        if menuToLoad == "LS2_v1" or menuToLoad == "pp_run3_v1" in menuToLoad:
-            menuToLoad = "MC_pp_v8"
+        """ resolve the menu name to the menu files to load"""
+        menuToLoadReq = self.menuName
+        from .Menu.MenuMapping import menuMap
+        if menuToLoadReq in menuMap:
+            menuToLoad = menuMap[menuToLoadReq]
             if not silent:
-                log.info("Menu LS2_v1/*_pp_run3_v1 was requested but is not available yet. Will load MC_pp_v8 instead. This is a TEMPORARY meassure")
+                log.info("Menu %s was requested, but will load %s as specified in TriggerMenuMT.L1.Menu.menuMap", menuToLoadReq, menuToLoad)
+        else:
+            menuToLoad = menuToLoadReq
         return menuToLoad
 
     def _checkMenuExistence(self):
