@@ -455,5 +455,7 @@ def PixelOverlayDigitization(name="PixelOverlayDigitization",**kwargs):
     is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
     if is_hive:
         kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+        # Set common overlay extra inputs
+        kwargs.setdefault("ExtraInputs", [("McEventCollection", "TruthEvent")])
 
     return CfgMgr.PixelDigitization(name,**kwargs)
