@@ -96,7 +96,10 @@ def defaultTestFlags(configFlags, args):
         configFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-20"
         configFlags.Overlay.DataOverlay = False
     if args.output:
-        configFlags.Output.RDOFileName = args.output
+        if args.output == 'None':
+            configFlags.Output.RDOFileName = ''
+        else:
+            configFlags.Output.RDOFileName = args.output
     if args.outputSig:
         configFlags.Output.RDO_SGNLFileName = args.outputSig
     setupOverlayTestDetectorFlags(configFlags, args.detectors if 'detectors' in args else None)
