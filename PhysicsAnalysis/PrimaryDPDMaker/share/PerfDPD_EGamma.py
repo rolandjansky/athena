@@ -186,7 +186,7 @@ ToolSvc += DESDM_EGAMMATracksThinningTool
 
 from TrigT1CaloCalibTools.TrigT1CaloCalibToolsConf import DerivationFramework__TriggerTowerThinningAlg
 DESDM_EGAMMAL1CaloThinning = DerivationFramework__TriggerTowerThinningAlg( name = "DESDM_EGAMMAL1CaloThinning",
-                                                                           ThinService = "DESDM_EGAMMAThinningSvc",
+                                                                           StreamName = primDPD.WriteDESDM_EGAMMAStream.StreamName,
                                                                            TriggerTowerLocation = "xAODTriggerTowers",
                                                                            MinCaloCellET = 0.8,
                                                                            MinADC = 36,
@@ -235,10 +235,8 @@ StreamDESDM_EGAMMA.AcceptAlgs(["DESDM_EGAMMAKernel"])
 	
 # Thinning service name must match the one passed to the thinning tools
 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="DESDM_EGAMMAThinningSvc", outStreams=[evtStream] )
 
 from PrimaryDPDMaker import PrimaryDPD_OutputDefinitions as dpdOutput
 
