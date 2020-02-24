@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandomEngine.h"
 
-ATHRNG::RNGWrapper::RNGWrapper(factoryFunc& genFact, size_t nSlots)
+ATHRNG::RNGWrapper::RNGWrapper(const factoryFunc& genFact, size_t nSlots)
 {
   // Construct the random engines; one per event slot.
   m_engines.reserve(nSlots);

@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef ATHENAKERNEL_RNGWRAPPER_H
 #define ATHENAKERNEL_RNGWRAPPER_H
@@ -44,7 +44,7 @@ namespace ATHRNG{
 
     /// Constructor takes a factory function which can instantiate a
     /// CLHEP::HepRandomEngine and the number of event slots.
-    RNGWrapper(factoryFunc& genFact, size_t nSlots);
+    RNGWrapper(const factoryFunc& genFact, size_t nSlots);
     ~RNGWrapper();
 
     /// Set the random seed using a string (e.g. algorithm name) and the
