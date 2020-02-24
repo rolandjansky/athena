@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 #                                                            #
@@ -11,6 +11,8 @@
 # currently supports RAW, (D)ESD and (D)AOD formats.         #
 #                                                            #
 ##############################################################
+
+from __future__ import print_function
 
 import sys, os, argparse, subprocess, fnmatch
 
@@ -60,25 +62,25 @@ def extractEvents(run, events, inputFiles, format, outputFile=""):
 
     # check that the output file does not already exist
     if os.path.isfile(outputFile):
-        print "Output file %s already exists - please remove it or choose a different name for the output file (-o/--outputfile)" % outputFile
+        print ("Output file %s already exists - please remove it or choose a different name for the output file (-o/--outputfile)" % outputFile)
 
     # execute the command
-    print "Will run the following command to start the extraction"
-    print "   %s" % cmd
+    print ("Will run the following command to start the extraction")
+    print ("   %s" % cmd)
     extraction = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     lines_iterator = iter(extraction.stdout.readline, b"")
     for line in lines_iterator:
-        print(line.rstrip())
+        print((line.rstrip()))
 
     # if the output file is less than 500 bytes, it's probably empty
     size = os.path.getsize(outputFile)
     if size < 500:
-        print "Size of output file only %d bytes, deleting it as most likely empty" % size
+        print ("Size of output file only %d bytes, deleting it as most likely empty" % size)
         os.remove(outputFile)
     else:
-        print "Done. Output saved to %s (%.1f kB)" % (outputFile, size/1024.)
+        print ("Done. Output saved to %s (%.1f kB)" % (outputFile, size/1024.))
     if len(events) > 1:
-        print "NB! You requested %d events, please check the log to see that all were found" % len(events)
+        print ("NB! You requested %d events, please check the log to see that all were found" % len(events))
 
 def main():
 
@@ -95,36 +97,36 @@ def main():
     parser.add_argument('-i', '--inputfile', nargs='+', type=str, default='', help='Local input file(s), to bypass search in EOS disk buffer')
 
     args = parser.parse_args()
-    print args
+    print (args)
 
     eventList = validEventList(args.events)
 
     # if the user provides input file(s), look for the event(s) in them!
     if args.inputfile != "":
-        print "Will look in specified input file(s)"
+        print ("Will look in specified input file(s)")
         extractEvents(args.run, eventList, args.inputfile, args.fileformat)
         sys.exit(0)
         
     if args.fileformat == False:
-        print "Unknown argument for -f/--fileformat - please provide a valid string describing the file format, i.e. one containing 'RAW', 'ESD' or 'AOD'"
+        print ("Unknown argument for -f/--fileformat - please provide a valid string describing the file format, i.e. one containing 'RAW', 'ESD' or 'AOD'")
         sys.exit(1)
 
-    print "Will try to extract event(s) %s in LB %d of run %d (project tag: %s, stream: %s, format: %s, matching string: \"%s\")" % (args.events, args.lumiblock, args.run, args.projecttag, args.stream, args.fileformat, args.matchingstring)
+    print ("Will try to extract event(s) %s in LB %d of run %d (project tag: %s, stream: %s, format: %s, matching string: \"%s\")" % (args.events, args.lumiblock, args.run, args.projecttag, args.stream, args.fileformat, args.matchingstring))
 
     filePath = "root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/%s/%s/%08d/" % (args.projecttag, args.stream, args.run)
-    #print filePath
+    #print (filePath)
     cmd = eospath+" ls "+filePath
     if args.verbose:
-        print "Will run the following command to get a list of datasets matching the provided info"
-        print "   %s" % cmd
+        print ("Will run the following command to get a list of datasets matching the provided info")
+        print ("   %s" % cmd)
     env = os.environ.copy()
     datasetListing = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env)
     datasetNames = []
     if args.verbose:
-        print "Datasets before requiring match with pattern (%s):" % args.matchingstring
+        print ("Datasets before requiring match with pattern (%s):" % args.matchingstring)
     for line in datasetListing.stdout.readlines():
         if args.verbose:
-            print "   %s" % line.rstrip()
+            print ("   %s" % line.rstrip())
         # skip log file tar balls
         if "LOGARC.tar" in line:
             continue
@@ -136,31 +138,31 @@ def main():
     datasetNames = [ds for ds in datasetNames if not ".LOGARC" in ds]
     if args.matchingstring != '':
         if args.verbose:
-            print "Removing datasets that don't match %s" % (args.matchingstring)
+            print ("Removing datasets that don't match %s" % (args.matchingstring))
         datasetNames = [ds for ds in datasetNames if fnmatch.fnmatch(ds, "*"+args.matchingstring+"*")]
     
     if len(datasetNames) > 1:
-        print "More than one dataset matching the provided info"
+        print ("More than one dataset matching the provided info")
         for ds in datasetNames:
-            print "   %s" % ds
-        print "Please provide tighter constraints, e.g. by using the -m/--matchingstring option"
+            print ("   %s" % ds)
+        print ("Please provide tighter constraints, e.g. by using the -m/--matchingstring option")
         sys.exit(1)
 
     if len(datasetNames) == 0:
-        print "No dataset matching the provided info - please provide looser constraints and or use the -v/--verbose switch to see more info about what datasets are available in EOS"
+        print ("No dataset matching the provided info - please provide looser constraints and or use the -v/--verbose switch to see more info about what datasets are available in EOS")
         sys.exit(1)
 
-    print "Will use the following dataset found in EOS: %s" % datasetNames[0]
+    print ("Will use the following dataset found in EOS: %s" % datasetNames[0])
 
     cmd = eospath+" ls "+filePath+datasetNames[0]+'/'
     if args.verbose:
-        print "Will run the following command to get a list of files in the selected dataset"
-        print "   %s" % cmd
+        print ("Will run the following command to get a list of files in the selected dataset")
+        print ("   %s" % cmd)
 
     fileListing = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     fileNames = []
     for line in fileListing.stdout.readlines():
-        print line
+        print (line)
         substrings = line.split('lb')
         lbs = []
         if line.count('lb') == 2:
@@ -170,14 +172,14 @@ def main():
         if args.lumiblock in lbs:
             fileNames.append(filePath+datasetNames[0]+"/"+line.rstrip())
     if args.verbose:
-        print "Will look for the sought event(s) in the following %d file(s):" % len(fileNames)
+        print ("Will look for the sought event(s) in the following %d file(s):" % len(fileNames))
         for file in fileNames:
-            print "   %s" % file
+            print ("   %s" % file)
 
     # if no files are found, tell the user and stop
     if len(fileNames) == 0:
-	print "No files available in %s - will exit" % (filePath+datasetNames[0]+'/')
-	sys.exit(1)
+        print ("No files available in %s - will exit" % (filePath+datasetNames[0]+'/'))
+        sys.exit(1)
 
     # actually extract the events
     extractEvents(args.run, eventList, fileNames, args.fileformat)

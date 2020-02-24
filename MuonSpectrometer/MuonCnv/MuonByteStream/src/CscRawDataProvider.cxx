@@ -40,8 +40,8 @@ StatusCode Muon::CscRawDataProvider::initialize() {
   // We only need the region selector in RoI seeded mode
   if(m_seededDecoding) ATH_CHECK( m_regionSelector.retrieve() );
 
-  ATH_CHECK( m_ALineKey.initialize() ); // !!! REMOVEME: when MuonDetectorManager in cond store
-    
+  ATH_CHECK( m_ALineKey.initialize(m_seededDecoding) ); // !!! REMOVEME: when MuonDetectorManager in cond store
+
   return StatusCode::SUCCESS;
 }
 

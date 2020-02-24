@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomAssocsCnv.cxx 
@@ -68,17 +68,17 @@ INav4MomAssocs* INav4MomAssocsCnv::createTransient()
 
   if( compareClassGuid(p3_guid) ) {
     // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<INav4MomAssocs_p3> persObj( poolReadObject<INav4MomAssocs_p3>() );
+    std::unique_ptr<INav4MomAssocs_p3> persObj( poolReadObject<INav4MomAssocs_p3>() );
     transObj =  m_tpConverter_p3.createTransient( persObj.get(), log );
   }
   else if ( compareClassGuid(p2_guid) ) {
     // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<INav4MomAssocs_p2> persObj( poolReadObject<INav4MomAssocs_p2>() );
+    std::unique_ptr<INav4MomAssocs_p2> persObj( poolReadObject<INav4MomAssocs_p2>() );
     transObj = m_tpConverter_p2.createTransient( persObj.get(), log );
   }
   else if( compareClassGuid(p1_guid) ) {
     // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<INav4MomAssocs_p1> persObj( poolReadObject<INav4MomAssocs_p1>() );
+    std::unique_ptr<INav4MomAssocs_p1> persObj( poolReadObject<INav4MomAssocs_p1>() );
     INav4MomAssocsCnv_p1 cnv( m_storeGate );
     transObj = cnv.createTransient( persObj.get(), log );
   }

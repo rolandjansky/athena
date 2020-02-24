@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -37,9 +37,9 @@ namespace Analysis
   {
     //get electron from Navigable
     if (this->size() ==0) 
-      return 0;
+      return nullptr;
     else if (this->size() > 1)
-      return 0;
+      return nullptr;
     // this shouldn't happen
     else 
       return getConstituentPtr((this->getConstituents()).begin());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonDetectorFactory001_H
@@ -35,7 +35,7 @@ public:
   virtual void create (GeoPhysVol* world);
 
   // Get the manager.
-  virtual const MuonDetectorManager* getDetectorManager() const;
+  virtual MuonDetectorManager* getDetectorManager() const;
 
   inline void setDBAtlasVersion(std::string v);
   inline void setDBMuonVersion(std::string v);

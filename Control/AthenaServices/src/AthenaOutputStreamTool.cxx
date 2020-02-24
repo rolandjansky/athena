@@ -457,6 +457,9 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
                } else {
                   m_dataHeader->insert(proxy, addr, m_processTag);
                }
+               if (m_store->storeID() == StoreID::EVENT_STORE) {
+                  delete addr; addr = nullptr;
+               }
             }
          } else {
             ATH_MSG_ERROR("Could not fill Object Refs for DataObject (clid/key):" << (*doIter)->clID() << " " << (*doIter)->name());
@@ -479,6 +482,7 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
                } else {
                   m_dataHeader->insert(proxy, addr, m_processTag);
                }
+               delete addr; addr = nullptr;
             }
          } else {
             ATH_MSG_ERROR("Could not fill Object Refs for DataHeader");

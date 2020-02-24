@@ -89,10 +89,17 @@ def SCTOverlayAlgCfg(flags, name="SCTOverlay", **kwargs):
     acc.addEventAlgo(alg)
 
     # Setup output
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
-        "SCT_RDO_Container#SCT_RDOs"
-    ]))
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "SCT_RDO_Container#SCT_RDOs"
+        ]))
+
+    if flags.Output.doWriteRDO_SGNL:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
+            "SCT_RDO_Container#" + flags.Overlay.SigPrefix + "SCT_RDOs"
+        ]))
 
     return acc
 
@@ -114,10 +121,17 @@ def SCTTruthOverlayCfg(flags, name="SCTSDOOverlay", **kwargs):
     acc.addEventAlgo(alg)
 
     # Setup output
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
-        "InDetSimDataCollection#SCT_SDO_Map"
-    ]))
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "InDetSimDataCollection#SCT_SDO_Map"
+        ]))
+    
+    if flags.Output.doWriteRDO_SGNL:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
+            "InDetSimDataCollection#" + flags.Overlay.SigPrefix + "SCT_SDO_Map"
+        ]))
 
     return acc
 

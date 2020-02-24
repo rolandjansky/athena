@@ -259,7 +259,7 @@ namespace xAOD {
   void Jet_v1::setInputType(JetInput::Type t)  {inputAcc(*this)=t;}
 
 
-#ifndef SIMULATIONBASE
+#if !defined(SIMULATIONBASE) and !defined(GENERATIONBASE)
   static const SG::AuxElement::Accessor< ElementLink< BTaggingContainer > >
      btagAcc1( "btagging" );
   static const SG::AuxElement::Accessor< ElementLink< BTaggingContainer > >
@@ -291,7 +291,7 @@ namespace xAOD {
      btagAcc2( *this ) = el;
      return;
   }
-#endif //SIMULATIONBASE
+#endif // not SIMULATIONBASE or GENERATIONBASE
 
 //   void Jet_v1::toPersistent() {
 //   No longer needed, as this is done by the POOL converter for the aux container

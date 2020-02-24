@@ -110,7 +110,7 @@ fi
 
 if [ -f ${REGTESTREF} ]; then
   echo $(date "+%FT%H:%M %Z")"     Running regtest using reference file ${REGTESTREF}"
-  timeout 5m regtest.pl --inputfile ${REGTESTREF_BASENAME} --reffile ${REGTESTREF} --linematch ".*" 2>&1 | tee regtest.log
+  timeout 5m regtest.py --inputfile ${REGTESTREF_BASENAME} --reffile ${REGTESTREF} --linematch ".*" 2>&1 | tee regtest.log
   echo "art-result: ${PIPESTATUS[0]} RegTest"
 else
   echo $(date "+%FT%H:%M %Z")"     The reference file does not exist: ${REGTESTREF}"

@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 from fancyTab import *
 
@@ -32,13 +33,13 @@ test_table = []
 
 
 import os
-print "-----------------------------------------------------------------------------------------------------------"
+print ("-----------------------------------------------------------------------------------------------------------")
 
-print "Now looking for the best current minimum of the training in directory: "
-print path
-print "-----------------------------------------------------------------------------------------------------------"
-print " "
-#print "Network type | \t parameters | \t epoch | \t minimum "
+print ("Now looking for the best current minimum of the training in directory: ")
+print (path)
+print ("-----------------------------------------------------------------------------------------------------------")
+print (" ")
+#print ("Network type | \t parameters | \t epoch | \t minimum ")
 test_table.append(["Network Type", "Parameters", "Epoch", "Minimum"])
 
 for dir in [ "number", "positions" , "errors" ]:
@@ -61,8 +62,8 @@ for dir in [ "number", "positions" , "errors" ]:
 
     test_table.append(["------------","---------------------" ,"------" ,"----------"])
 
-#            print dir+"\t"+weightsDir+"\t"+w+"\t"+str(epochAtMin)+"\t"+str(min)
-#            print dir+" |\t| "+weightsDir+" \t \t "+str(epochAtMin)+" \t "+str(min)
+#            print (dir+"\t"+weightsDir+"\t"+w+"\t"+str(epochAtMin)+"\t"+str(min))
+#            print (dir+" |\t| "+weightsDir+" \t \t "+str(epochAtMin)+" \t "+str(min))
 
 
 print_table(test_table)

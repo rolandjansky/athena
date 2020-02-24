@@ -10,7 +10,6 @@ log = logging.getLogger('MuonSetup')
 ### Output data name ###
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
-from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheNames
 
 TrackParticlesName = recordable("HLT_xAODTracks_Muon")
 theFTF_name = "FTFTracks_Muons"
@@ -79,10 +78,9 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
                                                                Decoder     = CSCRodDecoder )
   ToolSvc += MuonCscRawDataProviderTool
 
-  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataToolMT
-  CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataToolMT(name           = "CscRdoToCscPrepDataTool",
-                                                            CscStripPrdContainerCacheKey = MuonPrdCacheNames.CscStripCache)
-  
+  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
+  CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name                = "CscRdoToCscPrepDataTool")
+
   ToolSvc += CscRdoToCscPrepDataTool
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
@@ -125,9 +123,8 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
                                                                Decoder     = MDTRodDecoder )
   ToolSvc += MuonMdtRawDataProviderTool
 
-  from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataToolMT
-  MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataToolMT(name                     = "MdtRdoToPrepDataTool",
-                                                         MdtPrdContainerCacheKey = MuonPrdCacheNames.MdtCache)
+  from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
+  MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name                = "MdtRdoToPrepDataTool")
 
   ToolSvc += MdtRdoToMdtPrepDataTool
 
@@ -165,13 +162,6 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
   RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name                = "RpcRdoToPrepDataTool")
-
-  #from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataToolMT
-  #RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name                = "RpcRdoToPrepDataTool",
-  #                                                       RpcPrdContainerCacheKey = MuonPrdCacheNames.RpcCache,
-  #                                                       RpcCoinContainerCacheKey = MuonPrdCacheNames.RpcCoinCache)
-  #RpcRdoToRpcPrepDataTool.OutputLevel = DEBUG
-
   if athenaCommonFlags.isOnline: 
       RpcRdoToRpcPrepDataTool.ReadKey = ""
 
@@ -526,7 +516,7 @@ def muEFCBRecoSequence( RoIs, name ):
   PTTracks = [] #List of TrackCollectionKeys
   PTTrackParticles = [] #List of TrackParticleKeys
 
-  from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+  from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
   #When run in a different view than FTF some data dependencies needs to be loaded through verifier
   #Pass verifier as an argument and it will automatically append necessary DataObjects
   #@NOTE: Don't provide any verifier if loaded in the same view as FTF
@@ -626,7 +616,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
     PTTracks = [] #List of TrackCollectionKeys
     PTTrackParticles = [] #List of TrackParticleKeys
 
-    from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsLate",  inputFTFtracks= TrackCollection)
     PTSeq = seqAND("precisionTrackingInLateMuons", PTAlgs  )
@@ -712,7 +702,7 @@ def efmuisoRecoSequence( RoIs, Muons ):
   PTTracks = [] #List of TrackCollectionKeys
   PTTrackParticles = [] #List of TrackParticleKeys
   
-  from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+  from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
   PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsIso", inputFTFtracks=TrackCollection)
 
   PTSeq = seqAND("precisionTrackingInMuonsIso", PTAlgs  )

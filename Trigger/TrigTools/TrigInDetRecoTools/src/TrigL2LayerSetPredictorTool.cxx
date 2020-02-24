@@ -9,7 +9,7 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "TrigL2LayerSetPredictorTool.h"
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"

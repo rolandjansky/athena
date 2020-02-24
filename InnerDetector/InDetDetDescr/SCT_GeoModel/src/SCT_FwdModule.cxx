@@ -24,7 +24,7 @@
 #include "SCT_GeoModel/SCT_FwdSubSpine.h"
 #include "SCT_GeoModel/SCT_FwdHybrid.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoShapeShift.h"

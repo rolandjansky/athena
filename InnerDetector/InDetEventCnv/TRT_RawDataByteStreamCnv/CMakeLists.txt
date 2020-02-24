@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/TRT_ConditionsServices
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/TRT_Cabling
                           Tools/PathResolver
                           Trigger/TrigEvent/TrigSteeringEvent )
@@ -35,7 +36,7 @@ atlas_add_component( TRT_RawDataByteStreamCnv
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} ${COOL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps Identifier ByteStreamData ByteStreamData_test InDetRawData StoreGateLib SGtests AthenaPoolUtilities ByteStreamCnvSvcBaseLib GaudiKernel TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry PathResolver IRegionSelector TrigSteeringEvent )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} ${COOL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps Identifier ByteStreamData ByteStreamData_test InDetRawData StoreGateLib SGtests AthenaPoolUtilities ByteStreamCnvSvcBaseLib GaudiKernel TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry PathResolver IRegionSelector TrigSteeringEvent )
 
 # Install files from the package:
 atlas_install_headers( TRT_RawDataByteStreamCnv )

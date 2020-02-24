@@ -71,7 +71,7 @@ class PixelDigitizationTool : public PileUpToolBase {
     bool                                       m_HardScatterSplittingSkipper{false};
     Gaudi::Property<bool>                      m_onlyHitElements{this, "OnlyHitElements", false, "Process only elements with hits"};
 
-    const PixelID            *m_detID{};
+    const PixelID *m_detID{};
 
 
     TimedHitCollection<SiHit> *m_timedHits{};

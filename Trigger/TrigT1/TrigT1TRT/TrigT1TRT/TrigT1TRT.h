@@ -9,7 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "InDetRawData/TRT_RDO_Container.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 

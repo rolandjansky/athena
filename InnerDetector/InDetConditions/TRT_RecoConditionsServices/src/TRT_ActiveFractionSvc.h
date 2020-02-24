@@ -17,7 +17,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "InDetReadoutGeometry/TRT_DetElementContainer.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class StoreGateSvc;

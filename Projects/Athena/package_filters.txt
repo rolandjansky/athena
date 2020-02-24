@@ -16,9 +16,6 @@
 #- HLT/.*
 #- Trigger/TrigValidation/TrigP1Test
 
-# Offload service has build problems
-- Offloading/.*
-
 # Temporary VP1 compilation issues
 - graphics/VP1/VP1Systems/VP1TriggerSystems
 - graphics/VP1/VP1Systems/VP12DGeometrySystems

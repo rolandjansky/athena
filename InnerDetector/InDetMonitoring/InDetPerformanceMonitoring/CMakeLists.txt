@@ -22,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Generators/GeneratorObjects
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
                           Reconstruction/Jet/JetInterface
@@ -56,13 +57,13 @@ atlas_add_library( InDetPerformanceMonitoringLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel xAODCaloEvent xAODEgamma xAODJet xAODMissingET xAODMuon xAODTracking xAODTruth GaudiKernel GeneratorObjects InDetReadoutGeometry InDetRIO_OnTrack JetInterface ITrackToVertex egammaEvent LWHists TrkParameters TrkParticleBase TrkTrack AthenaMonitoringLib StoreGateLib SGtests ElectronPhotonSelectorToolsLib TrkVertexAnalysisUtilsLib TrigDecisionToolLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel xAODCaloEvent xAODEgamma xAODJet xAODMissingET xAODMuon xAODTracking xAODTruth GaudiKernel GeneratorObjects InDetReadoutGeometry TRT_ReadoutGeometry InDetRIO_OnTrack JetInterface ITrackToVertex egammaEvent LWHists TrkParameters TrkParticleBase TrkTrack AthenaMonitoringLib StoreGateLib SGtests ElectronPhotonSelectorToolsLib TrkVertexAnalysisUtilsLib TrigDecisionToolLib
                    PRIVATE_LINK_LIBRARIES ${HEPMC_LIBRARIES} IdDictDetDescr xAODEventInfo EventPrimitives InDetIdentifier InDetPrepRawData TrkEventPrimitives TrkTrackSummary TrkTruthData TrkV0Vertex )
 
 atlas_add_component( InDetPerformanceMonitoring
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringLib StoreGateLib SGtests xAODCaloEvent xAODEgamma xAODJet xAODMissingET xAODMuon xAODTracking xAODTruth GaudiKernel GeneratorObjects InDetReadoutGeometry InDetRIO_OnTrack ElectronPhotonSelectorToolsLib JetInterface ITrackToVertex egammaEvent LWHists TrkParameters TrkParticleBase TrkTrack IdDictDetDescr xAODEventInfo EventPrimitives InDetIdentifier InDetPrepRawData TrkEventPrimitives TrkTrackSummary TrkTruthData TrkV0Vertex TrkVertexAnalysisUtilsLib TrigDecisionToolLib InDetPerformanceMonitoringLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringLib StoreGateLib SGtests xAODCaloEvent xAODEgamma xAODJet xAODMissingET xAODMuon xAODTracking xAODTruth GaudiKernel GeneratorObjects InDetReadoutGeometry TRT_ReadoutGeometry InDetRIO_OnTrack ElectronPhotonSelectorToolsLib JetInterface ITrackToVertex egammaEvent LWHists TrkParameters TrkParticleBase TrkTrack IdDictDetDescr xAODEventInfo EventPrimitives InDetIdentifier InDetPrepRawData TrkEventPrimitives TrkTrackSummary TrkTruthData TrkV0Vertex TrkVertexAnalysisUtilsLib TrigDecisionToolLib InDetPerformanceMonitoringLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

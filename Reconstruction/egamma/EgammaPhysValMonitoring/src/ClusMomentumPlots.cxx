@@ -1,6 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <utility>
 
 #include "ClusMomentumPlots.h"
 using CLHEP::GeV;
@@ -8,14 +10,14 @@ using CLHEP::GeV;
 namespace Egamma{
 
 
-  ClusMomentumPlots::ClusMomentumPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir), 
-												       m_sParticleType(sParticleType),
-												       secondlambda(0),
-												       secondr(0),     
-												       centerlambda(0),	
-												       engfracmax(0),
-												       longitudinal(0),
-												       lateral(0)     
+  ClusMomentumPlots::ClusMomentumPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType):PlotBase(pParent, sDir), 
+												       m_sParticleType(std::move(sParticleType)),
+												       secondlambda(nullptr),
+												       secondr(nullptr),     
+												       centerlambda(nullptr),	
+												       engfracmax(nullptr),
+												       longitudinal(nullptr),
+												       lateral(nullptr)     
   {}
   
 
@@ -34,7 +36,12 @@ namespace Egamma{
 
     const xAOD::CaloCluster* cluster=egamma.caloCluster();
     if(cluster){
-      double eng_frac_max,lon,second_lambda,lat,second_r,center_lambda;
+      double eng_frac_max;
+      double lon;
+      double second_lambda;
+      double lat;
+      double second_r;
+      double center_lambda;
       if(cluster->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_MAX,eng_frac_max)){
       engfracmax->Fill(eng_frac_max);
       }

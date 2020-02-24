@@ -1082,6 +1082,7 @@ class fpeAuditor(_modifier):
         theApp.AuditServices = True
         theApp.AuditTools = True
         svcMgr.AuditorSvc += CfgMgr.FPEAuditor()
+        svcMgr.AuditorSvc.FPEAuditor.NStacktracesOnFPE=1
 
 class athMemAuditor(_modifier):
     """

@@ -5,8 +5,8 @@
 #include "ActsGeometry/ActsDetectorElement.h"
 
 // ATHENA
-#include "InDetReadoutGeometry/TRT_EndcapElement.h"
-#include "InDetReadoutGeometry/TRT_BarrelElement.h"
+#include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
+#include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
 #include "ActsInterop/IdentityHelper.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/SurfaceBounds.h"

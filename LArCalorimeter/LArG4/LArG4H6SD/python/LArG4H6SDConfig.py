@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.SystemOfUnits import mm, deg,ns
@@ -77,6 +77,7 @@ def getLArG4H62004ActiveSDTool(name="LArG4H62004ActiveSDTool", **kwargs):
     return CfgMgr.LArG4__H62004ActiveSDTool(name,**kwargs)
 
 def getLArG4H62004DeadSDTool(name="LArG4H62004DeadSDTool", **kwargs):
+    from G4AtlasApps.SimFlags import simFlags
     theVolumes = []
     if simFlags.LArTB_H6Hec.get_Value():
         theVolumes += [ "LArMgr::LAr::HEC::Module",
@@ -157,6 +158,7 @@ def getLArG4H62004DeadSDTool(name="LArG4H62004DeadSDTool", **kwargs):
     return CfgMgr.LArG4__H62004DeadSDTool(name,**kwargs)
 
 def getLArG4H62004InactiveSDTool(name="LArG4H62004InactiveSDTool", **kwargs):
+    from G4AtlasApps.SimFlags import simFlags
     if simFlags.LArTB_H6Hec.get_Value():
         kwargs.setdefault("HECVolumes", [
             "LArMgr::LAr::HEC::Module::Depth::Absorber",
@@ -216,7 +218,7 @@ def getLArG4H62004DeadCalibrationCalculator(name="LArG4H62004DeadCalibrationCalc
 
 #----------
 def getLArFCALH62004CalibCalculatorBase(name="LArFCALH62004CalibCalculatorBase", **kwargs):
-    return CfgGetter.LArFCALH62004CalibCalculatorBase(name, **kwargs)
+    return CfgMgr.LArFCALH62004CalibCalculatorBase(name, **kwargs)
 
 def getLArFCAL1H62004CalibCalculator(name="LArFCAL1H62004CalibCalculator", **kwargs):
     kwargs.setdefault("deltaX", 7.5*mm)

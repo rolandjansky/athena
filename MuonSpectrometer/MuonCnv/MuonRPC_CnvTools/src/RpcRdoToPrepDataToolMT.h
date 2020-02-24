@@ -6,8 +6,6 @@
 #define MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOLMT_H
 
 #include "RpcRdoToPrepDataToolCore.h"
-#include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
-#include "MuonTrigCoinData/MuonTrigCoinData_Cache.h"
 
 namespace Muon {
 
@@ -20,11 +18,6 @@ public:
 
 protected:
   virtual StatusCode manageOutputContainers(bool& firstTimeInTheEvent) override;
-
-private:
-   /// This is the key for the cache for the RPC PRD containers, can be empty
-   SG::UpdateHandleKey<RpcPrepDataCollection_Cache> m_prdContainerCacheKey ;
-   SG::UpdateHandleKey<RpcCoinDataCollection_Cache> m_coinContainerCacheKey ;
 };
 
 }

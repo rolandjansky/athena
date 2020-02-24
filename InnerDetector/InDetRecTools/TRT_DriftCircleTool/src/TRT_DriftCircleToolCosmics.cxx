@@ -16,7 +16,7 @@
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "TRT_DriftCircleTool/TRT_DriftCircleToolCosmics.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 #include "InDetPrepRawData/TRT_DriftCircleCollection.h"
 #include "InDetRawData/TRT_RDORawData.h"

@@ -12,7 +12,8 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 from OverlayConfiguration.OverlaySteering import OverlayMainCfg
 from OverlayConfiguration.OverlayTestHelpers import \
-    CommonTestArgumentParser, defaultTestFlags, postprocessAndLockFlags, printAndRun
+    CommonTestArgumentParser, JobOptsDumperCfg, TestMessageSvcCfg, \
+    defaultTestFlags, postprocessAndLockFlags, printAndRun
 
 # Set up logging and new style config
 Configurable.configurableRun3Behavior = True
@@ -38,6 +39,8 @@ postprocessAndLockFlags(ConfigFlags, args)
 
 # Construct our accumulator to run
 acc = OverlayMainCfg(ConfigFlags)
+acc.merge(JobOptsDumperCfg(ConfigFlags))
+acc.merge(TestMessageSvcCfg(ConfigFlags))
 
 # dump pickle
 with open("ConfigOverlay.pkl", "wb") as f:

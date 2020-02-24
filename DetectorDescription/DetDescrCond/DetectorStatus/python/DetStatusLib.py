@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # DetStatusLib.py
 # python functions/classes to help management of detector status information
 # Richard Hawkings, 5/2/07
+
+from __future__ import print_function
 
 def folderName(runLumi=True):
     if (runLumi):
@@ -39,7 +41,7 @@ def colourVal(sval):
             status=-1
         else:
             status=int(sval)
-    except Exception,e:
+    except Exception:
         status=None
     return status
 
@@ -108,7 +110,8 @@ class DetStatusNames:
         "Return a list of all numeric channel identifiers which match name"
         result=[]
         for (iname,inum) in self.namedict.items():
-            if (name==iname[:len(name)]): result+=[inum]
+            if (name==iname[:len(name)]):
+                result+=[inum]
         return result
 
     def allNames(self):
@@ -149,9 +152,9 @@ class DetStatusReq:
                         self.req[self.names.num(name)]=val
                         used=True
                 if (not used):
-                    print "Name %s does not match any status flag" % flagname
+                    print ("Name %s does not match any status flag" % flagname)
             else:
-                print "Value %s does not define a status" % tokens[ix+1]
+                print ("Value %s does not define a status" % tokens[ix+1])
             ix+=2
 
     def getDict(self):
@@ -192,7 +195,8 @@ class StatusList:
 
     def merge(self,mobj,override=False):
         "Merge the given StatusObj into the list, ANDing (default) or override"
-        if (mobj.start>=mobj.stop): return
+        if (mobj.start>=mobj.stop):
+            return
         # loop over the list, looking for places affected by the new obj
         ix=0
         oldstop=0
@@ -243,7 +247,8 @@ class StatusList:
             ix+=1
         # check if merged object extends over end of current list
         # may not have processed the whole list in the loop
-        if (len(self._seq)>0): oldstop=self._seq[-1].stop
+        if (len(self._seq)>0):
+            oldstop=self._seq[-1].stop
         if (mobj.stop>oldstop):
             nstart=max(oldstop,mobj.start)
             self._seq+=[StatusObj(nstart,mobj.stop,mobj.code,mobj.deadfrac,mobj.thrust,mobj.nconfig,mobj.nworking,mobj.comment)]

@@ -11,7 +11,7 @@
 #include <iostream>
 //#include <math.h>
 //#include "GaudiKernel/MsgStream.h"
-//#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+//#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 static const InterfaceID IID_ITRT_FillCablingData_DC1
                             ("TRT_FillCablingData_DC1", 1, 0);

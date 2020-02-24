@@ -1,8 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
+
+#include <memory>
 
 #include "EgammaMonitoring.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
@@ -29,26 +31,26 @@ StatusCode EgammaMonitoring::initialize() {
   ATH_MSG_INFO("********************  Running over " << m_sampleType << " ******************");
   ATH_CHECK(service("THistSvc", rootHistSvc));
 
-  showerShapesAll = std::unique_ptr<egammaMonitoring::ShowerShapesHistograms>(new egammaMonitoring::ShowerShapesHistograms(
-    "showerShapesAll","Shower Shapes ", "/MONITORING/showerShapesAll/", rootHistSvc));
+  showerShapesAll = std::make_unique<egammaMonitoring::ShowerShapesHistograms>(
+    "showerShapesAll","Shower Shapes ", "/MONITORING/showerShapesAll/", rootHistSvc);
 
-  showerShapes10GeV = std::unique_ptr<egammaMonitoring::ShowerShapesHistograms>(new egammaMonitoring::ShowerShapesHistograms(
-    "showerShapes10GeV","Shower Shapes - 10 GeV", "/MONITORING/showerShapes10GeV/", rootHistSvc));
+  showerShapes10GeV = std::make_unique<egammaMonitoring::ShowerShapesHistograms>(
+    "showerShapes10GeV","Shower Shapes - 10 GeV", "/MONITORING/showerShapes10GeV/", rootHistSvc);
 
-  clusterAll = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
-    "clustersAll","Clusters", "/MONITORING/clusterAll/", rootHistSvc));
+  clusterAll = std::make_unique<egammaMonitoring::ClusterHistograms>(
+    "clustersAll","Clusters", "/MONITORING/clusterAll/", rootHistSvc);
 
-  cluster10GeV= std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
-    "clusters10GeV","Clusters - 10 GeV", "/MONITORING/cluster10GeV/", rootHistSvc));
+  cluster10GeV= std::make_unique<egammaMonitoring::ClusterHistograms>(
+    "clusters10GeV","Clusters - 10 GeV", "/MONITORING/cluster10GeV/", rootHistSvc);
 
-  clusterPromptAll = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
-    "clustersPromptAll","Clusters from Prompt", "/MONITORING/clusterPromptAll/", rootHistSvc));
+  clusterPromptAll = std::make_unique<egammaMonitoring::ClusterHistograms>(
+    "clustersPromptAll","Clusters from Prompt", "/MONITORING/clusterPromptAll/", rootHistSvc);
 
-  clusterPrompt10GeV = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
-    "clustersPrompt10GeV","Clusters from Prompt - 10 GeV", "/MONITORING/clusterPrompt10GeV/", rootHistSvc));
+  clusterPrompt10GeV = std::make_unique<egammaMonitoring::ClusterHistograms>(
+    "clustersPrompt10GeV","Clusters from Prompt - 10 GeV", "/MONITORING/clusterPrompt10GeV/", rootHistSvc);
 
-  isolationAll = std::unique_ptr<egammaMonitoring::IsolationHistograms>(new egammaMonitoring::IsolationHistograms(
-    "isolationAll","Isolation ", "/MONITORING/isolationAll/", rootHistSvc));
+  isolationAll = std::make_unique<egammaMonitoring::IsolationHistograms>(
+    "isolationAll","Isolation ", "/MONITORING/isolationAll/", rootHistSvc);
 
   ATH_CHECK(showerShapesAll->initializePlots());
   ATH_CHECK(showerShapes10GeV->initializePlots());
@@ -60,44 +62,44 @@ StatusCode EgammaMonitoring::initialize() {
 
   if ("electron" == m_sampleType) {
 
-    truthElectronAll = std::unique_ptr<egammaMonitoring::TruthElectronHistograms>(new egammaMonitoring::TruthElectronHistograms(
-        "truthElectronAll","All Truth Electrons", "/MONITORING/truthElectronAll/", rootHistSvc));
+    truthElectronAll = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
+        "truthElectronAll","All Truth Electrons", "/MONITORING/truthElectronAll/", rootHistSvc);
 
-    truthPromptElectronAll = std::unique_ptr<egammaMonitoring::TruthElectronHistograms>(new egammaMonitoring::TruthElectronHistograms(
-        "truthPromptElectronAll","All Truth Prompt Electrons", "/MONITORING/truthPromptElectronAll/", rootHistSvc));
+    truthPromptElectronAll = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
+        "truthPromptElectronAll","All Truth Prompt Electrons", "/MONITORING/truthPromptElectronAll/", rootHistSvc);
 
-    truthElectronRecoElectronAll = std::unique_ptr<egammaMonitoring::TruthElectronHistograms>(new egammaMonitoring::TruthElectronHistograms(
-        "truthElectronRecoElectronAll","Truth Electrons Reco Electron", "/MONITORING/truthElectronRecoElectronAll/", rootHistSvc));
+    truthElectronRecoElectronAll = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
+        "truthElectronRecoElectronAll","Truth Electrons Reco Electron", "/MONITORING/truthElectronRecoElectronAll/", rootHistSvc);
 
-    truthPromptElectronWithTrack = std::unique_ptr<egammaMonitoring::TruthElectronHistograms>(new egammaMonitoring::TruthElectronHistograms(
-        "truthPromptElectronWithTrack","Truth Prompt Electrons With Track", "/MONITORING/truthPromptElectronWithTrack/", rootHistSvc));
+    truthPromptElectronWithTrack = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
+        "truthPromptElectronWithTrack","Truth Prompt Electrons With Track", "/MONITORING/truthPromptElectronWithTrack/", rootHistSvc);
 
-    truthPromptElectronWithGSFTrack = std::unique_ptr<egammaMonitoring::TruthElectronHistograms>(new egammaMonitoring::TruthElectronHistograms(
-        "truthPromptElectronWithGSFTrack","Truth Prompt Electrons With GSFTrack", "/MONITORING/truthPromptElectronWithGSFTrack/", rootHistSvc));
+    truthPromptElectronWithGSFTrack = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
+        "truthPromptElectronWithGSFTrack","Truth Prompt Electrons With GSFTrack", "/MONITORING/truthPromptElectronWithGSFTrack/", rootHistSvc);
 
-    truthPromptElectronWithReco = std::unique_ptr<egammaMonitoring::TruthElectronHistograms>(new egammaMonitoring::TruthElectronHistograms(
-        "truthPromptElectronWithReco","Truth Prompt Electrons With GSFTrack", "/MONITORING/truthPromptElectronWithReco/", rootHistSvc));
+    truthPromptElectronWithReco = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
+        "truthPromptElectronWithReco","Truth Prompt Electrons With GSFTrack", "/MONITORING/truthPromptElectronWithReco/", rootHistSvc);
 
     recoElectronAll = std::unique_ptr<egammaMonitoring::IHistograms>(new egammaMonitoring::RecoElectronHistograms(
       "recoElectronAll","Electrons Reco Electron", "/MONITORING/recoElectronAll/", rootHistSvc));
 
-    truthRecoElectronLooseLH = std::unique_ptr<egammaMonitoring::TruthElectronHistograms>(new egammaMonitoring::TruthElectronHistograms(
-      "truthRecoElectronLooseLH","LLH Electrons Reco Electron", "/MONITORING/truthRecoElectronLooseLH/", rootHistSvc));
+    truthRecoElectronLooseLH = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
+      "truthRecoElectronLooseLH","LLH Electrons Reco Electron", "/MONITORING/truthRecoElectronLooseLH/", rootHistSvc);
 
-    truthRecoElectronMediumLH = std::unique_ptr<egammaMonitoring::TruthElectronHistograms>(new egammaMonitoring::TruthElectronHistograms(
-        "truthRecoElectronMediumLH","MLH Electrons Reco Electron", "/MONITORING/truthRecoElectronMediumLH/", rootHistSvc));
+    truthRecoElectronMediumLH = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
+        "truthRecoElectronMediumLH","MLH Electrons Reco Electron", "/MONITORING/truthRecoElectronMediumLH/", rootHistSvc);
 
-    truthRecoElectronTightLH = std::unique_ptr<egammaMonitoring::TruthElectronHistograms>(new egammaMonitoring::TruthElectronHistograms(
-      "truthRecoElectronTightLH","TLH Electrons Reco Electron", "/MONITORING/truthRecoElectronTightLH/", rootHistSvc));
+    truthRecoElectronTightLH = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
+      "truthRecoElectronTightLH","TLH Electrons Reco Electron", "/MONITORING/truthRecoElectronTightLH/", rootHistSvc);
 
-    recoElectronIsoFixedCutTight = std::unique_ptr<egammaMonitoring::TruthElectronHistograms>(new egammaMonitoring::TruthElectronHistograms(
-      "recoElectronIsoFixedCutTight","Isolation Fixed Cut Tight Electrons Reco Electron", "/MONITORING/recoElectronIsoFixedCutTight/", rootHistSvc));
+    recoElectronIsoFixedCutTight = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
+      "recoElectronIsoFixedCutTight","Isolation Fixed Cut Tight Electrons Reco Electron", "/MONITORING/recoElectronIsoFixedCutTight/", rootHistSvc);
 
-    recoElectronIsoFixedCutTightTrackOnly = std::unique_ptr<egammaMonitoring::TruthElectronHistograms>(new egammaMonitoring::TruthElectronHistograms(
-      "recoElectronIsoFixedCutTightTrackOnly","Isolation Fixed Cut Tight Track Only Electrons Reco Electron", "/MONITORING/recoElectronIsoFixedCutTightTrackOnly/", rootHistSvc));
+    recoElectronIsoFixedCutTightTrackOnly = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
+      "recoElectronIsoFixedCutTightTrackOnly","Isolation Fixed Cut Tight Track Only Electrons Reco Electron", "/MONITORING/recoElectronIsoFixedCutTightTrackOnly/", rootHistSvc);
 
-    recoElectronIsoFixedCutLoose = std::unique_ptr<egammaMonitoring::TruthElectronHistograms>(new egammaMonitoring::TruthElectronHistograms(
-      "recoElectronIsoFixedCutLoose","Isolation Fixed Cut Loose Electrons Reco Electron", "/MONITORING/recoElectronIsoFixedCutLoose/", rootHistSvc));
+    recoElectronIsoFixedCutLoose = std::make_unique<egammaMonitoring::TruthElectronHistograms>(
+      "recoElectronIsoFixedCutLoose","Isolation Fixed Cut Loose Electrons Reco Electron", "/MONITORING/recoElectronIsoFixedCutLoose/", rootHistSvc);
 
     ATH_CHECK(recoElectronAll->initializePlots());
     ATH_CHECK(truthRecoElectronLooseLH->initializePlots());
@@ -121,27 +123,27 @@ StatusCode EgammaMonitoring::initialize() {
     recoPhotonAll = std::unique_ptr<egammaMonitoring::IHistograms>(new egammaMonitoring::RecoPhotonHistograms(
         "recoPhotonAll","Reco Photon", "/MONITORING/recoPhotonAll/", rootHistSvc));
 
-    clusterConvPhoton = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
-    "clusterConvPhoton","Clusters from Converted Photons", "/MONITORING/clusterConvPhoton/", rootHistSvc));
+    clusterConvPhoton = std::make_unique<egammaMonitoring::ClusterHistograms>(
+    "clusterConvPhoton","Clusters from Converted Photons", "/MONITORING/clusterConvPhoton/", rootHistSvc);
 
-    clusterConvPhotonSi = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
-    "clusterConvPhotonSi","Clusters from Converted Photons - Si", "/MONITORING/clusterConvPhotonSi/", rootHistSvc));
+    clusterConvPhotonSi = std::make_unique<egammaMonitoring::ClusterHistograms>(
+    "clusterConvPhotonSi","Clusters from Converted Photons - Si", "/MONITORING/clusterConvPhotonSi/", rootHistSvc);
 
-    clusterConvPhotonSiSi = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
-    "clusterConvPhotonSiSi","Clusters from Converted Photons - SiSi", "/MONITORING/clusterConvPhotonSiSi/", rootHistSvc));
+    clusterConvPhotonSiSi = std::make_unique<egammaMonitoring::ClusterHistograms>(
+    "clusterConvPhotonSiSi","Clusters from Converted Photons - SiSi", "/MONITORING/clusterConvPhotonSiSi/", rootHistSvc);
    
-    clusterConvPhotonTRT = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
-    "clusterConvPhotonTRT","Clusters from Converted Photons - TRT", "/MONITORING/clusterConvPhotonTRT/", rootHistSvc));
+    clusterConvPhotonTRT = std::make_unique<egammaMonitoring::ClusterHistograms>(
+    "clusterConvPhotonTRT","Clusters from Converted Photons - TRT", "/MONITORING/clusterConvPhotonTRT/", rootHistSvc);
 
-    clusterConvPhotonTRTTRT = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
-    "clusterConvPhotonTRTTRT","Clusters from Converted Photons - TRTTRT", "/MONITORING/clusterConvPhotonTRTTRT/", rootHistSvc));
+    clusterConvPhotonTRTTRT = std::make_unique<egammaMonitoring::ClusterHistograms>(
+    "clusterConvPhotonTRTTRT","Clusters from Converted Photons - TRTTRT", "/MONITORING/clusterConvPhotonTRTTRT/", rootHistSvc);
  
-    clusterConvPhotonSiTRT = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
-    "clusterConvPhotonSiTRT","Clusters from Converted Photons - SiTRT", "/MONITORING/clusterConvPhotonSiTRT/", rootHistSvc));
+    clusterConvPhotonSiTRT = std::make_unique<egammaMonitoring::ClusterHistograms>(
+    "clusterConvPhotonSiTRT","Clusters from Converted Photons - SiTRT", "/MONITORING/clusterConvPhotonSiTRT/", rootHistSvc);
     
     
-    clusterUnconvPhoton = std::unique_ptr<egammaMonitoring::ClusterHistograms>(new egammaMonitoring::ClusterHistograms(
-    "clusterUnconvPhoton","Clusters from Converted Photons", "/MONITORING/clusterUnconvPhoton/", rootHistSvc));
+    clusterUnconvPhoton = std::make_unique<egammaMonitoring::ClusterHistograms>(
+    "clusterUnconvPhoton","Clusters from Converted Photons", "/MONITORING/clusterUnconvPhoton/", rootHistSvc);
 
 
     truthPhotonRecoPhoton = std::unique_ptr<egammaMonitoring::IHistograms>(new egammaMonitoring::TruthPhotonHistograms(
@@ -305,14 +307,14 @@ StatusCode EgammaMonitoring::execute() {
     }
 
     // InDet track particles:
-    const xAOD::TrackParticleContainer *InDetTracks = 0;
+    const xAOD::TrackParticleContainer *InDetTracks = nullptr;
     if (!evtStore()->retrieve(InDetTracks, "InDetTrackParticles").isSuccess()) {
       ATH_MSG_ERROR( "Failed to retrieve InDetTrackParticles. Exiting.");
       return StatusCode::FAILURE;
     }
 
     //  track particles:
-    const xAOD::TrackParticleContainer *GSFTracks = 0;
+    const xAOD::TrackParticleContainer *GSFTracks = nullptr;
     if (!evtStore()->retrieve(GSFTracks, "GSFTrackParticles").isSuccess()) {
       ATH_MSG_ERROR( "Failed to retrieve GSFTrackParticles. Exiting.");
       return StatusCode::FAILURE;

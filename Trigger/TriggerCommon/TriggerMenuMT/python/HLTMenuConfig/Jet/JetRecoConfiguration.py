@@ -116,18 +116,20 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
                 ("a10","subjes"):  ("TrigUngroomed","JetArea_EtaJES"),
                 ("a10t","jes"):    ("TrigTrimmed","EtaJES_JMS"),
                 }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
-        elif jetRecoDict["dataType"]=="pf":
-            calibContext,calibSeq = {
-                ("a4","subjes"):   ("TrigLS2","JetArea_EtaJES_GSC"),
-                ("a4","subjesIS"): ("TrigLS2","JetArea_EtaJES_GSC_Insitu"),
-                ("a4","subjesgscIS"): ("TrigLS2","JetArea_EtaJES_GSC_Insitu"),
-                ("a4","subresjesgscIS"): ("TrigLS2","JetArea_Residual_EtaJES_GSC_Insitu"),
-                }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]            
 
-        gscDepth = "auto"
-        if "gsc" in jetRecoDict["jetCalib"]:
-            gscDepth = "trackWIDTH"
-        pvname = "HLT_EFHistoPrmVtx"
+            pvname = ""
+            gscDepth = "EM3"
+            if "gsc" in jetRecoDict["jetCalib"]:
+                gscDepth = "trackWIDTH"
+                pvname = "HLT_EFHistoPrmVtx"
+
+        elif jetRecoDict["dataType"]=="pf":
+            gscDepth = "auto"
+            calibContext = "TrigLS2"
+            calibSeq = "JetArea_Residual_EtaJES_GSC"
+            if jetRecoDict["jetCalib"].endswith("IS"):
+                calibSeq += "_Insitu"
+            pvname = "HLT_EFHistoPrmVtx"
 
         calibSpec = ":".join( [calibContext, dataSource, calibSeq, rhoKey, pvname, gscDepth] )
         from .TriggerJetMods import ConstitFourMom_copy

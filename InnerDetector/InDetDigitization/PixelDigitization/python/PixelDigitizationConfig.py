@@ -107,6 +107,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from IOVDbSvc.CondDB import conddb
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    from AthenaCommon.GlobalFlags import globalflags
 
 ############################################################################################
 # Set up Pixel Module data (2018 condition)
@@ -197,7 +198,6 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
 
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
         rodIDForSingleLink40=0
-        from AthenaCommon.GlobalFlags import globalflags
         if globalflags.DataSource() == 'geant4':
             # ITk:
             if geoFlags.isSLHC():

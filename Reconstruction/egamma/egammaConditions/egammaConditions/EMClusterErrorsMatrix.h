@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -15,9 +15,10 @@
 #ifndef EMCLUSTERERRORSMATRIX_H
 #define EMCLUSTERERRORSMATRIX_H
 
-#include <string>
-#include <vector>
 #include "egammaConditions/EMAPMatrix.h"
+#include <string>
+#include <utility>
+#include <vector>
 
 typedef std::vector<float> EMClusterErrorsEntry;
 
@@ -47,7 +48,7 @@ public:
       @param x: std::vector of length n which represents the values on all axes
   */
 
-  const EMClusterErrorsEntry* getError(std::vector<double> x) const {return getBinContent(x); };
+  const EMClusterErrorsEntry* getError(std::vector<double> x) const {return getBinContent(std::move(x)); };
   const EMClusterErrorsEntry* getError(double x) const {return getBinContent(x); };  
   const EMClusterErrorsEntry* getError(double x, double y) const {return getBinContent(x,y); };
 

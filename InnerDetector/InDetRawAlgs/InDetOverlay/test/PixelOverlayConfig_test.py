@@ -24,10 +24,6 @@ args = parser.parse_args()
 
 # Configure
 defaultTestFlags(ConfigFlags, args)
-
-ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
-ConfigFlags.Output.RDO_SGNLFileName = "myRDO_SGNL.pool.root"
-
 postprocessAndLockFlags(ConfigFlags, args)
 
 # Construct our accumulator to run
