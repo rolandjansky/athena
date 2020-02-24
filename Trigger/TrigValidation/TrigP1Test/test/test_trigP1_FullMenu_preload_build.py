@@ -4,7 +4,8 @@
 # art-type: build
 # art-include: master/Athena
 
-from TrigValTools.TrigValSteering import Input, Test, Step, ExecStep, CheckSteps
+from TrigValTools.TrigValSteering import Input, Test, Step, ExecStep
+from TrigP1Test import TrigP1TestSteps
 
 # Input file
 f = Input.get_input('data').paths[0].encode('ascii', 'ignore')
@@ -45,11 +46,7 @@ ex.perfmon = False  # Cannot use PerfMon with -M
 test = Test.Test()
 test.art_type = 'build'
 test.exec_steps = [ex_rm, ex_bs, ex]
-test.check_steps = CheckSteps.default_check_steps(test)
-
-# Overwrite default histogram file name for checks
-for step in [test.get_step(name) for name in ['HistCount', 'RootComp', 'ChainDump']]:
-  step.input_file = 'r0000999999_athenaHLT_HLT-Histogramming.root'
+test.check_steps = TrigP1TestSteps.default_check_steps_OHMon(test, 'r0000999999_athenaHLT_HLT-Histogramming.root:run_999999/lb_-1')
 
 import sys
 sys.exit(test.run())
