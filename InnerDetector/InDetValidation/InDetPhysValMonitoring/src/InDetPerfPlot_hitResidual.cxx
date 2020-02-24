@@ -281,13 +281,13 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
           const bool hasYCoordinate = (det != SCT)and(det != TRT); // SCT & TRT do not have LocY
           if (hasYCoordinate) {
             fillHisto(m_residualy[det][region], residualLocY);
-            if (type!=INVALID_LAYER) fillHisto(m_residualy_perType[type], residualLocX);
+            if (type!=INVALID_LAYER) fillHisto(m_residualy_perType[type], residualLocY);
           }
           fillHisto(m_residualpullx[det][region], pullLocX);
           if (type!=INVALID_LAYER) fillHisto(m_residualpullx_perType[type], residualLocX);
           if (hasYCoordinate) { // SCT & TRT do not have LocY
             fillHisto(m_residualpully[det][region], pullLocY);
-            if (type!=INVALID_LAYER) fillHisto(m_residualpully_perType[type], residualLocX);
+            if (type!=INVALID_LAYER) fillHisto(m_residualpully_perType[type], residualLocY);
           }
           if ((det == TRT)or(det == DBM) ) {
             continue;
@@ -297,14 +297,14 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
             if (type!=INVALID_LAYER) fillHisto(m_residualx_1hit_perType[type], residualLocX);
             if (hasYCoordinate) {
               fillHisto(m_residualy_1hit[det][region], residualLocY);
-              if (type!=INVALID_LAYER) fillHisto(m_residualy_1hit_perType[type], residualLocX);
+              if (type!=INVALID_LAYER) fillHisto(m_residualy_1hit_perType[type], residualLocY);
             }
           } else {
             fillHisto(m_residualx_2ormorehits[det][region], residualLocX);
             if (type!=INVALID_LAYER) fillHisto(m_residualx_2ormorehits_perType[type], residualLocX);
             if (hasYCoordinate) {
               fillHisto(m_residualy_2ormorehits[det][region], residualLocY);
-              if (type!=INVALID_LAYER) fillHisto(m_residualy_2ormorehits_perType[type], residualLocX);
+              if (type!=INVALID_LAYER) fillHisto(m_residualy_2ormorehits_perType[type], residualLocY);
             }
           }
         }
