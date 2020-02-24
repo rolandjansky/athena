@@ -31,7 +31,7 @@ mainGenerators += ["AMPT","Superchic","Starlight", "Hijing", "Hydjet", "Reldis",
 ## Misc generators
 mainGenerators += ["AcerMC", "TopRex", "LPair"]
 ## Reading in fully-formed events
-mainGenerators += ["HepMCAscii"]
+mainGenerators += ["HepMCAscii", "ReadMcAscii"]
 
 ## Special QED and decay afterburners
 afterburnerGenerators = ["Photos", "Photospp", "Tauola", "TauolaPP", "Tauolapp", "EvtGen", "ParticleDecayer"]
