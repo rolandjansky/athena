@@ -533,6 +533,8 @@ elif "BeamHaloGenerator" in evgenConfig.generators:
    eventsFile = "beamhalogen.events"
 elif "HepMCAscii" in evgenConfig.generators:
    eventsFile = "events.hepmc"
+elif "ReadMcAscii" in evgenConfig.generators:
+    eventsFile = "events.hepmc"
 elif gens_lhef(evgenConfig.generators):
    #eventsFile = outputTXTFile
    eventsFile = "events.lhe"
