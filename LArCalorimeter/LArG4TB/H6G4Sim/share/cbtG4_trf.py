@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Run Geant4 simulation on generated events and produce a HITS file."""
 
@@ -52,7 +53,7 @@ class CTBH62004G4JobTransform( JobTransform ):
         #install the DBRelease 'by hand' (needed since preRunAction()'s are not called)
         #self.getArgument('DBRelease').install()
         # get the list of arguments to be used in sub-transforms
-        argDict = self.argumentOriginalDict()
+        #argDict = self.argumentOriginalDict()
         # no need to re-install the DBRelease in sub-transforms
         #argDict['DBRelease'] = 'NONE'
         #

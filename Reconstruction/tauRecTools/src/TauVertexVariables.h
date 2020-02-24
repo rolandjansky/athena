@@ -13,7 +13,6 @@
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
 // forwards
-class TauEventData;
 namespace Trk {
 	class ITrackToVertexIPEstimator;
     class IVertexFitter;

@@ -293,18 +293,19 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()) {
       return(StatusCode::SUCCESS);
    }
-   if (!m_outputStreamingTool.empty()
-		   && (m_streamServer == m_outputStreamingTool.size() || !m_outputStreamingTool[m_streamServer < m_outputStreamingTool.size() ? m_streamServer : 0]->isServer())) {
-      ATH_MSG_DEBUG("connectOutput SKIPPED for expired server.");
-      return(StatusCode::SUCCESS);
-   }
-   std::size_t streamClient = 0;
-   for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
-      if (*iter == outputConnectionSpec) break;
-      streamClient++;
-   }
-   if (streamClient == m_streamClientFiles.size()) {
-      m_streamClientFiles.push_back(outputConnectionSpec);
+   if (!m_outputStreamingTool.empty()) {
+      if (m_streamServer == m_outputStreamingTool.size() || !m_outputStreamingTool[m_streamServer < m_outputStreamingTool.size() ? m_streamServer : 0]->isServer()) {
+         ATH_MSG_DEBUG("connectOutput SKIPPED for expired server.");
+         return(StatusCode::SUCCESS);
+      }
+      std::size_t streamClient = 0;
+      for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
+         if (*iter == outputConnectionSpec) break;
+         streamClient++;
+      }
+      if (streamClient == m_streamClientFiles.size()) {
+         m_streamClientFiles.push_back(outputConnectionSpec);
+      }
    }
 
    unsigned int contextId = outputContextId(outputConnection);
@@ -358,7 +359,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
          usleep(100);
          sc = m_outputStreamingTool[streamClient]->lockObject("release");
       }
-      if (!this->cleanUp().isSuccess()) {
+      if (!this->cleanUp(outputConnectionSpec).isSuccess()) {
          ATH_MSG_ERROR("commitOutput FAILED to cleanup converters.");
          return(StatusCode::FAILURE);
       }
@@ -454,7 +455,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                   // Write object
                   Placement placement;
                   placement.fromString(placementStr); placementStr = nullptr;
-                  std::unique_ptr<Token> token (registerForWrite(&placement, obj, classDesc));
+                  std::unique_ptr<Token> token(registerForWrite(&placement, obj, classDesc));
                   if (token == nullptr) {
                      ATH_MSG_ERROR("Failed to write Data for: " << className);
                      return abortSharedWrClients(num);
@@ -586,7 +587,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       ATH_MSG_ERROR("commitOutput - caught exception: " << e.what());
       return(StatusCode::FAILURE);
    }
-   if (!this->cleanUp().isSuccess()) {
+   if (!this->cleanUp(outputConnectionSpec).isSuccess()) {
       ATH_MSG_ERROR("commitOutput FAILED to cleanup converters.");
       return(StatusCode::FAILURE);
    }
@@ -963,10 +964,18 @@ StatusCode AthenaPoolCnvSvc::registerCleanUp(IAthenaPoolCleanUp* cnv) {
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
-StatusCode AthenaPoolCnvSvc::cleanUp() {
+StatusCode AthenaPoolCnvSvc::cleanUp(const std::string& connection) {
    bool retError = false;
+   std::size_t cpos = connection.find(":");
+   std::size_t bpos = connection.find("[");
+   if (cpos == std::string::npos) {
+      cpos = 0;
+   } else {
+      cpos++;
+   }
+   if (bpos != std::string::npos) bpos = bpos - cpos;
    for (auto convertr : m_cnvs) {
-      if (!convertr->cleanUp().isSuccess()) {
+      if (!convertr->cleanUp(connection.substr(cpos, bpos)).isSuccess()) {
          ATH_MSG_WARNING("AthenaPoolConverter cleanUp failed.");
          retError = true;
       }
@@ -976,11 +985,11 @@ StatusCode AthenaPoolCnvSvc::cleanUp() {
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::setInputAttributes(const std::string& fileName) {
    // Set attributes for input file
-   m_lastFileName = fileName; // Save file name for printing attributes per event
-   if (!processPoolAttributes(m_inputAttr, m_lastFileName, IPoolSvc::kInputStream, false, true, false).isSuccess()) {
+   m_lastInputFileName = fileName; // Save file name for printing attributes per event
+   if (!processPoolAttributes(m_inputAttr, m_lastInputFileName, IPoolSvc::kInputStream, false, true, false).isSuccess()) {
       ATH_MSG_DEBUG("setInputAttribute failed setting POOL database/container attributes.");
    }
-   if (!processPoolAttributes(m_inputAttr, m_lastFileName, IPoolSvc::kInputStream, true, false).isSuccess()) {
+   if (!processPoolAttributes(m_inputAttr, m_lastInputFileName, IPoolSvc::kInputStream, true, false).isSuccess()) {
       ATH_MSG_DEBUG("setInputAttribute failed getting POOL database/container attributes.");
    }
    return(StatusCode::SUCCESS);
@@ -1125,7 +1134,7 @@ StatusCode AthenaPoolCnvSvc::abortSharedWrClients(int client_n)
 //______________________________________________________________________________
 void AthenaPoolCnvSvc::handle(const Incident& incident) {
    if (incident.type() == "EndEvent") {
-      if (!processPoolAttributes(m_inputAttrPerEvent, m_lastFileName, IPoolSvc::kInputStream).isSuccess()) {
+      if (!processPoolAttributes(m_inputAttrPerEvent, m_lastInputFileName, IPoolSvc::kInputStream).isSuccess()) {
          ATH_MSG_DEBUG("handle EndEvent failed process POOL database attributes.");
       }
    }
@@ -1134,7 +1143,7 @@ void AthenaPoolCnvSvc::handle(const Incident& incident) {
 AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLocator) :
 	::AthCnvSvc(name, pSvcLocator, POOL_StorageType),
 	m_dbType(pool::ROOTTREEINDEX_StorageType),
-	m_lastFileName(),
+	m_lastInputFileName(),
 	m_poolSvc("PoolSvc", name),
 	m_chronoStatSvc("ChronoStatSvc", name),
 	m_clidSvc("ClassIDSvc", name),

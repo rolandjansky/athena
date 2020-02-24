@@ -46,9 +46,7 @@ class TrigTauRecMergedMT: public AthAlgorithm {
                                  const T*& oldContainer);
 
  private:
-
-  TauEventData m_tauEventData;
-
+ 
   void setEmptyTauTrack( xAOD::TauJet* tauJet,
 			 xAOD::TauTrackContainer* tauTrackContainer );
 

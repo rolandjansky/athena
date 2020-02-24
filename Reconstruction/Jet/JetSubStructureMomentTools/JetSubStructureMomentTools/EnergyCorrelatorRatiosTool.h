@@ -21,10 +21,11 @@ class EnergyCorrelatorRatiosTool :
       int modifyJet(xAOD::Jet &jet) const override;
 
     private:
-      bool m_includeECF4;
+      bool m_doC3;
       std::vector<float> m_betaVals;
       std::vector<float> m_cleaned_betaVals; // Local vector for cleaned up inputs
-            
+      bool m_doDichroic;
+
 };
 
 #endif

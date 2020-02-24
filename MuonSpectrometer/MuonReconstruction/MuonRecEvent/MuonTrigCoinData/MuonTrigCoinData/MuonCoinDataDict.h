@@ -10,7 +10,6 @@
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "MuonTrigCoinData/RpcCoinData.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
-#include "MuonTrigCoinData/MuonTrigCoinData_Cache.h"
 
 namespace tmpMuonTrigCoinData
 {
@@ -24,8 +23,6 @@ namespace tmpMuonTrigCoinData
     std::vector<Muon::MuonCoinDataCollection<Muon::TgcCoinData>* >  dummy2Tgc;
     DataVector<Muon::MuonCoinDataCollection<Muon::RpcCoinData> >    dummy1Rpc;
     std::vector<Muon::MuonCoinDataCollection<Muon::RpcCoinData>* >  dummy2Rpc;
-
-
   };
 }
 

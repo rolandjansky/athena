@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,27 +18,27 @@ namespace MuonGM {
 
 Mdt::Mdt(Component* ss, std::string lVName): DetectorElement(ss->name)
 {
-   logVolName = lVName;
-   MdtComponent* s = (MdtComponent*)ss;
-   MDT* thism = (MDT*)(MYSQL::GetPointer()->GetTechnology(s->name));
+  logVolName = lVName;
+  MdtComponent* s = (MdtComponent*)ss;
+  MDT* thism = (MDT*)(MYSQL::GetPointer()->GetTechnology(s->name));
 
-   width = s->dx1;
-   longWidth = s->dx2;
-   thickness = s->GetThickness();
-   length = s->dy;
-   m_component = s;
-   m_component->cutoutTubeXShift = 0.;
-   layer = new MultiLayer(s->name);
-   layer->logVolName = lVName;
-   layer->cutoutNsteps = 0;
-   layer->width = width;
-   layer->longWidth = longWidth;
-   tubePitch = thism->pitch;
-   layer->length = length;
-   layer->nrOfTubes = (int)(layer->length/thism->pitch);
-   if (longWidth  > width) layer->nrOfSteps = int(length/s->tubelenStepSize);
-   tubelenStepSize = s->tubelenStepSize;
-   index = s->index;
+  width = s->dx1;
+  longWidth = s->dx2;
+  thickness = s->GetThickness();
+  length = s->dy;
+  m_component = s;
+  m_component->cutoutTubeXShift = 0.;
+  layer = new MultiLayer(s->name);
+  layer->logVolName = lVName;
+  layer->cutoutNsteps = 0;
+  layer->width = width;
+  layer->longWidth = longWidth;
+  tubePitch = thism->pitch;
+  layer->length = length;
+  layer->nrOfTubes = (int)(layer->length/thism->pitch);
+  if (longWidth  > width) layer->nrOfSteps = int(length/s->tubelenStepSize);
+  tubelenStepSize = s->tubelenStepSize;
+  index = s->index;
 }
 
 
@@ -47,8 +47,8 @@ Mdt::~Mdt()
   delete layer;
   layer = 0;
 }
-    
-    
+
+
 GeoFullPhysVol* Mdt::build()
 {
   layer->cutoutNsteps = 1;
@@ -58,15 +58,19 @@ GeoFullPhysVol* Mdt::build()
 
 GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
 {
+  MsgStream log(Athena::getMessageSvc(), "Mdt::build");
 
   int Ncuts = vcutdef.size();
   if (Ncuts > 0) {
-    if (verbose_mdt) std::cout << " mdt cutouts are on " << std::endl;
+    if (verbose_mdt) {
+      log << MSG::VERBOSE << " mdt cutouts are on " << endmsg;
+    }
     int cutoutNtubes[5];           // Number of tubes in sub-multilayer[i]
     bool cutoutFullLength[5];      // True if this region is outside the cutout
     double cutoutXtubes[5];        // Location of tube center within sub-ml[i] along x-amdb
     double cutoutTubeLength[5];    // Tube length
     double cutoutYmax[5];
+
     for (int i = 0; i < 5; i++) {
       cutoutNtubes[i] = 0;
       cutoutFullLength[i] = true;
@@ -74,8 +78,8 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
       cutoutTubeLength[i] = width;
       cutoutYmax[i] = 0.;
     }
-    
-    // Order cutouts by increasing dy    
+
+    // Order cutouts by increasing dy
     for (int i = 0; i < Ncuts; i++) {
       for (int j = i+1; j < Ncuts; j++) {
         if (vcutdef[j]->dy < vcutdef[i]->dy) {
@@ -86,7 +90,7 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
       }
     }
 
-    // Set up cut location code 
+    // Set up cut location code
     double top = length - tubePitch/2.;
     int cutLocationCode[3] = {0, 0, 0};
     for (int i = 0; i < Ncuts; i++) {
@@ -108,7 +112,7 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
       xmax = twidth/2. > c->dx + c->widthXs/2. ? twidth/2. : c->dx - c->widthXs/2.;
       if (cutLocationCode[i] == -1) {
         cutoutYmax[Nsteps] = c->lengthY;
-        cutoutTubeLength[Nsteps] = xmax - xmin; 
+        cutoutTubeLength[Nsteps] = xmax - xmin;
         cutoutXtubes[Nsteps] = (xmax + xmin)/2.;
         cutoutFullLength[Nsteps] = false;
         Nsteps++;
@@ -126,7 +130,7 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
         cutoutXtubes[Nsteps] = (xmax + xmin)/2.;
         cutoutFullLength[Nsteps] = false;
         Nsteps++;
-      }                                 
+      }
     }
     cutoutYmax[Nsteps] = top;
     Nsteps++;
@@ -148,13 +152,17 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
     }
     if (tubeCounter > layer->nrOfTubes) --cutoutNtubes[Nsteps-1];
 
-    if (verbose_mdt) for (int i = 0; i < Nsteps; i++) 
-      std::cout << " cutoutYmax[" << i << "] = " << cutoutYmax[i] 
-                << " cutoutTubeLength[" << i << "] = " << cutoutTubeLength[i]
-                << " cutoutXtubes[" << i << "] = " << cutoutXtubes[i]
-                << " cutoutFullLength[" << i << "] = " << cutoutFullLength[i]
-                << " cutoutNtubes[" << i << "] = " << cutoutNtubes[i]
-                << std::endl; 
+    if (verbose_mdt) {
+      for (int i = 0; i < Nsteps; i++) {
+        log << MSG::VERBOSE
+            << " cutoutYmax[" << i << "] = " << cutoutYmax[i]
+            << " cutoutTubeLength[" << i << "] = " << cutoutTubeLength[i]
+            << " cutoutXtubes[" << i << "] = " << cutoutXtubes[i]
+            << " cutoutFullLength[" << i << "] = " << cutoutFullLength[i]
+            << " cutoutNtubes[" << i << "] = " << cutoutNtubes[i]
+            << endmsg;
+      }
+    }
 
     // encoding BMG chambers in Nsteps: Nsteps negative => BMG chamber
     // a/ 1st digit: eta index (1 to 3)
@@ -174,7 +182,7 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
         if ( vcutdef[0]->dead1 > 0. ) Nsteps = -31112; // cut angle for A side positive BMG3A12
         else Nsteps = -32114; // cut angle for C side negative BMG3C14
       } else {
-        std::cout << "massive error with MDT10 (BMG chambers)" << std::endl;
+        log << MSG::ERROR << "massive error with MDT10 (BMG chambers)" << endmsg;
         std::abort();
       }
     } else if( logVolName.find("MDT11") != std::string::npos ) {
@@ -189,7 +197,7 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
         if ( vcutdef[0]->dead1 > 0. ) Nsteps = -31114; // cut angle for A side positive BMG3A14
         else Nsteps = -32112; // cut angle for C side negative BMG3C12
       } else {
-        std::cout << "massive error with MDT10 (BMG chambers)" << std::endl;
+        log << MSG::ERROR << "massive error with MDT10 (BMG chambers)" << endmsg;
         std::abort();
       }
     } else if( logVolName.find("MDT12") != std::string::npos ) {
@@ -204,7 +212,7 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
         if ( vcutdef[0]->dead1 > 0. ) Nsteps = -31212; // cut angle for A side positive BMG3A12
         else Nsteps = -32214; // cut angle for C side negative BMG3C14
       } else {
-        std::cout << "massive error with MDT10 (BMG chambers)" << std::endl;
+        log << MSG::ERROR << "massive error with MDT10 (BMG chambers)" << endmsg;
         std::abort();
       }
     } else if( logVolName.find("MDT13") != std::string::npos ) {
@@ -219,22 +227,23 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
         if ( vcutdef[0]->dead1 > 0. ) Nsteps = -31214; // cut angle for A side positive BMG3A14
         else Nsteps = -32212; // cut angle for C side negative BMG3C12
       } else {
-        std::cout << "massive error with MDT10 (BMG chambers)" << std::endl;
+        log << MSG::ERROR << "massive error with MDT10 (BMG chambers)" << endmsg;
         std::abort();
       }
     }
 
     if ( logVolName.find("MDT10") != std::string::npos
-       || logVolName.find("MDT11") != std::string::npos
-       || logVolName.find("MDT12") != std::string::npos
-       || logVolName.find("MDT13") != std::string::npos ) {
-       for (int i = 0; i < 5; i++) {
-           cutoutNtubes[i] = 0;
-           cutoutFullLength[i] = true;
-           cutoutXtubes[i] = 0.;
-           cutoutTubeLength[i] = width;
-           cutoutYmax[i] = 0.;
-        }
+         || logVolName.find("MDT11") != std::string::npos
+         || logVolName.find("MDT12") != std::string::npos
+         || logVolName.find("MDT13") != std::string::npos ) {
+
+      for (int i = 0; i < 5; i++) {
+        cutoutNtubes[i] = 0;
+        cutoutFullLength[i] = true;
+        cutoutXtubes[i] = 0.;
+        cutoutTubeLength[i] = width;
+        cutoutYmax[i] = 0.;
+      }
     }
 
     // Pass information to multilayer and MdtComponent
@@ -247,14 +256,14 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
       layer->cutoutXtubes[i] = cutoutXtubes[i];
       layer->cutoutYmax[i] = cutoutYmax[i];
       if (!cutoutFullLength[i]) m_component->cutoutTubeXShift = cutoutXtubes[i];
-      // For now assume multiple cutouts have same width and take only the last value 
+      // For now assume multiple cutouts have same width and take only the last value
     }
-    
+
     layer->cutoutAtAngle = cutAtAngle;
 
     return layer->build();
 
-  } else {        
+  } else {
     return build();
   }
 }
@@ -262,7 +271,8 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
 
 void Mdt::print()
 {
-  std::cout << "Mdt " << name.c_str() << " :" << std::endl;
+  MsgStream log(Athena::getMessageSvc(), "MuonGM::Mdt");
+  log << MSG::INFO << "Mdt " << name.c_str() << " :" << endmsg;
 }
 
 } // namespace MuonGM

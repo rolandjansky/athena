@@ -40,8 +40,7 @@ HIGG2D4ThinningHelper.AppendToStream(HIGG2D4Stream)
 # HIGG2D4TPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG2D4TPThinningTool",
 #                                                                    StreamName             = streamName,
 #                                                                    SelectionString        = thinning_expression,
-#                                                                    InDetTrackParticlesKey = "InDetTrackParticles",
-#                                                                    ApplyAnd               = True)
+#                                                                    InDetTrackParticlesKey = "InDetTrackParticles")
 # ToolSvc += HIGG2D4TPThinningTool
 # thinningTools.append(HIGG2D4TPThinningTool)
 

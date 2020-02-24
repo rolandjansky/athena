@@ -464,6 +464,44 @@ bool stringFillingWorked(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* 
   return true;
 }
 
+bool stringFromCollectionWorked(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc) {
+
+  auto fill = [&]() {
+    /**
+     * \code Monitored::Collection("name", colelction,  converter_or_extractor  );
+     * This example illustrates how to use functionality to monitor occurrences of strings from collection of some objects.
+     * The example StringInObject is just a test class that contains the string that we want to monitor.
+     * The "converter_or_extractor" is converting elements of the collection to a string.
+     * It can be either a member method or a lambda expression.
+     * The type returned by the functor can be anything from which the std::string can be constructed.
+     **/
+
+    struct StringInObject {
+      int layer;
+      std::string name;
+      const std::string& getName() const { return name; }
+    };
+    std::vector<StringInObject> testData({{0, "PIX"},{1, "PIX"},{3, "SCT"}, {1, "PIX"}});
+    auto name = Monitored::Collection("DetID", testData,  [](const StringInObject& s){ return s.getName(); }  ); // lambda as a converter
+
+    auto ignored1 = Monitored::Collection("ignored", testData,  &StringInObject::getName  ); // access via member function is supported
+    auto ignored2 = Monitored::Collection("ignored", testData,  [](const StringInObject& s){ return s.getName().c_str(); }  ); // converter returning const char* is supported
+    Monitored::Group(monTool, name);
+    return 4; // number of entries
+  };
+
+  auto check = [&](size_t N) {
+    const TH1* h = getHist( histSvc, "/EXPERT/TestGroup/DetID" );
+    VALUE( h->GetEntries() ) EXPECTED( N );
+    VALUE( h->GetXaxis()->GetLabels()->GetEntries() ) EXPECTED( 2 ); // two distinct strings used in input data
+  };
+
+  resetHists( histSvc ); check(fill());
+  resetHists( histSvc ); check(fill_mt(fill));
+
+  return true;
+}
+
 bool string2DFillingWorked(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc) {
 
   auto fill = [&]() {
@@ -496,6 +534,7 @@ bool string2DFillingWorked(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc
     }
     return 1;
   };
+
   auto check = [&](size_t N) {
     const TH1* h = getHist( histSvc, "/EXPERT/TestGroup/DetID_vs_DetCalo" );
     int larBin = h->GetXaxis()->FindFixBin("LAr");
@@ -580,7 +619,10 @@ int main() {
   assert( stringFillingWorked( validMon, histSvc ) );
   log << MSG::DEBUG << "string2DFillingWorked" << endmsg;
   assert( string2DFillingWorked( validMon, histSvc ) );
+  log << MSG::DEBUG << "stringFromCollectionWorked" << endmsg;
+  assert( stringFromCollectionWorked( validMon, histSvc ) );
   log << MSG::DEBUG << "All OK"  << endmsg;
+
 
   // Make sure that THistSvc gets finalized.
   // Otherwise, the output file will get closed while global dtors are running,

@@ -13,7 +13,7 @@ from PixelConditionsAlgorithms.PixelConditionsConfig import (
 def PixelConditionsSummaryCfg(flags, name="PixelConditionsSummary", **kwargs):
     """Return configured ComponentAccumulator with tool for Pixel Conditions"""
     acc = ComponentAccumulator()
-    kwargs.setdefault("UseByteStream", False)
+    kwargs.setdefault("UseByteStream", not flags.Input.isMC)
     acc.merge(PixelDCSCondStateAlgCfg(flags))
     acc.merge(PixelDCSCondStatusAlgCfg(flags))
 # NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))

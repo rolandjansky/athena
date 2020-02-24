@@ -15,7 +15,7 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
-#include "InDetReadoutGeometry/TRT_EndcapElement.h"
+#include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
 #include "TrkRIO_OnTrack/check_cast.h"
 
 

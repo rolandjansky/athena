@@ -554,12 +554,11 @@ bool egammaBuilder::clustersOverlap(const xAOD::CaloCluster *refCluster,
         const xAOD::CaloClusterContainer *clusters)
 {
     if (!refCluster || !clusters) return false;
-    CaloPhiRange phiHelper;
 
     for (const auto cluster: *clusters)
     {
         if (fabs(refCluster->eta() - cluster->eta()) < m_minDeltaEta &&
-                fabs(phiHelper.diff(refCluster->phi(), cluster->phi())) < m_minDeltaPhi)
+                fabs(CaloPhiRange::diff(refCluster->phi(), cluster->phi())) < m_minDeltaPhi)
             return true;
     }
     return false;

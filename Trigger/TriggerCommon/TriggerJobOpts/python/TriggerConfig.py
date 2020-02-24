@@ -58,8 +58,8 @@ def collectViewMakers( steps ):
             for seq,algs in six.iteritems (algsInSeq):
                 for alg in algs:
                     if "EventViewCreator" in alg.getFullName(): # TODO base it on checking types of write handles once available
-                        makers.append(alg)
-    makers = sorted(set(makers)) #Remove duplicates and return in reproducible order
+                        if alg not in makers:
+                            makers.append(alg)
     __log.debug("Found ViewMakers: {}".format( ' '.join([ maker.name() for maker in makers ]) ))
     return makers
 
@@ -397,7 +397,9 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
 
     # OutputStream has a data dependency on xTrigDecision
     streamAlg = acc.getEventAlgo("OutputStream"+outputType)
-    streamAlg.ExtraInputs = [("xAOD::TrigDecision", "xTrigDecision")]
+    streamAlg.ExtraInputs = [
+      ("xAOD::TrigDecision", "xTrigDecision"),
+      ("xAOD::TrigConfKeys", "TrigConfKeys")]
 
     # Produce the trigger bits
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerBitsMakerToolCfg
@@ -460,7 +462,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
             setattr(tool, collType, attrName )
             producer = [ maker for maker in viewMakers if maker.Views == viewsColl ]
             if len(producer) == 0:
-                __log.warning("The producer of the {} not in the menu, it's outputs won't ever make it out of the HLT".format( viewsColl ) )
+                __log.warning("The producer of the {} not in the menu, it's outputs won't ever make it out of the HLT".format( str(coll) ) )
                 continue
             if len(producer) > 1:
                 for pr in producer[1:]:
@@ -574,9 +576,6 @@ def triggerIDCCacheCreatorsCfg(flags):
     acc = ComponentAccumulator()
     from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
     acc.merge( MuonCacheCfg() )
-
-    from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheCfg
-    acc.merge( MuonPrdCacheCfg() )
 
     from TrigInDetConfig.InDetConfig import InDetIDCCacheCreatorCfg
     acc.merge( InDetIDCCacheCreatorCfg() )

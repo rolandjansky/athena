@@ -76,10 +76,9 @@ print EXOT4StringSkimmingTool_jet
 #thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV)"
 #from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 #EXOT4D1TPThinningTool = DerivationFramework__TrackParticleThinning( name                    =  "EXOT4D1TPThinningTool",
-#                                                                    ThinningService         =  "EXOT4ThinningSvc",
+#                                                                    StreamName              =  streamName,
 #                                                                    SelectionString         =  thinning_expression,
-#                                                                    InDetTrackParticlesKey  =  "InDetTrackParticles",
-#                                                                    ApplyAnd                =  False)
+#                                                                    InDetTrackParticlesKey  =  "InDetTrackParticles")
 #ToolSvc += EXOT4D1TPThinningTool
 
 

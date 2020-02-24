@@ -19,7 +19,6 @@
 
 //__________________________________________________________________________
 AthenaPoolConverter::~AthenaPoolConverter() {
-   delete m_placement; m_placement = nullptr;
    delete m_i_poolToken; m_i_poolToken = nullptr;
 }
 //__________________________________________________________________________
@@ -136,7 +135,6 @@ AthenaPoolConverter::AthenaPoolConverter(const CLID& myCLID, ISvcLocator* pSvcLo
 		::AthMessaging((pSvcLocator != nullptr ? msgSvc() : nullptr),
                                name ? name : "AthenaPoolConverter"),
 	m_athenaPoolCnvSvc("AthenaPoolCnvSvc", "AthenaPoolConverter"),
-	m_placement(nullptr),
 	m_placementHints(),
 	m_className(),
 	m_classDescs(),
@@ -144,18 +142,15 @@ AthenaPoolConverter::AthenaPoolConverter(const CLID& myCLID, ISvcLocator* pSvcLo
 	m_i_poolToken(nullptr) {
 }
 //__________________________________________________________________________
-void AthenaPoolConverter::setPlacementWithType(const std::string& tname, const std::string& key, const std::string& output) {
-   if (m_placement == nullptr) {
-      // Create placement for this converter if needed
-      m_placement = new Placement();
-   }
+Placement AthenaPoolConverter::setPlacementWithType(const std::string& tname, const std::string& key, const std::string& output) {
+   Placement placement;
    // Override streaming parameters from StreamTool if requested.
    std::string::size_type pos1 = output.find("[");
    std::string outputConnectionSpec = output.substr(0, pos1);
    int tech = 0;
    m_athenaPoolCnvSvc->decodeOutputSpec(outputConnectionSpec, tech).ignore();
    // Set DB and Container names
-   m_placement->setFileName(outputConnectionSpec);
+   placement.setFileName(outputConnectionSpec);
    std::string containerName;
    if (m_placementHints.find(tname + key) != m_placementHints.end()) { // PlacementHint already generated?
       containerName = m_placementHints[tname + key];
@@ -229,8 +224,9 @@ void AthenaPoolConverter::setPlacementWithType(const std::string& tname, const s
       m_placementHints.insert(std::pair<std::string, std::string>(key, containerName));
    }
    m_athenaPoolCnvSvc->decodeOutputSpec(containerName, tech).ignore();
-   m_placement->setContainerName(containerName);
-   m_placement->setTechnology(tech);
+   placement.setContainerName(containerName);
+   placement.setTechnology(tech);
+   return(placement);
 }
 //__________________________________________________________________________
 const DataObject* AthenaPoolConverter::getDataObject() const {
@@ -241,7 +237,7 @@ bool AthenaPoolConverter::compareClassGuid(const Guid &guid) const {
    return(m_i_poolToken ? (guid == m_i_poolToken->classID()) : false);
 }
 //__________________________________________________________________________
-StatusCode AthenaPoolConverter::cleanUp() {
+StatusCode AthenaPoolConverter::cleanUp(const std::string& /*output*/) {
    ATH_MSG_DEBUG("AthenaPoolConverter cleanUp called for base class.");
    return(StatusCode::SUCCESS);
 }

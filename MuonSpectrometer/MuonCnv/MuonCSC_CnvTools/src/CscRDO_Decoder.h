@@ -58,8 +58,8 @@ namespace Muon {
     std::string m_detdescr;
     ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
       "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-    ServiceHandle<CSCcablingSvc>      m_cabling;
-    ToolHandle<ICscCalibTool>         m_cscCalibTool;
+    ServiceHandle<CSCcablingSvc>       m_cabling{this, "CSCcablingSvc", "CSCcablingSvc", "CSC cabling service handle"};
+    ToolHandle<ICscCalibTool>          m_cscCalibTool{this, "cscCalibTool", "CscCalibTool", "CSC calibration tool handle"};
     double   m_timeOffset   ;
     double   m_samplingTime ;
     double   m_signalWidth  ;

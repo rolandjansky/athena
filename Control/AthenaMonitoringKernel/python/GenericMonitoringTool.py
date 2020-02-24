@@ -105,6 +105,48 @@ class GenericMonitoringArray:
                 postList.extend(GenericMonitoringArray._postfixes(dimensions[1:],previous+'_'+str(i)))
         return postList
 
+## Generate dictionary entries for opt strings
+#  @param opt string or dictionary specifying type
+#  @return dictionary full of options
+def _options(opt):
+    # Set the default dictionary of options
+    settings = {
+        'Sumw2': False,
+        'kLBNHistoryDepth': 0,
+        'kAddBinsDynamically': False,
+        'kRebinAxes': False,
+        'kCanRebin': False,
+        'kVec': False,
+        'kVecUO': False,
+        'kCumulative': False,
+    }
+    if opt is None:
+        # If no options are provided, skip any further checks.
+        pass
+    elif isinstance(opt, dict):
+        # If the user provides a partial dictionary, update the default with user's.
+        # Check that each provided option is valid
+        keyValid = [option in settings for option in opt]
+        assert all(keyValid), 'Unknown option provided in opt dictionary. Choices are'+\
+            '['+', '.join(settings)+'].'
+        typeValid = [isinstance(opt[key], type(val)) for key, val in zip(settings.items())]
+        assert all(typeValid), 'An incorrect type was provided in opt dictionary.'
+        settings.update(opt)
+    elif isinstance(opt, str) and len(opt)>0:
+        # If the user provides a comma- or space-separated string of options.
+        from argparse import ArgumentParser # a module to parse a string of options
+        parser = ArgumentParser()
+        for settingName, settingValue in settings.items():
+            opt = opt.replace(settingName, '--'+settingName)
+            if isinstance(settingValue, bool):
+                parser.add_argument('--'+settingName, action='store_true')
+            else:
+                settingType = type(settingValue)
+                parser.add_argument('--'+settingName, default=settingValue, type=settingType)
+        known, unknown = parser.parse_known_args(opt.replace(',',' ').split(' '))
+        settings = vars(known)
+    return settings
+
 ## Generate histogram definition string for the `GenericMonitoringTool.Histograms` property
 #
 #  For full details see the GenericMonitoringTool documentation.
@@ -114,8 +156,9 @@ class GenericMonitoringArray:
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param weight   Name of the variable containing the fill weight
 #  @param cutmask  Name of the boolean-castable variable that determines if the plot is filled
-#  @param opt      Histogram options (see GenericMonitoringTool)
-#  @param labels   Deprecated. Copies value to xlabels.
+#  @param opt      String or dictionary of histogram options
+#  @param labels   Deprecated. Copies value to xlabels and/or ylabels.
+#  @param treedef  Internal use only. Use defineTree() method.
 #  @param xlabels  List of x bin labels.
 #  @param ylabels  List of y bin labels.
 #  @param zlabels  List of x bin labels.
@@ -126,13 +169,13 @@ def defineHistogram(varname, type='TH1F', path=None,
                     title=None, weight=None, alias=None,
                     xbins=100, xmin=0, xmax=1, xlabels=None,
                     ybins=None, ymin=None, ymax=None, ylabels=None,
-                    zmin=None, zmax=None, zlabels=None, 
-                    opt='', treedef=None, labels=None, convention=None,
-                    cutmask=None, merge=None):
+                    zmin=None, zmax=None, zlabels=None,
+                    opt=None, labels=None, convention=None, cutmask=None,
+                    treedef=None, merge=None):
 
     # All of these fields default to an empty string
     stringSettingsKeys = ['xvar', 'yvar', 'zvar', 'type', 'path', 'title', 'weight',
-    'cutMask', 'opt', 'convention', 'alias', 'treeDef', 'merge'] 
+    'cutMask', 'convention', 'alias', 'treeDef', 'merge']
     # All of these fileds default to 0
     numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zbins',
     'zmin', 'zmax']
@@ -276,15 +319,8 @@ def defineHistogram(varname, type='TH1F', path=None,
         assert type=='TTree','cannot define tree branches for a non-TTree object'
         settings['treeDef'] = treedef
 
-    # Filling options
-    if len(opt)>0:
-        ######################################################
-        # currently opt is a string, but should make it a list
-        # optList = opt.replace(' ',',').split(',')
-        # settings['opt'] = optList
-        ######################################################
-        # in the mean time, keep it a string
-        settings['opt'] = opt
+    # Finally, add all other options
+    settings.update(_options(opt))
 
     return json.dumps(settings)
 

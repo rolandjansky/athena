@@ -45,7 +45,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 # MET/Jet tracks
 #met_thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
 #EXOT3MetTPThinningTool = DerivationFramework__TrackParticleThinning( name                = "EXOT3MetTPThinningTool",
-#                                                                ThinningService         = "EXOT3ThinningSvc",
+#                                                                StreamName              = streamName,
 #                                                                SelectionString         = met_thinning_expression,
 #                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 #ToolSvc += EXOT3MetTPThinningTool
@@ -60,7 +60,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 
 thinExpression = '(InDetTrackParticles.d0 < 1.5) && ((DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta )) <= 1.5)'
 EXOT3TPThinningTool = DerivationFramework__TrackParticleThinning(name = "EXOT3TPThinningTool",
-                                                                 ThinningService         = "EXOT3ThinningSvc",
+                                                                 StreamName              = streamName,
                                                                  SelectionString         = thinExpression,
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT3TPThinningTool

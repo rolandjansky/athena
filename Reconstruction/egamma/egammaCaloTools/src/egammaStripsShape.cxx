@@ -126,7 +126,7 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
   double dphi = 0;
   bool barrel = false;
   int sampling_or_module = 0;
-  cmgr.decode_sample(subcalo, barrel, sampling_or_module,
+  CaloDetDescrManager::decode_sample(subcalo, barrel, sampling_or_module,
                      (CaloCell_ID::CaloSample)samgran);
   const CaloDetDescrElement* dde = cmgr.get_element(
       subcalo, sampling_or_module, barrel, info.etamax, info.phimax);
@@ -137,7 +137,7 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster,
   // width in eta is granularity (dde->deta()) times number of cells (m_neta)
   deta = dde->deta() * m_neta / 2.0;
   // use samgran = granularity in first sampling for phi
-  cmgr.decode_sample(subcalo, barrel, sampling_or_module,
+  CaloDetDescrManager::decode_sample(subcalo, barrel, sampling_or_module,
                            (CaloCell_ID::CaloSample)sam);
   dde = cmgr.get_element(subcalo, sampling_or_module, barrel, info.etamax,
                          info.phimax);

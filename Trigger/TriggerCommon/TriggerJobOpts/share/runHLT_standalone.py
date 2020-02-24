@@ -413,8 +413,9 @@ TriggerFlags.triggerMenuSetup = opt.setMenu
 TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
 
-from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
-l1JsonFile = generateL1Menu()
+from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
+generateL1Menu()
+createL1PrescalesFileFromMenu()
 
 from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
 svcMgr += getL1ConfigSvc()

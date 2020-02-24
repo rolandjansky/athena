@@ -373,8 +373,10 @@ if dumpTrtInfo:
         print xAOD_TRT_PrepDataToxAOD.properties()
 
     # to store dEdx info
-    import InDetRecExample.TrackingCommon
-    TRT_dEdx_Tool = InDetRecExample.TrackingCommon.getInDetTRT_dEdxTool()
+    from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import TRT_ToT_dEdx
+    TRT_dEdx_Tool = TRT_ToT_dEdx(name="TRT_ToT_dEdx")
+    from InDetRecExample.TrackingCommon import getInDetTRT_LocalOccupancy
+    TRT_dEdx_Tool.TRT_LocalOccupancyTool    = getInDetTRT_LocalOccupancy()
     ToolSvc += TRT_dEdx_Tool
 
     # to get shared hit info
@@ -620,7 +622,7 @@ thinningTools = []
 # TrackParticles directly
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 IDTRKThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTRKThinningTool",
-                                                                 ThinningService         = "IDTRKThinningSvc",
+                                                                 StreamName              = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName,
                                                                  SelectionString         = thinTrackSelection,
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                  ThinHitsOnTrack = thinHitsOnTrack)
@@ -672,10 +674,8 @@ streamName = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDTRKVALIDStream )
 IDTRKVALIDStream = MSMgr.NewPoolRootStream( streamName, fileName )
 IDTRKVALIDStream.AcceptAlgs(["DFTSOS_KERN"])
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="IDTRKThinningSvc", outStreams=[evtStream] )
 
 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 

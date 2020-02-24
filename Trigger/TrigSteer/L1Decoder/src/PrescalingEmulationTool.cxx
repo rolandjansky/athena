@@ -21,9 +21,6 @@ PrescalingEmulationTool::PrescalingEmulationTool( const std::string& type,
 PrescalingEmulationTool::~PrescalingEmulationTool() { }
 
 StatusCode PrescalingEmulationTool::initialize() {
-  
-  CHECK( m_eventInfo.initialize( not m_eventInfo.key().empty() ) );
-
   for ( const std::string& confElement: m_prescalingConfig ) {
     std::string chainName( confElement, 0, confElement.find(':') );
     std::string psValue( confElement, confElement.find(':')+1 );
@@ -41,15 +38,9 @@ StatusCode PrescalingEmulationTool::prescaleChains( const EventContext& ctx,
 
   // obtain CTP time
   remainActive.reserve( initialyActive.size() );
-  size_t seed =  initialyActive[0].numeric();
 
-
-  if ( not m_eventInfo.key().empty() ) {
-    auto handle = SG::makeHandle( m_eventInfo, ctx );
-    const xAOD::EventInfo* event = handle.cptr();    
-    // not sure we should mimick something we had before, will not be abel to reproduce it exactly anyways
-    seed = event->timeStamp() ^ event->timeStampNSOffset();
-  }
+  // create the seed from the event time
+  size_t seed = ctx.eventID().time_stamp() ^ ctx.eventID().time_stamp_ns_offset();
   CLHEP::HepRandomEngine* engine = m_RNGEngines.getEngine( ctx );
   engine->setSeed( seed, 0 );
   for ( auto ch: initialyActive ) {

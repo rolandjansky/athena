@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ElectronFrwdPlots.h"
@@ -8,13 +8,13 @@
 
 namespace Egamma{
 
-ElectronFrwdPlots::ElectronFrwdPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir),
+ElectronFrwdPlots::ElectronFrwdPlots(PlotBase* pParent, const std::string& sDir, const std::string& sParticleType):PlotBase(pParent, sDir),
 												     m_oKinFrwdAllRecoPlots(this, "All/KinPlots/", "Reco Electron"),
 												     m_oKinFrwdIsoRecoPlots(this, "Iso/KinPlots/", "Reco Electron"),
 												     m_oKinFrwdTightPlots(this, "FrwdTight/KinPlots/", "FrwdTight Electron"),
 												     m_oClustMomAllRecoPlots(this, "All/ClusMomentPlots/", sParticleType ),
 												     m_oClustMomIsoRecoPlots(this, "Iso/ClusMomentPlots/", sParticleType ),
-												     nParticles(0),
+												     nParticles(nullptr),
 												     m_sParticleType(sParticleType)
 
 {}	

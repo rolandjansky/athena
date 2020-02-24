@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -38,7 +38,7 @@ MuCTPI_RDO* MuCTPI_RDOCnv::createTransient() {
 
    if( this->compareClassGuid( p1_guid ) ) {
 
-      std::auto_ptr< MuCTPI_RDO_p1 > pers_ref( this->poolReadObject< MuCTPI_RDO_p1 >() );
+      std::unique_ptr< MuCTPI_RDO_p1 > pers_ref( this->poolReadObject< MuCTPI_RDO_p1 >() );
       MsgStream log( this->msgSvc(), "MuCTPI_RDOCnv" );
       return TPConverter.createTransient( pers_ref.get(), log );
 

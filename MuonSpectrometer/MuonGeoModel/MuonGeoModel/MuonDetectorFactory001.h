@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonDetectorFactory001_H
@@ -41,14 +41,14 @@ public:
   inline void setDBMuonVersion(std::string v);
   inline void setDBkey(std::string v);
   inline void setDBnode(std::string v);
-    
+
   inline void setLayout(std::string );
   inline void setCutoutsFlag(int );
   inline void setCutoutsBogFlag(int );
   inline void setCtbBisFlag(int );
-  inline void setRDBAccess(IRDBAccessSvc* access);    
+  inline void setRDBAccess(IRDBAccessSvc* access);
   inline void setAltAsciiDBMap(const AltAsciiDBMap asciidbmap);
-  inline void setUseRDB(int rdb);    
+  inline void setUseRDB(int rdb);
   inline void setControlAlines(int cA);
   inline void setMinimalGeoFlag(int minimalGeo);
   inline void setControlCscIntAlines(int cA);
@@ -57,7 +57,7 @@ public:
   inline void setUseCscIntAlinesFromGM(bool cA);
   inline void setSelection(std::vector<std::string>, std::vector<int>, std::vector<int>);
   inline void setCachingFlag(int value);
-  inline void setDumpMemoryBreakDown(bool value);  
+  inline void setDumpMemoryBreakDown(bool value);
   inline void setCacheFillingFlag(int value);
   inline void setMdtDeformationFlag(int mdtDeformationFlag);
   inline void setMdtAsBuiltParaFlag(int mdtAsBuiltParaFlag);
@@ -84,17 +84,17 @@ private:
   bool m_dumpAlines;
   bool m_dumpCscIntAlines;
   bool m_useCscIntAlinesFromGM;
-    
+
   int m_caching;
   int m_cacheFillingFlag;
   int m_mdtDeformationFlag;
   int m_mdtAsBuiltParaFlag;
-  bool m_dumpMemoryBreakDown;  
+  bool m_dumpMemoryBreakDown;
   int m_enableFineClashFixing;
   bool m_hasCSC;
   bool m_hasSTgc;
   bool m_hasMM;
-    
+
   std::vector<std::string> m_selectedStations;
   std::vector<int> m_selectedStEta;
   std::vector<int> m_selectedStPhi;
@@ -108,7 +108,7 @@ private:
 };
 
 void MuonDetectorFactory001::setDBAtlasVersion(std::string v) {m_DBAtlasVersion = v;}
-void MuonDetectorFactory001::setDBMuonVersion(std::string v) {m_DBMuonVersion = v;}    
+void MuonDetectorFactory001::setDBMuonVersion(std::string v) {m_DBMuonVersion = v;}
 void MuonDetectorFactory001::setDBkey(std::string v) {m_DBkey = v;}
 void MuonDetectorFactory001::setDBnode(std::string v) {m_DBnode = v;}
 
@@ -122,12 +122,12 @@ void MuonDetectorFactory001::setAltAsciiDBMap(AltAsciiDBMap asciidbmap) { std::s
 void MuonDetectorFactory001::setControlAlines(int cA) {m_controlAlines = cA;}
 void MuonDetectorFactory001::setMinimalGeoFlag(int minimalGeo) {m_minimalGeoFlag = minimalGeo;}
 void MuonDetectorFactory001::setControlCscIntAlines(int cA) {m_controlCscIntAlines = cA;}
-void MuonDetectorFactory001::setDumpAlines(bool dumpAlines) {m_dumpAlines = dumpAlines;}    
-void MuonDetectorFactory001::setDumpCscIntAlines(bool dumpAlines) {m_dumpCscIntAlines = dumpAlines;}    
-void MuonDetectorFactory001::setUseCscIntAlinesFromGM(bool useIlinesFromGM) {m_useCscIntAlinesFromGM = useIlinesFromGM;}   
+void MuonDetectorFactory001::setDumpAlines(bool dumpAlines) {m_dumpAlines = dumpAlines;}
+void MuonDetectorFactory001::setDumpCscIntAlines(bool dumpAlines) {m_dumpCscIntAlines = dumpAlines;}
+void MuonDetectorFactory001::setUseCscIntAlinesFromGM(bool useIlinesFromGM) {m_useCscIntAlinesFromGM = useIlinesFromGM;}
 
-void MuonDetectorFactory001::setSelection(std::vector<std::string> vst, 
-                                     std::vector<int> veta, 
+void MuonDetectorFactory001::setSelection(std::vector<std::string> vst,
+                                     std::vector<int> veta,
                                      std::vector<int> vphi)
 {
   m_selectedStations = vst; m_selectedStEta = veta; m_selectedStPhi = vphi;
@@ -142,7 +142,7 @@ void MuonDetectorFactory001::setFineClashFixingFlag(int value){m_enableFineClash
 void MuonDetectorFactory001::hasCSC(bool value){m_hasCSC = value;}
 void MuonDetectorFactory001::hasSTgc(bool value){m_hasSTgc = value;}
 void MuonDetectorFactory001::hasMM(bool value){m_hasMM = value;}
-    
+
 } // namespace MuonGM
 
 #endif

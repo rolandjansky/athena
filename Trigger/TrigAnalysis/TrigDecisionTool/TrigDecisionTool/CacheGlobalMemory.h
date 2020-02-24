@@ -145,6 +145,8 @@ namespace Trig {
     void setOldDecisionKeyPtr(SG::ReadHandleKey<TrigDec::TrigDecision>* k) { m_oldDecisionKeyPtr = k; }
     void setOldEventInfoKeyPtr(SG::ReadHandleKey<EventInfo>* k) { m_oldEventInfoKeyPtr = k; }
 
+    SG::ReadHandleKey<xAOD::TrigDecision>* xAODTrigDecisionKey() { return m_decisionKeyPtr; }
+
     // 
     template<class T>
     void deleteAtTheEndOfEvent(T t) const { m_deleteAtEndOfEvent.insert(t); }

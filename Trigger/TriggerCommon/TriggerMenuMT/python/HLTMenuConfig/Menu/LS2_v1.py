@@ -90,6 +90,7 @@ def setupMenu():
         # Primary photon chains
         ChainProp(name='HLT_g140_loose_L1EM24VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_2g35_medium_L12EM20VH', groups=MultiPhotonGroup),
+        ChainProp(name='HLT_g35_medium_g25_medium_L12EM20VH', groups=MultiPhotonGroup),
         ChainProp(name='HLT_2g20_tight_L12EM20VH', groups=MultiPhotonGroup),
 
 
@@ -113,6 +114,9 @@ def setupMenu():
         ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_ftf_subjesgscIS_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_ftf_subresjesgscIS_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subjesgscIS_011jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subjesgscIS_015jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subjesgscIS_059jvt_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_ftf_L1J20', groups=SingleJetGroup),
 

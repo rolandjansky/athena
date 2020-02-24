@@ -158,7 +158,6 @@ namespace MuonGM {
 
   inline void MuonClusterReadoutElement::clearCache() const {
     // clear base cache
-    MuonReadoutElement::clear();
     delete m_surfaceData; m_surfaceData = 0;
   }
 

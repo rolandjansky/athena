@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 from __future__ import print_function
 
-import pickle
-import pprint
-import json
-import sys
 import argparse
 import ast
+import collections
+import json
+import pickle
+import pprint
+import re
+import sys
 
 
 def main():
@@ -103,13 +105,18 @@ def __loadSingleFile(fname, args):
     conf = []
     if fname.endswith(".pkl"):
         with open(fname, "rb") as input_file:
+            conf_dict = collections.defaultdict()
             while True:
                 try:
-                    conf.append(pickle.load(input_file))
+                    cfg = pickle.load(input_file)
+                    if type(cfg) == collections.defaultdict:
+                        conf_dict.update(cfg)
+                    else:
+                        conf.append(cfg)
                 except EOFError:
                     break
+            conf.append(conf_dict)
         print("... Read", len(conf), "items from python pickle file: ", fname)
-
     elif fname.endswith(".json"):
 
         def __keepPlainStrings(element):
@@ -156,51 +163,40 @@ def __print(conf):
 
 
 def __printComps(conf):
-
-    def __printDict(d):
-        for key, value in dict(d).items():
-            if key in "Histograms":
-                continue
-
-            if isinstance(value, dict):
-                __printDict(value)
-            elif isinstance(value, str) and "/" in value:
-                if "[" not in value:  # not an array
-                    if value.count("/") == 1:
-                        print(value)
-                else:  # handle arrays
-                    actualType = ast.literal_eval(value)
-                    if isinstance(actualType, list):
-                        for el in actualType:
-                            if el.count("/") == 1:  # ==1 eliminates COOL folders
-                                print(el)
     for item in conf:
-        __printDict(item)
+        if isinstance(item, dict):
+            for compName in item.keys():
+                print(compName)
 
 
 def __compareConfig(configRef, configChk, args):
     # Find superset of all components:
-    allComps = set(list(configRef.keys()) + list(configChk.keys()))
+    allComps = list(set(configRef.keys()) | set(configChk.keys()))
+    allComps.sort()
+
     print("Step 1: reference file #components:", len(configRef))
     print("Step 2: file to check  #components:", len(configChk))
 
     for component in allComps:
 
-        if component not in configRef and not args.ignoreMissing:
-            print(
-                "\n\033[91m Component ",
-                component,
-                " \033[94m exists only in Chk \033[0m \033[0m \n",
-            )
+        if component not in configRef:
+            if not args.ignoreMissing:
+                print(
+                    "\n\033[91m Component ",
+                    component,
+                    " \033[94m exists only in Chk \033[0m \033[0m \n",
+                )
             continue
 
-        if component not in configChk and not args.ignoreMissing:
-            print(
-                "\n\033[91m Component",
-                component,
-                " \033[92m exists only in Ref \033[0m  \033[0m \n",
-            )
+        if component not in configChk:
+            if not args.ignoreMissing:
+                print(
+                    "\n\033[91m Component",
+                    component,
+                    " \033[92m exists only in Ref \033[0m  \033[0m \n",
+                )
             continue
+
         refValue = configRef[component]
         chkValue = configChk[component]
 
@@ -210,7 +206,7 @@ def __compareConfig(configRef, configChk, args):
         else:
             print("\033[91m Component", component, "differ \033[0m")
             if not args.allComponentPrint:
-                __compareComponent(refValue, chkValue, "\t", args)
+                __compareComponent(refValue, chkValue, "\t", args, component)
             else:
                 print(
                     "\t\033[92mRef\033[0m\t",
@@ -222,25 +218,26 @@ def __compareConfig(configRef, configChk, args):
                 )
 
 
-def __compareComponent(compRef, compChk, prefix, args):
+def __compareComponent(compRef, compChk, prefix, args, component):
 
     if isinstance(compRef, dict):
 
-        allProps = set(list(compRef.keys()) + list(compChk.keys()))
+        allProps = list(set(compRef.keys()) | set(compChk.keys()))
+        allProps.sort()
 
         ignoreList = ["StoreGateSvc", "OutputLevel", "MuonEDMHelperSvc"]
         for prop in allProps:
             if prop not in compRef.keys():
                 print(
-                    "%s%s: \033[94m exists only in Chk \033[0m \033[91m<< !!!\033[0m"
-                    % (prefix, prop)
+                    "%s%s = %s: \033[94m exists only in Chk \033[0m \033[91m<< !!!\033[0m"
+                    % (prefix, prop, compChk[prop])
                 )
                 continue
 
             if prop not in compChk.keys():
                 print(
-                    "%s%s: \033[92m exists only in Ref \033[0m \033[91m<< !!!\033[0m"
-                    % (prefix, prop)
+                    "%s%s = %s: \033[92m exists only in Ref \033[0m \033[91m<< !!!\033[0m"
+                    % (prefix, prop, compRef[prop])
                 )
                 continue
 
@@ -257,38 +254,83 @@ def __compareComponent(compRef, compChk, prefix, args):
             else:
                 diffmarker = " \033[91m<< !!!\033[0m"
 
-            print(
-                "%s%s : \033[92m %s \033[0m vs \033[94m %s \033[0m %s"
-                % (prefix, prop, str(refVal), str(chkVal), diffmarker)
-            )
+            if not (component == 'IOVDbSvc' and prop == 'Folders'):
+                print(
+                    "%s%s : \033[92m %s \033[0m vs \033[94m %s \033[0m %s"
+                    % (prefix, prop, str(refVal), str(chkVal), diffmarker)
+                )
 
             try:
-                refVal = ast.literal_eval(str(refVal))
-                chkVal = ast.literal_eval(str(chkVal))
+                refVal = ast.literal_eval(str(refVal)) if refVal else ''
+                chkVal = ast.literal_eval(str(chkVal)) if chkVal else ''
+            except SyntaxError:
+                pass
             except ValueError:
                 pass # literal_eval exception when parsing particular strings
 
             if refVal and (isinstance(refVal, list) or isinstance(refVal, dict)):
-                __compareComponent(refVal, chkVal, "\t" + prefix + ">> ", args)
+                if component == 'IOVDbSvc' and prop == 'Folders':
+                    __compareIOVDbFolders(refVal, chkVal, "\t", args)
+                else:
+                    __compareComponent(refVal, chkVal, "\t" + prefix + ">> ", args, component)
 
     elif isinstance(compRef, list) and len(compRef) > 1:
-        if len(compRef) != len(compChk):
-            diff = list(set(compRef) - set(compChk))
-            inRef = all(elem in compRef for elem in compChk)
-            missingIn = "Ref" if inRef else "Chk"
-            color = "\033[92m" if inRef else "\033[94m"
+        diffRef = list(set(compRef) - set(compChk))
+        diffChk = list(set(compChk) - set(compRef))
+        if diffRef:
             print(
-                "%s exists only in %s : %s %s \033[0m \033[91m<< !!!\033[0m"
-                % (prefix, missingIn, color, str(diff))
+                "%s exists only in Ref : \033[92m %s \033[0m \033[91m<< !!!\033[0m"
+                % (prefix, str(diffRef))
             )
-        else:
-            for refVal, chkVal in zip(compRef, compChk):
+        if diffChk:
+            print(
+                "%s exists only in Chk : \033[94m %s \033[0m \033[91m<< !!!\033[0m"
+                % (prefix, str(diffChk))
+            )
+        if len(compRef) == len(compChk):
+            for i, (refVal, chkVal) in enumerate(zip(compRef, compChk)):
                 if refVal != chkVal:
                     print(
-                        "%s : \033[92m %s \033[0m vs \033[94m %s \033[0m \033[91m<< !!!\033[0m"
-                        % (prefix, str(refVal), str(chkVal))
+                        "%s : \033[92m %s \033[0m vs \033[94m %s \033[0m \033[91m<< at index %s !!!\033[0m"
+                        % (prefix, str(refVal), str(chkVal), str(i))
                     )
-                    __compareComponent(refVal, chkVal, "\t" + prefix + ">> ", args)
+                    __compareComponent(refVal, chkVal, "\t" + prefix + ">> ", args, '')
+
+
+def __parseIOVDbFolder(definition):
+    result = {}
+    # db
+    db_match = re.search(r'<db>(.*)</db>', definition)
+    if db_match:
+        result['db'] = db_match.group(1)
+        definition = definition.replace(db_match.group(0), '')
+    # tag
+    tag_match = re.search(r'<tag>(.*)</tag>', definition)
+    if tag_match:
+        result['tag'] = tag_match.group(1)
+        definition = definition.replace(tag_match.group(0), '')
+    # cache -- ignore for now
+    cache_match = re.search(r'<cache>(.*)</cache>', definition)
+    if cache_match:
+        definition = definition.replace(cache_match.group(0), '')
+    # noover
+    noover_match = re.search(r'<noover/>', definition)
+    if noover_match:
+        result['noover'] = True
+        definition = definition.replace(noover_match.group(0), '')
+    # name
+    result['name'] = definition.strip()
+
+    return json.dumps(result)
+
+def __compareIOVDbFolders(compRef, compChk, prefix, args):
+    refParsed = []
+    chkParsed = []
+    for item in compRef:
+        refParsed.append(__parseIOVDbFolder(item))
+    for item in compChk:
+        chkParsed.append(__parseIOVDbFolder(item))
+    __compareComponent(refParsed, chkParsed, prefix, args, '')
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigConfigSvc.TrigConfigSvcConf import (TrigConf__LVL1ConfigSvc,
                                              TrigConf__L1TopoConfigSvc,
@@ -417,32 +417,8 @@ class SetupTrigConfigSvc(object):
 
 
 def TrigConfigSvcCfg( flags ):
-    from AthenaCommon.Logging import log
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc = ComponentAccumulator()
-
-    from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
-    from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
-
-    l1ConfigSvc = TrigConf__LVL1ConfigSvc( "LVL1ConfigSvc" )
-    l1XMLFile = findFileInXMLPATH(flags.Trigger.LVL1ConfigFile)
-    log.debug( "LVL1ConfigSvc input file:"+l1XMLFile  )
-    l1ConfigSvc.XMLMenuFile = l1XMLFile
-    l1ConfigSvc.ConfigSource = "XML"
-
-    acc.addService( l1ConfigSvc )
-
-    from TrigConfigSvc.TrigConfigSvcConf import TrigConf__HLTConfigSvc
-    hltConfigSvc = TrigConf__HLTConfigSvc( "HLTConfigSvc" )
-    hltJsonFile = flags.Trigger.HLTMenuFile.replace(".xml",".json").replace("HLTconfig","HLTmenu")
-    #hltJsonFile = findFileInXMLPATH(hltJsonFile)
-    log.debug( "HLTConfigSvc input file:"+hltJsonFile  )
-    hltConfigSvc.JsonFileName = hltJsonFile
-
-    acc.addService( hltConfigSvc )
-
-
-    return acc
+    from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg
+    return TrigConfigSvcCfg( flags )
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable

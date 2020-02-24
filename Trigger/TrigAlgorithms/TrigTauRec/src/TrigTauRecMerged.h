@@ -65,8 +65,6 @@ class TrigTauRecMerged: public HLT::FexAlgo {
 
  private:
 
-  TauEventData m_tauEventData;
-
   void setEmptyTauTrack( xAOD::TauJet* &tauJet,
 			 xAOD::TauTrackContainer* &tauTrackCont);
 

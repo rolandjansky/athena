@@ -32,9 +32,7 @@ Muon::ProjectionMMClusterBuilderTool::ProjectionMMClusterBuilderTool(const std::
 							     const std::string& n,
 							     const IInterface*  p )
   :  
-  AthAlgTool(t,n,p),
-  m_muonMgr(nullptr),
-  m_mmIdHelper(nullptr)
+  AthAlgTool(t,n,p)
 {
   declareInterface<IMMClusterBuilderTool>(this);
   declareProperty("vDrift",m_vDrift = 0.048);
@@ -52,12 +50,7 @@ Muon::ProjectionMMClusterBuilderTool::ProjectionMMClusterBuilderTool(const std::
 
 StatusCode Muon::ProjectionMMClusterBuilderTool::initialize()
 {
-  StatusCode sc = detStore()->retrieve(m_muonMgr);
-  if (sc.isFailure()){
-    ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
-    return sc;
-  }
-  m_mmIdHelper = m_muonMgr->mmIdHelper();
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_MSG_INFO("Set vDrift to "<< m_vDrift <<" um/ns");
   return StatusCode::SUCCESS;
 }
@@ -74,7 +67,7 @@ ATH_MSG_DEBUG("Running ProjectionClusterBuilderTool with: "<< MMprds.size() <<" 
 // sorting hits by gas gap
 for(const auto& prd : MMprds){
     Identifier id = prd.identify();
-    int layer = 4*(m_mmIdHelper->multilayer(id)-1) + (m_mmIdHelper->gasGap(id)-1);
+    int layer = 4*(m_idHelperSvc->mmIdHelper().multilayer(id)-1) + (m_idHelperSvc->mmIdHelper().gasGap(id)-1);
     prdsPerLayer.at(layer).push_back(prd);
 }
 
@@ -82,7 +75,7 @@ ATH_MSG_DEBUG("sorted hist");
 //sort MMPrds by channel
 for(unsigned int i_layer=0;i_layer<prdsPerLayer.size();i_layer++){
            std::sort(prdsPerLayer.at(i_layer).begin(),prdsPerLayer.at(i_layer).end(),
-                    [this](const MMPrepData &a,const MMPrepData &b){return this->m_mmIdHelper->channel(a.identify())<this->m_mmIdHelper->channel(b.identify());});
+                    [this](const MMPrepData &a,const MMPrepData &b){return this->m_idHelperSvc->mmIdHelper().channel(a.identify())<this->m_idHelperSvc->mmIdHelper().channel(b.identify());});
            }
 
 for(const auto& prdsOfLayer : prdsPerLayer){
@@ -97,7 +90,7 @@ for(const auto& prdsOfLayer : prdsPerLayer){
       double globalR=std::sqrt(std::pow(prd.globalPosition().x(),2)+std::pow(prd.globalPosition().y(),2));
       double Tan=globalR/prd.globalPosition().z();
       double angleToIp=std::atan(Tan)/(180./M_PI);
-      ATH_MSG_DEBUG("Hit channel: "<< m_mmIdHelper->channel(id_prd) <<" time "<< prd.time() << " localPosX "<< prd.localPosition().x() << " tof "<<tof <<" angleToIp " << angleToIp<<" gas_gap "<< m_mmIdHelper->gasGap(id_prd) << " multiplet " << m_mmIdHelper->multilayer(id_prd) << " stationname " <<m_mmIdHelper->stationName(id_prd)  << " stationPhi " <<m_mmIdHelper->stationPhi(id_prd) << " stationEta "<<m_mmIdHelper->stationEta(id_prd));
+      ATH_MSG_DEBUG("Hit channel: "<< m_idHelperSvc->mmIdHelper().channel(id_prd) <<" time "<< prd.time() << " localPosX "<< prd.localPosition().x() << " tof "<<tof <<" angleToIp " << angleToIp<<" gas_gap "<< m_idHelperSvc->mmIdHelper().gasGap(id_prd) << " multiplet " << m_idHelperSvc->mmIdHelper().multilayer(id_prd) << " stationname " <<m_idHelperSvc->mmIdHelper().stationName(id_prd)  << " stationPhi " <<m_idHelperSvc->mmIdHelper().stationPhi(id_prd) << " stationEta "<<m_idHelperSvc->mmIdHelper().stationEta(id_prd));
     }
 
     //vector<double> xpos,time,corr,newXpos,charge,globalR;
@@ -154,7 +147,7 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::calculateCorrection(
       if(tm>m_tmax) tm=m_tmax;
       double globalR=std::sqrt(std::pow(prd.globalPosition().x(),2) + std::pow(prd.globalPosition().y(),2));
       double cor=m_vDrift*(tm-m_tmin-m_tOffset)*(1.0*globalR/posz);
-      //cor*=(m_mmIdHelper->gasGap(prd.identify())%2==1? 1:-1);//correct for the local drift time directions. Gas gap 2 and 4 have "negativ" time, therefore correction is applied negative
+      //cor*=(m_idHelperSvc->mmIdHelper().gasGap(prd.identify())%2==1? 1:-1);//correct for the local drift time directions. Gas gap 2 and 4 have "negativ" time, therefore correction is applied negative
       
       ATH_MSG_DEBUG("globalR: "<< globalR << " Time: " << tm-m_tmin-m_tOffset << "globalZ: " << posz << " R/Z: "<<1.0*globalR/posz);
 
@@ -239,7 +232,7 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<Muon::M
         stripsOfCluster.push_back(prdsOfLayer.at(id_goodStrip).identify());
         stripsOfClusterDriftTime.push_back(int(prdsOfLayer.at(id_goodStrip).time()-prdsOfLayer.at(id_goodStrip).globalPosition().norm()/299.792-m_t0));
         stripsOfClusterCharge.push_back(int(prdsOfLayer.at(id_goodStrip).charge()));
-        stripsOfClusterStripNumber.push_back(m_mmIdHelper->channel(prdsOfLayer.at(id_goodStrip).identify()));
+        stripsOfClusterStripNumber.push_back(m_idHelperSvc->mmIdHelper().channel(prdsOfLayer.at(id_goodStrip).identify()));
 
 
         meanTime+=prdsOfLayer.at(id_goodStrip).time()*prdsOfLayer.at(id_goodStrip).charge();
@@ -257,12 +250,12 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<Muon::M
 
       clustersVect.push_back(prdN);
       ATH_MSG_VERBOSE("pushedBack  prdN");
-      ATH_MSG_VERBOSE("pushedBack PRDs: stationEta: "<< m_mmIdHelper->stationEta(prdN->identify())
-                       <<" stationPhi "<< m_mmIdHelper->stationPhi(prdN->identify()) 
-                       <<" stationName "<< m_mmIdHelper->stationName(prdN->identify())
-                       << " gasGap "<< m_mmIdHelper->gasGap(prdN->identify()) 
-                       <<" multiplet "<<m_mmIdHelper->multilayer(prdN->identify()) 
-                       <<" channel "<< m_mmIdHelper->channel(prdN->identify()));
+      ATH_MSG_VERBOSE("pushedBack PRDs: stationEta: "<< m_idHelperSvc->mmIdHelper().stationEta(prdN->identify())
+                       <<" stationPhi "<< m_idHelperSvc->mmIdHelper().stationPhi(prdN->identify()) 
+                       <<" stationName "<< m_idHelperSvc->mmIdHelper().stationName(prdN->identify())
+                       << " gasGap "<< m_idHelperSvc->mmIdHelper().gasGap(prdN->identify()) 
+                       <<" multiplet "<<m_idHelperSvc->mmIdHelper().multilayer(prdN->identify()) 
+                       <<" channel "<< m_idHelperSvc->mmIdHelper().channel(prdN->identify()));
       return StatusCode::SUCCESS;
 } 
 

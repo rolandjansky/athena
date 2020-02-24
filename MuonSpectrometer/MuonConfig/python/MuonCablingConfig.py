@@ -31,7 +31,7 @@ def RPCCablingConfigCfg(flags):
     rpcCablingSvc.CorrFileName = 'LVL1confAtlas.corr' 
     rpcCablingSvc.ConfFilePath = 'MuonRPC_Cabling/'
     rpcCablingSvc.RPCTriggerRoadsfromCool = True
-    rpcCablingSvc.CosmicConfiguration     = True  # this was set to true by the modifier openThresholdRPCCabling in runHLT_standalone.py
+    rpcCablingSvc.CosmicConfiguration     = 'HLT' in flags.IOVDb.GlobalTag  # this was set to true by the modifier openThresholdRPCCabling in runHLT_standalone.py
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     dbName = 'RPC_OFL' if flags.Input.isMC else 'RPC'

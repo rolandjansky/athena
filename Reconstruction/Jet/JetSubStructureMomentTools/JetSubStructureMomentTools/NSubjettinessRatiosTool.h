@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef jetsubstructuremomenttools_nsubjetinessratiostool_header
@@ -16,7 +16,10 @@ class NSubjettinessRatiosTool :
       NSubjettinessRatiosTool(std::string name);
 
       int modifyJet(xAOD::Jet &jet) const;
-};
 
+    private:
+      bool m_doDichroic;
+
+};
 
 #endif

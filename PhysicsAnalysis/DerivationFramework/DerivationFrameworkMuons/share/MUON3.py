@@ -31,10 +31,9 @@ MUON3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 MUON3Stream.AcceptAlgs(["MUON3Kernel"])
 # Special lines for thinning
 # Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="MUON3ThinningSvc", outStreams=[evtStream] )
+
 #====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
@@ -147,10 +146,9 @@ ToolSvc += MUON3SkimmingTool1
 thinning_expression1 = '||'.join(thinningORs)
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 MUON3ThinningTool1 = DerivationFramework__TrackParticleThinning(name                    = "MUON3ThinningTool1",
-                                                                ThinningService         = "MUON3ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 SelectionString         = thinning_expression1,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = False)
+                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON3ThinningTool1
 
 # keep tracks around muons

@@ -9,9 +9,9 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
-#include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
-#include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_BarrelModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ForwardModuleSideDesign.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "RoiDescriptor/RoiDescriptor.h"
 #include "TrkTrack/TrackCollection.h"
@@ -38,8 +38,6 @@
 #include "HepMC/GenParticle.h"
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-//#include "TrkEventUtils/PrepRawDataComparisonFunction.h"
-
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 

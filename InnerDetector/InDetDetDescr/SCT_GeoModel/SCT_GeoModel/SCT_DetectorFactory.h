@@ -6,7 +6,7 @@
 #define SCT_GEOMODEL_SCT_DETECTORFACTORY_H 
  
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h" 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 
 class GeoPhysVol;

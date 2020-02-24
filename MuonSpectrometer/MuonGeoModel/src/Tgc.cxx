@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -53,15 +53,15 @@ GeoFullPhysVol* Tgc::build(int minimalgeo)
 }
 
 
-GeoFullPhysVol* 
+GeoFullPhysVol*
 Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
 {
-  MYSQL* mysql = MYSQL::GetPointer();	
+  MYSQL* mysql = MYSQL::GetPointer();
   TGC* t = (TGC*) mysql->GetTechnology(name);
   thickness = t->thickness;
 
   // Build TGC mother volume out of G10
-  const GeoShape* strd = new GeoTrd(thickness/2, thickness/2, width/2, 
+  const GeoShape* strd = new GeoTrd(thickness/2, thickness/2, width/2,
                                     longWidth/2, length/2);
   if (cutoutson && vcutdef.size() > 0) {
     Cutout* cut = 0;
@@ -74,14 +74,9 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
       cutTrans = GeoTrf::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
       strd = &(strd->subtract( (*cutoutShape) << cutTrans) );
     }
-//    std::cout << " Tgc cutouts" << std::endl;
-//      for (unsigned i = 0; i < vcutdef.size(); i++) std::cout
-//         << " x = " << vcutdef[i]->dx << " y = " << vcutdef[i]->dy
-//         << " width = " << vcutdef[i]->widthXs << " length = " << vcutdef[i]->lengthY
-//         << std::endl;
   }
 
-  const GeoMaterial* mtrd = matManager->getMaterial("std::G10");
+  const GeoMaterial* mtrd = getMaterialManager()->getMaterial("std::G10");
   GeoLogVol* ltrd = new GeoLogVol(logVolName, strd, mtrd);
   GeoFullPhysVol* ptrd = new GeoFullPhysVol(ltrd);
 
@@ -99,7 +94,7 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
     double longWidthActive;
     double lengthActive;
 
-    if (t->materials[i] == "muo::TGCGas") { 
+    if (t->materials[i] == "muo::TGCGas") {
       // sensitive volume with wire/button support
       igl++;
       if (!skip_tgc) ptrd->add(new GeoIdentifierTag(igl));
@@ -107,27 +102,22 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
       widthActive = width - (t->frame_ab)*2;
       longWidthActive = longWidth - (t->frame_ab)*2;
       lengthActive = length - (t->frame_h)*2;
-//      std::cout << " Gas in loop " << i << " : frame_ab = " << t->frame_ab
-//                << " frame_h = " << t->frame_h << " tilt angle = " << t->angleTilt
-//                << " wire width support = " << t->widthWireSupport
-//                << " offset wire support = " << t->offsetWireSupport[iSenLyr]
-//                << " wire support distance = " << t->distanceWireSupport << std::endl;
- 
-      const GeoShape* sGasVolume = new GeoTrd(t->tck[i]/2, t->tck[i]/2, widthActive/2, 
+
+      const GeoShape* sGasVolume = new GeoTrd(t->tck[i]/2, t->tck[i]/2, widthActive/2,
                                               longWidthActive/2, lengthActive/2);
 
-      if (t->widthWireSupport != 0. && t->radiusButton != 0.) { 
+      if (t->widthWireSupport != 0. && t->radiusButton != 0.) {
         // No supports for CTB simulation since their parameters are not in the DB
-	// Build wire supports and button supports in sensitive volume
+        // Build wire supports and button supports in sensitive volume
 
-	// wire supports
+        // wire supports
 	GeoTrd* strdsup = new GeoTrd(t->tck[i]/2, t->tck[i]/2, t->widthWireSupport/2,
                                      t->widthWireSupport/2, lengthActive/2-0.1*Gaudi::Units::mm);
 	// button supports
 	GeoTube* stubesup = new GeoTube(0., t->radiusButton,
 					    t->tck[i]/2.+0.005*Gaudi::Units::mm);
 	GeoTrf::RotateY3D rotY(M_PI_2*Gaudi::Units::rad);
-	  
+
 	int iymin = int( -(widthActive/2. + lengthActive*tan(t->angleTilt) - t->widthWireSupport/2.
 			  + t->offsetWireSupport[iSenLyr])/t->distanceWireSupport );
 	int iymax = int(  (widthActive/2. + lengthActive*tan(t->angleTilt) - t->widthWireSupport/2.
@@ -229,10 +219,10 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
             }
 
             double widthRightTrd = widthActive/2.
-		                      -( t->distanceWireSupport*iymax 
+		                      -( t->distanceWireSupport*iymax
 					+t->offsetWireSupport[iSenLyr]
 					+lengthActive*tan(-t->angleTilt));
-	      
+
             if (widthRightTrd > 8.*Gaudi::Units::cm) {
               double yLongBase;
               if ((name == "TGC01" || name == "TGC06" || name == "TGC12") &&
@@ -255,7 +245,7 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
               angleTiltButton[nBS] = atan((yShortBase-yLongBase)/lengthActive);
               nBS++;
             }
-	  
+
             if (nBS == 0) { // no button support in trapezoidal sensitive area
               break;        // leave isup loop
             }
@@ -283,8 +273,8 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
         for (unsigned i = 0; i < vcutdef.size(); i++) {
           cut = vcutdef[i];
           cutoutShape = new GeoTrd(thickness/2.+1., thickness/2.+1.,
-                                   cut->widthXs/2. + t->frame_ab/2., 
-                                   cut->widthXl/2. + t->frame_ab/2., 
+                                   cut->widthXs/2. + t->frame_ab/2.,
+                                   cut->widthXl/2. + t->frame_ab/2.,
                                    cut->lengthY/2. + t->frame_h/2.);
           cutTrans = GeoTrf::Translate3D(0.0, cut->dx, -length/2 + cut->dy + cut->lengthY/2.);
           sGasVolume = &(sGasVolume->subtract( (*cutoutShape) << cutTrans) );
@@ -292,14 +282,14 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
       }
 
       GeoLogVol* ltrdtmp = new GeoLogVol(t->materials[i], sGasVolume,
-                                         matManager->getMaterial(t->materials[i]));
+                                         getMaterialManager()->getMaterial(t->materials[i]));
       GeoPhysVol* ptrdtmp = new GeoPhysVol(ltrdtmp);
       GeoNameTag* ntrdtmp = new GeoNameTag(name+t->materials[i]);
       GeoTransform* ttrdtmp = new GeoTransform(GeoTrf::TranslateX3D(newpos + (t->tck[i]/2)));
 
       // Place gas volume inside G10 mother volume so that
       // subtractions from gas volume now become G10
-      if (!skip_tgc) { 
+      if (!skip_tgc) {
         ptrd->add(ntrdtmp);
         ptrd->add(ttrdtmp);
         ptrd->add(ptrdtmp);
@@ -310,7 +300,7 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
     } else if (t->materials[i] != "std:G10") {
       // passive structure, Copper, Honeycomb,
       // except for G10 which is material of the mother volume
-      const GeoShape* strdtmp = new GeoTrd(t->tck[i]/2, t->tck[i]/2, width/2, 
+      const GeoShape* strdtmp = new GeoTrd(t->tck[i]/2, t->tck[i]/2, width/2,
                                    longWidth/2, length/2);
       if (cutoutson && vcutdef.size() > 0) {
         Cutout* cut = 0;
@@ -325,12 +315,12 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
         }
       }
       GeoLogVol* ltrdtmp = new GeoLogVol(t->materials[i], strdtmp,
-                                         matManager->getMaterial(t->materials[i]));
+                                         getMaterialManager()->getMaterial(t->materials[i]));
       GeoPhysVol* ptrdtmp = new GeoPhysVol(ltrdtmp);
       GeoNameTag* ntrdtmp = new GeoNameTag(name+t->materials[i]);
       GeoTransform* ttrdtmp = new GeoTransform(GeoTrf::TranslateX3D(newpos+ (t->tck[i]/2)));
 
-      if (!skip_tgc) { 
+      if (!skip_tgc) {
         ptrd->add(ntrdtmp);
         ptrd->add(ttrdtmp);
         ptrd->add(ptrdtmp);
@@ -339,14 +329,15 @@ Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout*> vcutdef)
 
     newpos += t->tck[i];
   } // Loop over tgc layers
-        
-  return ptrd;	
+
+  return ptrd;
 }
 
 
 void Tgc::print()
 {
-  std::cout << " Tgc " << name << " :" << std::endl;
+  MsgStream log(Athena::getMessageSvc(), "MuGM::Tgc");
+  log << MSG::INFO << " Tgc " << name << " :" << endmsg;
 }
 
 } // namespace MuonGM

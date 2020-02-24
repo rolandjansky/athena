@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -246,7 +246,7 @@ void EMConvert::set_parameter(egammaParameters::ParamDef key, double value, bool
   }
 
   if ( p == m_parameters.end() ) {
-    m_parameters.push_back(std::pair<egammaParameters::ParamDef,double>(key,value));
+    m_parameters.emplace_back(key,value);
   }
   else {
     if ( overwrite ) {
@@ -270,7 +270,7 @@ void EMConvert::set_parameterBool(egammaParameters::ParamDef key, bool value, bo
   }
 
   if ( p == m_parametersBool.end() ) {
-    m_parametersBool.push_back( elParams(key,value) );
+    m_parametersBool.emplace_back(key,value );
   }
   else {
     if ( overwrite ) {
@@ -294,7 +294,7 @@ void EMConvert::set_parameterInt(egammaParameters::ParamDef key, int value, bool
   }
 
   if ( p == m_parametersInt.end() ) {
-    m_parametersInt.push_back( elParams(key,value) );
+    m_parametersInt.emplace_back(key,value );
   }
   else {
     if ( overwrite ) {
@@ -945,15 +945,15 @@ Amg::MatrixX* EMConvert::getVxErrorMatrix() const
 
   }
   //Convert the CovarianceMatrix into a ErrorMatrix and create a new new object to pass;
-  return 0;
+  return nullptr;
 }
 
 
 Trk::VxCandidate* EMConvert::getVxCandidate() const
 {
 
-  Trk::ExtendedVxCandidate* evxCand = 0;
-  Trk::VxCandidate* vxCand = 0;
+  Trk::ExtendedVxCandidate* evxCand = nullptr;
+  Trk::VxCandidate* vxCand = nullptr;
   std::vector<Trk::VxTrackAtVertex*> vxTrkAtVx;
 
   AmgSymMatrix(3)* posmat = getVxPosErrorMatrix();
@@ -977,7 +977,7 @@ Trk::VxCandidate* EMConvert::getVxCandidate() const
   vxTrkAtVx.push_back(vxtrk1);
 
   if(vertex_numTracks()>1){
-    Trk::VxTrackAtVertex* vxtrk2 = 0;
+    Trk::VxTrackAtVertex* vxtrk2 = nullptr;
     AmgSymMatrix(5) *trk2EM = getTrk2ErrorMatrix();
     const Trk::PerigeeSurface surface2(globPos);
     Trk::Perigee* trkParams2= new Trk::Perigee(0,

@@ -45,9 +45,9 @@ const CLID& T_AthenaPoolCustCnv<TRANS, PERS>::classID() {
 //__________________________________________________________________________
 template <class TRANS, class PERS>
 template <class P>
-void T_AthenaPoolCustCnv<TRANS, PERS>::setPlacementForP(P& /*p*/, const std::string& key, const std::string& output) {
+Placement T_AthenaPoolCustCnv<TRANS, PERS>::setPlacementForP(P& /*p*/, const std::string& key, const std::string& output) {
    const std::string typenm = ClassName<P>::name();
-   this->setPlacementWithType(typenm, key, output);
+   return(this->setPlacementWithType(typenm, key, output));
 }
 //__________________________________________________________________________
 template <class TRANS, class PERS>
@@ -69,8 +69,8 @@ StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::objectToPool(P* pObj, Token*& token
          this->m_classDesc = (*itClass).second;
       }
    }
-   setPlacementForP(*pObj, key, output);
-   token = this->m_athenaPoolCnvSvc->registerForWrite(this->m_placement, pObj, this->m_classDesc);
+   Placement placement = setPlacementForP(*pObj, key, output);
+   token = this->m_athenaPoolCnvSvc->registerForWrite(&placement, pObj, this->m_classDesc);
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________

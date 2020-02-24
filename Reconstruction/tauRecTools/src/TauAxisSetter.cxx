@@ -3,8 +3,6 @@
 */
 
 #ifndef XAOD_ANALYSIS
-#include "tauRecTools/TauEventData.h"
-
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODTau/TauJet.h"

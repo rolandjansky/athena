@@ -57,8 +57,10 @@ StatusCode TauTrackFinder::initialize() {
     ATH_CHECK( m_caloExtensionTool.retrieve() );
     
     // initialize ReadHandleKey
-    ATH_CHECK( m_trackPartInputContainer.initialize(!m_trackPartInputContainer.key().empty()) );
-    ATH_CHECK( m_ParticleCacheKey.initialize(!m_ParticleCacheKey.key().empty()) );
+    // allow empty for trigger
+    ATH_CHECK( m_trackPartInputContainer.initialize(SG::AllowEmpty) );
+    // use CaloExtensionTool when key is empty 
+    ATH_CHECK( m_ParticleCacheKey.initialize(SG::AllowEmpty) );
 
     return StatusCode::SUCCESS;
 }
@@ -69,7 +71,7 @@ StatusCode TauTrackFinder::finalize() {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
+StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, const xAOD::TrackParticleContainer* trackContainer) {
 
   ElementLink< xAOD::TauTrackContainer > link = pTau.allTauTrackLinksNonConst().at(0);//we don't care about this specific link, just the container
   xAOD::TauTrackContainer* tauTrackCon = link.getDataNonConstPtr();
@@ -83,19 +85,24 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
   std::vector<const xAOD::TrackParticle*> wideTracks;
   std::vector<const xAOD::TrackParticle*> otherTracks;
   
-  const xAOD::TrackParticleContainer* trackParticleCont = 0;
-
-  if (m_trackPartInputContainer.key().empty())   {
-    ATH_CHECK(tauEventData()->getObject( "TrackContainer", trackParticleCont ));    
-  }
-  else {
-    // Get the track particle container from StoreGate   
+  const xAOD::TrackParticleContainer* trackParticleCont = nullptr; 
+  
+  if (! m_trackPartInputContainer.empty()) { // MT version of trigger or offline
     SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
     if (!trackPartInHandle.isValid()) {
       ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << trackPartInHandle.key());
       return StatusCode::FAILURE;
     }
     trackParticleCont = trackPartInHandle.cptr();
+  }
+  else { // coule be possible in trigger
+    if (trackContainer != nullptr) { 
+      trackParticleCont = trackContainer;
+    }
+    else {
+      ATH_MSG_WARNING("No track container found");
+      return StatusCode::FAILURE;
+    }
   }
 
   // get the primary vertex

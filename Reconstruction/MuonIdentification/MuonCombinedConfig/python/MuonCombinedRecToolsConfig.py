@@ -319,23 +319,6 @@ def MuidTrackCleanerCfg(flags, name='MuidTrackCleaner', **kwargs ):
     tool = CompFactory.Muon__MuonTrackCleaner(name,**kwargs)
     result.setPrivateTools(tool)
     return result
-
-def OutwardsTrackCleanerCfg( flags, name='OutwardsTrackCleaner', **kwargs ):
-    if flags.Beam.Type == 'cosmics':
-        kwargs.setdefault("PullCut"     , 5.0)
-        kwargs.setdefault("PullCutPhi"  , 10.0)
-    else:
-        kwargs.setdefault("PullCut"     , 4.0)
-        kwargs.setdefault("PullCutPhi"  , 4.0)
-    result = iPatFitterCfg(flags)
-    kwargs.setdefault("Fitter"      , result.popPrivateTools() )
-    acc= iPatSLFitterCfg(flags)
-    kwargs.setdefault("SLFitter"    , acc.popPrivateTools() )
-    result.merge(acc)
-
-    tool = CompFactory.Muon__MuonTrackCleaner(name,**kwargs)
-    result.setPrivateTools(tool)
-    return result
     
 def MuidCaloEnergyParam(flags, name='MuidCaloEnergyParam', **kwargs ):
     kwargs.setdefault("Cosmics", flags.Beam.Type == 'cosmics' )
@@ -446,9 +429,9 @@ def MuonTrackQueryCfg(flags, name="MuonTrackQuery", **kwargs ):
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg
     result = MdtDriftCircleOnTrackCreatorCfg(flags)
     kwargs.setdefault("MdtRotCreator",   result.popPrivateTools() )
-    
-    acc = CombinedMuonTrackBuilderCfg(flags)
-    kwargs.setdefault("Fitter",          acc.popPrivateTools() )
+
+    acc = iPatFitterCfg(flags)
+    kwargs.setdefault("Fitter", acc.popPrivateTools() )
     result.merge(acc)
 
     tool = CompFactory.Rec__MuonTrackQuery(name,**kwargs)
@@ -658,45 +641,6 @@ def CombinedMuonTagTestToolCfg(flags, name='CombinedMuonTagTestTool', **kwargs )
     tool = CompFactory.MuonCombined__MuonTrackTagTestTool(name,**kwargs)
     result.setPrivateTools(tool)
     return result
-
-
-def OutwardsSegmentRegionRecoveryToolCfg(flags, name ='OutwardsSegmentRegionRecoveryTool', **kwargs ):
-    result = MuonCombinedTrackFitterCfg(flags)
-    kwargs.setdefault("Fitter",  result.popPrivateTools() )
-    tool = CompFactory.Muon__MuonSegmentRegionRecoveryTool(name,**kwargs)
-    result.setPrivateTools(tool)
-    return result
-
-def OutwardsCombinedMuonTrackBuilderCfg(flags,  name = 'OutwardsCombinedMuonTrackBuilder', **kwargs ):
-    result = OutwardsTrackCleanerCfg(flags)
-    kwargs.setdefault("Cleaner", result.popPrivateTools())
-    acc = MuonCombinedTrackFitterCfg(flags)
-    fitter = acc.popPrivateTools() # Might be needed below
-    kwargs.setdefault("Fitter",  fitter )
-    result.merge(acc)
-    acc = MuonCombinedTrackSummaryToolCfg(flags)
-    kwargs.setdefault("TrackSummaryTool"     ,  acc.popPrivateTools() )
-    result.merge(acc)
-    acc = OutwardsSegmentRegionRecoveryToolCfg(flags)
-    kwargs.setdefault("MuonHoleRecovery"     , acc.popPrivateTools() )
-    result.merge(acc)
-    kwargs.setdefault("AllowCleanerVeto"     , False)
-    if flags.Muon.enableErrorTuning():
-        from MuonConfig.MuonRecToolsConfig import MuonRefitToolCfg
-        acc = MuonRefitToolCfg(flags, name="OutwardsRefitTool", AlignmentErrors = False, Fitter = fitter)
-        refitTool = acc.popPrivateTools()
-        result.merge(acc)
-        acc = MuidErrorOptimisationToolCfg(flags, name="OutwardsErrorOptimisationTool", PrepareForFit = False, 
-                                                RecreateStartingParameters = False, RefitTool = refitTool)
-        kwargs.setdefault("MuonErrorOptimizer", acc.popPrivateTools())
-        result.merge(acc)
-       
-
-    tool = CompFactory.Rec__OutwardsCombinedMuonTrackBuilder(name,**kwargs)
-    result.setPrivateTools(tool)
-    return result
-
-    # tools for ID/MS match quality and recovery of incorrect spectrometer station association	
 
 # From MuonCaloTagTool.py
 

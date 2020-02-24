@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Database/RegistrationServices
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           Tools/PathResolver
                           Tools/PyJobTransformsCore )
 
@@ -36,7 +37,7 @@ atlas_add_component( SCT_CalibAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier EventInfo GaudiKernel SCT_ConditionsData InDetIdentifier SCT_CablingLib InDetRawData InDetReadoutGeometry PathResolver )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier EventInfo GaudiKernel SCT_ConditionsData InDetIdentifier SCT_CablingLib InDetRawData InDetReadoutGeometry SCT_ReadoutGeometry PathResolver )
 
 # Install files from the package:
 atlas_install_headers( SCT_CalibAlgs )

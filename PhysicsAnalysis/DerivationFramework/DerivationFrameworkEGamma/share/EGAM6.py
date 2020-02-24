@@ -252,7 +252,7 @@ print EGAM6TauTPThinningTool
 # Tracks from primary vertex
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 EGAM6TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM6TPThinningTool",
-                                                                  ThinningService         = "EGAM6ThinningSvc",
+                                                                  StreamName              = streamName,
                                                                   SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EGAM6TPThinningTool

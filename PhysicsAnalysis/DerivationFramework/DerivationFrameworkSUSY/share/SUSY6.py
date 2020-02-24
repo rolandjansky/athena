@@ -42,17 +42,16 @@ SUSY6ThinningHelper.AppendToStream( SUSY6Stream )
 thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (abs(DFCommonInDetTrackZ0AtPV) < 3.0)"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 SUSY6MetTPThinningTool = DerivationFramework__TrackParticleThinning( name               = "SUSY6MetTPThinningTool",
-                                                                ThinningService         = SUSY6ThinningHelper.ThinningSvc(),
+                                                                StreamName              = streamName,
                                                                 SelectionString         = thinning_expression,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
+                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY6MetTPThinningTool
 thinningTools.append(SUSY6MetTPThinningTool)
 
 
 # TrackParticles directly
 SUSY6TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY6TPThinningTool",
-                                                                 ThinningService         = SUSY6ThinningHelper.ThinningSvc(),
+                                                                 StreamName              = streamName,
                                                                  SelectionString         = "InDetTrackParticles.pt > 1*GeV",
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY6TPThinningTool

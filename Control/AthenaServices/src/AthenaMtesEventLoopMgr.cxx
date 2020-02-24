@@ -1417,8 +1417,8 @@ std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct> AthenaMtesEventLoopMgr::get
       errorStr = "ERR_ATHENAMP_PARSE \"" + range + "\": Wrong values of range fields";
     }
     else {
-      if(m_pfn.empty()) {
-	// This is a first event range. Cache its PFN value, and also set it as input file name to the Event Selector
+      // Update m_pfn if necessary
+      if(m_pfn != eventRangeMap["PFN"]) {
 	IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
 	if(!propertyServer) {
 	  errorStr = "ERR_ATHENAMP_PARSE \"" + range + "\": Unable to dyn-cast the event selector to IProperty";
@@ -1433,18 +1433,6 @@ std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct> AthenaMtesEventLoopMgr::get
 	  else {
 	    m_pfn = eventRangeMap["PFN"];
 	  }
-	}
-	// std::vector<std::string> vectInpCol;
-	// StringArrayProperty inputFileList(strInpuCol, vectInpCol);
-	// if(propertyServer->getProperty(&inputFileList).isFailure()) {
-	//   error() << "Failed to get InputCollections property value of the Event Selector" << endmsg;
-	//   return StatusCode::FAILURE;
-	// }
-	// m_pfn = inputFileList.value()[0];
-      }
-      else {
-	if(m_pfn!=eventRangeMap["PFN"]) {
-	  errorStr = "ERR_ATHENAMP_PARSE \"" + range + "\": one instance of AthenaMT cannot support event ranges from more than one input file";
 	}
       }
     }

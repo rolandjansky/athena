@@ -12,7 +12,6 @@
 //-----------------------------------------------------------------------------
 
 #include "FourMomUtils/P4Helpers.h"
-#include "tauRecTools/TauEventData.h"
 #include "tauRecTools/TauGenericPi0Cone.h"
 #include "tauRecTools/TauTrackFilterUtils.h"
 

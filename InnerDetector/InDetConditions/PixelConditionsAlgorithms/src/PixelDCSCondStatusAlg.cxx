@@ -19,7 +19,7 @@ StatusCode PixelDCSCondStatusAlg::initialize() {
   ATH_CHECK(m_condSvc.retrieve());
 
   ATH_CHECK(m_moduleDataKey.initialize());
-  ATH_CHECK(m_readKeyStatus.initialize());
+  ATH_CHECK(m_readKeyStatus.initialize(!m_readKeyStatus.empty()));
   ATH_CHECK(m_writeKeyStatus.initialize());
   if (m_condSvc->regHandle(this, m_writeKeyStatus).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyStatus.fullKey() << " with CondSvc");

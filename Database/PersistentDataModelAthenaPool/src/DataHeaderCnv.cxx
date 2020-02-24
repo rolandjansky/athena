@@ -142,22 +142,20 @@ StatusCode DataHeaderCnv::updateRepRefs(IOpaqueAddress* pAddress, DataObject* pO
 StatusCode DataHeaderCnv::DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pObj)
 {
    DataHeader* obj = nullptr;
-   bool success = SG::fromStorable(pObj, obj);
-   if (!success || obj == nullptr) {
+   if (!SG::fromStorable(pObj, obj) || obj == nullptr) {
       ATH_MSG_ERROR( "Failed to cast DataHeader to transient type" );
       return(StatusCode::FAILURE);
    }
    // DH placement first:
-   setPlacementWithType("DataHeader", pObj->name(), *pAddr->par());
-   Placement dh_placement;
-   dh_placement.fromString( m_placement->toString() + "[KEY=" + obj->getProcessTag() + "]" );
+   Placement dh_placement = setPlacementWithType("DataHeader", pObj->name(), *pAddr->par());
+   dh_placement.setAuxString("[KEY=" + obj->getProcessTag() + "]");
 
    // DHForm placement:
-   setPlacementWithType("DataHeaderForm", pObj->name(), *pAddr->par());
-   std::string form_placement_str = m_placement->toString();
+   Placement dhf_placement = setPlacementWithType("DataHeaderForm", pObj->name(), *pAddr->par());
+   std::string form_placement_str = dhf_placement.toString();
    // Find or create Form
    std::unique_ptr<DataHeaderForm_p6>& dhForm = m_persFormMap[form_placement_str];
-   if( !dhForm ) {
+   if (dhForm == nullptr) {
       // create new DHF for this file.  Every new file/container should get its own DHForm
       dhForm = std::make_unique<DataHeaderForm_p6>();
    }
@@ -165,9 +163,9 @@ StatusCode DataHeaderCnv::DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pO
    // Create persistent DH and update Form
    DataHeader_p6* persObj = nullptr;
    try {
-      persObj = createPersistent( obj, dhForm.get() );
+      persObj = createPersistent(obj, dhForm.get());
    } catch (std::exception &e) {
-      ATH_MSG_FATAL( "Failed to convert DataHeader to persistent type: " << e.what() );
+      ATH_MSG_FATAL("Failed to convert DataHeader to persistent type: " << e.what());
       return(StatusCode::FAILURE);
    }
    // Set the Ref to the Form, if know (may be updated if a new Form is created below)
@@ -176,44 +174,43 @@ StatusCode DataHeaderCnv::DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pO
    // Queue DH for write - for local writes object can still be updated
    Token* dh_token = m_athenaPoolCnvSvc->registerForWrite(&dh_placement, persObj, m_classDesc);
    if (dh_token == nullptr) {
-      ATH_MSG_FATAL( "Failed to write DataHeader" );
+      ATH_MSG_FATAL("Failed to write DataHeader");
       return(StatusCode::FAILURE);
    }
+   keepPoolObj(persObj, dh_placement.fileName());
    // this updates DH and can update Form
    m_tpOutConverter.insertDHRef(persObj, obj->getProcessTag(), dh_token->toString(), *dhForm);
 
    // Queue Form for write if it was modified (or new)
-   if( dhForm->wasModified() ) {
+   if (dhForm->wasModified()) {
       m_wroteDHForm = true;
-      static const RootType dhFormType( typeid(*dhForm) );
-      Token* dhfToken = m_athenaPoolCnvSvc->registerForWrite(m_placement, dhForm.get(), dhFormType);
-      if( !dhfToken ) {
-         ATH_MSG_FATAL( "Failed to write " << dhFormType.Name() );
+      static const RootType dhFormType(typeid(*dhForm));
+      Token* dhf_token = m_athenaPoolCnvSvc->registerForWrite(&dhf_placement, dhForm.get(), dhFormType);
+      if (dhf_token  == nullptr) {
+         ATH_MSG_FATAL("Failed to write " << dhFormType.Name());
          return(StatusCode::FAILURE);
       }
-      dhForm->setToken( dhfToken->toString() );
-      dhfToken->release(); dhfToken = nullptr;
+      dhForm->setToken(dhf_token->toString());
+      dhf_token->release(); dhf_token = nullptr;
       // Update DH with the new Form Ref
-      persObj->setDhFormToken( dhForm->getToken() );
+      persObj->setDhFormToken(dhForm->getToken());
       dhForm->clearModified();
-      ATH_MSG_DEBUG( "wrote new DHForm with " << dhForm->sizeObj() << " SG object data" );
+      ATH_MSG_DEBUG("wrote new DHForm with " << dhForm->sizeObj() << " SG object data");
    } else {
       m_wroteDHForm = false;
    }
-   
-   keepPoolObj(persObj);
 
    const coral::AttributeList* list = obj->getAttributeList();
    if (list != nullptr) {
       obj->setEvtRefTokenStr(dh_token->toString());
-      this->setPlacementWithType("AttributeList", "Token", *pAddr->par());
-      const Token* ref_token = m_athenaPoolCnvSvc->registerForWrite(m_placement,
+      Placement attr_placement = this->setPlacementWithType("AttributeList", "Token", *pAddr->par());
+      const Token* ref_token = m_athenaPoolCnvSvc->registerForWrite(&attr_placement,
 	      obj->getEvtRefTokenStr().c_str(),
 	      RootType("Token"));
       delete ref_token; ref_token = nullptr;
       for (coral::AttributeList::const_iterator iter = list->begin(), last = list->end(); iter != last; ++iter) {
-         this->setPlacementWithType("AttributeList", (*iter).specification().name(), *pAddr->par());
-         const Token* attr_token = m_athenaPoolCnvSvc->registerForWrite(m_placement,
+         attr_placement = this->setPlacementWithType("AttributeList", (*iter).specification().name(), *pAddr->par());
+         const Token* attr_token = m_athenaPoolCnvSvc->registerForWrite(&attr_placement,
 	         (*iter).addressOfData(),
                  RootType((*iter).specification().type()) );
          delete attr_token; attr_token = nullptr;

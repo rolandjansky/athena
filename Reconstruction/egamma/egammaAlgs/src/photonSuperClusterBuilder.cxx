@@ -311,10 +311,10 @@ bool photonSuperClusterBuilder::matchesVtxTrack(const std::vector<const xAOD::Tr
   if (m_useOnlyLeadingTrack && numTestTracks > 0) {
     numTestTracks = 1;
   }
-  for (size_t seedTk = 0; seedTk < seedVertexTracks.size(); ++seedTk) {
+  for (auto seedVertexTrack : seedVertexTracks) {
     // selected tracks alread are just Si if we are only looking at Si tracks
     for (size_t testTk = 0; testTk < numTestTracks; ++testTk) {
-      if (seedVertexTracks[seedTk] == egRec->trackParticle(testTk)) {
+      if (seedVertexTrack == egRec->trackParticle(testTk)) {
         return true;
       }
     }

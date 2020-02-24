@@ -83,7 +83,7 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
     return StatusCode::SUCCESS;
   }
 
-  cmgr.decode_sample(subcalo, barrel, sampling_or_module,
+  CaloDetDescrManager::decode_sample(subcalo, barrel, sampling_or_module,
                      (CaloCell_ID::CaloSample)sam);
 
   // Get the corresponding grannularities : needs to know where you are

@@ -69,7 +69,25 @@ StatusCode JetCalibrationTool::initialize() {
 
   // Initialise ReadHandle(s)
   ATH_CHECK( m_rhkEvtInfo.initialize() );
-  ATH_CHECK( m_rhkPV.initialize() );
+  if(m_rhkPV.empty()) {
+    // No PV key: -- check if it is required
+    if(m_doResidual) {
+      // May require modification in case of residual that does not require NPV
+      ATH_MSG_ERROR("Residual calibration requested but no primary vertex container specified!");
+      return StatusCode::FAILURE;
+    } else if(m_doGSC) {
+      if(m_jetAlgo.find("PFlow")!=std::string::npos) {
+	ATH_MSG_ERROR("GSC calibration for PFlow requested but no primary vertex container specified!");
+	return StatusCode::FAILURE;
+      } else if((m_gscDepth!="Tile0" && m_gscDepth!="EM3")) {
+	ATH_MSG_ERROR("GSC calibration with tracks requested but no primary vertex container specified!");
+	return StatusCode::FAILURE;
+      }
+    }
+  } else {
+    // Received a PV key, declare the data dependency
+    ATH_CHECK( m_rhkPV.initialize() );
+  }
 
   return StatusCode::SUCCESS;
 }

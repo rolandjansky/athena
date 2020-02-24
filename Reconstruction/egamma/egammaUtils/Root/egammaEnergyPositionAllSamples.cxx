@@ -15,13 +15,15 @@ bool isCrackBarrel(const xAOD::CaloCluster &cluster,
                    const xAOD::CaloCluster::CaloSample barrel,
                    const xAOD::CaloCluster::CaloSample endCap) {
 
-  if (cluster.eSample(barrel) == 0. && cluster.eSample(endCap) != 0.) {
+  const auto barrelSamE = cluster.eSample(barrel);
+  const auto endCapSamE= cluster.eSample(endCap);
+  if (barrelSamE == 0. && endCapSamE!= 0.) {
     return false; // endcap
   }
-  if (cluster.eSample(barrel) != 0. && cluster.eSample(endCap) == 0.) {
+  if (barrelSamE != 0. && endCapSamE == 0.) {
     return true; // barrel
   }
-  if (cluster.eSample(barrel) >= cluster.eSample(endCap)) {
+  if (barrelSamE >= endCapSamE) {
     return true; // barrel
   }  
   return false; // endcap;

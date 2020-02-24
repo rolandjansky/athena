@@ -5,8 +5,8 @@
 #include "TRTTimeCorrection.h"
 
 //TRT detector information:
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_Numerology.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_Numerology.h"
 
 #include "TRTDigSettings.h"
 
