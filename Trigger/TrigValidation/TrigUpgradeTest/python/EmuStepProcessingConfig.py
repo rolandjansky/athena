@@ -200,29 +200,29 @@ def generateL1DecoderAndChains():
      
         CombChains =[
 
-#            makeChain(name='HLT_mu6_e8_L1MU6_EM5',  L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu_em", [mu11, el11], multiplicity=[1,1]),
-#                                                                                             ChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1])] ),
+            makeChain(name='HLT_mu6_e8_L1MU6_EM5',  L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu_em", [mu11, el11], multiplicity=[1,1]),
+                                                                                             ChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1])] ),
 
-#            makeChain(name='HLT_mu6Comb_e8_L1MU6_EM5', L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu2_em", [mu12, el11], multiplicity=[1,1]),
-#                                                                                                ChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1])] ),
+            makeChain(name='HLT_mu6Comb_e8_L1MU6_EM5', L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu2_em", [mu12, el11], multiplicity=[1,1]),
+                                                                                                ChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1])] ),
 
-#            makeChain(name='HLT_e5_e8_L12EM3',   L1Thresholds=["EM3","EM3"], ChainSteps=[ ChainStep("Step1_2emAs",   [el11, el11], multiplicity=[1,1]),
-#                                                                                             ChainStep("Step2_2emAs",   [el21, el21], multiplicity=[1,1]) ]),
-#            makeChain(name='HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6',   L1Thresholds=["EM3","EM5","MU6"],
-#                                                                                ChainSteps=[ChainStep("Step1_2em_2mu",   [el11,el11,mu11], multiplicity=[1,1,2]),
-#                                                                                            ChainStep("Step2_2em_2mu",   [el21,el21,mu21], multiplicity=[1,1,2]) ]),
-            ## makeChain(name='HLT_2mu6_L12MU6',       L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2mu",   [mu11], multiplicity=[2]),
-            ##                                                                            ChainStep("Step2_2mu",   [mu21], multiplicity=[2]) ]),
+            makeChain(name='HLT_e5_e8_L12EM3',   L1Thresholds=["EM3","EM3"], ChainSteps=[ ChainStep("Step1_2emAs",   [el11, el11], multiplicity=[1,1]),
+                                                                                             ChainStep("Step2_2emAs",   [el21, el21], multiplicity=[1,1]) ]),
+            makeChain(name='HLT_e5_e8_2mu6_L1EM3_EM5_L12MU6',   L1Thresholds=["EM3","EM5","MU6"],
+                                                                                ChainSteps=[ChainStep("Step1_2em_2mu",   [el11,el11,mu11], multiplicity=[1,1,2]),
+                                                                                            ChainStep("Step2_2em_2mu",   [el21,el21,mu21], multiplicity=[1,1,2]) ]),
+            makeChain(name='HLT_2mu6_L12MU6',       L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2mu",   [mu11], multiplicity=[2]),
+                                                                                        ChainStep("Step2_2mu",   [mu21], multiplicity=[2]) ]),
 
-            ## makeChain(name='HLT_2mu6Comb_L12MU6',   L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2mu_empty",  multiplicity=[2]),
-            ##                                                                            ChainStep("Step2_2mu", [mu21], multiplicity=[2]) ]),
+            makeChain(name='HLT_2mu6Comb_L12MU6',   L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2mu_empty",  multiplicity=[2]),
+                                                                                        ChainStep("Step2_2mu", [mu21], multiplicity=[2]) ]),
                                                                                        
-            makeChain(name='HLT_2mu4_bDimu_L12MU4', L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2muDr",  [mu11], multiplicity=[2], comboToolConfs=[dimuDrComboHypoTool])])#,
-                                                                                       ## ChainStep("Step2_2mu22",[mu22], multiplicity=[2]),
-                                                                                       ## ChainStep("Step3_2mu",  [mu31], multiplicity=[2])] ),
+            makeChain(name='HLT_2mu4_bDimu_L12MU4', L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2muDr",  [mu11], multiplicity=[2], comboToolConfs=[dimuDrComboHypoTool])]),
+                                                                                        ChainStep("Step2_2mu22",[mu22], multiplicity=[2]),
+                                                                                        ChainStep("Step3_2mu",  [mu31], multiplicity=[2])] ),
                                                                                        
-            ## makeChain(name='HLT_mu6_mu6noL1_L1MU6', L1Thresholds=["MU6", "FSNOSEED"], ChainSteps=[ ChainStep("Step1_2muAs",   [mu11, mu11], multiplicity=[1,1]),
-            ##                                                                                ChainStep("Step2_2muAs",   [mu21, mu21], multiplicity=[1,1]) ])
+            makeChain(name='HLT_mu6_mu6noL1_L1MU6', L1Thresholds=["MU6", "FSNOSEED"], ChainSteps=[ ChainStep("Step1_2muAs",   [mu11, mu11], multiplicity=[1,1]),
+                                                                                            ChainStep("Step2_2muAs",   [mu21, mu21], multiplicity=[1,1]) ])
                                                                               
             ]
 
