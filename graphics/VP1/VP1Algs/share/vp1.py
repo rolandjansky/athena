@@ -35,8 +35,8 @@ if not 'vp1SpacePoints' in dir(): vp1SpacePoints=False
 if not 'vp1Cavern' in dir(): vp1Cavern=False
 if not 'vp1NoAutoConf' in dir(): vp1NoAutoConf=False
 if not 'vp1Trig' in dir(): vp1Trig=False
-if not 'vp1NSW' in dir(): vp1NSW=False
 if not 'vp1NSWAGDDFiles' in dir(): vp1NSWAGDDFiles=[]
+if not 'vp1MuonLayout' in dir(): vp1MuonLayout=""
 
 def vp1CfgErr(s): print "VP1 CONFIGURATION ERROR: %s" % s
 
@@ -58,13 +58,6 @@ if (vp1FatrasCalo and not vp1Calo):
 if ( vp1FatrasTruthKey != "" and not vp1Fatras ):
     vp1CfgErr("FatrasTruthKey set but Fatras not enabled. Unsetting FatrasTruthKey.")
     vp1FatrasTruthKey=""
-
-if (vp1NSW and not vp1Muon):
-    vp1CfgErr("Muon New Small Wheel (NSW) turned on, but no Muon geometry. Disabling NSW.")
-    vp1NSW=False
-
-
-
 
 print "*** VP1 NOTE *** setting COIN_GLXGLUE env vars to make screenshots working remotely..."
 print "*** VP1 NOTE *** COIN_GLXGLUE_NO_GLX13_PBUFFERS=1 - " + "COIN_GLXGLUE_NO_PBUFFERS=1"
@@ -91,9 +84,6 @@ if (vp1InputFiles == []):
     # Set geometry version
     if (not "DetDescrVersion" in dir()):
         DetDescrVersion = "ATLAS-R2-2016-01-00-01" # default Run 2 geometry
-        if (vp1NSW): 
-            print("You set the '-nsw' flag, so the Geometry Tag 'ATLAS-R3S-2021-01-00-00' will be used...")
-            DetDescrVersion="ATLAS-R3S-2021-01-00-00"
 
     globalflags.DetDescrVersion = DetDescrVersion
     
@@ -249,7 +239,12 @@ if (vp1ID): DetFlags.ID_setOn()
 else:       DetFlags.ID_setOff()
 if (vp1Calo): DetFlags.Calo_setOn()
 else:         DetFlags.Calo_setOff()
-if (vp1Muon): DetFlags.Muon_setOn()
+if (vp1Muon):
+    DetFlags.Muon_setOn()
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+    if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
+    if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+    if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
 else:         DetFlags.Muon_setOff()
 if (vp1LUCID): DetFlags.Lucid_setOn()
 else:          DetFlags.Lucid_setOff()
@@ -259,11 +254,6 @@ if (vp1ForwardRegion): DetFlags.FwdRegion_setOn()
 else:          DetFlags.FwdRegion_setOff()
 if (vp1ZDC): DetFlags.ZDC_setOn()
 else:          DetFlags.ZDC_setOff()
-if (vp1NSW): 
-    DetFlags.Micromegas_setOn()
-    DetFlags.sTGC_setOn()
-    DetFlags.CSC_setOff()
-    
     
 DetFlags.Print()
 
@@ -283,6 +273,11 @@ if vp1Muon and len(vp1NSWAGDDFiles)>0:
     from MuonAGDD.MuonAGDDConf import NSWAGDDTool
     NSWAGDDTool = CfgMgr.NSWAGDDTool("NewSmallWheel", DefaultDetector="Muon", ReadAGDD=False, XMLFiles=vp1NSWAGDDFiles, Volumes=["NewSmallWheel"])
     AGDD2Geo.Builders += [ NSWAGDDTool ]
+if vp1Muon and vp1MuonLayout!="":
+    print "*** VP1 NOTE *** You specified custom vp1MuonLayout, using %s as muon geometry"%vp1MuonLayout
+    from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+    GeoModelSvc = GeoModelSvc()
+    GeoModelSvc.MuonVersionOverride=vp1MuonLayout
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 

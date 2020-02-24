@@ -99,7 +99,6 @@ FLAG_MC=0
 FLAG_FATRAS=0
 FLAG_NOGUI=0
 FLAG_CGAL=0
-FLAG_NSW=0
 FLAG_SLHC=0
 FLAG_CUSTOMGEOMETRY=0
 MULTINP_SRC=""
@@ -173,8 +172,6 @@ while [ $i -le $# ]; do
 	FLAG_NOGUI=1
     elif [ "x${arg}" == "x-cgal" ]; then
 	FLAG_CGAL=1
-    elif [ "x${arg}" == "x-nsw" ]; then
-	FLAG_NSW=1
     elif [ "x${arg}" == "x-slhc" ]; then
         echo "SLHC Mode: ON"
         FLAG_SLHC=1
@@ -701,7 +698,6 @@ if [ "x$TREETOPFILTER" != "x" ]; then
 fi
 if [ "x$FLAG_FORCE" != "x0" ]; then
     #if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
-    #OPTS="${OPTS}vp1NSW=True"
     export DUMPGEOOVERWRITE=$FLAG_FORCE
     echo "User's Overwrite local geometry dump file, if present: ${DUMPGEOOVERWRITE}"
 fi
@@ -807,10 +803,6 @@ fi
 if [ "x$FLAG_FATRAS" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1Fatras=True"
-fi
-if [ "x$FLAG_NSW" != "x0" ]; then
-    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
-    OPTS="${OPTS}vp1NSW=True"
 fi
 if [ "x$FLAG_SLHC" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
