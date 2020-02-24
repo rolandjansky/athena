@@ -32,7 +32,6 @@ AthAlgorithm(name, pSvcLocator),
 m_tools(this), //make tools private
 m_maxEta(2.5),
 m_minPt(10000),
-m_data(),
 m_cellMakerTool("",this)
 {
   declareProperty("Tools", m_tools);
@@ -86,7 +85,6 @@ StatusCode TauProcessorAlg::initialize() {
     for (; itT != itTE; ++itT) {
       ++tool_count;
       ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());
-      (*itT)->setTauEventData(&m_data);
     }
     ATH_MSG_INFO(" ");
     ATH_MSG_INFO("------------------------------------");
@@ -226,8 +224,14 @@ StatusCode TauProcessorAlg::execute() {
       ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
       for (; itT != itTE; ++itT) {
 	ATH_MSG_DEBUG("ProcessorAlg Invoking tool " << (*itT)->name());
-	
-	if ( (*itT)->name().find("ShotFinder") != std::string::npos){
+
+        if ((*itT)->type() == "TauVertexFinder" ) { 
+          sc = (*itT)->executeVertexFinder(*pTau);
+        }
+        else if ( (*itT)->type() == "TauTrackFinder") { 
+          sc = (*itT)->executeTrackFinder(*pTau);
+        }
+        else if ( (*itT)->name().find("ShotFinder") != std::string::npos){
 	  sc = (*itT)->executeShotFinder(*pTau, *tauShotClusContainer, *tauShotPFOContainer);
 	}
 	else if ( (*itT)->name().find("Pi0ClusterFinder") != std::string::npos){

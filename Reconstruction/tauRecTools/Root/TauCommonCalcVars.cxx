@@ -14,8 +14,6 @@
 // 16/05/2011: (FF) fix if primaryVertexContainer==NULL (coverity 21734)
 //   Dez 2011: (FF) switch to full LC calibrated tau 4-vector for some variables
 //-----------------------------------------------------------------------------
-#include "tauRecTools/TauEventData.h"
-
 #include "tauRecTools/TauCommonCalcVars.h"
 #include "tauRecTools/KineUtils.h"
 #include <vector>
