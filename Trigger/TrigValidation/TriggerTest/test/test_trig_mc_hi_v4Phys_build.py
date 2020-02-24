@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: Legacy trigger test on MC with v7 primaries menu
+# art-description: Legacy trigger test on MC with Physics_HI_v4 menu
 # art-type: build
 # art-include: master/Athena
 # Skipping art-output which has no effect for build tests.
@@ -12,7 +12,7 @@ ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerTest/testCommonSliceAthenaTrigRDO.py'
 ex.input = 'ttbar_rel21'
-ex.args = '-c \'menu="Physics_pp_v7_primaries";enableCostMonitoring=False;RunningRTT=True;\''
+ex.args = '-c \'setMenu="Physics_HI_v4";\''
 
 test = Test.Test()
 test.art_type = 'build'
