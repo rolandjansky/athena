@@ -1,20 +1,15 @@
 ################################################################################
-# Package: InDetClusterizationExample
+# Package: InDetConfig
 ################################################################################
 
 # Declare the package name:
 atlas_subdir( InDetConfig )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaCommon
-                          Database/RDBAccessSvc )
-
-# External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
-
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
 
+
+atlas_add_test( InDetClusterization_test
+     SCRIPT python -m InDetConfig.ClusterizationConfig
+     PROPERTIES TIMEOUT 600
+     LOG_SELECT_PATTERN "dead tube" )
