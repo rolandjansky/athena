@@ -1,9 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAVALIDATION_CLUSTERSHISTOGRAMS_H
 #define EGAMMAVALIDATION_CLUSTERSHISTOGRAMS_H
+
+#include <utility>
+
+#include <utility>
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "xAODEgamma/Egamma.h"
@@ -26,9 +30,9 @@ namespace egammaMonitoring{
                    std::string folder,
                    ITHistSvc * &rootHistSvc
     ) :
-      m_name(name),
-      m_title(title),
-      m_folder(folder),
+      m_name(std::move(name)),
+      m_title(std::move(title)),
+      m_folder(std::move(folder)),
       m_rootHistSvc(rootHistSvc) {}
 
     std::map<std::string, TH1D* > histoMap;

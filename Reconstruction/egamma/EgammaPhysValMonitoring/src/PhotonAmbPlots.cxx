@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhotonAmbPlots.h"
@@ -8,11 +8,11 @@
 namespace Egamma{
 
 
-PhotonAmbPlots::PhotonAmbPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir), 
+PhotonAmbPlots::PhotonAmbPlots(PlotBase* pParent, const std::string& sDir, const std::string& sParticleType):PlotBase(pParent, sDir), 
 											       m_oKinAllPlots(this, "All/KinPlots/", "Reco " + sParticleType +" Photon"), 
 											       m_oShowerShapesAllPlots(this, "All/ShowerShapesPlots/", sParticleType  +" Photon"),
 											       m_sParticleType(sParticleType),
-											       m_nParticles(0)
+											       m_nParticles(nullptr)
 {}	
 
 void PhotonAmbPlots::initializePlots(){

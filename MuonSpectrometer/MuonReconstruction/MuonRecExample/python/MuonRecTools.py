@@ -448,7 +448,10 @@ def DCMathT0FitSegmentMaker(name='DCMathT0FitSegmentMaker',extraFlags=None,**kwa
 # end of factory function DCMathSegmentMaker
 
 def MuonLayerHoughTool(name='MuonLayerHoughTool',extraFlags=None,**kwargs):
-    kwargs.setdefault("DoTruth", rec.doTruth() )
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("DoTruth", False)
+    else:
+        kwargs.setdefault("DoTruth", rec.doTruth())
     return CfgMgr.Muon__MuonLayerHoughTool(name,**kwargs)
 
 def MuonSegmentFittingTool(name='MuonSegmentFittingTool',extraFlags=None,**kwargs):

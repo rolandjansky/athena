@@ -65,7 +65,7 @@ StatusCode MuonTruthAssociationAlg::execute()
   for( const auto& muon : *muonTruthParticleLink ){
     // use primary track particle to get the truth link (except for the case of STACO, where we must use the ID track particle, as the combined is not truth-matched)
     const xAOD::TrackParticle* tp(0);
-    if (m_associateWithInDetTP || muon->author()==2) {
+    if (m_associateWithInDetTP || muon->author()==2 || muon->author()==6 ) {
       tp = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
     } 
     else{
@@ -92,6 +92,7 @@ StatusCode MuonTruthAssociationAlg::execute()
     try {
       ElementLink< xAOD::TruthParticleContainer > truthLink = tp->auxdata<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");
       if( truthLink.isValid() ){
+      	ATH_MSG_VERBOSE(" Got valid truth link for muon author " << muon->author() << " barcode " << (*truthLink)->barcode());
 	// loop over truth particles
 	bool foundTruth=false;
 	for( const auto& truthParticle : *muonTruthParticleRecoLink ){

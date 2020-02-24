@@ -4,6 +4,17 @@
 ## Load common flags
 from AthenaCommon.JobProperties import jobproperties as athCommonFlags
 
+## Steer output file
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
+streamName = primDPD.WriteDAOD_L1CALO3.StreamName
+fileName   = buildFileName( primDPD.WriteDAOD_L1CALO3 )
+L1CALO3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+L1CALO3Stream.AcceptAlgs(["DFL1CALO3_KERN"])
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
 #################
 ### Setup Augmentation tools
 #################
@@ -31,7 +42,7 @@ thinningTools = []
 
 from TrigT1CaloCalibTools.TrigT1CaloCalibToolsConf import DerivationFramework__TriggerTowerThinningAlg
 L1CALO3CaloThinningTool = DerivationFramework__TriggerTowerThinningAlg( name = "L1CALO3CaloThinningTool",
-									ThinService = "L1CALO3ThinningSvc",
+                                                                        StreamName              = streamName,
     									TriggerTowerLocation = "xAODTriggerTowers",
     									MinCaloCellET = 0.8,
     									MinADC = 36,
@@ -66,19 +77,6 @@ ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool(
 "TriggerMenuMetaDataTool" )
 svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
 
-
-## Steer output file
-from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
-from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
-streamName = primDPD.WriteDAOD_L1CALO3.StreamName
-fileName   = buildFileName( primDPD.WriteDAOD_L1CALO3 )
-L1CALO3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-L1CALO3Stream.AcceptAlgs(["DFL1CALO3_KERN"])
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="L1CALO3ThinningSvc", outStreams=[evtStream] )
 
 trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 

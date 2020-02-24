@@ -63,9 +63,9 @@ namespace Muon {
   protected:
     
     /// private method for the decoding RDO --> PrepRawData
-    virtual StatusCode decode(const CscRawDataContainer* rdo, IdentifierHash givenIdh, 
+    StatusCode decode(const CscRawDataContainer* rdo, IdentifierHash givenIdh, 
 			std::vector<IdentifierHash>& decodedIdhs);
-    virtual StatusCode decode(const CscRawDataContainer* rdo, 
+    StatusCode decode(const CscRawDataContainer* rdo, 
 		      std::vector<IdentifierHash>& decodedIdhs);
     virtual StatusCode decode( const std::vector<uint32_t>& ) {return StatusCode::FAILURE;}
     

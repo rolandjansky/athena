@@ -5,20 +5,6 @@
 # Declare the package name
 atlas_subdir( TrigByteStreamCnvSvc )
 
-# Declare the package's dependencies
-atlas_depends_on_subdirs(
-  PRIVATE
-    GaudiKernel
-    Control/AthenaBaseComps
-    Control/AthenaMonitoringKernel
-    Event/ByteStreamCnvSvcBase
-    Event/ByteStreamCnvSvc
-    Event/ByteStreamData
-    Event/xAOD/xAODEventInfo
-    HLT/Trigger/TrigControl/TrigKernel
-    Trigger/TrigEvent/TrigSteeringEvent
-)
-
 # External dependencies
 find_package( tdaq-common COMPONENTS eformat eformat_write hltinterface )
 

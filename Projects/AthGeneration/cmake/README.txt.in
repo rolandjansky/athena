@@ -1,0 +1,5 @@
+
+  AthGeneration - @CMAKE_PROJECT_VERSION@
+
+This package provides version @CMAKE_PROJECT_VERSION@ of the ATLAS
+event generation software.

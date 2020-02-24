@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from CaloDetDescr.CaloDetDescrConf import CaloDepthTool
 
@@ -17,7 +17,7 @@ class CaloDepthToolBase ( CaloDepthTool )  :
         CaloDepthTool.__init__( self,name) # call base class constructor
 
         if name=="CaloDepthToolBaseUNSET":
-            raise RuntimeError,"CaloDepthToolBase should not be called with default name"            
+            raise RuntimeError ("CaloDepthToolBase should not be called with default name")
 
         if depth=="CDTBunset":
             mlog.info("depth should be explicitly set. OK only if copy")
@@ -41,8 +41,8 @@ class CaloDepthToolBase ( CaloDepthTool )  :
         # depthchoice should be one of 
 
         depthList=["egparam","cscopt","cscopt2","TBparam","entrance","middle","flat"]
-        if not depthchoice in depthList:
-            raise RuntimeError, "depth not among autorised value",depthchoice
+        if depthchoice not in depthList:
+            raise RuntimeError ("depth not among autorised value",depthchoice)
 
         # assign property value
         self.DepthChoice=depthchoice
@@ -63,7 +63,7 @@ def CaloDepthToolFactory( depth ):
 # from CaloDetDescr.CaloDepthToolBase import caloDepthToolshowerdefault
 # theTool=caloDepthToolshowerdefault
 # note that this is just an illustration redundant with the factory above
-__all__ = [ 'caloDepthToolshowerdefault','caloDepthToolegparam','caloDepthToolTBparam','caloDepthToolcscopt','caloDepthToolcscopt2','caloDepthToolmiddle','caloDepthToolentrance','caloDepthToolflat' ] # and the others, etc ...
+__all__ = [ 'caloDepthToolshowerdefault','caloDepthToolegparam','caloDepthToolTBparam','caloDepthToolcscopt','caloDepthToolcscopt2','caloDepthToolmiddle','caloDepthToolentrance','caloDepthToolflat' ] # noqa: F822 # and the others, etc ...
 # the following facade will masquerade as this module in order to have
 # a __getattr__ method at the module level
 
@@ -97,7 +97,7 @@ class _ModuleFacade( object ):
        elif name == 'caloDepthToolflat':
            setattr( self._module, name, CaloDepthToolBase("CaloDepthToolflat",depth="flat") )
        else:
-           raise RuntimeError,("unknown name %s " % name)
+           raise RuntimeError ("unknown name %s " % name)
 
        # now try again, will succeed if proper tool has been created in block above
        return getattr( self._module, name )

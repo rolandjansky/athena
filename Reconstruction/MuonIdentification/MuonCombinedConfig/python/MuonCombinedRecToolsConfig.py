@@ -429,9 +429,9 @@ def MuonTrackQueryCfg(flags, name="MuonTrackQuery", **kwargs ):
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg
     result = MdtDriftCircleOnTrackCreatorCfg(flags)
     kwargs.setdefault("MdtRotCreator",   result.popPrivateTools() )
-    
-    acc = CombinedMuonTrackBuilderCfg(flags)
-    kwargs.setdefault("Fitter",          acc.popPrivateTools() )
+
+    acc = iPatFitterCfg(flags)
+    kwargs.setdefault("Fitter", acc.popPrivateTools() )
     result.merge(acc)
 
     tool = CompFactory.Rec__MuonTrackQuery(name,**kwargs)

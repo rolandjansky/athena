@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 #include "TrkEventPrimitives/LocalParameters.h"

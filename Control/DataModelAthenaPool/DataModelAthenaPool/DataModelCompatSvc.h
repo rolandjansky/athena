@@ -37,7 +37,7 @@
 /**
  * @brief Service for @c DataVector backwards compatibility.
  */
-class DataModelCompatSvc
+class ATLAS_CHECK_THREAD_SAFETY DataModelCompatSvc
   : public AthService,
     public RootUtils::ILogger,
     virtual public IIncidentListener

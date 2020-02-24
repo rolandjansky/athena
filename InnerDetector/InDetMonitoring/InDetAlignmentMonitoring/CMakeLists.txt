@@ -25,6 +25,7 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetDetDescr/PixelReadoutGeometry
+   InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
    InnerDetector/InDetRecEvent/InDetPrepRawData
    InnerDetector/InDetRecEvent/InDetRIO_OnTrack
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
@@ -58,7 +59,7 @@ atlas_add_component( InDetAlignmentMonitoring
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES}
    GaudiKernel CommissionEvent AthenaBaseComps AthenaMonitoringLib AthContainers
    AtlasDetDescr Identifier EventPrimitives xAODEventInfo xAODTracking
-   TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry
+   TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry
    InDetPrepRawData InDetRIO_OnTrack Particle LWHists TrkGeometry TrkSurfaces
    TrkEventPrimitives TrkParameters TrkParticleBase TrkPseudoMeasurementOnTrack
    TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData VxVertex TrkExInterfaces

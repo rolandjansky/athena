@@ -52,9 +52,11 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
+    keyName = flags.Overlay.BkgPrefix + "RPCPAD" if flags.Detector.OverlayRPC else "RPCPAD"
     Muon__RPC_RawDataProviderToolMT=CompFactory.Muon__RPC_RawDataProviderToolMT
     MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name    = "RPC_RawDataProviderToolMT",
-                                                               Decoder = RPCRodDecoder )
+                                                                 Decoder = RPCRodDecoder,
+                                                                 RdoLocation = keyName )
     if forTrigger:
         MuonRpcRawDataProviderTool.RpcContainerCacheKey   = MuonCacheNames.RpcCache
         MuonRpcRawDataProviderTool.WriteOutRpcSectorLogic = False
@@ -95,9 +97,11 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
+    keyName = flags.Overlay.BkgPrefix + "TGCRDO" if flags.Detector.OverlayTGC else "TGCRDO"
     Muon__TGC_RawDataProviderToolMT=CompFactory.Muon__TGC_RawDataProviderToolMT
     MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderToolMT(name    = "TGC_RawDataProviderToolMT",
-                                                               Decoder = TGCRodDecoder )
+                                                                 Decoder = TGCRodDecoder,
+                                                                 RdoLocation = keyName )
 
     if forTrigger:
         MuonTgcRawDataProviderTool.TgcContainerCacheKey   = MuonCacheNames.TgcCache
@@ -138,9 +142,11 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
+    keyName = flags.Overlay.BkgPrefix + "MDTCSM" if flags.Detector.OverlayMDT else "MDTCSM"
     Muon__MDT_RawDataProviderToolMT=CompFactory.Muon__MDT_RawDataProviderToolMT
     MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderToolMT(name    = "MDT_RawDataProviderToolMT",
-                                                                 Decoder = MDTRodDecoder)
+                                                                 Decoder = MDTRodDecoder,
+                                                                 RdoLocation = keyName)
 
     if forTrigger:
         MuonMdtRawDataProviderTool.CsmContainerCacheKey = MuonCacheNames.MdtCsmCache
@@ -177,9 +183,11 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
+    keyName = flags.Overlay.BkgPrefix + "CSCRDO" if flags.Detector.OverlayCSC else "CSCRDO"
     Muon__CSC_RawDataProviderToolMT=CompFactory.Muon__CSC_RawDataProviderToolMT
     MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderToolMT(name    = "CSC_RawDataProviderToolMT",
-                                                               Decoder = CSCRodDecoder)
+                                                                 Decoder = CSCRodDecoder,
+                                                                 RdoLocation = keyName)
     if forTrigger:
         MuonCscRawDataProviderTool.CscContainerCacheKey = MuonCacheNames.CscCache
 

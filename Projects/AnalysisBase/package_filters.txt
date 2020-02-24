@@ -25,4 +25,5 @@
 + Trigger/TrigConfiguration/TrigConfL1Data
 + Trigger/TrigConfiguration/TrigConfHLTData
 + Trigger/TrigEvent/TrigNavStructure
++ Trigger/TrigSteer/TrigCompositeUtils
 - .*

@@ -18,7 +18,7 @@
 
 // Det Descr includes
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
 // Data Handle
 #include "StoreGate/ReadCondHandle.h"

@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #==============================================================
 #
 # Job options file for Geant4 Simulations
@@ -18,7 +19,7 @@ include( "AtlasG4Sim/HitAthenaPoolWriteOptions.py" )
 include ("DetDescrCnvSvc/DetStore_joboptions.py")
 
 DetDescrCnvSvc = Service( "DetDescrCnvSvc" )
-DetDescrCnvSvc.DecodeIdDict = TRUE 
+DetDescrCnvSvc.DecodeIdDict = True 
 include( "CaloIdCnv/CaloIdCnv_joboptions.py" )
 
 include( "G4Svc/jobOptions.G4Svc.py" )
@@ -43,13 +44,13 @@ theApp.EvtMax = 100
 # -----
 G4Svc = Service( "G4Svc" )
 G4Svc.PhysicsList       =       "none"
-G4Svc.SaveHits          =       FALSE
-G4Svc.Visualize         =       FALSE
+G4Svc.SaveHits          =       False
+G4Svc.Visualize         =       False
 G4Svc.RunVerbosity      =           2
 G4Svc.EventVerbosity    =           0
 G4Svc.TrackingVerbosity =           0
-G4Svc.Listener		=	FALSE
-G4Svc.InteractiveG4	=       FALSE
+G4Svc.Listener		=	False
+G4Svc.InteractiveG4	=       False
 G4Svc.FADSMacro		=  "env.mac:H6G4LArCal.mac:PhysicsList.mac:Filters.mac"
 # ParticleGun
 # -----------------
@@ -59,7 +60,7 @@ import ParticleGun as PG
 try: 
     ParticleGeneratorPDG=' constant '+ParticlePDG
     particl = int(ParticlePDG)
-except:
+except ValueError:
     log.warning('tbH6Generator: You are running geantino')
     ParticleGeneratorPDG=' constant 999'
     particl = 999
@@ -67,7 +68,7 @@ except:
 try:
     ParticleGeneratorEnergy=' constant '+ repr(Energy)
     energy = float(Energy)
-except:
+except ValueError:
     log.warning('Unknown energy. Set 200 GeV')
     ParticleGeneratorEnergy=' constant 200000'
     energy = 200000.

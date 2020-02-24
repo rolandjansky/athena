@@ -1,7 +1,7 @@
 // dear emacs, this is really -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAEVENT_EGAMMA_H
@@ -258,16 +258,16 @@ class egamma
   /** @brief ID flag with cuts, true:e/phot, false:bkg  */
   bool isElectron(unsigned int mask= egammaPIDObs::ALL, 
 		  egammaPIDObs::PID pid=egammaPIDObs::IsEM, 
-		  bool *found = NULL) const;
+		  bool *found = nullptr) const;
   bool isPhoton(unsigned int mask= egammaPIDObs::ALL, 
 		egammaPIDObs::PID pid=egammaPIDObs::IsEM, 
-		bool *found = NULL) const; // exactly the same as isElectron
+		bool *found = nullptr) const; // exactly the same as isElectron
 
    /** @brief does electron/photon pass the given quality  */
   bool passID(egammaPIDObs::egammaIDQuality id) const;
 
   /** @brief uses special softe cuts */
-  bool isSofte(unsigned int mask= egammaPIDObs::ALL, bool *found = NULL) const;
+  bool isSofte(unsigned int mask= egammaPIDObs::ALL, bool *found = nullptr) const;
 
   /** @brief ID flag with cuts, 0:e, >1:jet  */
   unsigned int isem(unsigned int mask= egammaPIDObs::ALL, 
@@ -280,8 +280,8 @@ class egamma
   unsigned int isemse(unsigned int mask, bool *found) const;
 
   /** @brief OQ flag  */  
-  bool isGoodOQ(unsigned int mask= egammaPIDObs::ALLOQ, bool *found = NULL) const;
-  unsigned int isgoodoq(unsigned int mask= egammaPIDObs::ALLOQ, bool *found = NULL) const;
+  bool isGoodOQ(unsigned int mask= egammaPIDObs::ALLOQ, bool *found = nullptr) const;
+  unsigned int isgoodoq(unsigned int mask= egammaPIDObs::ALLOQ, bool *found = nullptr) const;
 
   
   /** @brief override standard errors to allow lazy loading (lazy loading NOW DISABLED) */

@@ -13,8 +13,8 @@
 #include <string>
 #include "TRT_ConditionsAlgs/TRTStrawAlign.h"
 
-#include "InDetReadoutGeometry/TRT_DetectorManager.h" 
-#include "InDetReadoutGeometry/TRT_BarrelElement.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h" 
+#include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
 #include "InDetIdentifier/TRT_ID.h"
 
 #include "TRT_ConditionsData/StrawDxContainer.h"

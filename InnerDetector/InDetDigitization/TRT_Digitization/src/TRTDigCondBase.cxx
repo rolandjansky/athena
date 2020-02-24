@@ -9,9 +9,9 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "InDetReadoutGeometry/TRT_DetElementCollection.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementCollection.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 //helpers for identifiers and hitids:
 #include "InDetIdentifier/TRT_ID.h"

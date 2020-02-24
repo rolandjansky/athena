@@ -21,7 +21,8 @@ atlas_add_library( TrigMuonBackExtrapolatorLib
                    LINK_LIBRARIES GaudiKernel TrigInDetEvent TrigMuonEvent xAODTrigMuon )
 
 atlas_add_component( TrigMuonBackExtrapolator
-                     src/*.cxx src/*.h src/components/*.cxx
+                     src/*.cxx
+                     src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps TrigMuonBackExtrapolatorLib )
 
 # Install files from the package:

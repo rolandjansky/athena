@@ -20,7 +20,7 @@ StatusCode PixelTDAQCondAlg::initialize() {
   ATH_CHECK(m_condSvc.retrieve());
 
   ATH_CHECK(m_moduleDataKey.initialize());
-  ATH_CHECK(m_readKey.initialize());
+  ATH_CHECK(m_readKey.initialize(!m_readKey.empty()));
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
@@ -66,7 +66,6 @@ StatusCode PixelTDAQCondAlg::execute(const EventContext& ctx) const {
     std::vector<int> checkActive;
     for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
       CondAttrListCollection::ChanNum channelNumber = attrList->first;
-      CondAttrListCollection::AttributeList payload = attrList->second;
       checkActive.push_back((int)channelNumber-1);
     }
 

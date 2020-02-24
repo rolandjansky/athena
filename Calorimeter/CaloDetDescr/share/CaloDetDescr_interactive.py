@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # A short example of how to retrieve the calorimeter detector description
 # from python.  Run this with `athena.py -i'.

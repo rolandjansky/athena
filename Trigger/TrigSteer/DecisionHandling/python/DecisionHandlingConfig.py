@@ -7,14 +7,12 @@ def setupFilterMonitoring( filterAlg ):
     monTool = GenericMonitoringTool('MonTool')
     
     inputKeys = filterAlg.Input
-    
-    nbins = 2+len(inputKeys)
+
     monTool.HistPath="HLTFramework/Filters"
-    monTool.defineHistogram( 'counts;'+filterAlg.name(),  path='EXPERT', type='TH1I', title='Count of calls and inputs',
-                             xbins=nbins, xmin=0, xmax=nbins,
-                             xlabels=['n_execs', 'n_valid'] + inputKeys )
-    monTool.defineHistogram( 'inputPresent,inputName;'+filterAlg.name()+"_InputEff",  path='EXPERT', type='TEfficiency', title='Input activity fraction;collection name;presence fraction',
-                             xbins=len(inputKeys), xmin=0, xmax=len(inputKeys), xlabels=inputKeys )
+    monTool.defineHistogram( 'name,stat;'+filterAlg.name(),  path='EXPERT', type='TH2I',
+                             title='Input activity fraction;;presence',
+                             xbins=len(inputKeys), xmin=0, xmax=len(inputKeys)+2, xlabels=['exec', 'anyvalid']+inputKeys,
+                             ybins=2, ymin=-0.5, ymax=1.5, ylabels=['no', 'yes'] )
 
     filterAlg.MonTool = monTool
 

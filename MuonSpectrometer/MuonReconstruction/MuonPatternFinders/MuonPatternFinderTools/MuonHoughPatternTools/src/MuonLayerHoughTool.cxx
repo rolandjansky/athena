@@ -64,7 +64,8 @@ namespace Muon {
     
     initializeSectorMapping();
 
-    if( m_truthNames.empty() && !m_doTruth ){
+    // if m_truthNames is empty, fill it if running on truth
+    if( m_truthNames.empty() && m_doTruth ){
       std::string postfix = "_TruthMap";
       std::string allNames("");
       for( unsigned int tech=0; tech<m_ntechnologies;++tech ){
@@ -75,7 +76,7 @@ namespace Muon {
       }
       ATH_MSG_DEBUG("TruthMaps " << allNames );
     }
-    if(!m_doTruth){ m_truthNames.clear();  } //Nullify if not using collections
+    if(!m_doTruth){ m_truthNames.clear(); } //Nullify if not using collections
 
     ATH_CHECK( m_truthNames.initialize() );
     if(m_doNtuple && m_doTruth){

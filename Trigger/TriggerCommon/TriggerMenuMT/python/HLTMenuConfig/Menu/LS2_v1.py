@@ -90,6 +90,7 @@ def setupMenu():
         # Primary photon chains
         ChainProp(name='HLT_g140_loose_L1EM24VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_2g35_medium_L12EM20VH', groups=MultiPhotonGroup),
+        ChainProp(name='HLT_g35_medium_g25_medium_L12EM20VH', groups=MultiPhotonGroup),
         ChainProp(name='HLT_2g20_tight_L12EM20VH', groups=MultiPhotonGroup),
 
 

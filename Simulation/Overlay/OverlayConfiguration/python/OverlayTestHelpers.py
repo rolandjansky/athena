@@ -6,7 +6,24 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from argparse import ArgumentParser
 
-from AthenaConfiguration.TestDefaults import defaultTestFiles
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+
+
+def JobOptsDumperCfg(flags):
+    """Configure event loop for overlay"""
+    JobOptsDumperAlg = CompFactory.JobOptsDumperAlg
+    acc = ComponentAccumulator()
+    acc.addEventAlgo(JobOptsDumperAlg(FileName="OverlayTestConfig.txt"))
+    return acc
+
+
+def TestMessageSvcCfg(flags):
+    """MessageSvc for overlay"""
+    MessageSvc = CompFactory.MessageSvc
+    acc = ComponentAccumulator()
+    acc.addService(MessageSvc(setError=["HepMcParticleLink"]))
+    return acc
 
 
 def CommonTestArgumentParser(prog):
@@ -20,6 +37,8 @@ def CommonTestArgumentParser(prog):
                         help="The number of concurrent threads to run. 0 uses serial Athena.")
     parser.add_argument("-V", "--verboseAccumulators", default=False, action="store_true",
                         help="Print full details of the AlgSequence for each accumulator")
+    parser.add_argument("-S", "--verboseStoreGate", default=False, action="store_true",
+                        help="Dump the StoreGate(s) each event iteration")
     parser.add_argument("-o", "--output", default='', type=str,
                         help="Output RDO file")
     parser.add_argument("-s", "--outputSig", default='', type=str,
@@ -59,6 +78,7 @@ def setupOverlayTestDetectorFlags(configFlags, detectors):
 
 def defaultTestFlags(configFlags, args):
     """Fill default overlay flags for testing"""
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
     configFlags.GeoModel.Align.Dynamic = False
     configFlags.Digitization.DoInnerDetectorNoise = False
     if args.data:
@@ -76,7 +96,10 @@ def defaultTestFlags(configFlags, args):
         configFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-20"
         configFlags.Overlay.DataOverlay = False
     if args.output:
-        configFlags.Output.RDOFileName = args.output
+        if args.output == 'None':
+            configFlags.Output.RDOFileName = ''
+        else:
+            configFlags.Output.RDOFileName = args.output
     if args.outputSig:
         configFlags.Output.RDO_SGNLFileName = args.outputSig
     setupOverlayTestDetectorFlags(configFlags, args.detectors if 'detectors' in args else None)
@@ -101,7 +124,8 @@ def printAndRun(accessor, configFlags, args):
     # Dump config
     if args.verboseAccumulators:
         accessor.printConfig(withDetails=True)
-    accessor.getService("StoreGateSvc").Dump = True
+    if args.verboseStoreGate:
+        accessor.getService("StoreGateSvc").Dump = True
     configFlags.dump()
 
     # Execute and finish

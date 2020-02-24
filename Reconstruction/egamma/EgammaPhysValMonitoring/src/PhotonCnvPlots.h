@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAPHYSVALMONITORING_PHOTONCNVPLOTS_H
@@ -19,7 +19,7 @@ namespace Egamma{
   
 class PhotonCnvPlots:public PlotBase {
     public:
-      PhotonCnvPlots(PlotBase* pParent, std::string sDir, std::string sParticleType);
+      PhotonCnvPlots(PlotBase* pParent, const std::string& sDir, const std::string& sParticleType);
       void fill(const xAOD::Photon& photon, bool isPrompt);
       
       // Reco only information

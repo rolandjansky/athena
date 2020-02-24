@@ -14,16 +14,8 @@
 
 Muon::TgcRdoToPrepDataToolMT::TgcRdoToPrepDataToolMT(const std::string& t, const std::string& n, const IInterface* p)
   : AthAlgTool(t, n, p), 
-    TgcRdoToPrepDataToolCore(t, n, p),
-    m_prdContainerCacheKeys{"","","",""},
-    m_coinContainerCacheKeys{"","",""},
-    m_prdContainerCacheKeyStr(""),
-    m_coinContainerCacheKeyStr("")
-
+    TgcRdoToPrepDataToolCore(t, n, p)
 {
-  // Declare the cache name as a string because we build the keys in initialise same as done for the containers
-  declareProperty("TgcPrdContainerCacheKey",  m_prdContainerCacheKeyStr, "Optional external cache for the TGC PRD container");
-  declareProperty("TgcCoinContainerCacheKey", m_coinContainerCacheKeyStr, "Optional external cache for the TGC Trigger Coin container");
 }  
 
 Muon::TgcRdoToPrepDataToolMT::~TgcRdoToPrepDataToolMT()
@@ -34,33 +26,6 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::initialize()
 {
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( TgcRdoToPrepDataToolCore::initialize() );
-
-  // Build names for the keys same as done for output containers
-  if(m_prdContainerCacheKeyStr != ""){
-    for(int ibc=0; ibc<NBC+1; ibc++) {      
-      int bcTag=ibc+1;
-      std::ostringstream location;
-      location << m_prdContainerCacheKeyStr << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
-         << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "") << (bcTag==(NBC+1) ? "AllBCs" : "");    
-      m_prdContainerCacheKeys.at(ibc) = location.str();
-      ATH_MSG_INFO( location.str() );
-    }
-  }
-
-  if(m_prdContainerCacheKeyStr != ""){
-    for(int ibc=0; ibc<NBC; ibc++) {
-      int bcTag=ibc+1;
-      std::ostringstream location;
-      location << m_coinContainerCacheKeyStr << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
-               << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "");
-      m_coinContainerCacheKeys.at(ibc) = location.str();
-      ATH_MSG_INFO( location.str() );
-    }
-  }
-
-  // Only initialise if we passed in the cache name
-  ATH_CHECK( m_prdContainerCacheKeys.initialize( m_prdContainerCacheKeyStr != "" ) );
-  ATH_CHECK( m_coinContainerCacheKeys.initialize( m_prdContainerCacheKeyStr != "" ) );
   ATH_MSG_DEBUG("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
@@ -70,8 +35,10 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::finalize()
   return TgcRdoToPrepDataToolCore::finalize();
 }
 
-StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& requestedIdHashVect, std::vector<IdentifierHash>& selectedIdHashVect)
+StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& requestedIdHashVect, 
+  std::vector<IdentifierHash>& selectedIdHashVect)
 {
+  // MT version of this method always adds containers. Caching will be added later.
 
   int sizeVectorRequested = requestedIdHashVect.size();
   ATH_MSG_DEBUG("decode for " << sizeVectorRequested << " offline collections called");
@@ -79,97 +46,67 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
   // clear output vector of selected data collections containing data 
   selectedIdHashVect.clear(); 
   
-  // This seems redundant in the MT setup
   bool nothingToDo[NBC+1];  
-  for(int ibc=0; ibc<NBC+1; ibc++){
-    nothingToDo[ibc] = false; 
-  }
-  bool nothingToDoForAllBC = true;
-  for(int ibc=0; ibc<NBC; ibc++) {
-    if(!nothingToDo[ibc]) nothingToDoForAllBC = false;
-  } 
-  // ---
+  for(int ibc=0; ibc<NBC+1; ibc++) nothingToDo[ibc] = false; 
+
   if(!m_tgcCabling) {
     StatusCode status = getCabling();
     if(!status.isSuccess()) return status; 
   }
 
-  // initialize with false - does not need to be inside IBC loop
-  std::fill(m_decodedOnlineId.begin(), m_decodedOnlineId.end(), false);
-
   /// clean up containers for Hits
-  for(int ibc=0; ibc<NBC+1; ibc++) {
-    // PRD
+  for(int ibc=0; ibc<NBC+1; ibc++) {      
+    // initialize with false  
+    std::fill(m_decodedOnlineId.begin(), m_decodedOnlineId.end(), false);
     SG::WriteHandle<TgcPrepDataContainer>  handle(m_outputprepdataKeys[ibc]);
-    // Caching of PRD container
-    const bool externalCachePRD = !m_prdContainerCacheKeys[ibc].key().empty();
-    if (!externalCachePRD) {
-      // without the cache we just record the container
-      StatusCode status = handle.record(std::make_unique<Muon::TgcPrepDataContainer>(m_muonIdHelperTool->tgcIdHelper().module_hash_max()));
-      if (status.isFailure() || !handle.isValid() )   {
-        ATH_MSG_FATAL("Could not record container of TGC PrepRawData at " << m_outputprepdataKeys[ibc].key());
-        return StatusCode::FAILURE;;
-      }
-      ATH_MSG_DEBUG("Created container " << m_outputprepdataKeys[ibc].key());
-    } 
-    else {
-      // use the cache to get the container
-      SG::UpdateHandle<TgcPrepDataCollection_Cache> update(m_prdContainerCacheKeys[ibc]);
-      if (!update.isValid()){
-        ATH_MSG_FATAL("Invalid UpdateHandle " << m_prdContainerCacheKeys[ibc].key());
-        return StatusCode::FAILURE;
-      }
-      StatusCode status = handle.record(std::make_unique<Muon::TgcPrepDataContainer>(update.ptr()));
-      if (status.isFailure() || !handle.isValid() )   {
-        ATH_MSG_FATAL("Could not record container of TGC PrepData Container using cache " 
-          << m_prdContainerCacheKeys[ibc].key() << " - " <<m_outputprepdataKeys[ibc].key()); 
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG("Created container using cache for " << m_prdContainerCacheKeys[ibc].key());
-    }
     
+    // record the container in storeGate
+    handle = std::unique_ptr<TgcPrepDataContainer> (new TgcPrepDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max()));
+    // cache the pointer, storegate retains ownership
+    m_tgcPrepDataContainer[ibc] = handle.ptr();
+    if(!handle.isValid()) {
+      ATH_MSG_FATAL("Could not record container of TGC PrepRawData at " << m_outputprepdataKeys[ibc].key());
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("TGC PrepData Container recorded in StoreGate with key " << m_outputprepdataKeys[ibc].key());
+    }
+
     //true: un-seeded mode (no need to decode this event after this execution)
     //false: seeded mode (still need to decode this event even after this execution) 
     m_fullEventDone[ibc] = sizeVectorRequested==0;
 
-    // Pass the container from the handle
-    m_tgcPrepDataContainer[ibc] = handle.ptr();
+    m_decodedRdoCollVec.clear(); // The information of decoded RDO in the previous event is cleared. 
   }
+  
+  // If at least one BC has to do something, nothingToDoForAllBC should be false.  
+  bool nothingToDoForAllBC = true;
+  for(int ibc=0; ibc<NBC; ibc++) {
+    if(!nothingToDo[ibc]) nothingToDoForAllBC = false;
+  } 
+  
+  /*if(nothingToDoForAllBC) {
+    ATH_MSG_DEBUG("Whole events at all " << NBC << " BCs have already been decoded; nothing to do");
+    return StatusCode::SUCCESS;
+    }*/
 
-
+  
   /// clean up containers for Coincidence
   for(int ibc=0; ibc<NBC; ibc++) {
-
-    // PRD
+    // this happens the first time in the event !
     SG::WriteHandle<TgcCoinDataContainer>  handle(m_outputCoinKeys[ibc]);
-    // Caching of PRD container
-    const bool externalCacheCoin = !m_coinContainerCacheKeys[ibc].key().empty();
-    if (!externalCacheCoin) {
-      // without the cache we just record the container
-      StatusCode status = handle.record(std::make_unique<Muon::TgcCoinDataContainer>(m_muonIdHelperTool->tgcIdHelper().module_hash_max()));
-      if (status.isFailure() || !handle.isValid() )   {
-        ATH_MSG_FATAL("Could not record container of TGC CoinData at " << m_outputCoinKeys[ibc].key());
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG("Created container " << m_outputCoinKeys[ibc].key());
-    } 
-    else {
-      // use the cache to get the container
-      SG::UpdateHandle<TgcCoinDataCollection_Cache> update(m_coinContainerCacheKeys[ibc]);
-      if (!update.isValid()){
-        ATH_MSG_FATAL("Invalid UpdateHandle " << m_coinContainerCacheKeys[ibc].key());
-        return StatusCode::FAILURE;
-      }
-      StatusCode status = handle.record(std::make_unique<Muon::TgcCoinDataContainer>(update.ptr()));
-      if (status.isFailure() || !handle.isValid() )   {
-        ATH_MSG_FATAL("Could not record container of TGC CoinData Container using cache " 
-          << m_coinContainerCacheKeys[ibc].key() << " - " <<m_outputCoinKeys[ibc].key()); 
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG("Created container using cache for " << m_coinContainerCacheKeys[ibc].key());
-    }
-    // Pass the container from the handle
+    
+    // record the container in storeGate
+    handle = std::unique_ptr<TgcCoinDataContainer> (new TgcCoinDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max()));
+    
+    // cache the pointer, storegate retains ownership
     m_tgcCoinDataContainer[ibc] = handle.ptr();
+
+    if(!handle.isValid()) {
+      ATH_MSG_FATAL("Could not record container of TGC CoinData at " << m_outputCoinKeys[ibc].key());
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("TGC CoinData Container recorded in StoreGate with key " << m_outputCoinKeys[ibc].key());
+    }
   }
 
   if(!nothingToDoForAllBC) { // If still need to do something 

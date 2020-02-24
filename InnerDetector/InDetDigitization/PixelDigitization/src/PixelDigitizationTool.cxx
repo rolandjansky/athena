@@ -136,9 +136,8 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 
     // Create the identifier for the collection
     ATH_MSG_DEBUG("create ID for the hit collection");
-    const PixelID* PID = static_cast<const PixelID*>(m_detID);
-    Identifier id = PID->wafer_id((*firstHit)->getBarrelEndcap(),(*firstHit)->getLayerDisk(),(*firstHit)->getPhiModule(),(*firstHit)->getEtaModule());
-    IdentifierHash wafer_hash = PID->wafer_hash(id);
+    Identifier id = m_detID->wafer_id((*firstHit)->getBarrelEndcap(),(*firstHit)->getLayerDisk(),(*firstHit)->getPhiModule(),(*firstHit)->getEtaModule());
+    IdentifierHash wafer_hash = m_detID->wafer_hash(id);
 
     // Get the det element from the manager
     const InDetDD::SiDetectorElement* sielement = elements->getDetectorElement(wafer_hash);

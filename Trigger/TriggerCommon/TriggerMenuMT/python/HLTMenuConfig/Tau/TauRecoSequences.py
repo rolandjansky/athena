@@ -28,7 +28,7 @@ def _algoTauCaloOnly(inputRoIs, clusters):
     algo.Key_trigTauJetInputContainer  = ""
     algo.Key_trigTauTrackInputContainer  = ""
     algo.Key_trigTauJetOutputContainer = recordable("HLT_TrigTauRecMerged_CaloOnly")
-    algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_dummy")
+    algo.Key_trigTauTrackOutputContainer = "HLT_tautrack_dummy"
     return algo
 
 def _algoTauCaloOnlyMVA(inputRoIs, clusters):
@@ -43,7 +43,7 @@ def _algoTauCaloOnlyMVA(inputRoIs, clusters):
     algo.Key_trigTauJetInputContainer  = ""
     algo.Key_trigTauTrackInputContainer  = ""
     algo.Key_trigTauJetOutputContainer = recordable("HLT_TrigTauRecMerged_CaloOnlyMVA")
-    algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_dummy")
+    algo.Key_trigTauTrackOutputContainer = "HLT_tautrack_dummy"
     return algo
 
 def _algoTauTrackRoiUpdater(inputRoIs, tracks):
@@ -198,7 +198,7 @@ def tauIdTrackSequence( RoIs , name):
     PTTracks = [] #List of TrackCollectionKeys
     PTTrackParticles = [] #List of TrackParticleKeys
     
-    from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
     #Pass verifier as an argument and it will automatically append necessary DataObjects@NOTE: Don't provide any verifier if loaded in the same view as FTF
 

@@ -10,7 +10,7 @@
 #include "TrigFTK_RecAlgs/TrigFTKFastSim.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 namespace Par {
   const int Ipt = 0;
