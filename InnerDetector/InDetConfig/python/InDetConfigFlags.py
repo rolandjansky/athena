@@ -1,5 +1,9 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-#TODO: clean up flags, should only contain general settings but no alg config
+# TODO: clean up flags, should only contain general settings but no alg config
+# TODO : Add some exta levels?
+
 def createInDetConfigFlags():
   icf=AthConfigFlags()
 
@@ -148,8 +152,8 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.useBroadClusterErrors",1000) # Use broad cluster errors for Pixel/SCT 
   icf.addFlag("InDet.useBroadPixClusterErrors",3) # Use broad cluster errors for Pixel
   icf.addFlag("InDet.useBroadSCTClusterErrors",False) # Use broad cluster errors for SCT
-  icf.addFlag("InDet.writeRDOs",None) # Write RDOs into ESD 
-  icf.addFlag("InDet.writePRDs",None) # Write PRDs into ESD 
+  icf.addFlag("InDet.writeRDOs",False) # Write RDOs into ESD 
+  icf.addFlag("InDet.writePRDs",False) # Write PRDs into ESD 
   icf.addFlag("InDet.doMinBias",False) # Switch for running MinBias settings 
   icf.addFlag("InDet.doLowMuRunSetup",True) # Switch for running MinBias runs at low lumi settings 
   icf.addFlag("InDet.doRobustReco",False) # Switch for running Robust settings 
@@ -180,4 +184,4 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doHIP300",False) # Switch for running MinBias settings with a 300 MeV pT cut (for Heavy Ion Proton)
   icf.addFlag("InDet.checkDeadElementsOnTrack",True) # Enable check for dead modules and FEs 
   icf.addFlag("InDet.doDigitalROTCreation",False) # use PixelClusterOnTrackToolDigital during ROT creation to save CPU 
- return icf
+  return icf
