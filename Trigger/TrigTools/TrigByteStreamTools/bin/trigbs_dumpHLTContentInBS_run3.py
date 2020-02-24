@@ -74,11 +74,11 @@ def lvl1_bits(event):
     '''Return a string with information about LVL1 bits (IDs of items passed at TBP, TAP, TAV)'''
 
     info = event.lvl1_trigger_info()
-    nwords = len(info)/3  # TBP, TAP, TAV
+    nwords = len(info)//3  # TBP, TAP, TAV
     lvl1_bits = [decodeTriggerBits(info[i*nwords:(i+1)*nwords]) for i in range(3)]
-    info_str = 'L1 CTP IDs - TBP: {:s}\n'.format(lvl1_bits[0])
-    info_str += 'L1 CTP IDs - TAP: {:s}\n'.format(lvl1_bits[1])
-    info_str += 'L1 CTP IDs - TAV: {:s}'.format(lvl1_bits[2])
+    info_str = 'L1 CTP IDs - TBP: {:s}\n'.format(str(lvl1_bits[0]))
+    info_str += 'L1 CTP IDs - TAP: {:s}\n'.format(str(lvl1_bits[1]))
+    info_str += 'L1 CTP IDs - TAV: {:s}'.format(str(lvl1_bits[2]))
     return info_str
 
 
@@ -88,14 +88,14 @@ def hlt_bits(event, l2=False):
     info = event.lvl2_trigger_info() if l2 else event.event_filter_info()
     hlt_bits = decodeTriggerBits(info)
     info_str = 'L2' if l2 else 'EF'
-    info_str += ' passed chain IDs: {:s}'.format(hlt_bits)
+    info_str += ' passed chain IDs: {:s}'.format(str(hlt_bits))
     return info_str
 
 
 def stream_tags(event):
     info_str = 'Stream Tags: '
     stags = [('{}_{}'.format(s.type, s.name)) for s in event.stream_tag()]
-    info_str += '{:s}'.format(stags)
+    info_str += '{:s}'.format(str(stags))
     return info_str
 
 
@@ -106,7 +106,7 @@ def hlt_result(event, print_sizes=False):
     for rob in hlt_robs:
         info_str += '\n-- {:s} SourceID: {:s}, Size: {:d} bytes'.format(
             rob.__class__.__name__,
-            rob.source_id(),
+            rob.source_id().human(),
             rob.fragment_size_word()*4
         )
         if print_sizes:
@@ -114,7 +114,7 @@ def hlt_result(event, print_sizes=False):
             collections = hltResultMT.get_collections(rob.rod_data())
             for coll in collections:
                 indent = '----' if not coll.is_xAOD_decoration() else '------'
-                info_str += '\n{:s} {:s}'.format(indent, coll)
+                info_str += '\n{:s} {:s}'.format(indent, str(coll))
     return info_str
 
 
