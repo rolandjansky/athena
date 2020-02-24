@@ -5,12 +5,17 @@
 # Declare the package name:
 atlas_subdir( Run3AFPMonitoring )
 
+# Set the minimum required CMake version:
+cmake_minimum_required( VERSION 3.6 FATAL_ERROR )
+project(../athena/ForwardDetectors/AFP/Run3AFPMonitoring/)
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
     PUBLIC
         Control/AthenaBaseComps
         Control/AthenaMonitoringKernel
         GaudiKernel
+	Event/xAOD/xAODForward
         LumiBlock/LumiBlockComps
         LumiBlock/LumiBlockData
         Trigger/TrigEvent/TrigDecisionInterface
@@ -75,6 +80,7 @@ atlas_add_component(
         AthenaMonitoringKernelLib
         LumiBlockData
         LWHists
+	xAODForward
         SGAudCore
         TrigDecisionToolLib
 )
@@ -84,3 +90,4 @@ atlas_add_component(
 #                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 #atlas_install_scripts( share/Run3DQTestingDriver.py share/hist_file_dump.py share/hist_diff.sh )
+

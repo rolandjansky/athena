@@ -22,5 +22,12 @@ private:
     std::vector<std::vector<int>> m_abGroups2;
     std::map<std::string,int> m_cGroups1;
     std::map<std::string,std::map<std::string,int>> m_cGroups2;
+
+protected:
+  static const int s_cNearStationIndex;
+  static const int s_cFarStationIndex;
+  const std::string m_histsDirectoryName;
+
 };
 #endif
+
