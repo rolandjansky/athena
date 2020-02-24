@@ -1,8 +1,12 @@
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Run3AFPMonitoring/AFPSiLayerAlgorithm.h"
+#include <xAODForward/AFPSiHit.h>
+#include <xAODForward/AFPSiHitContainer.h>
+#include "StoreGate/ReadHandleKey.h"
 
 /* Old constructor:
 AFPHitsMonitorAlgorithm::AFPHitsMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
@@ -11,10 +15,19 @@ AFPHitsMonitorAlgorithm::AFPHitsMonitorAlgorithm( const std::string& name, ISvcL
 {}
 */
 
+const int s_cNearStationIndex = 2;
+const int s_cFarStationIndex = 3;
+
+
 AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
-,m_doRandom(true)
-{}
+//, m_histsDirectoryName ("AFP/")
+//, m_cNearStation (s_cNearStationIndex)
+//, m_cFarStation (s_cFarStationIndex)
+
+{
+    //declareProperty( "AFPSiHits", afpHitContainerKey );
+}
 
 
 AFPSiLayerAlgorithm::~AFPSiLayerAlgorithm() {}
@@ -22,13 +35,21 @@ AFPSiLayerAlgorithm::~AFPSiLayerAlgorithm() {}
 
 StatusCode AFPSiLayerAlgorithm::initialize() {
     using namespace Monitored;
-    m_abGroups1 = buildToolMap<int>(m_tools,"AFPSiLayer",2);
+    
+m_abGroups1 = buildToolMap<int>(m_tools,"AFPSiLayer",2);
     m_abGroups2 = buildToolMap<std::vector<int>>(m_tools,"AFPSiLayer",4,2);
-
+    /*
     std::vector<std::string> layers = {"layer1","layer2"};
     std::vector<std::string> clusters = {"clusterX","clusterB"};
     m_cGroups1 = buildToolMap<int>(m_tools,"AFPSiLayer",layers);
     m_cGroups2 = buildToolMap<std::map<std::string,int>>(m_tools,"AFPSiLayer",layers,clusters);
+    return AthMonitorAlgorithm::initialize();
+    */
+    // We must declare to the framework in initialize what SG objects we are going to use
+    SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey;
+
+    ATH_CHECK(afpHitContainerKey.initialize());
+    // ...
     return AthMonitorAlgorithm::initialize();
 }
 
@@ -42,21 +63,23 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto h_timeOverThreshold = Monitored::Scalar<int>("h_timeOverThreshold", 0);
     //auto h_hitMap = Monitored::Scalar<int>("h_hitMap", 0);
     // End
-
+/*	
     auto lumiPerBCID = Monitored::Scalar<float>("lumiPerBCID",0.0);
     auto lb = Monitored::Scalar<int>("lb",0);
     auto run = Monitored::Scalar<int>("run",0);
     auto random = Monitored::Scalar<float>("random",0.0);
     auto testweight = Monitored::Scalar<float>("testweight",1.0);
+*/
 
-    // Two variables (value and passed) needed for TEfficiency
+/*    // Two variables (value and passed) needed for TEfficiency
     auto pT = Monitored::Scalar<float>("pT",0.0);
     auto pT_passed = Monitored::Scalar<bool>("pT_passed",false);
-
+*/
     // Set the values of the monitored variables for the event
     h_timeOverThreshold = lbAverageInteractionsPerCrossing(ctx);
     h_hitMultiplicity = lbAverageInteractionsPerCrossing(ctx);
     //    h_hitMap = lbAverageInteractionsPerCrossing(ctx);
+/*
     lumiPerBCID = lbAverageInteractionsPerCrossing(ctx);
     lb = GetEventInfo(ctx)->lumiBlock();
     run = GetEventInfo(ctx)->runNumber();
@@ -71,20 +94,23 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     // Fake efficiency calculator
     pT = r.Landau(15);
     pT_passed = pT>r.Poisson(15);
-
+*/
     // Fill. First argument is the tool name, all others are the variables to be saved.
-    fill("AFPSiLayer", h_timeOverThreshold, h_hitMultiplicity,lumiPerBCID,lb,random,pT,pT_passed,testweight);
+    //fill("AFPSiLayer", h_timeOverThreshold, h_hitMultiplicity,lumiPerBCID,lb,random,pT,pT_passed,testweight);
     //fill("AFPSiLayerAlgorithm",h_hitMultiplicity,lb,random,pT,pT_passed,testweight);
+    fill("AFPSiLayer", h_timeOverThreshold, h_hitMultiplicity);
 
     // Alternative fill method. Get the group yourself, and pass it to the fill function.
-    auto tool = getGroup("AFPSiLayer");
-    fill(tool,run);
+    //auto tool = getGroup("AFPSiLayer");
+    //fill(tool,run);
 
     // Fill with a vector; useful in some circumstances.
+/*
     std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> varVec = {lumiPerBCID,pT};
     fill("AFPSiLayer",varVec);
     fill(tool,varVec);
-
+*/
+/*
     // Filling using a pre-defined array of groups.
     auto a = Scalar<float>("a",0.0);
     auto b = Scalar<float>("b",1.0);
@@ -108,6 +134,36 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
             fill(m_tools[m_cGroups2.at(layer).at(cluster)],c);
         }
     }
+*/    
+    SG::ReadHandle<xAOD::AFPSiHitContainer>* afpHitContainer;
+    if(! afpHitContainer->isValid())
+    {
+	ATH_MSG_ERROR("evtStore() does not contain hits collection with name afpHitContainerKey ");
+	return StatusCode::FAILURE;
+    }
+/*
+    CHECK( evtStore()->retrieve( afpHitContainer, "AFPSiHitContainer" ) );
 
+    for(const auto* hitsItr: *afpHitContainer)
+    {
+
+	switch(hitsItr->stationID())
+	{
+	    case s_cNearStationIndex:
+	        m_cNearStation.fillHistograms(*hitsItr);
+		break;
+	    case s_cFarStationIndex:
+		m_cFarStation.fillHistograms(*hitsItr);
+		break;
+	    default:
+		ATH_MSG_WARNING("UNrecognised station index: " << hitsItr->stationID());
+	}
+
+    }
+
+	m_cNearStation.eventEnd();
+	m_cFarStation.eventEnd();
+*/
     return StatusCode::SUCCESS;
 }
+
