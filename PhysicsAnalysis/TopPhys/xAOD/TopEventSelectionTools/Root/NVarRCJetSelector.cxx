@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/NVarRCJetSelector.h"
@@ -11,7 +11,6 @@ namespace top {
     SignValueSelector("VRCJET_N " + name, params, true),
     m_name(name) {
     checkMultiplicityIsInteger();
-    std::cout << "NVarRCJetSelector::NVarRCJetSelector: m_name = " << m_name << std::endl;
   }
 
   bool NVarRCJetSelector::apply(const top::Event& event) const {

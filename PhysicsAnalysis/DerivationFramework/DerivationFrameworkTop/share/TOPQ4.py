@@ -114,7 +114,8 @@ addTCCTrimmedJetsForTop(TOPQ4Sequence, "TOPQ4")
 
 # add VR jets
 from DerivationFrameworkTop.TOPQCommonJets import addVRJetsForTop
-addVRJetsForTop(TOPQ4Sequence)
+addVRJetsForTop(TOPQ4Sequence,'201810')
+addVRJetsForTop(TOPQ4Sequence,'201903')
 
 # apply jet calibration
 from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration

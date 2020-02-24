@@ -1,9 +1,12 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/SignValueSelector.h"
 #include "TopConfiguration/Tokenize.h"
+
+#include "TopEventSelectionTools/MsgCategory.h"
+using namespace TopEventSelectionTools;
 
 namespace top {
   SignValueSelector::SignValueSelector(const std::string& name, std::string params, bool multiplicityMode,
@@ -25,8 +28,7 @@ namespace top {
     if (!multiplicityMode) ss << name << " " << signstring() << " " << m_cutvalue;
     else {
       if (m_multiplicity < 0) {
-        std::cout << "Cut value and multiplicity must be set for " << name << std::endl;
-        exit(1);
+        throw std::runtime_error("Cut value and multiplicity must be set for " + name);
       }
 
       if (!cutValueMode) ss << name << " " << m_cutvalue << " " << signstring() << " " << m_multiplicity;
@@ -59,10 +61,9 @@ namespace top {
     // We are kind, and keep some backwards compatablity, so incase you did not know the syntax changed, hopefully we
     // provided the most likely default
     else {
-      std::cout << "SignValueSelector :: We are using a default_prefix as we could not split on a delimiter." <<
-        std::endl;
+      ATH_MSG_INFO("SignValueSelector :: We are using a default_prefix as we could not split on a delimiter.");
       m_cutvalueStringDelimReplace = default_prefix + replace + m_cutvalueString;
-      std::cout << "SignValueSelector :: The final result is " << m_cutvalueStringDelimReplace << std::endl;
+      ATH_MSG_INFO("SignValueSelector :: The final result is " << m_cutvalueStringDelimReplace);
     }
   }
 
@@ -72,19 +73,17 @@ namespace top {
 
   void SignValueSelector::checkValueIsInteger() {
     if (value() != floor(value())) {
-      std::cout << "The number " << value() << " is not an integer\n";
-      std::cout << "As defined in " << name() << "\n";
-      std::cout << "Please fix and try again\n";
-      exit(1);
+      ATH_MSG_ERROR("The number " << value() << " is not an integer\n"
+          << "As defined in " << name() << "\n");
+      throw std::runtime_error("Failed parsing value for SignValueSelector");
     }
   }
 
   void SignValueSelector::checkMultiplicityIsInteger() {
     if (multiplicity() != floor(multiplicity())) {
-      std::cout << "The number " << value() << " is not an integer\n";
-      std::cout << "As defined in " << name() << "\n";
-      std::cout << "Please fix and try again\n";
-      exit(1);
+      ATH_MSG_ERROR("The number " << multiplicity() << " is not an integer\n"
+          << "As defined in " << name() << "\n");
+      throw std::runtime_error("Failed parsing multiplicity cut for SignValueSelector");
     }
   }
 
@@ -134,13 +133,11 @@ namespace top {
   bool SignValueSelector::checkFloat(double value, double cut) const {
     switch (m_sign) {
     case signNOIDEA: {
-      std::cout << "Do not recognise the sign\n";
-      exit(1);
+      throw std::runtime_error("SignValueSelector::checkFloat: Can't recognise the sign");
     }
 
     case signEQ: {
-      std::cout << "Can't compare floats with ==\n";
-      exit(1);
+      throw std::runtime_error("SignValueSelector::checkFloat: Can't compare floats with ==");
     }
 
     case signLT:
@@ -162,8 +159,7 @@ namespace top {
   bool SignValueSelector::checkInt(int value, int cut) const {
     switch (m_sign) {
     case signNOIDEA: {
-      std::cout << "Do not recognise the sign\n";
-      exit(1);
+      throw std::runtime_error("SignValueSelector::checkInt: Can't recognise the sign");
     }
 
     case signEQ:
@@ -188,10 +184,10 @@ namespace top {
   const std::string SignValueSelector::signstring() const {
     switch (m_sign) {
     case signNOIDEA: {
-      std::cout << "SignValueSelector is confused\n";
-      std::cout << "Please check your cuts have all the correct cuts\n";
-      std::cout << "e.g. ==, >, >=, <, <=\n";
-      exit(1);
+      ATH_MSG_ERROR("SignValueSelector is confused\n"
+          << "Check that your cuts have one of: "
+          << "==, >, >=, <, <=\n");
+      throw std::runtime_error("SignValueSelector::signstring: Can't recognise the comparison operator");
     }
 
     case signEQ:

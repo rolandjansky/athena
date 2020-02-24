@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/RunNumberSelector.h"
@@ -20,9 +20,7 @@ namespace top {
       if (event.m_info->isAvailable<unsigned int>("RandomRunNumber")) number = event.m_info->auxdataConst<unsigned int>(
           "RandomRunNumber");
       else {
-        std::cout << "RunNumberSelector: can't find random Run Number - did you setup the pile-up reweighting tool?" <<
-        std::endl;
-        exit(1);
+        throw std::runtime_error("RunNumberSelector: RandomRunNumber EventInfo decoration not available. Indicates issue with PRW tool.");
       }
     }
 

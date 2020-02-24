@@ -46,7 +46,7 @@ namespace asg
 
 #ifdef XAOD_STANDALONE
       to = ToolHandle<T1> (dynamic_cast<T1*>(&*from));
-      if (!from.empty() && &*to == nullptr)
+      if (!from.empty() && to.operator->() == nullptr)
       {
 	ANA_MSG_ERROR ("failed to cast from type " << typeid(T2).name() << " to  " << typeid(T1).name());
 	return StatusCode::FAILURE;
@@ -1288,7 +1288,7 @@ namespace asg
 
     try
     {
-      toolPtr = &*toolHandle;
+      toolPtr = toolHandle.operator->();
       if (toolPtr == nullptr)
       {
 	ANA_MSG_ERROR ("failed to retrieve tool from tool handle " << *m_handleUser);

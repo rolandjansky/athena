@@ -11,4 +11,11 @@ art.py download --nightly-release 21.2 --project AthDerivation --platform x86_64
 inputFile=./ref-*/DAOD_TRUTH3.art.pool.root
 
 TruthDerivationTester --input ${inputFile} --output test_histograms.root --nevents -1
-echo "art-result: $?"
+echo "art-result: $? Analysis"
+
+dcubeName="LHE"
+dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkAnalysisTests/Analysis_DCubeConfig.xml"
+dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkAnalysisTests/reference_2020_02_14_test_histograms.root"
+
+bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName test_histograms.root $dcubeXml $dcubeRef
+echo  "art-result: $? DCube"

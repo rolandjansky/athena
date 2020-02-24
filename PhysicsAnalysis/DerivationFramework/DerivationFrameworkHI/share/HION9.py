@@ -25,8 +25,8 @@ GetConditionsFromMetaData()
 #====================================================================
 from PyUtils import AthFile
 af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0])
-project_tag = af.fileinfos['metadata']['/TagInfo']['project_name']
-beam_energy = af.fileinfos['metadata']['/TagInfo']['beam_energy']
+if 'project_name' in af.fileinfos['metadata']['/TagInfo']: project_tag = af.fileinfos['metadata']['/TagInfo']['project_name']
+else: project_tag = ""
 print '+++++++++++++++++++++++++++++++ project tag: ',project_tag,' +++++++++++++++++++++++++++++++'
 
 #====================================================================

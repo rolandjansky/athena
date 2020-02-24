@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef PLOTMANAGER_H_
@@ -108,6 +108,16 @@ namespace top {
      */
     void scaleHistograms(double sf = 1.) const;
   private:
+    /**
+     * @brief Helper method to check for duplicates when adding histogram.
+     * 
+     * If duplicate histogram exists with same name as hname, print
+     * error message and throw std::runtime_error
+     *
+     * @param hname Name of the histogram to check against duplicates.
+     */
+    void checkDuplicate(const std::string& hname) const;
+
     EL::Worker* m_wk;
 
     ///Name of the folder to store the plots in, in the output file.

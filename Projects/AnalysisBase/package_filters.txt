@@ -51,6 +51,7 @@
 + PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
++ PhysicsAnalysis/HeavyIonPhys/HIEventUtils
 + PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
 + PhysicsAnalysis/Interfaces/.*
 + PhysicsAnalysis/JetMissingEtID/JetSelectorTools

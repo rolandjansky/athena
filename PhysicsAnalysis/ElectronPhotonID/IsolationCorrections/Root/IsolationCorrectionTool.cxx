@@ -25,7 +25,7 @@ namespace CP {
 
   IsolationCorrectionTool::IsolationCorrectionTool( const std::string &name )
     : asg::AsgMetadataTool(name), m_systDDonoff("PH_Iso_DDonoff"){
-    declareProperty("CorrFile",                    m_corr_file            = "IsolationCorrections/v1/isolation_ptcorrections_rel20_2.root");
+    declareProperty("CorrFile",                    m_corr_file            = "IsolationCorrections/v5/isolation_ptcorrections_rel20_2.root");
     declareProperty("CorrFile_ddshift",            m_corr_ddshift_file    = "IsolationCorrections/v3/isolation_ddcorrection_shift.root");
     declareProperty("CorrFile_ddshift_2015_2016",  m_corr_ddshift_2015_2016_file = ""); //Obsolete, kept for compatibility
     declareProperty("CorrFile_ddshift_2017",       m_corr_ddshift_2017_file      = ""); //Obsolete, kept for compatibility
@@ -37,11 +37,13 @@ namespace CP {
     declareProperty("IsMC",                        m_is_mc                = true);
     declareProperty("Correct_etcone",              m_correct_etcone       = false);
     declareProperty("Trouble_categories",          m_trouble_categories   = true);
+    declareProperty("LogLogFitForLekage",          m_useLogLogFit         = false);
+    declareProperty("ForcePartType",               m_forcePartType        = false);
     declareProperty("Apply_ddshifts",              m_apply_ddDefault      = true);
     declareProperty("Apply_SC_leakcorr",           m_apply_SC_leak_corr   = false);
-    declareProperty("Apply_etaEDParPU_correction",    m_apply_etaEDParPU_corr= false);
-    declareProperty("Apply_etaEDPar_mc_correction", m_apply_etaEDParPU_mc_corr= false);
-    declareProperty("CorrFile_etaEDParPU_correction", m_corr_etaEDParPU_file = "IsolationCorrections/v4/zetas.root");
+    declareProperty("Apply_etaEDParPU_correction",     m_apply_etaEDParPU_corr      = false);
+    declareProperty("Apply_etaEDPar_mc_correction",    m_apply_etaEDParPU_mc_corr   = false);
+    declareProperty("CorrFile_etaEDParPU_correction",  m_corr_etaEDParPU_file       = "IsolationCorrections/v4/zetas.root");
     declareProperty("CorrFile_etaEDPar_mc_correction", m_corr_etaEDPar_mc_corr_file = "IsolationCorrections/v4/zetas_correction.root");
 
     m_isol_corr = new IsolationCorrection(name);
@@ -102,7 +104,9 @@ namespace CP {
     m_isol_corr->SetCorrectionFile(m_corr_file, m_corr_ddshift_file, m_corr_ddsmearing_file);
     m_isol_corr->SetToolVer(tool_ver);
     m_isol_corr->SetTroubleCategories(m_trouble_categories);
-    
+    m_isol_corr->FitType(m_useLogLogFit);
+    m_isol_corr->ForcePartType(m_forcePartType);
+ 
     // Note that systematics in Rel 21 are NOT done with the DD-Corr ON/OFF method! 
     if (m_apply_ddDefault) {
       if (m_ddVersion == "2015" || m_ddVersion == "2015_2016" || m_ddVersion == "2017") {

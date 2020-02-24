@@ -308,8 +308,8 @@ namespace ST {
       }
     }
     if (recordSG) {
-      ATH_CHECK( evtStore()->record(copy, "STCalib" + jetkey_tmp) );
-      ATH_CHECK( evtStore()->record(copyaux, "STCalib" + jetkey_tmp + "Aux.") );
+      ATH_CHECK( evtStore()->record(copy, "STCalib" + jetkey_tmp + m_currentSyst.name()) );
+      ATH_CHECK( evtStore()->record(copyaux, "STCalib" + jetkey_tmp + m_currentSyst.name() + "Aux.") );
     }
     return StatusCode::SUCCESS;
   }
