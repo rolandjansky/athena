@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 """Define functions to configure Pixel conditions algorithms
 
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
@@ -134,10 +136,10 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     elif not flags.Input.isMC:
         runNum = flags.Input.RunNumber[0]
         if runNum < 222222:
-            useCablingConditions = False
+            # useCablingConditions = False
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
         else:
-            useCablingConditions = True
+            # useCablingConditions = True
             # Even though we are reading from COOL, set the correct fallback map.
             if (runNum >= 344494):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
@@ -450,3 +452,4 @@ def PixelConditionsSummaryCfg(flags, name="PixelConditionsSummaryCfg", **kwargs)
     return acc
 
 
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration

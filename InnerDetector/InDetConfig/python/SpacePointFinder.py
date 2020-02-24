@@ -1,10 +1,12 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 """Define fuctions to configure Space Point Finder
 
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
+# from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
 
 def InDetSiElementPropertiesTableCondAlgCfg(flags, **kwargs):
     acc = ComponentAccumulator()
