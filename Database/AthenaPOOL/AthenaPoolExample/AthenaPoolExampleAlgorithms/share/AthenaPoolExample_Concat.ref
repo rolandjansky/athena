@@ -371,7 +371,6 @@ SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[8 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:float
 SimplePoolFile1...  DEBUG ---->[0]:float Typ:float [10] Size:0 Offset:0 #Elements:1
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 256000 for db: SimplePoolFile1.root and cont: POOLContainer(DataHeader)
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 1024000 for db: SimplePoolFile1.root and cont: POOLContainerForm(DataHeaderForm)
 ClassIDSvc           INFO  getRegistryEntries: read 88 CLIDRegistry entries for module ALL
@@ -452,7 +451,6 @@ SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --->Adding Shape[3 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:DataHeaderForm_p6
 SimplePoolFile3...  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 256000 for db: SimplePoolFile3.root and cont: POOLContainer(DataHeader)
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 1024000 for db: SimplePoolFile3.root and cont: POOLContainerForm(DataHeaderForm)
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #1 1 events processed so far  <<<===
@@ -501,7 +499,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 2
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 2
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -516,7 +513,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 2
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 2
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 2 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -563,7 +559,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 3
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 3
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -578,7 +573,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 3
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 3
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 3 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -625,7 +619,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 4
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 4
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -640,7 +633,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 4
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 4
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #1 4 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -687,7 +679,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 5
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 5
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -702,7 +693,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 5
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 5
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #1 5 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -749,7 +739,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 6
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 6
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -764,7 +753,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 6
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 6
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #1 6 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -811,7 +799,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 7
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 7
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -826,7 +813,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 7
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 7
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #1 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #1 7 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -873,7 +859,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 8
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 8
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -888,7 +873,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 8
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 8
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #1 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #1 8 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -935,7 +919,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 9
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 9
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -950,7 +933,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 9
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 9
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #1 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #1 9 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -997,7 +979,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 10
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 10
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1012,7 +993,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 10
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 10
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #1 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #1 10 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1059,7 +1039,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 11
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 11
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1074,7 +1053,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 11
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 11
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #1 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #1 11 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1121,7 +1099,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 12
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 12
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1136,7 +1113,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 12
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 12
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #1 12 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1183,7 +1159,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 13
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 13
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1198,7 +1173,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 13
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 13
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #1 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #1 13 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1245,7 +1219,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 14
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 14
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1260,7 +1233,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 14
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 14
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #1 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #1 14 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1308,7 +1280,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 15
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 15
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1323,7 +1294,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 15
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 15
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #1 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #1 15 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1370,7 +1340,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 16
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 16
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1385,7 +1354,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 16
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 16
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #1 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #1 16 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1432,7 +1400,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 17
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 17
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1447,7 +1414,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 17
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 17
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #1 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #1 17 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1494,7 +1460,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 18
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 18
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1509,7 +1474,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 18
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 18
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #1 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #1 18 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1556,7 +1520,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 19
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 19
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1571,7 +1534,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 19
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 19
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #1 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #1 19 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1618,7 +1580,6 @@ Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 20
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 20
 Stream1             DEBUG connectOutput done for SimplePoolFile1.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -1633,7 +1594,6 @@ Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 20
 Stream2             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 20
 Stream2             DEBUG connectOutput done for SimplePoolFile3.root
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
 Stream1             DEBUG AthenaOutputStream Stream1 ::stop()
 Stream2             DEBUG AthenaOutputStream Stream2 ::stop()
@@ -1674,7 +1634,6 @@ MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (16 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile1.root context=1
 ClassIDSvc           INFO  getRegistryEntries: read 7 CLIDRegistry entries for module ALL
 Stream1              INFO Records written: 21
 Stream1             DEBUG Leaving incident handler for MetaDataStop
@@ -1713,7 +1672,6 @@ MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (9 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
-AthenaPoolCnvSvc    DEBUG file=SimplePoolFile3.root context=1
 Stream2              INFO Records written: 21
 Stream2             DEBUG Leaving incident handler for MetaDataStop
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 

@@ -22,7 +22,7 @@
 #include <vector>
 #include <stdint.h>
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 // support contribs only in athena for now
 #include "fastjet/SISConePlugin.hh"
 #include "fastjet/CMSIterativeConePlugin.hh"
@@ -39,7 +39,7 @@ namespace FastJetInterface
   /*! @brief Mapping keyword on @c fastjet recombination scheme tag */ 
   typedef std::map<std::string,fastjet::RecombinationScheme> schememap_t;
   /*! @brief Mapping keyword on @c fastjet SIS Cone split merge scale tag */
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   typedef std::map<std::string,fastjet::SISConePlugin::SplitMergeScale> splitMergeScaleMap_t;
 #else
   typedef std::map<std::string,int> splitMergeScaleMap_t;
@@ -311,7 +311,7 @@ protected:
    *  @param[in] key client provided keyword
    *  @param[out] fjsms @c fastjet tag
    */
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   bool checkConfig(const std::string& key,fastjet::SISConePlugin::SplitMergeScale& fjsms);
 #endif
   /*! @brief Check configuration keyword for jet area type
@@ -353,7 +353,7 @@ protected:
    *
    *  @param[in] fjsms @c fastjet SIS Cone split merge scale tag
    */
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   const std::string& configName(fastjet::SISConePlugin::SplitMergeScale fjsms);
 #endif
 
@@ -401,7 +401,7 @@ protected:
   /*! @brief @c fastjet tag: recombination scheme */
   fastjet::RecombinationScheme m_recombinationScheme;
   /*! @brief @c fastjet tag: SIS split merge scale */
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   fastjet::SISConePlugin::SplitMergeScale m_SIS_splitMergeScale;
 #endif
   /*! @brief Pointer to jet definition */

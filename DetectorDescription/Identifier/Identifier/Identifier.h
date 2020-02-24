@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDENTIFIER_IDENTIFIER_H
@@ -200,15 +200,20 @@ private:
 //-----------------------------------------------
 
 
+// Define a hash functional
+
+namespace std {
+template<>
+struct hash<Identifier>
+{
+  size_t operator()(const Identifier& id) const
+  {
+    return static_cast<size_t>(id.get_compact());
+  }
+};
+}
 
 
-
-
-
-
-
-
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 
 // Constructors

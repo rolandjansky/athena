@@ -5,25 +5,6 @@
 # Declare the package name:
 atlas_subdir( TrigServices )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaInterprocess
-                          Control/AthenaKernel
-                          Control/AthenaMonitoringKernel
-                          Control/CxxUtils
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Database/RDBAccessSvc
-                          Event/ByteStreamCnvSvcBase
-                          Event/ByteStreamData
-                          Event/EventInfoUtils
-                          Event/xAOD/xAODEventInfo
-                          GaudiKernel
-                          HLT/Trigger/TrigControl/TrigKernel
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigSteer/TrigOutputHandling )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
@@ -40,7 +21,7 @@ atlas_add_component( TrigServices
                      LINK_LIBRARIES
                      ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} ${CORAL_LIBRARIES}
                      AthenaBaseComps AthenaInterprocess AthenaKernel AthenaMonitoringKernelLib AthenaPoolUtilities
-                     ByteStreamCnvSvcBaseLib ByteStreamData EventInfoUtils GaudiKernel StoreGateLib TrigKernel
+                     ByteStreamCnvSvcBaseLib ByteStreamData EventInfoUtils GaudiKernel RDBAccessSvcLib StoreGateLib TrigKernel
                      TrigOutputHandlingLib TrigSteeringEvent xAODEventInfo )
 
 # Install files from the package:

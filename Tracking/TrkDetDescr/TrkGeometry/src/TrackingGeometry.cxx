@@ -38,7 +38,7 @@ Trk::TrackingGeometry::~TrackingGeometry()
 const Trk::TrackingVolume* Trk::TrackingGeometry::lowestTrackingVolume(const Amg::Vector3D& gp) const
 {
     const Trk::TrackingVolume* searchVolume = m_world;
-    const Trk::TrackingVolume* currentVolume = 0;
+    const Trk::TrackingVolume* currentVolume = nullptr;
     while (currentVolume != searchVolume && searchVolume) {
         currentVolume = searchVolume;
         searchVolume  = searchVolume->associatedSubVolume(gp);
@@ -51,13 +51,13 @@ std::vector<const Trk::DetachedTrackingVolume*>* Trk::TrackingGeometry::lowestDe
     double tol = 0.001;
     const Trk::TrackingVolume* currentVolume = lowestStaticTrackingVolume(gp);
     if (currentVolume) return currentVolume->assocDetachedSubVolumes(gp,tol);
-    return 0;
+    return nullptr;
 }
 
 const Trk::TrackingVolume* Trk::TrackingGeometry::lowestStaticTrackingVolume(const Amg::Vector3D& gp) const
 {
     const Trk::TrackingVolume* searchVolume = m_world;
-    const Trk::TrackingVolume* currentVolume = 0;
+    const Trk::TrackingVolume* currentVolume = nullptr;
     while (currentVolume != searchVolume && searchVolume ) {
         currentVolume = searchVolume;
         if (!(searchVolume->confinedDetachedVolumes()) ) searchVolume  = searchVolume->associatedSubVolume(gp);
@@ -217,7 +217,7 @@ bool Trk::TrackingGeometry::atVolumeBoundary(const Amg::Vector3D& gp, const Amg:
         const TrackingVolume*& nextVol, Trk::PropDirection dir, double tol) const
 {
     bool isAtBoundary = false;
-    nextVol = 0;
+    nextVol = nullptr;
     if (!vol) return isAtBoundary;
     const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = vol->boundarySurfaces();
     for (unsigned int ib=0; ib< bounds.size(); ib++) {

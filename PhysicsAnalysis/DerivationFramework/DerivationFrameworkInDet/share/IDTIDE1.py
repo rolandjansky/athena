@@ -1,5 +1,5 @@
 #====================================================================
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #====================================================================
 # IDTIDE1.py
 # Contact: atlas-cp-tracking-denseenvironments@cern.ch
@@ -31,6 +31,28 @@ if 'DerivationFrameworkIsMonteCarlo' not in dir() :
   DerivationFrameworkIsMonteCarlo=( globalflags.DataSource=='geant4' )
 
 IsMonteCarlo=DerivationFrameworkIsMonteCarlo
+
+#====================================================================
+# SET UP STREAM  
+#====================================================================
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
+streamName = primDPD.WriteDAOD_IDTIDEStream.StreamName
+fileName   = buildFileName( primDPD.WriteDAOD_IDTIDEStream )
+IDTIDE1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+
+#idtideSeq = CfgMgr.AthSequencer("IDTIDE1Sequence")
+#DerivationFrameworkJob += idtideSeq
+#addTrackSumMoments("AntiKt4EMTopo")
+#addDefaultTrimmedJets(idtideSeq,"IDTIDE1")
+
+# SPECIAL LINES FOR THINNING
+# Thinning service name must match the one passed to the thinning tools
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="IDTIDE1ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # CP GROUP TOOLS
@@ -75,13 +97,13 @@ if IsMonteCarlo:
 
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
-import InDetRecExample.TRTCommon
+import InDetRecExample.TrackingCommon
 DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateOnSurfaceDecorator",
                                                           ContainerName = "InDetTrackParticles",
                                                           IsSimulation = False,
                                                           DecorationPrefix = "",
                                                           StoreTRT   = idDxAOD_doTrt,
-                                                          TRT_ToT_dEdx = InDetRecExample.TRTCommon.getTRT_ToT_dEdxTool() if idDxAOD_doTrt else "",
+                                                          TRT_ToT_dEdx = InDetRecExample.TrackingCommon.getInDetTRT_dEdxTool() if idDxAOD_doTrt else "",
                                                           StoreSCT   = idDxAOD_doSct,
                                                           StorePixel = idDxAOD_doPix,
                                                           OutputLevel =INFO)
@@ -225,7 +247,7 @@ thinningTools = []
 # TrackParticles directly
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 IDTIDE1ThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTIDE1ThinningTool",
-                                                                 ThinningService         = "IDTIDE1ThinningSvc",
+                                                                 StreamName              = streamName,
                                                                  SelectionString         = "abs(DFCommonInDetTrackZ0AtPV) < 5.0",
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                  ThinHitsOnTrack =  InDetDxAODFlags.ThinHitsOnTrack())
@@ -291,29 +313,8 @@ if IsMonteCarlo:
   else :
     logger.info('IDPVM decorations to track particles already applied to input file not adding again.')
 
-
-#====================================================================
-# SET UP STREAM  
-#====================================================================
-from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
-from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
-streamName = primDPD.WriteDAOD_IDTIDEStream.StreamName
-fileName   = buildFileName( primDPD.WriteDAOD_IDTIDEStream )
-IDTIDE1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+# Set the accept algs for the stream
 IDTIDE1Stream.AcceptAlgs( accept_algs )
-
-#idtideSeq = CfgMgr.AthSequencer("IDTIDE1Sequence")
-#DerivationFrameworkJob += idtideSeq
-#addTrackSumMoments("AntiKt4EMTopo")
-#addDefaultTrimmedJets(idtideSeq,"IDTIDE1")
-
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="IDTIDE1ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # CONTENT LIST  

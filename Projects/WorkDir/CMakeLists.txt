@@ -1,10 +1,14 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Project file for building a selected set of packages against an
 # installed ATLAS release/nightly.
 #
 
-# Set the minimum required CMake version:
-cmake_minimum_required( VERSION 3.6 FATAL_ERROR )
+# Set up the project.
+cmake_minimum_required( VERSION 3.6 )
+# Note that there is a second `project` call further below to set
+# the version and languages.
+project( WorkDir )
 
 # Let the user pick up updated AtlasCMake/AtlasLCG versions for testing.
 # Remember that it's not a problem if AtlasCMake is not found, that's why
@@ -14,8 +18,8 @@ find_package( AtlasCMake QUIET )
 # Try to figure out what project is our parent. Just using a hard-coded list
 # of possible project names. Basically the names of all the other
 # sub-directories inside the Projects/ directory in the repository.
-set( _parentProjectNames Athena AthenaP1 AnalysisBase AthAnalysisBase
-   AthSimulation AthDerivation AthDataQuality )
+set( _parentProjectNames Athena AthenaP1 AnalysisBase AthAnalysis
+   AthSimulation AthDerivation AthDataQuality AthGeneration )
 set( _defaultParentProject Athena )
 set( _defaultUseFortran TRUE )
 foreach( _pp ${_parentProjectNames} )
@@ -45,11 +49,6 @@ unset( _defaultUseFortran )
 # Find the project that we depend on:
 find_package( ${ATLAS_PROJECT} REQUIRED )
 
-# Temporary fix for ATLINFR-2883:
-if ( DOXYGEN_FOUND )
-   find_package( graphviz )
-endif()
-
 # Set up CTest:
 atlas_ctest_setup()
 
@@ -58,16 +57,15 @@ atlas_ctest_setup()
 set( CMAKE_EXPORT_COMPILE_COMMANDS TRUE CACHE BOOL
    "Create compile_commands.json" FORCE )
 
-# Set up a work directory project:
-set( _useFortran )
+# Set up a work directory project with the same version as our parent:
+project( WorkDir VERSION ${${ATLAS_PROJECT}_VERSION} LANGUAGES C CXX )
+atlas_project( USE ${ATLAS_PROJECT} ${${ATLAS_PROJECT}_VERSION}
+   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
+
+# If Fortran is needed, enable it now.
 if( ATLAS_USE_FORTRAN )
-   set( _useFortran FORTRAN )
+   enable_language( Fortran )
 endif()
-atlas_project( WorkDir ${${ATLAS_PROJECT}_VERSION}
-   USE ${ATLAS_PROJECT} ${${ATLAS_PROJECT}_VERSION}
-   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../..
-   ${_useFortran} )
-unset( _useFortran )
 
 # Set up the runtime environment setup script(s):
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )

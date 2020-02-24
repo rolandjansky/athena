@@ -57,7 +57,6 @@ namespace MuonCombined {
   MuonCreatorTool::MuonCreatorTool (const std::string& type, const std::string& name, const IInterface* parent)
     :	AthAlgTool(type, name, parent),
     m_makeMSPreExtrapLink(false),
-    m_haveAddedCaloInformation(false),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
     m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
@@ -432,18 +431,13 @@ namespace MuonCombined {
       // staus
       if( m_buildStauContainer ){
 
-        const MuGirlLowBetaTag* muGirlLowBetaConstTag = dynamic_cast<const MuGirlLowBetaTag*>(tag);
+        const MuGirlLowBetaTag* muGirlLowBetaTag = dynamic_cast<const MuGirlLowBetaTag*>(tag);
 
-        if( muGirlLowBetaConstTag ) {
+        if( muGirlLowBetaTag ) {
           ATH_MSG_DEBUG("MuonCreatorTool MuGirlLowBetaTag ");
 
-          //want to dress tag, so non constant.
-          MuGirlLowBetaTag* muGirlLowBetaTag = const_cast<MuGirlLowBetaTag*>(muGirlLowBetaConstTag);
-	  
           muon->setAuthor(tag->author());
           muon->setMuonType(tag->type());
-          // Overrride type if InDet track is SiAssociated.
-          //if (candidate.isSiliconAssociated() ) muon->setMuonType(xAOD::Muon::SiliconAssociatedForwardMuon);
 	  
           if (tag->type() == xAOD::Muon::Combined ){
             ATH_MSG_DEBUG("MuonCreatorTool MuGirlLowBetaTag combined");
@@ -522,8 +516,6 @@ namespace MuonCombined {
       }
     }// m_buildStauContainer
 
-    m_haveAddedCaloInformation = false;
-
     if( !dressMuon(*muon) ){ 
       ATH_MSG_WARNING("Failed to dress muon");
       outputData.muonContainer->pop_back();
@@ -531,7 +523,9 @@ namespace MuonCombined {
     }
 
     // If eLoss is not already available then build it
-    if(!m_haveAddedCaloInformation) {
+    float eLoss=-1;
+    bool haveEloss=muon->parameter(eLoss,xAOD::Muon::EnergyLoss);
+    if(!haveEloss || eLoss==0){
       ATH_MSG_DEBUG("Adding Energy Loss to muon");
       addEnergyLossToMuon(*muon);
       //ATH_MSG_DEBUG(m_muonPrinter->print(*muon));
@@ -654,7 +648,7 @@ namespace MuonCombined {
 
   }
 
-  void MuonCreatorTool::addMuGirlLowBeta( xAOD::Muon& muon, MuGirlLowBetaTag* tag, xAOD::SlowMuon* slowMuon, OutputData& outputData ) const {
+  void MuonCreatorTool::addMuGirlLowBeta( xAOD::Muon& muon, const MuGirlLowBetaTag* tag, xAOD::SlowMuon* slowMuon, OutputData& outputData ) const {
     if (!tag){
       // init variables if necessary.
       
@@ -737,23 +731,6 @@ namespace MuonCombined {
         else ATH_MSG_WARNING("Creating of MuGirlLowBeta TrackParticle Link failed");
       } 
     }
-    
-    /*
-      if( extrapolatedTrackParticleContainer &&  tag->updatedExtrapolatedTrack()){
-      	// create element link 
-      	ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( *const_cast<MuGirlLowBetaTag&>(tag).releaseUpdatedExtrapolatedTrack(),
-      											 *extrapolatedTrackParticleContainer,
-      											 extrapolatedTrackCollection  );                
-      
-      	if( link.isValid() ) {
-          //link.toPersistent();
-      	ATH_MSG_DEBUG("Adding MuGirlLowBeta: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
-      	muon.setTrackParticleLink(xAOD::Muon::MuonSpectrometerTrackParticle, link );
-      	}
-      	else ATH_MSG_WARNING("Creating of MuGirlLowBeta TrackParticle Link failed");
-      }     
-    }
-    */
     
     if (outputData.xaodSegmentContainer){
       ATH_MSG_DEBUG( "Adding MuGirlLowBeta muonSegmentColection");
@@ -883,14 +860,8 @@ namespace MuonCombined {
     }
     
     ATH_MSG_DEBUG("Adding Calo Muon  " << tag->author() << " type " << tag->type());
-    //if (!m_haveAddedCaloInformation){
-    //mu.setParameter(static_cast<float>( tag->fsrCandidateEnergy() ), xAOD::Muon::FSR_CandidateEnergy);
-    //std::cout<<"EJWM Adding Calo muon with elt="<<tag->energyLossType()<<std::endl;
-    //mu.setEnergyLossType(static_cast<xAOD::Muon::EnergyLossType>( tag->energyLossType() ) );
     mu.setParameter(static_cast<float>( tag->caloLRLikelihood() ), xAOD::Muon::CaloLRLikelihood);
     mu.setParameter(static_cast<int>( tag->caloMuonIdTag() ), xAOD::Muon::CaloMuonIDTag); 
-    //m_haveAddedCaloInformation = true;
-    // }
     
     if ( m_fillExtraELossInfo) {
       // Here we can make sure that we store the extra calotag information - just always add it since this is then unambigious for debugging
@@ -1103,8 +1074,10 @@ namespace MuonCombined {
   {
     
     TrackCollection* resolvedTracks=0;
-    TrackCollection* muonTracksToDelete = new TrackCollection;
-    std::set<const Trk::Track*> alreadyIncluded;
+    std::set<size_t> alreadyIncluded;
+    std::hash<const Trk::Track*> trackHash;
+    //TrackCollection will hold copies of tracks used for overlap removal
+    TrackCollection muonTracks;
     
     // the muons only found by the calo tagger should always be kept so we can filter them out from the start
     InDetCandidateTagsMap caloMuons;
@@ -1146,9 +1119,7 @@ namespace MuonCombined {
         }      
       }
       
-      // create a track collection for MS info, to be overlap removed
       // a dummy track for segment tagged candidates to be used in the overlap check
-      TrackCollection* muonTracks = new TrackCollection(SG::VIEW_ELEMENTS);
       std::map<const Trk::Track*, InDetCandidateTags> trackInDetCandLinks;
 
       for(auto candidate : resolvedInDetCandidates) {
@@ -1160,29 +1131,29 @@ namespace MuonCombined {
         }
         // check if a track is available
         if(primaryTag->primaryTrack()) {
-          if( alreadyIncluded.count(primaryTag->primaryTrack()) ){
+          if( alreadyIncluded.count(trackHash(primaryTag->primaryTrack())) ){
             ATH_MSG_DEBUG("Duplicated ID candidate " << candidate.first->toString() );
             continue;
           }
-          alreadyIncluded.insert(primaryTag->primaryTrack());
-          trackInDetCandLinks[ primaryTag->primaryTrack() ] = candidate;
-          muonTracks->push_back( const_cast<Trk::Track*>(primaryTag->primaryTrack()) );
+          alreadyIncluded.insert(trackHash(primaryTag->primaryTrack()));
+	  //create a copy for ambi processing to avoid const_cast
+	  //all we care about in the end is getting the right candidates anyway
+	  //muonTracks takes ownership of the memory
+	  muonTracks.push_back(new Trk::Track(*primaryTag->primaryTrack()));
+          trackInDetCandLinks[ muonTracks.back() ] = candidate;
         }
-        // if not, make a dummy track out of segments
+        // if not, make a dummy track out of segments, muonTracks takes ownership of the memory
         else{
           std::vector< const Muon::MuonSegment*> segments = primaryTag->associatedSegments();
           if( !segments.empty() && candidate.first->indetTrackParticle().trackLink().isValid() ){
-            Trk::Track* dummyTrack = createDummyTrack(primaryTag->associatedSegments(), *(candidate.first->indetTrackParticle().track()));
-            trackInDetCandLinks[ dummyTrack ] = candidate;
-            muonTracks->push_back( dummyTrack );
-            muonTracksToDelete->push_back( dummyTrack );
+	    muonTracks.push_back(createDummyTrack(primaryTag->associatedSegments(), *(candidate.first->indetTrackParticle().track())));
+            trackInDetCandLinks[ muonTracks.back() ] = candidate;
           }
         }
       }
       
       // Resolve ambiguity between muon tracks
-      resolvedTracks = m_ambiguityProcessor->process(muonTracks); 
-      delete muonTracks;
+      resolvedTracks = m_ambiguityProcessor->process(&muonTracks); 
       resolvedInDetCandidates.clear();
       
       // link back to InDet candidates and fill the resolved container  
@@ -1228,13 +1199,18 @@ namespace MuonCombined {
       std::map<const Trk::Track*, const MuonCandidate*> trackMuonCandLinks;
       for(auto candidate : *muonCandidates) {
         const Trk::Track* track = candidate->extrapolatedTrack() ? candidate->extrapolatedTrack() : &candidate->muonSpectrometerTrack();
-        if( alreadyIncluded.count(track) ){
+        if( alreadyIncluded.count(trackHash(track)) ){
           ATH_MSG_DEBUG("Duplicate MS track " << m_printer->print(*track));
           continue;
         }
-        alreadyIncluded.insert(track);
-        resolvedTracks->push_back(const_cast<Trk::Track*>(track));
-        trackMuonCandLinks[ track ] = candidate;
+        alreadyIncluded.insert(trackHash(track));
+	//again, create a copy of the track to use in ambiguity resolution
+	//the important thing is to end up with the right candidates at the end anyway
+	Trk::Track* copyTrack=new Trk::Track(*track);
+	//this is a little awkward, but the ambi processing returns a VIEW_ELEMENTS collection
+        resolvedTracks->push_back(copyTrack); //VIEW_ELEMENTS, pointer only
+	muonTracks.push_back(copyTrack); //OWN_ELEMENTS, takes ownership
+        trackMuonCandLinks[ copyTrack ] = candidate;
       }
       
       // solve ambiguity
@@ -1257,7 +1233,6 @@ namespace MuonCombined {
         }      
       }
     }
-    delete muonTracksToDelete;
   }
 
  
@@ -1618,7 +1593,6 @@ namespace MuonCombined {
 	  
       	  muon.setEnergyLossType(static_cast<xAOD::Muon::EnergyLossType>( caloEnergy->energyLossType() ) );
       	  muon.setParameter(static_cast<float>( caloEnergy->fsrCandidateEnergy() ), xAOD::Muon::FSR_CandidateEnergy);
-      	  m_haveAddedCaloInformation=true;
       	}
       }
     }
@@ -1628,8 +1602,6 @@ namespace MuonCombined {
     }
     if (m_fillExtraELossInfo) muon.auxdata< unsigned int >("numEnergyLossPerTrack")   = numEnergyLossPerTrack;
     if (problem) ATH_MSG_VERBOSE("Dumping problematic muon: "<<m_muonPrinter->print(muon));
-    // if (!m_haveAddedCaloInformation) muon.setParameter(energyloss, xAOD::Muon::EnergyLoss);
-    // ATH_MSG_VERBOSE("Setting energy loss to :"<<energyloss );
   }
   
   void MuonCreatorTool::collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer ) const {

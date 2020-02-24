@@ -16,20 +16,19 @@
 
 #include "AthContainers/OwnershipPolicy.h"
 
-#ifdef ASGTOOL_STANDALONE //guarded b/c athena includes its own
+#ifdef XAOD_STANDALONE //guarded b/c athena includes its own
 #include "xAODCore/ClassID_traits.h"
 #endif
 
-#include "AsgTools/AsgToolsConf.h"
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 #include "AsgTools/SgTEvent.h"
 typedef asg::SgTEvent* EventPtr;
-#endif //ASGTOOL_STANDALONE
+#endif //XAOD_STANDALONE
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #include "StoreGate/StoreGateSvc.h"
 typedef StoreGateSvc* EventPtr;
-#endif //ASGTOOL_ATHENA
+#endif //XAOD_STANDALONE
 
 #include "AsgTools/AsgMessaging.h"
 

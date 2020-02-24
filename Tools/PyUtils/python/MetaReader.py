@@ -30,7 +30,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
     :return: a dictionary of metadata for the given input file.
     """
 
-    from RootUtils import PyROOTFixes
+    from RootUtils import PyROOTFixes  # noqa F401
 
     # Check if the input is a file or a list of files.
     if isinstance(filenames, str):
@@ -664,6 +664,7 @@ def make_peeker(meta_dict):
             keys_to_keep = [
                 'TruthStrategy',
                 'SimBarcodeOffset',
+                'TRTRangeCut',
             ]
             for item in list(meta_dict[filename]['/Simulation/Parameters']):
                 if item not in keys_to_keep:

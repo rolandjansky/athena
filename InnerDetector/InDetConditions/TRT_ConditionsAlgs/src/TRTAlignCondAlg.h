@@ -8,8 +8,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "InDetReadoutGeometry/TRT_DetElementCollection.h"
-#include "InDetReadoutGeometry/TRT_DetElementContainer.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementCollection.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "GaudiKernel/ICondSvc.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -41,7 +41,6 @@ class TRTAlignCondAlg : public AthAlgorithm
   ServiceHandle<ICondSvc> m_condSvc;
   const InDetDD::TRT_DetectorManager* m_detManager;
 
-  //bool m_useDynamicFolders;
   Gaudi::Property<bool> m_useDynamicFolders{ this, "UseDynamicFolders", false, "Turn on-off use of Dynamic folders" };
 };
 

@@ -1,11 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// Gaudi //
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
-
 
 //MuonGeoModel
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -23,11 +18,6 @@
 #include "MuonCalibStandAloneBase/RegionLogicalOperation.h"
 #include "MuonCalibStandAloneBase/RegionElement.h"
 
-//MuonCalibIdentifier
-#include "MuonCalibIdentifier/MuonFixedId.h"
-
-
-
 //root
 #include "TChain.h"
 #include "TTree.h"
@@ -39,22 +29,18 @@
 using namespace MuonCalib;
 
 
-RegionSelectionSvc :: RegionSelectionSvc(const std::string & name, ISvcLocator *svc_locator) : AthService(name, svc_locator), m_region_string(), m_print_list_of_selected_chambers(false), m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
+RegionSelectionSvc :: RegionSelectionSvc(const std::string & name, ISvcLocator *svc_locator) : 
+    AthService(name, svc_locator),
+    m_region_string(),
+    m_print_list_of_selected_chambers(false),
+    m_master_region(nullptr),
+    m_detStore(nullptr),
+    m_detMgr(nullptr),
+    m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
 	{
 	declareProperty("Region", m_region_string);
 	declareProperty("PrintList", m_print_list_of_selected_chambers);
-	
-	//for the sake of coverity
-	m_detMgr=NULL;
-	m_detStore=NULL;
-	m_master_region=NULL;
 	}
-
-
-RegionSelectionSvc :: ~RegionSelectionSvc()
-	{
-	}
-
 
 StatusCode RegionSelectionSvc::queryInterface(const InterfaceID& riid, 
 							void** ppvUnknown) {
@@ -80,34 +66,12 @@ StatusCode RegionSelectionSvc :: initialize()
 
 
 //detector stre - id to fixed id ... 
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-    ATH_MSG_DEBUG("Retrieved DetectorStore");
-  }else{
-    ATH_MSG_ERROR("Failed to retrieve DetectorStore");
-    return sc;
-  }
-
-  sc = m_muonIdHelperTool.retrieve();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Can't retrieve MdtIdHelper");
-    return sc;
-  }
-  
-  sc = m_detStore->retrieve( m_detMgr );
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Can't retrieve MuonDetectorManager");
-    return sc;
-  }
-  
- sc = m_idToFixedIdTool.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Could not find " << m_idToFixedIdTool );
-    return sc;
-  }else{
-    ATH_MSG_INFO("Retrieved " << m_idToFixedIdTool );
-  }
-
+  ATH_CHECK(serviceLocator()->service("DetectorStore", m_detStore));
+  ATH_MSG_DEBUG("Retrieved DetectorStore");
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  ATH_CHECK(m_detStore->retrieve( m_detMgr ));
+  ATH_CHECK(m_idToFixedIdTool.retrieve());
+  ATH_MSG_INFO("Retrieved " << m_idToFixedIdTool);
 
 	search_chambers_in_region();
 	if(m_print_list_of_selected_chambers)
@@ -171,14 +135,14 @@ void RegionSelectionSvc :: Print(std::ostream &os) const
 
 inline void RegionSelectionSvc :: search_chambers_in_region()
 	{
-	MdtIdHelper::const_id_iterator it     = m_muonIdHelperTool->mdtIdHelper().module_begin();
-	MdtIdHelper::const_id_iterator it_end = m_muonIdHelperTool->mdtIdHelper().module_end();
+	MdtIdHelper::const_id_iterator it     = m_idHelperSvc->mdtIdHelper().module_begin();
+	MdtIdHelper::const_id_iterator it_end = m_idHelperSvc->mdtIdHelper().module_end();
 	for( ; it!=it_end;++it )
 		{
-		const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(*it,1,1,1));
+		const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(*it,1,1,1));
 		if(!detEl) continue;
 	//get number of mls;
-		int n_mls=m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(*it);
+		int n_mls=m_idHelperSvc->mdtIdHelper().numberOfMultilayers(*it);
 	//fixed id
 		MuonCalib::MuonFixedId fixed_id(m_idToFixedIdTool->idToFixedId(*it));
 		std::vector<MuonCalib::NtupleStationId> the_ids;

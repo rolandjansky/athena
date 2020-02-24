@@ -185,7 +185,7 @@ bool VarHandleKey::empty() const
 /**
  * @brief Prevent this method from being called.
  */
-void VarHandleKey::setKey(const DataObjID& /*key*/) const
+void VarHandleKey::setKey(DataObjID /*key*/) const
 {
   throw SG::ExcForbiddenMethod ("VarHandleKey::setKey");
 }
@@ -194,7 +194,7 @@ void VarHandleKey::setKey(const DataObjID& /*key*/) const
 /**
  * @brief Prevent this method from being called.
  */
-void VarHandleKey::updateKey(const std::string& /*key*/) const
+void VarHandleKey::updateKey(std::string /*key*/) const
 {
   throw SG::ExcForbiddenMethod ("VarHandleKey::updateKey");
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -109,7 +109,6 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
     //   aPeta=-aPeta;
     //  aPphi=aCaloPhiRange.fix(aPphi+aCaloPhiRange.twopi()/2.);
     //}
-    
 
     if (aCell->e()!=0 && std::abs(aCell->eta()-aPeta)>0.0001) {
       msg(MSG::WARNING) << "Cell " << index << " eta inconsistency : " << aCell->eta() 
@@ -119,10 +118,7 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
       msg(MSG::WARNING) << "Cell " << index << " phi inconsistency : " << aCell->phi() 
 	  << " vs recalculated " << aPphi << endmsg ;
     }
-	    
-
   }
-  //std::cout << "step 4" << std::endl;
   index =0;
   if (msgLvl(MSG::VERBOSE)) {
     for (const CaloCell* aCell : *theCont) {
@@ -193,8 +189,8 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
   // check find methods
 
   // count number of holes
-  const CaloDetDescrManager * theCaloDDM = CaloDetDescrManager::instance() ;
-  const CaloCell_ID * theCaloCCIDM   = theCaloDDM->getCaloCell_ID() ;
+  const CaloCell_ID*               theCaloCCIDM  = nullptr;
+  ATH_CHECK(detStore()->retrieve(theCaloCCIDM,"CaloCell_ID"));
   unsigned int hashMax=theCaloCCIDM->calo_cell_hash_max();
   unsigned int nHoles =0;
   
@@ -274,9 +270,6 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
     msg(MSG::ERROR) << "Found cells wrong E sum " << reSumFound << " instead of " << eSumFound << endmsg ;
     returnSc = StatusCode::FAILURE;
   }
-
-
-  
 
   return returnSc ;
 }

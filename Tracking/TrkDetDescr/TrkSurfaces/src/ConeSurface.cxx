@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -185,10 +185,10 @@ Trk::ConeSurface::straightLineIntersection(const Amg::Vector3D& pos,
   Amg::Vector3D tpos1 = transform().inverse() * pos;
   Amg::Vector3D tdir = transform().inverse().linear() * dir;
   // see the header for the formula derivation
-  double tan2Alpha = bounds().tanAlpha() * bounds().tanAlpha(),
-         A = tdir.x() * tdir.x() + tdir.y() * tdir.y() - tan2Alpha * tdir.z() * tdir.z(),
-         B = 2 * (tdir.x() * tpos1.x() + tdir.y() * tpos1.y() - tan2Alpha * dir.z() * tpos1.z()),
-         C = tpos1.x() * tpos1.x() + tpos1.y() * tpos1.y() - tan2Alpha * tpos1.z() * tpos1.z();
+  double tan2Alpha = bounds().tanAlpha() * bounds().tanAlpha();
+  double A = tdir.x() * tdir.x() + tdir.y() * tdir.y() - tan2Alpha * tdir.z() * tdir.z();
+  double B = 2 * (tdir.x() * tpos1.x() + tdir.y() * tpos1.y() - tan2Alpha * dir.z() * tpos1.z());
+  double C = tpos1.x() * tpos1.x() + tpos1.y() * tpos1.y() - tan2Alpha * tpos1.z() * tpos1.z();
   if (A == 0.)
     A += 1e-16; // avoid div by zero
 
@@ -260,7 +260,8 @@ Trk::ConeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const A
   double posLength = sqrt(dPos.dot(dPos));
   if (posLength < tol) // at origin of cone => on cone (avoid div by zero)
     return Trk::DistanceSolution(1, 0., true, 0.);
-  double posProj = dPos.dot(N), posProjAngle = acos(posProj / posLength);
+  double posProj = dPos.dot(N);
+  double posProjAngle = acos(posProj / posLength);
   double currDist = posLength * sin(posProjAngle - atan(bounds().tanAlpha()));
   // solution on the surface
   if (fabs(currDist) < tol)
@@ -271,12 +272,12 @@ Trk::ConeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const A
   Amg::Vector3D locFrameDir = transform().rotation().inverse() * dir.normalized();
 
   // solutions are in the form of a solution to a quadratic eqn.
-  double tan2Alpha = bounds().tanAlpha() * bounds().tanAlpha(),
-         A = locFrameDir.x() * locFrameDir.x() + locFrameDir.y() * locFrameDir.y() -
-             tan2Alpha * locFrameDir.z() * locFrameDir.z(),
-         B = 2 * (locFrameDir.x() * locFramePos.x() + locFrameDir.y() * locFramePos.y() -
-                  tan2Alpha * locFrameDir.z() * locFramePos.z()),
-         C = locFramePos.x() * locFramePos.x() + locFramePos.y() * locFramePos.y() -
+  double tan2Alpha = bounds().tanAlpha() * bounds().tanAlpha();
+  double A = locFrameDir.x() * locFrameDir.x() + locFrameDir.y() * locFrameDir.y() -
+             tan2Alpha * locFrameDir.z() * locFrameDir.z();
+  double B = 2 * (locFrameDir.x() * locFramePos.x() + locFrameDir.y() * locFramePos.y() -
+                  tan2Alpha * locFrameDir.z() * locFramePos.z());
+  double C = locFramePos.x() * locFramePos.x() + locFramePos.y() * locFramePos.y() -
              tan2Alpha * locFramePos.z() * locFramePos.z();
   if (A == 0.)
     A += 1e-16; // avoid div by zero

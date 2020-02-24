@@ -49,7 +49,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkEventPrimitives/PropDirection.h"
 
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"  
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"  
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
 #include <vector>
@@ -70,7 +70,7 @@ namespace DerivationFramework {
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
     m_trtcaldbSvc("TRT_CalDbSvc",n),
-    m_TRTdEdxTool("InDet::TRT_ToT_Tools/TRT_ToT_dEdx"),
+    m_TRTdEdxTool("InDet::TRT_ElectronPidTools/TRT_ToT_dEdx"),
     m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);

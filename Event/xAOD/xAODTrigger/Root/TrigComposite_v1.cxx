@@ -1,11 +1,23 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
 // System include(s):
 #include <algorithm>
 #include <stdexcept>
+
+// In "standalone mode" xAOD::IParticleContainer doesn't have a CLID
+// defined for it. But this code requires one to be set.
+//
+// The following is incredibly ugly, but this is the best that I could
+// come up with on short notice. Note that the CLID value is copy-pasted
+// from the IParticleContainer.h header.
+#include "xAODBase/IParticleContainer.h"
+#ifdef XAOD_STANDALONE
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::IParticleContainer, 1241842700, 1 )
+#endif // XAOD_STANDALONE
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -14,6 +26,7 @@
 
 // Local include(s):
 #include "xAODTrigger/versions/TrigComposite_v1.h"
+
 
 namespace xAOD {
 
@@ -339,6 +352,19 @@ namespace xAOD {
        }
      }
    }
+
+   bool TrigComposite_v1::typelessGetObjectLink( const std::string& name, uint32_t& key, uint32_t& clid, uint16_t& index ) const {
+      std::vector<std::string>::const_iterator it = std::find(linkColNames().begin(), linkColNames().end(), name);
+      if (it == linkColNames().end()) {
+         return false;
+      }
+      const size_t location = std::distance(linkColNames().begin(), it);
+      key = linkColKeys().at(location);
+      clid = linkColClids().at(location);
+      index = linkColIndices().at(location);
+      return true;
+   }
+
 
    bool TrigComposite_v1::isRemapped() const {
       static const Accessor< std::vector< uint32_t > > key_remap( "remap_linkColKeys" );

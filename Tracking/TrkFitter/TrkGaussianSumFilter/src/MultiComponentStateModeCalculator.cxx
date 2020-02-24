@@ -19,11 +19,10 @@ namespace {
 const double invsqrt2PI = 1. / sqrt(2. * M_PI);
 }
 
-std::array<double,10>
-Trk::MultiComponentStateModeCalculator::calculateMode(
-  const Trk::MultiComponentState& multiComponentState)
+std::array<double, 10>
+Trk::MultiComponentStateModeCalculator::calculateMode(const Trk::MultiComponentState& multiComponentState)
 {
-  std::array<double,10> modes{};
+  std::array<double, 10> modes{};
   // Check to see if the multi-component state is measured
   if (!MultiComponentStateHelpers::isMeasured(multiComponentState)) {
     return modes;
@@ -36,20 +35,20 @@ Trk::MultiComponentStateModeCalculator::calculateMode(
   /* loop over the 5 direction , d0,z0,phi,theta,qOverP*/
 
   for (int i = 0; i < 5; i++) {
-    
-    double largerPdfComponent=0.0;   
-    double largerMeanComponent=0.0;   
+
+    double largerPdfComponent = 0.0;
+    double largerMeanComponent = 0.0;
     /*
      * Loop over the mixture in the ith direction and find the  component
      * whose mean give the larger value for the Gaussian Mixture pdf.
      * This should be a good enough starting point for the mode
      * finding in this direction
      */
-    for (const Component& component : mixture[i]){
-      double pdfValue =pdf(component.mean, i, mixture);
-      if(pdfValue>largerPdfComponent){
-        largerPdfComponent=pdfValue;
-        largerMeanComponent=component.mean;
+    for (const Component& component : mixture[i]) {
+      double pdfValue = pdf(component.mean, i, mixture);
+      if (pdfValue > largerPdfComponent) {
+        largerPdfComponent = pdfValue;
+        largerMeanComponent = component.mean;
       }
     }
     modes[i] = findMode(largerMeanComponent, i, mixture);
@@ -102,9 +101,8 @@ Trk::MultiComponentStateModeCalculator::calculateMode(
 }
 
 void
-Trk::MultiComponentStateModeCalculator::fillMixture(
-  const Trk::MultiComponentState& multiComponentState,
-  std::array<std::vector<Component>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::fillMixture(const Trk::MultiComponentState& multiComponentState,
+                                                    std::array<std::vector<Component>, 5>& mixture)
 {
 
   for (int i = 0; i < 5; i++) {
@@ -144,7 +142,7 @@ Trk::MultiComponentStateModeCalculator::fillMixture(
       mixture[i].push_back(comp);
     }
   }
-  }
+}
 
 double
 Trk::MultiComponentStateModeCalculator::findMode(double xStart,
@@ -219,9 +217,7 @@ Trk::MultiComponentStateModeCalculator::findModeGlobal(double mean,
 }
 
 double
-Trk::MultiComponentStateModeCalculator::pdf(double x,
-                                            int i,
-                                            const std::array<std::vector<Component>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
 {
 
   double pdf(0.);
@@ -235,9 +231,7 @@ Trk::MultiComponentStateModeCalculator::pdf(double x,
 }
 
 double
-Trk::MultiComponentStateModeCalculator::d1pdf(double x,
-                                              int i,
-                                              const std::array<std::vector<Component>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::d1pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
 {
 
   double result(0.);
@@ -248,17 +242,14 @@ Trk::MultiComponentStateModeCalculator::d1pdf(double x,
 
     double z = (x - component->mean) / component->sigma;
 
-    result +=
-      -1. * component->weight * z * gaus(x, component->mean, component->sigma) / component->sigma;
+    result += -1. * component->weight * z * gaus(x, component->mean, component->sigma) / component->sigma;
   }
 
   return result;
 }
 
 double
-Trk::MultiComponentStateModeCalculator::d2pdf(double x,
-                                              int i,
-                                              const std::array<std::vector<Component>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::d2pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
 {
 
   double result(0.);
@@ -292,8 +283,7 @@ Trk::MultiComponentStateModeCalculator::gaus(double x, double mean, double sigma
 }
 
 double
-Trk::MultiComponentStateModeCalculator::width(int i,
-                                              const std::array<std::vector<Component>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::width(int i, const std::array<std::vector<Component>, 5>& mixture)
 {
 
   double pdf(0.);

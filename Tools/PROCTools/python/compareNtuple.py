@@ -1,6 +1,9 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 import os,sys
 from PROCTools.getFileLists import *
 sys.argv += [ '-b' ] # tell ROOT to not use graphics
@@ -15,8 +18,8 @@ ignoreTrees=set(("CollectionMetadata",))
 
 if __name__ == "__main__":
     if len(sys.argv)<4 or sys.argv[1]=="-h" or sys.argv[1]=="--help":
-        print "Usage: compareNtuple.py ntuple1 ntuple2"
-        print "  Example: compareTCTs.py /castor/cern.ch/user/m/mlimper/ntuple1.root /castor/cern.ch/user/m/mlimper/ntuple2.root"
+        print ("Usage: compareNtuple.py ntuple1 ntuple2")
+        print ("  Example: compareTCTs.py /castor/cern.ch/user/m/mlimper/ntuple1.root /castor/cern.ch/user/m/mlimper/ntuple2.root")
         sys.exit(-1)
 
     rName = sys.argv[1]
@@ -33,10 +36,10 @@ if __name__ == "__main__":
         vFile=TFile.Open(vName)
 
     if rFile is None:
-        print "Failed to open reference file",rName
+        print ("Failed to open reference file",rName)
     
     if vFile is None:
-        print "Failed to open validation file",vName
+        print ("Failed to open validation file",vName)
 
     rKeys=set()
     for k in rFile.GetListOfKeys():
@@ -44,13 +47,13 @@ if __name__ == "__main__":
     vKeys=set()
     for k in vFile.GetListOfKeys():
         vKeys.add(k.GetName())
-    #print rKeys
-    #print vKeys
+    #print (rKeys)
+    #print (vKeys)
     keys=rKeys & vKeys
     keys -= ignoreTrees
         
     if len(keys)==0:
-        print "ERROR no common trees names found in files",rName,vName
+        print ("ERROR no common trees names found in files",rName,vName)
 
     nGood=0
     nBad=0
@@ -61,7 +64,7 @@ if __name__ == "__main__":
             continue
         if not isinstance(vTree,TTree):
             continue
-        print "Comparing TTree",k
+        print ("Comparing TTree",k)
         (good,bad)=diffTTree(rTree,vTree)
         nGood+=good
         nBad+=bad

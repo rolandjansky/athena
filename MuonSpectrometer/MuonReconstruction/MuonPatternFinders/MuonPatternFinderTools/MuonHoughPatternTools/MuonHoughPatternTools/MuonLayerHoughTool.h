@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNTOOLS_MUONLAYERHOUGHTOOL_H
@@ -34,6 +34,7 @@
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODMuon/MuonSegmentContainer.h"
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 namespace Trk{
   class PrepRawData;
@@ -41,7 +42,6 @@ namespace Trk{
 
 class TFile;
 class TTree;
-class PRD_MultiTruthCollection;
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -53,9 +53,6 @@ namespace MuonHough {
 static const InterfaceID IID_MuonLayerHoughTool("Muon::MuonLayerHoughTool",1,0);
 
 namespace Muon {
-
-  class MuonIdHelperTool;
-
 
   class MuonLayerHoughTool:  virtual public IMuonHoughPatternFinderTool, public AthAlgTool  {
   public:
@@ -114,7 +111,7 @@ namespace Muon {
     MuonLayerHoughTool(const std::string& type, const std::string& name, const IInterface* parent);
 
     /** Destructor */
-    virtual ~MuonLayerHoughTool();
+    virtual ~MuonLayerHoughTool() = default;
     
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MuonLayerHoughTool; }
@@ -138,7 +135,10 @@ namespace Muon {
           const std::vector<const TgcPrepDataCollection*>& tgcCols,  
           const std::vector<const RpcPrepDataCollection*>& rpcCols,  
           const MuonSegmentCombinationCollection* ) const override;
+
     void reset() const;
+
+  private:
 
     void getSectors( const Amg::Vector3D& pos, std::vector<int>& sectors ) const;
     void getSectors( const TgcClusterObj3D& tgc, std::vector<int>& sectors ) const;
@@ -149,8 +149,6 @@ namespace Muon {
     double rCor( const TgcClusterObj3D& tgc, int val, int sector ) const;
 
     int sublay( const Identifier& id, float z = 0 ) const; // the z value is only used for the tgcs
-
-  private:
 
     struct State {
       MaximumVec seedMaxima; // Does not own the contained objects, they're just references to objects stored in houghDataPerSectorVec.
@@ -229,33 +227,33 @@ namespace Muon {
       std::unique_ptr<HoughDataPerSectorVec>& houghDataPerSectorVec, std::vector<Road>& roads ) const;
     void mergePhiMaxima( Road& road ) const;
 
-    bool m_useSeeds;
+    Gaudi::Property<bool> m_useSeeds{this,"UseSeeds",true};
 
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "MuonIdHelperTool", 
       "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-    ToolHandle<MuonEDMPrinterTool> m_printer;
-    ToolHandle<Muon::IMuonTruthSummaryTool> m_truthSummaryTool;
+    ToolHandle<MuonEDMPrinterTool> m_printer{this, "printerTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<Muon::IMuonTruthSummaryTool> m_truthSummaryTool{this, "MuonTruthSummaryTool", "Muon::MuonTruthSummaryTool/MuonTruthSummaryTool"};
     const MuonGM::MuonDetectorManager* m_detMgr;
 
     std::vector<MuonHough::MuonLayerHoughSelector> m_selectors;
     std::vector<MuonHough::MuonLayerHoughSelector> m_selectorsLoose;
-    bool       m_doNtuple;
+    Gaudi::Property<bool>       m_doNtuple{this,"DoNtuple",false};
     TFile*     m_file;
     TTree*     m_tree;
     mutable MuonHough::HitNtuple* m_ntuple ATLAS_THREAD_SAFE; // Marked as thread-safe because it's disabled when running multi-threaded
 
-    SG::ReadHandleKeyArray< PRD_MultiTruthCollection >       m_truthNames; 
-    SG::ReadHandleKey<xAOD::TruthParticleContainer>       m_MuonTruthParticlesKey;
-    SG::ReadHandleKey<xAOD::MuonSegmentContainer>       m_MuonTruthSegmentsKey;
+    SG::ReadHandleKeyArray< PRD_MultiTruthCollection >       m_truthNames{this, "TruthNames", {}}; 
+    SG::ReadHandleKey<xAOD::TruthParticleContainer>       m_MuonTruthParticlesKey{this,"MuonTruthParticlesKey","MuonTruthParticles"};
+    SG::ReadHandleKey<xAOD::MuonSegmentContainer>       m_MuonTruthSegmentsKey{this,"MuonTruthSegmentsKey","MuonTruthSegments"};
     
-    bool m_useRpcTimeVeto;
-    bool m_requireTriggerConfirmationNSW;
-    bool m_onlyUseCurrentBunch;
-    bool m_doTruth;
-    bool m_debugHough;
-    bool m_doParabolicExtrapolation; // if true, do parabolic; if false, do linear extrapolation
-    float m_extrapolationDistance; // default value is 1500
-    bool m_addSectors; // default true
+    Gaudi::Property<bool> m_useRpcTimeVeto{this,"RpcTimeVeto",false};
+    Gaudi::Property<bool> m_requireTriggerConfirmationNSW{this,"TriggerConfirmationNSW",false};
+    Gaudi::Property<bool> m_onlyUseCurrentBunch{this,"OnlyUseCurrentBunch",false};
+    Gaudi::Property<bool> m_doTruth{this,"DoTruth",false};
+    Gaudi::Property<bool> m_debugHough{this,"DebugHough",false};
+    Gaudi::Property<bool> m_doParabolicExtrapolation{this,"DoParabolicExtrapolation",true}; // if true, do parabolic; if false, do linear extrapolation
+    Gaudi::Property<float> m_extrapolationDistance{this,"ExtrapolationDistance",1500.}; // default value is 1500
+    Gaudi::Property<bool> m_addSectors{this,"AddSectors",false}; // default false
 
     unsigned int m_ntechnologies;
     CollectionsPerSectorVec m_collectionsPerSector;
@@ -295,7 +293,6 @@ namespace Muon {
   }
 
   inline int MuonLayerHoughTool::sublay( const Identifier& id, float /*z*/ ) const {
-    
     int sublayer = 0;
     if( m_muonIdHelperTool->isMdt(id) ) {
       sublayer = m_muonIdHelperTool->mdtIdHelper().tubeLayer(id)-1;

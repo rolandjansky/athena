@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/Service.h"
@@ -28,7 +28,7 @@ CaloTowerBuilderToolBase::CaloTowerBuilderToolBase(const std::string& name,
 CaloTowerBuilderToolBase::~CaloTowerBuilderToolBase()
 { }
 
-StatusCode CaloTowerBuilderToolBase::initialize() {
+StatusCode CaloTowerBuilderToolBase::initialize ATLAS_NOT_THREAD_SAFE () {
   if (!m_cellContainerName.key().empty()) {
     ATH_CHECK( m_cellContainerName.initialize() );
   }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -309,7 +309,7 @@ class cutLevel(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['int']
     allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
-    StoredValue  = 14
+    StoredValue  = 16
 
 class doBremRecovery(InDetFlagsJobProperty):
     """Turn on running of Brem Recover in tracking"""
@@ -1213,7 +1213,7 @@ class InDetJobProperties(JobPropertyContainer):
     from RecExConfig.RecFlags import rec
     if rec.doMonitoring():
       self.checkThenSet(self.doMonitoringGlobal   , True)
-      self.checkThenSet(self.doMonitoringPrimaryVertexingEnhanced   , True)
+      #self.checkThenSet(self.doMonitoringPrimaryVertexingEnhanced   , True)
       self.checkThenSet(self.doMonitoringPixel    , True)
       self.checkThenSet(self.doMonitoringSCT      , True)
       self.checkThenSet(self.doMonitoringTRT      , True)

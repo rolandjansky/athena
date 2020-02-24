@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Tadej Novak <tadej@cern.ch>
@@ -80,10 +80,6 @@ StatusCode EventInfoOverlay::execute(const EventContext& ctx) const
   // MC+MC overlay should always be marked as simulation
   if (!m_dataOverlay.value()) {
     outputEvent->setEventTypeBitmask(xAOD::EventInfo::IS_SIMULATION);
-  } else {
-    // Overlay RDO files should be treated like data for reco
-    // purposes, so only set this for SimHit level pile-up.
-    outputEvent->setEventTypeBitmask(outputEvent->eventTypeBitmask() | xAOD::EventInfo::IS_SIMULATION);
   }
 
   // Propagate core event flags

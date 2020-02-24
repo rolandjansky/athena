@@ -33,7 +33,7 @@ def get_and_fix_PDGTABLE(replace):
     update.write(''.join(lines))
     update.close()
 
-    print 'modfied PDGTABLE\n%s\n' % ''.join(lines)
+    printfunc ('modfied PDGTABLE\n%s\n' % ''.join(lines))
     sys.stdout.flush()
 
 def load_files_for_GMSB_scenario(simdict):
@@ -89,7 +89,7 @@ def load_files_for_GMSB_scenario(simdict):
                             ])
 
     else:
-        print 'GMSBIndex %i not supported' % GMSBIndex
+        printfunc ('GMSBIndex %i not supported' % GMSBIndex)
         raise
 
 doG4SimConfig = True
@@ -123,7 +123,7 @@ if doG4SimConfig:
     elif GMSBIndex == 2 or GMSBIndex == 3 or GMSBIndex == 4: # generic stau scenario
         simFlags.PhysicsOptions += ["SleptonsPhysicsTool"]
     else:
-        print 'GMSBIndex %i not supported' % GMSBIndex
+        printfunc ('GMSBIndex %i not supported' % GMSBIndex)
         raise
     del GMSBIndex
 

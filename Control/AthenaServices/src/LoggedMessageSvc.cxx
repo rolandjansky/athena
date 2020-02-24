@@ -682,11 +682,11 @@ void LoggedMessageSvc::reportMessage (const StatusCode& key,
 //
 
 void LoggedMessageSvc::insertStream (int key,
-                               const std::string& name,
+                               std::string name,
                                std::ostream *stream)
 {
   typedef StreamMap::value_type value_type;
-  m_streamMap.insert( value_type( key, NamedStream(name,stream) ) );
+  m_streamMap.insert( value_type( key, NamedStream( std::move(name), stream) ) );
 }
 
 //#############################################################################
@@ -855,19 +855,12 @@ int LoggedMessageSvc::outputLevel()   const {
   return m_outputLevel;
 }
 // ---------------------------------------------------------------------------
-int LoggedMessageSvc::outputLevel( const std::string& source )   const {
+int LoggedMessageSvc::outputLevel( std::string_view source )   const {
 // ---------------------------------------------------------------------------
   std::lock_guard<std::mutex> lock(m_thresholdMapMutex);
 
-  ThresholdMap::const_iterator it;
-
-  it = m_thresholdMap.find( source );
-  if( it != m_thresholdMap.end() ) {
-    return (*it).second;
-  }
-  else {
-    return m_outputLevel;
-  }
+  auto it   = m_thresholdMap.find( source );
+  return it != m_thresholdMap.end() ? it->second : m_outputLevel.value();
 }
 
 // ---------------------------------------------------------------------------
@@ -877,20 +870,18 @@ void LoggedMessageSvc::setOutputLevel(int new_level)    {
 }
 
 // ---------------------------------------------------------------------------
-void LoggedMessageSvc::setOutputLevel(const std::string& source, int level)    {
+void LoggedMessageSvc::setOutputLevel(std::string_view source, int level)    {
 // ---------------------------------------------------------------------------
   std::lock_guard<std::mutex> lock(m_thresholdMapMutex);
 
-  /*
-  std::pair<ThresholdMap::iterator, bool> p;
-  p = m_thresholdMap.insert(ThresholdMap::value_type( source, level) );
-  if( p.second == false ) {
-    // Already esisting an output level for that source. Erase and enter it again
-    m_thresholdMap.erase ( p.first );
-    m_thresholdMap.insert(ThresholdMap::value_type( source, level) );
+  // only write if we really have to...
+  auto i = m_thresholdMap.find( source );
+  if ( i == m_thresholdMap.end() ) {
+    m_thresholdMap.emplace( source, level );
+  } else if ( i->second != level ) {
+    i->second = level;
   }
-  */
-  m_thresholdMap[source] = level;
+
 }
 
 // ---------------------------------------------------------------------------

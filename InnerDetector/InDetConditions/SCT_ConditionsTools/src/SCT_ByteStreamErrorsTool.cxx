@@ -240,9 +240,9 @@ SCT_ByteStreamErrorsTool::resetSets(const EventContext& ctx) const {
 
 const std::set<IdentifierHash>
 SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) const {
-  std::lock_guard<std::mutex> lock{m_mutex};
-  CacheEntry* ent{m_cache.get(ctx)};
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
+    std::lock_guard<std::mutex> lock{m_mutex};
+    CacheEntry* ent{m_cache.get(ctx)};
     StatusCode sc{fillData(ctx)};
     if (sc.isFailure()) {
       ATH_MSG_ERROR("fillData in getErrorSet fails");
@@ -375,8 +375,8 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
 void 
 SCT_ByteStreamErrorsTool::addError(const IdentifierHash& id, int errorType, const EventContext& ctx) const {
   // m_mutex should be locked by a public method.
-  CacheEntry* ent{m_cache.get(ctx)};
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
+    CacheEntry* ent{m_cache.get(ctx)};
     ent->m_bsErrors[errorType].insert(id);
   }
 }

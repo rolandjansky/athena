@@ -29,6 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetRawEvent/InDetSimData
                           Tracking/TrkDetDescr/TrkDetElementBase )
 
@@ -42,7 +43,7 @@ atlas_add_component( FastTRT_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib StoreGateLib SGtests Identifier EventInfo xAODEventInfo GaudiKernel TRT_ConditionsServicesLib InDetPrepRawData InDetSimEvent HitManagement TrkParameters TrkTruthData TrkToolInterfaces GeoPrimitives GeneratorObjects InDetIdentifier InDetReadoutGeometry InDetSimData TrkDetElementBase EventContainers)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib StoreGateLib SGtests Identifier EventInfo xAODEventInfo GaudiKernel TRT_ConditionsServicesLib InDetPrepRawData InDetSimEvent HitManagement TrkParameters TrkTruthData TrkToolInterfaces GeoPrimitives GeneratorObjects InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetSimData TrkDetElementBase EventContainers)
 
 # Install files from the package:
 atlas_install_headers( FastTRT_Digitization )

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
    */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,6 +26,7 @@
 // Forward declarations
 #include "xAODCaloEvent/CaloClusterFwd.h"
 class CaloCellContainer;
+class CaloDetDescrManager;
 
 static const InterfaceID IID_IegammaMiddleShape("IegammaMiddleShape", 1, 0);
 
@@ -52,8 +53,10 @@ public:
         double poscs2=0;
     };
     /** @brief AlgTool method.*/
-    virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
-            const CaloCellContainer& cell_container, Info& info) const = 0;
+    virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                               const CaloDetDescrManager& cmgr,
+                               const CaloCellContainer& cell_container,
+                               Info& info) const = 0;
 };
 
 inline const InterfaceID& IegammaMiddleShape::interfaceID()

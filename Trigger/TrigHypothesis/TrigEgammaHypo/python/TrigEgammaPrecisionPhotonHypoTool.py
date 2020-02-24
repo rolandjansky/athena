@@ -24,7 +24,7 @@ def _IncTool(name, threshold, sel):
     cuts=['Input','#Delta #eta EF-L1', '#Delta #phi EF-L1','eta','E_{T}^{EM}']
 
     monTool.Histograms += [ defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="PrecisionPhoton Hypo Passed Cuts;Cut",
-                                            xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", labels=cuts) ]
+                                            xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", xlabels=cuts) ]
 
     monTool.HistPath = 'PrecisionPhotonHypo/'+tool.name()
     tool.MonTool = monTool

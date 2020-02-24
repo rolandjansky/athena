@@ -1,21 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ElectronValidationPlots.h"
 #include "xAODEgamma/EgammaDefs.h"
 
-ElectronValidationPlots::ElectronValidationPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
+ElectronValidationPlots::ElectronValidationPlots(PlotBase* pParent, const std::string& sDir):PlotBase(pParent, sDir),
 										      m_oCentralElecPlots(this,"Central/", "Central"),
 										      m_oFrwdElecPlots(this, "Frwd/", "Forward"),
 										      m_oTruthAllPlots(this, "Truth/All/", "Truth Electron All"),
 										      m_oTruthAllIsoPlots(this, "Truth/All/Iso", "Truth Electron Prompt"),
 										      m_oTruthIsoPlots(this, "Truth/Iso/", "Truth Electron Prompt"),
-										      author(0),
-										      res_et(0),
-										      res_eta(0),
-										      pt_ratio(0),
-										      matrix(0)
+										      author(nullptr),
+										      res_et(nullptr),
+										      res_eta(nullptr),
+										      pt_ratio(nullptr),
+										      matrix(nullptr)
 
 {}	
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConfigurationConditionsTool.h"
@@ -79,7 +79,7 @@ bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, InDetC
 // Is a wafer with this IdentifierHash good?
 bool SCT_ConfigurationConditionsTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   const Identifier elementId{m_pHelper->wafer_id(hashId)};
-  return isGood(elementId, ctx);
+  return isGood(elementId, ctx, InDetConditions::SCT_SIDE);
 }
 
 bool SCT_ConfigurationConditionsTool::isGood(const IdentifierHash& hashId) const {

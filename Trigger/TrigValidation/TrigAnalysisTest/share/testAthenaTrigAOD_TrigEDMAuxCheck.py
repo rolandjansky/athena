@@ -27,15 +27,15 @@ if not ('fileList' in dir()) and not ('RunningRTT' in dir()):
     if exists(summary):
         fsummary = open(summary)
         if  "ATHENA_BAD_EXIT" in fsummary.read():
-            print "WARNING: RDOtoAOD step bad, searching alternatives"
+            printfunc ("WARNING: RDOtoAOD step bad, searching alternatives")
         else:
            if exists(default):
-               print "INFO: ouptut from RDOtoAOD step exists: ",default 
+               printfunc ("INFO: ouptut from RDOtoAOD step exists: ",default )
                RDOtoAODokay = True
     if RDOtoAODokay:
         fileList = [default]
     else:
-        print "WARNING: default AOD file doesn't exist or is bad, searching alternatives"
+        printfunc ("WARNING: default AOD file doesn't exist or is bad, searching alternatives")
         import glob
         pattern="../AthenaTrig*toESDAOD*/AOD*.pool.root"
         files=glob.glob(pattern)
@@ -44,7 +44,7 @@ if not ('fileList' in dir()) and not ('RunningRTT' in dir()):
             exit(-1)
         elif (len(files)>1):
             log.warning("Multiple input AOD files found, taking last one: " + files[-1])
-            print "All matches to pattern '" + pattern + "': ", files
+            printfunc ("All matches to pattern '" + pattern + "': ", files)
             fileList=[files[-1]]
         else:
             log.info("Using input AOD file " + files[0])

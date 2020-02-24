@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -57,7 +59,7 @@ if not 'ReadCaliWaveFromCOOL' in dir():
    ReadCaliWaveFromCOOL = True
 
 if not 'InputCaliWavePoolDir' in dir():
-   InputCaliWavePoolDir = commands.getoutput("pwd")
+   InputCaliWavePoolDir = subprocess.getoutput("pwd")
 
 if not 'InputCaliWavePoolFileName' in dir():
    InputCaliWavePoolFileName = "LArCaliWave.pool.root"
@@ -73,7 +75,7 @@ if not 'InputCaliPulseParamsFolder' in dir():
 
 
 if not 'InputCaliPulseParamsPoolDir' in dir():
-   InputCaliPulseParamsPoolDir = commands.getoutput("pwd")
+   InputCaliPulseParamsPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputCaliPulseParamsPoolFileName' in dir():
    InputPulseParamsPoolFileName = "LArCaliPulseParamsVsCalib_AllBoards.pool.root"
@@ -88,7 +90,7 @@ if not 'InputDetCellParamsFolder' in dir():
    if SuperCells:     InputDetCellParamsFolder = "/LAR/ElecCalibOflSC/DetCellParams/RTM"  
 
 if not 'InputDetCellParamsPoolDir' in dir():
-   InputDetCellParamsPoolDir = commands.getoutput("pwd")
+   InputDetCellParamsPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputDetCellParamsPoolFileName' in dir():
    InputDetCellParamsPoolFileName = "LArDetCellParams.pool.root"
@@ -295,10 +297,10 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
 
 if not 'OutputParamsRootFileDir' in dir():
-   OutputParamsRootFileDir= commands.getoutput("pwd")
+   OutputParamsRootFileDir= subprocess.getoutput("pwd")
     
 if not 'OutputParamsPoolFileDir' in dir():
-   OutputParamsPoolFileDir= commands.getoutput("pwd")
+   OutputParamsPoolFileDir= subprocess.getoutput("pwd")
 
 if not 'RTMFileTag' in dir():
    RTMFileTag = "DefaultExtraction_"+str(RunNumber)+"_"+Partition.replace("*","")

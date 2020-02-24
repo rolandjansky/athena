@@ -98,7 +98,7 @@ HLTMonManager.AthenaMonTools += TrigMinBiasMonitoringTool()
 
 HLTMonManager.FileKey = "GLOBAL"
 
-print HLTMonManager;
+printfunc (HLTMonManager)
 
 #include("HLTMonitoring_topOptions.py")
 ## ToolSvc.HLTTauMon.OutputLevel=DEBUG

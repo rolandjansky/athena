@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -242,9 +242,9 @@ namespace Trk {
 
   void
     GXFTrackState::setMaterialEffects(GXFMaterialEffects * mef) {
-    if (m_materialEffects != nullptr) {
+    
       delete m_materialEffects;
-    }
+    
     m_materialEffects = mef;
   }
 
@@ -260,7 +260,7 @@ namespace Trk {
 
   void
     GXFTrackState::setDerivatives(Amg::MatrixX & deriv) {
-    if (m_derivs != nullptr)
+    
       delete m_derivs;
 
     m_derivs = new Amg::MatrixX(deriv);
@@ -297,7 +297,7 @@ namespace Trk {
   const Surface *GXFTrackState::surface() {
     if (m_measurement != nullptr) {
       return &m_measurement->associatedSurface();
-    } else if (m_trackpar != nullptr) {
+    } if (m_trackpar != nullptr) {
       return &m_trackpar->associatedSurface();
     } else if (m_materialEffects != nullptr) {
       return m_materialEffects->surface();
@@ -339,8 +339,8 @@ namespace Trk {
 
     if (m_tsType == TrackState::Fittable
         || m_tsType == TrackState::GeneralOutlier) {
-      for (int i = 0; i < 5; i++) {
-        if (m_measerror[i] > 0) {
+      for (double i : m_measerror) {
+        if (i > 0) {
           nmeas++;
         }
       }
@@ -352,7 +352,7 @@ namespace Trk {
   const Amg::Vector3D & GXFTrackState::position() {
     if (m_trackpar != nullptr) {
       return m_trackpar->position();
-    } else if (m_measurement != nullptr) {
+    } if (m_measurement != nullptr) {
       return m_measurement->globalPosition();
     }
     // return surface()->center();  // Better than nothing...

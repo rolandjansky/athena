@@ -66,23 +66,15 @@ namespace InDet
   // set constants to hard coded defaults
   virtual void setDefaultCalibrationConstants()=0;
 
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLvl (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
-
  public:
   void checkInitialization();
 
   // Fill the data blob from a given pointer
   bool FillBlob(const unsigned char*);      
-  
-  //print the blob of data to the screen very verbosely.
-  void PrintBlob();
 
   // Limit the allowed PID value to lie between a lower and an upper limt
    float Limit(float prob);      
 
- private:
-   mutable Athena::MsgStreamMember m_msg;
  };
 } 
 

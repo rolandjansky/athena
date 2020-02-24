@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARONLINEID_BASE_H
@@ -13,6 +13,7 @@
 #include "IdDict/IdDictFieldImplementation.h"
 #include "IdDict/IdDictDefs.h"
 #include "LArIdentifier/LArOnlID_Exception.h"
+#include "boost/range/iterator_range.hpp"
 #include "string.h"
 #include <vector>
 #include <algorithm>
@@ -106,6 +107,11 @@ class LArOnlineID_Base : public AtlasDetectorID
 
   typedef Identifier::size_type  size_type;
   
+  /** Type for iterators over identifiers. */
+  typedef std::vector<HWIdentifier>::const_iterator id_iterator;
+  /** Type for range over identifiers. */
+  typedef boost::iterator_range<id_iterator> id_range;
+
   /** 
    * @brief Default constructor
    */
@@ -135,8 +141,10 @@ class LArOnlineID_Base : public AtlasDetectorID
   /**
    * @brief Return an iterator pointing to Feedthrough identifiers collection
    */
-  std::vector<HWIdentifier>::const_iterator feedthrough_begin(void) const;
-  std::vector<HWIdentifier>::const_iterator feedthrough_end  (void) const;
+  id_iterator feedthrough_begin() const;
+  id_iterator feedthrough_end  () const;
+  id_range    feedthrough_range() const;
+
 
 
   /**
@@ -164,8 +172,9 @@ class LArOnlineID_Base : public AtlasDetectorID
   /**
    * @brief Returns an iterator pointing to a feb identifier collection
    */
-  std::vector<HWIdentifier>::const_iterator feb_begin(void) const;
-  std::vector<HWIdentifier>::const_iterator feb_end  (void) const;
+  id_iterator feb_begin() const;
+  id_iterator feb_end  () const;
+  id_range    feb_range() const;
 
 
 
@@ -196,8 +205,9 @@ class LArOnlineID_Base : public AtlasDetectorID
   /**
    * @brief Returns an iterator pointing to a channel identifier collection
    */
-  std::vector<HWIdentifier>::const_iterator channel_begin(void) const;
-  std::vector<HWIdentifier>::const_iterator channel_end  (void) const;
+  id_iterator channel_begin() const;
+  id_iterator channel_end  () const;
+  id_range    channel_range() const;
   
 
   /**
@@ -258,8 +268,9 @@ class LArOnlineID_Base : public AtlasDetectorID
   /**
    * @brief Return an iterator pointing to a calibFeb identifier 's collection
    */
-  std::vector<HWIdentifier>::const_iterator calib_module_begin(void) const;
-  std::vector<HWIdentifier>::const_iterator calib_module_end  (void) const;
+  id_iterator calib_module_begin() const;
+  id_iterator calib_module_end  () const;
+  id_range    calib_module_range() const;
 
 
   /**
@@ -277,8 +288,9 @@ class LArOnlineID_Base : public AtlasDetectorID
   /**
    * @brief Return an iterator pointing to a collection of calibration channel identifiers
    */
-  std::vector<HWIdentifier>::const_iterator calib_channel_begin(void) const;
-  std::vector<HWIdentifier>::const_iterator calib_channel_end  (void) const;
+  id_iterator calib_channel_begin() const;
+  id_iterator calib_channel_end  () const;
+  id_range    calib_channel_range() const;
 
 
   /**
@@ -680,26 +692,36 @@ inline LArOnlineID_Base::size_type LArOnlineID_Base::calibChannelHashMax (void) 
 
 
 /* Calib */
-inline std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::calib_module_begin(void) const
+inline LArOnlineID_Base::id_iterator LArOnlineID_Base::calib_module_begin() const
 /*====================================================================*/
 {
   return(m_calib_module_vec.begin());
 }
-inline std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::calib_module_end(void) const
+inline LArOnlineID_Base::id_iterator LArOnlineID_Base::calib_module_end() const
 /*==================================================================*/
 {
   return(m_calib_module_vec.end());
 }
+inline LArOnlineID_Base::id_range LArOnlineID_Base::calib_module_range() const
+/*==================================================================*/
+{
+  return id_range (calib_module_begin(), calib_module_end());
+}
 
-inline std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::calib_channel_begin(void) const
+inline LArOnlineID_Base::id_iterator LArOnlineID_Base::calib_channel_begin() const
 /*======================================================================*/
 {
   return(m_calib_channel_vec.begin());
 }
-inline std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::calib_channel_end(void) const
+inline LArOnlineID_Base::id_iterator LArOnlineID_Base::calib_channel_end() const
 /*======================================================================*/
 {
   return(m_calib_channel_vec.end());
+}
+inline LArOnlineID_Base::id_range LArOnlineID_Base::calib_channel_range() const
+/*======================================================================*/
+{
+  return id_range (calib_channel_begin(), calib_channel_end());
 }
 
 

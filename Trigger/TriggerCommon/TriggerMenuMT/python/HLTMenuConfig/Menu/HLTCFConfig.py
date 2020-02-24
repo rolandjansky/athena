@@ -25,12 +25,15 @@
 
 """
 
+from builtins import zip
+from builtins import str
+from builtins import map
+from builtins import range
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot, create_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
-#from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
 
 from AthenaCommon.Logging import logging
@@ -67,10 +70,11 @@ def createStepFilterNode(name, seq_list, dump=False):
     for seq in seq_list:
         filterAlg = seq.filter.Alg
         log.info("createStepFilterNode: Add  %s to filter node %s", filterAlg.name(), name)
-        filter_list.append(filterAlg)
+        if filterAlg not in filter_list:
+            filter_list.append(filterAlg)
 
 
-    stepCF = parOR(name + CFNaming.FILTER_POSTFIX, subs=set(filter_list))
+    stepCF = parOR(name + CFNaming.FILTER_POSTFIX, subs=filter_list)
 
     if dump:
         dumpSequence (stepCF, indent=0)
@@ -213,7 +217,7 @@ def matrixDisplayOld( allCFSeq ):
                 else:
                     return s.step.sequences[0].hypo.tools
             else:
-                return s.step.combo.getChains().keys()
+                return list(s.step.combo.getChains().keys())
         return []
    
 
@@ -221,7 +225,7 @@ def matrixDisplayOld( allCFSeq ):
 
     def __nextSteps( index, stepName ):
         nextStepName = "Step%s_"%index + "_".join(stepName.split("_")[1:])
-        for sname, seq in mx[index].iteritems():
+        for sname, seq in mx[index].items():
             if sname == nextStepName:
                 return sname.ljust( longestName ) + __nextSteps( index + 1, nextStepName )
         return ""
@@ -229,7 +233,7 @@ def matrixDisplayOld( allCFSeq ):
     log.debug("" )
     log.debug("chains^ vs steps ->")
     log.debug( "="*90 )
-    for sname, seq in mx[1].iteritems():
+    for sname, seq in mx[1].items():
         guessChainName = '_'.join( sname.split( "_" )[1:] )
         log.debug( " Reco chain: %s: %s", guessChainName.rjust(longestName),  __nextSteps( 1, sname ) )
         log.debug( " %s", " ".join( __getHyposOfStep( seq ) ) )
@@ -250,7 +254,7 @@ def matrixDisplay( allCFSeq ):
                 else:
                     return step.sequences[0].hypo.tools
             else:
-                return step.combo.getChains().keys()
+                return list(step.combo.getChains().keys())
         return []
  
    
@@ -267,13 +271,13 @@ def matrixDisplay( allCFSeq ):
 
     # sort dictionary by fist key=step
     from collections import  OrderedDict
-    sorted_mx = OrderedDict(sorted( mx.items(), key= lambda k: k[0]))
+    sorted_mx = OrderedDict(sorted( list(mx.items()), key= lambda k: k[0]))
 
     log.info( "" )
     log.info( "="*90 )
     log.info( "Cumulative Summary of steps")
     log.info( "="*90 )
-    for (step, seq), chains in sorted_mx.items():
+    for (step, seq), chains in list(sorted_mx.items()):
         log.info( "(step, sequence)  ==> (%d, %s) is in chains: ",  step, seq)
         for chain in chains:
             log.info( "              %s",chain)
@@ -421,7 +425,7 @@ def createControlFlow(HLTNode, CFseqList):
         for CFseq in CFseqList[nstep]:
             stepDecisions.extend(CFseq.decisions)
 
-        summary=makeSummary( stepSequenceName, stepSequenceName )
+        summary=makeSummary( stepSequenceName, stepDecisions )
 
         HLTNode += summary
 

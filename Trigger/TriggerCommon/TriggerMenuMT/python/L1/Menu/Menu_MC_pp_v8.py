@@ -56,7 +56,7 @@ def defineMenu():
 	"L1_2EM20VH",  "L1_EM20VH_3EM10VH", 
         "L1_EM7_MU10",
         "L1_2MU4", "L1_2MU6", "L1_2MU10", "L1_2MU20_OVERLAY",  "L1_MU11_2MU6", "L1_3MU4", "L1_MU6_2MU4", "L1_3MU6",  "L1_4MU4", "L1_MU6_3MU4", "L1_2MU6_3MU4", "L1_2MU11", "L1_MU11_2MU10",
-          "L1_2EM8VH_MU10", "L1_EM15VH_MU10",  "L1_EM7_MU20", "L1_EM8VH_MU20",
+          "L1_2EM8VH_MU10", "L1_EM15VH_MU10",  "L1_EM7_MU20", "L1_EM8VH_MU20", "L1_EM8I_MU10",
           'L1_2eEM15VHI', 'L1_2eEM20VH', 'L1_2eEM8VH_MU10',
           'L1_eEM15VH_MU10',
           'L1_eEM20VH_3eEM10VH',
@@ -199,7 +199,7 @@ def defineMenu():
         
 
         # XE
-        "L1_XE35", "L1_XE40", "L1_XE45", "L1_XE50", 
+        "L1_XE10", "L1_XE35", "L1_XE40", "L1_XE45", "L1_XE50", 
         "L1_XE55", "L1_XE60", "L1_XE70", "L1_XE80",
          'L1_XE30', 'L1_XE300',
          'L1_gXERHO50',
@@ -553,7 +553,6 @@ def defineMenu():
         'L1_2eEM20VH' : 49,
         'L1_2eEM8VH_MU10' : 50,
         'L1_eEM15VHI_2eTAU12IM_4jJ12' : 59,
-        'L1_eEM15VHI_2eTAU12IM_jJ25_3jJ12' : 68,
         'L1_eEM15VHI_2eTAU12IM_gXERHO35' : 73,
         'L1_eEM15VH_MU10' : 82,
         'L1_eEM18VHI_3jJ20' : 86,
@@ -599,6 +598,7 @@ def defineMenu():
         'L1_2EM8VH_MU10' : 43,
         'L1_EM15VH_MU10' : 44,
         'L1_EM7_MU20' : 483,
+        'L1_EM8I_MU10' : 399,
         'L1_EM8VH_MU20' : 484,
         'L1_TAU12' : 45,
         'L1_TAU12IM' : 47,
@@ -719,6 +719,7 @@ def defineMenu():
         #'L1_J75_XE40' : 143,
 
         #'L1_XE25': 82,
+        'L1_XE10': 68,
         'L1_XE30': 85,
         'L1_XE300': 187,
         

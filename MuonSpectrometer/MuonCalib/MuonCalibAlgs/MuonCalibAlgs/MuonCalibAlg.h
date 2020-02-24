@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_MUONCALIBALG_H
@@ -12,7 +12,6 @@
 #include "MuonCalibEventBase/MuonCalibEvent.h"
 #include "MuonPrdSelector/MuonIdCutTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-/* #include "StoreGate/ReadCondHandleKey.h" */
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 class ICscStripFitter;

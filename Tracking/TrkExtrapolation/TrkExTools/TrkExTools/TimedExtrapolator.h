@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -105,9 +105,9 @@ namespace Trk {
     mutable BoundarySurfaceFace      exitFace;
     
     ParamsNextVolume(){
-      nextVolume              = 0;
-      nextParameters          = 0;
-      navParameters           = 0;
+      nextVolume              = nullptr;
+      nextParameters          = nullptr;
+      navParameters           = nullptr;
         exitFace                = undefinedFace;
     }
     
@@ -127,9 +127,9 @@ namespace Trk {
     
     //!< reset the boundary information by invalidating it
     void resetBoundaryInformation(){
-      nextVolume        = 0;
-      nextParameters    = 0;
-      navParameters     = 0;
+      nextVolume        = nullptr;
+      nextParameters    = nullptr;
+      navParameters     = nullptr;
       exitFace          = undefinedFace;
     }    
   };
@@ -175,7 +175,7 @@ namespace Trk {
 							      Trk::ParticleHypothesis particle,
 							      std::vector<Trk::HitInfo>*& hitVector,
                                                               Trk::GeometrySignature& nextGeoID,
-							      const Trk::TrackingVolume* boundaryVol=0) const;
+							      const Trk::TrackingVolume* boundaryVol=nullptr) const;
 
        /** Transport method for neutral, possibly unstable particles.  
            The extrapolation is interrupted at subdetector boundary for surviving/stable particles.
@@ -187,7 +187,7 @@ namespace Trk {
 								    Trk::ParticleHypothesis particle,
 								    std::vector<Trk::HitInfo>*& hitVector,
 								    Trk::GeometrySignature& nextGeoId,
-								    const Trk::TrackingVolume* boundaryVol=0) const;
+								    const Trk::TrackingVolume* boundaryVol=nullptr) const;
 
 
        /** Return the TrackingGeometry used by the Extrapolator (forward information from Navigator)*/
@@ -430,14 +430,14 @@ namespace Trk {
 inline const TrackingGeometry* TimedExtrapolator::trackingGeometry() const 
  { 
    if (m_navigator) return m_navigator->trackingGeometry();
-   return 0;
+   return nullptr;
  }
 
  
 inline const IPropagator* TimedExtrapolator::subPropagator(const Trk::TrackingVolume& tvol) const
 {
   const IPropagator* currentPropagator = (tvol.geometrySignature() < m_subPropagators.size()) ?
-    m_subPropagators[tvol.geometrySignature()] : 0;
+    m_subPropagators[tvol.geometrySignature()] : nullptr;
   if (!currentPropagator)
       msg(MSG::ERROR) << "[!] Configuration problem: no Propagator found for volumeSignature: " << tvol.geometrySignature() << endmsg;
   return currentPropagator;         
@@ -447,7 +447,7 @@ inline const IPropagator* TimedExtrapolator::subPropagator(const Trk::TrackingVo
 inline const ITimedMatEffUpdator* TimedExtrapolator::subMaterialEffectsUpdator(const Trk::TrackingVolume& tvol) const
 {
   return (tvol.geometrySignature() < m_subUpdators.size()) ?
-    m_subUpdators[tvol.geometrySignature()] : 0;
+    m_subUpdators[tvol.geometrySignature()] : nullptr;
 }
 
 

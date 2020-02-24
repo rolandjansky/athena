@@ -13,11 +13,6 @@
 #include <math.h>
 #include <sstream>
 
-//#include "GaudiKernel/Property.h"
-//#include "FourMomUtils/P4Helpers.h"
-
-//#include "AnalysisUtils/AnalysisMisc.h"
-
 #include "xAODJet/Jet.h"
 #include "xAODTau/TauJet.h"
 
@@ -25,8 +20,6 @@
 #include "tauRecTools/TauSubstructureVariables.h"
 
 #include "tauRecTools/KineUtils.h"
-//#include "CaloUtils/CaloVertexedCluster.h"
-//#include "CaloEvent/CaloVertexedCluster.h"
 
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/SystemOfUnits.h"
@@ -45,7 +38,7 @@ TauSubstructureVariables::TauSubstructureVariables( const std::string& name ) :
 		TauRecToolBase(name),
 		m_maxPileUpCorrection(4 * GeV),
 		m_pileUpAlpha(1.0),
-		m_doVertexCorrection(false), //FF: don't do cell correction by default
+		m_doVertexCorrection(false), 
 		m_inAODmode(false) {
 	declareProperty("maxPileUpCorrection", m_maxPileUpCorrection);
 	declareProperty("pileUpAlpha", m_pileUpAlpha);

@@ -26,7 +26,7 @@
 
 #include "ByteStreamData/RawEvent.h" 
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" // needed, template class
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -261,7 +261,8 @@ inline const Amg::Vector3D*
 ConeSurface::normal(const Amg::Vector2D& lp) const
 {
   // (cos phi cos alpha, sin phi cos alpha, sgn z sin alpha)
-  double phi = lp[Trk::locRPhi] / (bounds().r(lp[Trk::locZ])), sgn = lp[Trk::locZ] > 0 ? -1. : +1.;
+  double phi = lp[Trk::locRPhi] / (bounds().r(lp[Trk::locZ]));
+  double sgn = lp[Trk::locZ] > 0 ? -1. : +1.;
   Amg::Vector3D localNormal(cos(phi) * bounds().cosAlpha(), sin(phi) * bounds().cosAlpha(), sgn * bounds().sinAlpha());
   return new Amg::Vector3D(transform().rotation() * localNormal);
 }

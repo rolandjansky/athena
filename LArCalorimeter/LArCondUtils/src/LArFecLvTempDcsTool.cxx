@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -140,7 +140,7 @@ StatusCode LArFecLvTempDcsTool::getFec( const HWIdentifier& crateID,
 }
 
 void
-LArFecLvTempDcsTool::translateFec( const coral::AttributeList att, 
+LArFecLvTempDcsTool::translateFec( const coral::AttributeList& att, 
 	LArFecLvTempDcs& fec ) const
 {
 	// Temporary variables

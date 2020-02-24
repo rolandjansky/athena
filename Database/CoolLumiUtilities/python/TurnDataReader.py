@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # TurnDataReader
@@ -9,7 +9,9 @@
 #                  data in COOL, but at the moment this is the best we have...
 #
 
+from __future__ import print_function
 import re
+import sys
 
 class TurnDataReader:
 
@@ -27,16 +29,16 @@ class TurnDataReader:
     def readData(self):
 
         self.data = None
-        if self.infile == None:
-            print 'TurnDataReader.readData() called with infile == None!'
+        if self.infile is None:
+            print('TurnDataReader.readData() called with infile == None!')
             return self.data
 
         # Open input file
         try:
             f = open(self.infile, 'r')
-        except IOError, e:
-            print 'Error opening file', self.infile
-            print e
+        except IOError as e:
+            print('Error opening file', self.infile)
+            print(e)
             return self.data
 
         # Initialize our new dictionary
@@ -45,21 +47,21 @@ class TurnDataReader:
         # Must parse lines looking for either LB records or algorithm type
         
         # pseudoLB record (number followed by two text records
-        matchlb = re.compile('^([0-9]+) (\S+) (\S+)$')
+        matchlb = re.compile(r'^([0-9]+) (\S+) (\S+)$')
         
         # algorithm name (only thing on the line)
-        matchalg = re.compile('^(\S+)$')
+        matchalg = re.compile(r'^(\S+)$')
 
         # Current algorithm read in file
         algId = None
         
         for line in f.readlines():
 
-            if self.verbose: print line,
+            if self.verbose: print(line, end=' ')
 
             m = matchlb.search(line)
             if m:
-                if self.verbose: print 'Found data record match:', m.group(1), m.group(2), m.group(3)
+                if self.verbose: print('Found data record match:', m.group(1), m.group(2), m.group(3))
                 lb = int(m.group(1))
                 # Hack to realign these properly.  This will probably bite us in the ass someday
                 lb -= 1
@@ -75,30 +77,30 @@ class TurnDataReader:
                     turns = float(m.group(3))
 
                 # Do we have a valid algorithm?
-                if algId == None:
-                    print 'TurnDataReader.readData() found data record with no algorithm defined in', self.infile
-                    print line
+                if algId is None:
+                    print('TurnDataReader.readData() found data record with no algorithm defined in', self.infile)
+                    print(line)
                     sys.exit()
                 
                 # save data
-                if not lb in self.data:
+                if lb not in self.data:
                     self.data[lb] = dict()
 
                 self.data[lb][algId] = (turns, counts)
 
                 if self.verbose:
-                    print 'Alg:', algId, 'LB:', lb, 'Turns:', turns, 'Counts:', counts
+                    print('Alg:', algId, 'LB:', lb, 'Turns:', turns, 'Counts:', counts)
                 continue
             
             m = matchalg.search(line)
             if m:
-                if self.verbose: print 'Found new algorithm:', m.group(1)
+                if self.verbose: print('Found new algorithm:', m.group(1))
 
                 # Decode Nitesh's into my values, just hardcode here
                 algId = m.group(1)
-                if algId == None:
-                    print 'TurnDataReader.readData() found unrecognized algorithm name in', self.infile
-                    print line
+                if algId is None:
+                    print('TurnDataReader.readData() found unrecognized algorithm name in', self.infile)
+                    print(line)
                     sys.exit()
 
         f.close()

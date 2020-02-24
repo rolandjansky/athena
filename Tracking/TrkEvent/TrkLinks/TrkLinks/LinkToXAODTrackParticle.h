@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACK_LINKTOXAODTRACKPARTICLE_H
@@ -46,7 +46,7 @@ namespace Trk
     const TrackParameters* parameters() const;
 
     /** return the neutral parameters of the NeutralParticle) */
-    virtual const NeutralParameters* neutralParameters() const {return NULL;};
+    virtual const NeutralParameters* neutralParameters() const {return nullptr;};
     
     /** method to clone the LinkToXAODTrackParticle object */
     LinkToXAODTrackParticle * clone() const ;

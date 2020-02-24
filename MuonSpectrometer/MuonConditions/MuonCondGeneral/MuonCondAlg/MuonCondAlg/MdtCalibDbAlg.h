@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,6 +13,8 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 //from MdtCalibDbCoolStrTool.h
@@ -24,10 +26,9 @@
 #include "MdtCalibData/MdtRtRelationCollection.h"
 #include "MdtCalibData/MdtCorFuncSetCollection.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "AthenaKernel/IAthRNGSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 //c - c++
 #include "zlib.h"
@@ -36,9 +37,7 @@
 #include "MdtCalibSvc/MdtCalibrationRegionSvc.h"
 
 class MdtCalibrationRegionSvc;
-class Identifier; 
 class IIOVDbSvc;
-class MsgStream;
 
 namespace MuonGM{
   class MuonDetectorManager;
@@ -74,8 +73,7 @@ class MdtCalibDbAlg: public AthAlgorithm {
   StatusCode loadTube();
   StatusCode defaultT0s(std::unique_ptr<MdtTubeCalibContainerCollection>& writeCdoTube);
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   const MuonGM::MuonDetectorManager *m_detMgr;
   ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
   ServiceHandle<MdtCalibrationRegionSvc> m_regionSvc;

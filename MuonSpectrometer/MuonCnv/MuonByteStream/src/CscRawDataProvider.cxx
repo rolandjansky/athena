@@ -14,7 +14,7 @@
 Muon::CscRawDataProvider::CscRawDataProvider(const std::string& name,
                                       ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_rawDataTool     ("Muon::CSC_RawDataProviderTool/CscRawDataProviderTool", this),
+  m_rawDataTool     ("Muon::CSC_RawDataProviderToolMT/CscRawDataProviderTool", this),
   m_regionSelector  ("RegSelSvc",name)
 {
   declareProperty ("ProviderTool", m_rawDataTool);

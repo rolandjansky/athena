@@ -13,7 +13,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "FastSCT_Clusterization.h"

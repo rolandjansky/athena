@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -11,6 +11,8 @@ import os
 import re
 import subprocess
 import json
+import six
+import glob
 
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs
@@ -127,8 +129,9 @@ class LogMergeStep(Step):
                 self.log_files.append(f)
 
     def merge_logs(self):
+        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
         try:
-            with open(self.merged_name, 'w') as merged_file:
+            with open(self.merged_name, 'w', **encargs) as merged_file:
                 for log_name in self.log_files:
                     if not os.path.isfile(log_name):
                         if self.warn_if_missing:
@@ -136,7 +139,7 @@ class LogMergeStep(Step):
                             merged_file.write(
                                 '### WARNING Missing {} ###\n'.format(log_name))
                         continue
-                    with open(log_name) as log_file:
+                    with open(log_name, **encargs) as log_file:
                         merged_file.write('### {} ###\n'.format(log_name))
                         for line in log_file:
                             merged_file.write(line)
@@ -181,6 +184,12 @@ class RootMergeStep(Step):
             old_name = os.path.splitext(self.merged_file)
             new_name = old_name[0] + self.rename_suffix + old_name[1]
             self.executable = 'mv {} {}; {}'.format(self.merged_file, new_name, self.executable)
+        file_list = self.input_file.split()
+        for file_name in file_list:
+            if len(glob.glob(file_name)) < 1:
+                self.log.warning('%s: file %s requested to be merged but does not exist', self.name, file_name)
+                self.result = 1
+                return self.result, '# (internal) {} in={} out={} -> failed'.format(self.name, self.input_file, self.merged_file)
         return super(RootMergeStep, self).run(dry_run)
 
 
@@ -249,7 +258,7 @@ class RegTestStep(RefComparisonStep):
     def __init__(self, name='RegTest'):
         super(RegTestStep, self).__init__(name)
         self.regex = 'REGTEST'
-        self.executable = 'regtest.pl'
+        self.executable = 'regtest.py'
         self.input_base_name = 'athena'
         self.args += ' --linematch ".*"'
         self.auto_report_result = True
@@ -266,10 +275,11 @@ class RegTestStep(RefComparisonStep):
         if not os.path.isfile(log_file):
             self.log.error('%s input file %s is missing', self.name, log_file)
             return False
-        with open(log_file) as f_in:
+        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
+        with open(log_file, **encargs) as f_in:
             matches = re.findall('{}.*$'.format(self.regex),
                                  f_in.read(), re.MULTILINE)
-            with open(self.input_file, 'w') as f_out:
+            with open(self.input_file, 'w', **encargs) as f_out:
                 for line in matches:
                     f_out.write(line+'\n')
         return True
@@ -483,6 +493,7 @@ class ZeroCountsStep(Step):
         super(ZeroCountsStep, self).__init__(name)
         self.input_file = 'HLTChain.txt,HLTTE.txt,L1AV.txt'
         self.auto_report_result = True
+        self.required = True
         self.__input_files__ = None
 
     def configure(self, test=None):
@@ -495,7 +506,8 @@ class ZeroCountsStep(Step):
                 self.name, input_file)
             return -1
         lines_checked = 0
-        with open(input_file) as f_in:
+        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
+        with open(input_file, **encargs) as f_in:
             for line in f_in.readlines():
                 split_line = line.split()
                 lines_checked += 1
@@ -601,6 +613,15 @@ class MessageCountStep(Step):
         return self.result, cmd
 
 
+def produces_log(step):
+    '''
+    Helper function checking whether a Step output_stream value
+    indicates that it will produce a log file
+    '''
+    return step.output_stream == Step.OutputStream.FILE_ONLY or \
+           step.output_stream == Step.OutputStream.FILE_AND_STDOUT
+
+
 def default_check_steps(test):
     '''
     Create the default list of check steps for a test. The configuration
@@ -613,7 +634,7 @@ def default_check_steps(test):
     # Log merging
     if len(test.exec_steps) == 1:
         exec_step = test.exec_steps[0]
-        if exec_step.type == 'athenaHLT':
+        if exec_step.type == 'athenaHLT' and produces_log(exec_step):
             logmerge = LogMergeStep()
             logmerge.merged_name = 'athena.log'
             logmerge.log_files = ['athenaHLT.log']
@@ -627,6 +648,8 @@ def default_check_steps(test):
         logmerge.merged_name = 'athena.log'
         logmerge.log_files = []
         for exec_step in test.exec_steps:
+            if not produces_log(exec_step):
+                continue
             logmerge.log_files.append(exec_step.get_log_file_name())
             if exec_step.type == 'athenaHLT':
                 logmerge.extra_log_regex = 'athenaHLT:.*(.out|.err)'
@@ -643,7 +666,7 @@ def default_check_steps(test):
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
-                    'PhysicsValidation', 'RAWtoALL', 'BSFTKCreator']
+                    'PhysicsValidation', 'RAWtoALL']
         reco_tf_logmerge.log_files = ['log.'+tf_name for tf_name in tf_names]
         reco_tf_logmerge.merged_name = 'athena.merged.log'
         log_to_zip = reco_tf_logmerge.merged_name
@@ -685,7 +708,7 @@ def default_check_steps(test):
     if log_to_check is not None:
         regtest.input_base_name = os.path.splitext(log_to_check)[0]
     if 'athenaHLT' in step_types:
-        regtest.regex = r'(?:HltEventLoopMgr(?!.*athenaHLT-)|REGTEST)'
+        regtest.regex = r'(?:HltEventLoopMgr(?!.*athenaHLT-)(?!.*DF_Pid)|REGTEST)'
     check_steps.append(regtest)
 
     # Tail (probably not so useful these days)

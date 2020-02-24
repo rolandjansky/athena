@@ -83,8 +83,8 @@ StatusCode TRT_LocalOccupancy::initialize()
   ATH_MSG_INFO ("initialize() successful in " << name());
 
   //Initlalize ReadHandleKey
-  ATH_CHECK( m_trt_rdo_location.initialize() );
-  ATH_CHECK( m_trt_driftcircles.initialize() );
+  ATH_CHECK( m_trt_rdo_location.initialize(!m_trt_rdo_location.empty()) );
+  ATH_CHECK( m_trt_driftcircles.initialize(!m_trt_driftcircles.empty()) );
   ATH_CHECK( m_strawReadKey.initialize() );
 
   return StatusCode::SUCCESS;

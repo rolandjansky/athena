@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGBYTESTREAMCNVSVC_H
@@ -60,7 +60,7 @@ private:
   ServiceHandle<ITHistSvc> m_THistSvc; //< Histogramming service
 
   // ------------------------- Monitoring histograms ---------------------------
-  TH1I* m_histPscErrorCode{nullptr}; //< Histogram of PSC error codes
+  TH1I* m_histOnlineErrorCode{nullptr}; //< Histogram of online error codes
   TH1F* m_histStreamTags{nullptr}; //< Histogram of stream tags
   TH2F* m_histStreamTagsCorr{nullptr}; //< Histogram of stream tags correlation
   TH1F* m_histStreamTagsNum{nullptr}; //< Histogram of number of stream tags

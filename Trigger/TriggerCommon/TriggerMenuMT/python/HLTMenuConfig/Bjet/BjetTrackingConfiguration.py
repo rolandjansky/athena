@@ -16,7 +16,8 @@ def getSecondStageBjetTracking( inputRoI ):
     algSequence.append( parOR("SecondStageFastTrackingSequence",viewAlgs) )
 
     # Precision Tracking
-    from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjet", inputFTFtracks="TrigFastTrackFinder_Tracks_bjet" )
     algSequence += PTAlgs
 

@@ -11,7 +11,7 @@
 
 
 #include "InDetAlignGenAlgs/InDetAlignCog.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"

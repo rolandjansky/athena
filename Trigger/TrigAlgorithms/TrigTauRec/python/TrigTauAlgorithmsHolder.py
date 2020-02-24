@@ -338,13 +338,9 @@ def getTauVertexVariables():
 
     from tauRecTools.tauRecToolsConf import TauVertexVariables
     TauVertexVariables = TauVertexVariables(  name = _name,
-                                              Key_vertexInputContainer = "",
                                               TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                               VertexFitter = getTauAdaptiveVertexFitter(),
-                                              #VertexFitter = "Trk::AdaptiveVertexFitter/InDetAdaptiveVxFitterTool",
                                               SeedFinder = getTauCrossDistancesSeedFinder(),
-                                              Key_trackPartInputContainer = "" # ATM only needed in case old API is used
-                                              #OutputLevel = 2
                                               )
     
     cached_instances[_name] = TauVertexVariables    
@@ -491,9 +487,6 @@ def getPi0BonnSelector():
     cached_instances[_name] = TauPi0BonnSelector
     return TauPi0BonnSelector
 
-
-
-
 #########################################################################
 # Photon Shot Finder algo
 def getTauShotFinder():    
@@ -502,27 +495,15 @@ def getTauShotFinder():
     if _name in cached_instances:
         return cached_instances[_name]
     
-    #from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
-    #TauCellContainerFinalizer = CaloCellContainerFinalizerTool(name=sPrefix+'tauShotCellContainerFinalizer')
-    #from AthenaCommon.AppMgr import ToolSvc
-    #ToolSvc += TauCellContainerFinalizer
-    
     from tauRecTools.tauRecToolsConf import TauShotFinder
     TauShotFinder = TauShotFinder(name = _name,
         CaloWeightTool = getCellWeightTool(),
-        BDTWeightFile_barrel =  "TauShotsBDTWeights.xml",
-        BDTWeightFile_endcap1 = "TauShotsBDTWeights.xml",
-        BDTWeightFile_endcap2 = "TauShotsBDTWeights.xml",
         NCellsInEta           = 5,
         MinPtCut              = (400.*MeV,320.*MeV,9999999.*MeV,350.*MeV,320.*MeV),
         AutoDoubleShotCut     = (10000.*MeV,10000.*MeV,9999999.*MeV,10000.*MeV,10000.*MeV),
-        MergedBDTScoreCut     = (-9999999.,-9999999.,-9999999.,-9999999.,-9999999.),
         )
     cached_instances[_name] = TauShotFinder
     return TauShotFinder
-
-
-
 
 #########################################################################
 def getInDetTrackSelectionToolForTJVA():

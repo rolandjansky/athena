@@ -1,4 +1,4 @@
-print 'SINGLE PARTICLE GENERATOR'
+printfunc ('SINGLE PARTICLE GENERATOR')
 ## Run ParticleGenerator
 # One neutron and one photon per side
 import AthenaCommon.AtlasUnixGeneratorJob
@@ -14,7 +14,7 @@ job += pg
 
 include("G4AtlasApps/fragment.SimCopyWeights.py")
 
-print "As this is a single particle generator job turn off VertexPositioner"
+printfunc ("As this is a single particle generator job turn off VertexPositioner")
 simFlags.EventFilter.get_Value()['VertexPositioner'] = False
 simFlags.EventFilter.get_Value()['BeamEffectTransformation'] = False
 simFlags.EventFilter.get_Value()['PrimaryEventRotations'] = False
@@ -23,6 +23,6 @@ simFlags.VertexFromCondDB= False
 try:
     include('ForwardTransportSvc/preInclude.ForwardTransportFlags_3.5TeV_0000.55m_nominal_v01.py')
 except:
-    print "forwardTransportFlags not available in this release."
+    printfunc ("forwardTransportFlags not available in this release.")
 
 include('ForwardTransportSvc/ForwardTransportSvcConfig.ZDC.py')

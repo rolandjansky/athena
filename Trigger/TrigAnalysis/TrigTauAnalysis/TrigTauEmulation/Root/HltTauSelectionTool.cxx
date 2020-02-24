@@ -63,7 +63,7 @@ HltTauSelectionTool::~HltTauSelectionTool() {
 StatusCode HltTauSelectionTool::initialize()
 
 {
-  // #ifdef ASGTOOL_STANDALONE
+  // #ifdef XAOD_STANDALONE
   //   if (m_recalculateBDTscore) {
   //     m_tauIDTool = new ToolHandle<TauDiscriminantTool>(m_TauDiscriminantToolName);
   //     m_tauIDTool->operator->()->initialize().ignore();
@@ -114,7 +114,7 @@ asg::AcceptData HltTauSelectionTool::accept(const xAOD::TauJet *hlttau, const Da
   asg::AcceptData acceptData (&m_accept);
   acceptData.setCutResult("HltTau", false);
 
-// #ifdef ASGTOOL_STANDALONE
+// #ifdef XAOD_STANDALONE
 //   if (m_recalculateBDTscore) {
 //     MY_MSG_INFO("Recalculating BDT score for HLT tau " << hlttau);
 
@@ -147,7 +147,7 @@ asg::AcceptData HltTauSelectionTool::accept(const xAOD::TauJet * hlttau, const x
   asg::AcceptData acceptData (&m_accept);
   acceptData.setCutResult("HltTau", false);
 
-  // #ifdef ASGTOOL_STANDALONE
+  // #ifdef XAOD_STANDALONE
   //   if (m_recalculateBDTscore) {
   //     MY_MSG_INFO("Recalculating BDT score for HLT tau " << hlttau);
   

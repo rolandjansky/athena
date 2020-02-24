@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/SCT_ConditionsTools
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRawEvent/InDetRawData
                           MagneticField/MagFieldInterfaces
@@ -48,7 +49,7 @@ atlas_add_component( SCT_Monitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaMonitoringLib GaudiKernel InDetReadoutGeometry InDetPrepRawData MagFieldInterfaces ITrackToVertex TrkTrack TrkToolInterfaces CommissionEvent AthenaKernel AthContainers Identifier InDetIdentifier InDetRawData InDetRIO_OnTrack LWHists PathResolver TrkSurfaces TrkEventUtils TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkSpacePoint TrkTrackSummary )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaMonitoringLib GaudiKernel InDetReadoutGeometry SCT_ReadoutGeometry InDetPrepRawData MagFieldInterfaces ITrackToVertex TrkTrack TrkToolInterfaces CommissionEvent AthenaKernel AthContainers Identifier InDetIdentifier InDetRawData InDetRIO_OnTrack LWHists PathResolver TrkSurfaces TrkEventUtils TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkSpacePoint TrkTrackSummary )
 
 # Run tests:
 atlas_add_test( SCTLorentzMonAlg_test

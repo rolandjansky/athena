@@ -4,4 +4,4 @@
 # Valerio Ippolito - Harvard University
 from AthenaCommon.CfgGetter import addService
 
-addService('MagFieldServices.MagFieldServicesConfig.GetFieldSvc', 'AtlasFieldSvc')
+addService('MagFieldServices.MagFieldServicesSetup.GetFieldSvc', 'AtlasFieldSvc')

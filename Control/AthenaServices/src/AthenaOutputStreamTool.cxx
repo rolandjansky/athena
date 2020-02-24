@@ -453,8 +453,12 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
             if ((*doIter)->clID() != 1 || addr->par()[0] != "\n") {
                if ((*doIter)->clID() != ClassID_traits<DataHeader>::ID()) {
                   m_dataHeader->insert(proxy, addr);
+                  if (m_store->storeID() != StoreID::EVENT_STORE) proxy->setAddress(addr);
                } else {
                   m_dataHeader->insert(proxy, addr, m_processTag);
+               }
+               if (m_store->storeID() == StoreID::EVENT_STORE) {
+                  delete addr; addr = nullptr;
                }
             }
          } else {
@@ -478,6 +482,7 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
                } else {
                   m_dataHeader->insert(proxy, addr, m_processTag);
                }
+               delete addr; addr = nullptr;
             }
          } else {
             ATH_MSG_ERROR("Could not fill Object Refs for DataHeader");

@@ -8,8 +8,8 @@
 #include "InDetIdentifier/PixelID.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "TrigL2LayerSetPredictorTool.h"
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"

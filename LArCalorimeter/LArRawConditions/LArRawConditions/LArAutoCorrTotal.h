@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARAUTOCORRTOTAL
@@ -35,7 +35,7 @@ public:
   bool set(const IdentifierHash &hid, const int gain,
            std::vector<float> &autocorrtotal);
 
-  const std::vector<double> computeAutoCorr(const std::vector<float> terms,
+  const std::vector<double> computeAutoCorr(const std::vector<float>& terms,
                                             float Nminbias) const;
 
   const std::vector<double> autoCorrTotal(const IdentifierHash &hid, int gain,
@@ -45,7 +45,7 @@ public:
   const std::vector<double> autoCorrTotal(const Identifier &id, int gain,
                                           float Nminbias) const;
 
-  const std::vector<double> computeRMS(const std::vector<float> terms,
+  const std::vector<double> computeRMS(const std::vector<float>& terms,
                                        float Nminbias) const;
 
   const std::vector<double> samplRMS(const IdentifierHash &hid, int gain,

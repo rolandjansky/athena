@@ -5,7 +5,7 @@
 #include "PixelChargeCalibCondAlg.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "GaudiKernel/EventIDRange.h"
 #include <memory>
 #include <sstream>
@@ -77,7 +77,7 @@ StatusCode PixelChargeCalibCondAlg::execute() {
 
     for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
       CondAttrListCollection::ChanNum channelNumber = attrList->first;
-      CondAttrListCollection::AttributeList payload = attrList->second;
+      const CondAttrListCollection::AttributeList& payload = attrList->second;
 
       if (payload.exists("data") and not payload["data"].isNull()) {
         std::string stringStatus = payload["data"].data<std::string>();

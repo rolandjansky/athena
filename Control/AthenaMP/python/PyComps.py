@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #-----Python imports---#
 import os, sys, time, shutil
@@ -23,7 +23,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         os.putenv('XRD_ENABLEFORKHANDLERS','1')
         os.putenv('XRD_RUNFORKHANDLER','1')
 
-        from AthenaMPFlags import jobproperties as jp
+        from .AthenaMPFlags import jobproperties as jp
         self.WorkerTopDir = jp.AthenaMPFlags.WorkerTopDir()
         self.OutputReportFile = jp.AthenaMPFlags.OutputReportFile()
         self.CollectSubprocessLogs = jp.AthenaMPFlags.CollectSubprocessLogs()
@@ -56,7 +56,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         self.configureStrategy(self.Strategy,self.IsPileup,self.EventsBeforeFork)
         
     def configureStrategy(self,strategy,pileup,events_before_fork):
-        from AthenaMPFlags import jobproperties as jp
+        from .AthenaMPFlags import jobproperties as jp
         from AthenaCommon.ConcurrencyFlags import jobproperties as jp
         event_range_channel = jp.AthenaMPFlags.EventRangeChannel()
         if (jp.AthenaMPFlags.ChunkSize() > 0):
@@ -106,10 +106,10 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
                 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
                 from AthenaIPCTools.AthenaIPCToolsConf import AthenaSharedMemoryTool
                 svcMgr.EventSelector.SharedMemoryTool = AthenaSharedMemoryTool("EventStreamingTool")
-                if sys.modules.has_key('AthenaPoolCnvSvc.ReadAthenaPool'):
+                if 'AthenaPoolCnvSvc.ReadAthenaPool' in sys.modules:
                     svcMgr.AthenaPoolCnvSvc.InputStreamingTool = AthenaSharedMemoryTool("InputStreamingTool")
             if use_shared_writer:
-                if sys.modules.has_key('AthenaPoolCnvSvc.WriteAthenaPool'):
+                if 'AthenaPoolCnvSvc.WriteAthenaPool' in sys.modules:
                     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
                     from AthenaIPCTools.AthenaIPCToolsConf import AthenaSharedMemoryTool
                     svcMgr.AthenaPoolCnvSvc.OutputStreamingTool += [ AthenaSharedMemoryTool("OutputStreamingTool_0") ]
@@ -176,12 +176,12 @@ def setupEvtSelForSeekOps():
    #import sys
    #from AthenaCommon.Logging import log as msg
    msg.debug("setupEvtSelForSeekOps:")
-   if sys.modules.has_key('AthenaRootComps.ReadAthenaRoot'):
+   if 'AthenaRootComps.ReadAthenaRoot' in  sys.modules:
        # athenarootcomps has seeking enabled by default
        msg.info('=> Seeking enabled.')
        return
    
-   if not sys.modules.has_key('AthenaPoolCnvSvc.ReadAthenaPool'):
+   if 'AthenaPoolCnvSvc.ReadAthenaPool' not in sys.modules:
       ## user did not import that module so we give up
       msg.info( "Cannot enable 'seeking' b/c module " + \
                  "[AthenaPoolCnvSvc.ReadAthenaPool] hasn't been imported..." )

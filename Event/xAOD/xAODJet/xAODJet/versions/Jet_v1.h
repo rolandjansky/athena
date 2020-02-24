@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODJET_VERSIONS_JET_V1_H
@@ -16,9 +16,9 @@
 // xAOD include(s):
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
-#ifndef SIMULATIONBASE
+#if !defined(SIMULATIONBASE) and !defined(GENERATIONBASE)
 #include "xAODBTagging/BTaggingContainer.h"
-#endif //SIMULATIONBASE
+#endif // not SIMULATIONBASE or GENERATIONBASE
 
 // Local include(s):
 //#include "xAODJet/JetConstituentIterator.h"
@@ -236,14 +236,14 @@ namespace xAOD {
     /// Set  number by enum
     template<class T>
     void setAttribute( AttributeID type, const T& value );
-#ifndef SIMULATIONBASE
+#if !defined(SIMULATIONBASE) and !defined(GENERATIONBASE)
     /// Access to the associated btagging object
     const BTagging* btagging() const;
     /// Access to the associated btagging object
     const ElementLink< BTaggingContainer >& btaggingLink() const;
     /// Access to btagging objects
     void setBTaggingLink( const ElementLink< BTaggingContainer>& el );
-#endif
+#endif // not SIMULATIONBASE or GENERATIONBASE
 
     /// @}
     ////////////////////////////////////////////////////////    

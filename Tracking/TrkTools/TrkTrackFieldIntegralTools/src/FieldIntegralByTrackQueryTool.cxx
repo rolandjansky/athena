@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,8 +25,8 @@ Trk::FieldIntegralByTrackQueryTool::FieldIntegralByTrackQueryTool(const std::str
   :
   AthAlgTool(t,name,poff),
   m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc",name),
-  m_indetVolume(0),
-  m_caloVolume(0)
+  m_indetVolume(nullptr),
+  m_caloVolume(nullptr)
 
 {
   declareInterface<ITrackMagneticFieldIntegrator>(this);
@@ -95,7 +95,7 @@ double Trk::FieldIntegralByTrackQueryTool::fieldIntegral(const Trk::Track& track
   bool   haveMeasurements                = false;
   Amg::Vector3D integratedMomentumKick  = Amg::Vector3D(0.,0.,0.);
   const Trk::TrackParameters* parameters      = track.perigeeParameters();
-  if (parameters == NULL) {
+  if (parameters == nullptr) {
     ATH_MSG_INFO ("no perigee on track: convention violation or missing code "<<
 		  "in this tool. Will bail out...");
     return 0.0;
@@ -103,18 +103,18 @@ double Trk::FieldIntegralByTrackQueryTool::fieldIntegral(const Trk::Track& track
 
   // advance track parameters such that field integration can start in either ID or MS
   if (takeMS && m_indetVolume->inside(parameters->position()) ) {
-    parameters = NULL;
+    parameters = nullptr;
 
     // there is no defined state for MS entrance? Instead search a bit on the parameter vector...
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator
 	   s = track.trackStateOnSurfaces()->begin();
 	 s != track.trackStateOnSurfaces()->end();
 	 ++s) {
-      if ((**s).trackParameters() == NULL) continue;
+      if ((**s).trackParameters() == nullptr) continue;
       if ( !m_caloVolume->inside((**s).trackParameters()->position()) &&
 	   (**s).type(Trk::TrackStateOnSurface::Measurement) &&
 	   !(**s).type(Trk::TrackStateOnSurface::Outlier) && 
-	   dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**s).measurementOnTrack())==NULL) break;
+	   dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**s).measurementOnTrack())==nullptr) break;
       parameters = (**s).trackParameters(); // gets us the pars before 1st MS meas't
     }
   }

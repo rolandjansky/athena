@@ -16,8 +16,8 @@
 #include "TRTDigiHelper.h"
 
 //TRT detector information:
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_Numerology.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_Numerology.h"
 
 //helpers for identifiers and hitids (only for debug methods):
 #include "InDetIdentifier/TRT_ID.h"

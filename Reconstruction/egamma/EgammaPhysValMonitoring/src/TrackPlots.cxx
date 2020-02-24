@@ -1,22 +1,24 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <utility>
 
 #include "TrackPlots.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
  
 namespace Egamma{
 
-TrackPlots::TrackPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir), 
-										       m_sParticleType(sParticleType),
-										       deta(0),
-										       dphi(0),
-										       blayer(0), 
-										       pixel(0),
-										       sct(0),
-										       si(0),
-										       trt(0),
-										       trtratio(0)
+TrackPlots::TrackPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType):PlotBase(pParent, sDir), 
+										       m_sParticleType(std::move(sParticleType)),
+										       deta(nullptr),
+										       dphi(nullptr),
+										       blayer(nullptr), 
+										       pixel(nullptr),
+										       sct(nullptr),
+										       si(nullptr),
+										       trt(nullptr),
+										       trtratio(nullptr)
 
 {}	
 
@@ -34,7 +36,8 @@ void TrackPlots::initializePlots(){
 
 void TrackPlots::fill(const xAOD::Electron& electron){
 
-  float deta1(0), dphi2 (0);
+  float deta1(0);
+  float dphi2 (0);
   if(electron.trackCaloMatchValue(deta1, xAOD::EgammaParameters::deltaEta1 )){
     deta->Fill(deta1);
   }

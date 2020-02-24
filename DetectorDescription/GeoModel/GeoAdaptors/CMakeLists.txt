@@ -12,9 +12,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloSimEvent
                           Control/StoreGate
                           DetectorDescription/Identifier
-			              DetectorDescription/GeoPrimitives
+			  DetectorDescription/GeoPrimitives
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/PixelReadoutGeometry
+			  InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetSimEvent
                           LArCalorimeter/LArSimEvent
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -31,5 +34,5 @@ atlas_add_library( GeoAdaptors
                    PUBLIC_HEADERS GeoAdaptors
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier CaloSimEvent Identifier InDetIdentifier InDetReadoutGeometry InDetSimEvent LArSimEvent MuonReadoutGeometry MuonPrepRawData MuonSimEvent CaloDetDescrLib StoreGateLib SGtests MuonIdHelpersLib )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier CaloSimEvent Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry InDetSimEvent LArSimEvent MuonReadoutGeometry MuonPrepRawData MuonSimEvent CaloDetDescrLib StoreGateLib SGtests MuonIdHelpersLib )
 

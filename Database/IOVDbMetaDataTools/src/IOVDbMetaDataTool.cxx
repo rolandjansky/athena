@@ -283,7 +283,7 @@ StatusCode IOVDbMetaDataTool::addPayload (const std::string& folderName
   }
 
   // Debug printout
-  if(msgLvl(MSG::DEBUG)) {
+  if(payload && msgLvl(MSG::DEBUG)) {
     std::ostringstream stream;
     payload->dump(stream);
     ATH_MSG_DEBUG(stream.str());

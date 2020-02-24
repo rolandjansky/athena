@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ##
 # @file DCubeClient/python/DCubeApp.py
 # @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
@@ -126,7 +126,7 @@ class DCubeApp( DCubeObject ):
                 self.error( "wrong set of CLI options, neither generation of config (-g) nor test suite excecution (-c CONFIG.XML MONITORED.root) specified" )
                 sys.exit(-1)
 
-        except DCubeException, value:
+        except DCubeException as value:
             self.epanic( value )
             self.epanic("*** FAILURE ***")
             sys.exit(-1)
@@ -170,13 +170,13 @@ class DCubeApp( DCubeObject ):
             try:
                 pfail = float ( pvalues[0].getAttribute("fail") )
                 self.__update( "pfail", pfail )
-            except TypeError, value:
+            except TypeError as value:
                 raise DCubeException( "pvalue limit for FAIL is NAN - %s" % str(value) )
 
             try:
                 pwarn = float( pvalues[0].getAttribute( "warn" ) )
                 self.__update( "pwarn", pwarn )
-            except TypeError, value:
+            except TypeError as value:
                 raise DCubeException( "pvalue limit for WARN is NAN - %s" % str(value) )
 
         referenceNode = None
@@ -237,7 +237,7 @@ class DCubeApp( DCubeObject ):
             if self.exists(self.referenceURI):
                 try:
                     self.refTFile = ROOT.TFile.Open(self.referenceURI, "READ")
-                except Exception, value:
+                except Exception as value:
                     self.epanic( "cannot get handle for reference root file, all tests will be skipped, reason: %s" % str(value) )
             else:
                 self.warn("reference root file not exists, all tests will be skipped!")
@@ -246,7 +246,7 @@ class DCubeApp( DCubeObject ):
             if ( self.exists( self.monitoredURI ) ):
                 try:
                     self.monTFile = ROOT.TFile.Open( self.monitoredURI , "READ")
-                except Exception, value:
+                except Exception as value:
                     msg = "cannot get handle for monitored root file, reason: %s" % str(value)
                     raise DCubeException( msg )
             else:
@@ -378,7 +378,7 @@ class DCubeApp( DCubeObject ):
                   fileXML.write( line+"\n" )
           fileXML.close()
           self.info("DCube output has been saved to file %s" % outputURI )
-        except IOError, value:
+        except IOError as value:
             msg = "creation of XML output file %s failed - %s" % ( outputURI, str(value) )
             self.epanic( msg )
             return False
@@ -402,7 +402,7 @@ class DCubeApp( DCubeObject ):
             try:
                 os.rename( fileURI, backupURI )
                 self.info("backup file %s from file %s has been created" % ( backupURI, fileURI ) )
-            except OSError, value:
+            except OSError as value:
                 msg = "creation of backup file %s failed - %s" % ( backupURI, str(value) )
                 self.epanic( msg )
 
@@ -441,7 +441,7 @@ class DCubeApp( DCubeObject ):
                 filePHP.close()
                 self.debug("out php file has been created")
                 phpOK = True
-            except Exception, value:
+            except Exception as value:
                 self.error("can't create output PHP file %s, reason - %s" % ( phpURI, str(value) ) )
 
             logOK = False
@@ -451,7 +451,7 @@ class DCubeApp( DCubeObject ):
                 filePHP.close()
                 self.debug("log php file has been created")
                 logOK = True
-            except Exception, value:
+            except Exception as value:
                 self.error("can't create log PHP file %s, reason - %s" % ( logURI, str(value) ) )
 
             return ( phpOK and logOK )
@@ -484,7 +484,7 @@ class test_DCubeApp( unittest.TestCase ):
 
         self.sysExitHolder = sys.exit
         def exitCode( value ):
-            print "sys.exit called with value %s" % str(value)
+            print("sys.exit called with value %s" % str(value))
         sys.exit = exitCode
 
     ## test contructor

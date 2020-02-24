@@ -43,6 +43,9 @@ class PixelCablingCondAlg : public AthReentrantAlgorithm {
     const PixelID* m_pixelID{nullptr};
     ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
+    Gaudi::Property<bool> m_recordInInitialize
+    {this, "RecordInInitialize", true, "(Temporary) write the cond object in initialize"};
+
     // Keep this untile SegionSelectorTable is fixed.
     Gaudi::Property<uint32_t> m_rodidForSingleLink40
     {this, "RodIDForSingleLink40", 0, "(Temporary) const link speed"};

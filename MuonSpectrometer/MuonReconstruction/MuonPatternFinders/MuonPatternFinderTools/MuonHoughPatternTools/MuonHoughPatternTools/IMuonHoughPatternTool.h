@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IAlgTool.h"
@@ -23,12 +23,16 @@ class IMuonHoughPatternTool : virtual public IAlgTool
   static const InterfaceID& interfaceID();
   
   /** Builds Patterns */
-  virtual void makePatterns(const MuonHoughHitContainer* hitcontainer) const = 0;
+  virtual void makePatterns(const MuonHoughHitContainer* hitcontainer, MuonHoughPatternContainerShip& houghpatterns) const = 0;
 
   /** returns phi patterns */
-  virtual MuonPrdPatternCollection* getPhiMuonPatterns() const = 0;  
+  virtual MuonPrdPatternCollection* getPhiMuonPatterns(MuonHoughPatternContainerShip& houghpatterns) const = 0;  
   /** returns eta patterns */
-  virtual MuonPrdPatternCollection* getEtaMuonPatterns() const =0;
+  virtual MuonPrdPatternCollection* getEtaMuonPatterns(MuonHoughPatternContainerShip& houghpatterns) const =0;
+  /** returns houghpatterns arrays*/
+  virtual MuonHoughPatternContainerShip emptyHoughPattern() const =0;
+  /** resets houghpattern arrays*/
+  virtual void reset(MuonHoughPatternContainerShip& houghpattern) const =0;
 };
 
 inline const InterfaceID& IMuonHoughPatternTool::interfaceID()

@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 ///////////////////////// -*- C++ -*- /////////////////////////////
 // SetProperty.h 
 // Methods that are useful for working with AsgTools

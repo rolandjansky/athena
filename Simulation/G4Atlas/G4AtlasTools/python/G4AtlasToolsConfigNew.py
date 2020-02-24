@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -104,16 +104,15 @@ def generateInDetSensitiveDetectorList(ConfigFlags):
     isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (ConfigFlags.GeoModel.Run=="UNDEFINED" )#and geoFlags.isIBL()) #isIBL may cause issues later....
     isRUN1 = not (isRUN2 or isUpgrade)
 
-    if (isRUN1 or isRUN2) and ConfigFlags.Detector.SimulateBCM:
-        accBCM, toolBCM = BCMSensorSDCfg(ConfigFlags)
-        SensitiveDetectorList += [ toolBCM ]
-        result.merge(accBCM)
-
     if ConfigFlags.Detector.SimulatePixel:
         if isRUN1 or isRUN2:
-            accBLM, toolBLM = BLMSensorSDCfg(ConfigFlags)
-            SensitiveDetectorList += [ toolBLM ]
-            result.merge(accBLM)
+            if ConfigFlags.Detector.SimulateBCM:
+                accBCM, toolBCM = BCMSensorSDCfg(ConfigFlags)
+                SensitiveDetectorList += [ toolBCM ]
+                result.merge(accBCM)
+                accBLM, toolBLM = BLMSensorSDCfg(ConfigFlags)
+                SensitiveDetectorList += [ toolBLM ]
+                result.merge(accBLM)
         accPixel, toolPixel = PixelSensorSDCfg(ConfigFlags)
         SensitiveDetectorList += [ toolPixel ]
         result.merge(accPixel)

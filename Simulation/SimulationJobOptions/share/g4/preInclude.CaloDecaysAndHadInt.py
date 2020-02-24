@@ -8,8 +8,8 @@
 ###############################################################################
 
 def add_calo_decay_truth_strategies():
-    print "ERROR add_calo_decay_truth_strategies is obsolete"
-    print "Please request a replacement configuration"
+    printfunc ("ERROR add_calo_decay_truth_strategies is obsolete")
+    printfunc ("Please request a replacement configuration")
     import sys
     sys.exit(1)
     ## ## Modifying truth strategies as requested by e/gamma group

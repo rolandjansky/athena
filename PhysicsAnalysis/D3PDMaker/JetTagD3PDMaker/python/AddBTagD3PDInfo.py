@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 #
 ## @file JetTagD3PDMaker/python/AddBTagInfoToJetObject.py
@@ -131,12 +132,12 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
         from AthenaCommon.AppMgr import ToolSvc
         if hasattr(ToolSvc, 'BTagTrackToVertexIPEstimator'):
             JetTagD3PDTrackToVertexIPEstimator=ToolSvc.BTagTrackToVertexIPEstimator
-            print "JetTagD3PD Info: found BTagTrackToVertexIPEstimator"
+            print ("JetTagD3PD Info: found BTagTrackToVertexIPEstimator")
         elif hasattr(ToolSvc, 'JetTagD3PDTrackToVertexIPEstimator'):
-            print "JetTagD3PD Info: found JetTagD3PDTrackToVertexIPEstimator"
+            print ("JetTagD3PD Info: found JetTagD3PDTrackToVertexIPEstimator")
             JetTagD3PDTrackToVertexIPEstimator=ToolSvc.JetTagD3PDTrackToVertexIPEstimator
         else:
-            print "JetTagD3PD Info: configure TrackToVertexIPEstimator"
+            print ("JetTagD3PD Info: configure TrackToVertexIPEstimator")
             from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
             extrap = AtlasExtrapolator()
             ToolSvc += extrap

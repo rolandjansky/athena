@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ShowerShapesHistograms.h"
@@ -50,7 +50,19 @@ StatusCode ShowerShapesHistograms::initializePlots() {
 
 void ShowerShapesHistograms::fill(const xAOD::Egamma& egamma) {
 
-  float eta2 = -999, rhad = -999, rhad1 = -999, hadrleak = -999, Reta = -999, Rphi = -999, shweta2 = -999, Eratio = -999, DeltaE = -999, frac_f1 = -999, shfside = -999, shwtots1= -999, shws3= -999; 
+  float eta2 = -999;
+  float rhad = -999;
+  float rhad1 = -999;
+  float hadrleak = -999;
+  float Reta = -999;
+  float Rphi = -999;
+  float shweta2 = -999;
+  float Eratio = -999;
+  float DeltaE = -999;
+  float frac_f1 = -999;
+  float shfside = -999;
+  float shwtots1= -999;
+  float shws3= -999; 
   
   eta2 = fabs(egamma.caloCluster()->etaBE(2));
   

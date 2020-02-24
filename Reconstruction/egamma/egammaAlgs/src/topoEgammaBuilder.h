@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_TOPOEGAMMABUILDER_H
@@ -32,6 +32,7 @@
 
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 #include "egammaInterfaces/IEMClusterTool.h" 
+#include "egammaInterfaces/IEMShowerBuilder.h" 
 #include "egammaInterfaces/IegammaBaseTool.h" 
 class egammaRec;
 
@@ -65,12 +66,17 @@ private:
 
     /** @brief Tool to do the final electron/photon cluster building */
     ToolHandle<IEMClusterTool> m_clusterTool {this, 
-        "EMClusterTool", "EMClusterTool", 
+        "EMClusterTool", "egammaTools/EMClusterTool", 
         "Tool that does electron/photon final cluster building"};
+
+    /** @brief Tool to do the final electron/photon cluster building */
+    ToolHandle<IEMShowerBuilder> m_ShowerTool {this, 
+        "EMShowerTool", "egammaTools/EMShowerBuilder", 
+        "Tool that does electron/photon shower shape building"};
 
     /** @brief Tool to resolve electron/photon ambiguity */
     ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool {this, 
-        "AmbiguityTool", "EGammaAmbiguityTool", 
+        "AmbiguityTool", "egammaTools/EGammaAmbiguityTool", 
         "Tool that does electron/photon ambiguity resolution"};
 
 

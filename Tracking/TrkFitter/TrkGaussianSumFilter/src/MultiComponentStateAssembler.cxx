@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -19,9 +19,8 @@ namespace {
 class SortByLargerSimpleComponentWeight
 {
 public:
-  SortByLargerSimpleComponentWeight()= default;
-  bool operator()(const Trk::ComponentParameters& firstComponent,
-                  const Trk::ComponentParameters& secondComponent) const
+  SortByLargerSimpleComponentWeight() = default;
+  bool operator()(const Trk::ComponentParameters& firstComponent, const Trk::ComponentParameters& secondComponent) const
 
   {
     return firstComponent.second > secondComponent.second;
@@ -176,7 +175,7 @@ Trk::MultiComponentStateAssembler::doStateAssembly(Cache& cache, const double ne
   std::unique_ptr<Trk::MultiComponentState> assembledState = std::make_unique<Trk::MultiComponentState>();
   double scalingFactor = cache.validWeightSum > 0. ? newWeight / cache.validWeightSum : 1.;
   for (auto& component : cache.multiComponentState) {
-    assembledState->emplace_back(component.first.release(), component.second*scalingFactor);
+    assembledState->emplace_back(component.first.release(), component.second * scalingFactor);
   }
 
   // Reset the cache before leaving

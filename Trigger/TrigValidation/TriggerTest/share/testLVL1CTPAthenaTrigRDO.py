@@ -70,8 +70,8 @@ include("TriggerTest/TriggerTestCommon.py")
 #------------------------------------------------------------
 
 
-#print AlgSequence()
-#print ServiceMgr
-print DetFlags
-print TriggerFlags
+#printfunc (AlgSequence())
+#printfunc (ServiceMgr)
+printfunc (DetFlags)
+printfunc (TriggerFlags)
 

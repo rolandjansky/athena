@@ -84,22 +84,14 @@ HIGG8D1ThinningHelper.AppendToStream( HIGG8D1Stream )
 
 # MET/Jet tracks
 thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-HIGG8D1MetTPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG8D1MetTPThinningTool",
-                                                                      ThinningService        = HIGG8D1ThinningHelper.ThinningSvc(), #"HIGG8D1ThinningSvc
-                                                                      SelectionString        = thinning_expression,
-                                                                      InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                      ApplyAnd               = True)
-ToolSvc += HIGG8D1MetTPThinningTool
-thinningTools.append(HIGG8D1MetTPThinningTool)
 
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG8D1JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG8D1JetTPThinningTool",
-                                                                ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                                StreamName              = streamName,
                                                                 JetKey                  = "AntiKt4EMTopoJets",
                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
+                                                                TrackSelectionString    = thinning_expression)
 ToolSvc += HIGG8D1JetTPThinningTool
 thinningTools.append(HIGG8D1JetTPThinningTool)
 
@@ -107,7 +99,7 @@ thinningTools.append(HIGG8D1JetTPThinningTool)
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 HIGG8D1MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "HIGG8D1MuonTPThinningTool",
-                                                                           ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                                           StreamName              = streamName,
                                                                            MuonKey                 = "Muons",
                                                                            InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG8D1MuonTPThinningTool
@@ -116,7 +108,7 @@ thinningTools.append(HIGG8D1MuonTPThinningTool)
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 HIGG8D1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "HIGG8D1ElectronTPThinningTool",
-                                                                                 ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
                                                                                  SGKey                   = "Electrons",
                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG8D1ElectronTPThinningTool
@@ -125,7 +117,7 @@ thinningTools.append(HIGG8D1ElectronTPThinningTool)
 # Tracks associated with Taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 HIGG8D1TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "HIGG8D1TauTPThinningTool",
-                                                                          ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                                          StreamName              = streamName,
                                                                           TauKey                  = "TauJets",
                                                                           SelectionString         = "TauJets.pt > 15*GeV",
                                                                           ConeSize                = 0.6,

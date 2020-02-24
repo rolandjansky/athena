@@ -1,7 +1,5 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonPhysValMonitoringTool.cxx 
@@ -30,7 +28,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 // Tools
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"

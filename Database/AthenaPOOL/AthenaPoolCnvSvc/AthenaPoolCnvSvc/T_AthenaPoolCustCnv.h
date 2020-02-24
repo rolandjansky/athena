@@ -45,7 +45,7 @@ protected:
 
    /// Set POOL placement for type P.
    template <class P>
-   void setPlacementForP(P& p, const std::string& key, const std::string& output);
+   Placement setPlacementForP(P& p, const std::string& key, const std::string& output);
 
    /// Convert an object into Persistent.
    /// @param pObj [IN] pointer to the transient object.

@@ -51,24 +51,14 @@ TauTrackFinder::~TauTrackFinder() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauTrackFinder::initialize() {
 
-    // Get the TrackSelectorTool
+    // retrieve tools
     ATH_CHECK( m_trackSelectorTool_tau.retrieve() );
-
-    // Get the TJVA
     ATH_CHECK( m_trackToVertexTool.retrieve() );
     ATH_CHECK( m_caloExtensionTool.retrieve() );
-
+    
+    // initialize ReadHandleKey
     ATH_CHECK( m_trackPartInputContainer.initialize(!m_trackPartInputContainer.key().empty()) );
-
-    ATH_CHECK(m_ParticleCacheKey.initialize(!m_ParticleCacheKey.key().empty()));
-  
-    if(m_caloExtensionTool.retrieve().isFailure()){
-        ATH_MSG_ERROR("initialize: Cannot retrieve " << m_caloExtensionTool);
-        return StatusCode::FAILURE;
-    } else {
-        ATH_MSG_VERBOSE("Successfully retrieved Extrapolation tool "
-                << m_caloExtensionTool.typeAndName());
-    }
+    ATH_CHECK( m_ParticleCacheKey.initialize(!m_ParticleCacheKey.key().empty()) );
 
     return StatusCode::SUCCESS;
 }
@@ -97,7 +87,6 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
 
   if (m_trackPartInputContainer.key().empty())   {
     ATH_CHECK(tauEventData()->getObject( "TrackContainer", trackParticleCont ));    
-    //ATH_CHECK(tauEventData()->getObject( "TauTrackContainer", tauTrackCon ));
   }
   else {
     // Get the track particle container from StoreGate   
@@ -209,9 +198,6 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
   pTau.setDetail(xAOD::TauJetParameters::nChargedTracks, (int) pTau.nTracks());
   pTau.setDetail(xAOD::TauJetParameters::nIsolatedTracks, (int) pTau.nTracks(xAOD::TauJetParameters::classifiedIsolation));
 
-  /// was
-  // for (unsigned int i = 0; i < otherTracks.size(); ++i)
-  //     details->addOtherTrk(trackParticleCont, otherTracks.at(i));
   for (unsigned int i = 0; i < otherTracks.size(); ++i) {
     const xAOD::TrackParticle* trackParticle = otherTracks.at(i);
 
@@ -263,7 +249,6 @@ TauTrackFinder::TauTrackType TauTrackFinder::tauTrackType( const xAOD::TauJet& p
         const xAOD::TrackParticle& trackParticle,
         const xAOD::Vertex* primaryVertex)
 {
-    //ATH_MSG_VERBOSE("tau axis:" << pTau.hlv().perp()<< " " << pTau.hlv().eta() << " " << pTau.hlv().phi()  << " " << pTau.hlv().e() );
     double dR = Tau1P3PKineUtils::deltaR(pTau.eta(),pTau.phi(),trackParticle.eta(),trackParticle.phi());
 
     if (dR > m_maxJetDr_wide) return NotTauTrack;
@@ -309,11 +294,8 @@ void TauTrackFinder::getTauTracksFromPV( const xAOD::TauJet& pTau,
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
 
-    //apparently unused: const int numOfsampEM = 4;
-
     Trk::TrackParametersIdHelper parsIdHelper;
 
-    //    for (unsigned int itr = 0; itr < 10 && itr < pTau.nAllTracks(); ++itr) {
     int trackIndex = -1;
     const Trk::CaloExtension * caloExtension = nullptr;
     std::unique_ptr<Trk::CaloExtension> uniqueExtension ;
@@ -428,13 +410,6 @@ void TauTrackFinder::removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::Track
     // need at least one core track to have a leading trk to compare with
     if (tauTracks.size()<1) return;
 
-    //check if position is available for origin
-    /** FIXME: This causes compilation error after eigen migration
-    if (tauOrigin)
-        if (!tauOrigin->position())
-            tauOrigin = 0;
-    */
-
     // get lead trk parameters
     const xAOD::TrackParticle *leadTrack = tauTracks.at(0);
     float z0_leadTrk = getZ0(leadTrack, tauOrigin);
@@ -444,8 +419,7 @@ void TauTrackFinder::removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::Track
     ATH_MSG_VERBOSE("before z0 cut: #coreTracks=" << tauTracks.size() << ", #wideTracks=" << wideTracks.size() << ", #otherTracks=" << otherTracks.size());
 
     std::vector<const xAOD::TrackParticle*>::iterator itr;
-
-    // check core tracks
+    
     // skip leading track, because it is the reference
     itr = tauTracks.begin()+1;
     while (itr!=tauTracks.end()) {

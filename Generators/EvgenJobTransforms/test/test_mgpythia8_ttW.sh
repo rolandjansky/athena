@@ -1,6 +1,6 @@
 #!/bin/bash
 # art-description: Generation test MG+Py8 ttW 
-# art-include: 21.6/AthGeneration
+# art-include: master/Athena
 # art-type: build
 # art-output: *.root
 # art-output: log.generate

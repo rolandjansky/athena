@@ -22,10 +22,8 @@ EXOT6Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT6Stream.AcceptAlgs(["EXOT6Kernel"])
 # SPECIAL LINES FOR THINNING
 # Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT6ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # THINNING TOOL 
@@ -36,13 +34,13 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 # MET/Jet tracks
 #met_thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
 #EXOT6MetTPThinningTool = DerivationFramework__TrackParticleThinning( name                = "EXOT6MetTPThinningTool",
-#                                                                ThinningService         = "EXOT6ThinningSvc",
+#                                                                StreamName              = streamName,
 #                                                                SelectionString         = met_thinning_expression,
 #                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 #ToolSvc += EXOT6MetTPThinningTool
 #
 #EXOT6JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "EXOT6JetTPThinningTool",
-#                                                                ThinningService         = "EXOT6ThinningSvc",
+#                                                                StreamName              = streamName,
 #                                                                JetKey                  = "AntiKt4LCTopoJets",
 #                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 #ToolSvc += EXOT6JetTPThinningTool
@@ -51,7 +49,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 
 thinExpression = '(InDetTrackParticles.d0 < 1.5) && ((DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta )) <= 1.5)'
 EXOT6TPThinningTool = DerivationFramework__TrackParticleThinning(name = "EXOT6TPThinningTool",
-                                                                 ThinningService         = "EXOT6ThinningSvc",
+                                                                 StreamName              = streamName,
                                                                  SelectionString         = thinExpression,
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT6TPThinningTool
@@ -59,7 +57,7 @@ ToolSvc += EXOT6TPThinningTool
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT6MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "EXOT6MuonTPThinningTool",
-                                                                            ThinningService         = "EXOT6ThinningSvc",
+                                                                            StreamName              = streamName,
                                                                             MuonKey                 = "Muons",
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT6MuonTPThinningTool
@@ -67,13 +65,13 @@ ToolSvc += EXOT6MuonTPThinningTool
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT6ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT6ElectronTPThinningTool",
-                                                                                        ThinningService         = "EXOT6ThinningSvc",
+                                                                                        StreamName              = streamName,
                                                                                         SGKey             	= "Electrons",
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT6ElectronTPThinningTool
 
 EXOT6PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT6PhotonTPThinningTool",
-                                                                                        ThinningService         = "EXOT6ThinningSvc",
+                                                                                        StreamName              = streamName,
                                                                                         SGKey             	= "Photons",
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT6PhotonTPThinningTool

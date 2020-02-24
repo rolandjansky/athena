@@ -163,8 +163,9 @@ def L1DecoderCfg(flags):
     decoderAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decoderAlg.CostMonitoringChain = flags.Trigger.CostMonitoring.chain
 
-    from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
+    from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg, HLTPrescaleCondAlgCfg
     acc.merge( TrigConfigSvcCfg( flags ) )
+    acc.merge( HLTPrescaleCondAlgCfg( flags ) )
 
     # Add the algorithm producing the input RoIBResult
     from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import RoIBResultDecoderCfg, L1TriggerResultMakerCfg

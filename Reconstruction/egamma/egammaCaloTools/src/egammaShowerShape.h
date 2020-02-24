@@ -49,11 +49,13 @@ public:
     StatusCode finalize() override;
 
     /** @brief AlgTool main method */
-    virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
-            const CaloCellContainer& cell_container, Info& info) const override final;
+    virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                               const CaloDetDescrManager& cmgr,
+                               const CaloCellContainer& cell_container,
+                               Info& info) const override final;
 
-private:
-      /** @brief Tool to estimate shower shapes in presampler */
+  private:
+    /** @brief Tool to estimate shower shapes in presampler */
     ToolHandle<IegammaPreSamplerShape> m_egammaPreSamplerShape {this,
         "egammaPreSamplerShapeTool", "egammaPreSamplerShape/egammapresamplershape"};
 

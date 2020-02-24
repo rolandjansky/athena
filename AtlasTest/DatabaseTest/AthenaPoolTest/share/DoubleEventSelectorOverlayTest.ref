@@ -1,63 +1,107 @@
-Thu Apr 18 18:48:07 CEST 2019
-Preloading tcmalloc_minimal.so
+Wed Feb  5 08:51:05 EST 2020
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.2] [x86_64-slc6-gcc8-opt] [master-DES-ReadWrite-Handle/ef4bb18542] -- built on [2019-04-18T1721]
+Py:Athena            INFO using release [?-21.0.0] [?] [?/?] -- built on [?]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
+Warning in <TInterpreter::ReadRootmapFile>: class  CP::IMuonCalibrationAndSmearingTool found in libMuonAnalysisInterfacesDict.so  is already in libMuonMomentumCorrectionsDict.so 
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthenaPoolTest/DoubleEventSelectorOverlayTest.py"
-Py:ConfigurableDb    INFO Read module info for 5471 configurables from 8 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5167 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-Py:ConfiguredFactory    INFO imported 132 confDb modules in 1.08 seconds
+Py:ConfiguredFactory    INFO imported 98 confDb modules in 0.11 seconds
 Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+# setting LC_ALL to "C"
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
-                                          running on f9pc23.ijs.si on Thu Apr 18 18:48:21 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Wed Feb  5 08:51:09 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc        INFO initialize
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+ClassIDSvc           INFO  getRegistryEntries: read 4431 CLIDRegistry entries for module ALL
+CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 5894 CLIDRegistry entries for module ALL
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
+PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
+PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc              INFO Frontier compression level set to 5
+DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/rootaccess/build/share/dbreplica.config
+DBReplicaSvc         INFO No specific match for domain found - use default fallback
+DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
+PoolSvc              INFO Successfully setup replica sorting algorithm
+PoolSvc              INFO Setting up APR FileCatalog and Streams
+PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool'])
 AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
 AthenaPoolAddre...  DEBUG Service base class initialized successfully
 AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
 AthenaPoolAddre...  DEBUG Service base class initialized successfully
 AddressRemappin...  DEBUG Property update for OutputLevel : new value = 2
 AddressRemappin...  DEBUG Service base class initialized successfully
+ClassIDSvc           INFO  getRegistryEntries: read 1552 CLIDRegistry entries for module ALL
 ProxyProviderSvc    DEBUG Property update for OutputLevel : new value = 2
 ProxyProviderSvc    DEBUG Service base class initialized successfully
+DecisionSvc          INFO Inserting stream: Stream1 with no Algs
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
-Stream1              INFO Found HelperTools = PrivateToolHandleArray([])
+Stream1              INFO Found HelperTools = PrivateToolHandleArray(['Athena::ThinningCacheTool/ThinningCacheTool_Stream1'])
 Stream1              INFO Data output: OutputRDO.root
 Stream1              INFO I/O reinitialization...
-HistogramPersis...WARNING Histograms saving not required.
 DoubleEventSele...  DEBUG Property update for OutputLevel : new value = 2
-DoubleEventSele...   INFO Initializing DoubleEventSelector - package version EventSelectorAthenaPool-00-00-00
+DoubleEventSele...  DEBUG Initializing DoubleEventSelector
 DoubleEventSele...  DEBUG Service base class initialized successfully
-DoubleEventSele...   INFO reinitialization...
+DoubleEventSele...  DEBUG reinitialization...
 DoubleEventSele...   INFO EventSelection with query 
-DoubleEventSele...  DEBUG Try item: "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/RDO.merged-pileup-MT.unittest.pool.root" from the collection list.
-DoubleEventSele...   INFO EventSelection with query 
-DoubleEventSele...  DEBUG Try item: "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000765.pool.root.1" from the collection list.
+DoubleEventSele...  DEBUG Try item: "/home/sss/nobackup/referencefiles/OverlayMonitoringRTT/PileupPremixing/22.0/RDO.merged-pileup-MT.unittest.pool.root" from the collection list.
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 8BCD9728-EB56-6042-AFDF-61C0C379D70E
+Domain[ROOT_All]     INFO                           /home/sss/nobackup/referencefiles/OverlayMonitoringRTT/PileupPremixing/22.0/RDO.merged-pileup-MT.unittest.pool.root
+RootDatabase.open    INFO /home/sss/nobackup/referencefiles/OverlayMonitoringRTT/PileupPremixing/22.0/RDO.merged-pileup-MT.unittest.pool.root File version:61600
+ClassIDSvc           INFO  getRegistryEntries: read 11670 CLIDRegistry entries for module ALL
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
+ClassIDSvc           INFO  getRegistryEntries: read 21 CLIDRegistry entries for module ALL
+SecondaryEventS...  DEBUG Property update for OutputLevel : new value = 2
+SecondaryEventS...  DEBUG Initializing secondary event selector SecondaryEventSelector
+SecondaryEventS...  DEBUG Service base class initialized successfully
+SecondaryEventS...  DEBUG reinitialization...
+SecondaryEventS...   INFO EventSelection with query 
+SecondaryEventS...  DEBUG Try item: "/home/sss/nobackup/referencefiles/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000765.pool.root.1" from the collection list.
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 9553B87B-1832-3346-A65E-916E6C1DEAB5
+Domain[ROOT_All]     INFO                           /home/sss/nobackup/referencefiles/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000765.pool.root.1
+RootDatabase.open    INFO /home/sss/nobackup/referencefiles/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000765.pool.root.1 File version:60802
+ClassIDSvc           INFO  getRegistryEntries: read 1579 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr   INFO Setup EventSelector service DoubleEventSelector
+AthenaEventLoopMgr   INFO Using secondary event number.
 ApplicationMgr       INFO Application Manager Initialized successfully
-DoubleEventSele...  DEBUG Try item: "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/RDO.merged-pileup-MT.unittest.pool.root" from the collection list.
-DoubleEventSele...  DEBUG Try item: "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000765.pool.root.1" from the collection list.
+/home/sss/nobac...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 9553B87B-1832-3346-A65E-916E6C1DEAB5
+SecondaryEventS...  DEBUG Try item: "/home/sss/nobackup/referencefiles/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000765.pool.root.1" from the collection list.
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 9553B87B-1832-3346-A65E-916E6C1DEAB5
+Domain[ROOT_All]     INFO                           /home/sss/nobackup/referencefiles/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000765.pool.root.1
+RootDatabase.open    INFO /home/sss/nobackup/referencefiles/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000765.pool.root.1 File version:60802
+DoubleEventSele...  DEBUG Try item: "/home/sss/nobackup/referencefiles/OverlayMonitoringRTT/PileupPremixing/22.0/RDO.merged-pileup-MT.unittest.pool.root" from the collection list.
 ApplicationMgr       INFO Application Manager Started successfully
-DoubleEventSele...  DEBUG guid != m_primaryGuid
-DoubleEventSele...  DEBUG guid != m_secondaryGuid
-DoubleEventSele...  DEBUG Try recording AttributeLists
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::next
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000000].
-DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000000].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000000].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000000].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
+SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000000].
+SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000000].
 DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000000]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000000]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
@@ -123,14 +167,37 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeLists
+AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
+ClassIDSvc           INFO  getRegistryEntries: read 1 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 6 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 89 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 75 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 54 CLIDRegistry entries for module ALL
+AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
+AthenaEventLoopMgr   INFO   ===>>>  using secondary event #76408 instead of #1<<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of run 300000    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #76408, run #300000 0 events processed so far  <<<===
+ClassIDSvc           INFO  getRegistryEntries: read 180 CLIDRegistry entries for module ALL
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] 22B32F76-1345-524A-B55B-D789FB399093
+Domain[ROOT_All]     INFO                           OutputRDO.root
+RootDatabase.open    INFO OutputRDO.root File version:61800
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO DataHeader_p6 [4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D]
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO DataHeaderForm_p6 [7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD]
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #76408, run #300000 1 events processed so far  <<<===
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::next
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000001].
-DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000001].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000001].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000001].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
+SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000001].
+SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000001].
 DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000001]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000001]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
@@ -196,14 +263,18 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeLists
+AthenaEventLoopMgr   INFO   ===>>>  using secondary event #76419 instead of #2<<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #76419, run #300000 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #76419, run #300000 2 events processed so far  <<<===
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::next
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000002].
-DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000002].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000002].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000002].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
+SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000002].
+SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000002].
 DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000002]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000002]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
@@ -269,14 +340,18 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeLists
+AthenaEventLoopMgr   INFO   ===>>>  using secondary event #76430 instead of #3<<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #76430, run #300000 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #76430, run #300000 3 events processed so far  <<<===
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::next
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000003].
-DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000003].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000003].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000003].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
+SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000003].
+SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000003].
 DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000003]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000003]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
@@ -342,14 +417,18 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeLists
+AthenaEventLoopMgr   INFO   ===>>>  using secondary event #76440 instead of #4<<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #76440, run #300000 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #76440, run #300000 4 events processed so far  <<<===
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::next
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000004].
-DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000004].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000004].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000004].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
+SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000004].
+SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000004].
 DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000004]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000004]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
@@ -415,14 +494,18 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeLists
+AthenaEventLoopMgr   INFO   ===>>>  using secondary event #76452 instead of #5<<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #76452, run #300000 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #76452, run #300000 5 events processed so far  <<<===
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::next
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000005].
-DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000005].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000005].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000005].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
+SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000005].
+SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000005].
 DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000005]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000005]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
@@ -488,14 +571,18 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeLists
+AthenaEventLoopMgr   INFO   ===>>>  using secondary event #76460 instead of #6<<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #76460, run #300000 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #76460, run #300000 6 events processed so far  <<<===
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::next
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000006].
-DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000006].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000006].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000006].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
+SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000006].
+SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000006].
 DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000006]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000006]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
@@ -561,14 +648,18 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeLists
+AthenaEventLoopMgr   INFO   ===>>>  using secondary event #76467 instead of #7<<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #76467, run #300000 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #76467, run #300000 7 events processed so far  <<<===
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::next
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000007].
-DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000007].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000007].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000007].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
+SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000007].
+SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000007].
 DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000007]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000007]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
@@ -634,14 +725,18 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeLists
+AthenaEventLoopMgr   INFO   ===>>>  using secondary event #76473 instead of #8<<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #76473, run #300000 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #76473, run #300000 8 events processed so far  <<<===
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::next
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000008].
-DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000008].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000008].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000008].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
+SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000008].
+SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000008].
 DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000008]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000008]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
@@ -707,14 +802,18 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeLists
+AthenaEventLoopMgr   INFO   ===>>>  using secondary event #76478 instead of #9<<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #76478, run #300000 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #76478, run #300000 9 events processed so far  <<<===
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::next
+DoubleEventSele...  DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000009].
-DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000009].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000009].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000009].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
+SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000009].
+SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000009].
 DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000009]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000009]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
@@ -780,8 +879,25 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
+AthenaEventLoopMgr   INFO   ===>>>  using secondary event #76487 instead of #10<<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #76487, run #300000 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #76487, run #300000 10 events processed so far  <<<===
 Stream1              INFO Records written: 11
+/home/sss/nobac...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 8BCD9728-EB56-6042-AFDF-61C0C379D70E
+/home/sss/nobac...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 9553B87B-1832-3346-A65E-916E6C1DEAB5
+OutputRDO.root       INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 22B32F76-1345-524A-B55B-D789FB399093
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
+IncidentProcAlg1     INFO Finalize
+IncidentProcAlg2     INFO Finalize
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+DecisionSvc          INFO Finalized successfully.
+AthDictLoaderSvc     INFO in finalize...
+ToolSvc              INFO Removing all tools created by ToolSvc
+ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
 Py:Athena            INFO leaving with code 0: "successful run"

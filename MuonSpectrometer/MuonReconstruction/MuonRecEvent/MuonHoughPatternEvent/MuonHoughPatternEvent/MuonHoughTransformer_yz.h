@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHTRANSFORMER_YZ_H
@@ -13,7 +13,7 @@ class MuonHoughTransformer_yz : public MuonHoughTransformer_xyz
   /** constructor */
   MuonHoughTransformer_yz(int nbins, int nbins_angle, double detectorsize, double detectorsize_angle, double threshold_histo, int number_of_sectors=1);
   /** destructor */
-  virtual ~MuonHoughTransformer_yz();
+  virtual ~MuonHoughTransformer_yz() = default;
 
   /** returns the hit position in yz frame */
   virtual std::pair <double,double> getHitPos(const MuonHoughHitContainer* event, int hitid)const; //returns the relevant position of the hit (xy-RPC in case of id==id_xy_rpc etc.)

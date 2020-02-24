@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -85,8 +85,8 @@ namespace PMonMT {
     long rssPeak = LONG_MIN;
     long pssPeak = LONG_MIN;
 
-    // [Component Level Monitoring - Serial Steps] : Record the measurement for the current state 
-    void capture_compLevel_serial() {
+    // Capture snapshot measurements
+    void capture_snapshot() {
       cpu_time = get_process_cpu_time();
       wall_time = get_wall_time();
 
@@ -99,6 +99,24 @@ namespace PMonMT {
         if(mem_stats["pss"] > pssPeak)
           pssPeak = mem_stats["pss"];
       }
+    }
+
+    // [Component Level Monitoring - Serial Steps] : Record the measurement for the current state 
+    void capture_compLevel_serial() {
+      cpu_time = get_process_cpu_time();
+      wall_time = get_wall_time();
+      /*
+      // This call is very expensive, find a faster solution
+      if(doesDirectoryExist("/proc")){
+        mem_stats = get_mem_stats();
+        if(mem_stats["vmem"] > vmemPeak)
+          vmemPeak = mem_stats["vmem"];
+        if(mem_stats["rss"] > rssPeak)
+          rssPeak = mem_stats["rss"];
+        if(mem_stats["pss"] > pssPeak)
+          pssPeak = mem_stats["pss"];
+      }
+      */
     }
 
     // [Component Level Monitoring - Parallel Steps] : Record the measurement for the current state 

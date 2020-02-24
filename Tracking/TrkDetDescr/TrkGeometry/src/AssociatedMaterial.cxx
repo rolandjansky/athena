@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,10 +17,10 @@
 Trk::AssociatedMaterial::AssociatedMaterial()
  : m_materialPosition(Amg::Vector3D(0.,0.,0.)),
    m_correctionFactor(0.), 
-   m_materialProperties(0),
-   m_materialStep(0),
-   m_trackingVolume(0),
-   m_layer(0),
+   m_materialProperties(nullptr),
+   m_materialStep(nullptr),
+   m_trackingVolume(nullptr),
+   m_layer(nullptr),
    m_cleanup(false)
 {}
 
@@ -37,7 +37,7 @@ Trk::AssociatedMaterial::AssociatedMaterial(
                            const Layer* lay)
  : m_materialPosition(hitpos),
    m_correctionFactor(cFactor), 
-   m_materialProperties(0),
+   m_materialProperties(nullptr),
    m_materialStep(new Trk::MaterialStep(hitpos.x(),hitpos.y(),hitpos.z(), steplength, X0, L0, A, Z, rho)),
    m_trackingVolume(tvol),
    m_layer(lay),
@@ -81,7 +81,7 @@ Trk::AssociatedMaterial::AssociatedMaterial(const Trk::MaterialStep* ms,
                                             const Trk::Layer* lay)
  : m_materialPosition( Amg::Vector3D(ms->hitX(), ms->hitY(), ms->hitZ()) ),
    m_correctionFactor(cFactor), 
-   m_materialProperties(0),
+   m_materialProperties(nullptr),
    m_materialStep(ms),
    m_trackingVolume(tvol),
    m_layer(lay),
@@ -93,8 +93,8 @@ Trk::AssociatedMaterial::AssociatedMaterial(const Amg::Vector3D& hitpos,
                                             const Trk::Layer* lay)
  : m_materialPosition(hitpos),
    m_correctionFactor(0.), 
-   m_materialProperties(0),
-   m_materialStep(0),
+   m_materialProperties(nullptr),
+   m_materialStep(nullptr),
    m_trackingVolume(tvol),
    m_layer(lay),
    m_cleanup(false)
