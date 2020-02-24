@@ -18,17 +18,30 @@ namespace Monitored {
   template <class T, class R> class ObjectsCollection;
 
   /**
-   * Declare a monitored (double-convertable) collection
+   * Declare a monitored (double-convertible) collection
    *
-   * Any iterable container with elements covertable to double can be monitored.
+   * Any iterable container with elements cover table to double can be monitored.
    *
    * @param name        Name of monitored quantity
    * @param collection  Collection to be monitored (e.g. STL container or array)
    *
-   * \code
-   *   std::vector<float> eta( {0.2, 0.1} );
-   *   auto m = Monitored::Collection("Eta", eta);
-   * \endcode
+   * Examples:
+   * - Various types of collections can be monitored
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromNonTrivialSourcesWorked_colection
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromNonTrivialSourcesWorked_array
+   * - Also the collection of objects can be monitored provided an appropriate accessor functions to plain values is provided
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromNonTrivialSourcesWorked_obj_collection
+   * Corresponding histogram definitions
+   * @snippet Control/AthenaMonitoringKernel/share/GenericMon.txt 1DHistograms
+   * @snippet Control/AthenaMonitoringKernel/share/GenericMon.txt 2DHistograms
+   *
+   * - The collection of strings can also be used to fill labelled histograms
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx stringFromCollectionWorked
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx string2DFillingWorked
+   * Corresponding histogram definitions:
+   * @snippet Control/AthenaMonitoringKernel/share/GenericMon.txt LabeledHistograms   
+   *
+   * @see Monitored::Scalar @see Monitored::Timer
    */
   template <class T> ValuesCollection<T> Collection(std::string name, const T& collection) {
     return ValuesCollection<T>(std::move(name), collection);
