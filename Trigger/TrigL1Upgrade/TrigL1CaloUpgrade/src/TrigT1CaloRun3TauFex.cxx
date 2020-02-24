@@ -78,6 +78,8 @@ StatusCode TrigT1CaloRun3TauFex::initialize(){
 	acc_clusterIso = new SG::AuxElement::Accessor<float>("R3ClusterIso");
 	acc_Ore_clusterET = new SG::AuxElement::Accessor<float>("R3_Ore_ClusterET");
 	acc_Ore_clusterIso = new SG::AuxElement::Accessor<float>("R3_Ore_ClusterIso");
+	acc_Ore_clusterIso_12pass = new SG::AuxElement::Accessor<bool>("R3_Ore_ClusterIso_12pass");
+	acc_Ore_clusterIso_20pass = new SG::AuxElement::Accessor<bool>("R3_Ore_ClusterIso_20pass");
 	acc_BC_clusterET = new SG::AuxElement::Accessor<float>("R3_BC_ClusterET");
 	return StatusCode::SUCCESS;
 }
