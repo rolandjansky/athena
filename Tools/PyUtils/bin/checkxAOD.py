@@ -46,7 +46,7 @@ if __name__ == "__main__":
         "egamma"   : ["^GSF", "^ForwardElectron", "^egamma", "^Electron", "^Photon"],
         "Muon"     : ["^Muon", "^TileMuObj", "^MS", "^SlowMuons", "^Staus", "(.*)MuonTrackParticles$", "MUCTPI_RDO", "^RPC", "^TGC", "^MDT", "^CSC", ".*MuonMeasurements$", "^ExtrapolatedMuonTracks", "^CombinedMuonTracks"],
         "BTag"     : ["^BTag"],
-        "InDet"    : ["^InDet", "^PrimaryVertices", "^ComTime_TRT", "^Pixel", "^TRT", "^SCT", "^BCM", "^CTP", "^Tracks", "^ResolvedForwardTracks", "^SplitClusterAmbiguityMap"],
+        "InDet"    : ["^InDet", "^PrimaryVertices", "^ComTime_TRT", "^Pixel", "^TRT", "^SCT", "^BCM", "^CTP", "^Tracks", "^ResolvedForwardTracks", "^SplitClusterAmbiguityMap", "^SoftBVrt"],
         "Jet"      : ["^CamKt", "^AntiKt", "^Jet","^LCOriginTopoClusters","^EMOriginTopoClusters"],
         "CaloTopo" : ["CaloCalTopoCluster"],
         "Calo"     : ["^LAr", "^AODCellContainer", "^MBTSContainer", "^CaloCompactCellContainer", "^E4prContainer", "^TileCellVec", "^TileDigits"],
@@ -56,6 +56,7 @@ if __name__ == "__main__":
       "AnalysisPhotons" : ["^AnalysisPhotons" ],
       "AnalysisMuons" : ["^AnalysisMuons" ],
       "AnalysisJets" : ["^AnalysisJets" ],
+      "AnalysisHLT" : ["^AnalysisHLT" ],
         }
     
     fileNames = []
