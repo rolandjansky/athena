@@ -110,7 +110,7 @@ private:
   TileSDOptions m_options;
 
   Gaudi::Property<double> m_birk1{this, "birk1",0.0130 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2), "exp. values from NIM 80 (1970) 239-244"};
-  Gaudi::Property<double> m_birk2{this, "birk1",9.6e-6 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2), "exp. values from NIM 80 (1970) 239-244"};
+  Gaudi::Property<double> m_birk2{this, "birk2",9.6e-6 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2), "exp. values from NIM 80 (1970) 239-244"};
 
   /** @brief Keep hit time */
   bool m_keepHitTime;
