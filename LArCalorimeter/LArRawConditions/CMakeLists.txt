@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArCabling
                           LArCalorimeter/LArRecConditions
                           PRIVATE
+                          DetectorDescription/IdDictParser
                           LArCalorimeter/LArTools )
 
 # External dependencies:
@@ -61,4 +62,8 @@ atlas_add_test( LArCompactSubset_test
 atlas_add_test( LArConditionsSubset_test
    SOURCES test/LArConditionsSubset_test.cxx
    LINK_LIBRARIES LArRawConditions )
+
+atlas_add_test( LArMCSym_test
+   SOURCES test/LArMCSym_test.cxx
+   LINK_LIBRARIES LArRawConditions IdDictParser )
 
