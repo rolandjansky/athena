@@ -115,7 +115,6 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   double m_maxRPhiImpEM;    //!< maximal RPhi impact parameter cut track that match EM clusters
 
   bool  m_useEmClusSeed;
-  float m_minPtEm;
   float m_phiWidthEm;
   float m_etaWidthEm;
 
