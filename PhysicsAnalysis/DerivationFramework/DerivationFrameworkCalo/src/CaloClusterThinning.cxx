@@ -16,8 +16,6 @@
 #include "DerivationFrameworkCalo/CaloClusterThinning.h"
 #include "DerivationFrameworkCalo/ClustersInCone.h"
 
-#include "CaloRec/CaloClusterMaker.h"
-
 namespace DerivationFramework {
 
    CaloClusterThinning::CaloClusterThinning( const std::string& type,
@@ -254,7 +252,6 @@ namespace DerivationFramework {
 	 }
       }
 
-
       // Return gracefully:
       return StatusCode::SUCCESS;
    }
@@ -284,9 +281,8 @@ namespace DerivationFramework {
             break;
 
          case xAOD::Type::Tau:
-	   break;
-	   
-	   
+            break;
+
          default:
             ClustersInCone::select( particle, m_coneSize, cps, mask );
             break;
@@ -354,9 +350,8 @@ namespace DerivationFramework {
                      static_cast< const xAOD::TauJet* >( particle );
                // Skip taus with no jets:
                if( ! tau->jet() ) {
-		 break;
+                  break;
                }
-
                // Get the 4-momentum of the tau:
                const TLorentzVector& tauP4 =
                      tau->p4( xAOD::TauJetParameters::DetectorAxis );
@@ -375,9 +370,8 @@ namespace DerivationFramework {
                   // the expected container:
                   const xAOD::IParticle* rawC = jc->rawConstituent();
                   if( rawC->container() != cps ) {
-                     ATH_MSG_INFO( "Tau cluster is not from the specified "
-				   "container: you're using ");
-		     //cps->ClustersName(); // << rawC->type().name() << " vs " << cps->at(0)->type().name());
+                     ATH_MSG_DEBUG( "Tau cluster is not from the specified "
+                                    "container" );
                      continue;
                   }
 

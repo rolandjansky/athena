@@ -93,14 +93,14 @@ ExtraContentJetsTruth               = ["AntiKt4TruthJets.TruthLabelDeltaR_B.Trut
 ExtraContentTAUP1              =   ExtraContentPhotons                  \
                                  + ExtraContentElectrons                \
                                  + ExtraContentMuons                    \
-                                 + ExtraContentTaus                     
- 
+                                 + ExtraContentTaus
+
 # ExtraContentTAUP2              =   ExtraContentTaus
 
 ExtraContentTAUP3              =   ExtraContentPhotons                  \
                                  + ExtraContentElectrons                \
                                  + ExtraContentMuons                    \
-                                 + ExtraContentTaus                     
+                                 + ExtraContentTaus
 
 # ExtraContentTAUP4              =   ExtraContentPhotons                  \
 #                                  + ExtraContentElectrons                \
@@ -116,7 +116,7 @@ ExtraContentTruthTAUP1         =   ExtraContentPhotonsTruth             \
                                  + ExtraContentMuonsTruth               \
                                  + ExtraContentTausTruth                \
                                  + ExtraContentJetsTruth
- 
+
 ExtraContentTruthTAUP2         =   ExtraContentElectronsTruth           \
                                  + ExtraContentMuonsTruth               \
                                  + ExtraContentTausTruth                \
