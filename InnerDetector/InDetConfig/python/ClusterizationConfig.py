@@ -1,13 +1,12 @@
-import TrackReco 	   as TrackReco
-import PixelGeoModelConfig      as PixelGeoModelConfig
-import SCT_GeoModelConfig	as SCT_GeoModelConfig
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from InDetConfig.TrackReco 	import InDetBCM_ZeroSuppressionCfg, InDetPixelClusterizationCfg, \
+                                   InDetPixelClusterizationPUCfg, InDet_SCTClusterizationCfg, \
+                                   InDet_SCTClusterizationPUCfg
 
 #arg_TrackingCuts             = 'TrackingCuts'
 #arg_TrackCollectionKeys      = 'tracks'
 #arg_TrackCollectionTruthKeys = 'truth'
-
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-#from AthenaConfiguration.ComponentFactory import CompFactory
 
 def InDetClusterizationAlgorithmsCfg(flags, **kwargs) :
 
@@ -24,28 +23,29 @@ def InDetClusterizationAlgorithmsCfg(flags, **kwargs) :
     top_acc.merge(PoolReadCfg(flags))
    
     ### obtain pixel and SCT geometry
-    top_acc.merge( PixelGeoModelConfig.PixelGeometryCfg(flags) )
-    top_acc.merge( SCT_GeoModelConfig.SCT_GeometryCfg(flags) )
+    from InDetConfig.PixelGeoModelConfig import PixelGeometryCfg
+    from InDetConfig.SCT_GeoModelConfig	import SCT_GeometryCfg
+    top_acc.merge( PixelGeometryCfg(flags) )
+    top_acc.merge( SCT_GeometryCfg(flags) )
 
 
     #redoPatternRecoAndTracking = kwargs.pop('redoPatternRecoAndTracking')
     # @TODO propagate suffix and/or prefix ?
-    #result = ComponentAccumulator()
-    top_acc.merge(TrackReco.InDetBCM_ZeroSuppressionCfg(flags))
+    top_acc.merge(InDetBCM_ZeroSuppressionCfg(flags))
    
     # Pixel clusterization
     ## @TODO is this correct flag to be used here to turn on pixel clusterization
-    if flags.DetFlags.pixel_on:
-        top_acc.merge(TrackReco.InDetPixelClusterizationCfg(flags, **kwargs) )
-        if flags.InDetFlags.doSplitReco :
-            top_acc.merge(TrackReco.InDetPixelClusterizationPUCfg(flags, **kwargs) )
+    if flags.Detector.GeometryPixel:
+        top_acc.merge(InDetPixelClusterizationCfg(flags, **kwargs) )
+        if flags.InDet.doSplitReco :
+            top_acc.merge(InDetPixelClusterizationPUCfg(flags, **kwargs) )
 
     # SCT clusterization
     ## @TODO is this correct flag to be used here to turn on SCT clusterization
-    if flags.DetFlags.SCT_on:
-        top_acc.merge( TrackReco.InDet_SCTClusterizationCfg(flags, **kwargs) )
-        if flags.InDetFlags.doSplitReco :
-            top_acc.merge( TrackReco.InDet_SCTClusterizationPUCfg(flags, **kwargs) )
+    if flags.Detector.GeometrySCT:
+        top_acc.merge( InDet_SCTClusterizationCfg(flags, **kwargs) )
+        if flags.InDet.doSplitReco :
+            top_acc.merge( InDet_SCTClusterizationPUCfg(flags, **kwargs) )
 
     from PixelConditionsConfig import PixelConditionsSummaryCfg
     top_acc.merge( PixelConditionsSummaryCfg(flags))
@@ -53,4 +53,33 @@ def InDetClusterizationAlgorithmsCfg(flags, **kwargs) :
     top_acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags))
     return top_acc
 
+if __name__ == "__main__":
+    # Run this with python -m InDetConfig.PixelClusterizationConfig
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
 
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    flags = ConfigFlags
+
+    ConfigFlags.Detector.GeometryPixel   = True 
+    ConfigFlags.Detector.GeometrySCT   = True
+
+    ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
+    ConfigFlags.Input.isMC = True
+    ConfigFlags.GeoModel.Align.Dynamic    = False
+    ConfigFlags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
+    ConfigFlags.InDet.doPixelClusterSplitting = True
+
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.lock()
+    ConfigFlags.dump()
+
+    acc = InDetClusterizationAlgorithmsCfg(ConfigFlags)
+
+    ##acc.setAppProperty("EvtMax",25)
+    ##acc.store(open("test_SiClusterization.pkl", "w"))
+    acc.run(25)
+    #with open('test4.pkl', mode="wb") as f:
+    #   dill.dump(acc, f)
+    acc.store(open("test00.pkl", "w"))
