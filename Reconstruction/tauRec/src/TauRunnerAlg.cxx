@@ -28,8 +28,7 @@
 TauRunnerAlg::TauRunnerAlg(const std::string &name,
     ISvcLocator * pSvcLocator) :
 AthAlgorithm(name, pSvcLocator),
-m_tools(this), //make tools private
-m_data()
+m_tools(this) //make tools private
 {
   declareProperty("Tools", m_tools);
 }
@@ -78,7 +77,6 @@ StatusCode TauRunnerAlg::initialize() {
     for (; itT != itTE; ++itT) {
       ++tool_count;
       ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());
-      (*itT)->setTauEventData(&m_data);
     }
     ATH_MSG_INFO(" ");
     ATH_MSG_INFO("------------------------------------");

@@ -6,7 +6,6 @@
 #include "TFile.h"
 #include "TH2.h"
 #include "TString.h"
-#include "tauRecTools/TauEventData.h"
 #include "tauRecTools/TauWPDecorator.h"
 #include "xAODEventInfo/EventInfo.h"
 

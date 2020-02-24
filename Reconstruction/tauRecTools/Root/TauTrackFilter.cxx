@@ -13,7 +13,6 @@
 
 #include "FourMomUtils/P4Helpers.h"
 
-#include "tauRecTools/TauEventData.h"
 #include "tauRecTools/TauTrackFilter.h"
 #include "tauRecTools/TauTrackFilterUtils.h"
 

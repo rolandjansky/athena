@@ -9,8 +9,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "tauRecTools/ITauToolBase.h"
 
-#include "tauRecTools/TauEventData.h"
-
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
@@ -53,8 +51,6 @@ class TauRunnerAlg: public AthAlgorithm
  private:
        
 	ToolHandleArray<ITauToolBase>  m_tools{this, "TauRunnerTools", {}, "Tools building taus"};
-
-	TauEventData m_data;
 
 	SG::ReadHandleKey<xAOD::TauJetContainer> m_tauInputContainer{this,"Key_tauInputContainer","tmp_TauJets","input temp tau key"};
 	SG::ReadHandleKey<xAOD::CaloClusterContainer> m_pi0ClusterInputContainer{this,"Key_Pi0ClusterInputContainer", "TauPi0SubtractedClusters", "input pi0 cluster"};
