@@ -97,6 +97,7 @@ namespace EL
     {
       std::unique_ptr<asg::AsgTool> tool;
       ANA_CHECK (makeComponentExpert (tool, "new %1% (\"%2%\")", true));
+      ANA_CHECK (tool->initialize());
 
       AnaAlgorithmConfig dummyAlg ("EL::AnaAlgorithm/DummyAlg." + name());
       ANA_CHECK (dummyAlg.makeAlgorithm (algorithm));
