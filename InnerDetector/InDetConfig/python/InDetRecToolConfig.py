@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 import IOVDbSvc.IOVDbSvcConfig as iovDbSvc
 
 def InDetTrackSummaryHelperToolCfg(flags, name='InDetTrackSummaryHelperTool', **kwargs):
@@ -12,36 +14,36 @@ def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
   acc = ComponentAccumulator()
   if 'Extrapolator' not in kwargs:
     tmpAcc =  InDetExtrapolatorCfg(flags)
-    kwargs.setdefault("Extrapolator"     = tmpAcc.getPrimary())
+    kwargs.setdefault("Extrapolator", tmpAcc.getPrimary())
     acc.merge(tmpAcc)
 
   if ('PixelSummaryTool' not in kwargs):
     if flags.Detector.haveRIO.pixel_on:
       tmpAcc = InDetPixelConditionsSummaryToolCfg(flags)
-      kwargs.setdefault("PixelSummaryTool" = tmpAcc.popPrivateTools())
+      kwargs.setdefault("PixelSummaryTool", tmpAcc.popPrivateTools())
       acc.merge(tmpAcc)
     else:
-      kwargs.setdefault("PixelSummaryTool" = None)
+      kwargs.setdefault("PixelSummaryTool", None)
 
   if ('SctSummaryTool' not in kwargs):
     if flags.Detector.haveRIO.SCT_on:
       tmpAcc = InDetSCT_ConditionsSummaryToolCfg(flags)
-      kwargs.setdefault("SctSummaryTool" = tmpAcc.popPrivateTools())
+      kwargs.setdefault("SctSummaryTool", tmpAcc.popPrivateTools())
       acc.merge(tmpAcc)
     else:
-      kwargs.setdefault("SctSummaryTool" = None)
+      kwargs.setdefault("SctSummaryTool", None)
 
   if 'PixelLayerTool' not in kwargs :
     tmpAcc = InDetTestPixelLayerToolCfg(flags)
-    kwargs.setdefault("PixelLayerTool"   = tmpAcc.getPrimary())
+    kwargs.setdefault("PixelLayerTool", tmpAcc.getPrimary())
     acc.merge(tmpAcc)
 
   if flags.InDet.doCosmics :
-    kwargs.setdefault("Cosmics" = True)
+    kwargs.setdefault("Cosmics", True)
 
-  kwargs.setdefault( "usePixel"                     = flags.Detector.haveRIO.pixel_on,
-                     "useSCT"                       = flags.Detector.haveRIO.SCT_on,
-                     "CountDeadModulesAfterLastHit" = True)
+  kwargs.setdefault( "usePixel"                     , flags.Detector.haveRIO.pixel_on)
+  kwargs.setdefault( "useSCT"                       , flags.Detector.haveRIO.SCT_on)
+  kwargs.setdefault( "CountDeadModulesAfterLastHit" , True)
 
   indet_hole_search_tool = CompFactory.InDet__InDetTrackHoleSearchTool(name, **kwargs)
   acc.addPublicTool(indet_hole_search_tool, primary=True)
@@ -53,19 +55,19 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
     # FIXME copied from the old config, also needs fixing on the c++ side.
     if 'Propagators' not in kwargs :
         tmpAcc = InDetPropagatorCfg(flags)
-        kwargs.setdefault( "Propagators" = [tmpAcc.getPrimary()  ] ) # [ InDetPropagator, InDetStepPropagator ],
+        kwargs.setdefault( "Propagators", [tmpAcc.getPrimary()  ] ) # [ InDetPropagator, InDetStepPropagator ],
         acc.merge(tmpAcc)
     propagator= kwargs.get('Propagators')[0].name() if  kwargs.get('Propagators',None) is not None and len(kwargs.get('Propagators',None))>0 else None
 
     if 'MaterialEffectsUpdators' not in kwargs :
         tmpAcc = InDetMaterialEffectsUpdatorCfg(flags)
-        kwargs.setdefault( "MaterialEffectsUpdators" = [tmpAcc.getPrimary() ] )
+        kwargs.setdefault( "MaterialEffectsUpdators", [tmpAcc.getPrimary() ] )
         acc.merge(tmpAcc)
     material_updator= kwargs.get('MaterialEffectsUpdators')[0].name() if  kwargs.get('MaterialEffectsUpdators',None) is not None and len(kwargs.get('MaterialEffectsUpdators',None))>0  else None
 
     if 'Navigator' not in kwargs :
         tmpAcc = InDetNavigatorCfg(flags)
-        kwargs.setdefault( "Navigator"               = tmpAcc.getPrimary())
+        kwargs.setdefault( "Navigator"               , tmpAcc.getPrimary())
         acc.merge(tmpAcc)
 
     sub_propagators = []
@@ -85,8 +87,8 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
     sub_updators    += [ material_updator ]
     # @TODO should check that all sub_propagators and sub_updators are actually defined.
 
-    kwargs.setdefault("SubPropagators"          = sub_propagators,
-                      "SubMEUpdators"           = sub_updators)
+    kwargs.setdefault("SubPropagators"          , sub_propagators)
+    kwargs.setdefault("SubMEUpdators"           , sub_updators)
 
     extrapolator = CompFactory.Trk__Extrapolator(name, **kwargs)
     acc.addPublicTool(extrapolator, primary=True)
@@ -95,16 +97,16 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
 def InDetPixelConditionsSummaryToolCfg(flags, name = "InDetMaterialEffectsUpdator", **kwargs) :
     if not flags.InDet.solenoidOn:
         import AthenaCommon.SystemOfUnits as Units
-        kwargs.setdefault(   EnergyLoss          = False,
-                             ForceMomentum       = True,
-                             ForcedMomentumValue = 1000*Units.MeV )
+        kwargs.setdefault(   EnergyLoss          , False)
+        kwargs.setdefault(   ForceMomentum       , True)
+        kwargs.setdefault(   ForcedMomentumValue , 1000*Units.MeV )
     acc = ComponentAccumulator()
     acc.setPrivateTools(CompFactory.Trk__MaterialEffectsUpdator(name, **kwargs))
     return acc
 
 
 
-def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryTool", **kwargs)
+def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryTool", **kwargs) :
   acc = ComponentAccumulator()
   
   # Load conditions configuration service and load folders and algorithm for it
@@ -123,9 +125,9 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
       printfunc ('*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****')
       SCTConfigurationFolderPath=''
 
-  cond_kwargs={"ChannelFolder" = SCTConfigurationFolderPath+"Chip",
-               "ModuleFolder"  = SCTConfigurationFolderPath+"Module",
-               "MurFolder"     = SCTConfigurationFolderPath+"MUR"}
+  cond_kwargs={"ChannelFolder" : SCTConfigurationFolderPath+"Chip",
+               "ModuleFolder"  : SCTConfigurationFolderPath+"Module",
+               "MurFolder"     : SCTConfigurationFolderPath+"MUR"}
   cfgCondToolAcc = SCT_ConfigurationConditionsToolCfg(flags,name, cond_kwargs=cond_kwargs)
   SCT_ConfigurationConditionsTool = acc.popPrivateTools()
   acc.merge(cfgCondToolAcc)
@@ -148,7 +150,7 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
   
   # Load conditions Monitoring tool
   if not flags.Common.isOnline:
-      monCondAcc = SCT_MonitorConditionsToolCfg(flags,{"OutputLevel" = INFO})
+      monCondAcc = SCT_MonitorConditionsToolCfg(flags,{"OutputLevel" : INFO})
       SCT_MonitorConditionsTool = monCondAcc.popPrivateTools()
       acc.merge(monCondAcc)
       if (flags.InDet.doPrintConfigurables):
@@ -164,7 +166,7 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
 #          printfunc (InDetSCT_ModuleVetoTool)
 
   # Load bytestream errors tool (use default instance without "InDet")
-  SCT_BSToolAcc = SCT_ByteStreamErrorsToolCfg(flags, {ConfigTool=SCT_ConfigurationConditionsTool})
+  SCT_BSToolAcc = SCT_ByteStreamErrorsToolCfg(flags, {"ConfigTool" : SCT_ConfigurationConditionsTool})
   SCT_ByteStreamErrorsTool = SCT_BSToolAcc.popPrivateTools()
   acc.merge(SCT_BSToolAcc)
   if (flags.InDet.doPrintConfigurables):
@@ -187,7 +189,7 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
       if ( flags.IOVDb.DatabaseInstance == "CONDBR2"):
           tdaqFolder = '/TDAQ/Resources/ATLAS/SCT/Robins'
       # Load TdaqEnabled tool
-      TdaqCondAlg_kwargs={tdaqFolder=tdaqFolder}
+      TdaqCondAlg_kwargs={"tdaqFolder":tdaqFolder} # FIXME Not sure if this is correct? Just fixed typo. EJWM.
       TdaqToolAcc = SCT_TdaqEnabledToolCfg(flags, TdaqCondAlg_kwargs=TdaqCondAlg_kwargs)
       SCT_TdaqEnabledTool = TdaqToolAcc.popPrivateTools()
       acc.merge(TdaqToolAcc)
@@ -228,7 +230,8 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
 
   acc.setPrivateTools(InDetSCT_ConditionsSummaryTool)
 
-def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsTool", cond_kwargs, **kwargs):
+def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsTool", cond_kwargs={}, **kwargs):
+  from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
 
   cond_kwargs.setdefault("ChannelFolder","/SCT/DAQ/Config/Chip")
   cond_kwargs.setdefault("ModuleFolder","/SCT/DAQ/Config/Module")
@@ -243,30 +246,30 @@ def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsT
   if not cond_kwargs['ChannelFolderDB']:
     acc.merge(iovDbSvc.addFoldersSplitOnline(flags,
                                              detDb=cond_kwargs['dbInstance'],
-                                             cond_kwargs["ChannelFolder"],
-                                             cond_kwargs["ChannelFolder"],
+                                             online_folders=cond_kwargs["ChannelFolder"],
+                                             offline_folders=cond_kwargs["ChannelFolder"],
                                              className='CondAttrListVec',
                                              splitMC=True))
   else:
-    acc.merge(iovDbSvc.addFolders(detDb = cond_kwargs['dbInstance'], [cond_kwargs["ChannelFolderDB"]], className='CondAttrListVec'))
+    acc.merge(iovDbSvc.addFolders(flags, [cond_kwargs["ChannelFolderDB"]], detDb = cond_kwargs['dbInstance'], className='CondAttrListVec'))
   if not cond_kwargs['ModuleFolderDB']:
     acc.merge(iovDbSvc.addFoldersSplitOnline(flags,
                                              detDb=cond_kwargs['dbInstance'],
-                                             cond_kwargs["ModuleFolder"],
-                                             cond_kwargs["ModuleFolder"],
+                                             online_folders=cond_kwargs["ModuleFolder"],
+                                             offline_folders=cond_kwargs["ModuleFolder"],
                                              className='CondAttrListVec',
                                              splitMC=True))
   else:
-    acc.merge(iovDbSvc.addFolders(detDb = cond_kwargs['dbInstance'], [cond_kwargs["ModuleFolderDB"]], className='CondAttrListVec'))
+    acc.merge(iovDbSvc.addFolders(flags, [cond_kwargs["ModuleFolderDB"]], detDb = cond_kwargs['dbInstance'], className='CondAttrListVec'))
   if not cond_kwargs['MurFolderDB']:
     acc.merge(iovDbSvc.addFoldersSplitOnline(flags,
                                              detDb=cond_kwargs['dbInstance'],
-                                             cond_kwargs["MurFolder"],
-                                             cond_kwargs["MurFolder"],
+                                             online_folders=cond_kwargs["MurFolder"],
+                                             offline_folders=cond_kwargs["MurFolder"],
                                              className='CondAttrListVec',
                                              splitMC=True))
   else:
-    acc.merge(iovDbSvc.addFolders(detDb = cond_kwargs['dbInstance'], [cond_kwargs["MurFolderDB"]], className='CondAttrListVec'))
+    acc.merge(iovDbSvc.addFolders(flags, [cond_kwargs["MurFolderDB"]], detDb = cond_kwargs['dbInstance'],  className='CondAttrListVec'))
 
   ConfigCondAlg_kwargs={}
   ConfigCondAlg_kwargs["ReadKeyChannel"]=cond_kwargs["ChannelFolder"]
@@ -280,7 +283,7 @@ def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsT
   return acc
 
 
-def SCT_ReadCalibDataToolCfg(flags, name="SCT_ReadCalibDataTool",addPublicTool cond_kwargs, **kwargs):
+def SCT_ReadCalibDataToolCfg(flags, name="SCT_ReadCalibDataTool", cond_kwargs={}, **kwargs):
   acc = ComponentAccumulator()
 
   cond_kwargs.setdefault("NoiseFolder","/SCT/DAQ/Calibration/NoiseOccupancyDefects")
@@ -289,14 +292,14 @@ def SCT_ReadCalibDataToolCfg(flags, name="SCT_ReadCalibDataTool",addPublicTool c
 
   acc.merge(iovDbSvc.addFoldersSplitOnline(flags,
                                            detDb="SCT",
-                                           cond_kwargs["NoiseFolder"],
-                                           cond_kwargs["NoiseFolder"],
+                                           online_folders=cond_kwargs["NoiseFolder"],
+                                           offline_folders=cond_kwargs["NoiseFolder"],
                                            className='CondAttrListVec',
                                            splitMC=True))
   acc.merge(iovDbSvc.addFoldersSplitOnline(flags,
                                            detDb="SCT",
-                                           cond_kwargs["GainFolder"],
-                                           cond_kwargs["GainFolder"],
+                                           online_folders=cond_kwargs["GainFolder"],
+                                           offline_folders=cond_kwargs["GainFolder"],
                                            className='CondAttrListVec',
                                            splitMC=True))
 
@@ -329,11 +332,11 @@ def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", *
   acc = ComponentAccumulator()
 
   #FIXME: this makes FolderDB always take precedence over Folder, do we want that?!
-  if not kwargs["FolderDb"]
+  if not "FolderDb" in kwargs:
     kwargs["FolderDb"] = kwargs["Folder"]
   acc.merge(iovDbSvc.addFolders(kwargs["dbInstance"], kwargs["FolderDb"], className="CondAttrListCollection"))
 
-  acc.merge(SCT_MonitorCondAlgCfg(flags, name=kwargs["MonitorCondAlgName"], cond_kwargs))
+  acc.merge( SCT_MonitorCondAlgCfg(flags, cond_kwargs, name=kwargs["MonitorCondAlgName"]) )
 
   tool = CompFactory.SCT_MonitorConditionsTool(name, **kwargs)
   acc.setPrivateTools(tool)
@@ -341,35 +344,39 @@ def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", *
   return acc
 
 
-def SCT_ByteStreamErrorsToolCfg
-  acc.setPrivateTools(tool)
+def SCT_ByteStreamErrorsToolCfg(flags):
+  acc = ComponentAccumulator()
+  # acc.setPrivateTools(tool)
   return acc
 
-def SCT_DCSConditionsToolCfg(flags):
-  acc.setPrivateTools(tool)
-  return acc
+#Placeholders
+# def SCT_DCSConditionsToolCfg(flags):
+#   acc = ComponentAccumulator()
 
-def SCT_TdaqEnabledToolCfg(flags):
-  acc.setPrivateTools(tool)
-  return acc
+#   acc.setPrivateTools(tool)
+#   return acc
 
-def InDetTestPixelLayerToolCfg(flags):
-  acc.addPublicTool(tool, primary=True)
+# def SCT_TdaqEnabledToolCfg(flags):
+#   acc.setPrivateTools(tool)
+#   return acc
+
+# def InDetTestPixelLayerToolCfg(flags):
+#   acc.addPublicTool(tool, primary=True)
 
 
-def InDetPropagatorCfg(flags):
-  acc.addPublicTool(tool, primary=True)
+# def InDetPropagatorCfg(flags):
+#   acc.addPublicTool(tool, primary=True)
 
-def InDetMaterialEffectsUpdatorCfg(flags):
-  acc.addPublicTool(tool, primary=True)
+# def InDetMaterialEffectsUpdatorCfg(flags):
+#   acc.addPublicTool(tool, primary=True)
 
-def InDetNavigatorCfg(flags):
-  acc.addPublicTool(tool, primary=True)
+# def InDetNavigatorCfg(flags):
+#   acc.addPublicTool(tool, primary=True)
 
-def TRT_StrawStatusSummaryToolCfg(flags, name='TRT_StrawStatusSummaryTool', **kwargs):
-  offlineFolders = []
-  offlineFolders.append("/TRT/Cond/StatusHT")
-  onlineFolders = []
-  onlineFolders.append("/TRT/Onl/Cond/StatusHT")
-  acc.merge(iovDbSvc.addFoldersSplitOnline(flags, detDb='TRT', onlineFolders, offlineFolders, className='TRTCond::StrawStatusMultChanContainer') )
+# def TRT_StrawStatusSummaryToolCfg(flags, name='TRT_StrawStatusSummaryTool', **kwargs):
+#   offlineFolders = []
+#   offlineFolders.append("/TRT/Cond/StatusHT")
+#   onlineFolders = []
+#   onlineFolders.append("/TRT/Onl/Cond/StatusHT")
+#   acc.merge(iovDbSvc.addFoldersSplitOnline(flags, detDb='TRT', onlineFolders, offlineFolders, className='TRTCond::StrawStatusMultChanContainer') )
 

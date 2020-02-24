@@ -1,19 +1,18 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from CfgUtils import setDefaults
 from AthenaConfiguration.UnifyProperties import unifySet,_propsToUnify
 _propsToUnify['THistSvc.Output'] = unifySet
 
 ##------------------------------------------------------------------------------
 def InDetBCM_ZeroSuppressionCfg(flags, **kwargs):
-	from BCM_ZeroSuppression.BCM_ZeroSuppressionConf import BCM_ZeroSuppression
-	acc = ComponentAccumulator()
-	kwargs = setDefaults(kwargs,
-                        BcmContainerName = flags.InDetKeys.BCM_RDOs)
-	algo = BCM_ZeroSuppression("InDetBCM_ZeroSuppression", **kwargs)
-	acc.addEventAlgo(algo, primary = True)
-	return acc
+    from BCM_ZeroSuppression.BCM_ZeroSuppressionConf import BCM_ZeroSuppression
+    acc = ComponentAccumulator()
+    kwargs.setdefault("BcmContainerName", "BCM_RDOs")
+    algo = BCM_ZeroSuppression("InDetBCM_ZeroSuppression", **kwargs)
+    acc.addEventAlgo(algo, primary = True)
+    return acc
 
 ##------------------------------------------------------------------------------
 def InDetPixelClusterizationCfg(flags, **kwargs) :
@@ -27,16 +26,16 @@ def InDetPixelClusterizationCfg(flags, **kwargs) :
     acc.addEventAlgo( InDet__PixelClusterization(   name                    = "InDetPixelClusterization",
                                                     clusteringTool          = merged_pixels_tool,
                                                     gangedAmbiguitiesFinder = ambi_finder,
-                                                    DataObjectName          = flags.InDetKeys.PixelRDOs,
-                                                    ClustersName            = flags.InDetKeys.PixelClusters ))
+                                                    DataObjectName          = "PixelRDOs",
+                                                    ClustersName            = "PixelClusters" ))
     return acc
 ##------------------------------------------------------------------------------
 def InDetPixelClusterizationPUCfg(flags, **kwargs) :
-    return InDetPixelClusterizationCfg(flags, **setDefaults( kwargs,
-                                            name = "InDetPixelClusterizationPU",
-                                            DataObjectName          = flags.InDetKeys.PixelPURDOs,
-                                            ClustersName            = flags.InDetKeys.PixelPUClusters,
-                                            AmbiguitiesMap          = "PixelClusterAmbiguitiesMapPU"))
+    kwargs.setdefault("name", "InDetPixelClusterizationPU")
+    kwargs.setdefault("DataObjectName", "Pixel_PU_RDOs")
+    kwargs.setdefault("ClustersName", "PixelPUClusters")
+    kwargs.setdefault("AmbiguitiesMap", "PixelClusterAmbiguitiesMapPU")
+    return InDetPixelClusterizationCfg(flags, **kwargs)
 
 ##------------------------------------------------------------------------------
 ##------------------------------------------------------------------------------
@@ -60,8 +59,8 @@ def InDet_SCTClusterizationCfg(flags, **kwargs) :
     InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(    name              = "InDetSCT_ClusteringTool",
                                                             globalPosAlg     = InDetClusterMakerTool,
                                                             conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged)
-    if flags.InDetFlags.selectSCTIntimeHits :
-       if flags.InDetFlags.InDet25nsec : 
+    if flags.InDet.selectSCTIntimeHits :
+       if flags.InDet.InDet25nsec : 
           InDetSCT_ClusteringTool.timeBins = "01X" 
        else: 
           InDetSCT_ClusteringTool.timeBins = "X1X" 
@@ -81,10 +80,10 @@ def InDet_SCTClusterizationCfg(flags, **kwargs) :
 ##------------------------------------------------------------------------------
 
 def InDet_SCTClusterizationPUCfg(flags, **kwargs) :
-    return InDet_SCTClusterizationCfg(flags, **setDefaults( kwargs,
-                                        name            = "InDetSCT_ClusterizationPU",
-                                        DataObjectName  = flags.InDetKeys.SCT_PU_RDOs,
-                                        ClustersName    = flags.InDetKeys.SCT_PU_Clusters))
+    kwargs.setdefault("name", "InDetSCT_ClusterizationPU")
+    kwargs.setdefault("DataObjectName", "SCT_PU_RDOs" )   #flags.InDetKeys.SCT_PU_RDOs
+    kwargs.setdefault("ClustersName", "SCT_PU_Clusters") #flags.InDetKeys.SCT_PU_Clusters
+    return InDet_SCTClusterizationCfg(flags, **kwargs)
 
 ##------------------------------------------------------------------------------
 def InDetPixelGangedAmbiguitiesFinderCfg(flags) :
@@ -103,22 +102,22 @@ def InDetMergedPixelsToolCfg(flags, **kwargs) :
       clusterSplitProbTool = None
       clusterSplitterTool  = None
 
-      if flags.InDetFlags.doPixelClusterSplitting :
+      if flags.InDet.doPixelClusterSplitting :
          # --- Neutral Network version
-         if flags.InDetFlags.pixelClusterSplittingType == 'NeuralNet':
-            useBeamConstraint = flags.InDetFlags.useBeamConstraint
+         if flags.InDet.pixelClusterSplittingType == 'NeuralNet':
+            useBeamConstraint = flags.InDet.useBeamConstraint
 
 	    from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
             # --- new NN prob tool
             from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
             NnClusterizationFactory = InDet__NnClusterizationFactory(   name                         = "NnClusterizationFactory",
                                                                         PixelLorentzAngleTool        = PixelLorentzAngleToolCfg( flags ),
-                                                                        useToT                       = flags.InDetFlags.doNNToTCalibration,
+                                                                        useToT                       = flags.InDet.doNNToTCalibration,
                                                                         NnCollectionReadKey          = "PixelClusterNN",
                                                                         NnCollectionWithTrackReadKey = "PixelClusterNNWithTrack")
 
             MultiplicityContent = [1 , 1 , 1]
-            if flags.InDetFlags.doSLHC:
+            if flags.InDet.doSLHC:
                 from SiClusterizationTool.SiClusterizationToolConf import InDet__TruthPixelClusterSplitProbTool as PixelClusterSplitProbTool
             else:
                 from SiClusterizationTool.SiClusterizationToolConf import InDet__NnPixelClusterSplitProbTool as PixelClusterSplitProbTool
@@ -129,20 +128,20 @@ def InDetMergedPixelsToolCfg(flags, **kwargs) :
             # --- remember this prob tool  
             clusterSplitProbTool = NnPixelClusterSplitProbTool
             # --- new NN splitter
-            if flags.InDetFlags.doSLHC :
+            if flags.InDet.doSLHC :
                 from SiClusterizationTool.SiClusterizationToolConf import InDet__TruthPixelClusterSplitter as PixelClusterSplitter
             else:
                 from SiClusterizationTool.SiClusterizationToolConf import InDet__NnPixelClusterSplitter as PixelClusterSplitter
             NnPixelClusterSplitter=PixelClusterSplitter(    name                                = "NnPixelClusterSplitter",
                                                             NnClusterizationFactory             = NnClusterizationFactory,
-                                                            ThresholdSplittingIntoTwoClusters   = 0.5, ##InDetFlags.pixelClusterSplitProb1, ###0.5, # temp.
-                                                            ThresholdSplittingIntoThreeClusters = 0.25, ##InDetFlags.pixelClusterSplitProb2, ###0.25, # temp.
+                                                            ThresholdSplittingIntoTwoClusters   = 0.5, ##InDet.pixelClusterSplitProb1, ###0.5, # temp.
+                                                            ThresholdSplittingIntoThreeClusters = 0.25, ##InDet.pixelClusterSplitProb2, ###0.25, # temp.
                                                             SplitOnlyOnBLayer                   = False,
                                                             useBeamSpotInfo                     = useBeamConstraint)
             # remember splitter tool  
             clusterSplitterTool = NnPixelClusterSplitter
          # --- Neutral Network version ?
-         elif flags.InDetFlags.pixelClusterSplittingType() == 'AnalogClus':      
+         elif flags.InDet.pixelClusterSplittingType == 'AnalogClus':      
             # new splitter tool
             from SiClusterizationTool.SiClusterizationToolConf import InDet__TotPixelClusterSplitter
             TotPixelClusterSplitter=InDet__TotPixelClusterSplitter (name = "TotPixelClusterSplitter")
@@ -165,8 +164,8 @@ def InDetMergedPixelsToolCfg(flags, **kwargs) :
                                                         MinimalSplitProbability = 0,
                                                         DoIBLSplitting = True)
       # assign the tools if there are any                                                
-      if not flags.InDetFlags.doTIDE_Ambi and clusterSplitProbTool is not None : InDetMergedPixelsTool.SplitProbTool   = clusterSplitProbTool
-      if not flags.InDetFlags.doTIDE_Ambi and clusterSplitterTool is not None  : InDetMergedPixelsTool.ClusterSplitter = clusterSplitterTool
+      if not flags.InDet.doTIDE_Ambi and clusterSplitProbTool is not None : InDetMergedPixelsTool.SplitProbTool   = clusterSplitProbTool
+      if not flags.InDet.doTIDE_Ambi and clusterSplitterTool is not None  : InDetMergedPixelsTool.ClusterSplitter = clusterSplitterTool
 
       sub_acc = ComponentAccumulator()      
       acc.addPublicTool(InDetMergedPixelsTool)
