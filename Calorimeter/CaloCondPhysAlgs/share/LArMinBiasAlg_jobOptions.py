@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file to run Digitization
@@ -81,7 +82,7 @@ if not hasattr(ServiceMgr, 'THistSvc'):
    from GaudiSvc.GaudiSvcConf import THistSvc
    ServiceMgr += THistSvc()
 
-ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='ntuple.root' OPT='RECREATE'"];
+ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='ntuple.root' OPT='RECREATE'"]
 
 #--------------------------------------------------------------
 # Event related parameters
