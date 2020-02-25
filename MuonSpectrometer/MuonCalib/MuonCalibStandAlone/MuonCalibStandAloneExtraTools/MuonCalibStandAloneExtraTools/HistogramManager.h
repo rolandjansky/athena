@@ -5,7 +5,6 @@
 #ifndef SRC_HISTOGRAMMANAGER_H
 #define SRC_HISTOGRAMMANAGER_H
 
-#include "TMath.h"
 #include <string.h>
 #include <stdio.h>
 

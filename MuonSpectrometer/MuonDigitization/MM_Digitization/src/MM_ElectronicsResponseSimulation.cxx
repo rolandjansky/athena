@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -7,13 +7,11 @@
 *  MC for micromegas athena integration
 *
 **/
-//~
-/// PROJECTS
-#include "GaudiKernel/MsgStream.h"
+
 #include "MM_Digitization/MM_ElectronicsResponseSimulation.h"
 
-// #include <random>
-#include "TF1.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 std::vector<float> shaperInputTime;
 std::vector<float> shaperInputCharge;
@@ -85,7 +83,6 @@ MM_DigitToolOutput MM_ElectronicsResponseSimulation::getPeakResponseFrom(const M
 	vmmPeakResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
 
 	/// ToDo: include loop for calculating Trigger study vars
-	// MM_DigitToolOutput(bool hitWasEff, std::vector <int> strpos, std::vector<float> time, std::vector<int> charge, int strTrig, float strTimeTrig ):
 	MM_DigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
 
 	return tmp;
@@ -289,7 +286,10 @@ int MM_ElectronicsResponseSimulation::getIdTheFastestSignalInVMM(
 			}
 		}
 	}
-	if(theFastestSignal==-1) std::cout << "There is something wrong in getIdTheFastestSignalInVMM" << std::endl;
+    if(theFastestSignal==-1) {
+        MsgStream log(Athena::getMessageSvc(),"MM_ElectronicsResponseSimulation");
+        log << MSG::WARNING << "There is something wrong in getIdTheFastestSignalInVMM" << endmsg;
+    }
 
 	return theFastestSignal;
 }
@@ -340,7 +340,6 @@ MM_DigitToolOutput MM_ElectronicsResponseSimulation::applyDeadTimeStrip(const MM
 			electronicsAppliedDeadtimeStripTime.push_back(electronicsStripTime[i]);
 			electronicsAppliedDeadtimeStripCharge.push_back(electronicsStripCharge[i]);
 		}
-	//    else std::cout <<  "Killed due to the strip dead time" << std::endl;
 	}
 
 	MM_DigitToolOutput ElectronicsTriggerOutputAppliedDeadTime(
