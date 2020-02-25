@@ -127,7 +127,7 @@ class doPseudoTracking(InDetFlagsJobProperty):
     StoredValue  = False 
 
 class doIdealPseudoTracking(InDetFlagsJobProperty):
-    """Run pseudoTracking with 100\% hit assignment efficiency"""
+    """Run pseudoTracking with 100% hit assignment efficiency"""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = True

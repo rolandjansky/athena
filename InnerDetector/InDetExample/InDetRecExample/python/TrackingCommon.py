@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrackingCommon')
 
@@ -93,7 +95,7 @@ def makePublicTool(tool_creator) :
             if the_name != tool.name() :
                 raise Exception('Tool has not the exepected name %s but %s' % (the_name, tool.name()))
             if private is False :
-                print 'DEBUG add to ToolSvc %s' % (tool.name())
+                print ('DEBUG add to ToolSvc %s' % (tool.name()))
                 ToolSvc += tool
             return tool
         else :
