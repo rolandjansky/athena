@@ -4,14 +4,14 @@
 
 /**
  * ----------------------------------------------------------------
- * The default behavior of this tool is to use beta = 1.0, but multiple 
- * values of beta can be used simultaneously. The property BetaList 
+ * The default behavior of this tool is to use beta = 1.0, but multiple
+ * values of beta can be used simultaneously. The property BetaList
  * should be passed a list of floats. Values of < 0 or > 10 may result
- * in poblematic output variable names and all values will be rounded
- * to the nearest 0.1. No suffix will be added to the outputs for beta = 1.0 
- * and for other values a suffix of _BetaN will be added where N= 10*beta. 
+ * in problematic output variable names and all values will be rounded
+ * to the nearest 0.1. No suffix will be added to the outputs for beta = 1.0
+ * and for other values a suffix of _BetaN will be added where N = int(10*beta).
  *
- * The DoDichroic option adds dichroic energy correlator ratios described 
+ * The DoDichroic option adds dichroic energy correlator ratios described
  * on page 120 in https://arxiv.org/abs/1803.07977
  * ----------------------------------------------------------------
  */
