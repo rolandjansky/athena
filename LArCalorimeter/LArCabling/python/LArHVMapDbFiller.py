@@ -1,15 +1,18 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @author: G.Unal
 # @date:   July 2008
 #
 #
 
+from __future__ import print_function
+
 __version__ = "$Id: LArHVMapDbFiller.py"
 __author__  = "G.Unal"
 
-import sys, os, string
-from PyCool import cool,coral
+import sys, os
+from PyCool import cool
+import six
 
 class LArHVMapDbFillerError(Exception):
     def __init__(self, value):
@@ -36,15 +39,15 @@ class LArHVMapDbFiller(object):
 
     # 
     def setBegin(self,run,lumi):
-        print " setBegin  run,lumi ",run
-        self.beginTime    = (long(run) << 32) + long(lumi)
-        print "    time ",self.beginTime
+        print (" setBegin  run,lumi ",run)
+        self.beginTime    = (int(run) << 32) + int(lumi)
+        print ("    time ",self.beginTime)
         return
 
     def setEnd(self,run,lumi): 
-        print "setEnd runmlumi ",run
-        self.endTime      = (long(run) << 32) + long(lumi)
-        print "   time ",self.endTime
+        print ("setEnd runmlumi ",run)
+        self.endTime      = (int(run) << 32) + int(lumi)
+        print ("   time ",self.endTime)
         return
 
     def setFileName(self, fileName):
@@ -57,7 +60,7 @@ class LArHVMapDbFiller(object):
 
     def readFile(self):
         value = ''
-        f = file(self.FileName,'r')
+        f = open(self.FileName,'r')
         for lines in f:
             value += lines
         self.Params['LArHVMap'] = value
@@ -69,25 +72,25 @@ class LArHVMapDbFiller(object):
         dbName = 'COMP200'
         folderPath = '/LAR/IdentifierOfl/HVLineToElectrodeMap'
         # Do checks
-        if self.beginTime == None:
-            raise LArHVMapDbFillerError, 'Must set begin run number before generating db'
-        if self.endTime == None:
+        if self.beginTime is None:
+            raise LArHVMapDbFillerError ('Must set begin run number before generating db')
+        if self.endTime is None:
             self.endTime = cool.ValidityKeyMax
-        if self.FileName == None:
-            raise LArHVMapDbFillerError, 'Must give an input file for LArHVToElectrode.data'
-        if self.FolderTag == None:
-            raise LArHVMapDbFillerError, 'Must give a folder tag'
+        if self.FileName is None:
+            raise LArHVMapDbFillerError ('Must give an input file for LArHVToElectrode.data')
+        if self.FolderTag is None:
+            raise LArHVMapDbFillerError ('Must give a folder tag')
 
         self.readFile()
 
         if len(self.Params) == 0:
-            raise LArHVMapDbFillerError, 'No parameters for db ' + dbName
+            raise LArHVMapDbFillerError ('No parameters for db ' + dbName)
 
         # remove existing db, if any
         try:
             os.remove(dbFileName)
-            print "LArHVMapDbFiller.genDb:  Removed db", dbFileName
-        except:
+            print ("LArHVMapDbFiller.genDb:  Removed db", dbFileName)
+        except OSError:
             pass
 
         # get database service and open database
@@ -97,10 +100,10 @@ class LArHVMapDbFiller(object):
         dbstring="sqlite://;schema=" + dbFileName + ";dbname=" + dbName
         try:
             db=dbSvc.createDatabase(dbstring)
-        except Exception,e:
-            print 'LArHVMapDbFiller.genDb:  Problem creating database',e
+        except Exception as e:
+            print ('LArHVMapDbFiller.genDb:  Problem creating database',e)
             sys.exit(-1)
-            print "LArHVMapDbFiller.genDb:  Created database",dbstring
+            print ("LArHVMapDbFiller.genDb:  Created database",dbstring)
         
         # setup a folder payload specification
         spec=cool.RecordSpecification()
@@ -116,14 +119,14 @@ class LArHVMapDbFiller(object):
         myfolder=db.createFolder(folderPath, spec, desc, cool.FolderVersioning.MULTI_VERSION,True)
         # now fill in simlation parameters
         data=cool.Record(spec)
-        for k, v in self.Params.iteritems():
+        for k, v in six.iteritems (self.Params):
             data[k] = v
 
-        print "LArHVMapDbFiller.genDb:  Recording parameters", data
+        print ("LArHVMapDbFiller.genDb:  Recording parameters", data)
 
         # store object with IOV valid from 0-10, channel 3
         myfolder.storeObject(self.beginTime, self.endTime, data, 0, self.FolderTag)
-        print "LArHVMapDbFiller.genDb:  Stored object"
+        print ("LArHVMapDbFiller.genDb:  Stored object")
 
         # finalize
         db.closeDatabase()
@@ -133,14 +136,14 @@ class LArHVMapDbFiller(object):
 
     def dumpDb(self, dbstring):
 
-        print "LArHVMapDbFiller.dumpDb:  Dumping database:", dbstring
+        print ("LArHVMapDbFiller.dumpDb:  Dumping database:", dbstring)
         # get database service and open database
         dbSvc = cool.DatabaseSvcFactory.databaseService()
         # database accessed via physical name
         try:
             db = dbSvc.openDatabase(dbstring,False)
-        except Exception,e:
-            print 'LArHVMapDbFiller.dumpDb:  Problem opening database',e
+        except Exception as e:
+            print ('LArHVMapDbFiller.dumpDb:  Problem opening database',e)
             sys.exit(-1)
 
         # Loop over folders
@@ -149,15 +152,15 @@ class LArHVMapDbFiller(object):
             # Get Folder
             try:
                 f = db.getFolder(ff)
-                print "LArHVMapDbFiller.dumpDb:  Dumping folder " + str(ff)
-            except:
-                #print "Skipping " + str(ff)
+                print ("LArHVMapDbFiller.dumpDb:  Dumping folder " + str(ff))
+            except Exception:
+                #print ("Skipping " + str(ff))
                 continue
 
         # get tags
         # tags  = f.listTags()
-        # print "for tags ",
-        # for tag in tags: print tag
+        # print ("for tags ",)
+        # for tag in tags: print (tag)
     
         # for tag in tags:
 
@@ -165,7 +168,7 @@ class LArHVMapDbFiller(object):
                                     cool.ValidityKeyMax,
                                     cool.ChannelSelection.all())
 
-            print "LArHVMapDbFiller.dumpDb:  number of IOV payloads", nobjs
+            print ("LArHVMapDbFiller.dumpDb:  number of IOV payloads", nobjs)
 
             objs = f.browseObjects( cool.ValidityKeyMin,
                                     cool.ValidityKeyMax,
@@ -173,11 +176,11 @@ class LArHVMapDbFiller(object):
             i = 0
             while objs.goToNext():
                 obj = objs.currentRef()
-                print "LArHVMapDbFiller.dumpDb:  Payload", i,
-                print "since [r,l]: [", obj.since() ,']',
-                print "until [r,l]: [", obj.until() ,']',
-                print "payload", obj.payload(),
-                print "chan",obj.channelId() 
+                print ("LArHVMapDbFiller.dumpDb:  Payload", i,)
+                print ("since [r,l]: [", obj.since() ,']',)
+                print ("until [r,l]: [", obj.until() ,']',)
+                print ("payload", obj.payload(),)
+                print ("chan",obj.channelId() )
                 i += 1
 
             objs.close()
