@@ -17,6 +17,7 @@ alg.MuonCalibrationAndSmearingTool.FilesPath = '/home/artoni/MuonCombinedPerform
 alg.MuonCalibrationAndSmearingTool.OutputLevel = INFO 
 alg.MuonCalibrationAndSmearingTool.doExtraSmearing = False 
 alg.MuonCalibrationAndSmearingTool.do2StationsHighPt = False 
+alg.MuonCalibrationAndSmearingTool.AddExtraDecorations = True
 alg.OutputLevel = INFO 
 theJob += alg
 
