@@ -4,8 +4,8 @@
 */
 
 #include "Run3AFPMonitoring/AFPSiLayerAlgorithm.h"
-#include <xAODForward/AFPSiHit.h>
-#include <xAODForward/AFPSiHitContainer.h>
+//#include <xAODForward/AFPSiHit.h>
+//#include <xAODForward/AFPSiHitContainer.h>
 #include "StoreGate/ReadHandleKey.h"
 
 /* Old constructor:
