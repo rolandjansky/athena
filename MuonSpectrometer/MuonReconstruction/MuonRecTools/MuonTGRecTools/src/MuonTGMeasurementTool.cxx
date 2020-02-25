@@ -84,13 +84,7 @@ StatusCode Muon::MuonTGMeasurementTool::initialize()
   m_rpcProjPhi = new AmgMatrix(5,5);
   m_rpcProjPhi->setIdentity();
 
-  StatusCode sc = detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Could not find tool "<< m_trackingGeometryName);
-    m_trackingGeometry=0;
-  } else {
-    ATH_MSG_DEBUG("tracking geometry Svc \""<<m_trackingGeometryName<<"\" booked ");
-  }
+  ATH_CHECK(detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName));
 
   return StatusCode::SUCCESS;
 }
