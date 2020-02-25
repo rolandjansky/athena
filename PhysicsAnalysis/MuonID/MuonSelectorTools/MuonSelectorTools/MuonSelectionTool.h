@@ -172,6 +172,10 @@ namespace CP {
      //from the pile-up reweighting tool is not needed.
      unsigned int getRunNumber(bool needOnlyCorrectYear = false) const;
 
+     //Check if muon eta/phi falls in BIS7/8 or BEE chambers
+     bool isBIS78(float eta, float phi) const;
+     bool isBEE(float eta, float phi) const;
+
      //TMVA readers for low-pT working point
      TMVA::Reader* readerE_MUID;
      TMVA::Reader* readerO_MUID;

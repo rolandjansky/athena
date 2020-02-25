@@ -1012,18 +1012,9 @@ namespace CP {
       
 
       //::: BIS78
-      float BIS78_eta[ 2 ] = { 1.05, 1.3 };
-      float BIS78_phi[ 8 ] = { 0.21, 0.57, 1.00, 1.33, 1.78, 2.14, 2.57, 2.93 };
-
-      if ( fabs( etaMS ) >= BIS78_eta[ 0 ] && fabs( etaMS ) <= BIS78_eta[ 1 ] ) {
-        if ( ( fabs( phiMS ) >= BIS78_phi[ 0 ] && fabs( phiMS ) <= BIS78_phi[ 1 ] ) 
-	     || ( fabs( phiMS ) >= BIS78_phi[ 2 ] && fabs( phiMS ) <= BIS78_phi[ 3 ] ) 
-	     || ( fabs( phiMS ) >= BIS78_phi[ 4 ] && fabs( phiMS ) <= BIS78_phi[ 5 ] ) 
-	     || ( fabs( phiMS ) >= BIS78_phi[ 6 ] && fabs( phiMS ) <= BIS78_phi[ 7 ] ) 
-	     ) {
-	  ATH_MSG_VERBOSE( "Muon is in BIS7/8 eta/phi region - fail high-pT" );
-	  return false;
-	}
+      if (isBIS78(etaMS,phiMS)) {
+	ATH_MSG_VERBOSE( "Muon is in BIS7/8 eta/phi region - fail high-pT" );
+	return false;
       }
 
       //::: BMG - only veto in 2017+2018 data and corresponding MC
@@ -1043,22 +1034,14 @@ namespace CP {
       }
 
       //::: BEE
-      float BEE_eta[ 2 ] = { 1.440, 1.692 };
-      float BEE_phi[ 8 ] = { 0.301, 0.478, 1.086, 1.263, 1.872, 2.049, 2.657, 2.834 };     
-      if ( fabs( etaMS ) >= BEE_eta[ 0 ] && fabs( etaMS ) <= BEE_eta[ 1 ] ) {
-	if ( ( fabs( phiMS ) >= BEE_phi[ 0 ] && fabs( phiMS ) <= BEE_phi[ 1 ] ) 
-	     || ( fabs( phiMS ) >= BEE_phi[ 2 ] && fabs( phiMS ) <= BEE_phi[ 3 ] ) 
-	     || ( fabs( phiMS ) >= BEE_phi[ 4 ] && fabs( phiMS ) <= BEE_phi[ 5 ] ) 
-	     || ( fabs( phiMS ) >= BEE_phi[ 6 ] && fabs( phiMS ) <= BEE_phi[ 7 ] ) 
-	     ) {
-	  // Muon falls in the BEE eta-phi region: asking for 4 good precision layers
-	  //if( nGoodPrecLayers < 4 ) return false; // postponed (further studies needed) 
-	  if( nprecisionLayers < 4 ) {
-	    ATH_MSG_VERBOSE( "Muon is in BEE eta/phi region and does not have 4 precision layers - fail high-pT" );
-	    return false;
-	  }
-	}  
-      }
+      if (isBEE(etaMS,phiMS)) {
+	// Muon falls in the BEE eta-phi region: asking for 4 good precision layers
+	//if( nGoodPrecLayers < 4 ) return false; // postponed (further studies needed) 
+	if( nprecisionLayers < 4 ) {
+	  ATH_MSG_VERBOSE( "Muon is in BEE eta/phi region and does not have 4 precision layers - fail high-pT" );
+	  return false;
+	}
+      }  
       if( fabs(etaCB)>1.4 ) {
 	// Veto residual 3-station muons in BEE region due to MS eta/phi resolution effects
 	//if( nGoodPrecLayers<4 && (extendedSmallHits>0||extendedSmallHoles>0) ) return false; // postponed (further studies needed)
@@ -1503,30 +1486,11 @@ namespace CP {
     if( (1.01 < fabs( etaMS ) && fabs( etaMS ) < 1.1) || (1.01 < fabs( etaCB ) && fabs( etaCB ) < 1.1) )
       category = 0; //barrel-end-cap overlap
  
+    if (isBIS78(etaMS,phiMS))
+      category = 0; //BIS7/8
 
-    //::: BIS78
-    float BIS78_eta[ 2 ] = { 1.05, 1.3 };
-    float BIS78_phi[ 8 ] = { 0.21, 0.57, 1.00, 1.33, 1.78, 2.14, 2.57, 2.93 };
-	
-    if ( fabs( etaMS ) >= BIS78_eta[ 0 ] && fabs( etaMS ) <= BIS78_eta[ 1 ] ) {
-      if ( ( fabs( phiMS ) >= BIS78_phi[ 0 ] && fabs( phiMS ) <= BIS78_phi[ 1 ] ) 
-	   || ( fabs( phiMS ) >= BIS78_phi[ 2 ] && fabs( phiMS ) <= BIS78_phi[ 3 ] ) 
-	   || ( fabs( phiMS ) >= BIS78_phi[ 4 ] && fabs( phiMS ) <= BIS78_phi[ 5 ] ) 
-	   || ( fabs( phiMS ) >= BIS78_phi[ 6 ] && fabs( phiMS ) <= BIS78_phi[ 7 ] ) )
-	category = 0; //BIS7/8
-    }
-
-    
     //::: BEE
-    float BEE_eta[ 2 ] = { 1.440, 1.692 };
-    float BEE_phi[ 8 ] = { 0.301, 0.478, 1.086, 1.263, 1.872, 2.049, 2.657, 2.834 };     
-    if ( ( (fabs( etaMS ) >= BEE_eta[ 0 ] && fabs( etaMS ) <= BEE_eta[ 1 ]) &&
-	   ( ( fabs( phiMS ) >= BEE_phi[ 0 ] && fabs( phiMS ) <= BEE_phi[ 1 ] ) 
-	     || ( fabs( phiMS ) >= BEE_phi[ 2 ] && fabs( phiMS ) <= BEE_phi[ 3 ] ) 
-	     || ( fabs( phiMS ) >= BEE_phi[ 4 ] && fabs( phiMS ) <= BEE_phi[ 5 ] ) 
-	     || ( fabs( phiMS ) >= BEE_phi[ 6 ] && fabs( phiMS ) <= BEE_phi[ 7 ] ) ) )
-	 || (fabs(etaCB)>1.4 && (extendedSmallHits>0||extendedSmallHoles>0) )
-	 ) {
+    if (isBEE(etaMS,phiMS) || (fabs(etaCB)>1.4 && (extendedSmallHits>0||extendedSmallHoles>0)) ) {
 
       if (extendedSmallHits < 3 && middleSmallHits >= 3 && outerSmallHits >= 3)
 	category = 0; //missing-BEE
@@ -1538,8 +1502,7 @@ namespace CP {
 	category = -1; //ambiguity due to eta/phi differences between MS and CB track
     }
 
-
-    if ( nprecisionLayers == 1 )
+    if (nprecisionLayers == 1)
       category = 1; //one-station track
   
     return category;
@@ -1590,9 +1553,46 @@ namespace CP {
 
     return acc_rnd(*info);
   }
+
+
+  //Check if eta/phi coordinates correspond to BIS7/8 chambers
+  bool MuonSelectionTool::isBIS78(float eta, float phi) const {
+
+    float BIS78_eta[ 2 ] = { 1.05, 1.3 };
+    float BIS78_phi[ 8 ] = { 0.21, 0.57, 1.00, 1.33, 1.78, 2.14, 2.57, 2.93 };
+    
+    if ( fabs( eta ) >= BIS78_eta[ 0 ] && fabs( eta ) <= BIS78_eta[ 1 ] ) {
+      if ( ( fabs( phi ) >= BIS78_phi[ 0 ] && fabs( phi ) <= BIS78_phi[ 1 ] ) 
+	   || ( fabs( phi ) >= BIS78_phi[ 2 ] && fabs( phi ) <= BIS78_phi[ 3 ] ) 
+	   || ( fabs( phi ) >= BIS78_phi[ 4 ] && fabs( phi ) <= BIS78_phi[ 5 ] ) 
+	   || ( fabs( phi ) >= BIS78_phi[ 6 ] && fabs( phi ) <= BIS78_phi[ 7 ] ) 
+	   ) {
+
+	return true;
+      }
+    }
+
+    return false;
+  }
+
+  //Check if eta/phi coordinates correspond to BEE chambers
+  bool MuonSelectionTool::isBEE(float eta, float phi) const {
+
+    float BEE_eta[ 2 ] = { 1.440, 1.692 };
+    float BEE_phi[ 8 ] = { 0.301, 0.478, 1.086, 1.263, 1.872, 2.049, 2.657, 2.834 };     
+    if ( fabs( eta ) >= BEE_eta[ 0 ] && fabs( eta ) <= BEE_eta[ 1 ] ) {
+      if ( ( fabs( phi ) >= BEE_phi[ 0 ] && fabs( phi ) <= BEE_phi[ 1 ] ) 
+	   || ( fabs( phi ) >= BEE_phi[ 2 ] && fabs( phi ) <= BEE_phi[ 3 ] ) 
+	   || ( fabs( phi ) >= BEE_phi[ 4 ] && fabs( phi ) <= BEE_phi[ 5 ] ) 
+	   || ( fabs( phi ) >= BEE_phi[ 6 ] && fabs( phi ) <= BEE_phi[ 7 ] ) 
+	   ) {
+	
+	return true;
+      }
+    }
+    
+    return false;
+  }
   
 } // namespace CP
-
-
-
 
