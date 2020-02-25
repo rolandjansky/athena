@@ -180,12 +180,16 @@ class RootMergeStep(Step):
         super(RootMergeStep, self).configure(test)
 
     def run(self, dry_run=False):
+        file_list_to_check = self.input_file.split()
         if os.path.isfile(self.merged_file) and self.rename_suffix:
             old_name = os.path.splitext(self.merged_file)
             new_name = old_name[0] + self.rename_suffix + old_name[1]
             self.executable = 'mv {} {}; {}'.format(self.merged_file, new_name, self.executable)
-        file_list = self.input_file.split()
-        for file_name in file_list:
+            if new_name in file_list_to_check:
+                file_list_to_check.remove(new_name)
+                file_list_to_check.append(self.merged_file)
+        self.log.debug('%s checking if the input files exist: %s', self.name, str(file_list_to_check))
+        for file_name in file_list_to_check:
             if len(glob.glob(file_name)) < 1:
                 self.log.warning('%s: file %s requested to be merged but does not exist', self.name, file_name)
                 self.result = 1
