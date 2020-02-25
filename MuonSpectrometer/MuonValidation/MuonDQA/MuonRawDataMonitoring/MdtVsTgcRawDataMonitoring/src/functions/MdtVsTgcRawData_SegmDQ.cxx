@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,24 +22,17 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "muonEvent/MuonContainer.h"
 
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TMath.h>
 #include <inttypes.h>
 
 #include <sstream>
 #include <algorithm>
 #include <fstream>
 
-using namespace std;
-
 // Checks that segments have sufficient DQ
 // Segments with insuffient DQ are added to disqualifiedSegments and subsequently ignored by the other functions
 void
-MdtVsTgcRawDataValAlg::DQCheckMDTSegments(vector<const Muon::MuonSegment*> (&sortedSegments)[2][4],
-                                          vector<const Muon::MuonSegment*> (&disqualifiedSegments)[2][4]){
+MdtVsTgcRawDataValAlg::DQCheckMDTSegments(std::vector<const Muon::MuonSegment*> (&sortedSegments)[2][4],
+                                          std::vector<const Muon::MuonSegment*> (&disqualifiedSegments)[2][4]){
   // Define Cuts:
   // Cut for miniumum number of measurements necessary to use Segments
   const int   nMeasCutMdt[4]      = { 4, 2, 4, 5};             //[MDTStation]
