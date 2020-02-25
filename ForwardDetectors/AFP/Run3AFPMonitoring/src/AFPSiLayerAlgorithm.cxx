@@ -145,7 +145,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
     //ATH_CHECK( afpHitContainerKey.initialize() );
 
-    for(const auto& hitsItr: *afpHitContainer)
+    for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
     {
 
 	switch(hitsItr->stationID())

@@ -8,8 +8,8 @@
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadHandleKey.h"
-#include <xAODForward/AFPSiHitContainer.h>
-//##include <xAODForward/AFPSiHit.h>
+#include "xAODForward/AFPSiHitContainer.h"
+#include "xAODForward/AFPSiHit.h"
 
 #include "TRandom3.h"
 
