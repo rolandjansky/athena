@@ -1060,7 +1060,7 @@ namespace top {
       // If not nominal tree, we need to know which systematic this event corresponds to,
       // in case the systematic is removed from EV decomposition (will enter as a nominal retrieval)
       systematicName = m_config->systematicName(event.m_hashValue);
-      bTagSystName = top::bTagNamedSystCheck(m_config, systematicName, WP, false);
+      bTagSystName = top::bTagNamedSystCheck(m_config, systematicName, WP, do_trackjets, false);
       if (bTagSystName != "") decoration = "btag_SF_" + WP + "_" + bTagSystName; // Only change decoration if found,
                                                                                  // otherwise we will use the nominal
       break;
