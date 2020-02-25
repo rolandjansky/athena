@@ -250,7 +250,7 @@ namespace CP {
                     Warning("MuonEfficiencyCorrections()", "using the closest calibrated AntiKt4EMTopo jet with p_{T}>20~GeV and surving the standard OR criteria.");
                     Warning("MuonEfficiencyCorrections()", "Please decorate your muon appropiately before passing to the tool with dRJet = -1 in cases there is no jet in the event.");
                     Warning("MuonEfficiencyCorrections()", "For the time being the inclusive scale-factor is going to be returned.");
-                    //warned = true;
+                    warned = true;
                 }
                 return CorrectionCode::Ok;
             }
