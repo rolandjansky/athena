@@ -22,7 +22,6 @@
 #include "LArG4GenShowerLib/StepInfoCollection.h"
 
 // athena includes
-#include "EventInfo/TagInfo.h"
 #include "GeneratorObjects/McEventCollection.h"// For MC Truth information:
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -39,6 +38,7 @@
 // STL include(s):
 #include <sstream>
 #include <map>
+#include <cstdlib>
 
 using CLHEP::Hep3Vector;
 
@@ -424,25 +424,20 @@ void LArG4GenShowerLib::truncate(ShowerLib::StepInfoList* stepinfo)
 
 void LArG4GenShowerLib::addingTagsToLibrary()
 {
-  // get tag info
-  const TagInfo* tagInfo = NULL;
-  if ( detStore()->retrieve( tagInfo ).isFailure() ) {
-    ATH_MSG_ERROR ( "No TagInfo in DetectorStore" );
-    tagInfo = NULL;
-  } else {
-    ATH_MSG_DEBUG ( "Retrieved TagInfo" );
+  char* atlasProject = getenv("AtlasProject");
+  char* atlasVersion = getenv("AtlasVersion");
+  std::string atlasReleaseTag = (atlasProject? std::string(atlasProject)+std::string("-") : std::string("Unknown-"));
+  if(atlasVersion) {
+    atlasReleaseTag += std::string(atlasVersion);
+  }
+  else {
+    atlasReleaseTag += std::string("Unknown");
   }
 
   libMap::iterator itr;
   for (itr = m_libraries.begin();itr != m_libraries.end();itr++){
     // release
-    if (tagInfo) {
-      std::string tag;
-      tagInfo->findTag("AtlasRelease", tag);
-      if (!tag.empty()) {
-        (*itr).second->release(tag);
-      }
-    }
+    (*itr).second->release(atlasReleaseTag);
 
     // get geometry version
     ServiceHandle<IGeoModelSvc> geoModelSvc("GeoModelSvc", this->name());
