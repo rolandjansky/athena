@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg, l2CaloHypoCfg
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, \
     ChainStep, Chain, getChainStepName, createStepView
 
 from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
@@ -33,7 +33,7 @@ def generateChains( flags,  chainDict ):
 
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 
-    fastCaloSequence = MenuSequence( Sequence    = l2CaloReco.sequence(),
+    fastCaloSequence = CAMenuSequence( Sequence    = l2CaloReco.sequence(),
                                      Maker       = l2CaloReco.inputMaker(),
                                      Hypo        = l2CaloHypo,
                                      HypoToolGen = None, 
@@ -69,7 +69,7 @@ def generateChains( flags,  chainDict ):
 
     accTrk.addEventAlgo(fakeHypoAlg, sequenceName=stepView.getName())
 
-    fastInDetSequence = MenuSequence( Sequence    = fastInDetReco.sequence(),
+    fastInDetSequence = CAMenuSequence( Sequence    = fastInDetReco.sequence(),
                                       Maker       = fastInDetReco.inputMaker(),
                                       Hypo        = fakeHypoAlg,
                                       HypoToolGen = None,
