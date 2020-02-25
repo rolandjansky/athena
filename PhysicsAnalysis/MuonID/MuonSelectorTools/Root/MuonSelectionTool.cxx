@@ -1402,7 +1402,7 @@ namespace CP {
 
     //Resolutions have only been evaluated for medium combined muons
     if (getQuality(mu) > xAOD::Muon::Medium || mu.muonType() != xAOD::Muon::Combined)
-      return -1;
+      return ResolutionCategory::unclassified;
 
 
     // :: Access MS hits information 
@@ -1423,7 +1423,7 @@ namespace CP {
 	 !mu.summaryValue(cscUnspoiledEtaHits, xAOD::MuonSummaryType::cscUnspoiledEtaHits)
 	 ){
       ATH_MSG_WARNING("getResolutionCategory - MS hits information missing!!! Returning -999 ...");
-      return -999;
+      return ResolutionCategory::missingVariable;
     }
 
   
@@ -1431,9 +1431,9 @@ namespace CP {
     if (passedHighPtCuts(mu)) {
       
       if (nprecisionLayers == 2)
-	return 3;
+	return ResolutionCategory::highPt2station;
       else
-	return 4;
+	return ResolutionCategory::highPt;
     }
 
 
@@ -1460,41 +1460,41 @@ namespace CP {
       etaCB = CB_track->eta();
 
 
-    int category = -1; //use category = -1 as "unclassified"
+    int category = ResolutionCategory::unclassified;
 
     if ( (isSmallGoodSectors && innerSmallHits < 3) || (!isSmallGoodSectors && innerLargeHits < 3) )
-      category = 0; //missing-inner
+      category = ResolutionCategory::missingInner; //missing-inner
 
     if ( (isSmallGoodSectors && middleSmallHits < 3) || (!isSmallGoodSectors && middleLargeHits < 3) )
-      category = 1; //missing-middle
+      category = ResolutionCategory::missingMiddle; //missing-middle
  
     if ( (isSmallGoodSectors && outerSmallHits < 3 && extendedSmallHits < 3) || (!isSmallGoodSectors && outerLargeHits < 3 && extendedLargeHits < 3) )
-      category = 2; //missing-outer
+      category = ResolutionCategory::missingOuter; //missing-outer
  
     if ( (std::abs(etaMS) > 2.0 || std::abs(etaCB) > 2.0) && cscUnspoiledEtaHits == 0 )
-      category = 0; //spoiled CSC
+      category = ResolutionCategory::missingInner; //spoiled CSC - grouped with missing-inner due to similar resolution
  		
     if( (1.01 < std::abs( etaMS ) && std::abs( etaMS ) < 1.1) || (1.01 < std::abs( etaCB ) && std::abs( etaCB ) < 1.1) )
-      category = 0; //barrel-end-cap overlap
+      category = ResolutionCategory::missingInner; //barrel-end-cap overlap - grouped with missing-inner due to similar resolution
  
     if (isBIS78(etaMS,phiMS))
-      category = 0; //BIS7/8
+      category = ResolutionCategory::missingInner; //BIS7/8 - grouped with missing-inner due to similar resolution
 
     //::: BEE
     if (isBEE(etaMS,phiMS) || (std::abs(etaCB)>1.4 && (extendedSmallHits>0||extendedSmallHoles>0)) ) {
 
       if (extendedSmallHits < 3 && middleSmallHits >= 3 && outerSmallHits >= 3)
-	category = 0; //missing-BEE
+	category = ResolutionCategory::missingInner; //missing-BEE - grouped with missing-inner due to similar resolution
       
       if (extendedSmallHits >= 3 && outerSmallHits < 3)
-	category = 2; //missing-outer
+	category = ResolutionCategory::missingOuter; //missing-outer
       
       if (!isSmallGoodSectors)
-	category = -1; //ambiguity due to eta/phi differences between MS and CB track
+	category = ResolutionCategory::unclassified; //ambiguity due to eta/phi differences between MS and CB track
     }
 
     if (nprecisionLayers == 1)
-      category = 1; //one-station track
+      category = ResolutionCategory::missingMiddle; //one-station track - grouped with missing-middle due to similar resolution
   
     return category;
   }

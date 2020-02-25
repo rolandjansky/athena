@@ -41,6 +41,12 @@ namespace CP {
                        CP::IMuonSelectionTool )
 
    public:
+
+      ///Enum for resolution categories
+      enum ResolutionCategory {
+	missingVariable=-2, unclassified, missingInner, missingMiddle, missingOuter, highPt2station, highPt
+      };
+
       /// Constructor for standalone usage
       MuonSelectionTool( const std::string& name = "MuonSelection");
 
