@@ -99,8 +99,6 @@ allSelection = InDetAlignMon__TrackSelectionTool(name = "InDetAlignMonAlignTrack
                                                  PrimVtxContainerName = InDetKeys.xAODVertexContainer(),
                                                  UseIDTrackSelectionTool = True,
                                                  IDTrackSelectionTool = m_TrackSelectorTool_TP
-                                                 #IDTrackSelectionTool = m_TrackSelectorTool_NoCut,
-                                                 #TrackSelectorTool    = InDetDetailedTrackSelector_Default
                                                  )
 ToolSvc += allSelection
 

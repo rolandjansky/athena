@@ -7,7 +7,6 @@ m_testArea = ""
 m_packagePath = ""
 m_theUser = ""
 m_savingFile = "acZmumu_history.txt"
-#m_reconmerge = "deriv" # "deriv" "merge" "%"
 m_reconmerge = "merge" # "deriv" "merge" "%"
 m_workDirPlatform = ""
 
@@ -523,17 +522,14 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
     if ("NONE" in theOutput):
         sys.exit(" <acZmumu> ** ERROR ** no output available for the grid submission command. ** STOP execution **")
 
-    # warning: if one wants to limit the file per job just add to the options: --nFilesPerJob Nfiles
-    #theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged  --site=ANALY_ECDF_SL7" %(infoFromAMI[runNumber]["nfiles"])
+    # warning: if one wants to limit the number of files per job just add to the options: --nFilesPerJob Nfiles
 
     theOptions = "NONE"
     if (runNumber>0):
-        # stop working 11/November/2019 # theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged" %(infoFromAMI[runNumber]["nfiles"])
         theOptions = "--nfiles %d --forceStaged" %(infoFromAMI[runNumber]["nfiles"])
     else: 
         if ("NONE" not in m_userDataSet):
-            #theOptions = "--useShortLivedReplicas  --forceStaged"
-            theOptions = " --forceStaged"
+            theOptions = " --forceStaged" # "--useShortLivedReplicas"
             
     if (m_userFilesPerJob > 0 ):
         theOptions = "%s --nFilesPerJob %d" % (theOptions, m_userFilesPerJob)
