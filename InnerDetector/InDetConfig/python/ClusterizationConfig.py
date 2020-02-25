@@ -23,8 +23,8 @@ def InDetClusterizationAlgorithmsCfg(flags, **kwargs) :
     top_acc.merge(PoolReadCfg(flags))
    
     ### obtain pixel and SCT geometry
-    from InDetConfig.PixelGeoModelConfig import PixelGeometryCfg
-    from InDetConfig.SCT_GeoModelConfig	import SCT_GeometryCfg
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    from SCT_GeoModel.SCT_GeoModelConfig	import SCT_GeometryCfg
     top_acc.merge( PixelGeometryCfg(flags) )
     top_acc.merge( SCT_GeometryCfg(flags) )
 
@@ -47,8 +47,10 @@ def InDetClusterizationAlgorithmsCfg(flags, **kwargs) :
         if flags.InDet.doSplitReco :
             top_acc.merge( InDet_SCTClusterizationPUCfg(flags, **kwargs) )
 
-    from PixelConditionsConfig import PixelConditionsSummaryCfg
-    top_acc.merge( PixelConditionsSummaryCfg(flags))
+    # from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
+    # top_acc.merge( PixelConditionsSummaryCfg(flags))
+    # FIXME - the above returns a tool. Need to do something with it!
+    
     from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
     top_acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags))
     return top_acc
