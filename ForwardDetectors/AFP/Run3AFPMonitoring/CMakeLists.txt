@@ -5,9 +5,6 @@
 # Declare the package name:
 atlas_subdir( Run3AFPMonitoring )
 
-# Set the minimum required CMake version:
-cmake_minimum_required( VERSION 3.6 FATAL_ERROR )
-project(../athena/ForwardDetectors/AFP/Run3AFPMonitoring/)
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
@@ -36,23 +33,14 @@ atlas_depends_on_subdirs(
 )
 
 # External dependencies:
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
-find_package( Boost )
 find_package( ROOT COMPONENTS Core )
 
 # Component(s) in the package:
-atlas_add_library(
-    Run3AFPMonitoringLib
-    src/*.cxx
-    PUBLIC_HEADERS
-        Run3AFPMonitoring
+atlas_add_component( Run3AFPMonitoring
+    Run3AFPMonitoring/*.h src/*.cxx src/components/*.cxx
     INCLUDE_DIRS
         ${ROOT_INCLUDE_DIRS}
-    PRIVATE_INCLUDE_DIRS
-        ${Boost_INCLUDE_DIRS}
-        ${CORAL_INCLUDE_DIRS}
     LINK_LIBRARIES
-        ${Boost_LIBRARIES}
         ${ROOT_LIBRARIES}
         AthenaBaseComps
         AthenaMonitoringLib
@@ -61,8 +49,7 @@ atlas_add_library(
         LumiBlockCompsLib
         LumiBlockData
         TrigDecisionToolLib
-    PRIVATE_LINK_LIBRARIES
-        ${CORAL_LIBRARIES}
+        xAODForward
         AthenaKernel
         SGAudCore
         AthenaPoolUtilities
@@ -70,27 +57,5 @@ atlas_add_library(
         LWHists
 )
 
-atlas_add_component(
-    Run3AFPMonitoring
-    src/components/*.cxx
-    INCLUDE_DIRS
-        ${CORAL_INCLUDE_DIRS}
-    LINK_LIBRARIES
-        Run3AFPMonitoringLib
-        AthenaMonitoringLib
-        AthenaMonitoringKernelLib
-        LumiBlockData
-        LWHists
-	AFPSiHit
-        xAODForward
-        SGAudCore
-        TrigDecisionToolLib
-)
-
-# Install files from the package:
-#atlas_install_python_modules( python/*.py 
-#                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )
-#atlas_install_scripts( share/Run3DQTestingDriver.py share/hist_file_dump.py share/hist_diff.sh )
 
