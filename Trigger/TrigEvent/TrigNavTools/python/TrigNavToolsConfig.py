@@ -45,6 +45,7 @@ def navigationSlimming( config ):
   if 'xAOD' in config:
     ThinTool.ResultKey=''
     ThinTool.xAODNavigationKey=config['result']
+    ThinTool.ExtraInputs = [('xAOD::TrigNavigation','StoreGateSvc+TrigNavigation')]
   
   if 'result' in config:
     ThinTool.ResultKey=config['result']
