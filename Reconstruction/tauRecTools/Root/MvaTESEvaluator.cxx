@@ -109,8 +109,6 @@ StatusCode MvaTESEvaluator::initialize(){
 //_____________________________________________________________________________
 StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
 
-  // Retrieve input variables
-  
   // Retrieve event info
   const SG::AuxElement::ConstAccessor<float> acc_mu("mu");
   const SG::AuxElement::ConstAccessor<int> acc_nVtxPU("nVtxPU");
