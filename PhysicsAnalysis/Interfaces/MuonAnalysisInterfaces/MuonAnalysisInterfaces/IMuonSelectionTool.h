@@ -77,6 +77,9 @@ namespace CP {
      /// Returns true if the muon passes additional calo-tag quality cuts
      virtual bool passedCaloTagQuality (const xAOD::Muon& mu) const = 0;
 
+     /// Returns an integer corresponding to categorization of muons with different resolutions
+     virtual int getResolutionCategory(const xAOD::Muon&) const=0;
+
    }; // class IMuonSelectionTool
 
 } // namespace CP
