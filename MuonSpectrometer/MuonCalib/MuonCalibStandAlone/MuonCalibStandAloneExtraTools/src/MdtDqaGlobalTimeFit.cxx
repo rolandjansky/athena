@@ -2,19 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 05.09.2008, AUTHOR: MAURO IODICE
-// 20.03.2009, MODIFICATIONS: DAN LEVIN  ==> allow endcap
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS MdtDqaGlobalTimeFit      ::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
 // standard C++ //
 #include <iostream>
 #include <fstream>
@@ -66,6 +53,7 @@
 #include "TNtuple.h"
 #include "TString.h"
 #include "TDirectory.h"
+#include "TMath.h" // for TMath::Prob
 
 //::::::::::::::::::::::::
 //:: NAMESPACE SETTINGS ::

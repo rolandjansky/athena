@@ -30,12 +30,11 @@
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-#include "TMath.h"
+#include "TMath.h" // for TMath::Landau
 #include <cmath>
 
 #include <iostream>
 
-using std::string;
 using MuonGM::MuonDetectorManager;
 using MuonGM::CscReadoutElement;
 using Muon::MuonSegment;

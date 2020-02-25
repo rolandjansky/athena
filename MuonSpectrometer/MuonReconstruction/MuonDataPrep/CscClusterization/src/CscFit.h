@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CscFit_H
 #define CscFit_H
 
-#include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
 
 #include "TROOT.h"
 
@@ -42,7 +39,6 @@ class CscFit {
  private:
 
  double m_sigma;
- IMessageSvc* m_msgSvc;
 
 };
 

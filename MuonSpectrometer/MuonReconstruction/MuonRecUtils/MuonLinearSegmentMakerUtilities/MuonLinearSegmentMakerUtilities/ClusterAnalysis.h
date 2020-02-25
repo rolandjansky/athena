@@ -11,8 +11,8 @@
 
 #include <vector>
 #include "MuonLinearSegmentMakerUtilities/ClusterNtuple.h"
-#include "TH1.h"
-#include "TH2.h"
+#include "TH1F.h"
+#include "TH2F.h"
 
 namespace ClusterSeg {
 
