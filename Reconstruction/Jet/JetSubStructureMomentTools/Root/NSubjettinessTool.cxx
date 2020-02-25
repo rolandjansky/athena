@@ -6,8 +6,6 @@
 #include "JetSubStructureUtils/Nsubjettiness.h"
 #include "CxxUtils/ubsan_suppress.h"
 
-using fastjet::PseudoJet;
-
 NSubjettinessTool::NSubjettinessTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
@@ -17,8 +15,8 @@ NSubjettinessTool::NSubjettinessTool(std::string name) :
 
 int NSubjettinessTool::modifyJet(xAOD::Jet &injet) const {
   
-  PseudoJet jet;
-  PseudoJet jet_ungroomed;
+  fastjet::PseudoJet jet;
+  fastjet::PseudoJet jet_ungroomed;
 
   bool decorate = SetupDecoration(jet,injet);
   bool decorate_ungroomed = false;

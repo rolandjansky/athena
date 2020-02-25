@@ -14,8 +14,6 @@
 #include "JetSubStructureMomentTools/EnergyCorrelatorRatiosTool.h"
 #include "JetSubStructureUtils/EnergyCorrelator.h" 
 
-using fastjet::PseudoJet;
-
 EnergyCorrelatorRatiosTool::EnergyCorrelatorRatiosTool(std::string name) :
   JetSubStructureMomentToolsBase(name)
 {
@@ -25,8 +23,6 @@ EnergyCorrelatorRatiosTool::EnergyCorrelatorRatiosTool(std::string name) :
 }
 
 StatusCode EnergyCorrelatorRatiosTool::initialize() {
-  ATH_MSG_INFO("Initializing EnergyCorrelatorTool");
-
   // Add beta = 1.0 by default
   m_cleaned_betaVals.push_back(1.0);
 
