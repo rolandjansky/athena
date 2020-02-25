@@ -164,7 +164,7 @@ from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import Derivation
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 
 MUON5TruthTool = DerivationFramework__GenericTruthThinning(name                         = "MUON5TruthThinningTool",
-                                                           ThinningService              = MUON5ThinningHelper.ThinningSvc(),
+                                                           StreamName                   = streamName,
                                                            ParticleSelectionString      = truth_expression,
                                                            PreserveDescendants          = True,
                                                            PreserveGeneratorDescendants = False,
