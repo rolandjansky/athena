@@ -24,7 +24,7 @@ private:
     std::vector<std::vector<int>> m_abGroups2;
     std::map<std::string,int> m_cGroups1;
     std::map<std::string,std::map<std::string,int>> m_cGroups2;
-    SG::ReadHandleKey<xAOD::MuonContainer> m_afpHitContainerKey;
+    SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
 
 protected:
   static const int s_cNearStationIndex;
