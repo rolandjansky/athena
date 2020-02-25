@@ -5,7 +5,6 @@
 #ifndef jetsubstructuremomenttools_ecfhelper_header
 #define jetsubstructuremomenttools_ecfhelper_header
 
-#include <algorithm>
 #include <string>
 #include <cmath>
 
