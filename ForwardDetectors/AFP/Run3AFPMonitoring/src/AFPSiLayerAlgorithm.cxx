@@ -141,7 +141,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	ATH_MSG_ERROR("evtStore() does not contain hits collection with name afpHitContainerKey ");
 	return StatusCode::FAILURE;
     }
-/*
+
     CHECK( evtStore()->retrieve( afpHitContainer, "AFPSiHitContainer" ) );
 
     for(const auto* hitsItr: *afpHitContainer)
@@ -150,20 +150,20 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	switch(hitsItr->stationID())
 	{
 	    case s_cNearStationIndex:
-	        m_cNearStation.fillHistograms(*hitsItr);
+	        std::cout << hit.pixelColIDChip() << std::endl;
 		break;
-	    case s_cFarStationIndex:
-		m_cFarStation.fillHistograms(*hitsItr);
-		break;
+	    //case s_cFarStationIndex:
+		//m_cFarStation.fillHistograms(*hitsItr);
+		//break;
 	    default:
-		ATH_MSG_WARNING("UNrecognised station index: " << hitsItr->stationID());
+		ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
 	}
 
     }
 
-	m_cNearStation.eventEnd();
-	m_cFarStation.eventEnd();
-*/
+	//m_cNearStation.eventEnd();
+	//m_cFarStation.eventEnd();
+
     return StatusCode::SUCCESS;
 }
 
