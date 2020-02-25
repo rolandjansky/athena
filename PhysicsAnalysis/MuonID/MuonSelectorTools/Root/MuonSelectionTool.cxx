@@ -1422,8 +1422,8 @@ namespace CP {
 	 !mu.summaryValue(isSmallGoodSectors, xAOD::MuonSummaryType::isSmallGoodSectors) ||
 	 !mu.summaryValue(cscUnspoiledEtaHits, xAOD::MuonSummaryType::cscUnspoiledEtaHits)
 	 ){
-      ATH_MSG_WARNING("getResolutionCategory - MS hits information missing!!! Returning -999 ...");
-      return ResolutionCategory::missingVariable;
+      ATH_MSG_WARNING("getResolutionCategory - MS hits information missing!!! Returning unclassified ...");
+      return ResolutionCategory::unclassified;
     }
 
   
@@ -1472,19 +1472,19 @@ namespace CP {
       category = ResolutionCategory::missingOuter; //missing-outer
  
     if ( (std::abs(etaMS) > 2.0 || std::abs(etaCB) > 2.0) && cscUnspoiledEtaHits == 0 )
-      category = ResolutionCategory::missingInner; //spoiled CSC - grouped with missing-inner due to similar resolution
+      category = ResolutionCategory::spoiledCSC; //spoiled CSC
  		
     if( (1.01 < std::abs( etaMS ) && std::abs( etaMS ) < 1.1) || (1.01 < std::abs( etaCB ) && std::abs( etaCB ) < 1.1) )
-      category = ResolutionCategory::missingInner; //barrel-end-cap overlap - grouped with missing-inner due to similar resolution
+      category = ResolutionCategory::BEoverlap; //barrel-end-cap overlap
  
     if (isBIS78(etaMS,phiMS))
-      category = ResolutionCategory::missingInner; //BIS7/8 - grouped with missing-inner due to similar resolution
+      category = ResolutionCategory::BIS78; //BIS7/8
 
     //::: BEE
     if (isBEE(etaMS,phiMS) || (std::abs(etaCB)>1.4 && (extendedSmallHits>0||extendedSmallHoles>0)) ) {
 
       if (extendedSmallHits < 3 && middleSmallHits >= 3 && outerSmallHits >= 3)
-	category = ResolutionCategory::missingInner; //missing-BEE - grouped with missing-inner due to similar resolution
+	category = ResolutionCategory::missingBEE; //missing-BEE
       
       if (extendedSmallHits >= 3 && outerSmallHits < 3)
 	category = ResolutionCategory::missingOuter; //missing-outer
@@ -1494,7 +1494,7 @@ namespace CP {
     }
 
     if (nprecisionLayers == 1)
-      category = ResolutionCategory::missingMiddle; //one-station track - grouped with missing-middle due to similar resolution
+      category = ResolutionCategory::oneStation; //one-station track
   
     return category;
   }
