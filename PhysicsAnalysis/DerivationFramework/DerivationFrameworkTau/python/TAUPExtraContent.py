@@ -6,6 +6,8 @@
 # Extra content
 # ==========================================================================================================================
 
+ExtraContentTracks               = ["InDetTrackParticles.eProbabilityHT"]
+
 ExtraContentPhotons              = ["Photons.Loose.Medium.Tight"]
 ExtraContentPhotonsTruth         = [ ]
 
@@ -41,7 +43,7 @@ ExtraContentTaus                 = [   "TauJets.jetLink."
                                        #+ "EMPOverTrkSysPCorrected."
                                        + "innerTrkAvgDist."
                                        #+ "innerTrkAvgDistCorrected."
-                                       + "ipSigLeadTrk"
+                                       + "ipSigLeadTrk."
                                        #+ "ipSigLeadTrkCorrected."
                                        + "massTrkSys."
                                        #+ "massTrkSysCorrected."
@@ -93,14 +95,16 @@ ExtraContentJetsTruth               = ["AntiKt4TruthJets.TruthLabelDeltaR_B.Trut
 ExtraContentTAUP1              =   ExtraContentPhotons                  \
                                  + ExtraContentElectrons                \
                                  + ExtraContentMuons                    \
-                                 + ExtraContentTaus
+                                 + ExtraContentTaus                     \
+                                 + ExtraContentTracks
 
 # ExtraContentTAUP2              =   ExtraContentTaus
 
 ExtraContentTAUP3              =   ExtraContentPhotons                  \
                                  + ExtraContentElectrons                \
                                  + ExtraContentMuons                    \
-                                 + ExtraContentTaus
+                                 + ExtraContentTaus                     \
+                                 + ExtraContentTracks
 
 # ExtraContentTAUP4              =   ExtraContentPhotons                  \
 #                                  + ExtraContentElectrons                \
