@@ -150,10 +150,8 @@ EXOT16Stream.AcceptAlgs(["EXOT16Kernel"])
 
 # SPECIAL LINES FOR THINNING
 # Thinning service name must match the one passed to the thinning tools 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT16ThinningSvc", outStreams=[evtStream] )
 
 
 #=======================================
@@ -306,7 +304,7 @@ EXOT16MCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT16MCTh
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT16MCGenThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT16MCGenThinningTool",
-                                                                ThinningService = "EXOT16ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 ParticleSelectionString = "abs(TruthParticles.pdgId) ==25 || abs(TruthParticles.pdgId)==39 || abs(TruthParticles.pdgId)==32 || abs(TruthParticles.pdgId)==5100021", 
                                                                 PreserveDescendants = False)
 

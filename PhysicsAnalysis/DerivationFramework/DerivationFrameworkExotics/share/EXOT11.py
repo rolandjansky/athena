@@ -123,7 +123,7 @@ EXOT11MenuThinningTool = DerivationFramework__MenuTruthThinning( name = "EXOT11M
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT11GenThinningTool = DerivationFramework__GenericTruthThinning( name = "EXOT11GenThinningTool",
-                                                                   ThinningService = "EXOT11ThinningSvc",
+                                                                   StreamName              = streamName,
                                                                    ParticleSelectionString = "abs(TruthParticles.pdgId) ==34 || abs(TruthParticles.pdgId)==5100039", 
                                                                    PreserveDescendants = False)
 
