@@ -33,7 +33,6 @@ public:
   float m_sd_zcut = 0.1;
   float m_sd_beta = 0.0;
   float m_sd_R0 = 1.0;
-  int m_sd_N = 1;
   float m_varR_minR = -1.0;
   float m_varR_mass = -1.0; // GeV
   bool m_doArea = false;
