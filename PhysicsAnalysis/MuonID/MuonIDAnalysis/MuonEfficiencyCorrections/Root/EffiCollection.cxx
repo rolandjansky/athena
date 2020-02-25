@@ -229,8 +229,6 @@ namespace CP {
         }
         Warning("EffiCollection::GetBinName()", "Unknown bin %u", bin);
         
-        
-        exit(1);
         return "UNKNOWN_BIN";
     }
     int EffiCollection::getUnCorrelatedSystBin(const xAOD::Muon& mu) const {
