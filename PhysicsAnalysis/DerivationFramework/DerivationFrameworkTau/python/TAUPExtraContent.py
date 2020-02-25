@@ -15,7 +15,7 @@ ExtraContentElectrons            = ["Electrons.etcone20.etcone30.etcone40.ptcone
 ExtraContentElectronsTruth       = [ ]
 
 ExtraContentMuons                = ["Muons.etcone20.etcone30.etcone40"]
-ExtraContentMuonsTruth           = ["MuonTruthParticles.truthOrigin.truthType"]
+ExtraContentMuonsTruth           = [ ]
 
 ExtraContentTaus                 = [   "TauJets.jetLink."
                                        + "caloIso."
