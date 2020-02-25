@@ -20,40 +20,29 @@ public:
   /**
    * @brief Convert BS -> xAOD
    *
-   * The implementation should create an xAOD RoI object from the raw data, record it in the event store,
-   * and then link it to the l1TriggerResult object.
+   * The implementation should create an xAOD RoI object from the raw data and record it in the event store
+   * using a WriteHandle it declares.
    **/
-  virtual StatusCode convert(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vrobf,
-                             xAOD::TrigComposite& l1TriggerResult,
-                             const EventContext& eventContext) const = 0;
+  virtual StatusCode convertFromBS(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vrobf,
+                                   const EventContext& eventContext) const = 0;
 
   /**
    * @brief Convert xAOD -> BS
    *
-   * The implementation should take the xAOD RoI object linked to the l1TriggerResult object,
+   * The implementation should take the xAOD RoI object from the event store using a ReadHandle it declares,
    * convert it to raw data, and fill the vrobf vector.
    **/
-  virtual StatusCode convert(const xAOD::TrigComposite& l1TriggerResult,
-                             std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vrobf,
-                             const EventContext& eventContext) const = 0;
+  virtual StatusCode convertToBS(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vrobf,
+                                 const EventContext& eventContext) const = 0;
 
   /**
-   * @brief List of IDs of ROBs which the convert() methods expect in the vrobf input/output parameter
+   * @brief List of IDs of ROBs which the convert methods expect in the vrobf input/output parameter
    *
    * The implementation has to hold a Gaudi::Property<vector<uint32_t>> to declare the ROB IDs it requires/provides
    * and this method has to return the value of this property. There is no easy way to declare a Gaudi::Property here
    * in the interface, so it is delegated to the implementation.
    **/
   virtual const std::vector<uint32_t> robIds() const = 0;
-
-  /**
-   * @brief Name of the link between the xAOD RoI converted by the implementation from/to raw data
-   *
-   * The implementation has to hold a Gaudi::Property<std::string> to declare the link name it requires/provides
-   * and this method has to return the value of this property. There is no easy way to declare a Gaudi::Property here
-   * in the interface, so it is delegated to the implementation.
-   **/
-  virtual const std::string linkName() const = 0;
 };
 
 #endif // TRIGT1RESULTBYTESTREAM_IL1TRIGGERBYTESTREAMTOOL_H
