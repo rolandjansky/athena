@@ -501,6 +501,7 @@ class HLTTriggerResultGetter(Configured):
                                                           'features':edmlist})
             tHLT.ActInPlace=True
             slimmerHLT.ThinningTool = tHLT
+            slimmerHLT.ExtraInputs = [('xAOD::TrigNavigation','StoreGateSvc+TrigNavigation')]
             topSequence += slimmerHLT
             log.info("Configured slimming of HLT")
             print(slimmerHLT.ThinningTool)  # noqa: ATL901

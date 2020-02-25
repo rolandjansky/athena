@@ -81,8 +81,6 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	//----------------------------------------
 
 	// Getting the jet seed
-	// By asking taujet instead of TauEventData->seed, we take advantage of the machinery already
-	// in place to retrieve a jet seed for track only candidates.
 	//------------------------------------------------------------------------------------------------
 	const xAOD::Jet* taujetseed = (*pTau.jetLink());
 

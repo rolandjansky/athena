@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_MM_ELECTRON_H
@@ -11,10 +11,8 @@
 
 #include <memory>
 
-#include "TF1.h"
 #include "TRandom3.h"
 #include "TVector2.h"
-#include "TMath.h"
 
 class MM_Electron {
 

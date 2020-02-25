@@ -144,9 +144,7 @@ protected:
    std::map< std::string, std::unique_ptr<IAthenaOutputStreamTool> > m_streamerMap;
    /// mutex for this Stream write() and handle() methods
    typedef std::recursive_mutex mutex_t;
-   mutable mutex_t  m_mutex;    // mutable so const functions can lock
-   /// mutexes for event slots when writing
-   static std::map< EventContext::ContextID_t, std::mutex > m_toolMutexMap;
+   mutex_t  m_mutex;
 
 protected:
    /// Handler for ItemNames Property

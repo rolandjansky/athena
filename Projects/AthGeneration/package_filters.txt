@@ -115,7 +115,6 @@
 + Event/xAOD/xAODTruthCnv
 + External/AtlasDataArea
 + External/Pythia8
-+ External/pyAMI
 + Generators/Charybdis_i
 - Generators/EmbeddedTrackGenerator
 - Generators/ExoGraviton_i

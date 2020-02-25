@@ -22,9 +22,12 @@ Configurable.configurableRun3Behavior = True
 parser = CommonTestArgumentParser("OverlayTest.py")
 parser.add_argument("detectors", metavar="detectors", type=str, nargs="*",
                     help="Specify the list of detectors")
+parser.add_argument("--profile", default=False, action="store_true",
+                    help="Profile using VTune")
 args = parser.parse_args()
 
 # Some info about the job
+print()
 print("Overlay: {}".format("MC+data" if args.data else "MC+MC"))
 print("Number of threads: {}".format(args.threads))
 if not args.detectors:
@@ -32,6 +35,9 @@ if not args.detectors:
 else:
     print("Running with: {}".format(", ".join(args.detectors)))
 print()
+if args.profile:
+    print("Profiling...")
+    print()
 
 # Configure
 defaultTestFlags(ConfigFlags, args)
@@ -39,6 +45,9 @@ postprocessAndLockFlags(ConfigFlags, args)
 
 # Construct our accumulator to run
 acc = OverlayMainCfg(ConfigFlags)
+if args.profile:
+    from PerfMonVTune.PerfMonVTuneConfig import VTuneProfilerServiceCfg
+    acc.merge(VTuneProfilerServiceCfg(ConfigFlags))
 acc.merge(JobOptsDumperCfg(ConfigFlags))
 acc.merge(TestMessageSvcCfg(ConfigFlags))
 

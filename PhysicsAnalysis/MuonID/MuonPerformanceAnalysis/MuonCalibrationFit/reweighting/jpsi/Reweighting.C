@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define Reweighting_cxx
 #include "Reweighting.h"
+
+#include <TLorentzVector.h>
 
 void Reweighting::Begin( TTree * /*tree*/ ) {
   TString option = GetOption();
@@ -63,10 +65,10 @@ Bool_t Reweighting::Process( Long64_t entry ) {
   b_Neg_z0->GetEntry( entry );
   b_Neg_PtCone20->GetEntry( entry );
   //::: First check: eta acceptance!
-  if( TMath::Abs( Pos_Eta ) > 2.6 || TMath::Abs( Neg_Eta ) > 2.6 ) return kTRUE;
+  if( std::abs( Pos_Eta ) > 2.6 || std::abs( Neg_Eta ) > 2.6 ) return kTRUE;
   //::: Second check: oppositely charged!
   if( Pos_Charge * Neg_Charge > 0 ) return kTRUE;
-  if( fabs( Pos_d0sig ) > 3 || fabs( Neg_d0sig ) > 3 ) return kTRUE;
+  if( std::abs( Pos_d0sig ) > 3 || std::abs( Neg_d0sig ) > 3 ) return kTRUE;
   //::: Third check: isolated!
   //if( ( Pos_PtCone20 / Pos_ID_Pt > 0.15 ) || ( Neg_PtCone20 / Neg_ID_Pt > 0.15 ) ) return kTRUE;
   if( !Trig_HLT_2mu4_bJpsimumu ) return kTRUE;
@@ -78,7 +80,7 @@ Bool_t Reweighting::Process( Long64_t entry ) {
   TLorentzVector a, b;
   a.SetPtEtaPhiM( Pos_ID_Pt, Pos_Eta, Pos_Phi, 0.105 );
   b.SetPtEtaPhiM( Neg_ID_Pt, Neg_Eta, Neg_Phi, 0.105 );
-  if( fabs( Pos_z0 * TMath::Sin( a.Theta() ) ) > 0.5 || fabs( Neg_z0 * TMath::Sin( b.Theta() ) ) > 0.5 ) return kTRUE;
+  if( std::abs( Pos_z0 * std::sin( a.Theta() ) ) > 0.5 || std::abs( Neg_z0 * std::sin( b.Theta() ) ) > 0.5 ) return kTRUE;
   //:::
   if( Pos_ID_Pt > Neg_ID_Pt ) {
     m_Lead_Pt = Pos_ID_Pt; 
@@ -107,7 +109,7 @@ Bool_t Reweighting::Process( Long64_t entry ) {
   m_Pair_Theta = Lead.Angle( Sub.Vect() );
   m_Pair_DeltaR = Lead.DeltaR( Sub );
   m_Pair_DeltaPhi = Lead.DeltaPhi( Sub );
-  m_Pair_CosTheta = TMath::Cos( m_Pair_Theta );
+  m_Pair_CosTheta = std::cos( m_Pair_Theta );
   m_Weight = GetWeight( m_Pair_Pt, m_Pair_y );
   //:::
   //::: Fifth check: Jpsi Mass cut!

@@ -21,8 +21,8 @@
  *
  *  This example decodes Muon RoIs from MUCTPI raw data, filling the results with dummy values. Real implementations
  *  should have very similar structure and should implement the same functionality and properties. In particular,
- *  their BS->xAOD convert method should also record a new xAOD collection in the event store and link it to the
- *  L1TriggerResult object, as presented here.
+ *  the convertFromBS method should record a new xAOD collection in the event store using a WriteHandle, and the
+ *  convertToBS method should take the xAOD collection from the event store using a ReadHandle.
  **/
 class ExampleL1TriggerByteStreamTool : public extends<AthAlgTool, IL1TriggerByteStreamTool> {
 public:
@@ -34,35 +34,30 @@ public:
 
   // ------------------------- IL1TriggerByteStreamTool methods ----------------
   /// BS->xAOD conversion
-  virtual StatusCode convert(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vrobf,
-                             xAOD::TrigComposite& l1TriggerResult,
-                             const EventContext& eventContext) const override;
+  virtual StatusCode convertFromBS(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vrobf,
+                                   const EventContext& eventContext) const override;
   /// xAOD->BS conversion
-  virtual StatusCode convert(const xAOD::TrigComposite& l1TriggerResult,
-                             std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vrobf,
-                             const EventContext& eventContext) const override;
+  virtual StatusCode convertToBS(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vrobf,
+                                 const EventContext& eventContext) const override;
   /// Declare ROB IDs for conversion
   virtual const std::vector<uint32_t> robIds() const override {return m_robIds.value();}
-  /// Declare name of the link from L1TriggerResult to the xAOD RoI
-  virtual const std::string linkName() const override {return m_linkName.value();}
 
 private:
   // ------------------------- Properties --------------------------------------
-  // The following two are required by the interface
+  // ROBIDs property required by the interface
   Gaudi::Property<std::vector<uint32_t>> m_robIds {
     this, "ROBIDs", {}, "List of ROB IDs required for conversion to/from xAOD RoI"};
-  Gaudi::Property<std::string> m_linkName {
-    this, "LinkName", "UNDEFINED_LINK_NAME", "Name of the link from L1TriggerResult to the xAOD RoI"};
-
-  /// Write key should be reset to empty string in python configuration if the tool is in xAOD->BS mode of operation
-  SG::WriteHandleKey<xAOD::MuonRoIContainer> m_roiWriteKey {
-    this, "MuonRoIContainerWriteKey", "LVL1MuonRoIs", "Write handle key to MuonRoIContainer for conversion from ByteStream"};
-
-  // It is a good idea to have the module IDs configurable in case they change at some point
-  /// MUCTPI Module ID to decode
+  // It is a good idea to have also the module IDs configurable in case they change at some point
   Gaudi::Property<uint16_t> m_muCTPIModuleID {
-    this, "MUCTPIModuleId", 1, "Module ID of MUCTPI ROB with RoI information"
-  };
+    this, "MUCTPIModuleId", 1, "Module ID of MUCTPI ROB with RoI information"};
+
+  // Only write key should be set to non-empty string in python configuration if the tool is in BS->xAOD mode of operation
+  SG::WriteHandleKey<xAOD::MuonRoIContainer> m_roiWriteKey {
+    this, "MuonRoIContainerWriteKey", "", "Write handle key to MuonRoIContainer for conversion from ByteStream"};
+  // Only read key should be set to non-empty string in python configuration if the tool is in xAOD->BS mode of operation
+  SG::ReadHandleKey<xAOD::MuonRoIContainer> m_roiReadKey {
+    this, "MuonRoIContainerReadKey", "", "Read handle key to MuonRoIContainer for conversion to ByteStream"};
+
 };
 
 #endif // TRIGT1RESULTBYTESTREAM_EXAMPLEL1TRIGGERBYTESTREAMTOOL_H

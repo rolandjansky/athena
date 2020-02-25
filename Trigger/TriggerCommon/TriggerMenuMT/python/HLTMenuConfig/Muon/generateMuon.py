@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, getChainStepName, createStepView
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastRecoCfg, l2MuFastHypoCfg
@@ -30,7 +30,7 @@ def generateChains( flags, chainDict ):
 
     acc.addEventAlgo(l2muFastHypo, sequenceName=stepView.getName())
 
-    l2muFastSequence = MenuSequence( Sequence = l2muFastReco.sequence(),
+    l2muFastSequence = CAMenuSequence( Sequence = l2muFastReco.sequence(),
                                      Maker = l2muFastReco.inputMaker(),
                                      Hypo = l2muFastHypo,
                                      HypoToolGen = None,
@@ -65,7 +65,7 @@ def generateChains( flags, chainDict ):
     fakeHypoAlg.HypoTools = [ makeFakeHypoTool(chainDict['chainName'], None) ]
     accMS.addEventAlgo(fakeHypoAlg, sequenceName=stepEFMSView.getName())
 
-    efmuMSSequence = MenuSequence( Sequence = recoMS.sequence(),
+    efmuMSSequence = CAMenuSequence( Sequence = recoMS.sequence(),
                                      Maker = recoMS.inputMaker(),
                                      Hypo = fakeHypoAlg, 
                                      HypoToolGen = None,

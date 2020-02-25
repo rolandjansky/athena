@@ -30,6 +30,7 @@ if 'ATHENA_NPROC_NUM' in os.environ:
 ex = ExecStep.ExecStep()
 ex.type = 'Reco_tf'
 ex.input = 'ttbar'
+ex.max_events = 500
 ex.args = '--outputRDO_TRIGFile=RDO_TRIG.pool.root'
 ex.args += ' --preExec="all:from TriggerJobOpts.TriggerFlags import TriggerFlags; TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\");"'
 

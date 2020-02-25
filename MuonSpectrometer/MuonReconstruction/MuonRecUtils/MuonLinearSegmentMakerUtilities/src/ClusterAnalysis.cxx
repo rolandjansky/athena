@@ -10,18 +10,13 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "MuonLinearSegmentMakerUtilities/ClusterAnalysis.h"
 #include "TTree.h"
-#include "TString.h"
-#include "TDirectory.h"
-#include "TCanvas.h"
-#include "TFile.h"
-#include "TTree.h"
 #include <set>
 #include <cmath>
 #include <iostream>
 #include <cstdlib>
 #include <algorithm>
 #include <utility> 
-#include "TMath.h"
+#include "TMath.h" // for TMath::Sign
 
 namespace ClusterSeg {
 

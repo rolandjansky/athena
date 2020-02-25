@@ -47,13 +47,8 @@
 
 #include "StoreGate/ReadHandleKey.h"
 
-#include <TError.h>
 #include <TH1F.h>
-#include <TH2F.h>
-#include <TH1.h>
 #include <TH2.h>
-#include <TMath.h>
-#include <TF1.h>
 #include <inttypes.h> 
 #include <sstream>
 #include <string.h>
@@ -62,7 +57,6 @@
 
 #include "TROOT.h"
  
-class TFile;
 template <class ConcreteAlgorithm> class AlgFactory;
 
 /////////////////////////////////////////////////////////////////////////////

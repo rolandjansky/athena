@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //c - c++
@@ -30,11 +30,10 @@
 //root
 #include "TFile.h"
 #include "TH1.h"
-#include "TH2.h"
 #include "TMinuit.h"
 #include "TString.h"
 #include "TF1.h"
-#include "TMath.h"
+#include "TMath.h" // for TMath::Prob()
 
 
 using namespace std;
@@ -97,7 +96,6 @@ namespace MuonCalib {
     //root stuff
     m_resolfile = TFile::Open("resolfile.root","RECREATE");	
     m_prob_dist = new TH1F("egment_probability_distribution" ,"segment probability distribution",50,0.,1.);
-    //    m_prob_debg = new TH2F(id.regionId().c_str() ,"segment prob vs hits mdt",20,0.,20.,50,0.,1.);
   }
 
   //******************************************************************************

@@ -2,25 +2,23 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGT1RESULTBYTESTREAM_L1TRIGGERRESULTMAKER_H
-#define TRIGT1RESULTBYTESTREAM_L1TRIGGERRESULTMAKER_H
+#ifndef TRIGT1RESULTBYTESTREAM_L1TRIGGERBYTESTREAMDECODERALG_H
+#define TRIGT1RESULTBYTESTREAM_L1TRIGGERBYTESTREAMDECODERALG_H
 
 // Trigger includes
 #include "TrigT1ResultByteStream/IL1TriggerByteStreamTool.h"
-#include "xAODTrigger/TrigCompositeContainer.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "StoreGate/WriteHandle.h"
 
-/** @class L1TriggerResultMaker
- *  @brief Algorithm creating RoIBResult from ByteStream representation
+/** @class L1TriggerByteStreamDecoderAlg
+ *  @brief Algorithm calling tools to convert L1 ByteStream into xAOD collections
  **/
-class L1TriggerResultMaker : public AthReentrantAlgorithm {
+class L1TriggerByteStreamDecoderAlg : public AthReentrantAlgorithm {
 public:
   /// Standard constructor
-  L1TriggerResultMaker(const std::string& name, ISvcLocator* svcLoc);
+  L1TriggerByteStreamDecoderAlg(const std::string& name, ISvcLocator* svcLoc);
 
   // ------------------------- AthReentrantAlgorithm methods -------------------
   virtual StatusCode initialize() override;
@@ -28,11 +26,6 @@ public:
   virtual StatusCode execute(const EventContext& eventContext) const override;
 
 private:
-  // ------------------------- Properties --------------------------------------
-  /// StoreGate key for the output RoIBResult
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_l1TriggerResultWHKey {
-    this, "L1TriggerResultWHKey", "L1TriggerResult", "Key of the output L1 Trigger Result"};
-
   // ------------------------- Tool/Service handles ----------------------------
   /// Tool performing the decoding work
   ToolHandleArray<IL1TriggerByteStreamTool> m_decoderTools {
@@ -42,4 +35,4 @@ private:
     this, "ROBDataProviderSvc", "ROBDataProviderSvc", "ROB data provider"};
 };
 
-#endif // TRIGT1RESULTBYTESTREAM_L1TRIGGERRESULTMAKER_H
+#endif // TRIGT1RESULTBYTESTREAM_L1TRIGGERBYTESTREAMDECODERALG_H

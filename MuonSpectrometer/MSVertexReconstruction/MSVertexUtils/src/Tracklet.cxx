@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MSVertexUtils/Tracklet.h"
+#include "TMath.h" // for TMath::ATan2()
   
 Tracklet::Tracklet(const TrackletSegment& ML1seg, const TrackletSegment& ML2seg, const Amg::Vector3D &p, const AmgSymMatrix(5) &ErrorMatrix, float charge) {
   m_ml1seg=ML1seg; m_ml2seg=ML2seg; m_momentum = p; m_ErrorMatrix = ErrorMatrix; m_charge = charge; 
