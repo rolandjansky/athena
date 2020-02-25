@@ -71,7 +71,8 @@ namespace MuonCombined {
     m_meanMDTdADCTool("Rec::MuonMeanMDTdADCFillerTool/MuonMeanMDTdADCFillerTool"),
     m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool", this),
     m_trackSegmentAssociationTool("Muon::TrackSegmentAssociationTool/TrackSegmentAssociationTool"),
-    m_trackQuery("Rec::MuonTrackQuery/MuonTrackQuery")
+    m_trackQuery("Rec::MuonTrackQuery/MuonTrackQuery"),
+    m_trackSummaryTool("MuonTrackSummaryTool")
 
   {
     declareInterface<IMuonCreatorTool>(this);
@@ -103,7 +104,8 @@ namespace MuonCombined {
     declareProperty("UseCaloCells",m_useCaloCells = true);
     declareProperty("MakeSAMuons", m_doSA=false);
     declareProperty("TrackQuery", m_trackQuery);
-     
+    declareProperty("TrackSummaryTool", m_trackSummaryTool);
+  
   }
 
   StatusCode MuonCreatorTool::initialize() {
@@ -146,6 +148,7 @@ namespace MuonCombined {
     }
 
     ATH_CHECK(m_cellContainerName.initialize(m_useCaloCells));
+    ATH_CHECK(m_trackSummaryTool.retrieve()); 
 
     return StatusCode::SUCCESS;
   }
@@ -1139,7 +1142,12 @@ namespace MuonCombined {
 	  //create a copy for ambi processing to avoid const_cast
 	  //all we care about in the end is getting the right candidates anyway
 	  //muonTracks takes ownership of the memory
-	  muonTracks.push_back(new Trk::Track(*primaryTag->primaryTrack()));
+          Trk::Track* tmpTrack=new Trk::Track(*primaryTag->primaryTrack());
+          // create a track summary for this track
+          if ( m_trackSummaryTool.isEnabled() ) {
+            m_trackSummaryTool->computeAndReplaceTrackSummary(*tmpTrack, nullptr, false);
+          }
+          muonTracks.push_back(tmpTrack);
           trackInDetCandLinks[ muonTracks.back() ] = candidate;
         }
         // if not, make a dummy track out of segments, muonTracks takes ownership of the memory
@@ -1268,6 +1276,11 @@ namespace MuonCombined {
     Trk::TrackInfo::TrackPatternRecoInfo author = Trk::TrackInfo::MuTag;
     info.setPatternRecognitionInfo(author);
     Trk::Track* newtrack = new Trk::Track(info, trackStateOnSurfaces, (indetTrack.fitQuality())->clone());
+     
+    // create a track summary for this track
+    if ( m_trackSummaryTool.isEnabled() ) {
+      m_trackSummaryTool->computeAndReplaceTrackSummary(*newtrack, nullptr, false);
+    }
 
     return newtrack;
   }

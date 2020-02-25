@@ -51,8 +51,15 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkTrackSummary/MuonTrackSummary.h"
+
 namespace Muon {
   class MuonSegment;
+}
+namespace Trk
+{
+  class IExtendedTrackSummaryTool;
 }
 namespace MuonCombined {
   class StacoTag;
@@ -209,6 +216,7 @@ namespace MuonCombined {
     ToolHandle<Trk::ITrkMaterialProviderTool>     m_caloMaterialProvider;
     ToolHandle<Muon::TrackSegmentAssociationTool> m_trackSegmentAssociationTool;
     ToolHandle<Rec::IMuonTrackQuery>              m_trackQuery;
+    ToolHandle<Trk::IExtendedTrackSummaryTool>    m_trackSummaryTool;
     Rec::CaloCellCollector                        m_cellCollector;
     SG::ReadHandleKey<CaloCellContainer>          m_cellContainerName{this,"CaloCellContainer","AllCalo","calo cells"};
     SG::ReadCondHandleKey<CaloNoise>              m_caloNoiseKey{this,"CaloNoise","","CaloNoise object to use, or blank."};
