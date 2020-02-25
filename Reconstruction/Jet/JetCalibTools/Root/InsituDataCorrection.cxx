@@ -7,24 +7,24 @@
 
 InsituDataCorrection::InsituDataCorrection()
   : JetCalibrationToolBase::JetCalibrationToolBase("InsituDataCorrection::InsituDataCorrection"),
-    m_config(NULL),
+    m_config(nullptr),
     m_jetAlgo(""),
     m_calibAreaTag(""),
     m_dev(false),
-    m_insituCorr(),
-    m_insituCorr_JMS(),
-    m_insituCorr_ResidualMCbased()
+    m_insituCorr(nullptr),
+    m_insituCorr_JMS(nullptr),
+    m_insituCorr_ResidualMCbased(nullptr)
 { }
 
 InsituDataCorrection::InsituDataCorrection(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(NULL),
+    m_config(nullptr),
     m_jetAlgo(""),
     m_calibAreaTag(""),
     m_dev(false),
-    m_insituCorr(),
-    m_insituCorr_JMS(),
-    m_insituCorr_ResidualMCbased()
+    m_insituCorr(nullptr),
+    m_insituCorr_JMS(nullptr),
+    m_insituCorr_ResidualMCbased(nullptr)
 { }
 
 InsituDataCorrection::InsituDataCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev)
@@ -33,9 +33,9 @@ InsituDataCorrection::InsituDataCorrection(const std::string& name, TEnv * confi
     m_jetAlgo(jetAlgo),
     m_calibAreaTag(calibAreaTag),
     m_dev(dev),
-    m_insituCorr(),
-    m_insituCorr_JMS(),
-    m_insituCorr_ResidualMCbased()
+    m_insituCorr(nullptr),
+    m_insituCorr_JMS(nullptr),
+    m_insituCorr_ResidualMCbased(nullptr)
 { }
 
 InsituDataCorrection::~InsituDataCorrection() {
@@ -209,15 +209,6 @@ StatusCode InsituDataCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) co
 
     if(m_applyRelativeandAbsoluteInsitu) calibP4=calibP4*getInsituCorr( jetStartP4.pt(), detectorEta, "RelativeAbs" );
 
-    // If the jet mass calibration was applied the calibrated mass needs to be used!
-    /*
-      if(m_jetStartScale.Contains("JetJMSScaleMomentum")){
-      TLorentzVector TLVjet;
-      TLVjet.SetPtEtaPhiM( calibP4.pt(), jetStartP4.eta(), jetStartP4.phi(), jetStartP4.mass() ); // mass at JMS
-      calibP4.SetPxPyPzE( TLVjet.Px(), TLVjet.Py(), TLVjet.Pz(), TLVjet.E() );
-      }
-    */
-
     // Only for large R jets with insitu JMS but no combination
     if(m_applyInsituJMS){
       xAOD::JetFourMom_t calibP4_JMS;
@@ -315,7 +306,7 @@ StatusCode InsituDataCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) co
 }
 
 double InsituDataCorrection::getInsituCorr(double pt, double eta, std::string calibstep) const {
-  if (m_insituCorr==NULL && m_insituCorr_ResidualMCbased==NULL) return 1.0;
+  if (!m_insituCorr && !m_insituCorr_ResidualMCbased) return 1.0;
   double myEta = eta, myPt = pt/m_GeV;
 
   //eta and pt ranges depends on the insitu calibration
@@ -349,7 +340,8 @@ double InsituDataCorrection::getInsituCorr(double pt, double eta, std::string ca
 
 double InsituDataCorrection::getInsituCorr_JMS(double pt, double mass, double eta, std::string calibstep) const {
 
-  if (m_insituCorr_JMS==NULL) return 1.0;
+  if (!m_insituCorr_JMS) return 1.0;
+
   double myEta = eta, myPt = pt/m_GeV, myMass = mass/m_GeV;
 
   //eta and pt ranges depends on the insitu calibration
