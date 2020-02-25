@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,24 +22,17 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "muonEvent/MuonContainer.h"
 
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TMath.h>
 #include <inttypes.h>
 
 #include <sstream>
 #include <algorithm>
 #include <fstream>
 
-using namespace std;
-
 // Matches together segments from different stations into a track
 void
-MdtVsTgcRawDataValAlg::MatchMDTSegments(vector<const Muon::MuonSegment*> (&sortedSegments)[2][4],
-                                        vector<const Muon::MuonSegment*> (&disqualifiedSegments)[2][4],
-                                        vector<SegmTrack> (&matchedSegments)[2]){// Define Cuts:
+MdtVsTgcRawDataValAlg::MatchMDTSegments(std::vector<const Muon::MuonSegment*> (&sortedSegments)[2][4],
+                                        std::vector<const Muon::MuonSegment*> (&disqualifiedSegments)[2][4],
+                                        std::vector<SegmTrack> (&matchedSegments)[2]){// Define Cuts:
   // Cut for matching Segments
   const float dRhoCutSegmentMatching = 1000;
   const float dPhiCutSegmentMatching = M_PI/8;
@@ -92,8 +85,8 @@ MdtVsTgcRawDataValAlg::MatchMDTSegments(vector<const Muon::MuonSegment*> (&sorte
         
         // Initialise segment matching variables
         bool stationMatchFound[4] = {false,false,false,false};
-        vector<const Muon::MuonSegment*> matchingSegments[4];
-        for(int jMDT2=0;jMDT2<4;jMDT2++)matchingSegments[jMDT2] = vector<const Muon::MuonSegment*>();
+        std::vector<const Muon::MuonSegment*> matchingSegments[4];
+        for(int jMDT2=0;jMDT2<4;jMDT2++)matchingSegments[jMDT2] = std::vector<const Muon::MuonSegment*>();
         matchingSegments[jMDT1].push_back(segm1);
         int nStationMatch=0;
         
