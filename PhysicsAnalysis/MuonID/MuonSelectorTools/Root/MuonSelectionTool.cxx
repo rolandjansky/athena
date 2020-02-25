@@ -1425,6 +1425,7 @@ namespace CP {
   // Returns an integer corresponding to categorization of muons with different resolutions
   int MuonSelectionTool::getResolutionCategory(const xAOD::Muon& mu) const{
 
+
     //Resolutions have only been evaluated for medium combined muons
     if (getQuality(mu) > xAOD::Muon::Medium || mu.muonType() != xAOD::Muon::Combined)
       return -1;
@@ -1452,7 +1453,7 @@ namespace CP {
     }
 
   
-    //For muons passing the high-pT working point, use default smearing except for 2-station tracks
+    //For muons passing the high-pT working point, distinguish between 2-station tracks and the rest
     if (passedHighPtCuts(mu)) {
       
       if (nprecisionLayers == 2)
@@ -1476,43 +1477,32 @@ namespace CP {
     float etaCB = 0.0;
     float phiMS = 0.0; 
 
-    if( MS_track != NULL) 
+    if(MS_track != NULL) {
+      etaMS = MS_track->eta();     
       phiMS = MS_track->phi();
+    }
 
-    if( MS_track != NULL && CB_track !=NULL ) {
-      
-      etaMS = MS_track->eta();
+    if(CB_track != NULL)
       etaCB = CB_track->eta();
-    }
 
 
-    int category = -1; //use category = -1 as "unclassified" - only default smearing will be applied
+    int category = -1; //use category = -1 as "unclassified"
 
-    if ( (isSmallGoodSectors && innerSmallHits < 3) || (!isSmallGoodSectors && innerLargeHits < 3)) {
- 
+    if ( (isSmallGoodSectors && innerSmallHits < 3) || (!isSmallGoodSectors && innerLargeHits < 3) )
       category = 0; //missing-inner
-    }
 
-    if ( (isSmallGoodSectors && middleSmallHits < 3) || (!isSmallGoodSectors && middleLargeHits < 3) ){
- 
+    if ( (isSmallGoodSectors && middleSmallHits < 3) || (!isSmallGoodSectors && middleLargeHits < 3) )
       category = 1; //missing-middle
-    }
-
-    if ( (isSmallGoodSectors && outerSmallHits < 3 && extendedSmallHits < 3) || (!isSmallGoodSectors && outerLargeHits < 3 && extendedLargeHits < 3) ){
  
+    if ( (isSmallGoodSectors && outerSmallHits < 3 && extendedSmallHits < 3) || (!isSmallGoodSectors && outerLargeHits < 3 && extendedLargeHits < 3) )
       category = 2; //missing-outer
-    }
-
-    if ((fabs(etaMS)>2.0 || fabs(etaCB)>2.0) && cscUnspoiledEtaHits == 0){
  
-      category = 0; //spoiled CSC -> add to missing-inner
-    }
-		
-    if( (1.01 < fabs( etaMS ) && fabs( etaMS ) < 1.1) || (1.01 < fabs( etaCB ) && fabs( etaCB ) < 1.1) ) {
+    if ( (fabs(etaMS) > 2.0 || fabs(etaCB) > 2.0) && cscUnspoiledEtaHits == 0 )
+      category = 0; //spoiled CSC
+ 		
+    if( (1.01 < fabs( etaMS ) && fabs( etaMS ) < 1.1) || (1.01 < fabs( etaCB ) && fabs( etaCB ) < 1.1) )
+      category = 0; //barrel-end-cap overlap
  
-      category = 0; //barrel-end-cap overlap -> add to missing-inner
-    }
-
 
     //::: BIS78
     float BIS78_eta[ 2 ] = { 1.05, 1.3 };
@@ -1522,14 +1512,11 @@ namespace CP {
       if ( ( fabs( phiMS ) >= BIS78_phi[ 0 ] && fabs( phiMS ) <= BIS78_phi[ 1 ] ) 
 	   || ( fabs( phiMS ) >= BIS78_phi[ 2 ] && fabs( phiMS ) <= BIS78_phi[ 3 ] ) 
 	   || ( fabs( phiMS ) >= BIS78_phi[ 4 ] && fabs( phiMS ) <= BIS78_phi[ 5 ] ) 
-	   || ( fabs( phiMS ) >= BIS78_phi[ 6 ] && fabs( phiMS ) <= BIS78_phi[ 7 ] ) 
-	   ) {
-
-	category = 0; //BIS7/8 -> add to missing-inner
-      }
+	   || ( fabs( phiMS ) >= BIS78_phi[ 6 ] && fabs( phiMS ) <= BIS78_phi[ 7 ] ) )
+	category = 0; //BIS7/8
     }
 
-	
+    
     //::: BEE
     float BEE_eta[ 2 ] = { 1.440, 1.692 };
     float BEE_phi[ 8 ] = { 0.301, 0.478, 1.086, 1.263, 1.872, 2.049, 2.657, 2.834 };     
@@ -1540,25 +1527,20 @@ namespace CP {
 	     || ( fabs( phiMS ) >= BEE_phi[ 6 ] && fabs( phiMS ) <= BEE_phi[ 7 ] ) ) )
 	 || (fabs(etaCB)>1.4 && (extendedSmallHits>0||extendedSmallHoles>0) )
 	 ) {
-      if (extendedSmallHits < 3 && middleSmallHits >= 3 && outerSmallHits >= 3) {
 
-	category = 0; //missing-BEE -> add to missing-inner
-      }
-      if (extendedSmallHits >= 3 && outerSmallHits < 3) {
-
+      if (extendedSmallHits < 3 && middleSmallHits >= 3 && outerSmallHits >= 3)
+	category = 0; //missing-BEE
+      
+      if (extendedSmallHits >= 3 && outerSmallHits < 3)
 	category = 2; //missing-outer
-      }
-      if (!isSmallGoodSectors) {
-
-	category = -1; //weird BEE -> add to "unclassified"
-      }
+      
+      if (!isSmallGoodSectors)
+	category = -1; //ambiguity due to eta/phi differences between MS and CB track
     }
 
 
-    if ( nprecisionLayers == 1 ) {
-
-      category = 1; //one-station -> add to missing-middle
-    }
+    if ( nprecisionLayers == 1 )
+      category = 1; //one-station track
   
     return category;
   }
