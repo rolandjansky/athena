@@ -666,4 +666,51 @@ namespace Trk {
     GXFTrajectory::upstreamMaterialLayers() {
     return m_upstreammat;
   }
+
+  std::pair<GXFTrackState *, GXFTrackState *> GXFTrajectory::findFirstLastMeasurement(void) {
+    GXFTrackState *firstmeasstate = nullptr;
+    GXFTrackState *lastmeasstate = nullptr;
+
+    for (auto & hit : trackStates()) {
+      if (
+        hit->measurementType() == TrackState::Pseudo &&
+        hit->trackStateType() == TrackState::GeneralOutlier
+      ) {
+        continue;
+      }
+
+      if (hit->measurement(false) != nullptr) {
+        if (firstmeasstate == nullptr) {
+          firstmeasstate = hit;
+        }
+        lastmeasstate = hit;
+      }
+    }
+
+    if (firstmeasstate == nullptr) {
+      throw std::logic_error("no first measurement.");
+    }
+
+    return std::make_pair(firstmeasstate, lastmeasstate);
+  }
+
+  bool GXFTrajectory::hasKink(void) {
+    for (auto & hit : trackStates()) {
+      if (
+        hit->measurementType() == TrackState::Pseudo &&
+        hit->trackStateType() == TrackState::GeneralOutlier
+      ) {
+        continue;
+      }
+      
+      if (
+        (hit->materialEffects() != nullptr) && 
+        hit->materialEffects()->isKink()
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }

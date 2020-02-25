@@ -439,7 +439,26 @@ namespace Trk {
       const ParticleHypothesis
     ) const;
 
-    Track *makeTrack(
+    void makeTrackFillDerivativeMatrix(
+      Cache &,
+      GXFTrajectory &
+    ) const;
+
+    std::unique_ptr<const TrackParameters> makeTrackFindPerigeeParameters(
+      const EventContext &,
+      Cache &,
+      GXFTrajectory &,
+      const ParticleHypothesis
+    ) const;
+
+    std::unique_ptr<const TrackStateOnSurface> makeTrackFindPerigee(
+      const EventContext &,
+      Cache &,
+      GXFTrajectory &,
+      const ParticleHypothesis
+    ) const;
+
+    std::unique_ptr<Track> makeTrack(
       const EventContext& ctx,
       Cache &,
       GXFTrajectory &,

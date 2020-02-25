@@ -5495,7 +5495,8 @@ namespace Trk {
       }
     }
     
-    Track *track = nullptr;
+    std::unique_ptr<Track> track = nullptr;
+
     if (finaltrajectory->prefit() > 0) {
       if (finaltrajectory != &trajectory) {
         delete finaltrajectory;
@@ -5519,8 +5520,7 @@ namespace Trk {
         track->fitQuality()->chiSquared() / track->fitQuality()->numberDoF() > cut
       )
     ) {
-      delete track;
-      track = nullptr;
+      track.reset(nullptr);
       incrementFitStatus(S_HIGH_CHI2);
     }
     
@@ -5532,7 +5532,7 @@ namespace Trk {
       delete finaltrajectory;
     }
     
-    return track;
+    return track.release();
   }
 
   void GlobalChi2Fitter::fillResiduals(
@@ -7135,125 +7135,68 @@ namespace Trk {
     return new TrackStateOnSurface(measurement, trackpar, fitQual, mateff, typePattern);
   }
 
-  Track *GlobalChi2Fitter::makeTrack(
-    const EventContext& ctx,
-    Cache & cache,
-    GXFTrajectory & oldtrajectory,
-    ParticleHypothesis matEffects
+  void GlobalChi2Fitter::makeTrackFillDerivativeMatrix(
+    Cache &cache,
+    GXFTrajectory &oldtrajectory
   ) const {
-    // Convert internal trajectory into track
-    DataVector<const TrackStateOnSurface> *trajectory = new DataVector<const TrackStateOnSurface>;
-    std::vector<GXFTrackState *> & states = oldtrajectory.trackStates();
+    Amg::MatrixX & derivs = oldtrajectory.weightedResidualDerivatives();
+    Amg::VectorX & errors = oldtrajectory.errors();
+    int nrealmeas = 0;
     
-    if (m_fillderivmatrix) {
-      Amg::MatrixX & derivs = oldtrajectory.weightedResidualDerivatives();
-      Amg::VectorX & errors = oldtrajectory.errors();
-      int nrealmeas = 0;
-     
-      for (auto & hit : states) {
-        if (
-          hit->trackStateType() == TrackState::Fittable && (
-            (dynamic_cast<const RIO_OnTrack *>(hit->measurement()) != nullptr) || 
-            (dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement()) != nullptr)
-          )
-        ) {
-          nrealmeas += hit->numberOfMeasuredParameters();
-        }
-      } 
-      
-      cache.m_derivmat.resize(nrealmeas, oldtrajectory.numberOfFitParameters());
-      cache.m_derivmat.setZero();
+    for (auto & hit : oldtrajectory.trackStates()) {
+      if (
+        hit->trackStateType() == TrackState::Fittable && (
+          (dynamic_cast<const RIO_OnTrack *>(hit->measurement()) != nullptr) || 
+          (dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement()) != nullptr)
+        )
+      ) {
+        nrealmeas += hit->numberOfMeasuredParameters();
+      }
+    } 
+    
+    cache.m_derivmat.resize(nrealmeas, oldtrajectory.numberOfFitParameters());
+    cache.m_derivmat.setZero();
 
-      int measindex = 0;
-      int measindex2 = 0;
-      int nperpars = oldtrajectory.numberOfPerigeeParameters();
-      int nscat = oldtrajectory.numberOfScatterers();
-     
-      for (auto & hit : states) {
-        if (
-          hit->trackStateType() == TrackState::Fittable && (
-            (dynamic_cast<const RIO_OnTrack *>(hit->measurement()) != nullptr) || 
-            (dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement()) != nullptr)
-          )
-        ) {
-          for (int i = measindex; i < measindex + hit->numberOfMeasuredParameters(); i++) {
-            for (int j = 0; j < oldtrajectory.numberOfFitParameters(); j++) {
-              cache.m_derivmat(i, j) = derivs(measindex2, j) * errors[measindex2];
-              if ((j == 4 && !oldtrajectory.m_straightline) || j >= nperpars + 2 * nscat) {
-                cache.m_derivmat(i, j) *= 1000;
-              }
+    int measindex = 0;
+    int measindex2 = 0;
+    int nperpars = oldtrajectory.numberOfPerigeeParameters();
+    int nscat = oldtrajectory.numberOfScatterers();
+    
+    for (auto & hit : oldtrajectory.trackStates()) {
+      if (
+        hit->trackStateType() == TrackState::Fittable && (
+          (dynamic_cast<const RIO_OnTrack *>(hit->measurement()) != nullptr) || 
+          (dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement()) != nullptr)
+        )
+      ) {
+        for (int i = measindex; i < measindex + hit->numberOfMeasuredParameters(); i++) {
+          for (int j = 0; j < oldtrajectory.numberOfFitParameters(); j++) {
+            cache.m_derivmat(i, j) = derivs(measindex2, j) * errors[measindex2];
+            if ((j == 4 && !oldtrajectory.m_straightline) || j >= nperpars + 2 * nscat) {
+              cache.m_derivmat(i, j) *= 1000;
             }
-            
-            measindex2++;
           }
           
-          measindex += hit->numberOfMeasuredParameters();
-        } else if (hit->materialEffects() == nullptr) {
-          measindex2 += hit->numberOfMeasuredParameters();
+          measindex2++;
         }
+        
+        measindex += hit->numberOfMeasuredParameters();
+      } else if (hit->materialEffects() == nullptr) {
+        measindex2 += hit->numberOfMeasuredParameters();
       }
     }
-    
-    GXFTrackState *firstmeasstate = nullptr;
-    GXFTrackState *lastmeasstate = nullptr;
-    bool foundbrem = false;
-    
-    for (auto & hit : states) {
-      if (
-        hit->measurementType() == TrackState::Pseudo &&
-        hit->trackStateType() == TrackState::GeneralOutlier
-      ) {
-        if (hit->trackCovariance() != nullptr) {
-          hit->setTrackCovariance(nullptr);
-        }
-        continue;
-      }
-      
-      if (
-        matEffects == electron && 
-        (hit->materialEffects() != nullptr) && 
-        hit->materialEffects()->isKink()
-      ) {
-        foundbrem = true;
-      }
-      
-      const TrackStateOnSurface *trackState = makeTSOS(hit, matEffects);
-      trajectory->push_back(trackState);
-      
-      if (trackState->measurementOnTrack() != nullptr) {
-        if (firstmeasstate == nullptr) {
-          firstmeasstate = hit;
-        }
-        lastmeasstate = hit;
-      }
-    }
+  }
 
-    const FitQuality *qual = new FitQuality(oldtrajectory.chi2(), oldtrajectory.nDOF());
-
-    ATH_MSG_VERBOSE("making Trk::Track...");
-    
-    TrackInfo info;
-    
-    if (matEffects != electron) {
-      info = TrackInfo(TrackInfo::GlobalChi2Fitter, matEffects);
-    } else {
-      info = TrackInfo(TrackInfo::GlobalChi2Fitter, Trk::electron);
-      info.setTrackProperties(TrackInfo::BremFit);
-      if (foundbrem) {
-        info.setTrackProperties(TrackInfo::BremFitSuccessful);
-      }
-    }
-    
-    if (oldtrajectory.m_straightline) {
-      info.setTrackProperties(TrackInfo::StraightTrack);
-    }
-
-    if (firstmeasstate == nullptr) {
-      throw std::logic_error("no first measurement.");
-    }
-    
+  std::unique_ptr<const TrackParameters> GlobalChi2Fitter::makeTrackFindPerigeeParameters(
+    const EventContext & ctx,
+    Cache &cache,
+    GXFTrajectory &oldtrajectory,
+    const ParticleHypothesis matEffects
+  ) const {
+    GXFTrackState *firstmeasstate, *lastmeasstate;
+    std::tie(firstmeasstate, lastmeasstate) = oldtrajectory.findFirstLastMeasurement();
     const TrackParameters *per = nullptr;
-    
+
     if (cache.m_acceleration && !m_matupdator.empty()) {
       const TrackParameters *prevpar = firstmeasstate->trackParameters();
       const TrackParameters *tmppar = firstmeasstate->trackParameters();
@@ -7376,14 +7319,9 @@ namespace Trk {
       }
       
       if (per == nullptr) {
-        delete trajectory;
-        delete qual;
-        
         ATH_MSG_DEBUG("Failed to extrapolate to perigee, returning 0");
-        
-        cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
-
         incrementFitStatus(S_PROPAGATION_FAIL);
+        cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
         return nullptr;
       }
     } else if (cache.m_acceleration && (firstmeasstate->trackParameters() != nullptr)) {
@@ -7398,21 +7336,93 @@ namespace Trk {
       per = oldtrajectory.referenceParameters(true);
     }
 
-    std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
-    typePattern.set(TrackStateOnSurface::Perigee);
-    const TrackStateOnSurface *pertsos = new TrackStateOnSurface(nullptr, per, nullptr, nullptr, typePattern);
-    
-    ATH_MSG_DEBUG("Final perigee: " << *per << " pos: " << per->position() << " pT: " << per->pT());
-    
-    if (!cache.m_acceleration) {
-      trajectory->insert(trajectory->begin() + oldtrajectory.numberOfUpstreamStates(), pertsos);
-    } else {
-      trajectory->insert(trajectory->begin(), pertsos);
+    return std::unique_ptr<const TrackParameters>(per);
+  }
+
+  std::unique_ptr<const TrackStateOnSurface> GlobalChi2Fitter::makeTrackFindPerigee(
+    const EventContext & ctx,
+    Cache &cache,
+    GXFTrajectory &oldtrajectory,
+    const ParticleHypothesis matEffects
+  ) const {
+    std::unique_ptr<const TrackParameters> per = makeTrackFindPerigeeParameters(ctx, cache, oldtrajectory, matEffects);
+
+    if (per == nullptr) {
+      return nullptr;
     }
 
-    Track *track = new Track(info, trajectory, qual);
+    std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
+    typePattern.set(TrackStateOnSurface::Perigee);
 
-    return track;
+    std::unique_ptr<const TrackStateOnSurface> pertsos = std::make_unique<const TrackStateOnSurface>(nullptr, per.release(), nullptr, nullptr, typePattern);
+    
+    ATH_MSG_DEBUG("Final perigee: " << *per << " pos: " << per->position() << " pT: " << per->pT());
+
+    return pertsos;
+  }
+
+  std::unique_ptr<Track> GlobalChi2Fitter::makeTrack(
+    const EventContext & ctx,
+    Cache & cache,
+    GXFTrajectory & oldtrajectory,
+    ParticleHypothesis matEffects
+  ) const {
+    // Convert internal trajectory into track
+    std::unique_ptr<DataVector<const TrackStateOnSurface>> trajectory = std::make_unique<DataVector<const TrackStateOnSurface>>();
+    
+    if (m_fillderivmatrix) {
+      makeTrackFillDerivativeMatrix(cache, oldtrajectory);
+    }
+        
+    for (auto & hit : oldtrajectory.trackStates()) {
+      if (
+        hit->measurementType() == TrackState::Pseudo &&
+        hit->trackStateType() == TrackState::GeneralOutlier
+      ) {
+        if (hit->trackCovariance() != nullptr) {
+          hit->setTrackCovariance(nullptr);
+        }
+        continue;
+      }
+      
+      const TrackStateOnSurface *trackState = makeTSOS(hit, matEffects);
+      trajectory->push_back(trackState);
+    }
+
+    std::unique_ptr<const FitQuality> qual = std::make_unique<const FitQuality>(oldtrajectory.chi2(), oldtrajectory.nDOF());
+
+    ATH_MSG_VERBOSE("making Trk::Track...");
+    
+    TrackInfo info;
+    
+    if (matEffects != electron) {
+      info = TrackInfo(TrackInfo::GlobalChi2Fitter, matEffects);
+    } else {
+      info = TrackInfo(TrackInfo::GlobalChi2Fitter, Trk::electron);
+      info.setTrackProperties(TrackInfo::BremFit);
+
+      if (matEffects == electron && oldtrajectory.hasKink()) {
+        info.setTrackProperties(TrackInfo::BremFitSuccessful);
+      }
+    }
+    
+    if (oldtrajectory.m_straightline) {
+      info.setTrackProperties(TrackInfo::StraightTrack);
+    }
+    
+    std::unique_ptr<const TrackStateOnSurface> pertsos = makeTrackFindPerigee(ctx, cache, oldtrajectory, matEffects);
+
+    if (pertsos == nullptr) {
+      return nullptr;
+    }
+        
+    if (!cache.m_acceleration) {
+      trajectory->insert(trajectory->begin() + oldtrajectory.numberOfUpstreamStates(), pertsos.release());
+    } else {
+      trajectory->insert(trajectory->begin(), pertsos.release());
+    }
+
+    return std::make_unique<Track>(info, trajectory.release(), qual.release());
   }
 
   GlobalChi2Fitter::~GlobalChi2Fitter() {

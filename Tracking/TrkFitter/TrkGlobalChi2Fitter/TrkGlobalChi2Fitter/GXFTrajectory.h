@@ -46,6 +46,9 @@ namespace Trk {
     void setChi2(double);
     void setMass(double);
 
+    std::pair<GXFTrackState *, GXFTrackState *> findFirstLastMeasurement(void);
+    bool hasKink(void);
+
     int numberOfScatterers();
     void setNumberOfScatterers(int);
     int numberOfBrems();
