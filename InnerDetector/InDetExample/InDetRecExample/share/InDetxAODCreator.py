@@ -1,7 +1,5 @@
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
-from RecExConfig.ObjKeyStore   import cfgKeyStore
-
 
 def getCollectionNameIfInFile(coll_type,coll_name) :
     from RecExConfig.AutoConfiguration import IsInInputFile
@@ -177,7 +175,8 @@ if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <-
 
 if not InDetFlags.doVertexFinding():
     if (not InDetFlags.doDBMstandalone() and
-        not cfgKeyStore.isInInput ('xAOD::VertexContainer', InDetKeys.xAODVertexContainer())):
+        not IsInInputFile ('xAOD::VertexContainer', InDetKeys.xAODVertexContainer()) and
+        IsInInputFile ('VxContainer', InDetKeys.PrimaryVertices())) :
         if len(getRecVertexNameIfInFile(InDetKeys.PrimaryVertices()))>0 :
             from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__VertexCnvAlg
             xAODVertexCnvAlg = xAODMaker__VertexCnvAlg("VertexCnvAlg")
@@ -187,7 +186,7 @@ if not InDetFlags.doVertexFinding():
             topSequence += xAODVertexCnvAlg
 
     if InDetFlags.doDBMstandalone() or InDetFlags.doDBM():
-        if len(getRecVertexNameIfInFile(InDetKeys.PrimaryVertices()))>0 :
+        if (IsInInputFile ('VxContainer', InDetKeys.PrimaryVertices())) :
             from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__VertexCnvAlg
             xAODVertexCnvAlgDBM = xAODMaker__VertexCnvAlg("VertexCnvAlgDBM")
             xAODVertexCnvAlgDBM.xAODContainerName = InDetKeys.xAODVertexContainer()
