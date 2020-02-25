@@ -24,9 +24,10 @@ AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* 
 //, m_histsDirectoryName ("AFP/")
 //, m_cNearStation (s_cNearStationIndex)
 //, m_cFarStation (s_cFarStationIndex)
+, m_afpHitContainerKey("AFPSiHits")
 
 {
-    //declareProperty( "AFPSiHits", afpHitContainerKey );
+    declareProperty( "AFPSiHits", m_afpHitContainerKey );
 }
 
 
@@ -46,9 +47,9 @@ m_abGroups1 = buildToolMap<int>(m_tools,"AFPSiLayer",2);
     return AthMonitorAlgorithm::initialize();
     */
     // We must declare to the framework in initialize what SG objects we are going to use
-    SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey;
+    //SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey("AFPSiHits");
 
-    ATH_CHECK(afpHitContainerKey.initialize());
+    ATH_CHECK(m_afpHitContainerKey.initialize());
     // ...
     return AthMonitorAlgorithm::initialize();
 }
@@ -98,7 +99,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     // Fill. First argument is the tool name, all others are the variables to be saved.
     //fill("AFPSiLayer", h_timeOverThreshold, h_hitMultiplicity,lumiPerBCID,lb,random,pT,pT_passed,testweight);
     //fill("AFPSiLayerAlgorithm",h_hitMultiplicity,lb,random,pT,pT_passed,testweight);
-    fill("AFPSiLayer", h_timeOverThreshold, h_hitMultiplicity);
+    //////////fill("AFPSiLayer", h_timeOverThreshold, h_hitMultiplicity);
 
     // Alternative fill method. Get the group yourself, and pass it to the fill function.
     //auto tool = getGroup("AFPSiLayer");
@@ -135,22 +136,22 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
         }
     }
 */    
-    SG::ReadHandle<xAOD::AFPSiHitContainer>* afpHitContainer;
-    if(! afpHitContainer->isValid())
+    SG::ReadHandle<xAOD::AFPSiHitContainer> afpHitContainer(m_afpHitContainerKey, ctx);
+    if(! afpHitContainer.isValid())
     {
-	ATH_MSG_ERROR("evtStore() does not contain hits collection with name afpHitContainerKey ");
+	ATH_MSG_ERROR("evtStore() does not contain hits collection with name m_afpHitContainerKey ");
 	return StatusCode::FAILURE;
     }
 
-    CHECK( evtStore()->retrieve( afpHitContainer, "AFPSiHitContainer" ) );
+    //ATH_CHECK( afpHitContainerKey.initialize() );
 
-    for(const auto* hitsItr: *afpHitContainer)
+    for(const auto& hitsItr: *afpHitContainer)
     {
 
 	switch(hitsItr->stationID())
 	{
-	    case s_cNearStationIndex:
-	        std::cout << hit.pixelColIDChip() << std::endl;
+	    case 2:
+	        std::cout << hitsItr->pixelColIDChip() << std::endl;
 		break;
 	    //case s_cFarStationIndex:
 		//m_cFarStation.fillHistograms(*hitsItr);

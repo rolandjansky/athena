@@ -7,6 +7,8 @@
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
+#include "StoreGate/ReadHandleKey.h"
+#include <xAODForward/AFPSiHitContainer.h>
 
 #include "TRandom3.h"
 
@@ -22,6 +24,7 @@ private:
     std::vector<std::vector<int>> m_abGroups2;
     std::map<std::string,int> m_cGroups1;
     std::map<std::string,std::map<std::string,int>> m_cGroups2;
+    SG::ReadHandleKey<xAOD::MuonContainer> m_afpHitContainerKey;
 
 protected:
   static const int s_cNearStationIndex;
