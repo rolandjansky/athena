@@ -1010,7 +1010,6 @@ namespace CP {
 	return false;
       }
       
-
       //::: BIS78
       if (isBIS78(etaMS,phiMS)) {
 	ATH_MSG_VERBOSE( "Muon is in BIS7/8 eta/phi region - fail high-pT" );
@@ -1018,18 +1017,10 @@ namespace CP {
       }
 
       //::: BMG - only veto in 2017+2018 data and corresponding MC
-      float BMG_eta[ 6 ] = { 0.35, 0.47, 0.68, 0.80, 0.925, 1.04 };
-      float BMG_phi[ 4 ] = { -1.93, -1.765, -1.38, -1.21 };
       if ( getRunNumber(true) >= 324320 ) {
-	if ( ( std::abs( etaMS ) >= BMG_eta[ 0 ] && std::abs( etaMS ) <= BMG_eta[ 1 ] )
-	     || ( std::abs( etaMS ) >= BMG_eta[ 2 ] && std::abs( etaMS ) <= BMG_eta[ 3 ] )
-	     || ( std::abs( etaMS ) >= BMG_eta[ 4 ] && std::abs( etaMS ) <= BMG_eta[ 5 ] ) ) {
-	  if ( ( phiMS >= BMG_phi[ 0 ] && phiMS <= BMG_phi[ 1 ] ) 
-	       || ( phiMS >= BMG_phi[ 2 ] && phiMS <= BMG_phi[ 3 ] )
-	       ) {
-	    ATH_MSG_VERBOSE( "Muon is in BMG eta/phi region - fail high-pT" );
-	    return false;
-	  }
+	if (isBMG(etaMS,phiMS)) {
+	  ATH_MSG_VERBOSE( "Muon is in BMG eta/phi region - fail high-pT" );
+	  return false;
 	}
       }
 
@@ -1556,7 +1547,7 @@ namespace CP {
 
 
   //Check if eta/phi coordinates correspond to BIS7/8 chambers
-  bool MuonSelectionTool::isBIS78(float eta, float phi) const {
+  bool MuonSelectionTool::isBIS78(const float& eta, const float& phi) const {
 
     static const float BIS78_eta[ 2 ] = { 1.05, 1.3 };
     static const float BIS78_phi[ 8 ] = { 0.21, 0.57, 1.00, 1.33, 1.78, 2.14, 2.57, 2.93 };
@@ -1579,7 +1570,7 @@ namespace CP {
   }
 
   //Check if eta/phi coordinates correspond to BEE chambers
-  bool MuonSelectionTool::isBEE(float eta, float phi) const {
+  bool MuonSelectionTool::isBEE(const float& eta, const float& phi) const {
 
     static const float BEE_eta[ 2 ] = { 1.440, 1.692 };
     static const float BEE_phi[ 8 ] = { 0.301, 0.478, 1.086, 1.263, 1.872, 2.049, 2.657, 2.834 };     
@@ -1594,6 +1585,28 @@ namespace CP {
 	   || ( abs_phi >= BEE_phi[ 6 ] && abs_phi <= BEE_phi[ 7 ] ) 
 	   ) {
 	
+	return true;
+      }
+    }
+    
+    return false;
+  }
+
+  //Check if eta/phi coordinates correspond to BMG chambers
+  bool MuonSelectionTool::isBMG(const float& eta, const float& phi) const {
+
+    static const float BMG_eta[ 6 ] = { 0.35, 0.47, 0.68, 0.80, 0.925, 1.04 };
+    static const float BMG_phi[ 4 ] = { -1.93, -1.765, -1.38, -1.21 };
+
+    float abs_eta = std::abs(eta);
+
+    if ( ( abs_eta >= BMG_eta[ 0 ] && abs_eta <= BMG_eta[ 1 ] )
+	 || ( abs_eta >= BMG_eta[ 2 ] && abs_eta <= BMG_eta[ 3 ] )
+	 || ( abs_eta >= BMG_eta[ 4 ] && abs_eta <= BMG_eta[ 5 ] ) ) {
+      if ( ( phi >= BMG_phi[ 0 ] && phi <= BMG_phi[ 1 ] ) 
+	   || ( phi >= BMG_phi[ 2 ] && phi <= BMG_phi[ 3 ] )
+	   ) {
+	  
 	return true;
       }
     }
