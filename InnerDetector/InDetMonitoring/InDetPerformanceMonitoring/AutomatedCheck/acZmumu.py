@@ -63,7 +63,7 @@ def findListOfDataSets():
     # if user provides the data set name, it may happen (if errors) the data set is not found or does not exist
     if (len(listOfDataSets) == 0 and "NONE" not in m_userDataSet):
         print " <acZmumu> ** WARNING ** user data set: %s not found " %m_userDataSet
-        #sys.exit(" >> STOP excution")
+        sys.exit(" >> STOP excution")
 
     return listOfDataSets
 
