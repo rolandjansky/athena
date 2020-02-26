@@ -33,6 +33,9 @@ StatusCode MuonTruthAssociationAlg::initialize()
   ATH_CHECK(m_muonTruthParticleNPrecMatched.initialize());
   ATH_CHECK(m_muonTruthParticleNPhiMatched.initialize());
   ATH_CHECK(m_muonTruthParticleNTrigEtaMatched.initialize());
+  ATH_CHECK(m_cbMuTrkPartLinkToRead.initialize());
+  ATH_CHECK(m_extMuTrkPartLinkToRead.initialize());
+  ATH_CHECK(m_indetTrkPartLinkToRead.initialize());
   return StatusCode::SUCCESS;
 }
 
