@@ -156,7 +156,6 @@ TAUP1seq += CfgMgr.DerivationFramework__DerivationKernel(
   ThinningTools             = thinningTools
   )
 
-
 # =============================================
 # Add the containers to the output stream (slimming done here)
 # =============================================
