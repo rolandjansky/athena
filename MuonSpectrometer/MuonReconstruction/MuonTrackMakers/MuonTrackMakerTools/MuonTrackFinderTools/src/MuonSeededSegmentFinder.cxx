@@ -10,8 +10,6 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // interfaces
-#include "TrkExInterfaces/IPropagator.h"
-#include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
@@ -40,22 +38,10 @@ namespace Muon {
 
   MuonSeededSegmentFinder::MuonSeededSegmentFinder(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
-      m_segMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
-      m_segMakerNoHoles("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
-      m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
-      m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-      m_magFieldProperties(Trk::NoField),
-      m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+      m_magFieldProperties(Trk::NoField)
   {
     declareInterface<IMuonSeededSegmentFinder>(this);
 
-    declareProperty("IdHelper",m_idHelper);
-    declareProperty("Printer",m_printer);
-    declareProperty("MdtRotCreator",  m_mdtRotCreator );
-    declareProperty("Propagator",  m_propagator );
-    declareProperty("SegmentMaker",   m_segMaker);
-    declareProperty("SegmentMakerNoHoles",   m_segMakerNoHoles);
     declareProperty("AdcCut", m_adcCut = 50 );
     declareProperty("MdtSigmaFromTrack",m_maxSigma = 3);
   }

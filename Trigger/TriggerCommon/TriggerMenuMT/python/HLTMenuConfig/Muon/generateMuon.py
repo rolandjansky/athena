@@ -45,6 +45,12 @@ def generateChains( flags, chainDict ):
     stepEFMSName = getChainStepName('EFMSMuon', 2)
     stepEFMSReco, stepEFMSView = createStepView(stepEFMSName)
 
+    #Clone and replace offline flags so we can set muon trigger specific values
+    muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
+    muonflags.Muon.useTGCPriorNextBC=True
+    muonflags.Muon.enableErrorTuning=False
+    muonflags.lock()
+
     accMS = ComponentAccumulator()
     accMS.addSequence(stepEFMSView)
 
@@ -52,14 +58,18 @@ def generateChains( flags, chainDict ):
     recoMS = InViewReco("EFMuMSReco")
 
     from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
-    segCfg = MooSegmentFinderAlgCfg(flags,name="TrigMooSegmentFinder", TgcPrepDataContainer="TGC_Measurements")
+    segCfg = MooSegmentFinderAlgCfg(muonflags,name="TrigMooSegmentFinder",UseTGCNextBC=False, UseTGCPriorBC=False)
     recoMS.mergeReco(segCfg)
+
+    from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
+    trkCfg = MuonTrackBuildingCfg(muonflags, name="TrigMuPatTrackBuilder")
+    recoMS.mergeReco(trkCfg)
 
     accMS.merge(recoMS, sequenceName=stepEFMSReco.getName())
 
     # TODO remove once full step is in place
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
-    fakeHypoAlg = fakeHypoAlgCfg(flags, name='FakeHypoForMuon')
+    fakeHypoAlg = fakeHypoAlgCfg(muonflags, name='FakeHypoForMuon')
     def makeFakeHypoTool(name, cfg):
         return HLTTest__TestHypoTool(name)
     fakeHypoAlg.HypoTools = [ makeFakeHypoTool(chainDict['chainName'], None) ]
