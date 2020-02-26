@@ -2,7 +2,7 @@
 
 ## this is test for clusterization configuration
 
-from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 #import TrackReco 	   as TrackReco
@@ -13,8 +13,6 @@ import SpacePointFinder as SPF
 #arg_TrackingCuts             = 'TrackingCuts'
 #arg_TrackCollectionKeys      = 'tracks'
 #arg_TrackCollectionTruthKeys = 'truth'
-
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # the requires a single additional layer where the algorithm returned by getInDetPixelClusterization is collected:
 def main(flags) :
