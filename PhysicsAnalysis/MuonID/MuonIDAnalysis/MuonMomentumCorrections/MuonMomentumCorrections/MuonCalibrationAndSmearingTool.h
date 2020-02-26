@@ -170,6 +170,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     virtual void ConvertToSagittaBias(TH2F *h,float mean=1);
     virtual TProfile2D* GetHist(std::string fname="", std::string hname="inclusive",double GlobalScale=MZPDG);
     virtual bool isBadMuon( const xAOD::Muon& mu, InfoHelper& muonInfo ) const;
+    int ConvertToMacroCategory( int raw_mst_category ) const;
     //private:
     // fake assignment operator missing actual implementation
     MuonCalibrationAndSmearingTool& operator=(const MuonCalibrationAndSmearingTool& );

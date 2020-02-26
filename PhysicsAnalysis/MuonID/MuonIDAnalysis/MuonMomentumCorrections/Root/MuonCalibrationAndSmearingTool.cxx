@@ -1017,8 +1017,10 @@ namespace CP {
     if( m_Trel >= MCAST::Release::Recs2019_10_12 ) {
       muonInfo.sel_category = m_MuonSelectionTool->getResolutionCategory(mu);
       ATH_MSG_VERBOSE(method_name << " [Direct CB Smearing] Resolution Category: " << muonInfo.sel_category);
-      if(m_extra_decorations)
-        mu.auxdata<int>("MCaST_Category") = muonInfo.sel_category;
+      if(m_extra_decorations) {
+        mu.auxdata<int>("raw_MCaST_Category") = muonInfo.sel_category;
+        mu.auxdata<int>("MCaST_Category") = ConvertToMacroCategory(muonInfo.sel_category);
+      }
     }
 
     // Retrieve the event information:
@@ -1155,8 +1157,8 @@ namespace CP {
 
     // Special case: if the proper flags are selected (m_extra_highpt_smearing or m_2stations_highpt_smearing)
     // an ad-hoc smearing of the combined momentum has to be applied
-    bool extra_smearing = (m_extra_highpt_smearing and (muonInfo.sel_category >= 0) and not (muonInfo.sel_category == 4)); // Extra smearing, if selected, gets anyway only applied to non-3-station muons!
-    bool highpt_smearing = (m_2stations_highpt_smearing and (muonInfo.sel_category == 3)); // Special highpt smearing, if selected, gets anyway only applied to missing-inner, 2-station muons only!
+    bool extra_smearing = (m_extra_highpt_smearing and (muonInfo.sel_category >= 0) and not (muonInfo.sel_category & IMuonSelectionTool::CategoryFour)); // Extra smearing, if selected, gets anyway only applied to non-3-station muons!
+    bool highpt_smearing = (m_2stations_highpt_smearing and (muonInfo.sel_category & IMuonSelectionTool::CategoryThree)); // Special highpt smearing, if selected, gets anyway only applied to missing-inner, 2-station muons only!
 
     if((extra_smearing || highpt_smearing) && (m_Trel >= MCAST::Release::Recs2019_10_12) && (mu.pt()>300*MCAST_GeVToMeV)) {
       
@@ -1836,7 +1838,10 @@ namespace CP {
     std::string scale_val;
     // Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
     if ( m_FilesPath == "" ) {
-      if( m_Trel >= MCAST::Release::PreRec ) {
+      if (m_Trel >= MCAST::Release::Recs2019_10_12) {
+        scale_val = PathResolverFindCalibFile( "MuonMomentumCorrections/" + m_release + "/Scale_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
+      }
+      else if( m_Trel >= MCAST::Release::PreRec ) {
         scale_val = PathResolverFindCalibFile( "MuonMomentumCorrections/Scale_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
       }
       else if( m_year == "Data11" && m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
@@ -1847,7 +1852,12 @@ namespace CP {
       }
     }
     else {
-      scale_val = m_FilesPath + "Scale_" + m_algo + "_" + m_year + "_" + m_release + ".dat";
+      if (m_Trel >= MCAST::Release::Recs2019_10_12) {
+        scale_val = m_FilesPath + m_release + "/Scale_" + m_algo + "_" + m_year + "_" + m_release + ".dat";
+      }
+      else {
+        scale_val = m_FilesPath + "Scale_" + m_algo + "_" + m_year + "_" + m_release + ".dat";
+      }
     }
     //if ( m_Trel >= MCAST::Release::PreRec ) scale_val = "Scales_Test.dat";
     ATH_MSG_DEBUG( method_name << " Checking Files - Scales: " << scale_val );
@@ -1912,7 +1922,10 @@ namespace CP {
     std::string data_val;
     // Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
     if ( m_FilesPath == "" ) {
-      if( m_Trel >= MCAST::Release::PreRec ) {
+      if (m_Trel >= MCAST::Release::Recs2019_10_12) {
+        data_val = PathResolverFindCalibFile( "MuonMomentumCorrections/" + m_release + "/Smearing_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
+      }
+      else if( m_Trel >= MCAST::Release::PreRec ) {
         data_val = PathResolverFindCalibFile( "MuonMomentumCorrections/Smearing_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
       }
       else {
@@ -1920,7 +1933,12 @@ namespace CP {
       }
     }
     else {
-      data_val = m_FilesPath + "Smearing_" + m_algo + "_" + m_year + "_" + m_release + ".dat";
+      if (m_Trel >= MCAST::Release::Recs2019_10_12) {
+        data_val = m_FilesPath + m_release + "/Smearing_" + m_algo + "_" + m_year + "_" + m_release + ".dat";
+      }
+      else {
+        data_val = m_FilesPath + "Smearing_" + m_algo + "_" + m_year + "_" + m_release + ".dat";
+      }
     }
     //if ( m_Trel >= MCAST::Release::Test ) data_val = "Smearings_Test.dat";
     ATH_MSG_DEBUG( method_name << " Checking Files - Data: " << data_val );
@@ -2017,7 +2035,10 @@ namespace CP {
     std::string mc_val;
     // Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
     if ( m_FilesPath == "" ) {
-      if ( m_Trel >= MCAST::Release::PreRec ) {
+      if (m_Trel >= MCAST::Release::Recs2019_10_12) {
+        mc_val = PathResolverFindCalibFile( "MuonMomentumCorrections/" + m_release + "/MC_values_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
+      }
+      else if ( m_Trel >= MCAST::Release::PreRec ) {
         mc_val = PathResolverFindCalibFile( "MuonMomentumCorrections/MC_values_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
       }
       else if ( m_Trel >= MCAST::Release::PreRec ) {
@@ -2028,7 +2049,12 @@ namespace CP {
       }
     }
     else {
-      mc_val = m_FilesPath + "MC_values_" + m_algo + "_" + m_year + "_" + m_release + ".dat"; 
+      if (m_Trel >= MCAST::Release::Recs2019_10_12) {
+        mc_val = m_FilesPath + m_release + "/MC_values_" + m_algo + "_" + m_year + "_" + m_release + ".dat"; 
+      }
+      else {
+        mc_val = m_FilesPath + "MC_values_" + m_algo + "_" + m_year + "_" + m_release + ".dat"; 
+      }
     }
     ATH_MSG_DEBUG( method_name << " Checking Files - MC: " << mc_val );
 
@@ -2134,8 +2160,8 @@ namespace CP {
     if ( muonInfo.detRegion < 0 || muonInfo.detRegion >= m_nb_regions ) return 0; //++++++ HOW TO IMPROVE THIS CHECK?!
     double smear = 0.;
     if ( DetType == MCAST::DetectorType::CB ) {
-      std::pair<int, int> key = std::make_pair(muonInfo.detRegion, muonInfo.sel_category); 
-      ATH_MSG_VERBOSE(method_name << " [Direct CB Smearing] Map Key: " << muonInfo.detRegion << ", " << muonInfo.sel_category);
+      std::pair<int, int> key = std::make_pair(muonInfo.detRegion, ConvertToMacroCategory(muonInfo.sel_category)); 
+      ATH_MSG_VERBOSE(method_name << " [Direct CB Smearing] Map Key: " << muonInfo.detRegion << ", " << ConvertToMacroCategory(muonInfo.sel_category));
       if((m_extra_p1_p2_MS_Misaligned.find(key) != m_extra_p1_p2_MS_Misaligned.end()) and (m_extra_p1_p2_MS_AlignedAndCorrected.find(key) != m_extra_p1_p2_MS_AlignedAndCorrected.end())) {
         std::pair<double, double> Misaligned = m_extra_p1_p2_MS_Misaligned.at(key);
         std::pair<double, double> AlignedAndCorrected = m_extra_p1_p2_MS_AlignedAndCorrected.at(key);
@@ -3118,6 +3144,20 @@ namespace CP {
     }
     ATH_MSG_VERBOSE( std::string(IsBadMuon ? " IS BAD MUON ": " IS GOOD MUON"));
     return IsBadMuon;
+  }
+
+  int MuonCalibrationAndSmearingTool::ConvertToMacroCategory( int raw_mst_category ) const {
+
+    if( raw_mst_category < 0 ) {
+      return -1;
+    }
+    else if( raw_mst_category & IMuonSelectionTool::CategoryZero ) return 0;
+    else if( raw_mst_category & IMuonSelectionTool::CategoryOne ) return 1;
+    else if( raw_mst_category & IMuonSelectionTool::CategoryTwo ) return 2;
+    else if( raw_mst_category & IMuonSelectionTool::CategoryThree ) return 3;
+    else if( raw_mst_category & IMuonSelectionTool::CategoryFour ) return 4;
+    else return -1;
+
   }
 
 
