@@ -81,6 +81,7 @@ StatusCode TrigT1CaloRun3TauFex::initialize(){
 	acc_Ore_clusterIso_12pass = new SG::AuxElement::Accessor<bool>("R3_Ore_ClusterIso_12pass");
 	acc_Ore_clusterIso_20pass = new SG::AuxElement::Accessor<bool>("R3_Ore_ClusterIso_20pass");
 	acc_BC_clusterET = new SG::AuxElement::Accessor<float>("R3_BC_ClusterET");
+	acc_BC_clusterIso = new SG::AuxElement::Accessor<float>("R3_BC_ClusterIso");
 	return StatusCode::SUCCESS;
 }
 
@@ -96,7 +97,10 @@ StatusCode TrigT1CaloRun3TauFex::finalize(){
 	delete acc_clusterIso;
 	delete acc_Ore_clusterET;
 	delete acc_Ore_clusterIso;
+	delete acc_Ore_clusterIso_12pass;
+	delete acc_Ore_clusterIso_20pass;
 	delete acc_BC_clusterET;
+	delete acc_BC_clusterIso;
 	return StatusCode::SUCCESS;
 }
 
@@ -542,6 +546,30 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  eFEX_BC += E_EM12_above.at(E_EM12_above.size()-1);
 	  eFEX_BC += E_EM12_below.at(E_EM12_below.size()-1);
 
+	  //Bigcluster isolation
+	  float nomeFEX_BCiso = 0;
+	  nomeFEX_BCiso += E_EM12_central.at(E_EM12_central.size()-1);
+	  nomeFEX_BCiso += E_EM12_above.at(E_EM12_above.size()-1);
+	  nomeFEX_BCiso += E_EM12_below.at(E_EM12_below.size()-1);
+	  nomeFEX_BCiso += E_EM0.at(E_EM0.size()-1);
+	  nomeFEX_BCiso += E_EM0.at(E_EM0.size()-2);
+	  nomeFEX_BCiso += E_EM0.at(E_EM0.size()-3);
+	  nomeFEX_BCiso += E_EM3.at(E_EM3.size()-1);
+	  nomeFEX_BCiso += E_EM3.at(E_EM3.size()-2);
+
+	  float denBCiso = 0;
+	  denBCiso += m_SupercellMapTWR->GetBinContent(i,j);
+	  denBCiso += m_SupercellMapTWR->GetBinContent(i-1,j);
+	  denBCiso += m_SupercellMapTWR->GetBinContent(i+1,j);
+	  denBCiso += m_SupercellMapTWR->GetBinContent(i,j+1);
+	  denBCiso += m_SupercellMapTWR->GetBinContent(i-1,j+1);
+	  denBCiso += m_SupercellMapTWR->GetBinContent(i+1,j+1);
+	  denBCiso += m_SupercellMapTWR->GetBinContent(i,j-1);
+	  denBCiso += m_SupercellMapTWR->GetBinContent(i-1,j-1);
+	  denBCiso += m_SupercellMapTWR->GetBinContent(i+1,j-1);
+
+	  float eFEX_BCiso = nomeFEX_BCiso/denBCiso;
+
 	  // Calculate an EM2-based isolation
 	  // Center in EM2, offset to the right in eta:
 	  int em2i=m_SupercellMapEM2->GetXaxis()->FindFixBin(myMaximum.Eta()+0.05);
@@ -588,6 +616,9 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  (*acc_clusterET)(*clForTau) = eFEXOldCluster;
 	  (*acc_Ore_clusterET)(*clForTau) = eFEX_OregonET;
 	  (*acc_BC_clusterET)(*clForTau) = eFEX_BC;
+	  (*acc_BC_clusterIso)(*clForTau) = 0;
+	  if(denBCiso > 0)
+	    (*acc_BC_clusterIso)(*clForTau) = eFEX_BCiso;
 	  (*acc_Ore_clusterIso)(*clForTau) = 0;
 	  if(oreIsoOuterET > 0)
 	    (*acc_Ore_clusterIso)(*clForTau) = eFEX_OregonIso;
