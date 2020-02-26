@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,6 +31,8 @@
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonTGHits.h"
 #include "MuonTGSegments.h"
+
+#include "GaudiKernel/ConcurrencyFlags.h"
 
 //Amg
 #include "EventPrimitives/EventPrimitives.h"
@@ -86,12 +88,10 @@ public:
  
 private:
 
-  StatusCode getTrackingGeometry() const;
-  
   // --- job options
-  mutable const Trk::TrackingGeometry* m_trackingGeometry;
-  std::string  m_trackingGeometryName;
-  std::string m_ExtrapolatorName;         //!< Name of the Extrapolator Instance 
+  const Trk::TrackingGeometry* m_trackingGeometry;
+  Gaudi::Property<std::string>  m_trackingGeometryName{this,"TrackingGeometryName","AtlasTrackingGeometry"};
+  Gaudi::Property<std::string> m_ExtrapolatorName{this,"ExtrapolatorName"," "};      //!< Name of the Extrapolator Instance 
     
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
@@ -101,18 +101,18 @@ private:
   const MuonGM::MuonDetectorManager* m_muonDetMgr;
  
   // -- algorithm members
-  mutable MuonTGHits*              m_hits; 
-  mutable MuonTGSegments*          m_segments;
+  mutable MuonTGHits*              m_hits           ATLAS_THREAD_SAFE; //Marked as thread-safe because it's disabled when running multi-threaded
+  mutable MuonTGSegments*     m_segments   ATLAS_THREAD_SAFE; //Marked as thread-safe because it's disabled when running multi-threaded
 
   // projection matrices
-  mutable AmgMatrix(5,5)                  *m_tgcProjEta;
-  mutable AmgMatrix(5,5)                  *m_tgcProjPhi;
-  mutable AmgMatrix(5,5)                  *m_rpcProjEta;
-  mutable AmgMatrix(5,5)                  *m_rpcProjPhi;
+  AmgMatrix(5,5)                  *m_tgcProjEta;
+  AmgMatrix(5,5)                  *m_tgcProjPhi;
+  AmgMatrix(5,5)                  *m_rpcProjEta;
+  AmgMatrix(5,5)                  *m_rpcProjPhi;
 
   // steering
-  bool  m_alignedMode;
-  bool  m_useDSManager;
+  Gaudi::Property<bool>  m_alignedMode{this,"AlignedMode",true};
+  Gaudi::Property<bool>  m_useDSManager{this,"UseDSManager",false};
 
 };
 
@@ -120,7 +120,14 @@ private:
 
 inline void Muon::MuonTGMeasurementTool::updateAssocMeas( Muon::MuonTGHits* assocHits,
                                                           Muon::MuonTGSegments* assocSegments ) const
-{ m_hits = assocHits; m_segments = assocSegments; } 
+{ 
+  if (Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
+    ATH_MSG_WARNING("Access to Muon::MuonTGMeasurementTool::updateAssocMeas() blocked due to thread safety concerns");
+  } else {
+    m_hits = assocHits;
+    m_segments = assocSegments; 
+  }
+} 
 
 #endif //MUONTGRECTOOLS_MUONTGMEASUREMENTTOOL_H
 
