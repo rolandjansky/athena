@@ -183,7 +183,7 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::InitializeTools( c
         std::string variable = ""; //get the name of the variable to be corrected
         ANA_CHECK(GetCorrectionVariableName(variable, confFiles.at(confFile_itr)));
         TString toolname = TString::Format("%s_%s_%s", this->name().c_str(), name.c_str(), variable.c_str());
-        ANA_MSG_INFO("Subtool name: " << toolname.Data());
+        ANA_MSG_DEBUG("Subtool name: " << toolname.Data());
         toolHolder.at(confFile_itr) = std::make_unique<ElectronPhotonVariableCorrectionTool>(toolname.Data());
         ANA_CHECK(toolHolder.at(confFile_itr)->setProperty("ConfigFile", confFiles.at(confFile_itr)));
         ANA_CHECK(toolHolder.at(confFile_itr)->initialize());
@@ -202,7 +202,7 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::GetCorrectionVaria
     // retrieve variable name
     if (env.Lookup("Variable"))
     {
-        variableName = env.GetValue("nFunctionParameters", "");
+        variableName = env.GetValue("Variable", "");
     }
     else
     {
