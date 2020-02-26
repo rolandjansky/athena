@@ -50,14 +50,14 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
         configFile = PathResolverFindCalibFile(m_configFile);
         if (configFile == "")
         {
-            ATH_MSG_ERROR("Could not locate configuration file " << m_configFile);
+            ATH_MSG_ERROR("In " << name()  << ": Could not locate configuration file " << m_configFile);
             return StatusCode::FAILURE;
         }
         ATH_MSG_DEBUG("Use configuration file " << m_configFile);
     }
     else
     {
-        ATH_MSG_ERROR("Config file string is empty. Please provide a config file to the tool.");
+        ATH_MSG_ERROR("In " << name()  << ": Config file string is empty. Please provide a config file to the tool.");
         return StatusCode::FAILURE;
     }
 
@@ -73,7 +73,7 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
     }
     else
     {
-        ATH_MSG_ERROR("Correction variable is empty or not in configuration file.");
+        ATH_MSG_ERROR("In " << name()  << ": Correction variable is empty or not in configuration file.");
         return StatusCode::FAILURE;
     }
 
@@ -92,7 +92,7 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
     }
     else
     {
-        ATH_MSG_ERROR("Correction function is empty or not in configuration file.");
+        ATH_MSG_ERROR("In " << name()  << ": Correction function is empty or not in configuration file.");
         return StatusCode::FAILURE;
     }
 
@@ -103,7 +103,7 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
     }
     else
     {
-        ATH_MSG_ERROR("You did not specify the number of parameters in the correction function.");
+        ATH_MSG_ERROR("In " << name()  << ": You did not specify the number of parameters in the correction function.");
         return StatusCode::FAILURE;
     }
 
@@ -123,7 +123,7 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
             ElectronPhotonVariableCorrectionTool::parameterType type = stringToParameterType(env.GetValue(parameterType.Data(),""));
             if( type == ElectronPhotonVariableCorrectionTool::parameterType::Failure )
             {
-                ATH_MSG_ERROR("Parameter " << parameter_itr << " read-in failed, not an allowed parameter type.");
+                ATH_MSG_ERROR("In " << name()  << ": Parameter " << parameter_itr << " read-in failed, not an allowed parameter type.");
                 return StatusCode::FAILURE;
             }
             // save type, get according type information and save it
@@ -133,7 +133,7 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
         // else fail
         else
         {
-            ATH_MSG_ERROR("Did not find Parameter" << parameter_itr << ", although you specified there were " << m_numberOfFunctionParameters << " parameters for the correction function.");
+            ATH_MSG_ERROR("In " << name()  << ": Did not find Parameter" << parameter_itr << ", although you specified there were " << m_numberOfFunctionParameters << " parameters for the correction function.");
             return StatusCode::FAILURE;
         }
     } // end loop over all function parameters
@@ -146,14 +146,14 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
         // fail if not passed a proper type
         if (m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::Failure)
         {
-            ATH_MSG_ERROR("You did not correctly specify the object type in the ApplyTo flag.");
+            ATH_MSG_ERROR("In " << name()  << ": You did not correctly specify the object type in the ApplyTo flag.");
             return StatusCode::FAILURE;
         }
     }
     // else fail
     else
     {
-        ATH_MSG_ERROR("You did not specify to which objects this conf file should be applied to (ApplyTo).");
+        ATH_MSG_ERROR("In " << name()  << ": You did not specify to which objects this conf file should be applied to (ApplyTo).");
         return StatusCode::FAILURE;
     }
 
@@ -183,7 +183,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection(x
     }
     else
     {
-        ATH_MSG_ERROR("The correction variable \"" << m_correctionVariable << "\" provided in the conf file is not available.");
+        ATH_MSG_ERROR("In " << name()  << ": The correction variable \"" << m_correctionVariable << "\" provided in the conf file is not available.");
         return CP::CorrectionCode::Error;
     }
     
@@ -216,7 +216,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection(x
 {   
     if (!(m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons || m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allEGammaObjects))
     {
-        ATH_MSG_ERROR("You want to correct electrons, but passed a conf file with ApplyTo flag not set for electrons. Are you using the correct conf file?");
+        ATH_MSG_ERROR("In " << name()  << ": You want to correct electrons, but passed a conf file with ApplyTo flag not set for electrons. Are you using the correct conf file?");
         return CP::CorrectionCode::Error;
     }
 
@@ -231,7 +231,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection(x
     }
     else
     {
-        ATH_MSG_ERROR("The correction variable \"" << m_correctionVariable << "\" provided in the conf file is not available.");
+        ATH_MSG_ERROR("In " << name()  << ": The correction variable \"" << m_correctionVariable << "\" provided in the conf file is not available.");
         return CP::CorrectionCode::Error;
     }
     
@@ -303,7 +303,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getKinematicProperties(co
     const xAOD::CaloCluster* cluster  = egamma_object.caloCluster();
     if ( cluster == nullptr )
     {
-        ATH_MSG_ERROR("EGamma object calorimeter cluster is NULL: Cluster " << cluster);
+        ATH_MSG_ERROR("In " << name()  << ": EGamma object calorimeter cluster is NULL: Cluster " << cluster);
         return StatusCode::FAILURE;
     }
 
@@ -353,7 +353,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
         }
         else
         {
-            ATH_MSG_ERROR("Could not retrieve Parameter" << parameter_number << " file path.");
+            ATH_MSG_ERROR("In " << name()  << ": Could not retrieve Parameter" << parameter_number << " file path.");
             return StatusCode::FAILURE;
         }
         // check if necessary information is in conf, else fail
@@ -364,7 +364,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
         }
         else
         {
-            ATH_MSG_ERROR("Could not retrieve Parameter" << parameter_number << " graph name.");
+            ATH_MSG_ERROR("In " << name()  << ": Could not retrieve Parameter" << parameter_number << " graph name.");
             return StatusCode::FAILURE;
         }
         // open file, if it works, try to find graph, get graph, store a copy, else warning + fail
@@ -424,7 +424,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
             //force that the low bin edges are given by the conf file, starting with 0
             if (m_etaBins.at(0) != 0.)
             {
-                ATH_MSG_ERROR("Lowest bin edge given for parameter " << parameter_number << " is not 0. Please provide the lower bin edges of your correction binning in the conf file, starting with 0.");
+                ATH_MSG_ERROR("In " << name()  << ": Lowest bin edge given for parameter " << parameter_number << " is not 0. Please provide the lower bin edges of your correction binning in the conf file, starting with 0.");
                 return StatusCode::FAILURE;
             }
             // don't want to retrieve the same thing twice from conf
@@ -432,7 +432,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
         }
         else
         {
-            ATH_MSG_ERROR("Could not retrieve eta binning.");
+            ATH_MSG_ERROR("In " << name()  << ": Could not retrieve eta binning.");
             return StatusCode::FAILURE;
         }
     }
@@ -447,7 +447,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
             //force that the low bin edges are given by the conf file, starting with 0
             if (m_ptBins.at(0) != 0.)
             {
-                ATH_MSG_ERROR("Lowest bin edge given for parameter " << parameter_number << " is not 0. Please provide the lower bin edges of your correction binning in the conf file, starting with 0.");
+                ATH_MSG_ERROR("In " << name()  << ": Lowest bin edge given for parameter " << parameter_number << " is not 0. Please provide the lower bin edges of your correction binning in the conf file, starting with 0.");
                 return StatusCode::FAILURE;
             }
             // don't want to retrieve the same thing twice from conf
@@ -455,11 +455,8 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
         }
         else
         {
-            ATH_MSG_ERROR("Could not retrieve pt binning.");
-            return StatusCode::FAILURE;
+            ATH_MSG_ERROR("In " << name()  << ": Could not retrieve pt binning.");
         }
-    }
-    // if needed, get binned correction values
     if ( getEtaBins || getPtBins)
     {
         // check if necessary information is in conf, else fail
@@ -470,7 +467,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
         }
         else
         {
-            ATH_MSG_ERROR("Could not retrieve binned values.");
+            ATH_MSG_ERROR("In " << name()  << ": Could not retrieve binned values.");
             return StatusCode::FAILURE;
         }
     }
@@ -530,7 +527,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::get1DBinnedParameter(floa
     // if the evalPoint is < 0, something is very wrong
     if (evalPoint < binning.at(0))
     {
-        ATH_MSG_ERROR("Abs(Eta) or pT of object is smaller than 0.");
+        ATH_MSG_ERROR("In " << name()  << ": Abs(Eta) or pT of object is smaller than 0.");
         return StatusCode::FAILURE;
     }
     // loop over bin boundaries
@@ -621,7 +618,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getDensity(float& value, 
     // retrieve the event shape container
     const xAOD::EventShape* evtShape = nullptr;
     if(evtStore()->retrieve(evtShape, eventShapeContainer).isFailure()){
-        ATH_MSG_ERROR("Cannot retrieve density container " << eventShapeContainer);
+        ATH_MSG_ERROR("In " << name()  << ": Cannot retrieve density container " << eventShapeContainer);
         return StatusCode::FAILURE;
     }
     // get the density from the container
@@ -641,7 +638,7 @@ ElectronPhotonVariableCorrectionTool::parameterType ElectronPhotonVariableCorrec
     else
     {
         // if not a proper type, return failure type - check and fail on this!
-        ATH_MSG_ERROR(input.c_str() << " is not an allowed parameter type.");
+        ATH_MSG_ERROR("In " << name()  << ": " << input.c_str() << " is not an allowed parameter type.");
         return ElectronPhotonVariableCorrectionTool::parameterType::Failure;
     }
 }
@@ -649,15 +646,15 @@ ElectronPhotonVariableCorrectionTool::parameterType ElectronPhotonVariableCorrec
 ElectronPhotonVariableCorrectionTool::EGammaObjects ElectronPhotonVariableCorrectionTool::stringToEGammaObject( const std::string& input ) const
 {
     // return object type which correction should be applied to
-    if( input == "unconvertedPhoton" ) return ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons;
-    else if( input == "convertedPhoton" ) return ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons;
+    if( input == "unconvertedPhotons" ) return ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons;
+    else if( input == "convertedPhotons" ) return ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons;
     else if( input == "allPhotons" ) return ElectronPhotonVariableCorrectionTool::EGammaObjects::allPhotons;
     else if( input == "allElectrons" ) return ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons;
     else if( input == "allEGammaObjects" ) return ElectronPhotonVariableCorrectionTool::EGammaObjects::allEGammaObjects;
     else 
     {
         // if not a proper object type, return failure type - check and fail on this!
-        ATH_MSG_ERROR(input.c_str() << " is not an allowed EGamma object type to apply corrections to.");
+        ATH_MSG_ERROR("In " << name()  << ": " << input.c_str() << " is not an allowed EGamma object type to apply corrections to.");
         return ElectronPhotonVariableCorrectionTool::EGammaObjects::Failure;
     }
 }
@@ -667,7 +664,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::passedCorrectPhotonType(c
     // check if conf file is set to be used for photons - fail if not
     if (m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons)
     {
-        ATH_MSG_ERROR("You specified in the conf file that it should be used for electrons, but passed it to a photon container in the wrapper.");
+        ATH_MSG_ERROR("In " << name()  << ": You specified in the conf file that it should be used for electrons, but passed it to a photon container in the wrapper.");
         return StatusCode::FAILURE;
     }
     //check if the passed photon type is the same as the requested photon type, if only one photon type was requested
@@ -681,11 +678,11 @@ const StatusCode ElectronPhotonVariableCorrectionTool::passedCorrectPhotonType(c
         {
             if (m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons)
             {
-                ATH_MSG_ERROR("You specified in the conf file that it only should be used for converted photons, but passed it to the unconverted photons container in the wrapper.");
+                ATH_MSG_ERROR("In " << name()  << ": You specified in the conf file that it only should be used for converted photons, but passed it to the unconverted photons container in the wrapper.");
             }
             else
             {
-                ATH_MSG_ERROR("You specified in the conf file that it only should be used for unconverted photons, but passed it to the converted photons container in the wrapper.");
+                ATH_MSG_ERROR("In " << name()  << ": You specified in the conf file that it only should be used for unconverted photons, but passed it to the converted photons container in the wrapper.");
             }
             return StatusCode::FAILURE;
         }
