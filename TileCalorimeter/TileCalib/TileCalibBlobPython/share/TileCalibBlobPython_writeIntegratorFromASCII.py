@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TileCalibBlobPython_writeIntegratorFromASCII.py
 # Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-12-05
@@ -9,11 +9,11 @@
 import cppyy
 
 from TileCalibBlobPython import TileCalibTools
-from TileCalibBlobObjs.Classes import * 
+from TileCalibBlobObjs.Classes import TileCalibUtils
 import os
 
 #=== some preparation
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("writeIntegrator")
 import logging
 log.setLevel(logging.DEBUG)
@@ -49,7 +49,7 @@ def fillIntegrator(fileInt, tag, since,
 
     defVec = cppyy.gbl.std.vector('std::vector<float>')()
 
-    for i in xrange(ngain):
+    for i in range(ngain):
         defaultGain = cppyy.gbl.std.vector('float')()
         for v in dv[i]:
             defaultGain.push_back(v)
@@ -60,34 +60,34 @@ def fillIntegrator(fileInt, tag, since,
     #=====================================================
     writer = TileCalibTools.TileBlobWriter(db,folder,'Flt')
     writer.setComment(os.getlogin(),"Jalal's values with non-zero defaults, 2008-12-05")
-    parser = TileCalibTools.TileASCIIParser(fileInt,"IntGain");
+    parser = TileCalibTools.TileASCIIParser(fileInt,"IntGain")
     #=== initialize all channels and write global default
     util = cppyy.gbl.TileCalibUtils()
-    for ros in xrange(util.max_ros()):
-        for drawer in xrange(util.getMaxDrawer(ros)):
-            flt = writer.zeroBlob(ros,drawer)
+    for ros in range(util.max_ros()):
+        for drawer in range(util.getMaxDrawer(ros)):
+            writer.zeroBlob(ros,drawer)
     calibDrawer = writer.getDrawer(0,0)
     calibDrawer.init(defVec,1,1)
     #=== loop over whole detector
-    for ros in xrange(1,5):
-        for mod in xrange(64):
+    for ros in range(1,5):
+        for mod in range(64):
             #=== need to invalidate previous blob in DB when reading from ASCII file
             writer.zeroBlob(ros,mod)
-            for chn in xrange(48):
+            for chn in range(48):
                 values = parser.getData(ros,mod,chn)
                 if not len(values):
-                    log.warning("%i/%2i/%2i/x: No value found in file" % (ros,mod,chn))
+                    log.warning("%i/%2i/%2i/x: No value found in file", ros,mod,chn)
                     continue
                 #=== init drawer with defaults for first entry
                 calibDrawer = writer.getDrawer(ros,mod)
                 if not calibDrawer.getNObjs():
-                    log.info("Initializing drawer %i/%2i\t%i" % (ros,mod,calibDrawer.getNObjs()))
+                    log.info("Initializing drawer %i/%2i\t%i", ros,mod,calibDrawer.getNObjs())
                     calibDrawer.init(defVec,48,1)
 
                 #=== loop over gains
-                for adc in xrange(ngain):
+                for adc in range(ngain):
                     line = "%i/%2i/%2i/%i: " % (ros,mod,chn,adc)
-                    for v in xrange(nperg):
+                    for v in range(nperg):
                         value = float(values[adc*nperg+v])
                         calibDrawer.setData(chn,adc,v,value)
                         line += "%f " % (value,)
