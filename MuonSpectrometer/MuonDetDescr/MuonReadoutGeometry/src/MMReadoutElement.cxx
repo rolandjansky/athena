@@ -7,27 +7,21 @@
  ----------------------------------------------------
 ***************************************************************************/
 
-
-//<doc><file>	$Id: MMReadoutElement.cxx,v 1.5 2009-05-13 15:03:47 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
-
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GaudiKernel/MsgStream.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
-//#include "StoreGate/DataHandle.h"
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
 #include "MuonAlignmentData/BLinePar.h"
-
-#define MMReadout_verbose false
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 namespace MuonGM {
 
@@ -54,9 +48,6 @@ namespace MuonGM {
     std::string sName = vName.substr(vName.find("-")+1);
     std::string fixName = (sName[2]=='L') ? "MML" : "MMS";
 
-
-
-    //setStationName(stName);
     setStationName(fixName);
     setStationEta(zi);
     setStationPhi(fi);    
@@ -81,7 +72,8 @@ namespace MuonGM {
 	  if ((npos = childname.find("Sensitive")) != std::string::npos ) {
 	    llay ++;
             if (llay > 4) {
-	                         (*m_Log)<<MSG::ERROR<<"number of MM layers > 4: increase transform array size"<< endmsg;
+              MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+              log << MSG::WARNING<<"number of MM layers > 4: increase transform array size"<< endmsg;
               continue;
 	    }
            m_Xlg[llay-1] = pvc->getXToChildVol(ich);
@@ -93,8 +85,6 @@ namespace MuonGM {
                 // adjust phi dimensions according to the active area  
                 m_minHalfY = trd->getYHalfLength1();
                 m_maxHalfY = trd->getYHalfLength2();
-                //m_minHalfY = (sName[2]=='L') ? 0.5*MM_A_ACTIVE[1][abs(zi)-1] : 0.5*MM_A_ACTIVE[0][abs(zi)-1];
-                //m_maxHalfY = (sName[2]=='L') ? 0.5*MM_B_ACTIVE[1][abs(zi)-1] : 0.5*MM_B_ACTIVE[0][abs(zi)-1];       
 		foundShape = true;
  	      }	else if (pc->getLogVol()->getShape()->type()=="Subtraction") {
 		const GeoShapeSubtraction* sh = dynamic_cast<const GeoShapeSubtraction*> (pc->getLogVol()->getShape());
@@ -107,39 +97,37 @@ namespace MuonGM {
 		const GeoTrd* trd = dynamic_cast<const GeoTrd*> (sub);
                 
                 if (!trd) {
-		                        (*m_Log)<<MSG::ERROR<<"MM layer base shape not trapezoid? " << sub->type()<<endmsg;
+                  MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+                  log << MSG::WARNING<<"MM layer base shape not trapezoid? " << sub->type()<<endmsg;
 		} else {
 		  m_halfX =  trd->getZHalfLength();
 		  m_minHalfY = trd->getYHalfLength1();
 		  m_maxHalfY = trd->getYHalfLength2();
-		  //m_minHalfY = (sName[2]=='L') ? 0.5*MM_A_ACTIVE[1][abs(zi)-1] : 0.5*MM_A_ACTIVE[0][abs(zi)-1];
-		  //m_maxHalfY = (sName[2]=='L') ? 0.5*MM_B_ACTIVE[1][abs(zi)-1] : 0.5*MM_B_ACTIVE[0][abs(zi)-1];       
 		  foundShape = true;
                 }
               } else {
-	                     (*m_Log)<<MSG::ERROR<<"MM layer shape not recognized:" <<pc->getLogVol()->getShape()->type()<<endmsg;
+                MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+                log << MSG::WARNING<<"MM layer shape not recognized:" <<pc->getLogVol()->getShape()->type()<<endmsg;
 	      }
 	    }
 	  }
 	}
         m_nlayers=llay;
       } else {
-	             (*m_Log)<<MSG::ERROR<<"Cannot perform a dynamic cast ! "<<endmsg;
+        MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+        log << MSG::WARNING<<"Cannot perform a dynamic cast ! "<<endmsg;
       }
     }
     if( !foundShape ){
-      (*m_Log)  << MSG::WARNING << " failed to initialize dimensions of this chamber " << endmsg;
+      MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+      log << MSG::WARNING << " failed to initialize dimensions of this chamber " << endmsg;
     }
-    //fillCache();
-
   }
-
 
   MMReadoutElement::~MMReadoutElement()
   {
     clearCache();
   }
-
 
   void  MMReadoutElement::setIdentifier(Identifier id)
   {
@@ -147,22 +135,18 @@ namespace MuonGM {
     IdentifierHash collIdhash = 0;
     IdentifierHash detIdhash = 0;
     // set parent data collection hash id
-    int gethash_code = manager()->mmIdHelper()->get_module_hash(id, collIdhash);
-    if (gethash_code != 0) 
-      (*m_Log) <<MSG::WARNING
-     	     <<"MMReadoutElement --  collection hash Id NOT computed for id = "
-     	     <<manager()->mmIdHelper()->show_to_string(id)<<std::endl;
+    if (manager()->mmIdHelper()->get_module_hash(id, collIdhash) != 0) {
+      MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+      log << MSG::WARNING << "MMReadoutElement --  collection hash Id NOT computed for id = " << manager()->mmIdHelper()->show_to_string(id) << endmsg;
+    }
     m_idhash = collIdhash;
     // // set RE hash id 
-    gethash_code = manager()->mmIdHelper()->get_detectorElement_hash(id, detIdhash);
-    if (gethash_code != 0) 
-       (*m_Log) <<MSG::WARNING
-	      <<"MMReadoutElement --  detectorElement hash Id NOT computed for id = "
-	      <<manager()->mmIdHelper()->show_to_string(id)<<endmsg;
+    if (manager()->mmIdHelper()->get_detectorElement_hash(id, detIdhash) != 0) {
+      MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+      log << MSG::WARNING << "MMReadoutElement --  detectorElement hash Id NOT computed for id = " <<manager()->mmIdHelper()->show_to_string(id) << endmsg;
+    }
     m_detectorElIdhash = detIdhash;
   }
-
-
 
   void MMReadoutElement::initDesign( double /*maxY*/, double /*minY*/, double /*xS*/, double /*pitch*/, double /*thickness*/) {
         
@@ -175,7 +159,8 @@ namespace MuonGM {
       int chMax =  manager()->mmIdHelper()->channelMax(id);
       if ( chMax < 0 ) {
         chMax = 2500;
-        (*m_Log) <<MSG::WARNING<<"MMReadoutElement -- Max number of strips not a real value"<<endmsg;
+        MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+        log << MSG::WARNING<<"MMReadoutElement -- Max number of strips not a real value"<<endmsg;
       }
       char side = getStationEta() < 0 ? 'C' : 'A';
       char sector_l = getStationName().substr(2,1)=="L" ? 'L' : 'S';
@@ -217,8 +202,10 @@ namespace MuonGM {
 
       if (m_ml == 1) m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il);
       else if (m_ml == 2){ m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il); } 
-      else (*m_Log) <<MSG::WARNING
-	          <<"MMReadoutElement -- Unexpected Multilayer: m_ml= " << m_ml <<endmsg;
+      else {
+        MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+        log << MSG::WARNING <<"MMReadoutElement -- Unexpected Multilayer: m_ml= " << m_ml <<endmsg;
+      }
       
       if (m_etaDesign[il].sAngle == 0.) {    // eta layers
           
@@ -264,19 +251,16 @@ namespace MuonGM {
 
 	    if (m_etaDesign[il].nch > chMax) {
             // dead zone does not help here - just limit number of channels
-
-	      
 	      m_etaDesign[il].nch = chMax;
-
 	    }
 
       }       
       
       m_nStrips.push_back(m_etaDesign[il].nch);
-        
-      (*m_Log) <<MSG::DEBUG
-	     <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << " stereo " <<  m_etaDesign[il].sAngle << endmsg;
-
+#ifndef NDEBUG
+      MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+      if (log.level()<=MSG::DEBUG) log << MSG::DEBUG <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << " stereo " <<  m_etaDesign[il].sAngle << endmsg;
+#endif
     }
 
   }
@@ -285,14 +269,17 @@ namespace MuonGM {
   {
     if( !m_surfaceData ) m_surfaceData = new SurfaceData();
     else{
-      (*m_Log) <<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
+      MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+      log << MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
       return;
     }
 
     m_surfaceData->m_surfBounds.push_back( new Trk::RotatedTrapezoidBounds( m_halfX, m_minHalfY, m_maxHalfY));
 
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+#endif
     for( int layer = 0; layer < m_nlayers; ++layer ){
-
       // identifier of the first channel
       Identifier id = manager()->mmIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),m_ml, layer+1, 1);
 
@@ -300,7 +287,6 @@ namespace MuonGM {
       double shift = 0.5*m_etaDesign[layer].thickness;
       double rox = ( layer==0 || layer==2) ? shift : -shift;
       
-      double sAngle = m_etaDesign[layer].sAngle;
       // need to operate switch x<->z because of GeoTrd definition
       m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(*this, id) );
       m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*Amg::Translation3D(rox,0.,0.)*
@@ -309,8 +295,11 @@ namespace MuonGM {
       // surface info (center, normal) 
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
       m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,0.,-1.));
-// get phi direction of MM eta strip 
-      (*m_Log)  << MSG::DEBUG << " MMReadoutElement layer " << layer << " sAngle " << sAngle << " phi direction MM eta strip " << (m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,1.,0.)).phi() << endmsg; 
+      // get phi direction of MM eta strip 
+#ifndef NDEBUG
+      double sAngle = m_etaDesign[layer].sAngle;
+      if (log.level()<=MSG::DEBUG) log << MSG::DEBUG <<"MMReadoutElement layer " << layer << " sAngle " << sAngle << " phi direction MM eta strip " << (m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,1.,0.)).phi() << endmsg; 
+#endif
     }
   }
 
@@ -337,9 +326,13 @@ namespace MuonGM {
     
     //    Amg::Vector3D  locP = (m_Xlg[gg-1].inverse())*locPos;
     Amg::Vector3D  locP = (m_Xlg[gg-1])*locPos;
-    (*m_Log)<<MSG::DEBUG<<"locPos in the gg      r.f. "<<locPos<<endmsg;
-    (*m_Log)<<MSG::DEBUG<<"locP in the multilayer r.f. "<<locP<<endmsg;
-    
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+    if (log.level()<=MSG::DEBUG) {
+      log << MSG::DEBUG<<"locPos in the gg      r.f. "<<locPos<<endmsg;
+      log << MSG::DEBUG<<"locP in the multilayer r.f. "<<locP<<endmsg;
+    }
+#endif
     return absTransform()*locP;
   }
 
@@ -351,7 +344,7 @@ namespace MuonGM {
     m_rott = rott;
 
     HepGeom::Transform3D delta = HepGeom::Transform3D::Identity;
-     if (fabs(tras)+fabs(traz)+fabs(trat)+(fabs(rots)+fabs(rotz)+fabs(rott))*1000. > 0.01)
+     if (std::abs(tras)+std::abs(traz)+std::abs(trat)+(std::abs(rots)+std::abs(rotz)+std::abs(rott))*1000. > 0.01)
     {
        // compute the delta transform 
        delta = HepGeom::TranslateX3D(tras)*HepGeom::TranslateY3D(traz)*
@@ -363,9 +356,11 @@ namespace MuonGM {
 
   void MMReadoutElement::setBLinePar(BLinePar* bLine) const
   {
-      (*m_Log)<<MSG::DEBUG<<"Setting B-line for "<<getStationName().substr(0,3)<<" at eta/phi "<<getStationEta()<<"/"<<getStationPhi()<<endmsg;
-    
-      m_BLinePar = bLine;
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<<"Setting B-line for "<<getStationName().substr(0,3)<<" at eta/phi "<<getStationEta()<<"/"<<getStationPhi()<<endmsg;
+#endif
+    m_BLinePar = bLine;
   }
 
 } // namespace MuonGM

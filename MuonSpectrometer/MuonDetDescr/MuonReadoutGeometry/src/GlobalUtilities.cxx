@@ -1,16 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  global stuff
  -----------------------------------------
  ***************************************************************************/
-
-//<doc><file>	$Id: GlobalUtilities.cxx,v 1.2 2009-02-24 16:47:48 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonReadoutGeometry/GlobalUtilities.h"
 #include <cstdlib>
@@ -43,7 +38,6 @@ std::string buildString(int i, int ncha)
 
 int strtoint(std::string str, unsigned int istart, unsigned int length)
 {
-  //std::cout<<"using substring<"<<str.substr(istart,length)<<">"<<std::endl;
   std::string s(str.substr(istart,length));
   int result = std::stoi(s);
   return result;
@@ -58,21 +52,15 @@ int stationPhiTGC(std::string stName, int fi, int zi_input, std::string geometry
     int stphi = 0;
 
     int zi = abs(zi_input);
-    //int zi = std::abs((float)zi_input);
     fi -= 1; // start from 0 
     
 
     int igeometry_ref = 303;
     int igeometry_version = 0;
-    //std::cout<<" geometry version = <"<<geometry_version<<">"<<std::endl;
     if (geometry_version.substr(0,1)=="R")
     {        
         igeometry_version = strtoint(geometry_version, 2, 2)*100+strtoint(geometry_version, 5, 2);
-	//std::cout<<"  strtoint(geometry_version, 2, 2) = <"<< strtoint(geometry_version, 2, 2)<<">"<<" strtoint(geometry_version, 5, 2) =<"<<strtoint(geometry_version, 5, 2)<<">"<<std::endl;
     }
-
-    //std::cout<<" igeometry_version = "<<igeometry_version<<" vs ref "<<igeometry_ref<<std::endl;
-
     
     if (stName3 == "T4E")
     {
@@ -88,7 +76,6 @@ int stationPhiTGC(std::string stName, int fi, int zi_input, std::string geometry
 	    if (igeometry_version < igeometry_ref) 
             {
 		stphi = zi+9-1; //zi are 2 and 3 (counting do not tart by 1)
-                //std::cout<<" old case "<<std::endl;
             }
 	    else
 		stphi = zi+9; //zi are numbered in order, i.e. 1 and 2 
@@ -112,7 +99,6 @@ int stationPhiTGC(std::string stName, int fi, int zi_input, std::string geometry
         int nch = 3;
         if ( (stName).substr(2,1) == "E" ) nch=6;
         int fioff = abs(zi);
-        //int fioff = std::abs((float)zi);
         if (fioff>3 && (stName).substr(2,1) == "F")  fioff = fioff-3;
         // minumum stPhi at phi 0
         if ((stName).substr(2,1) == "F") fioff = fioff -1;
