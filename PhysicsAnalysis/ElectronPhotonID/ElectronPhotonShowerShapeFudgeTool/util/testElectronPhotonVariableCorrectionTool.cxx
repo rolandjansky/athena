@@ -19,7 +19,6 @@
 #include "xAODEgamma/Electron.h" 
 #include "xAODEgamma/Photon.h"
 
-// must be changed to not be a relative path!
 #include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"
 //
 #include "AsgTools/MessageCheck.h"
@@ -106,12 +105,12 @@ int main (int argc, char* argv[])
     {
         //initialise the tool
         //converted photons
-        std::string configFilePathConverted = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleConvertedPhotonConf.conf";
+        std::string configFilePathConverted = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleConvertedPhotonConf_Eratio.conf";
         ElectronPhotonVariableCorrectionTool CorrectConvertedPhotonTool("CorrectConvertedPhotonTool");
         ANA_CHECK(CorrectConvertedPhotonTool.setProperty("ConfigFile",configFilePathConverted));
         ANA_CHECK(CorrectConvertedPhotonTool.initialize());
         //unconverted photons
-        std::string configFilePathUnconverted = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleUnconvertedPhotonConf.conf";
+        std::string configFilePathUnconverted = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleUnconvertedPhotonConf_Eratio.conf";
         ElectronPhotonVariableCorrectionTool CorrectUnconvertedPhotonTool("CorrectUnconvertedPhotonTool");
         ANA_CHECK(CorrectUnconvertedPhotonTool.setProperty("ConfigFile",configFilePathUnconverted));
         ANA_CHECK(CorrectUnconvertedPhotonTool.initialize());
@@ -182,7 +181,7 @@ int main (int argc, char* argv[])
     // ===============================================
     if (isElectron)
     {
-        std::string configFilePath = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleElectronConf.conf";
+        std::string configFilePath = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleElectronConf_Eratio.conf";
         ElectronPhotonVariableCorrectionTool CorrectElectronTool("CorrectElectronTool");
         ANA_CHECK(CorrectElectronTool.setProperty("ConfigFile",configFilePath));
         ANA_CHECK(CorrectElectronTool.initialize());
@@ -198,7 +197,7 @@ int main (int argc, char* argv[])
             ANA_MSG_INFO("============================");
             ANA_MSG_INFO("Event: " << entry);
 
-            //get photon container
+            //get electron container
             const xAOD::ElectronContainer* electrons;
             ANA_CHECK(pers.retrieve(electrons, "Electrons"));
 
@@ -235,7 +234,7 @@ int main (int argc, char* argv[])
                 ANA_MSG_INFO("Original value:  " << VariableToCorrect(*electron));
                 ANA_MSG_INFO("Corrected value: " << CorrectedVariable(*electron));
 
-            } // loop over deep copy of photon container
+            } // loop over deep copy of electron container
         } // loop over events
     } // if isElectron
 
