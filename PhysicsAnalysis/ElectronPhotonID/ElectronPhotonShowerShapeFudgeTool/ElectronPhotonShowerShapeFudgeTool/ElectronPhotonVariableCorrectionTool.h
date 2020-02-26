@@ -49,7 +49,17 @@ public:
     const StatusCode applyCorrection( xAOD::Electron& electron ) override;
     const StatusCode correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon ) override;
     const StatusCode correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron) override;
-    const std::string GetCorrectionVariable() override { return m_correctionVariable; };
+    const std::string GetCorrectionVariable() { return m_correctionVariable; };
+    // Define the categories of EGamma objects tool can be applied to
+    enum class EGammaObjects{
+        Failure = 0,
+        unconvertedPhotons = 1,
+        convertedPhotons,
+        allPhotons,
+        allElectrons,
+        allEGammaObjects
+    }; //end enum EGammaObjects
+    ElectronPhotonVariableCorrectionTool::EGammaObjects IsAppliedTo() { return m_applyToObjects; };
 
 private:
     // In order to do faster comparisons, use enum and not string for type of function parameter
@@ -62,15 +72,6 @@ private:
         EtaTimesPtBinned,
         EventDensity
     }; // end enum ParameterType
-    // Define the categories of EGamma objects tool can be applied to
-    enum class EGammaObjects{
-        Failure = 0,
-        unconvertedPhotons = 1,
-        convertedPhotons,
-        allPhotons,
-        allElectrons,
-        allEGammaObjects
-    }; //end enum EGammaObjects
     std::string m_configFile; //store the name of the conf file
     std::string m_correctionVariable; //store the name of the variable to correct
     std::string m_correctionFunctionString; //function to use for the variable correction
