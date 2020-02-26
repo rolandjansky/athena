@@ -23,10 +23,10 @@ AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* 
 //, m_histsDirectoryName ("AFP/")
 //, m_cNearStation (s_cNearStationIndex)
 //, m_cFarStation (s_cFarStationIndex)
-, m_afpHitContainerKey("AFPSiHits")
+, m_afpHitContainerKey("AFPSiHitContainer")
 
 {
-    declareProperty( "AFPSiHits", m_afpHitContainerKey );
+    declareProperty( "AFPSiHitContainer", m_afpHitContainerKey );
 }
 
 
@@ -138,14 +138,16 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     SG::ReadHandle<xAOD::AFPSiHitContainer> afpHitContainer(m_afpHitContainerKey, ctx);
     if(! afpHitContainer.isValid())
     {
-	ATH_MSG_ERROR("evtStore() does not contain hits collection with name m_afpHitContainerKey ");
+	ATH_MSG_ERROR("evtStore() does not contain hits collection with name " << m_afpHitContainerKey);
 	return StatusCode::FAILURE;
     }
 
-    //ATH_CHECK( afpHitContainerKey.initialize() );
 
+    //ATH_CHECK( afpHitContainerKey.initialize() );
+ //for (const auto& muonItr : *muons) {
     for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
     {
+       std::cout << hitsItr->stationID() << std::endl;
 
 	switch(hitsItr->stationID())
 	{
