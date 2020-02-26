@@ -42,17 +42,6 @@ namespace CP {
 
    public:
 
-      ///Enum for resolution categories, the "merged" categories Zero to Four group together categories with similar resolution
-      enum ResolutionCategory {
-	unclassified=-1, missingInner=1, missingMiddle=1<<1, missingOuter=1<<2, highPt2station=1<<3, highPt=1<<4,
-	spoiledCSC=1<<5, BEoverlap=1<<6, BIS78=1<<7, missingBEE=1<<8, oneStation=1<<9,
-	CategoryZero = missingInner | spoiledCSC | BEoverlap | BIS78 | missingBEE, 
-	CategoryOne = missingMiddle | oneStation, 
-	CategoryTwo = missingOuter, 
-	CategoryThree = highPt2station, 
-	CategoryFour = highPt
-      };
-
       /// Constructor for standalone usage
       MuonSelectionTool( const std::string& name = "MuonSelection");
 
