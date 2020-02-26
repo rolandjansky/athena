@@ -36,7 +36,6 @@ public:
   virtual const StatusCode applyCorrection( xAOD::Electron& electron ) = 0;
   virtual const StatusCode correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon ) = 0;
   virtual const StatusCode correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron) = 0;
-  virtual const std::string GetCorrectionVariable() = 0;
 
 }; // class IElectronPhotonVariableCorrectionTool
 
