@@ -13,7 +13,6 @@ ElectronPhotonVariableCorrectionToolWrapper::ElectronPhotonVariableCorrectionToo
 {
     //declare the needed properties
     declareProperty("ConfigFile",m_configFile="", "The configuration file to use");
-    ANA_MSG_INFO("Initialized tool " << name());
 }
 
 // ===========================================================================
@@ -24,7 +23,7 @@ ElectronPhotonVariableCorrectionToolWrapper::~ElectronPhotonVariableCorrectionTo
     //check status code of finalize
     if(finalize().isFailure())
     {
-        ATH_MSG_ERROR( "Failure in ElectronPhotonVariableCorrectionTool finalize()");
+        ATH_MSG_ERROR("In " << name() << ": Failure in ElectronPhotonVariableCorrectionTool finalize()");
     }
 }
 
@@ -45,14 +44,14 @@ StatusCode ElectronPhotonVariableCorrectionToolWrapper::initialize()
         configFile = PathResolverFindCalibFile(m_configFile);
         if (configFile == "")
         {
-            ATH_MSG_ERROR("Could not locate configuration file " << m_configFile);
+            ATH_MSG_ERROR("In " << name() << ": Could not locate configuration file " << m_configFile);
             return StatusCode::FAILURE;
         }
         ATH_MSG_DEBUG("Use configuration file " << m_configFile);
     }
     else
     {
-        ATH_MSG_ERROR("Config file string is empty. Please provide a config file to the tool.");
+        ATH_MSG_ERROR("In " << name() << ": Config file string is empty. Please provide a config file to the tool.");
         return StatusCode::FAILURE;
     }
 
@@ -65,17 +64,14 @@ StatusCode ElectronPhotonVariableCorrectionToolWrapper::initialize()
     if (env.Lookup("ElectronConfigs"))
     {
         m_electronConfFiles = AsgConfigHelper::HelperString("ElectronConfigs",env);
-        //m_electronConfFiles = env.GetValue("ElectronConfigs", "");
     }
     if (env.Lookup("ConvertedPhotonConfigs"))
     {
         m_convertedPhotonConfFiles = AsgConfigHelper::HelperString("ConvertedPhotonConfigs",env);
-        //m_convertedPhotonConfFiles = env.GetValue("ConvertedPhotonConfigs", "");
     }
     if (env.Lookup("UnconvertedPhotonConfigs"))
     {
         m_unconvertedPhotonConfFiles = AsgConfigHelper::HelperString("UnconvertedPhotonConfigs",env);
-        //m_unconvertedPhotonConfFiles = env.GetValue("UnconvertedPhotonConfigs", "");
     }
 
     // check if any conf files were received
@@ -210,7 +206,7 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::GetCorrectionVaria
     }
     else
     {
-        ATH_MSG_ERROR("In conf file " << confFile << ": Correction variable is empty or not in configuration file.");
+        ATH_MSG_ERROR("In " << name() << ": In conf file " << confFile << ": Correction variable is empty or not in configuration file.");
         return StatusCode::FAILURE;
     }
     //everything worked out, so
