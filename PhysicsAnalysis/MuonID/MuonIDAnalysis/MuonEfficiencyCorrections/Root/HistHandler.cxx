@@ -11,8 +11,10 @@
 
 #include <TH1.h>
 #include <TH2Poly.h>
-namespace CP {
 
+ANA_MSG_SOURCE (msgMuonEfficiency, "MuonEfficiency")
+namespace CP {
+     using namespace msgMuonEfficiency;
     //###########################################################################################################
     //                                                   AxisHandlerProvider
     //###########################################################################################################

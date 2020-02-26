@@ -15,7 +15,7 @@
 #include <TH2Poly.h>
 
 #include "PATInterfaces/CorrectionCode.h"
-
+#include "AsgMessaging/MessageCheck.h"
 // further ROOT includes
 #include <TFile.h>
 #include <TDirectory.h>
@@ -27,6 +27,8 @@
 #include <map>
 #include <memory>
 #include <cmath>
+
+ANA_MSG_HEADER (msgMuonEfficiency)
 
 namespace CP {
     
@@ -244,13 +246,13 @@ namespace CP {
             CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
                 static const SG::AuxElement::ConstAccessor<float> dRJet("dRJet");
                 value = dRJet.isAvailable(mu) ? dRJet(mu) : -2;
-                static bool warned = false;
-                if (!warned && !dRJet.isAvailable(mu)){
-                    Warning("MuonEfficiencyCorrections()", "The dRJet decoration has not been found for the Muon. Isolation scale-factors are now binned in #Delta R(jet,#mu)");
-                    Warning("MuonEfficiencyCorrections()", "using the closest calibrated AntiKt4EMTopo jet with p_{T}>20~GeV and surving the standard OR criteria.");
-                    Warning("MuonEfficiencyCorrections()", "Please decorate your muon appropiately before passing to the tool with dRJet = -1 in cases there is no jet in the event.");
-                    Warning("MuonEfficiencyCorrections()", "For the time being the inclusive scale-factor is going to be returned.");
-                    warned = true;
+
+                if (!dRJet.isAvailable(mu)){
+                    using namespace msgMuonEfficiency;
+                    ANA_MSG_WARNING("The dRJet decoration has not been found for the Muon. Isolation scale-factors are now binned in #Delta R(jet,#mu)");
+                    ANA_MSG_WARNING("using the closest calibrated AntiKt4EMTopo jet with p_{T}>20~GeV and surving the standard OR criteria.");
+                    ANA_MSG_WARNING("Please decorate your muon appropiately before passing to the tool with dRJet = -1 in cases there is no jet in the event.");
+                    ANA_MSG_WARNING("For the time being the inclusive scale-factor is going to be returned.");
                 }
                 return CorrectionCode::Ok;
             }
