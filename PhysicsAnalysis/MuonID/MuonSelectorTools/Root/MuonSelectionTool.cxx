@@ -1547,7 +1547,7 @@ namespace CP {
 
 
   //Check if eta/phi coordinates correspond to BIS7/8 chambers
-  bool MuonSelectionTool::isBIS78(const float& eta, const float& phi) const {
+  bool MuonSelectionTool::isBIS78(const float eta, const float phi) const {
 
     static const float BIS78_eta[ 2 ] = { 1.05, 1.3 };
     static const float BIS78_phi[ 8 ] = { 0.21, 0.57, 1.00, 1.33, 1.78, 2.14, 2.57, 2.93 };
@@ -1570,7 +1570,7 @@ namespace CP {
   }
 
   //Check if eta/phi coordinates correspond to BEE chambers
-  bool MuonSelectionTool::isBEE(const float& eta, const float& phi) const {
+  bool MuonSelectionTool::isBEE(const float eta, const float phi) const {
 
     static const float BEE_eta[ 2 ] = { 1.440, 1.692 };
     static const float BEE_phi[ 8 ] = { 0.301, 0.478, 1.086, 1.263, 1.872, 2.049, 2.657, 2.834 };     
@@ -1593,7 +1593,7 @@ namespace CP {
   }
 
   //Check if eta/phi coordinates correspond to BMG chambers
-  bool MuonSelectionTool::isBMG(const float& eta, const float& phi) const {
+  bool MuonSelectionTool::isBMG(const float eta, const float phi) const {
 
     static const float BMG_eta[ 6 ] = { 0.35, 0.47, 0.68, 0.80, 0.925, 1.04 };
     static const float BMG_phi[ 4 ] = { -1.93, -1.765, -1.38, -1.21 };

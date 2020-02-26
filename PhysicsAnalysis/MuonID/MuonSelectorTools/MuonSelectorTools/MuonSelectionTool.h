@@ -174,9 +174,9 @@ namespace CP {
      unsigned int getRunNumber(bool needOnlyCorrectYear = false) const;
 
      //Check if muon eta/phi falls in BIS7/8, BEE, or BMG chambers
-     bool isBIS78(const float& eta, const float& phi) const;
-     bool isBEE(const float& eta, const float& phi) const;
-     bool isBMG(const float& eta, const float& phi) const;
+     bool isBIS78(const float eta, const float phi) const;
+     bool isBEE(const float eta, const float phi) const;
+     bool isBMG(const float eta, const float phi) const;
 
      //TMVA readers for low-pT working point
      TMVA::Reader* readerE_MUID;
