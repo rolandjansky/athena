@@ -13,22 +13,21 @@
 namespace Monitored {
   void checkNamingConvention( const std::string& name );
   /**
-   * Monitored Timer
+   * A monitored timer.
    *
    * The time is measured either between explicit stop/start calls or between the creation
    * and the time the value is read by the monitoring tool.
    *
-   * The template parameter defines the unit of elapsed time measurement. 
-   * See for all options: https://en.cppreference.com/w/cpp/chrono/duration
+   * A strict naming convention is enforced. <b>Timers need to start with the string "TIME_".</b>
    *
-   * The timer name needs to start with the string "TIME_".
-   * Examples:
-   * @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx timerFillingWorked
-   * The histograms are defined in usual way:
-   * @snippet Control/AthenaMonitoringKernel/share/GenericMon.txt HistogramsForTimers
-   * 
-   * @see Monitored::ScopedTimer @see Monitored::Scalar
-   **/
+   * \tparam unit  Unit of elapsed time (std::chrono::duration)
+   *
+   * #### Examples
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx timerFilling
+   *
+   * @see Monitored::ScopedTimer
+   * @ingroup MonAPI
+   */
   template< typename unit=std::chrono::microseconds>
   class Timer : public IMonitoredVariable {
   public:
@@ -92,6 +91,7 @@ namespace Monitored {
    *       // code to be timed
    *    }
    * \endcode
+   * @ingroup MonAPI
    */
   template<typename T>
   class ScopedTimer {
