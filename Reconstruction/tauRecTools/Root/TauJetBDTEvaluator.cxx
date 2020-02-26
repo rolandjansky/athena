@@ -70,6 +70,5 @@ StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau){
 
 //________________________________________
 StatusCode TauJetBDTEvaluator::finalize(){ 
-  //if(m_myBdt) delete m_myBdt; 
   return StatusCode::SUCCESS;
 }

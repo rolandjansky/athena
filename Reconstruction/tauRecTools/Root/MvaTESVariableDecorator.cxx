@@ -166,14 +166,10 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   if(!jet_seed->getAttribute<int>("GhostMuonSegmentCount", nMuSeg)) nMuSeg=0;
   xTau.setDetail(xAOD::TauJetParameters::GhostMuonSegmentCount, nMuSeg);
   
-  // calculate PFO energy relative difference
   // ----summing corrected Pi0 PFO energies
   TLorentzVector Pi0_totalP4;
   Pi0_totalP4.SetPtEtaPhiM(0,0,0,0);
   
-  //This should be available in EDM as of TauJet_v3
-  //  TauAnalysisTools::createPi0Vectors(&xTau,Pi0PFOs);
-  //for( size_t i=0; i !=  xTau.nPi0s(); ++i ) Pi0_totalP4+= xTau.pi0(i)->p4();
   for(size_t i=0; i<xTau.nPi0PFOs(); i++){
     Pi0_totalP4 += (TLorentzVector)xTau.pi0PFO(i)->p4();
   };

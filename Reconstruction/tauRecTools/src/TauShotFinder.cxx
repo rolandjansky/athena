@@ -222,8 +222,6 @@ StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloCluste
         shot->setBDTPi0Score( (float) -9999. );
         shot->setCharge( 0. );
         double center_mag = 0.0;
-        // No need to calculate cluster moments atm.
-        //if( !shotCluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 404, center_mag) ) ATH_MSG_WARNING("Couldn't retrieve CENTER_MAG moment. Set it to 0.");
         shot->setCenterMag( (float) center_mag);
         
         ElementLink<xAOD::CaloClusterContainer> clusElementLink;
