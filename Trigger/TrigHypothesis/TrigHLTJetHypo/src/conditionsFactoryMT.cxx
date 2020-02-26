@@ -103,12 +103,16 @@ ConditionsMT conditionsFactoryTLAMT(const std::vector<double>& etaMins,
 
 
 
-ConditionsMT conditionsFactoryHTMT(double htMin){
+ConditionsMT conditionsFactoryHTMT(double htMin,
+				   double etmin,
+				   double absetamin,
+				   double absetamax
+				   ){
   
   ConditionsMT conditions;
   conditions.push_back
     (
-     std::make_unique<HTConditionMT>(htMin));
+     std::make_unique<HTConditionMT>(htMin, etmin, absetamin, absetamax));
   return conditions;
   
 }

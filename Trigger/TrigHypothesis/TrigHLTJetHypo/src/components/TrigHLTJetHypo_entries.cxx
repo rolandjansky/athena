@@ -20,6 +20,7 @@
 #include "../TrigJetHypoToolConfig_partgen.h"
 #include "../TrigJetHypoToolConfig_fastreduction.h"
 #include "../TrigJetHypoToolConfig_leaf.h"
+#include "../TrigJetHypoToolConfig_ht.h"
 //
 #include "../TrigJetConditionConfig_abs_eta.h"
 #include "../TrigJetConditionConfig_signed_eta.h"
@@ -63,6 +64,7 @@ DECLARE_COMPONENT(TrigJetHypoToolConfig_combgen)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_partgen)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_fastreduction)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_leaf)
+DECLARE_COMPONENT(TrigJetHypoToolConfig_ht)
 DECLARE_COMPONENT(NotHelperTool)
 DECLARE_COMPONENT(AndHelperTool)
  DECLARE_COMPONENT(OrHelperTool)
