@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-def TrigIDPhysValMonitoringTool():
+def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
+
   from AthenaCommon.Constants import INFO,ERROR,FALSE,TRUE,DEBUG,VERBOSE
 
   # dataTypes: userDefined = 0, monteCarlo, collisions, cosmics
@@ -10,7 +11,6 @@ def TrigIDPhysValMonitoringTool():
 
   # disable everything
   outputlist = []
-  return outputlist
 
   if not 'rec' in dir():
     from RecExConfig.RecFlags  import rec
@@ -24,7 +24,9 @@ def TrigIDPhysValMonitoringTool():
 
       from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
       from TriggerJobOpts.TriggerFlags import TriggerFlags
-
+      
+      EDMDecodingVersion()
+      
       mt_chains = True
       if ( TriggerFlags.EDMDecodingVersion < 3 or legacy_monitoring ) :
         mt_chains = False
