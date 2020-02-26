@@ -501,18 +501,8 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  std::vector<double> E_EM12_below;
 	  float seedEta = m_SupercellMapTWR->GetXaxis()->GetBinCenter(i);
 	  int EM2seedBin = m_SupercellMapEM2_coarse->GetXaxis()->FindBin(seedEta);
-	  float EM2seedEta = m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter(EM2seedBin);
 
-	  //First find eta bin in EM2
-	  int etaTWR = -999;
-	  //int etaEM2 = -999;
-	  etaTWR = m_SupercellMapTWR->GetXaxis()->GetBinCenter(i);
-	  //because of the granularity, the bin of the seed in TWR contains 2 EM2_coarse bins
-	  //so its centre lies in the border of the two bins... to get the one on the left: -0.001
-	  int binEM2 = -999;
-	  binEM2 = EM2seedBin;
-	  //make a vector with the 5 possible energies in the central phi row
-	  // First eta bin of this row is binE<2-0.025*4 (each bin's width is 0.5)
+	  // Make a vector with the 5 possible energies in the central phi row
 	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(EM2seedBin-2,j)+m_SupercellMapEM2_coarse->GetBinContent(EM2seedBin-1,j)+m_SupercellMapEM1_coarse->GetBinContent(EM2seedBin-2,j)+m_SupercellMapEM1_coarse->GetBinContent(EM2seedBin-1,j));
 	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(EM2seedBin-1,j)+m_SupercellMapEM2_coarse->GetBinContent(EM2seedBin-0,j)+m_SupercellMapEM1_coarse->GetBinContent(EM2seedBin-1,j)+m_SupercellMapEM1_coarse->GetBinContent(EM2seedBin-0,j));
 	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(EM2seedBin-0,j)+m_SupercellMapEM2_coarse->GetBinContent(EM2seedBin+1,j)+m_SupercellMapEM1_coarse->GetBinContent(EM2seedBin-0,j)+m_SupercellMapEM1_coarse->GetBinContent(EM2seedBin+1,j));
