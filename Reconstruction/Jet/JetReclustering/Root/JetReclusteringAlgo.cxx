@@ -85,7 +85,6 @@ EL::StatusCode JetReclusteringAlgo :: initialize ()
   ANA_CHECK(m_jetReclusteringTool.setProperty("SoftDropZCut",              m_sd_zcut));
   ANA_CHECK(m_jetReclusteringTool.setProperty("SoftDropBeta",              m_sd_beta));
   ANA_CHECK(m_jetReclusteringTool.setProperty("SoftDropR0",                m_sd_R0));
-  ANA_CHECK(m_jetReclusteringTool.setProperty("SoftDropN",                 m_sd_N));
   ANA_CHECK(m_jetReclusteringTool.setProperty("DoArea",                    m_doArea));
   ANA_CHECK(m_jetReclusteringTool.setProperty("AreaAttributes",            m_areaAttributes));
   ANA_CHECK(m_jetReclusteringTool.setProperty("ECFBetaList",               m_ecf_betaVals));
