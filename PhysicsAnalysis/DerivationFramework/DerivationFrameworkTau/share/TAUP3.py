@@ -166,14 +166,6 @@ TAUP3seq += CfgMgr.DerivationFramework__DerivationKernel(
   ThinningTools             = thinningTools
   )
 
-#==============================================================================
-# Tau truth building/matching
-#==============================================================================
-# now part of MCTruthCommon
-
-if DerivationFrameworkIsMonteCarlo:
-  ToolSvc.DFCommonTauTruthMatchingTool.WriteVisibleNeutralFourMomentum = True
-
 # ======================================================================
 # Add the containers to the output stream (slimming done here)
 # ======================================================================

@@ -217,7 +217,8 @@ ExtraContainersTAUP5            =   ExtraContainersElectrons
 
 ExtraContainersTruthTAUP1      = ["TruthEvents",
                                   "TruthParticles",
-                                  "TruthVertices"
+                                  "TruthVertices",
+                                  "TruthTaus"
                                  #"AntiKt4TruthJets",
                                  #"BTagging_AntiKt4Truth", JRC TEMPORARILY COMMENTED
                                  #"AntiKt4TruthWZJets"
@@ -232,7 +233,8 @@ ExtraContainersTruthTAUP2      = ["TruthEvents",
 
 ExtraContainersTruthTAUP3      = ["TruthEvents",
                                   "TruthParticles",
-                                  "TruthVertices"
+                                  "TruthVertices",
+                                  "TruthTaus"
                                  #"AntiKt4TruthJets",
                                  #"BTagging_AntiKt4Truth", JRC TEMPORARILY COMMENTED
                                  #"AntiKt4TruthWZJets"
