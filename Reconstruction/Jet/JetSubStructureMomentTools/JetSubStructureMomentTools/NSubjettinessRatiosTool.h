@@ -7,9 +7,9 @@
  * The default behavior of this tool is to use alpha = 1.0, but multiple
  * values of alpha can be used simultaneously. The property AlphaList
  * should be passed a list of floats. Values of < 0 or > 10 may result
- * in poblematic output variable names and all values will be rounded
+ * in problematic output variable names and all values will be rounded
  * to the nearest 0.1. No suffix will be added to the outputs for alpha = 1.0
- * and for other values a suffix of _AlphaN will be added where N= 10*alpha.
+ * and for other values a suffix of _AlphaN will be added where N = int(10*alpha).
  *
  * The DoDichroic option adds dichroic N-subjettiness ratios described in
  * https://arxiv.org/abs/1612.03917

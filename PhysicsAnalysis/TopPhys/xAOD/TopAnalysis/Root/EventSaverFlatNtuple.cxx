@@ -472,7 +472,7 @@ namespace top {
                                                    tagWP) + "_eigenvars_Light_up");
               systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                    tagWP) + "_eigenvars_Light_down");
-              for (const std::string& name : m_config->btagging_namedSysts(tagWP)) {
+              for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
                 systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_named_up[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                      tagWP) + "_" + betterBtagNamedSyst(name) + "_up");
                 systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_named_down[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
@@ -1988,7 +1988,7 @@ namespace top {
             m_sfRetriever->btagSF_eigen_vars(event, top::topSFSyst::BTAG_SF_EIGEN_LIGHT,
                                              m_weight_trackjet_bTagSF_eigen_Light_up[tagWP],
                                              m_weight_trackjet_bTagSF_eigen_Light_down[tagWP], tagWP, true);
-            for (auto name : m_config->btagging_namedSysts(tagWP)) {
+            for (auto name : m_config->trkjet_btagging_namedSysts(tagWP)) {
               m_weight_trackjet_bTagSF_named_up[tagWP][name] = m_sfRetriever->btagSF(event, top::topSFSyst::BTAG_SF_NAMED_UP, tagWP, true, name);
               m_weight_trackjet_bTagSF_named_down[tagWP][name] = m_sfRetriever->btagSF(event, top::topSFSyst::BTAG_SF_NAMED_DOWN, tagWP, true, name);
             }
@@ -2790,12 +2790,12 @@ namespace top {
             m_config->bTagWP_calibrated_trkJet().end(), tagWP) == m_config->bTagWP_calibrated_trkJet().end()) continue;
           if (m_config->isMC() && m_config->storePerJetBtagSFs()) {
             m_perjet_weight_trackjet_bTagSF[tagWP].resize(event.m_trackJets.size());
-            m_perjet_weight_trackjet_bTagSF_eigen_B_up[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_B_eigenvars(tagWP)));
-            m_perjet_weight_trackjet_bTagSF_eigen_B_down[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_B_eigenvars(tagWP)));
-            m_perjet_weight_trackjet_bTagSF_eigen_C_up[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_C_eigenvars(tagWP)));
-            m_perjet_weight_trackjet_bTagSF_eigen_C_down[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_C_eigenvars(tagWP)));
-            m_perjet_weight_trackjet_bTagSF_eigen_Light_up[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
-            m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_B_up[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->trkjet_btagging_num_B_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_B_down[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->trkjet_btagging_num_B_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_C_up[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->trkjet_btagging_num_C_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_C_down[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->trkjet_btagging_num_C_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_Light_up[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->trkjet_btagging_num_Light_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->trkjet_btagging_num_Light_eigenvars(tagWP)));
             for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
               m_perjet_weight_trackjet_bTagSF_named_up[tagWP][name].resize(event.m_trackJets.size());
               m_perjet_weight_trackjet_bTagSF_named_down[tagWP][name].resize(event.m_trackJets.size());
