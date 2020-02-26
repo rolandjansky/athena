@@ -40,11 +40,11 @@ class LarEMSamplingFraction  : public ::AthAlgorithm
   
   bool m_docells;
   
-  int mc_pdg;
-	double mc_eta;
-	double mc_phi;
-	double mc_e;
-	double mc_pt;
+  int m_mc_pdg;
+	double m_mc_eta;
+	double m_mc_phi;
+	double m_mc_e;
+	double m_mc_pt;
   
   std::vector<Long64_t>* m_cell_identifier;
   std::vector<float>*    m_cell_energy_reco;
@@ -55,23 +55,23 @@ class LarEMSamplingFraction  : public ::AthAlgorithm
   std::vector<float>*    m_cell_eta;
   std::vector<float>*    m_cell_phi;
 
-  vector<float> *energy_reco;
-  vector<float> *energy_hit;
+  vector<float> *m_energy_reco;
+  vector<float> *m_energy_hit;
 
-  vector<float> *energy_inactive_total;
-  vector<float> *energy_inactive_em;
-  vector<float> *energy_inactive_nonem;
-  vector<float> *energy_inactive_inv;
-  vector<float> *energy_inactive_esc;
+  vector<float> *m_energy_inactive_total;
+  vector<float> *m_energy_inactive_em;
+  vector<float> *m_energy_inactive_nonem;
+  vector<float> *m_energy_inactive_inv;
+  vector<float> *m_energy_inactive_esc;
   
-  vector<float> *energy_active_total_corrected;
-  vector<float> *energy_active_total;
-  vector<float> *energy_active_em;
-  vector<float> *energy_active_nonem;
-  vector<float> *energy_active_inv;
-  vector<float> *energy_active_esc;
+  vector<float> *m_energy_active_total_corrected;
+  vector<float> *m_energy_active_total;
+  vector<float> *m_energy_active_em;
+  vector<float> *m_energy_active_nonem;
+  vector<float> *m_energy_active_inv;
+  vector<float> *m_energy_active_esc;
   
-  TTree* mytree =0;
+  TTree* m_mytree =0;
 
   vector<string> m_CalibrationHitContainerNames;
 
