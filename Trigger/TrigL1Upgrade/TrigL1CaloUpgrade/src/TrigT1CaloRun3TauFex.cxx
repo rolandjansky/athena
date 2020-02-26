@@ -205,7 +205,9 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	    
 	    // Need to be careful with wrap-around in phi, unfortunately.
 	    std::vector<double> binsAbove;
+	    binsAbove.reserve(4);
 	    std::vector<double> binsBelow;
+	    binsBelow.reserve(4);
 	    
 	    // Handle wrap-around in phi
 	    int aboveInPhi = j+1;
@@ -250,17 +252,17 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	}	  
 	
 
-	bool printInfo=0;
-	  if(printInfo==1){
-	    for (int i=1;i<m_SupercellMapEM1_coarse->GetNbinsX()+1;i++){
-	      for (int j=1;j<m_SupercellMapEM1_coarse->GetNbinsY()+1;j++){
-	        msg << MSG::INFO <<"m_SupercellMapEM1_coarse->GetBinContent(" << i<<","<<j<<") "<< m_SupercellMapEM1_coarse->GetBinContent(i, j) << endreq;
-	        msg << MSG::INFO <<"m_SupercellMapEM2_coarse->GetBinContent(" << i<<","<<j<<") "<< m_SupercellMapEM2_coarse->GetBinContent(i, j) << endreq;
-	        msg << MSG::INFO <<"m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter("<< i<<") "<< m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter(i) << endreq;
-	        msg << MSG::INFO <<"m_SupercellMapEM2_coarse->GetYaxis()->GetBinCenter("<< j<<") "<< m_SupercellMapEM2_coarse->GetYaxis()->GetBinCenter(j) << endreq;
-	        }
+	if (msgLvl(MSG::DEBUG)){
+	  for (int i=1;i<m_SupercellMapEM1_coarse->GetNbinsX()+1;i++){
+	    for (int j=1;j<m_SupercellMapEM1_coarse->GetNbinsY()+1;j++){
+	      msg << MSG::DEBUG <<"m_SupercellMapEM1_coarse->GetBinContent(" << i<<","<<j<<") "<< m_SupercellMapEM1_coarse->GetBinContent(i, j) << endmsg;
+	      msg << MSG::DEBUG <<"m_SupercellMapEM2_coarse->GetBinContent(" << i<<","<<j<<") "<< m_SupercellMapEM2_coarse->GetBinContent(i, j) << endmsg;
+	      msg << MSG::DEBUG <<"m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter("<< i<<") "<< m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter(i) << endmsg;
+	      msg << MSG::DEBUG <<"m_SupercellMapEM2_coarse->GetYaxis()->GetBinCenter("<< j<<") "<< m_SupercellMapEM2_coarse->GetYaxis()->GetBinCenter(j) << endmsg;
 	      }
 	    }
+	  }
+
 	// Now loop over local maxima, decide what to do
 	for( auto myMaximum : m_localMaxima ) {
 	  
@@ -298,6 +300,7 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  // Start calculating total energy
 	  // Use Fixed 2x2 cluster, 4 possibilities
 	  std::vector<double> allET;
+	  allET.reserve(4);
 
 	  double ET;	  
 	  // Up and right
@@ -467,6 +470,7 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  //make vectors with EM0/3/HAD energies in each of 3x3 bins
 	  //Make a function since this is disgusting but vim does it very fast
 	  std::vector<double> E_EM0;
+	  E_EM0.reserve(9);
 	  E_EM0.push_back(m_SupercellMapEM0->GetBinContent(i, j)              );
 	  E_EM0.push_back(m_SupercellMapEM0->GetBinContent(i-1, j)            );
 	  E_EM0.push_back(m_SupercellMapEM0->GetBinContent(i-1, aboveInPhi)   );
@@ -477,6 +481,7 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  E_EM0.push_back(m_SupercellMapEM0->GetBinContent(i, belowInPhi)     );
 	  E_EM0.push_back(m_SupercellMapEM0->GetBinContent(i-1, belowInPhi)   );
 	  std::vector<double> E_EM3;
+	  E_EM3.reserve(9);
 	  E_EM3.push_back(m_SupercellMapEM3->GetBinContent(i, j)              );
 	  E_EM3.push_back(m_SupercellMapEM3->GetBinContent(i-1, j)            );
 	  E_EM3.push_back(m_SupercellMapEM3->GetBinContent(i-1, aboveInPhi)   );
@@ -487,6 +492,7 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  E_EM3.push_back(m_SupercellMapEM3->GetBinContent(i, belowInPhi)     );
 	  E_EM3.push_back(m_SupercellMapEM3->GetBinContent(i-1, belowInPhi)   );
 	  std::vector<double> E_HAD;
+	  E_HAD.reserve(9);
 	  E_HAD.push_back(m_SupercellMapHAD->GetBinContent(i, j)              );
 	  E_HAD.push_back(m_SupercellMapHAD->GetBinContent(i-1, j)            );
 	  E_HAD.push_back(m_SupercellMapHAD->GetBinContent(i-1, aboveInPhi)   );
@@ -497,8 +503,11 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  E_HAD.push_back(m_SupercellMapHAD->GetBinContent(i, belowInPhi)     );
 	  E_HAD.push_back(m_SupercellMapHAD->GetBinContent(i-1, belowInPhi)   );
 	  std::vector<double> E_EM12_central;
+	  E_EM12_central.reserve(5);
 	  std::vector<double> E_EM12_above;
+	  E_EM12_above.reserve(6);
 	  std::vector<double> E_EM12_below;
+	  E_EM12_below.reserve(6);
 	  float seedEta = m_SupercellMapTWR->GetXaxis()->GetBinCenter(i);
 	  int EM2seedBin = m_SupercellMapEM2_coarse->GetXaxis()->FindBin(seedEta);
 
