@@ -84,6 +84,50 @@ StatusCode ElectronPhotonVariableCorrectionToolWrapper::initialize()
     // initialize the ElectronPhotonVariableCorrectionTools
     ANA_CHECK(InitializeCorrectionTools());
 
+    ANA_MSG_INFO("Initialized tool " << name());
+    //everything worked out, so
+    return StatusCode::SUCCESS;
+}
+
+const StatusCode ElectronPhotonVariableCorrectionToolWrapper::ApplyToFlagMatchesToolHolder( const std::vector<std::string>& confFiles, const std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>>& toolHolder, ElectronPhotonVariableCorrectionTool::EGammaObjects toolHolderType )
+{
+    // loop over conf file holder
+    for (unsigned int tool_itr = 0; tool_itr < toolHolder.size(); tool_itr++)
+    {
+        // get ApplyTo flag
+        ElectronPhotonVariableCorrectionTool::EGammaObjects confFileType = toolHolder.at(tool_itr)->IsAppliedTo();
+        // skip all further tests if should be applied to all objects
+        if (!(confFileType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allEGammaObjects))
+        {
+            // if tool for converted photons, but not the conf file, fail
+            if (toolHolderType == ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons)
+            {
+                if (!(confFileType == ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons || confFileType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allPhotons))
+                {
+                    ATH_MSG_ERROR("In " << name() << ": In conf " << confFiles.at(tool_itr) << ": You specified tool should be applied to converted photons in the wrapper, but the ApplyTo flag doesn't match.");
+                    return StatusCode::FAILURE;
+                }
+            }
+            // if tool for unconverted photons, but not the conf file, fail
+            if (toolHolderType == ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons)
+            {
+                if (!(confFileType == ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons || confFileType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allPhotons))
+                {
+                    ATH_MSG_ERROR("In " << name() << ": In conf " << confFiles.at(tool_itr) << ": You specified tool should be applied to unconverted photons in the wrapper, but the ApplyTo flag doesn't match.");
+                    return StatusCode::FAILURE;
+                }
+            }
+            // if tool for electrons, but not the conf file, fail
+            if (toolHolderType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons)
+            {
+                if (!(confFileType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons))
+                {
+                    ATH_MSG_ERROR("In " << name() << ": In conf " << confFiles.at(tool_itr) << ": You specified tool should be applied to electrons in the wrapper, but the ApplyTo flag doesn't match.");
+                    return StatusCode::FAILURE;
+                }
+            }
+        }
+    }
     //everything worked out, so
     return StatusCode::SUCCESS;
 }
@@ -158,6 +202,10 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::InitializeCorrecti
     ANA_CHECK(InitializeTools("unconvertedPhotons", m_convertedPhotonConfFiles, m_convertedPhotonTools));
     ANA_CHECK(InitializeTools("convertedPhotons", m_unconvertedPhotonConfFiles, m_unconvertedPhotonTools));
     ANA_CHECK(InitializeTools("electrons", m_electronConfFiles, m_electronTools));
+    // check if ApplyTo Flag matches with the tool holder
+    ANA_CHECK(ApplyToFlagMatchesToolHolder(m_convertedPhotonConfFiles, m_convertedPhotonTools, ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons));
+    ANA_CHECK(ApplyToFlagMatchesToolHolder(m_unconvertedPhotonConfFiles, m_unconvertedPhotonTools, ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons));
+    ANA_CHECK(ApplyToFlagMatchesToolHolder(m_electronConfFiles, m_electronTools, ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons));
 
     //everything worked out, so
     return StatusCode::SUCCESS;
@@ -168,7 +216,13 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::FindAllConfigFiles
     //loop over conf file vector, find conf file using path resolver
     for( unsigned int confFile_itr = 0; confFile_itr < confFiles.size(); confFile_itr++ )
     {
+        std::string tmp_confFile = confFiles.at(confFile_itr);
         confFiles.at(confFile_itr) = PathResolverFindCalibFile(confFiles.at(confFile_itr));
+        if (confFiles.at(confFile_itr) == "")
+        {
+            ATH_MSG_ERROR("In " << name()  << ": Could not locate configuration file " << tmp_confFile);
+            return StatusCode::FAILURE;
+        }
     }
     //everything worked out, so
     return StatusCode::SUCCESS;
@@ -176,6 +230,8 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::FindAllConfigFiles
 
 const StatusCode ElectronPhotonVariableCorrectionToolWrapper::InitializeTools( const std::string& name, const std::vector<std::string>& confFiles, std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>>& toolHolder )
 {
+    // adapt size of toolHolder
+    toolHolder.resize(confFiles.size());
     // for each conf file, initialize one tool
     for( unsigned int confFile_itr = 0; confFile_itr < confFiles.size(); confFile_itr++ )
     {

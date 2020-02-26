@@ -57,5 +57,6 @@ private:
     const StatusCode InitializeTools( const std::string& name, const std::vector<std::string>& confFiles, std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>>& toolHolder );
     const StatusCode GetCorrectionVariableName( std::string &variableName, const std::string& confFile ) const;
     const StatusCode FindAllConfigFiles( std::vector<std::string>& confFiles );
+    const StatusCode ApplyToFlagMatchesToolHolder( const std::vector<std::string>& confFiles, const std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>>& toolHolder, ElectronPhotonVariableCorrectionTool::EGammaObjects toolHolderType );
 
 }; //end class ElectronPhotonVariableCorrectionToolWrapper
