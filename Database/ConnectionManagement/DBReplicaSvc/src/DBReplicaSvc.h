@@ -13,7 +13,7 @@
 #include "DBReplicaSvc/IDBReplicaSvc.h"
 #include "RelationalAccess/IDatabaseServiceDescription.h"
 
-class DBReplicaSvc : public virtual IDBReplicaSvc, public virtual AthService
+class ATLAS_CHECK_THREAD_SAFETY DBReplicaSvc : public virtual IDBReplicaSvc, public virtual AthService
 {
   template <class TYPE> class SvcFactory;
  public:
