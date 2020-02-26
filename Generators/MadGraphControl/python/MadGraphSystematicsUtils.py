@@ -3,8 +3,12 @@
 # utils to set systematics according to base fragment
 
 # use some helper functions from MadGraphUtils
-import MadGraphUtils,ast
-from MadGraphUtilsHelpers import *
+import ast
+from MadGraphControl.MadGraphUtils import *
+from MadGraphControl.MadGraphUtilsHelpers import *
+
+from AthenaCommon import Logging
+mgsyslog = Logging.logging.getLogger('MadGraphSysUtils')
 
 SYSTEMATICS_WEIGHT_INFO="MUR%(mur).1f_MUF%(muf).1f_PDF%(pdf)i"
 
@@ -29,7 +33,7 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
                 continue
             basefragment_settings[s]=the_base_fragment[s]
         else:
-            MadGraphUtils.mglog.warning('base fragment include does not define "'+s+'"')
+            mgsyslog.warning('base fragment include does not define "'+s+'"')
             if s=='central_pdf':               
                 raise RuntimeError('No "central_pdf" configured in base fragment')   
 
@@ -154,7 +158,7 @@ def setup_pdf_and_systematic_weights(the_base_fragment,extras,isNLO):
             extras[s]=new_settings[s]
 
     ### Make sure everything has been set
-    MadGraphUtils.mglog.info('PDF and scale settings were set as follows:')
+    mgsyslog.info('PDF and scale settings were set as follows:')
     for p in systematics_run_card_options(isNLO):
         user_set='not set'
         if p in user_set_extras:
@@ -162,7 +166,7 @@ def setup_pdf_and_systematic_weights(the_base_fragment,extras,isNLO):
         new_value='not set'
         if p in extras:
             new_value=str(extras[p])   
-        MadGraphUtils.mglog.info('MadGraphUtils set '+str(p)+' to "'+new_value+'", was set to "'+user_set+'"')
+        mgsyslog.info('MadGraphUtils set '+str(p)+' to "'+new_value+'", was set to "'+user_set+'"')
 
 
 #==================================================================================
@@ -174,9 +178,9 @@ def base_fragment_setup_check(the_base_fragment,extras,isNLO):
     # no include: allow it (with warning), as long as lhapdf is used
     # if not (e.g. because no choice was made and the internal pdf ise used): error
     if the_base_fragment == None:
-        MadGraphUtils.mglog.warning('!!! No pdf base fragment was included in your job options. PDFs should be set with an include file. You might be unable to follow the PDF4LHC uncertainty prescription. Let\'s hope you know what you doing !!!')
+        mgsyslog.warning('!!! No pdf base fragment was included in your job options. PDFs should be set with an include file. You might be unable to follow the PDF4LHC uncertainty prescription. Let\'s hope you know what you doing !!!')
         if not checkSetting('pdlabel','lhapdf',extras)  or not checkSettingExists('lhaid',extras):
-            MadGraphUtils.mglog.warning('!!! No pdf base fragment was included in your job options and you did not specify a LHAPDF yourself -- in the future, this will cause an error !!!')
+            mgsyslog.warning('!!! No pdf base fragment was included in your job options and you did not specify a LHAPDF yourself -- in the future, this will cause an error !!!')
             #TODO: in the future this should be an error
             #raise RuntimeError('No pdf base fragment was included in your job options and you did not specify a LHAPDF yourself')
         return True
@@ -202,14 +206,14 @@ def base_fragment_setup_check(the_base_fragment,extras,isNLO):
 def convertSysCalcArguments(extras):
     if 'systematics_program' in extras:
         if extras['systematics_program'].lower=='none':
-            MadGraphUtils.mglog.warning('no need to convert systematics arguments if systematcs are not run')
+            mgsyslog.warning('no need to convert systematics arguments if systematcs are not run')
             return
         if extras['systematics_program'].lower=='syscalc':
-            MadGraphUtils.mglog.warning('systematics already correct for chosen systematics program SysCalc')
+            mgsyslog.warning('systematics already correct for chosen systematics program SysCalc')
             return
 
     if 'systematics_arguments' in extras:
-        MadGraphUtils.mglog.warning('systematics_arguments already defined, will be overwritten')
+        mgsyslog.warning('systematics_arguments already defined, will be overwritten')
     systematics_arguments={}
     systematics_arguments['dyn']='-1'
     systematics_arguments['mur']='1'

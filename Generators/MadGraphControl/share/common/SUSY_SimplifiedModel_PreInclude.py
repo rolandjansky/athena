@@ -2,12 +2,13 @@
 #  Gets us ready for on-the-fly SUSY SM generation
 
 # Simple variable setups
-njets = -1
+decoupled_mass = '4.5E9'
 masses = {}
+for p in ['1000001','1000002','1000003','1000004','1000005','1000006','2000001','2000002','2000003','2000004','2000005','2000006','1000021',\
+          '1000023','1000024','1000025','1000011','1000013','1000015','2000011','2000013','2000015','1000012','1000014','1000016','1000022',\
+          '1000035','1000037']: # Note that gravitino is non-standard
+    masses[p]=decoupled_mass
 decays = {}
-
-# Event multipliers for getting more events out of madgraph to feed through athena (esp. for filters)
-evt_multiplier = 2.0
 
 # Useful definitions
 squarks = []
@@ -25,29 +26,25 @@ dict_index_syst = {0:'scalefactup',
                    7:'qdown'}
 
 # Basic settings for production and filters
-SLHAonly = False
 syst_mod = None
-xqcut = None
+ktdurham = None # Only set if you want a non-standard setting (1/4 heavy mass)
 madspin_card = None
+param_card = None # Only set if you *can't* just modify the default param card to get your settings (e.g. pMSSM)
 
-try:
-    from MadGraphControl.MadGraphUtils import getMadGraphVersion
-    version = getMadGraphVersion()
-    if int(version.split('.')[1])<5 and int(version.split('.')[0])<3:
-        extras = {}
-    else:
-        extras = {'event_norm':'sum', # Fix normalization issues when SysCalc runs
-                  }
-except ImportError:
-    print "WARNING: you are running a really old version of MadGraph now!"
-    extras={}
+# Default run settings
+run_settings = {'event_norm':'sum',
+                'drjj':0.0,
+                'lhe_version':'3.0',
+                'cut_decays':'F',
+                'pdflabel':"'lhapdf'",
+                'lhaid':247000,
+                'ickkw':0,
+                'xqcut':0} # use CKKW-L merging (yes, this is a weird setting)
 
+# Setting for writing out a gridpack
+writeGridpack = False
 
-if hasattr(runArgs,'EventMultiplier'): evt_multiplier=runArgs.EventMultiplier
-if runArgs.maxEvents>0:
-    nevts=runArgs.maxEvents*evt_multiplier
-else:
-    nevts=5000*evt_multiplier
+# Event multipliers for getting more events out of madgraph to feed through athena (esp. for filters)
 evt_multiplier=-1
 
 # in case someone needs to be able to keep the output directory for testing
@@ -55,7 +52,6 @@ keepOutput = False
 
 # fixing LHE files after madspin?  do that here.
 fixEventWeightsForBridgeMode=False
-
 
 if 'py1up' in runArgs.jobConfig[0]:
     include("Pythia8_i/Pythia8_A14_NNPDF23LO_Var1Up_EvtGen_Common.py")

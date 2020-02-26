@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import MadGraphUtils,os
+import os
 
 def getDictFromCard(card_loc,lowercase=False):
     card=open(card_loc)
