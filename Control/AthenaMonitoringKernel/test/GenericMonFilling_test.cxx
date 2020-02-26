@@ -327,8 +327,8 @@ bool fillWithCutMask( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* his
   auto fill2 = [&]() {
     //! [fillWithCutMask_collection]
     std::vector<float> etaVec{-0.2, 0.2, -0.4, 0.4, -0.6};
+    std::vector<char> cutMaskVec{0, 1, 1, 1, 0};
     auto eta = Monitored::Collection( "Eta", etaVec );
-    std::vector<char> cutMaskVec =  { 0, 1, 1, 1, 0 };
     auto cutMask = Monitored::Collection( "CutMask", cutMaskVec );
     auto group = Monitored::Group( monTool, eta, cutMask );
     //! [fillWithCutMask_collection]
@@ -336,6 +336,42 @@ bool fillWithCutMask( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* his
   };
   auto check2 = [&](size_t N) {
     VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta_CutMask" )->GetEntries() ) EXPECTED( N );
+  };
+  resetHists( histSvc ); check2(fill2());
+  resetHists( histSvc ); check2(fill_mt(fill2));
+
+  return true;
+}
+
+bool fillWithWeight( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
+
+  auto fill = [&]() {
+    //! [fillWithWeight]
+    auto pt = Monitored::Scalar<double>( "pt", 3.0 );
+    auto weight = Monitored::Scalar<float>( "Weight", 0.5 );
+    auto group = Monitored::Group( monTool, pt, weight );
+    //! [fillWithWeight]
+    return 1;
+  };
+  auto check = [&](size_t N) {
+    VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/pt", 4 ) ) EXPECTED( 0.5*N );
+  };
+  resetHists( histSvc ); check(fill());
+  resetHists( histSvc ); check(fill_mt(fill));
+
+  auto fill2 = [&]() {
+    //! [fillWithWeight_collection]
+    std::vector<double> ptvec{1.0, 2.0, 3.0 ,4.0, 5.0};
+    std::vector<float>   wvec{0.0, 0.5, 0.5, 1.0, 2.0};
+    auto pt = Monitored::Collection( "pt", ptvec );
+    auto weight = Monitored::Collection( "Weight", wvec );
+    auto group = Monitored::Group( monTool, pt, weight );
+    //! [fillWithWeight_collection]
+    return 5;
+  };
+  auto check2 = [&](size_t N) {
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/pt" )->GetEntries() ) EXPECTED( N );
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/pt" )->GetMean() ) EXPECTED( 4.125 );
   };
   resetHists( histSvc ); check2(fill2());
   resetHists( histSvc ); check2(fill_mt(fill2));
@@ -670,6 +706,8 @@ int main() {
   assert( fillExplicitly( validMon, histSvc ) );
   log << MSG::DEBUG << "fillWithCutMask" << endmsg;
   assert( fillWithCutMask( validMon, histSvc ) );
+  log << MSG::DEBUG << "fillWithWeight" << endmsg;
+  assert( fillWithWeight( validMon, histSvc ) );
   log << MSG::DEBUG << "assign" << endmsg;
   assert( assign() );
   log << MSG::DEBUG << "operators" << endmsg;

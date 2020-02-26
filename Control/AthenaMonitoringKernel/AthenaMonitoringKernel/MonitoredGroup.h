@@ -25,6 +25,10 @@ namespace Monitored {
    * histogram occurs when the Monitored::Group object goes out of scope or when fill() is called
    * explicitly.
    *
+   * The actual histogram definitions, i.e. which variable gets filled into which histogram,
+   * is configured entirely in Python. See GenericMonitoringTool.defineHistogram for the available
+   * options.
+   *
    * #### Examples
 
    * %Monitored quantities can be used to fill 2D histograms.
@@ -34,12 +38,18 @@ namespace Monitored {
    *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromScalarIndependentScopes
    * The automatic filling at the end of the scope can be disabled:
    *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillExplicitly_noop
-   * Instead explicit filling can be used:
+   * Instead <b>explicit filling</b> can be used:
    *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillExplicitly_fill
-   * Histograms can be filled conditionally with one variable serving as the (boolean) cut mask:
+   * Histograms can be <b>filled conditionally</b> with one variable serving as a (boolean) cut mask:
    *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillWithCutMask
-   * The same can be done for a Monitored::Collection:
+   * The same can be done with a Monitored::Collection:
    *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillWithCutMask_collection
+   * A <b>weight variable</b> can be used for scalars:
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillWithWeight
+   * and collections:
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillWithWeight_collection
+   *
+   * @see GenericMonitoringTool.defineHistogram
    * @ingroup MonAPI
    **/
   class Group {
