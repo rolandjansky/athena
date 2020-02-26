@@ -3,7 +3,6 @@
 # -*- coding: utf-8 -*-
 from TrigT2MinBias.TrigT2MinBiasConf import T2ZdcFex, T2ZdcHypo
 from TrigT2MinBias.TrigT2MinBiasConf import T2MbtsFex, T2MbtsHypo
-from TrigT2MinBias.TrigT2MinBiasConf import MbtsFexMT
 from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePoints, TrigCountSpacePointsHypo
 from TrigT2MinBias.TrigT2MinBiasConf import TrigCountTrtHits, TrigCountTrtHitsHypo
 
@@ -1141,46 +1140,6 @@ class MbMbtsFexMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins = 17, xmin=-0.5, xmax=16.5,
                                              ybins = 17, ymin=-0.5, ymax=16.5)]
 
-class MbtsFexMTMonitoring(TrigGenericMonitoringToolConfig):
-    def __init__ (self, name="MbtsFexMTMonitoring"):
-        super(MbMbtsFexMTMonitoring, self).__init__(name)
-        self.defineTarget( ["Online", "Validation", "Cosmic"])
-        # self.Histograms += [ defineHistogram('TriggerEnergies,TriggerTimes',
-        #                                      type='TH2F',
-        #                                      title="MBTS Energy and Time from DSP;Energy [pC]; Time relative to L1 [ns];",
-        #                                      xbins = 51, xmin=-5.5, xmax=45.5,
-        #                                      ybins = 100, ymin=-100., ymax=100.)]
-        #
-        # self.Histograms += [ defineHistogram('BCID, TimeDiff_A_C',
-        #                                      type='TH2F',
-        #                                      title='Mbts Time Difference vs BCID; BCID; time difference [ns];',
-        #                                      xbins = 3564, xmin=-0.5, xmax=3563.5,
-        #                                      ybins = 20, ymin=-40., ymax=40.)]
-        #
-        # self.Histograms += [ defineHistogram('TriggerID,TriggerEnergies',
-        #                                      type='TH2F',
-        #                                      title='Mbts Energy vs MBTS ID; MBTS ID; Energy [pC];',
-        #                                      xbins = 32, xmin=0,    xmax=32,
-        #                                      ybins = 51, ymin=-5.5, ymax=45.5)]
-        #
-        # self.Histograms += [ defineHistogram('TriggerID,TriggerTimes',
-        #                                      type='TH2F',
-        #                                      title='MBTS Time vs MBTS ID; MBTS ID;Time relative to L1 [ns];',
-        #                                      xbins = 32, xmin=0,    xmax=32,
-        #                                      ybins = 100, ymin=-100., ymax=100.)]
-        #
-        # self.Histograms += [ defineHistogram('TimeDiff_A_C',
-        #                                      type='TH1F',
-        #                                      title="MBTS Fex time difference of mean times A-C;time diff [ns];",
-        #                                      xbins = 100, xmin=-100., xmax=100.)]
-        #
-        # self.Histograms += [ defineHistogram('MultiplicityEBA, MultiplicityEBC',
-        #                                      type='TH2I',
-                                             # title="Mbts Fex Multiplicity; multiplicity A-side;multiplicity C-side;",
-                                             # xbins = 17, xmin=-0.5, xmax=16.5,
-                                             # ybins = 17, ymin=-0.5, ymax=16.5)]
-
-
 class MbMbtsHypoMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="MbMbtsHypoMonitoring"):
         super(MbMbtsHypoMonitoring, self).__init__(name)
@@ -1226,20 +1185,6 @@ class MbMbtsFex( T2MbtsFex ):
 
 L2MbMbtsFex = MbMbtsFex("L2MbMbtsFex")
 fexes["L2MbMbtsFex"] = L2MbMbtsFex
-
-
-class MbtsFexMT( MbtsFexMT ):
-    __slots__ = []
-    def __init__ (self, name ):
-        super(MbtsFexMT, self).__init__(name)
-        # self.Threshold = trigT2MinBiasProperties.mbtsThreshold() # pC
-        # time = TrigTimeHistToolConfig("MbtsFexMTTimers")
-        # time.NumberOfHistBins = 100
-        # time.TimerHistLimits = [0, 50]
-        self.AthenaMonTools += [ MbtsFexMTMonitoring()]
-
-L2MbtsFexMT = MbtsFexMT("L2MbtsFexMT")
-fexes["L2MbtsFexMT"] = L2MbtsFexMT
 
 
 

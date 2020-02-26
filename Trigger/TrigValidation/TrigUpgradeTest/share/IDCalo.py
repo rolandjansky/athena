@@ -128,7 +128,6 @@ from TrigT2MinBias.TrigT2MinBiasConfig import MbtsFexMT
 alg=MbtsFexMT()
 alg.RoIs="EMViewRoIs"
 allViewAlgorithms += alg
-viewSeq += allViewAlgorithms
 
 
 if TriggerFlags.doCalo:

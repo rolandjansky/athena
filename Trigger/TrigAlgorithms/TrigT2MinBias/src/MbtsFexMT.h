@@ -10,6 +10,8 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
+#include "xAODTrigMinBias/TrigT2MbtsBits.h"
+#include "xAODTrigMinBias/TrigT2MbtsBitsAuxContainer.h"
 #include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
 #include "xAODTrigMinBias/TrigT2MbtsBitsAuxContainer.h"
 #include "TileIdentifier/TileTBID.h"
@@ -73,9 +75,6 @@ public:
 
 private:
 
-  ServiceHandle<TileROD_Decoder> m_tileDecoder { this, "tileDecoder", "Tool to decode Tile raw data" };
-  SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey ;
-  SG::WriteHandleKey<CaloConstCellContainer > m_cellContainerKey;
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_MbtsKey{this,"MbtsKey","Undefined",""};
   SG::ReadHandleKey<TileTBID> m_TileHelperKey{this,"TileHelperKey", "DetectorStore+TileTBID"," "};
   ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc;

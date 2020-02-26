@@ -19,11 +19,8 @@ StatusCode MbtsFexMT::initialize()
 {
   ATH_CHECK( m_calocellcollectionKey.initialize() );
   ATH_CHECK(m_MbtsKey.initialize());
-  ATH_CHECK( m_cellContainerKey.initialize() );
   ATH_CHECK( m_TileHelperKey.initialize() );
   ATH_CHECK( m_dataAccessSvc.retrieve() );
-  CHECK( m_tileDecoder.retrieve() );
-  CHECK( m_bcidAvgKey.initialize() );
 
   if (! m_monTool.empty() ) ATH_CHECK( m_monTool.retrieve() );
   return StatusCode::SUCCESS;
@@ -61,6 +58,8 @@ StatusCode MbtsFexMT::execute(const EventContext& context) const
   double triggerEta{} ;
   double triggerPhi{} ;
 
+std::vector<float> trigEnergy;
+std::vector<float> trigTime;
 
 
   for ( auto CaloContainerIndx : *CaloContainer) {
@@ -70,7 +69,7 @@ StatusCode MbtsFexMT::execute(const EventContext& context) const
     Identifier triggerID = CaloContainerIndx->ID();
     if ( CaloContainerIndx->caloDDE()->is_tile() ) continue;
 
-    Identifier id  = tilecell->ID();
+    // Identifier id  = tilecell->ID();
     triggerTimes=tilecell->time();
 
 // MBTS Id type is  "side"  +/- 1
@@ -81,8 +80,6 @@ unsigned int channel_id = tileHelper->channel(triggerID);
 
 // MBTS Id module is "phi"  0-7
 unsigned int module_id = tileHelper->module(triggerID);
-
-// unsigned int nTriggerTimes = tileHelper.size();
 
 ATH_MSG_DEBUG("type_id = " << type_id);
 ATH_MSG_DEBUG("channel_id = " << channel_id);
@@ -102,22 +99,12 @@ if( module_id > 7 ){
   continue;
 }
 
-for (size_t i=0;i<mbts.size(); ++i){
-  ATH_MSG_DEBUG(tilecell->eta() << " " << tilecell->phi() << " " << tilecell->caloDDE()->getSampling() << " " << tilecell->energy() );}
+triggerEnergies = CaloContainerIndx->energy();
+triggerEta = CaloContainerIndx->eta();
+triggerPhi = CaloContainerIndx->phi();
+trigEnergy.push_back(triggerEnergies);
+trigTime.push_back(triggerTimes);
 
-  for ( auto hltcell : cal) {
-    const CaloDetDescrElement* hltdde = hltcell->caloDDE();
-    if ( hltdde && hltdde->is_tile() ) continue;
-    if ( triggerID == hltcell->ID() ) {
-      triggerEnergies = tilecell->energy();
-      triggerEta = tilecell->eta();
-      triggerPhi = tilecell->phi();
-
-      ATH_MSG_DEBUG("Cell info: " << tilecell->energy() << " " << " " << tilecell->eta() << " " << tilecell->phi());
-
-
-        }
-      }
     } // end of for CaloContainerIndx
 
 
@@ -130,21 +117,30 @@ for (size_t i=0;i<mbts.size(); ++i){
     // Recording Data
     SG::WriteHandle<xAOD::TrigCompositeContainer> mbtsHandle (m_MbtsKey, context);
 
-    auto MbtsContainer = std::make_unique< xAOD::TrigCompositeContainer >();
-    auto MbtsAuxContainer = std::make_unique< xAOD::TrigCompositeAuxContainer>();
-    MbtsContainer->setStore(MbtsAuxContainer.get());
 
-    xAOD::TrigComposite * MBTSCont = new xAOD::TrigComposite();
-    MbtsContainer->push_back(MBTSCont);
+    auto MbtsTrigCompositeContainer = std::make_unique< xAOD::TrigCompositeContainer >();
+    auto MbtsTrigCompositeAuxContainer = std::make_unique< xAOD::TrigCompositeAuxContainer>();
+    MbtsTrigCompositeContainer->setStore(MbtsTrigCompositeAuxContainer.get());
 
-    MBTSCont->setDetail("triggerEnergies", triggerEnergies);
-    MBTSCont->setDetail("triggerTimes",triggerTimes);
-    MBTSCont->setDetail("triggerPhi", triggerEta);
-    MBTSCont->setDetail("triggerEta", triggerPhi);
+    xAOD::TrigComposite * MBTSCompCont = new xAOD::TrigComposite();
 
 
+    xAOD::TrigT2MbtsBits * MBTSCont = new xAOD::TrigT2MbtsBits();
 
-    ATH_CHECK(mbtsHandle.record( std::move( MbtsContainer), std::move( MbtsAuxContainer ) ) );
+    MbtsTrigCompositeContainer->push_back(MBTSCompCont);
+
+    // MBTSCont->makePrivateStore();
+    MBTSCont->setTriggerEnergies(trigEnergy);
+    MBTSCont->setTriggerTimes(trigTime);
+
+    MBTSCompCont->setDetail("triggerEnergies", triggerEnergies);
+    MBTSCompCont->setDetail("triggerTimes",triggerTimes);
+    MBTSCompCont->setDetail("triggerPhi", triggerEta);
+    MBTSCompCont->setDetail("triggerEta", triggerPhi);
+
+
+
+    ATH_CHECK(mbtsHandle.record( std::move( MbtsTrigCompositeContainer), std::move( MbtsTrigCompositeAuxContainer ) ) );
 
 
 
