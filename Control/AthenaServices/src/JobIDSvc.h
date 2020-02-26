@@ -14,7 +14,7 @@
  * @brief a service to distribute unique job identifier
  * @author Yushu Yao <yyao@lbl.gov> - ATLAS Collaboration
  */
-class JobIDSvc : public extends<AthService, IJobIDSvc> {
+class ATLAS_CHECK_THREAD_SAFETY JobIDSvc : public extends<AthService, IJobIDSvc> {
 public:
   // Standard Constructor
   JobIDSvc(const std::string& name, ISvcLocator* svc);
