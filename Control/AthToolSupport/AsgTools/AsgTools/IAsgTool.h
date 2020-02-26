@@ -16,7 +16,7 @@
 #   include "GaudiKernel/IAlgTool.h"
 #else
 #   include "AsgMessaging/StatusCode.h"
-#   include "AsgTools/IAsgComponent.h"
+#   include "AsgMessaging/INamedInterface.h"
 #endif
 
 namespace asg {
@@ -36,7 +36,7 @@ namespace asg {
 #ifndef XAOD_STANDALONE
       : virtual public ::IAlgTool
 #else
-      : virtual public IAsgComponent
+      : virtual public INamedInterface
 #endif // not XAOD_STANDALONE
    {
 

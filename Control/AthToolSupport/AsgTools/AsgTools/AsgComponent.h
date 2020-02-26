@@ -12,9 +12,9 @@
 #else
 
 #include <AsgMessaging/AsgMessaging.h>
+#include <AsgMessaging/INamedInterface.h>
 #include <AsgMessaging/MessageCheck.h>
 #include <AsgMessaging/MsgLevel.h>
-#include <AsgTools/IAsgComponent.h>
 #include <memory>
 #include <vector>
 
@@ -35,7 +35,7 @@ namespace asg
   /// number of component types keeps increasing this still seems like
   /// a worthwhile improvement.
 
-  class AsgComponent : public virtual IAsgComponent,
+  class AsgComponent : public virtual INamedInterface,
                        public AsgMessaging
   {
     //
