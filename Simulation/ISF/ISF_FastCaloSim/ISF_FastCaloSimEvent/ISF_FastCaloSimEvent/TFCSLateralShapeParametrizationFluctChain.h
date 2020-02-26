@@ -28,8 +28,4 @@ private:
   ClassDefOverride(TFCSLateralShapeParametrizationFluctChain,1)  //TFCSLateralShapeParametrizationFluctChain
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSLateralShapeParametrizationFluctChain+;
-#endif
-
 #endif

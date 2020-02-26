@@ -35,8 +35,4 @@ inline bool TFCSEnergyRenormalization::is_match_calosample(int /*calosample*/) c
   return true;
 }
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSEnergyRenormalization+;
-#endif
-
 #endif

@@ -20,8 +20,4 @@ private:
    ClassDef( IntArray, 1 )
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class IntArray+;
-#endif
-
 #endif

@@ -274,14 +274,15 @@ if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet
     from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
     from DataQualityTools.DataQualityToolsConf import DQTGlobalWZFinderTool
     MyDQTGlobalWZFinderTool = DQTGlobalWZFinderTool(
-        name  = 'DQTGlobalWZFinderTool',
-        doTrigger = rec.doTrigger(),
-        JetCollectionName = JetCollectionKey,
-        MuonPtCut = 27,
-        MuonMaxEta = ToolSvc.DQTMuonSelectionTool.MaxEta,
-        MuonSelectionTool = ToolSvc.DQTMuonSelectionTool,
-        IsolationSelectionTool = ToolSvc.DQTIsoGradientTool,
-        MuonTrigMatchingTool = ToolSvc.MatchingTool,
+        name                    = 'DQTGlobalWZFinderTool',
+        doTrigger               = rec.doTrigger(),
+        JetCollectionName       = JetCollectionKey,
+        MuonPtCut               = 27,
+        MuonMaxEta              = ToolSvc.DQTMuonSelectionTool.MaxEta,
+        MuonSelectionTool       = ToolSvc.DQTMuonSelectionTool,
+        IsolationSelectionTool  = ToolSvc.DQTIsoGradientTool,
+        MuonTrigMatchingTool    = ToolSvc.MatchingTool,
+        BCTool                  = BunchCrossingTool(), 
     )
     ToolSvc += MyDQTGlobalWZFinderTool;
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTGlobalWZFinderTool ];

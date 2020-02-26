@@ -415,7 +415,8 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
       HepMcParticleLink trklink(hit->particleLink());
       if (m_needsMcEventCollHelper) {
         if(hit.pileupType()!=lastPileupType)        {
-          currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType());
+          MsgStream* amsg = &(msg());
+          currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType(), amsg);
           lastPileupType=hit.pileupType();
         }
         trklink.setEventCollection(currentMcEventCollection);

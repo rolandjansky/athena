@@ -109,6 +109,7 @@ def CscRdoToCscPrepData(name="CscRdoToCscPrepData", **kwargs):
 #############################################################################
 def MM_PrepDataProviderTool(name="MM_PrepDataProviderTool", **kwargs): 
   kwargs.setdefault("ClusterBuilderTool","SimpleMMClusterBuilderTool")
+  kwargs.setdefault("NSWCalibTool","Muon::NSWCalibTool/NSWCalibTool")
   from MuonMM_CnvTools.MuonMM_CnvToolsConf import Muon__MmRdoToPrepDataTool
   return Muon__MmRdoToPrepDataTool(name,**kwargs)
 

@@ -39,8 +39,4 @@ class TFCS2DFunctionHistogram:public TFCS2DFunction
   ClassDef(TFCS2DFunctionHistogram,1)  //TFCS2DFunctionHistogram
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCS2DFunctionHistogram+;
-#endif
-
 #endif

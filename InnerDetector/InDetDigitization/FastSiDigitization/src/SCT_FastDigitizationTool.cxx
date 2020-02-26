@@ -985,7 +985,8 @@ StatusCode SCT_FastDigitizationTool::digitize()
       // Build Truth info for current cluster
       HepMcParticleLink trklink(currentSiHit->particleLink());
       if (m_needsMcEventCollHelper) {
-        trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(currentSiHit.pileupType()) );
+        MsgStream* amsg = &(msg());
+        trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(currentSiHit.pileupType(), amsg) );
       }
       if (trklink.isValid())
       {

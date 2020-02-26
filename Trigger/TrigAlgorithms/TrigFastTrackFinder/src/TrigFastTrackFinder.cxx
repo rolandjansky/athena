@@ -127,6 +127,10 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
   declareProperty("UseTrigSeedML",            m_tcs.m_useTrigSeedML = 0);
   declareProperty("TrigSeedML_LUT",      m_trigseedML_LUT = "trigseed_ML_loose.lut");
+  declareProperty("UseSCT_MiddleSP", m_tcs.m_useSCT_middleSP = true);
+
+  declareProperty("maxEC_Pixel_cluster_length", m_tcs.m_maxEC_len = 1.5);
+
   /** Triplet finding properties. */
 
   declareProperty("Triplet_D0Max",            m_tcs.m_tripletD0Max      = 4.0);
