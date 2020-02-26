@@ -38,7 +38,7 @@ class JetSubStructureMomentToolsBase :
           return true;
         }
       }
-      fastjet::PseudoJet buildPseudoJet (const xAOD::Jet & jet) const;
+      fastjet::PseudoJet buildPseudoJet(const xAOD::Jet & jet) const;
       fastjet::PseudoJet buildPseudoJet(const std::vector<const xAOD::IParticle*>& iparticles) const;
       
       // Print all configurable parameters
