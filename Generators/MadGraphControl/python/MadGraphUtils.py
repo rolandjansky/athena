@@ -382,7 +382,7 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None)
     else:
         do_madspin=False
 
-    if get_reweight_card(process_dir=process_dir) is not None:
+    if get_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION) is not None:
         check_reweight_card(MADGRAPH_GRIDPACK_LOCATION)
 
     # Modify run card, then print

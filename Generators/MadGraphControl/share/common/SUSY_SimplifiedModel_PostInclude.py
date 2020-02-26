@@ -1,10 +1,12 @@
 # This comes after all Simplified Model setup files
-from MadGraphControl.MadGraphUtils import SUSY_Generation,modify_param_card
+from MadGraphControl.MadGraphUtils import SUSY_Generation,modify_param_card,check_reset_proc_number
 
 # Set maximum number of events if the event multiplier has been modified
 if evt_multiplier>0:
     if runArgs.maxEvents>0:
         nevts=runArgs.maxEvents*evt_multiplier
+    elif evgenConfig.minevents>0:
+        nevts=evgenConfig.minevents*evt_multiplier
     else:
         nevts=5000*evt_multiplier
 else:
@@ -47,7 +49,17 @@ if len(decays)>0: argdict['params']['DECAY']=decays
 
 # First the standard case: No input LHE file
 if not hasattr(runArgs,'inputGeneratorFile') or runArgs.inputGeneratorFile is None:
-    ktdurham = SUSY_Generation(**argdict)
+    # Try-except block to handle grid pack generation
+    try:
+        ktdurham = SUSY_Generation(**argdict)
+    except RuntimeError as rte:
+        for an_arg in rte.args:
+            if 'Gridpack sucessfully created' in an_arg:
+                print 'Handling exception and exiting'
+                theApp.finalize()
+                theApp.exit()
+        print 'Unhandled exception - re-raising'
+        raise rte
 
 else:
     # These manipulations require a dummy SUSY process
