@@ -24,23 +24,26 @@ class TFile;
 class TEnv;
 
 // ===========================================================================
-// Class ElectronPhotonVariableCorrectionTool
+// Class ElectronPhotonVariableCorrectionToolWrapper
 // ===========================================================================
 
-class ElectronPhotonVariableCorrectionToolWrapper : public asg::AsgTool
+class ElectronPhotonVariableCorrectionToolWrapper : public asg::AsgTool, virtual public IElectronPhotonVariableCorrectionTool
 {
+
+/// Declare the interface that the class provides
+ASG_TOOL_CLASS(ElectronPhotonVariableCorrectionToolWrapper, IElectronPhotonVariableCorrectionTool)
 
 public:
     ElectronPhotonVariableCorrectionToolWrapper( const std::string& myname);
     ~ElectronPhotonVariableCorrectionToolWrapper();
 
-    StatusCode initialize();
-    StatusCode finalize();
+    StatusCode initialize() override;
+    StatusCode finalize() override;
 
-    const StatusCode applyCorrection( xAOD::Photon& photon );
-    const StatusCode applyCorrection( xAOD::Electron& electron );
-    const StatusCode correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon );
-    const StatusCode correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron);
+    const StatusCode applyCorrection( xAOD::Photon& photon ) override;
+    const StatusCode applyCorrection( xAOD::Electron& electron ) override;
+    const StatusCode correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon ) override;
+    const StatusCode correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron) override;
 
 private:
     std::string m_configFile;
@@ -55,4 +58,4 @@ private:
     const StatusCode GetCorrectionVariableName( std::string &variableName, const std::string& confFile ) const;
     const StatusCode FindAllConfigFiles( std::vector<std::string>& confFiles );
 
-}; //end 
+}; //end class ElectronPhotonVariableCorrectionToolWrapper
