@@ -127,64 +127,6 @@ class L2EFChain_Beamspot(L2EFChainDef):
         from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
         [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
         
-     elif ('FTK' in self.l2IDAlg):
-        if 'trkFS' in self.chainPart['addInfo'] :
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_FTK
-           theFex = T2VertexBeamSpot_FTK()
-        elif 'activeTE' in self.chainPart['addInfo']:
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeTE_FTK
-           theFex = T2VertexBeamSpot_activeTE_FTK()
-        elif 'allTE' in self.chainPart['addInfo']:
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTK
-           theFex = T2VertexBeamSpot_activeAllTE_FTK()
-        elif 'idperf' in self.chainPart['addInfo']:
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTK
-           theFex = T2VertexBeamSpot_activeAllTE_FTK()
-
-           from TrigFTK_Monitoring.FtkHltEfficiencyConfig import FtkHltEfficiencyFex
-           moni_alg = FtkHltEfficiencyFex()
-        else:
-           mlog.error('Cannot assemble chain %s - only configured for trkFS,allTE and activeTE' % (self.chainPartName))
-           
-        if 'idperf' in self.chainPart['addInfo']:
-           from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-           [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
-           from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", ["mon"]).getSequence()
-        elif 'mon' in self.chainPart['addInfo']:
-           from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", ["mon"]).getSequence()
-        else:   
-           from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", [""]).getSequence()
-
-     elif ('FTKRefit' in self.l2IDAlg):
-        if 'trkFS' in self.chainPart['addInfo'] :
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_FTKRefit
-           theFex = T2VertexBeamSpot_FTKRefit()
-        elif 'activeTE' in self.chainPart['addInfo']:
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeTE_FTKRefit
-           theFex = T2VertexBeamSpot_activeTE_FTKRefit()
-        elif 'allTE' in self.chainPart['addInfo']:
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTKRefit
-           theFex = T2VertexBeamSpot_activeAllTE_FTKRefit()
-        elif 'idperf' in self.chainPart['addInfo']:
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTKRefit
-           theFex = T2VertexBeamSpot_activeAllTE_FTKRefit()
-           from TrigFTK_Monitoring.FtkHltEfficiencyConfig import FtkHltEfficiencyFex
-           moni_alg = FtkHltEfficiencyFex()
-        else:
-           mlog.error('Cannot assemble chain %s - only configured for trkFS,allTE and activeTE' % (self.chainPartName))
-
-        if 'idperf' in self.chainPart['addInfo']:
-           from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-           [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
-           from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", ["refit"]).getSequence()
-        else: 
-           from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", ["refit"]).getSequence()
-
      else:
         mlog.error('Cannot assemble chain %s - only configured for L2StarB' % (self.chainPartName))        
     
@@ -196,19 +138,10 @@ class L2EFChain_Beamspot(L2EFChainDef):
 #     self.L2sequenceList +=[[ self.L2InputTE, [theFex], 'L2_fex']]
 #     self.L2sequenceList +=[[['L2_fex'], [theAlg], 'L2_']]  
 #
-     if (('FTK' in self.l2IDAlg or 'FTKRefit' in self.l2IDAlg) and 'idperf' in self.chainPart['addInfo']):
-        self.L2sequenceList += [ [[""], [PESA__DummyUnseededAllTEAlgo("L2DummyAlgo")]+trk_alg, 'L2_BeamSpotFTFtracks']]
-        self.L2sequenceList +=[[['L2_BeamSpotFTFtracks'], [moni_alg], 'L2_moni']]
-        self.L2sequenceList +=[[['L2_moni'], ftk_alg, 'L2_BeamSpottracks']]
-     else:
-        self.L2sequenceList += [ [[""], [PESA__DummyUnseededAllTEAlgo("L2DummyAlgo")]+trk_alg, 'L2_BeamSpottracks']]
+     self.L2sequenceList += [ [[""], [PESA__DummyUnseededAllTEAlgo("L2DummyAlgo")]+trk_alg, 'L2_BeamSpottracks']]
 
      self.L2sequenceList +=[[['L2_BeamSpottracks'], [theFex], 'L2_fex']]
      self.L2sequenceList +=[[['L2_fex'], [theAlg], 'L2_']]  
-
-     if (('FTK' in self.l2IDAlg or 'FTKRefit' in self.l2IDAlg) and 'idperf' in self.chainPart['addInfo']):
-        self.L2signatureList += [ [['L2_BeamSpotFTFtracks']] ]     
-        self.L2signatureList += [ [['L2_moni']] ]     
 
      self.L2signatureList += [ [['L2_BeamSpottracks']] ]     
      self.L2signatureList += [ [['L2_fex']] ]
