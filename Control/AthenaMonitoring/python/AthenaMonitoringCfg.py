@@ -33,6 +33,11 @@ def AthenaMonitoringCfg(flags):
         from TileMonitoring.TileMonitoringConfig import TileMonitoringCfg
         result.merge(TileMonitoringCfg(flags))
 
+    if flags.DQ.Steering.doCaloGlobalMon:
+        info('Set up Calo monitoring')
+        from CaloMonitoring.CaloMonitoringConfig import CaloMonitoringCfg
+        result.merge(CaloMonitoringCfg(flags))
+
     if flags.DQ.Steering.doMuonMon:
         info('Set up Muon monitoring')
         from MuonDQAMonitoring.MuonDQAMonitoringConfig import MuonDQAMonitoringConfig
