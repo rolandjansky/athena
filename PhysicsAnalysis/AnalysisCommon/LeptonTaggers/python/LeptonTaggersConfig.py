@@ -14,7 +14,9 @@ def ConfigureAntiKt4PV0TrackJets(privateSeq, name):
 
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 
+    #
     # Run track jet clustering. B-tagging is run at construction
+    #
     replaceAODReducedJets(['AntiKt4PV0TrackJets'], privateSeq, name)
 
 #------------------------------------------------------------------------------
@@ -25,14 +27,30 @@ def GetDecoratePromptLeptonAlgs(name="", addSpectators=False):
     if name == "" or name == 'Electrons':
         algs += [DecoratePromptLepton('PromptLeptonIso',  'Electrons', 'AntiKt4PV0TrackJets', addSpectators)]
         algs += [DecoratePromptLepton('PromptLeptonVeto', 'Electrons', 'AntiKt4PV0TrackJets', addSpectators)]
-        algs += [DecorateReFitPrimaryVertex('Electrons')]
-        algs += [DecorateNonPromptVertex('Electrons')]
 
     if name == "" or name == 'Muons':
         algs += [DecoratePromptLepton('PromptLeptonIso',  'Muons', 'AntiKt4PV0TrackJets', addSpectators)]
         algs += [DecoratePromptLepton('PromptLeptonVeto', 'Muons', 'AntiKt4PV0TrackJets', addSpectators)]
-        algs += [DecorateReFitPrimaryVertex('Muons')]
-        algs += [DecorateNonPromptVertex('Muons')]
+    
+    return algs
+
+#------------------------------------------------------------------------------
+def GetDecorateImprovedPromptLeptonAlgs(name="", addSpectators=False):
+
+    algs  = []
+
+    if name == "" or name == 'Electrons':
+        algs += [DecorateReFitPrimaryVertex  ('Electrons')]
+        algs += [DecorateNonPromptVertex     ('Electrons')]
+        algs += [DecoratePromptLeptonRNN     ('PromptLeptonRNN',              'Electrons')]
+        algs += [DecoratePromptLeptonImproved('PromptLeptonVetoImprovedBARR', 'Electrons', 'AntiKt4PV0TrackJets')]
+        algs += [DecoratePromptLeptonImproved('PromptLeptonVetoImprovedECAP', 'Electrons', 'AntiKt4PV0TrackJets')]
+
+    if name == "" or name == 'Muons':
+        algs += [DecorateReFitPrimaryVertex  ('Muons')]
+        algs += [DecorateNonPromptVertex     ('Muons')]
+        algs += [DecoratePromptLeptonRNN     ('PromptLeptonRNN',          'Muons')]
+        algs += [DecoratePromptLeptonImproved('PromptLeptonVetoImproved', 'Muons', 'AntiKt4PV0TrackJets')]
     
     return algs
 
@@ -63,6 +81,7 @@ def GetExtraPromptVariablesForDxAOD(name='', addSpectators=False):
     prompt_vars += "PromptLeptonInput_SecondaryVertexIndexVector.PromptLeptonInput_SecondaryVertexIndexVectorInDet.PromptLeptonInput_SecondaryVertexIndexVectorMerge.PromptLeptonInput_SecondaryVertexIndexVectorDeepMerge."
     prompt_vars += "rhocen.rhofor.SecVtxLinks.RefittedPriVtxLink.RefittedPriVtxWithoutLeptonLink."
 
+
     secondaryvertex_vars = "SVType.trackParticleLinks.trackWeights.neutralParticleLinks.neutralWeights.SecondaryVertexIndex.SecondaryVertexIndexVectorInput.chiSquared.numberDoF.x.y.z.covariance.vertexType.energyFraction.mass.normDist.ntrk.distToPriVtx.normDistToPriVtx.distToRefittedPriVtx.normDistToRefittedPriVtx.distToRefittedRmLepPriVtx.normDistToRefittedRmLepPriVtx"
     
     if addSpectators :
@@ -70,7 +89,7 @@ def GetExtraPromptVariablesForDxAOD(name='', addSpectators=False):
     
     if name == "" or name == "Electrons":
         prompt_vars += "ptvarcone40.topoetcone20.topoetcone20ptCorrection.ptcone20_TightTTVA_pt500.ptcone20_TightTTVA_pt1000.ptvarcone20_TightTTVA_pt1000.ptvarcone30_TightTTVA_pt500.ptvarcone30_TightTTVA_pt1000.ptvarcone40_TightTTVALooseCone_pt500"
-
+        
         prompt_lep_vars += ["Electrons.%s" %prompt_vars]
         prompt_lep_vars += ["SecVtxContainer_Electrons.%s" %secondaryvertex_vars]
         prompt_lep_vars += ["SecVtx_ConvVtxContainer_Electrons.%s" %secondaryvertex_vars]
@@ -80,6 +99,32 @@ def GetExtraPromptVariablesForDxAOD(name='', addSpectators=False):
 
         prompt_lep_vars += ["Muons.%s" %prompt_vars]
         prompt_lep_vars += ["SecVtxContainer_Muons.%s" %secondaryvertex_vars]
+
+    return prompt_lep_vars
+
+
+#------------------------------------------------------------------------------
+def GetExtraImprovedPromptVariablesForDxAOD(name=''):
+
+    prompt_lep_vars = []
+
+    prompt_vars  = "PromptLeptonImprovedInput_TrackJetNTrack.PromptLeptonImprovedInput_MVAXBin."
+    prompt_vars += "PromptLeptonImprovedInput_PtFrac.PromptLeptonImprovedInput_PtRel.PromptLeptonImprovedInput_DRlj."
+    prompt_vars += "PromptLeptonImprovedInput_topoetcone30rel.PromptLeptonImprovedInput_ptvarcone30rel."
+
+    if name == "" or name == "Electrons":
+        # Add PromptLeptonTagger electron RNN and new inputs for PromptLeptonVetoImprovedBARR/PromptLeptonVetoImprovedECAP
+        prompt_vars += "PromptLeptonRNN_prompt.PromptLeptonRNN_non_prompt_b.PromptLeptonRNN_non_prompt_c.PromptLeptonRNN_conversion."
+        prompt_vars += "PromptLeptonVetoImprovedBARR.PromptLeptonVetoImprovedECAP.PromptLeptonImprovedInput_CaloClusterSumEtRel.PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx."
+
+        prompt_lep_vars += ["Electrons.%s" %prompt_vars]
+
+    if name == "" or name == "Muons":
+        # Add PromptLeptonTagger muon RNN and new inputs for PromptLeptonVetoImproved
+        prompt_vars += "PromptLeptonRNN_prompt.PromptLeptonRNN_non_prompt_b.PromptLeptonRNN_non_prompt_c."
+        prompt_vars += "PromptLeptonVetoImproved.PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel.PromptLeptonImprovedInput_CaloClusterERel.PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest."
+
+        prompt_lep_vars += ["Muons.%s" %prompt_vars]
 
     return prompt_lep_vars
 
@@ -138,6 +183,104 @@ def DecoratePromptLepton(BDT_name, lepton_name, track_jet_name, addSpectators=Fa
         alg.StringFloatSpecVars = getStringFloatSpecVars(BDT_name)
 
     log.info('Decorate%s - prepared %s algorithm for: %s, %s' %(BDT_name, BDT_name, lepton_name, track_jet_name))
+
+    return alg
+
+#------------------------------------------------------------------------------
+def DecoratePromptLeptonImproved(BDT_name, lepton_name, track_jet_name):
+
+    #
+    # Check track jet container is correct
+    #
+    if track_jet_name != 'AntiKt4PV0TrackJets':
+        raise Exception('Decorate%s - unknown track jet collection: "%s"' %(BDT_name, track_jet_name))
+
+    #
+    # Prepare DecoratePromptLepton alg
+    #
+    alg = Conf.Prompt__DecoratePromptLeptonImproved('%s_decorate%s' %(lepton_name, BDT_name))
+
+    alg.LeptonContainerName        = lepton_name
+    alg.TrackJetContainerName      = track_jet_name
+    alg.PrimaryVertexContainerName = 'PrimaryVertices'
+    alg.ClusterContainerName       = 'CaloCalTopoClusters'
+
+    alg.ConfigFileVersion          = '' 
+    alg.BDTName                    = BDT_name
+    alg.InputVarDecoratePrefix     = 'PromptLeptonImprovedInput_'
+    alg.PrintTime                  = False
+    alg.OutputLevel                = 2
+
+    #
+    # Read configuration from AFS for this initial merge request, will switch to cvmfs with second request 
+    #
+    if lepton_name == 'Electrons':
+        alg.MethodTitleMVA     = 'BDT_Electron_%s' %(BDT_name)
+        alg.ConfigPathOverride = '/afs/cern.ch/user/f/fuhe/public/data/bdt/elec/%s/TMVAClassification_BDT_Electron_%s.weights.xml' %(BDT_name, BDT_name)
+        alg.accessorRNNVars    = ['PromptLeptonRNN_prompt']
+    elif lepton_name == 'Muons': 
+        alg.MethodTitleMVA     = 'BDT_Muon_%s' %(BDT_name)
+        alg.ConfigPathOverride = '/afs/cern.ch/user/f/fuhe/public/data/bdt/muon/%s/TMVAClassification_BDT_Muon_%s.weights.xml' %(BDT_name, BDT_name)
+        alg.accessorRNNVars    = ['PromptLeptonRNN_prompt']
+    else:
+        raise Exception('Decorate%s - unknown lepton type: "%s"' %(BDT_name, lepton_name))  
+
+    alg.stringIntVars            = getStringIntVars  (BDT_name)
+    alg.stringFloatVars          = getStringFloatVars(BDT_name)
+    alg.extraDecoratorFloatVars  = []
+    alg.extraDecoratorShortVars  = ['CandVertex_NPassVtx']
+    alg.vetoDecoratorFloatVars   = ['PromptLeptonRNN_prompt']
+    alg.vetoDecoratorShortVars   = []
+
+    alg.leptonPtBinsVector = [10.0e3, 15.0e3, 20.0e3, 25.0e3, 32.0e3, 43.0e3, 100.0e3]
+
+    # 
+    # Secondary vertex selection for the PromptLeptonImproved
+    #
+    alg.VertexLinkName          = 'DeepMergedSecVtxLinks'
+    alg.VertexMinChiSquaredProb = 0.03
+
+    #
+    # Cut especially for supressing material interaction vertices of the electron
+    #
+    alg.VertexMinThetaBarrElec  = 0.002
+    alg.VertexMinThetaEcapElec  = 0.001
+    alg.VertexBarrEcapAbsEtaAt  = 1.37
+
+    log.info('Decorate%s - prepared %s algorithm for: %s, %s' %(BDT_name, BDT_name, lepton_name, track_jet_name))
+
+    return alg
+
+#------------------------------------------------------------------------------
+def DecoratePromptLeptonRNN(RNN_name, lepton_name):
+
+    #
+    # Prepare DecoratePromptLepton alg
+    #
+    alg = Conf.Prompt__DecoratePromptLeptonRNN('%s_decorate_RNN_%s' %(lepton_name, RNN_name))
+    alg.inputContainerLepton          = lepton_name
+    alg.inputContainerTrack           = 'InDetTrackParticles'
+    alg.inputContainerTrackJet        = 'AntiKt4PV0TrackJets'
+    alg.inputContainerPrimaryVertices = 'PrimaryVertices'
+    
+    alg.decorationPrefixRNN           = 'PromptLeptonRNN_'
+
+    alg.debug                         = False
+    alg.outputStream                  = 'out'
+
+    alg.toolRNN = Conf.Prompt__RNNTool('%s_%s_RNNTool' %(RNN_name, lepton_name))
+
+    #
+    # Read configuration from AFS for this initial merge request, will switch to cvmfs with second request 
+    #
+    if lepton_name == 'Electrons':
+        alg.toolRNN.configPathRNN = "/afs/cern.ch/user/f/fuhe/public/data/rnn/elecs_feb20_fullrun2_linear_ptraw_ntk5_model_ndense10_nhidden50_nepoch10_nbatch256_use_weights_nn-config.json"
+    elif lepton_name == 'Muons':
+        alg.toolRNN.configPathRNN = "/afs/cern.ch/user/f/fuhe/public/data/rnn/muons_feb19_fullrun2_linear_ptraw_ntk5_model_ndense10_nhidden50_nepoch10_nbatch256_use_weights_nn-config.json"
+    else:
+        raise Exception('DecorateNonPromptVertex - unknown lepton type: "%s"' %lepton_name)
+
+    log.info('Decorate%s - prepared %s algorithm for: %s' %(RNN_name, RNN_name, lepton_name))
 
     return alg
 
@@ -202,6 +345,7 @@ def DecorateNonPromptVertex(lepton_name):
     alg.SVContainerName                   = 'SecVtxContainer_%s' %lepton_name
 
     alg.SecVtxLinksName                   = 'SecVtxLinks'
+    alg.DeepMergedSecVtxLinksName         = 'DeepMergedSecVtxLinks'
     alg.NoLeptonPriVtxLinkName            = 'RefittedPriVtxWithoutLepton_%s' %lepton_name
     alg.IndexVectorName                   = 'PromptLeptonInput_SecondaryVertexIndexVector'
 
@@ -272,6 +416,14 @@ def getStringIntVars(BDT_name):
     elif BDT_name == 'PromptTauIso':
         int_vars += ['TrackJetNTrack']
 
+    elif BDT_name == 'PromptLeptonVetoImproved':
+        int_vars += ['MVAXBin']
+
+    elif BDT_name == 'PromptLeptonVetoImprovedBARR' or \
+         BDT_name == 'PromptLeptonVetoImprovedECAP':
+        int_vars += ['MVAXBin',
+                     'TrackJetNTrack']
+    
     else:
         raise Exception('getStringIntVars - unknown alg: "%s"' %BDT_name)
    
@@ -307,6 +459,26 @@ def getStringFloatVars(BDT_name):
                        'ip3',
                        'LepJetPtFrac',
                        'DRlj']
+
+    elif BDT_name == 'PromptLeptonVetoImproved':
+        float_vars += ['topoetcone30rel',
+                       'ptvarcone30_TightTTVA_pt500rel',
+                       'PromptLeptonRNN_prompt',
+                       'PtFrac',
+                       'DRlj',
+                       'CaloClusterERel',
+                       'CandVertex_normDistToPriVtxLongitudinalBest']
+
+    elif BDT_name == 'PromptLeptonVetoImprovedBARR' or \
+         BDT_name == 'PromptLeptonVetoImprovedECAP':
+        float_vars += ['topoetcone30rel',
+                       'ptvarcone30rel',
+                       'PromptLeptonRNN_prompt',
+                       'PtFrac',
+                       'DRlj',
+                       'CaloClusterSumEtRel',
+                       'PtRel',
+                       'CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx']
 
     else:
         raise Exception('getStringFloatVars - unknown alg: "%s"' %BDT_name)
@@ -483,7 +655,7 @@ def getInDetSequentialVertexFitter(ToolSvc, key):
 
     InDetVxFitterTool.MaxIterations = 200
     InDetVxFitterTool.maxDeltaChi2  = 0.005
-    InDetVxFitterTool.OutputLevel   = 2
+    InDetVxFitterTool.OutputLevel   = 3
 
     log.info('%s - current number of max iterations: %s' %(vxFitterName, InDetVxFitterTool.MaxIterations))
 
