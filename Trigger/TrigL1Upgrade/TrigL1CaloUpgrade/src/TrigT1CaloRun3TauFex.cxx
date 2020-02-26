@@ -196,6 +196,7 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	
 	// Find local maxima
 	std::vector<TLorentzVector> m_localMaxima;
+	m_localMaxima.reserve(200);
 
 	// X is eta, Y is phi
 	for(int i=0; i<m_SupercellMapTWR->GetNbinsX(); i++) {
