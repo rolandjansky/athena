@@ -89,6 +89,62 @@ StatusCode ElectronPhotonVariableCorrectionToolWrapper::initialize()
     return StatusCode::SUCCESS;
 }
 
+const StatusCode ElectronPhotonVariableCorrectionToolWrapper::InitializeCorrectionTools()
+{
+    //find all the config files using path resolver
+    ANA_CHECK(FindAllConfigFiles(m_convertedPhotonConfFiles));
+    ANA_CHECK(FindAllConfigFiles(m_unconvertedPhotonConfFiles));
+    ANA_CHECK(FindAllConfigFiles(m_electronConfFiles));
+    //initialize all tools
+    ANA_CHECK(InitializeTools("unconvertedPhotons", m_convertedPhotonConfFiles, m_convertedPhotonTools));
+    ANA_CHECK(InitializeTools("convertedPhotons", m_unconvertedPhotonConfFiles, m_unconvertedPhotonTools));
+    ANA_CHECK(InitializeTools("electrons", m_electronConfFiles, m_electronTools));
+    // check if ApplyTo Flag matches with the tool holder
+    ANA_CHECK(ApplyToFlagMatchesToolHolder(m_convertedPhotonConfFiles, m_convertedPhotonTools, ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons));
+    ANA_CHECK(ApplyToFlagMatchesToolHolder(m_unconvertedPhotonConfFiles, m_unconvertedPhotonTools, ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons));
+    ANA_CHECK(ApplyToFlagMatchesToolHolder(m_electronConfFiles, m_electronTools, ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons));
+
+    //everything worked out, so
+    return StatusCode::SUCCESS;
+}
+
+const StatusCode ElectronPhotonVariableCorrectionToolWrapper::FindAllConfigFiles( std::vector<std::string>& confFiles )
+{
+    //loop over conf file vector, find conf file using path resolver
+    for( unsigned int confFile_itr = 0; confFile_itr < confFiles.size(); confFile_itr++ )
+    {
+        std::string tmp_confFile = confFiles.at(confFile_itr);
+        confFiles.at(confFile_itr) = PathResolverFindCalibFile(confFiles.at(confFile_itr));
+        if (confFiles.at(confFile_itr) == "")
+        {
+            ATH_MSG_ERROR("In " << name()  << ": Could not locate configuration file " << tmp_confFile);
+            return StatusCode::FAILURE;
+        }
+    }
+    //everything worked out, so
+    return StatusCode::SUCCESS;
+}
+
+const StatusCode ElectronPhotonVariableCorrectionToolWrapper::InitializeTools( const std::string& name, const std::vector<std::string>& confFiles, std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>>& toolHolder )
+{
+    // adapt size of toolHolder
+    toolHolder.resize(confFiles.size());
+    // for each conf file, initialize one tool
+    for( unsigned int confFile_itr = 0; confFile_itr < confFiles.size(); confFile_itr++ )
+    {
+        // name: supertool name + type name + variable name
+        std::string variable = ""; //get the name of the variable to be corrected
+        ANA_CHECK(GetCorrectionVariableName(variable, confFiles.at(confFile_itr)));
+        TString toolname = TString::Format("%s_%s_%s", this->name().c_str(), name.c_str(), variable.c_str());
+        ANA_MSG_DEBUG("Subtool name: " << toolname.Data());
+        toolHolder.at(confFile_itr) = std::make_unique<ElectronPhotonVariableCorrectionTool>(toolname.Data());
+        ANA_CHECK(toolHolder.at(confFile_itr)->setProperty("ConfigFile", confFiles.at(confFile_itr)));
+        ANA_CHECK(toolHolder.at(confFile_itr)->initialize());
+    }
+    //everything worked out, so
+    return StatusCode::SUCCESS;
+}
+
 const StatusCode ElectronPhotonVariableCorrectionToolWrapper::ApplyToFlagMatchesToolHolder( const std::vector<std::string>& confFiles, const std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>>& toolHolder, ElectronPhotonVariableCorrectionTool::EGammaObjects toolHolderType )
 {
     // loop over conf file holder
@@ -191,62 +247,6 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::correctedCopy( con
 /* ========================================
  * Helper functions
  * ======================================== */
-
-const StatusCode ElectronPhotonVariableCorrectionToolWrapper::InitializeCorrectionTools()
-{
-    //find all the config files using path resolver
-    ANA_CHECK(FindAllConfigFiles(m_convertedPhotonConfFiles));
-    ANA_CHECK(FindAllConfigFiles(m_unconvertedPhotonConfFiles));
-    ANA_CHECK(FindAllConfigFiles(m_electronConfFiles));
-    //initialize all tools
-    ANA_CHECK(InitializeTools("unconvertedPhotons", m_convertedPhotonConfFiles, m_convertedPhotonTools));
-    ANA_CHECK(InitializeTools("convertedPhotons", m_unconvertedPhotonConfFiles, m_unconvertedPhotonTools));
-    ANA_CHECK(InitializeTools("electrons", m_electronConfFiles, m_electronTools));
-    // check if ApplyTo Flag matches with the tool holder
-    ANA_CHECK(ApplyToFlagMatchesToolHolder(m_convertedPhotonConfFiles, m_convertedPhotonTools, ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons));
-    ANA_CHECK(ApplyToFlagMatchesToolHolder(m_unconvertedPhotonConfFiles, m_unconvertedPhotonTools, ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons));
-    ANA_CHECK(ApplyToFlagMatchesToolHolder(m_electronConfFiles, m_electronTools, ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons));
-
-    //everything worked out, so
-    return StatusCode::SUCCESS;
-}
-
-const StatusCode ElectronPhotonVariableCorrectionToolWrapper::FindAllConfigFiles( std::vector<std::string>& confFiles )
-{
-    //loop over conf file vector, find conf file using path resolver
-    for( unsigned int confFile_itr = 0; confFile_itr < confFiles.size(); confFile_itr++ )
-    {
-        std::string tmp_confFile = confFiles.at(confFile_itr);
-        confFiles.at(confFile_itr) = PathResolverFindCalibFile(confFiles.at(confFile_itr));
-        if (confFiles.at(confFile_itr) == "")
-        {
-            ATH_MSG_ERROR("In " << name()  << ": Could not locate configuration file " << tmp_confFile);
-            return StatusCode::FAILURE;
-        }
-    }
-    //everything worked out, so
-    return StatusCode::SUCCESS;
-}
-
-const StatusCode ElectronPhotonVariableCorrectionToolWrapper::InitializeTools( const std::string& name, const std::vector<std::string>& confFiles, std::vector<std::unique_ptr<ElectronPhotonVariableCorrectionTool>>& toolHolder )
-{
-    // adapt size of toolHolder
-    toolHolder.resize(confFiles.size());
-    // for each conf file, initialize one tool
-    for( unsigned int confFile_itr = 0; confFile_itr < confFiles.size(); confFile_itr++ )
-    {
-        // name: supertool name + type name + variable name
-        std::string variable = ""; //get the name of the variable to be corrected
-        ANA_CHECK(GetCorrectionVariableName(variable, confFiles.at(confFile_itr)));
-        TString toolname = TString::Format("%s_%s_%s", this->name().c_str(), name.c_str(), variable.c_str());
-        ANA_MSG_DEBUG("Subtool name: " << toolname.Data());
-        toolHolder.at(confFile_itr) = std::make_unique<ElectronPhotonVariableCorrectionTool>(toolname.Data());
-        ANA_CHECK(toolHolder.at(confFile_itr)->setProperty("ConfigFile", confFiles.at(confFile_itr)));
-        ANA_CHECK(toolHolder.at(confFile_itr)->initialize());
-    }
-    //everything worked out, so
-    return StatusCode::SUCCESS;
-}
 
 const StatusCode ElectronPhotonVariableCorrectionToolWrapper::GetCorrectionVariableName( std::string &variableName, const std::string& confFile ) const
 {
