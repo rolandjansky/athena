@@ -4,7 +4,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, EmptyMenuSequence
 from copy import deepcopy
 
 
@@ -15,9 +15,7 @@ def mergeChainDefs(listOfChainDefs, chainDict, strategy="parallel", offset=-1):
     if strategy=="parallel":
         return mergeParallel(listOfChainDefs,  offset)
     elif strategy=="serial":
-        #return mergeSerial(listOfChainDefs,offset)
-        log.error("Serial mergin not yet implemented.")
-        return -1
+        return mergeSerial(listOfChainDefs)
     else:
         log.error("Merging failed for %s. Merging strategy '%s' not known.", (listOfChainDefs, strategy))
         return -1
@@ -74,7 +72,54 @@ def mergeParallel(chainDefList, offset):
 
     return combinedChainDef
 
+def serial_zip(*allSteps):
+    n_chains = len(allSteps)
+    for chain_index, chainsteps in enumerate(allSteps):
+        for sequence in chainsteps:
+            step = [EmptyMenuSequence() for _x in range(n_chains)]
+            step[i] = sequence
+            yield row
 
+def mergeSerial(chainDefList):
+    allSteps = []
+    nSteps = []
+    chainName = ''
+    l1Thresholds = []
+
+
+    for cConfig in chainDefList:
+        if chainName == '':
+            chainName = cConfig.name
+        elif chainName != cConfig.name:
+            log.error("Something is wrong with the combined chain name: cConfig.name = %s while chainName = %s", cConfig.name, chainName)
+            
+        allSteps.append(cConfig.steps)
+        nSteps.append(len(cConfig.steps))
+        l1Thresholds.extend(cConfig.vseeds)
+
+    serialSteps = serial_zip(allSteps)
+    mySerialSteps = deepcopy(serialSteps)
+
+    combChainSteps =[]
+    for steps in mySerialSteps:
+        mySteps = list(steps)
+        combStep = makeChainSteps(mySteps)
+        combChainSteps.append(combStep)
+
+    # check if all chain parts have the same number of steps
+    sameNSteps = all(x==nSteps[0] for x in nSteps) 
+    if sameNSteps is True:
+        log.debug("All chain parts have the same number of steps")
+    else:
+        log.debug("Have to deal with uneven number of chain steps, there might be none's appearing in sequence list => to be fixed")
+                                  
+    combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds)
+
+    log.debug("Merged chain %s with these steps:", chainName)
+    for step in combinedChainDef.steps:
+        log.debug('   %s', step)
+
+    return combinedChainDef
 
 
 def makeChainSteps(steps):
