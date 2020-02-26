@@ -7,9 +7,6 @@
  -----------------------------------------
 ***************************************************************************/
 
-//<doc><file>	$Id: sTgcReadoutElement.h,v 1.3 2009-03-03 00:27:38 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
-
 #ifndef MUONGEOMODEL_STGCREADOUTELEMENT_H
 # define MUONGEOMODEL_STGCREADOUTELEMENT_H
 
@@ -279,60 +276,6 @@ namespace MuonGM {
     if( !design ) return -1;
     return design->channelNumber(pos);
 
-  }
-
-  inline double sTgcReadoutElement::channelPitch( const Identifier& id ) const {
-
-    if (manager()->stgcIdHelper()->channelType(id)==0){
-    const MuonPadDesign* design = getPadDesign(id);
-    if( !design ) {
-      (*m_Log)  << MSG::WARNING << "no pad Design" << endmsg;
-      return -1;
-    }
-      return design->channelWidth( Amg::Vector2D (0,0),0);
-    }
-
-    const MuonChannelDesign* design = getDesign(id);
-    if( !design ) return -1;
-
-    if (manager()->stgcIdHelper()->channelType(id)==1) //sTGC strips
-      return design->inputPitch;
-    else if (manager()->stgcIdHelper()->channelType(id)==2) //sTGC wires
-      return design->inputPitch * design->groupWidth; // wire Pitch * number of wires in a group
-    else return -1;
-
-  }
-
-  inline int sTgcReadoutElement::padNumber( const Amg::Vector2D& pos, const Identifier& id) const {
-
-    const MuonPadDesign* design = getPadDesign(id);
-    if( !design ) {
-      (*m_Log)  << MSG::WARNING << "no pad Design" << endmsg;
-      return -1;
-    }
-    std::pair<int,int> pad(design->channelNumber(pos));
-    (*m_Log)  << MSG::DEBUG << "pad numbers from MuonPadDesign " <<pad.first <<"  " << pad.second << "  "<<endmsg;
-
-    if (pad.first>0 && pad.second>0) {
-
-      Identifier padID=manager()->stgcIdHelper()->padID( manager()->stgcIdHelper()->stationName(id),
-							 manager()->stgcIdHelper()->stationEta(id),
-							 manager()->stgcIdHelper()->stationPhi(id),
-							 manager()->stgcIdHelper()->multilayer(id),
-							 manager()->stgcIdHelper()->gasGap(id),
-							 0, pad.first, pad.second, true );     
-      int channel = manager()->stgcIdHelper()->channel(padID);
-      int padEta = manager()->stgcIdHelper()->padEta(padID);
-      int padPhi = manager()->stgcIdHelper()->padPhi(padID);
-      if( padEta != pad.first || padPhi != pad.second ){
-	(*m_Log)  << MSG::WARNING << " bad pad indices: input " << pad.first << " " << pad.second << " from ID " << padEta << " " << padPhi << endmsg;
-	return -1;
-      }
-      return channel;
-    } 
-    (*m_Log)  << MSG::WARNING << "bad channelNumber" << endmsg;
-
-    return -1; 
   }
 
   inline bool sTgcReadoutElement::stripPosition( const Identifier& id, Amg::Vector2D& pos ) const {
