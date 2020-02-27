@@ -63,7 +63,7 @@ namespace top {
     m_fractionLoose(fractionLoose) {
     if (size != 20 && size != 30 && size != 40) {
       throw std::runtime_error("TopObjectSelectionTools::IsolationTools::RelativePTVarCone: "
-          "ptvarcone only supports cone sizes of 20, 30, 40\n and you asked for " + size);
+                               "ptvarcone only supports cone sizes of 20, 30, 40\n and you asked for " + std::to_string (size));
     }
 
     std::stringstream ss;

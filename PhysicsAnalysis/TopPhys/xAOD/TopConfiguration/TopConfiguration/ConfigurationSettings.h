@@ -113,10 +113,10 @@ namespace top {
     ///Here but not implemented, resulting in a happy compile error if you try and use them
     ConfigurationSettings operator = (const ConfigurationSettings&);
   };
-}
 
-std::ostream& operator << (std::ostream& os, const top::ConfigurationSettings& settings);
-std::ostream& operator << (std::ostream& os, const top::SelectionConfigurationData& data);
+  std::ostream& operator << (std::ostream& os, const ConfigurationSettings& settings);
+  std::ostream& operator << (std::ostream& os, const SelectionConfigurationData& data);
+}
 
 
 #endif

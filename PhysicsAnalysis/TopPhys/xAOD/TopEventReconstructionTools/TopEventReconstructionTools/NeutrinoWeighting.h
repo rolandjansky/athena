@@ -61,7 +61,7 @@ namespace top {
 
     bool apply(const top::Event&) const override;
 
-    std::string name() const {return "RECO:NEUTRINOWEIGHTING";}
+    std::string name() const override {return "RECO:NEUTRINOWEIGHTING";}
   private:
     /**
      * @param lepton  The lepton 4 vector.
