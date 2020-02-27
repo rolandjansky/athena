@@ -5,13 +5,11 @@ from MadGraphControl.MadGraphUtils import SUSY_Generation,modify_param_card,chec
 if evt_multiplier>0:
     if runArgs.maxEvents>0:
         nevts=runArgs.maxEvents*evt_multiplier
-    elif evgenConfig.minevents>0:
-        nevts=evgenConfig.minevents*evt_multiplier
     else:
-        nevts=5000*evt_multiplier
+        nevts=evgenConfig.nEventsPerJob*evt_multiplier
 else:
     # Sensible default
-    nevts=5000*2.
+    nevts=evgenConfig.nEventsPerJob*2.
 run_settings.update({'nevents':nevts})
 
 # Only needed for something non-standard (not 1/4 heavy mass)
