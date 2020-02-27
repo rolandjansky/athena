@@ -22,6 +22,8 @@ namespace MVAUtils
     class IForest
     {
     public:
+      virtual ~IForest () noexcept = default;
+
         /** Return the response of one tree
          *  Must pass the features in a std::vector<float> values
          *  and the index of the tree.
