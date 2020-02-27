@@ -312,6 +312,8 @@ private:
   bool m_useRecommendedEVExclusions;
   /// if true, ignore out-of-extrapolation range errors (i.e., return CorrectionCode::Ok if these are encountered)
   bool m_ignoreOutOfValidityRange;
+  /// if false, suppress any non-error/warning printout from the underlying tool
+  bool m_verboseCDITool;
   /// @}
 
   /// @name Cached variables
