@@ -57,7 +57,7 @@ if DetFlags.overlay.LAr_on():
     #Adjust StoreGate keys in case of data-overlay:
     if overlayFlags.isDataOverlay():
        #Digits read from ByteStream:
-       job.digitmaker1.LArPileUpTool.RandomDigitContainer="FREE"
+       job.digitmaker1.LArPileUpTool.InputDigitContainer="FREE"
 
        #Output of the LArPileUpTool (set up by LArDigitGetter) is "LArDigitContainer_MC"
        #That's the input to the digit thinner and the LArRawChannelBuilder
