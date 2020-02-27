@@ -8,6 +8,7 @@
 // Framework include(s):
 #include "AsgTools/AnaToolHandle.h"
 #include "AsgTools/AsgTool.h"
+#include <CLHEP/Units/SystemOfUnits.h>
 
 // ROOT include(s)
 #include "TRandom3.h"
@@ -31,8 +32,6 @@
 #define EPSILON 1.0E-6
 #define DEFAULT_INIT_VAL -999
 #define MCAST_MAX_PT 100000000
-#define MCAST_MeVToGeV 0.001
-#define MCAST_GeVToMeV 1000. 
 #define MZPDG 91.1876
 
 namespace CP {
