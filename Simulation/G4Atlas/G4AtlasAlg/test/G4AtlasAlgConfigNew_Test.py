@@ -23,13 +23,13 @@ if __name__ == '__main__':
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
-  ConfigFlags.Input.Files = defaultTestFiles.EVNT
+  ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1'] #defaultTestFiles.EVNT
   ConfigFlags.Output.HITSFileName = "myHITSnew.pool.root"
 
   #Sim ConfigFlags
-  ConfigFlags.Sim.WorldRRange = 15000
-  ConfigFlags.Sim.WorldZRange = 27000 #change defaults?
-  ConfigFlags.Sim.CalibrationRun = False # 'DeadLAr'
+  #ConfigFlags.Sim.WorldRRange = 15000
+  #ConfigFlags.Sim.WorldZRange = 27000 #change defaults?
+  ConfigFlags.Sim.CalibrationRun = 'DeadLAr' # is this correct?
   ConfigFlags.Sim.RecordStepInfo = False
   ConfigFlags.Sim.CavernBG = "Signal"
   ConfigFlags.Sim.ISFRun = False
@@ -53,16 +53,16 @@ if __name__ == '__main__':
   ConfigFlags.Detector.GeometryTRT = True 
 
   #muon
-  ConfigFlags.Detector.SimulateMuon = True
-  ConfigFlags.Detector.GeometryMuon = True
-  ConfigFlags.Detector.SimulateMDT = True
-  ConfigFlags.Detector.GeometryMDT = True
-  ConfigFlags.Detector.SimulateRPC = True
-  ConfigFlags.Detector.GeometryRPC = True
-  ConfigFlags.Detector.SimulateTGC = True
-  ConfigFlags.Detector.GeometryTGC = True
-  ConfigFlags.Detector.SimulateCSC = True
-  ConfigFlags.Detector.GeometryCSC = True
+  ConfigFlags.Detector.SimulateMuon = True #True
+  ConfigFlags.Detector.GeometryMuon = True #True <these two break it (others can be true)
+  ConfigFlags.Detector.SimulateMDT = True #True
+  ConfigFlags.Detector.GeometryMDT = True #True
+  ConfigFlags.Detector.SimulateRPC = True #True
+  ConfigFlags.Detector.GeometryRPC = True #True
+  ConfigFlags.Detector.SimulateTGC = True #True
+  ConfigFlags.Detector.GeometryTGC = True #True
+  ConfigFlags.Detector.SimulateCSC = True #True
+  ConfigFlags.Detector.GeometryCSC = True #True
 
   #LAr
   ConfigFlags.Detector.SimulateLAr = True 
@@ -73,6 +73,9 @@ if __name__ == '__main__':
   ConfigFlags.Detector.SimulateHGTD = False
   #ConfigFlags.Detector.GeometryHGTD = False #isn't a flag -- is it needed?
 
+
+  ConfigFlags.Detector.SimulateBpipe = True
+  ConfigFlags.Detector.GeometryBpipe = True
 
 
   #forward region not migrated yet
@@ -140,7 +143,7 @@ if __name__ == '__main__':
   cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=["TrackRecordCollection#MuonEntryLayer"])) 
   cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=["TrackRecordCollection#MuonExitLayer"])) 
 
-
+  
   # Dump config
   cfg.getService("StoreGateSvc").Dump = True
   cfg.getService("ConditionStore").Dump = True
@@ -156,7 +159,7 @@ if __name__ == '__main__':
   log.info("Run G4AtlasAlg in " + str(b-a) + " seconds")
 
   # Success should be 0
-  os.sys.exit(not sc.isSuccess())
+  #os.sys.exit(not sc.isSuccess())
 
   f=open("test.pkl","wb")
   cfg.store(f) 

@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from G4UserActions.G4UserActionsConf import G4UA__AthenaStackingActionTool, G4UA__AthenaTrackingActionTool
+from G4UserActions.G4UserActionsConf import G4UA__AthenaStackingActionTool, G4UA__AthenaTrackingActionTool, G4UA__LooperKillerTool, G4UA__G4SimTimerTool, G4UA__G4TrackCounterTool
 
 # this is a bit cumbersome, but it seems ike it is a lot easier to separate
 # the getter functionality from all the rest (i.e. adding the action).
@@ -46,4 +46,20 @@ def AthenaTrackingActionToolCfg(ConfigFlags, name='G4UA::AthenaTrackingActionToo
 
     kwargs.setdefault('SubDetVolumeLevel', subDetLevel)
     result.setPrivateTools( G4UA__AthenaTrackingActionTool(name,**kwargs) )
+    return result
+
+def LooperKillerToolCfg(ConfigFlags, name='G4UA::LooperKillerTool', **kwargs):
+    result = ComponentAccumulator()
+    result.setPrivateTools(G4UA__LooperKillerTool(name, **kwargs))
+    return result
+
+def G4SimTimerToolCfg(ConfigFlags, name='G4UA::G4SimTimerTool', **kwargs):
+    result = ComponentAccumulator()
+    result.setPrivateTools(G4UA__G4SimTimerTool(name,**kwargs))
+    return result
+
+
+def G4TrackCounterToolCfg(ConfigFlags, name='G4UA::G4TrackCounterTool', **kwargs):
+    result = ComponentAccumulator()
+    result.setPrivateTools(G4UA__G4TrackCounterTool(name,**kwargs))
     return result

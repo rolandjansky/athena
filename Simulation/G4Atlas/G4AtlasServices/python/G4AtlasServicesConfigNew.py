@@ -5,7 +5,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 DetectorGeometrySvc, G4AtlasSvc, G4GeometryNotifierSvc, PhysicsListSvc=CompFactory.getComps("DetectorGeometrySvc","G4AtlasSvc","G4GeometryNotifierSvc","PhysicsListSvc",)
 #the physics region tools
-from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg
+from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg 
+from G4AtlasTools.G4PhysicsRegionConfigNew import DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg
 
 #the geometry tools
 from G4AtlasTools.G4GeometryToolConfig import MaterialDescriptionToolCfg, G4AtlasDetectorConstructionToolCfg, ATLASEnvelopeCfg
@@ -37,7 +38,7 @@ def getATLAS_RegionCreatorList(ConfigFlags):
             if True:
                 regionCreatorList += [BeampipeFwdCutPhysicsRegionToolCfg(ConfigFlags)]
             #if simFlags.ForwardDetectors.statusOn and simFlags.ForwardDetectors() == 2:
-            if True:
+            if False:
                 regionCreatorList += [FWDBeamLinePhysicsRegionToolCfg(ConfigFlags)]
     if ConfigFlags.Detector.SimulateCalo:
         if ConfigFlags.Detector.GeometryLAr:
@@ -51,7 +52,7 @@ def getATLAS_RegionCreatorList(ConfigFlags):
             #    Logging.log.info('  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')')
             #    raise RuntimeError('Configuration not allowed')
             #if simFlags.LArParameterization() > 0:
-            if True:
+            if False:
                 regionCreatorList += [EMBPhysicsRegionToolCfg(ConfigFlags), EMECPhysicsRegionToolCfg(ConfigFlags),
                                       HECPhysicsRegionToolCfg(ConfigFlags), FCALPhysicsRegionToolCfg(ConfigFlags)]
                 # FIXME 'EMBPhysicsRegionTool' used for parametrization also - do we need a second instance??
@@ -62,16 +63,16 @@ def getATLAS_RegionCreatorList(ConfigFlags):
                     pass
                     #todo - add the line below
                     #regionCreatorList += [PreSampLArPhysicsRegionToolCfg(ConfigFlags), DeadMaterialPhysicsRegionToolCfg(ConfigFlags)]
-            elif False: # simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
+            elif True: # simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
                 regionCreatorList += [EMBPhysicsRegionToolCfg(ConfigFlags), EMECPhysicsRegionToolCfg(ConfigFlags),
                                       HECPhysicsRegionToolCfg(ConfigFlags), FCALPhysicsRegionToolCfg(ConfigFlags)]
     ## FIXME _initPR never called for FwdRegion??
     #if simFlags.ForwardDetectors.statusOn:
     #    if DetFlags.geometry.FwdRegion_on():
     #        regionCreatorList += ['FwdRegionPhysicsRegionTool']
-    #if ConfigFlags.Detector.GeometryMuon:
+    if ConfigFlags.Detector.GeometryMuon:
         #todo - add the line below
-        #regionCreatorList += [DriftWallPhysicsRegionTool(ConfigFlags), DriftWall1PhysicsRegionTool(ConfigFlags), DriftWall2PhysicsRegionTool(ConfigFlags)]
+        regionCreatorList += [DriftWallPhysicsRegionToolCfg(ConfigFlags), DriftWall1PhysicsRegionToolCfg(ConfigFlags), DriftWall2PhysicsRegionToolCfg(ConfigFlags)]
         #if ConfigFlags.Sim.CavernBG != 'Read' and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
             #pass
             #todo - add the line below

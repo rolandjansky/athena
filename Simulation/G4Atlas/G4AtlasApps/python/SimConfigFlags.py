@@ -14,8 +14,8 @@ def createSimConfigFlags():
 
     scf.addFlag("Sim.CavernBG",False) #"Write" , "Read" , "Signal" , "WriteWorld" , "SignalWorld"
     scf.addFlag("Sim.ReadTR",False)
-    scf.addFlag("Sim.WorldRRange", 12500) #int or float
-    scf.addFlag("Sim.WorldZRange", 22031) #int or float
+    scf.addFlag("Sim.WorldRRange", False) #12500. #int or float
+    scf.addFlag("Sim.WorldZRange", False) #22031. #int or float
 
     # the G4 offset. It was never changed, so no need to peek in file
     scf.addFlag("Sim.SimBarcodeOffset", 200000)

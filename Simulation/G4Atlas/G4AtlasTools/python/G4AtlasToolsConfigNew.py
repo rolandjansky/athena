@@ -165,7 +165,7 @@ def generateCaloSensitiveDetectorList(ConfigFlags):
         #    SensitiveDetectorList += [ toolDeadSensitiveDetector, toolInactiveSensitiveDetector , toolActiveSensitiveDetector ]
         #<<<migrate above
         #elif ConfigFlags.Sim.CalibrationRun == 'DeadLAr':
-        if ConfigFlags.Sim.CalibrationRun == 'DeadLAr':
+        if True: #ConfigFlags.Sim.CalibrationRun == 'DeadLAr':
             accDeadSensitiveDetector = LArDeadSensitiveDetectorToolCfg(ConfigFlags)
             SensitiveDetectorList += [ result.popToolsAndMerge(accDeadSensitiveDetector) ]
        
