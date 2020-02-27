@@ -61,7 +61,7 @@ namespace xAOD {
 
       //safety-check if value (omitting the sign-bit) is lower than vmax
       //(avoid overflow)
-      if( ( fi.ivalue & 0x7ffffff ) < m_vmax ) {
+      if( ( fi.ivalue & 0x7fffffff ) < m_vmax ) {
          fi.ivalue += m_rounding;
       }
 
