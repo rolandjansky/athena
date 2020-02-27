@@ -1,5 +1,5 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg
+from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg, PhysicsListSvcCfg
 from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, GeoIDSvcCfg, InputConverterCfg
 from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg
 from G4AtlasServices.G4AtlasUserActionConfigNew import UserActionSvcCfg
@@ -76,6 +76,9 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     result.merge( UserActionSvcCfg(ConfigFlags) )
     kwargs.setdefault('UserActionSvc', result.getService( "G4UA::UserActionSvc") )
 
+    #PhysicsListSvc
+    result.merge( PhysicsListSvcCfg(ConfigFlags) )
+    kwargs.setdefault('PhysicsListSvc', result.getService( "PhysicsListSvc") )
 
     ## G4AtlasAlg verbosities (available domains = Navigator, Propagator, Tracking, Stepping, Stacking, Event)
     ## Set stepper verbose = 1 if the Athena logging level is <= DEBUG

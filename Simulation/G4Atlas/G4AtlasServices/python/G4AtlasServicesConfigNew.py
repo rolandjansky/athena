@@ -277,13 +277,17 @@ def G4GeometryNotifierSvcCfg(ConfigFlags, name="G4GeometryNotifierSvc", **kwargs
 
 
 def PhysicsListSvcCfg(ConfigFlags, name="PhysicsListSvc", **kwargs):
-    PhysOptionList = ["G4StepLimitationTool"]
-    PhysOptionList += ConfigFlags.Sim.PhysicsList
+    result = ComponentAccumulator()
+    G4StepLimitationTool = CompFactory.G4StepLimitationTool
+    PhysOptionList = [G4StepLimitationTool("G4StepLimitationTool")]
+    #PhysOptionList += ConfigFlags.Sim.PhysicsOptions # FIXME Missing functionality
     PhysDecaysList = []
     if ConfigFlags.Detector.SimulateTRT:
-        PhysOptionList +=["TRTPhysicsTool"]
+        TRTPhysicsTool = CompFactory.TRTPhysicsTool
+        PhysOptionList +=[TRTPhysicsTool("TRTPhysicsTool")]
     if ConfigFlags.Detector.SimulateLucid or ConfigFlags.Detector.SimulateAFP:
-        PhysOptionList +=["LucidPhysicsTool"]
+        LucidPhysicsTool = CompFactory.LucidPhysicsTool
+        PhysOptionList +=[LucidPhysicsTool("LucidPhysicsTool")]
     kwargs.setdefault("PhysOption", PhysOptionList)
     kwargs.setdefault("PhysicsDecay", PhysDecaysList)
     kwargs.setdefault("PhysicsList", ConfigFlags.Sim.PhysicsList)
@@ -307,4 +311,5 @@ def PhysicsListSvcCfg(ConfigFlags, name="PhysicsListSvc", **kwargs):
     """
     ## kwargs.setdefault("EMDEDXBinning"   , 77)
     ## kwargs.setdefault("EMLambdaBinning" , 77)
-    return PhysicsListSvc(name, **kwargs)
+    result.addService(PhysicsListSvc(name, **kwargs))
+    return result
