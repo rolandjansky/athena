@@ -79,14 +79,14 @@ echo  "art-result: $rc3 PassbackG4Athena"
 rc4=-9999
 if [ $rc2 -eq 0 ]
 then
-    acmd.py diff-root test.MT.HITS.pool.root test.ST.HITS.pool.root --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
+    acmd.py diff-root test.MT.HITS.pool.root test.ST.HITS.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
     rc4=$?
 fi
 echo  "art-result: $rc4 PassbackG4MT_STvsMT"
 rc5=-9999
 if [ $rc3 -eq 0 ]
 then
-    acmd.py diff-root test.MT.HITS.pool.root test.ST.old.HITS.pool.root --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
+    acmd.py diff-root test.MT.HITS.pool.root test.ST.old.HITS.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
     rc5=$?
 fi
 echo  "art-result: $rc5 PassbackG4MTvsPassbackG4"

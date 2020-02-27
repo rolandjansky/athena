@@ -62,7 +62,7 @@ public:
     //! Algorithm functions
     //-------------------------------------------------------------
     virtual StatusCode initialize() override;
-    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, const xAOD::TrackParticleContainer* trackContainer = nullptr) override;
     virtual StatusCode finalize() override;
     
 private:

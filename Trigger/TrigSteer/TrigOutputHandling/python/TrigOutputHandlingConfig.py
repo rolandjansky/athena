@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from builtins import str
 def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
-   from TrigOutputHandlingConf import HLTResultMTMaker
+   from TrigOutputHandling.TrigOutputHandlingConf import HLTResultMTMaker
    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
    m = HLTResultMTMaker(name)
@@ -80,7 +81,7 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
       when it gets to setting the serialiser property
       """
       def __repr__(self):
-         return '[' +','.join( ['"'+str(typekey)+';'+','.join(map( lambda _:str(_), ids) )+'"'  for typekey,ids in self.iteritems()] ) + ']'
+         return '[' +','.join( ['"'+str(typekey)+';'+','.join([str(_) for _ in ids] )+'"'  for typekey,ids in self.items()] ) + ']'
       def __str__(self):
          return self.__repr__()
 

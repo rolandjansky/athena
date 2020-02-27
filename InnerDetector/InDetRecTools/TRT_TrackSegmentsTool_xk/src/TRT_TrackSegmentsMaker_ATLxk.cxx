@@ -19,7 +19,7 @@
 #include "TrkSurfaces/DiscBounds.h"
 #include "GeoModelInterfaces/IGeoModelTool.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
-#include "InDetReadoutGeometry/TRT_Numerology.h"
+#include "TRT_ReadoutGeometry/TRT_Numerology.h"
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "StoreGate/ReadHandle.h"

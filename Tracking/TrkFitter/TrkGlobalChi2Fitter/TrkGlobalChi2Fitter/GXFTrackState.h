@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -32,9 +32,9 @@ namespace Trk {
     GXFTrackState(GXFTrackState &);
     ~GXFTrackState();
 
-    GXFTrackState(const MeasurementBase *, const TrackParameters * trackpar = 0, bool ownmb = false);
+    GXFTrackState(const MeasurementBase *, const TrackParameters * trackpar = nullptr, bool ownmb = false);
     GXFTrackState(const TrackParameters *);
-    GXFTrackState(GXFMaterialEffects *, const TrackParameters * trackpar = 0);
+    GXFTrackState(GXFMaterialEffects *, const TrackParameters * trackpar = nullptr);
     GXFTrackState & operator=(GXFTrackState & rhs);
 
     void setMeasurement(const MeasurementBase *);

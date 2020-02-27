@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhotonValidationPlots.h"
 #include "xAODEgamma/EgammaDefs.h"
 
-PhotonValidationPlots::PhotonValidationPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
+PhotonValidationPlots::PhotonValidationPlots(PlotBase* pParent, const std::string& sDir):PlotBase(pParent, sDir),
 										  m_oAllPlots(this, "PhotAll/", "Reco All"),
 										  m_oPhotPlots(this, "Phot/", "Reco Phot"),
 										  m_oTopoPhotPlots(this, "PhotTopo/", "Reco Topo Phot"),
@@ -27,15 +27,15 @@ PhotonValidationPlots::PhotonValidationPlots(PlotBase* pParent, std::string sDir
 										  m_oTruthIsoPlots(this, "Truth/Iso/all/", "Truth Iso photon"),
 										  m_oTruthIsoConvPlots(this, "Truth/Iso/Conv/", "Truth Iso Conv"),
 										  m_oTruthIsoUncPlots(this, "Truth/Iso/Unc/",  "Truth Iso Unc"),
-										  author(0),
-										  convTruthR(0),
-										  convTruthMatchedR(0),
-										  convTruthRvsEta(0),
-										  convTruthMatchedRvsEta(0),
-										  res_et(0),
-										  res_eta(0),
-										  res_et_cut(0),
-										  res_eta_cut(0)
+										  author(nullptr),
+										  convTruthR(nullptr),
+										  convTruthMatchedR(nullptr),
+										  convTruthRvsEta(nullptr),
+										  convTruthMatchedRvsEta(nullptr),
+										  res_et(nullptr),
+										  res_eta(nullptr),
+										  res_et_cut(nullptr),
+										  res_eta_cut(nullptr)
 										  
 {}	
 void PhotonValidationPlots::initializePlots(){

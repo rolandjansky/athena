@@ -150,10 +150,8 @@ EXOT16Stream.AcceptAlgs(["EXOT16Kernel"])
 
 # SPECIAL LINES FOR THINNING
 # Thinning service name must match the one passed to the thinning tools 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT16ThinningSvc", outStreams=[evtStream] )
 
 
 #=======================================
@@ -186,10 +184,9 @@ print EXOT16StringSkimmingTool
 #thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV)"
 #from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 #EXOT16D1TPThinningTool = DerivationFramework__TrackParticleThinning( name                    =  "EXOT16D1TPThinningTool",
-#                                                                    ThinningService         =  "EXOT16ThinningSvc",
+#                                                                    StreamName              =  streamName,
 #                                                                    SelectionString         =  thinning_expression,
-#                                                                    InDetTrackParticlesKey  =  "InDetTrackParticles",
-#                                                                    ApplyAnd                =  False)
+#                                                                    InDetTrackParticlesKey  =  "InDetTrackParticles")
 #ToolSvc += EXOT16D1TPThinningTool
 
 
@@ -198,7 +195,7 @@ thinningTools=[]
 # Tracks associated with jets (for e-in-jet OR)
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 EXOT16JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(    	name                    = "EXOT16JetTPThinningTool",
-                                                                                        ThinningService         = "EXOT16ThinningSvc",
+                                                                                        StreamName              = streamName,
                                                                                         JetKey                  = "AntiKt4LCTopoJets",
                                                                                         SelectionString         = "AntiKt4LCTopoJets.pt > 15*GeV && AntiKt4LCTopoJets.eta > -2.8 && AntiKt4LCTopoJets.eta < 2.8",
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -206,7 +203,7 @@ ToolSvc += EXOT16JetTPThinningTool
 thinningTools.append(EXOT16JetTPThinningTool)
 
 ##EXOT16CA15JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT16CA15JetTPThinningTool",
-##                                                                       ThinningService         = "EXOT16ThinningSvc",
+##                                                                       StreamName              = streamName,
 ##                                                                       JetKey                  = "CamKt15LCTopoJets",
 ##                                                                       SelectionString         = "CamKt15LCTopoJets.pt > 150*GeV && CamKt15LCTopoJets.eta > -2.7 && CamKt15LCTopoJets.eta < 2.7",
 ##                                                                       InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -217,7 +214,7 @@ thinningTools.append(EXOT16JetTPThinningTool)
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT16MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                       = "EXOT16MuonTPThinningTool",
-                                                                            ThinningService         = "EXOT16ThinningSvc",
+                                                                            StreamName              = streamName,
                                                                             MuonKey                 = "Muons",
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                             SelectionString = "Muons.pt > 7*GeV",
@@ -228,7 +225,7 @@ thinningTools.append(EXOT16MuonTPThinningTool)
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT16ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT16ElectronTPThinningTool",
-                                                                                        ThinningService         = "EXOT16ThinningSvc",
+                                                                                        StreamName              = streamName,
                                                                                         SGKey                   = "Electrons",
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                         GSFTrackParticlesKey    = "GSFTrackParticles",
@@ -307,7 +304,7 @@ EXOT16MCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT16MCTh
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT16MCGenThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT16MCGenThinningTool",
-                                                                ThinningService = "EXOT16ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 ParticleSelectionString = "abs(TruthParticles.pdgId) ==25 || abs(TruthParticles.pdgId)==39 || abs(TruthParticles.pdgId)==32 || abs(TruthParticles.pdgId)==5100021", 
                                                                 PreserveDescendants = False)
 

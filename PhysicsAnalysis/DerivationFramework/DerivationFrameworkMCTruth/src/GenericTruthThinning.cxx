@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -9,7 +9,6 @@
 // Removes all truth particles/vertices which do not pass a user-defined cut
 
 #include "DerivationFrameworkMCTruth/GenericTruthThinning.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
@@ -17,6 +16,8 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
 #include <string>
 
@@ -24,15 +25,11 @@
 DerivationFramework::GenericTruthThinning::GenericTruthThinning(const std::string& t,
                                                                   const std::string& n,
                                                                   const IInterface* p ) :
-AthAlgTool(t,n,p),
-m_thinningSvc("ThinningSvc",n),
+base_class(t,n,p),
 m_ntotvtx(0),
 m_ntotpart(0),
 m_npassvtx(0),
 m_npasspart(0),
-m_particlesKey("TruthParticles"),
-m_verticesKey("TruthVertices"),
-m_eventsKey("TruthEvents"),
 m_partString(""),
 //m_vtxString(""),
 m_preserveDescendants(false),
@@ -41,9 +38,6 @@ m_preserveAncestors(false),
 m_tauHandling(true),
 m_geantOffset(200000)
 {
-    declareInterface<DerivationFramework::IThinningTool>(this);
-    declareProperty("ThinningService", m_thinningSvc);
-    declareProperty("ParticlesKey", m_particlesKey);
     declareProperty("VerticesKey", m_verticesKey);
     declareProperty("EventsKey", m_eventsKey);
     declareProperty("ParticleSelectionString", m_partString);
@@ -63,10 +57,9 @@ DerivationFramework::GenericTruthThinning::~GenericTruthThinning() {
 StatusCode DerivationFramework::GenericTruthThinning::initialize()
 {
     ATH_MSG_VERBOSE("initialize() ...");
-    if (m_particlesKey=="" || m_verticesKey=="") {
-        ATH_MSG_FATAL("No truth vertex/particle collection provided for thinning.");
-        return StatusCode::FAILURE;
-    } else {ATH_MSG_INFO("Using " << m_particlesKey << " and "<< m_verticesKey << " as the source collections for truth thinning");}
+    ATH_CHECK( m_particlesKey.initialize (m_streamName) );
+    ATH_CHECK( m_verticesKey.initialize (m_streamName) );
+    ATH_MSG_INFO("Using " << m_particlesKey.key() << " and "<< m_verticesKey.key() << " as the source collections for truth thinning");
     
     if (m_partString==""/* && m_vtxString==""*/) {
         ATH_MSG_FATAL("No selection string provided either for vertices or particles!");
@@ -113,18 +106,14 @@ StatusCode DerivationFramework::GenericTruthThinning::finalize()
 // The thinning itself
 StatusCode DerivationFramework::GenericTruthThinning::doThinning() const
 {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     
     // Retrieve truth collections
-    const xAOD::TruthParticleContainer* importedTruthParticles;
-    if (evtStore()->retrieve(importedTruthParticles,m_particlesKey).isFailure()) {
-        ATH_MSG_ERROR("No TruthParticle collection with name " << m_particlesKey << " found in StoreGate!");
-        return StatusCode::FAILURE;
-    }
-    const xAOD::TruthVertexContainer* importedTruthVertices;
-    if (evtStore()->retrieve(importedTruthVertices,m_verticesKey).isFailure()) {
-        ATH_MSG_ERROR("No TruthVertex collection with name " << m_verticesKey << " found in StoreGate!");
-        return StatusCode::FAILURE;
-    }
+    SG::ThinningHandle<xAOD::TruthParticleContainer> importedTruthParticles
+      (m_particlesKey, ctx);
+    SG::ThinningHandle<xAOD::TruthVertexContainer> importedTruthVertices
+      (m_verticesKey, ctx);
+
     const xAOD::TruthEventContainer* importedTruthEvents;
     if (evtStore()->retrieve(importedTruthEvents,m_eventsKey).isFailure()) {
         ATH_MSG_ERROR("No TruthEventContainer with name " << m_eventsKey << " found in StoreGate!");
@@ -232,22 +221,12 @@ StatusCode DerivationFramework::GenericTruthThinning::doThinning() const
     //}
    
     // Count the masks
-    for (unsigned int i=0; i<nParticles; ++i) {
-        if (partMask[i]) ++m_npasspart;
-    }
-    for (unsigned int i=0; i<nVertices; ++i) {
-        if (vertMask[i]) ++m_npassvtx;
-    }
+    m_npasspart += std::count (partMask.begin(), partMask.end(), true);
+    m_npassvtx  += std::count (vertMask.begin(), vertMask.end(), true);
     
     // Execute the thinning service based on the mask. Finish.
-    if (m_thinningSvc->filter(*importedTruthParticles, partMask, IThinningSvc::Operator::Or).isFailure()) {
-       	ATH_MSG_FATAL("Application of thinning service failed! ");
-       	return StatusCode::FAILURE;
-    }
-    if (m_thinningSvc->filter(*importedTruthVertices, vertMask, IThinningSvc::Operator::Or).isFailure()) {
-    	ATH_MSG_FATAL("Application of thinning service failed! ");
-        return StatusCode::FAILURE;
-    }
+    importedTruthParticles.keep (partMask);
+    importedTruthVertices.keep  (vertMask);
     
     return StatusCode::SUCCESS;
 }

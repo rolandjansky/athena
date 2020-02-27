@@ -16,6 +16,24 @@ RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
 
 #====================================================================
+# SET UP STREAM
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EGAM6Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM6Stream )
+EGAM6Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+# Only events that pass the filters listed below are written out.
+# Name must match that of the kernel above
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+EGAM6Stream.AcceptAlgs(["EGAM6Kernel"])
+
+
+#Special lines for thinning
+# Thinning service name must match the one passed to the thinning tools
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+#====================================================================
 # SKIMMING TOOLS
 #====================================================================
 
@@ -180,7 +198,7 @@ thinningTools=[]
 # Tracks associated with Jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 EGAM6JetLCTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "EGAM6JetLCTPThinningTool",
-                                                                          ThinningService         = "EGAM6ThinningSvc",
+                                                                          StreamName              = streamName,
                                                                           JetKey                  = "AntiKt4EMTopoJets",
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                           ApplyAnd                = True)
@@ -191,7 +209,7 @@ print EGAM6JetLCTPThinningTool
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EGAM6MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "EGAM6MuonTPThinningTool",
-                                                                          ThinningService         = "EGAM6ThinningSvc",
+                                                                          StreamName              = streamName,
                                                                           MuonKey                 = "Muons",
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EGAM6MuonTPThinningTool
@@ -201,7 +219,7 @@ print EGAM6MuonTPThinningTool
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EGAM6ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM6ElectronTPThinningTool",
-                                                                                ThinningService         = "EGAM6ThinningSvc",
+                                                                                StreamName              = streamName,
                                                                                 SGKey                   = "Electrons",
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EGAM6ElectronTPThinningTool
@@ -211,7 +229,7 @@ print EGAM6ElectronTPThinningTool
 # Tracks associated with Photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EGAM6PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM6PhotonTPThinningTool",
-                                                                              ThinningService         = "EGAM6ThinningSvc",
+                                                                                StreamName              = streamName,
                                                                               SGKey                   = "Photons",
                                                                               InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EGAM6PhotonTPThinningTool
@@ -221,7 +239,7 @@ print EGAM6PhotonTPThinningTool
 # Tracks associated with Taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 EGAM6TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "EGAM6TauTPThinningTool",
-                                                                        ThinningService         = "EGAM6ThinningSvc",
+                                                                        StreamName              = streamName,
                                                                         TauKey                  = "TauJets",
                                                                         ConeSize                = 0.6,
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -232,7 +250,7 @@ print EGAM6TauTPThinningTool
 # Tracks from primary vertex
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 EGAM6TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM6TPThinningTool",
-                                                                  ThinningService         = "EGAM6ThinningSvc",
+                                                                  StreamName              = streamName,
                                                                   SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EGAM6TPThinningTool
@@ -251,7 +269,7 @@ truth_expression = '(' + truth_cond_WZH + ' ||  ' + truth_cond_lep +' || '+truth
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EGAM6TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "EGAM6TruthThinningTool",
-                                                                   ThinningService         = "EGAM6ThinningSvc",
+                                                                   StreamName              = streamName,
                                                                    ParticleSelectionString = truth_expression,
                                                                    PreserveDescendants     = False,
                                                                    PreserveGeneratorDescendants     = True,
@@ -279,26 +297,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM6Ker
 
 #========================================================================
 
-
-#====================================================================
-# SET UP STREAM
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EGAM6Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM6Stream )
-EGAM6Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-# Only events that pass the filters listed below are written out.
-# Name must match that of the kernel above
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-EGAM6Stream.AcceptAlgs(["EGAM6Kernel"])
-
-
-#Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EGAM6ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # CONTENT LIST

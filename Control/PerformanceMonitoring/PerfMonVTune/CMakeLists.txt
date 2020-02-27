@@ -28,7 +28,7 @@ include_directories(${ITT_INCLUDE_DIR})
 atlas_add_component( PerfMonVTune
                      src/*.cxx
                      src/components/*.cxx 
-                     LINK_LIBRARIES GaudiKernel AthenaBaseComps AthenaKernel ${ITT_LIBRARY} )
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps AthenaKernel ${ITT_LIBRARY} ${CMAKE_DL_LIBS} )
 
 # Install files from the package:
 atlas_install_headers( PerfMonVTune )

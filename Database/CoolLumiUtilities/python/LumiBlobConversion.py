@@ -1,15 +1,14 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+from builtins import range
 import sys
-import math
 import array
 import struct
 
-from PyCool import cool
-
 import cppyy
 cppyy.gbl.cool.IDatabase # force the load of the dictionary (to stay on the safe side)
-from cppyy import gbl, getAllClasses
+from cppyy import gbl
 def blob_read(self, size = -1):
     if size < 0:
         endpos = self.size()
@@ -31,7 +30,7 @@ def bConvert(b, nbyte=1):
         # print 'bConvert - b:[', b[0:nbyte], '] nbyte:', nbyte, ' fmt:', packopt[nbyte], type(b)
         ival=struct.unpack(packopt[nbyte], b[0:nbyte])
     else:
-        print 'bConvert: Unrecognized pack option'
+        print('bConvert: Unrecognized pack option')
         sys.exit()
 
     return ival[0]
@@ -45,7 +44,7 @@ def bConvertList(b, nbyte=1, nval=1):
         fmt = '%d%s' % (nval, packopt[nbyte])
         ival=struct.unpack(fmt, b[0:nval*nbyte])
     else:
-        print 'bConvertList: Unrecognized pack option'
+        print('bConvertList: Unrecognized pack option')
         sys.exit()
 
     return list(ival)
@@ -59,12 +58,12 @@ def unpackBunchGroup(blob, bgrp=1):
     mask = (1 << int(bgrp))
     
     ivallist = bConvertList(blobCopy, 1, 3564)
-    for i in xrange(3564):
+    for i in range(3564):
         if ivallist[i] & mask:
             physBG.append(i)
 
 #     blobCounter = 0
-#     for i in xrange(3564):
+#     for i in range(3564):
 #         try:
 #             b = blobCopy[blobCounter:blobCounter+1]
 #             blobCounter += 1
@@ -93,7 +92,7 @@ def unpackBunchGroupList(blob, bgrp=[1]):
         physBG[id] = []
         
     ivallist = bConvertList(blobCopy, 1, 3564)
-    for i in xrange(3564):
+    for i in range(3564):
         for id in bgrp:
             if ivallist[i] & mask[id]:
                 physBG[id].append(i)
@@ -128,10 +127,10 @@ def unpackRun2BCIDMask(blob,nb1,nb2,nlumi):
         if (val & 0x03) == 0x03:
             coll.append(i)
 
-    print 'unpackRun2BCIDMask found:'
-    print ' Beam1:', beam1
-    print ' Beam2:', beam2
-    print ' Coll: ', coll
+    print('unpackRun2BCIDMask found:')
+    print(' Beam1:', beam1)
+    print(' Beam2:', beam2)
+    print(' Coll: ', coll)
 
     return beam1,beam2,coll
 
@@ -153,19 +152,19 @@ def unpackRun1BCIDMask(blob,nb1,nb2,nlumi):
     #coll = list(struct.unpack(unpackfmt, blobCopy[2*(nb1+nb2):2*(nb1+nb2+nlumi)]))
                  
 #    blobCounter = 0
-#     for i in xrange(nb1):
+#     for i in range(nb1):
 #         b = blobCopy[blobCounter:blobCounter+2]
 #         blobCounter += 2
 #         val=struct.unpack('H', b)
 #         beam1.append(val)
         
-#     for i in xrange(nb2):
+#     for i in range(nb2):
 #         b = blobCopy[blobCounter:blobCounter+2]
 #         blobCounter += 2
 #         val=struct.unpack('H', b)
 #         beam2.append(val)
 
-#     for i in xrange(nlumi):
+#     for i in range(nlumi):
 #         b = blobCopy[blobCounter:blobCounter+2]
 #         blobCounter += 2
 #         val=struct.unpack('H', b)
@@ -187,7 +186,7 @@ def unpackBCIDValues(blob, mask=[], normValue=1):
     
     if bss>0:
       if not (len(bcidVec)==len(lvec)):
-        print 'unpackBCIDValues - length mismatch: len(bcidVec)=', len(bcidVec), 'len(lvec)=', len(lvec)
+        print('unpackBCIDValues - length mismatch: len(bcidVec)=', len(bcidVec), 'len(lvec)=', len(lvec))
         sys.exit()
         
       bLumi=[]
@@ -230,7 +229,6 @@ def unpackBunches(blob,mask=[]):
             vlen=bConvert(b, 2)
             #print 'Bunch vector has length ',vlen
             bcidVec=[]
-            fmt = '%dH' % vlen
             bcidVec = bConvertList(blobCopy[blobCounter:], 2, vlen)
             blobCounter += 2*vlen
             # for i in range(vlen):
@@ -245,13 +243,13 @@ def unpackBunches(blob,mask=[]):
             bcidVec.sort()
             vlen=len(mask)
         elif smod==3:
-            print 'storage mode 3 not implemented in unpackBunches'
+            print('storage mode 3 not implemented in unpackBunches')
             sys.exit()
         elif smod==1:
             bcidVec=[i for i in range(3564)]
             vlen=3564
         else:
-            print 'Unknown storage mode ',smod
+            print('Unknown storage mode ',smod)
             sys.exit()
         valueVec=[]
 
@@ -264,8 +262,8 @@ def unpackBunches(blob,mask=[]):
 
         return bss,bcidVec,valueVec
 
-    except RuntimeError, e:
-        print e
+    except RuntimeError as e:
+        print(e)
         return 0,[],[]
                                   
 # Unpack live fraction into vector keyed by bcid-1
@@ -279,7 +277,7 @@ def unpackLiveFraction(trigPayload, priority = 'high'):
     elif priority == 'low':
         blob = trigPayload['LowPriority']
     else:
-        print 'unpackLiveFraction - unknown priority requested %s', str(priority)
+        print('unpackLiveFraction - unknown priority requested %s', str(priority))
         return liveVec
     
     bloblength = blob.size()
@@ -288,7 +286,7 @@ def unpackLiveFraction(trigPayload, priority = 'high'):
     # More bugs, use anything long enough 
     if bloblength < 3*3564: #!= 3*3654 and bloblength != 3*3564:
         # Corrupt, don't trust anything
-        print 'unpackLiveFraction found blob length %d!' % bloblength
+        print('unpackLiveFraction found blob length %d!' % bloblength)
         return liveVec
 
     blobCopy = blob.read()
@@ -303,7 +301,7 @@ def unpackLiveFraction(trigPayload, priority = 'high'):
     
     byte = bConvertList(blobCopy, 1, 3*3564)
     
-    for i in xrange(3564):
+    for i in range(3564):
 
         busyCounter = byte[3*i] | (byte[3*i+1] << 8) | (byte[3*i+2] << 16)
         

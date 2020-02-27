@@ -10,7 +10,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Local include(s):
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 // Root include(s)

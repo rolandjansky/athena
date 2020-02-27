@@ -5,19 +5,6 @@
 # Declare the package name
 atlas_subdir( TrigByteStreamCnvSvc )
 
-# Declare the package's dependencies
-atlas_depends_on_subdirs(
-  PRIVATE
-    GaudiKernel
-    Control/AthenaBaseComps
-    Control/AthenaMonitoringKernel
-    Event/ByteStreamCnvSvcBase
-    Event/ByteStreamCnvSvc
-    Event/ByteStreamData
-    Event/xAOD/xAODEventInfo
-    HLT/Trigger/TrigControl/TrigKernel
-)
-
 # External dependencies
 find_package( tdaq-common COMPONENTS eformat eformat_write hltinterface )
 
@@ -30,7 +17,7 @@ atlas_add_component(
   PRIVATE_LINK_LIBRARIES
     ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamData
     AthenaMonitoringKernelLib ByteStreamCnvSvcBaseLib ByteStreamCnvSvcLib
-    GaudiKernel xAODEventInfo TrigKernel )
+    GaudiKernel xAODEventInfo TrigKernel TrigSteeringEvent )
 
 # Install files from the package
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

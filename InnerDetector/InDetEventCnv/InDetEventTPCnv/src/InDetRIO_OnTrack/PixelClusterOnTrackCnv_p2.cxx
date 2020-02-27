@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
@@ -65,10 +65,10 @@ void PixelClusterOnTrackCnv_p2::transToPers( const InDet::PixelClusterOnTrack *t
   persObj->m_isFake              = transObj->isFake();
   persObj->m_energyLoss          = transObj->energyLoss();
 
-  const std::string pixelClusContName{"PixelClusters"};
+  static const SG::InitializedReadHandleKey<InDet::PixelClusterContainer> pixelClusContName ("PixelClusters");
   ElementLink<InDet::PixelClusterContainer>::index_type hashAndIndex{0};
   bool isFound{m_eventCnvTool->getHashAndIndex<InDet::PixelClusterContainer, InDet::PixelClusterOnTrack>(transObj, pixelClusContName, hashAndIndex)};
-  persObj->m_prdLink.m_contName = (isFound ? pixelClusContName : "");
+  persObj->m_prdLink.m_contName = (isFound ? pixelClusContName.key() : "");
   persObj->m_prdLink.m_elementIndex = hashAndIndex;
 }
 

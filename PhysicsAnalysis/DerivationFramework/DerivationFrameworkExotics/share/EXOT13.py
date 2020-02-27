@@ -63,7 +63,7 @@ thinningTools=[]
 # Thin all inner detector tracks
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 EXOT13TPThinningTool = DerivationFramework__TrackParticleThinning( name                    =  "EXOT13TPThinningTool",
-                                                                    ThinningService = EXOT13ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = streamName,
                                                                     SelectionString         =  "InDetTrackParticles.pt > 0.5*GeV && InDetTrackParticles.eta > -2.5 && InDetTrackParticles.eta < 2.5",
                                                                     InDetTrackParticlesKey  =  "InDetTrackParticles")
 ToolSvc += EXOT13TPThinningTool

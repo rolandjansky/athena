@@ -7,14 +7,13 @@
 
 #include "GaudiKernel/StatusCode.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoVDetectorManager.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonIdHelpers/TgcIdHelper.h"
-// for nSW
 #include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonIdHelpers/MmIdHelper.h"
 
@@ -34,12 +33,6 @@ typedef std::map<Identifier,ALinePar*>::const_iterator ciALineMap;
 typedef std::map<Identifier,BLinePar*>::const_iterator ciBLineMap;
 typedef std::map<Identifier,CscInternalAlignmentPar*>::const_iterator ciCscInternalAlignmentMap;
 typedef std::map<Identifier,MdtAsBuiltPar*>::const_iterator ciMdtAsBuiltMap;
-
-class IMessageSvc;
-
-class Identifier;
-class IdentifierHash;
-class MdtIdHelper;
 
 namespace MuonGM {
 
@@ -154,24 +147,17 @@ namespace MuonGM {
     const CscReadoutElement* getCscRElement_fromIdFields(int i1, int i2, int i3, int i4) const;
     //!< access via extended identifier field (no unpacking)
 
-    inline const MdtReadoutElement* getMdtReadoutElement(IdentifierHash id)  const;//!< access via detector-element hash id
-    inline const RpcReadoutElement* getRpcReadoutElement(IdentifierHash id)  const;//!< access via detector-element hash id
-    inline const TgcReadoutElement* getTgcReadoutElement(IdentifierHash id)  const;//!< access via detector-element hash id
-    inline const CscReadoutElement* getCscReadoutElement(IdentifierHash id)  const;//!< access via detector-element hash id
-    // TODO: New Small Wheel
+    const MdtReadoutElement* getMdtReadoutElement(IdentifierHash id)  const;//!< access via detector-element hash id
+    const RpcReadoutElement* getRpcReadoutElement(IdentifierHash id)  const;//!< access via detector-element hash id
+    const TgcReadoutElement* getTgcReadoutElement(IdentifierHash id)  const;//!< access via detector-element hash id
+    const CscReadoutElement* getCscReadoutElement(IdentifierHash id)  const;//!< access via detector-element hash id
 
-    //    void addMdtDetectorElement(MdtDetectorElement*);   
-    //    void addRpcDetectorElement(RpcDetectorElement*);   
-    //    void addTgcDetectorElement(TgcDetectorElement*);   
-    //    void addCscDetectorElement(CscDetectorElement*);   
-
-    inline const MdtDetectorElement* getMdtDetectorElement(IdentifierHash id)  const;//!< access via data-collection hash id
+    const MdtDetectorElement* getMdtDetectorElement(IdentifierHash id)  const;//!< access via data-collection hash id
 
     // access to Detector Elements (via hash id ) - NOTICE Detector Elements have the granularity of the EDM digit collections
-    inline const RpcDetectorElement* getRpcDetectorElement(IdentifierHash id) const;     
-    inline const TgcDetectorElement* getTgcDetectorElement(IdentifierHash id) const;
-    inline const CscDetectorElement* getCscDetectorElement(IdentifierHash id) const;
-    // TODO: New Small Wheel
+    const RpcDetectorElement* getRpcDetectorElement(IdentifierHash id) const;     
+    const TgcDetectorElement* getTgcDetectorElement(IdentifierHash id) const;
+    const CscDetectorElement* getCscDetectorElement(IdentifierHash id) const;
 
     inline unsigned int nMuonStation() const; //!< Number of MuonStations
 
@@ -381,9 +367,6 @@ namespace MuonGM {
     // get Mdt AsBuilt parameters for chamber specified by Identifier
     MdtAsBuiltPar* getMdtAsBuiltParams(Identifier id);
 
-    //!< provide a pointer to the msg svc to all readout geometry 
-    inline IMessageSvc* msgSvc() const;    
-    
   private:
     
     int m_cachingFlag;
@@ -464,13 +447,8 @@ namespace MuonGM {
     // CscInternalAlignmentMapContainer (pointers) will be created by RDBReaderAccess at the first attempt to store a CscInternalAlignmentPar -rot and transl parameters are held by the CSCredoutElements and the corresponding A-line is provided with this map (key Identifier) by the manager - the manager is responsible to delete the CscInternalAlignmentPar
     mutable  CscInternalAlignmentMapContainer * m_cscALineContainer;
     mutable  MdtAsBuiltMapContainer* m_AsBuiltParamsMap;
-
-    //!< hold a pointer to the message svc to be used by all readout geometry 
-    IMessageSvc* m_msgSvc;
     
   };
-
-  IMessageSvc* MuonDetectorManager::msgSvc() const  {return m_msgSvc;}
     
   const MdtIdHelper*  MuonDetectorManager::mdtIdHelper() const {return m_mdtIdHelper;}
   const CscIdHelper*  MuonDetectorManager::cscIdHelper() const {return m_cscIdHelper;}
@@ -591,127 +569,6 @@ namespace MuonGM {
   void MuonDetectorManager::setCachingFlag(int value){m_cachingFlag = value;}
   int  MuonDetectorManager::cacheFillingFlag() const {return m_cacheFillingFlag;}
   int  MuonDetectorManager::cachingFlag() const {return m_cachingFlag;}
-
-  const MdtReadoutElement* 
-    MuonDetectorManager::getMdtReadoutElement(IdentifierHash id) const
-    {
-#ifndef NDEBUG
-      if ( id >= MdtRElMaxHash) 
-	{
-	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
-	  log <<MSG::WARNING<<" try to getMdtReadoutElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<MdtRElMaxHash-1<<endmsg;
-	  return 0;
-	}
-#endif 
-      return m_mdtArrayByHash[id];
-    }
-
-  const RpcReadoutElement* 
-    MuonDetectorManager::getRpcReadoutElement(IdentifierHash id) const
-    {
-#ifndef NDEBUG
-      if (id >= RpcRElMaxHash) 
-	{
-	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
-	  log <<MSG::WARNING<<" try to getRpcReadoutElement with hashId "	
-	      <<(unsigned int)id<<" outside range 0-"<<RpcRElMaxHash-1<<endmsg;
-	  return 0;
-	}
-#endif 
-      return  m_rpcArrayByHash[id];
-    }
-
-  const TgcReadoutElement* 
-    MuonDetectorManager::getTgcReadoutElement(IdentifierHash id) const
-    {
-#ifndef NDEBUG
-      if (id >= TgcRElMaxHash) 
-	{
-	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
-	  log <<MSG::WARNING<<" try to getTgcReadoutElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<TgcRElMaxHash-1<<endmsg;
-	  return 0;
-	}
-#endif 
-      return m_tgcArrayByHash[id];
-    }
-
-  const CscReadoutElement* 
-    MuonDetectorManager::getCscReadoutElement(IdentifierHash id) const
-    {
-#ifndef NDEBUG
-      if (id >= CscRElMaxHash)
-	{
-	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
-	  log <<MSG::WARNING<<" try to getCscReadoutElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<CscRElMaxHash-1<<endmsg;
-	  return 0;
-	}
-#endif
-      return m_cscArrayByHash[id];
-    }
-    
-  const MdtDetectorElement* 
-    MuonDetectorManager::getMdtDetectorElement(IdentifierHash id) const
-    {
-#ifndef NDEBUG
-      if ( id >= MdtDetElMaxHash) 
-	{
-	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");	
-	  log <<MSG::WARNING<<" try to getMdtDetectorElement with hashId "	
-	      <<(unsigned int)id<<" outside range 0-"<<MdtDetElMaxHash-1<<endmsg;
-	  return 0;
-	}
-#endif 
-      return m_mdtDEArray[id];
-    }
-
-  const TgcDetectorElement*
-    MuonDetectorManager::getTgcDetectorElement(IdentifierHash id) const
-    {
-#ifndef NDEBUG
-      if ( id >= TgcDetElMaxHash) 
-	{
-	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
-	  log <<MSG::WARNING<<" try to getTgcDetectorElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<TgcDetElMaxHash-1<<endmsg;
-	  return 0;
-	}
-#endif 
-      return m_tgcDEArray[id];
-    }
-
-  const CscDetectorElement*
-    MuonDetectorManager::getCscDetectorElement(IdentifierHash id) const
-    {
-#ifndef NDEBUG
-      if ( id >= CscDetElMaxHash) 
-	{
-	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
-	  log <<MSG::WARNING<<" try to getCscDetectorElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<CscDetElMaxHash-1<<endmsg;
-	  return 0;
-	}
-#endif 
-      return m_cscDEArray[id];
-    }
-
-  const RpcDetectorElement*
-    MuonDetectorManager::getRpcDetectorElement(IdentifierHash id) const
-    {
-#ifndef NDEBUG
-      if ( id >= RpcDetElMaxHash) 
-	{
-	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
-	  log <<MSG::WARNING<<" try to getRpcDetectorElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<RpcDetElMaxHash-1<<endmsg;
-	  return 0;
-	}
-#endif 
-      return m_rpcDEArray[id];
-    }
-// TODO: New Small Wheel (missing all the above functions)
     
 } // namespace MuonGM
 

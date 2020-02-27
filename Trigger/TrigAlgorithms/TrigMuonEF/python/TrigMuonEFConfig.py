@@ -233,7 +233,7 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
 
 def TMEF_MuonTrackQuery(name='TMEF_MuonTrackQuery',**kwargs):
     kwargs.setdefault("MdtRotCreator","MdtDriftCircleOnTrackCreator")
-    kwargs.setdefault("Fitter", 'TMEF_CombinedMuonTrackBuilder')
+    kwargs.setdefault("Fitter", 'TMEF_iPatFitter')
     return CfgMgr.Rec__MuonTrackQuery(name,**kwargs)
 
 
@@ -241,7 +241,6 @@ def TMEF_MatchMaker(name='TMEF_MatchMaker',**kwargs):
     kwargs.setdefault("AmbiguityProcessor", "MuonAmbiProcessor")
     kwargs.setdefault("MatchQuality", "TMEF_MatchQuality")
     kwargs.setdefault("CaloTSOS", "TMEF_CaloTrackStateOnSurface") # not in Muid?
-#    kwargs.setdefault("OutwardsTrackBuilder", "TMEF_OutwardsCombinedMuonTrackBuilder") # extra in Muid (not yet configured here)
     kwargs.setdefault("TrackBuilder", "TMEF_CombinedMuonTrackBuilder")
     kwargs.setdefault("TrackQuery", "TMEF_MuonTrackQuery")
     kwargs.setdefault("Propagator", "TMEF_Propagator")
@@ -314,17 +313,6 @@ def TMEF_MuonCombinedPropagator(name='TMEF_MuonCombinedPropagator',**kwargs):
     from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator
     return Trk__RungeKuttaPropagator(name, **kwargs)
 
-def TMEF_OutwardsMuonTrackCleaner(name='TMEF_OutwardsMuonTrackCleaner',**kwargs):
-    if TriggerFlags.run2Config=='2016':
-        kwargs.setdefault('PullCut',    3.0)
-        kwargs.setdefault('PullCutPhi', 3.0)
-    else:
-        kwargs.setdefault('PullCut',    4.0)
-        kwargs.setdefault('PullCutPhi', 4.0)
-    kwargs.setdefault('Fitter',     'TMEF_MuonCombinedTrackFitter')
-    kwargs.setdefault('SLFitter',   'TMEF_iPatSLFitter')
-    return CfgMgr.Muon__MuonTrackCleaner(name, **kwargs)
-
 def TMEF_MuonCombinedTrackFitter(name='TMEF_MuonCombinedTrackFitter',**kwargs):
     kwargs.setdefault('ExtrapolationTool',     'AtlasExtrapolator')#gpt
     kwargs.setdefault('NavigatorTool',         ToolSvc.MuonNavigator)
@@ -345,23 +333,11 @@ def TMEF_MuonCombinedTrackFitter(name='TMEF_MuonCombinedTrackFitter',**kwargs):
     from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
     return  Trk__GlobalChi2Fitter(name, **kwargs)
 
-def TMEF_OutwardsCombinedMuonTrackBuilder(name='TMEF_OutwardsCombinedMuonTrackBuilder',**kwargs):
-    kwargs.setdefault('Cleaner', 'TMEF_OutwardsMuonTrackCleaner')
-    kwargs.setdefault('Fitter',  'TMEF_MuonCombinedTrackFitter')
-    kwargs.setdefault('TrackSummaryTool', 'TMEF_TrackSummaryTool')#gpt
-    kwargs.setdefault('MuonHoleRecovery', 'MuonSegmentRegionRecoveryTool')#gpt
-    kwargs.setdefault('AllowCleanerVeto', False)
-    kwargs.setdefault("TrackQuery", "TMEF_MuonTrackQuery")
-    from MuidTrackBuilder.MuidTrackBuilderConf import Rec__OutwardsCombinedMuonTrackBuilder
-    return Rec__OutwardsCombinedMuonTrackBuilder(name, **kwargs)
-
 def TMEF_MuonCombinedFitTagTool(name="TMEF_MuonCombinedFitTagTool",**kwargs):
     kwargs.setdefault("TrackBuilder",         'TMEF_CombinedMuonTrackBuilder' )
     if not TriggerFlags.run2Config == '2016':
-        kwargs.setdefault("OutwardsTrackBuilder", '')
         kwargs.setdefault("MuonRecovery",         '' )
     else:
-        kwargs.setdefault("OutwardsTrackBuilder", 'TMEF_OutwardsCombinedMuonTrackBuilder')
         kwargs.setdefault("MuonRecovery",         'TMEF_MuidMuonRecovery' )
     kwargs.setdefault("TrackQuery",           'TMEF_MuonTrackQuery' )
     kwargs.setdefault("MatchQuality",         'TMEF_MatchQuality' )
@@ -464,6 +440,30 @@ def TMEF_CombinedStauTrackBuilderFit( name='TMEF_CombinedStauTrackBuilderFit', *
    kwargs.setdefault('MdtRotCreator'                 , CfgGetter.getPublicTool('MdtDriftCircleOnTrackCreatorStau') )
    return TMEF_CombinedMuonTrackBuilder(name,**kwargs )
 
+def TMEF_MdtRawDataProviderTool(name="TMEF_MdtRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "MdtROD_Decoder")
+    if DetFlags.overlay.MDT_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation",overlayFlags.dataStore()+"+MDTCSM")
+    return CfgMgr.Muon__MDT_RawDataProviderTool(name,**kwargs)
+
+def TMEF_RpcRawDataProviderTool(name = "TMEF_RpcRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "RpcROD_Decoder")
+    if DetFlags.overlay.RPC_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+RPCPAD")
+    return CfgMgr.Muon__RPC_RawDataProviderTool(name,**kwargs)
+
+def TMEF_TgcRawDataProviderTool(name = "TMEF_TgcRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "TgcROD_Decoder")
+    if DetFlags.overlay.TGC_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+TGCRDO")
+    return CfgMgr.Muon__TGC_RawDataProviderTool(name,**kwargs)
+
+def TMEF_CscRawDataProviderTool(name = "TMEF_CscRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "CscROD_Decoder")
+    if DetFlags.overlay.CSC_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+CSCRDO")
+    return CfgMgr.Muon__CSC_RawDataProviderTool(name,**kwargs)
+
 # TrigMuonEF classes
 class TrigMuonEFTrackBuilderConfig ():
     __slots__ = ()
@@ -497,38 +497,35 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
         CfgGetter.getPublicTool("MooTrackFitter").SLFit=False
 
-        self.MdtRawDataProvider = "MdtRawDataProviderTool"
-        self.RpcRawDataProvider = "RpcRawDataProviderTool"
-        self.TgcRawDataProvider = "TgcRawDataProviderTool"
+        self.MdtRawDataProvider = "TMEF_MdtRawDataProviderTool"
+        self.CscRawDataProvider = "TMEF_CscRawDataProviderTool"
+        self.RpcRawDataProvider = "TMEF_RpcRawDataProviderTool"
+        self.TgcRawDataProvider = "TMEF_TgcRawDataProviderTool"
 
         #Need to run non-MT version of decoding tools
         #Need different PRD container names to run offline and trigger in same jobs
         from AthenaCommon.AppMgr import ToolSvc
         #MDT
         from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
-        MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigMdtRdoToPrepDataTool", OutputCollection = "TrigMDT_DriftCircles")
-        self.MdtPrepDataContainer=MdtRdoToMdtPrepDataTool.OutputCollection
+        MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigMdtRdoToPrepDataTool")
         ToolSvc += MdtRdoToMdtPrepDataTool
         self.MdtPrepDataProvider=MdtRdoToMdtPrepDataTool
         #CSC
         from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
-        CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name = "TrigCscRdoToPrepDataTool", OutputCollection="TrigCSC_Measurements")
+        CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name = "TrigCscRdoToPrepDataTool")
         ToolSvc += CscRdoToCscPrepDataTool
         self.CscPrepDataProvider=CscRdoToCscPrepDataTool
-        self.CscPrepDataContainer=CscRdoToCscPrepDataTool.OutputCollection
         #TGC
         from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
-        TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name = "TrigTgcRdoToPrepDataTool", OutputCollection="TrigTGC_Measurements",OutputCoinCollection="TrigerT1CoinDataCollection")
+        TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name = "TrigTgcRdoToPrepDataTool")
         ToolSvc += TgcRdoToTgcPrepDataTool
         self.TgcPrepDataProvider=TgcRdoToTgcPrepDataTool
-        self.TgcPrepDataContainer=TgcRdoToTgcPrepDataTool.OutputCollection
         #RPC
         from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
         #InputCollection is really the output RPC coin collection...
-        RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "TrigRpcRdoToPrepDataTool", TriggerOutputCollection="TrigRPC_Measurements", InputCollection="TrigRPC_triggerHits")
+        RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "TrigRpcRdoToPrepDataTool")
         ToolSvc += RpcRdoToRpcPrepDataTool
         self.RpcPrepDataProvider=RpcRdoToRpcPrepDataTool
-        self.RpcPrepDataContainer=RpcRdoToRpcPrepDataTool.TriggerOutputCollection
 
         self.DecodeMdtBS = DetFlags.readRDOBS.MDT_on()
         self.DecodeRpcBS = DetFlags.readRDOBS.RPC_on()
@@ -566,7 +563,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         self.maxRpcHits      = 0
         self.maxMdtHits      = 0
         self.doCache = True
-        self.IgnoreMisalginedCSCs = True
+        self.IgnoreMisalginedCSCs = False
 
         self.TrackBuilderTool  = "TMEF_TrackBuilderTool"
         self.TrkSummaryTool = "TMEF_TrackSummaryTool"

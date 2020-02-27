@@ -23,8 +23,6 @@
 #include "TrkTrack/TrackCollection.h"
 //include Root dependencies
 #include <TH1F.h>
-#include <TH2F.h> 
-#include <TMath.h>
 
 // *********************************************************************
 // Public Methods

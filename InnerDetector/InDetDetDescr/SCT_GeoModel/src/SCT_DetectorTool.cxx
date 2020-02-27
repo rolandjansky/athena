@@ -9,7 +9,7 @@
 #include "SCT_GeoModel/SCT_MaterialManager.h" 
 #include "SCT_GeoModel/SCT_Options.h" 
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h" 
 #include "DetDescrConditions/AlignableTransformContainer.h"
 
 #include "GeoModelUtilities/GeoModelExperiment.h"

@@ -12,7 +12,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigCost/EnhancedBiasWeighter
                           PRIVATE
-                          Event/xAOD/xAODEventInfo )
+                          Event/xAOD/xAODEventInfo
+                          Trigger/TrigConfiguration/TrigConfL1Data )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -29,7 +30,7 @@ atlas_add_library( RatesAnalysisLib
 atlas_add_component( RatesAnalysis
                      src/FullMenu.cxx
                      src/components/RatesAnalysis_entries.cxx
-                     LINK_LIBRARIES GaudiKernel RatesAnalysisLib )
+                     LINK_LIBRARIES GaudiKernel RatesAnalysisLib TrigConfL1Data )
 
 atlas_add_test( RatesAnalysis_test
                 SOURCES test/RatesAnalysis_test.cxx
@@ -37,4 +38,4 @@ atlas_add_test( RatesAnalysis_test
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( share/RatesAnalysisFullMenu.py )
+atlas_install_scripts( share/RatesAnalysisFullMenu.py share/RatesAnalysisPostProcessing.py )

@@ -588,6 +588,8 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   if( m_roi_nSPs >= m_minHits ) {
     ATH_MSG_DEBUG("REGTEST / Found " << m_roi_nSPs << " space points.");
+    ATH_MSG_DEBUG("REGTEST / Found " << m_nPixSPsInRoI << " Pixel space points.");
+    ATH_MSG_DEBUG("REGTEST / Found " << m_nSCTSPsInRoI << " SCT space points.");
     m_countRoIwithEnoughHits++;
   }
   else {

@@ -18,7 +18,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 TRT_SimDriftTimeTool::TRT_SimDriftTimeTool( const std::string& type,
                                             const std::string& name,

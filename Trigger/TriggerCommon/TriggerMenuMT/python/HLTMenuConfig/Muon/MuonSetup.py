@@ -516,7 +516,7 @@ def muEFCBRecoSequence( RoIs, name ):
   PTTracks = [] #List of TrackCollectionKeys
   PTTrackParticles = [] #List of TrackParticleKeys
 
-  from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+  from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
   #When run in a different view than FTF some data dependencies needs to be loaded through verifier
   #Pass verifier as an argument and it will automatically append necessary DataObjects
   #@NOTE: Don't provide any verifier if loaded in the same view as FTF
@@ -540,6 +540,10 @@ def muEFCBRecoSequence( RoIs, name ):
   #Make InDetCandidates
   theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles, 
                                                        InDetCandidateLocation="InDetCandidates_"+name)
+
+  from AthenaCommon.AppMgr import ToolSvc
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool
+  ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
 
   #MS ID combination
   candidatesName = "MuonCandidates"
@@ -612,7 +616,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
     PTTracks = [] #List of TrackCollectionKeys
     PTTrackParticles = [] #List of TrackParticleKeys
 
-    from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsLate",  inputFTFtracks= TrackCollection)
     PTSeq = seqAND("precisionTrackingInLateMuons", PTAlgs  )
@@ -623,6 +627,9 @@ def muEFInsideOutRecoSequence(RoIs, name):
     #Make InDetCandidates
     theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles, 
                                                          InDetCandidateLocation="InDetCandidates_"+name)
+    from AthenaCommon.AppMgr import ToolSvc
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool
+    ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
 
     efAlgs.append(theIndetCandidateAlg)
 
@@ -631,9 +638,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
     # for non-latemu chains, the decoding/hough transform is run in an earlier step
     #Need PRD containers for inside-out reco
     ViewVerifyInsideOut = CfgMgr.AthViews__ViewDataVerifier("muonInsideOutViewDataVerifier")
-    ViewVerifyInsideOut.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
-                                       ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
-                                       ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
+    ViewVerifyInsideOut.DataObjects = [( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
                                        ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
                                        ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
                                        ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
@@ -695,7 +700,7 @@ def efmuisoRecoSequence( RoIs, Muons ):
   PTTracks = [] #List of TrackCollectionKeys
   PTTrackParticles = [] #List of TrackParticleKeys
   
-  from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+  from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
   PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsIso", inputFTFtracks=TrackCollection)
 
   PTSeq = seqAND("precisionTrackingInMuonsIso", PTAlgs  )

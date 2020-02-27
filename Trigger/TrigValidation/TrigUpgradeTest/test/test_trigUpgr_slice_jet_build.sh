@@ -10,7 +10,7 @@ export THREADS=1
 export SLOTS=1
 export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
 export REGTESTEXP="TrigSignatureMoniMT.*HLT_.*"
-export EXTRA="isOnline=True;doEmptyMenu=True;doJetSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"
+export EXTRA="isOnline=True;doEmptyMenu=True;doJetSlice=True;doWriteBS=False;doWriteRDOTrigger=True;forceEnableAllChains=True"
 
 # Find the regtest reference installed with the release
 export REGTESTREF=`find_data.py TrigUpgradeTest/slice_jet.ref`

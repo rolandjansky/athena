@@ -3,4 +3,6 @@
 try:
     CBNTAA_Audit().nEventPrintMem=999999
 except Exception:
-    print "no CBNTAA_Audit available"
+    printfunc ("no CBNTAA_Audit available")
+    import traceback
+    traceback.print_exc()

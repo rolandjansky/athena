@@ -685,10 +685,10 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
   }
   // alignable frame volume ?
   if (staticVol && staticVol->geometrySignature() == Trk::Calo) {
-    const Trk::AlignableTrackingVolume *alignTV = dynamic_cast<const Trk::AlignableTrackingVolume *> (staticVol);
-    if (alignTV) {
-      cache.m_identifiedParameters.reset();
-      return extrapolateInAlignableTV(cache,prop, *currPar, destSurf, alignTV, dir, particle);
+    if (staticVol->isAlignable()){
+        const Trk::AlignableTrackingVolume *alignTV = static_cast<const Trk::AlignableTrackingVolume *> (staticVol);
+        cache.m_identifiedParameters.reset();
+        return extrapolateInAlignableTV(cache,prop, *currPar, destSurf, alignTV, dir, particle);
     }
   }
 
@@ -1038,8 +1038,6 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
   }
   delete detVols;
 
-  // cache.m_navigSurfs contains destination surface (if it exists), static volume boundaries
-  // complete with TG cache.m_layers/dynamic layers, cache.m_denseBoundaries, cache.m_navigBoundaries, cache.m_detachedBoundaries
 
   if (not cache.m_layers.empty()) {
     cache.m_navigSurfs.insert(cache.m_navigSurfs.end(), cache.m_layers.begin(), cache.m_layers.end());
@@ -1247,9 +1245,6 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
                              layThick /
                              fabs(nextPar->momentum().normalized().dot(mb->surfaceRepresentation().normal())));
               } else {
-                // const Trk::CylinderBounds* cyl = dynamic_cast<const Trk::CylinderBounds*>
-                // (&(nextLayer->surfaceRepresentation().bounds()));
-                // double hmax = cyl ? cyl->halflengthZ() : nextLayer->surfaceRepresentation().bounds().r();
                 thick = fmin(2 * mb->thickness(), layThick / (1 - costr));
               }
 
@@ -1625,9 +1620,9 @@ Trk::Extrapolator::extrapolateInAlignableTV(Cache& cache,
       currVol = nextStatVol;
     }
     if (currVol && currVol != vol) {
-      const Trk::AlignableTrackingVolume *aliTG = dynamic_cast<const Trk::AlignableTrackingVolume *> (currVol);
-      if (aliTG) {
-        staticVol = aliTG;
+      if(currVol->isAlignable()){
+      const Trk::AlignableTrackingVolume *aliTG = static_cast<const Trk::AlignableTrackingVolume *> (currVol);
+      staticVol = aliTG;
       }
     }
   }
@@ -2855,7 +2850,7 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
                                    Trk::ExtrapolationCache *extrapolationCache) const {
   
   cache.m_extrapolationCache = extrapolationCache;
-  cache.m_cacheEloss = extrapolationCache ? dynamic_cast<const Trk::EnergyLoss *>(extrapolationCache->eloss()) : nullptr;
+  cache.m_cacheEloss = extrapolationCache ? extrapolationCache->eloss() : nullptr;
 
   if (extrapolationCache && m_dumpCache) {
     ATH_MSG_DEBUG("  In extrapolate cache pointer input: " << extrapolationCache << " cache.m_extrapolationCache " <<
@@ -4682,8 +4677,8 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(
 
   // alignable volume ?
   if (cache.m_currentStatic && cache.m_currentStatic->geometrySignature() == Trk::Calo) {
-    const Trk::AlignableTrackingVolume *alignTV = dynamic_cast<const Trk::AlignableTrackingVolume *> (cache.m_currentStatic);
-    if (alignTV) {
+    if(cache.m_currentStatic->isAlignable()){
+      const Trk::AlignableTrackingVolume *alignTV = static_cast<const Trk::AlignableTrackingVolume *> (cache.m_currentStatic);
       const Trk::TrackParameters *nextPar = extrapolateInAlignableTV(cache,*m_stepPropagator, *currPar, nullptr, alignTV, dir,
                                                                      particle);
       if (nextPar) {

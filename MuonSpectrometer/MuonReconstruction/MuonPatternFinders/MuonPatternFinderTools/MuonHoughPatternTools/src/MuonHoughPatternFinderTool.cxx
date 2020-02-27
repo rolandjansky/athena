@@ -47,8 +47,7 @@ namespace Muon {
 
   MuonHoughPatternFinderTool::MuonHoughPatternFinderTool(const std::string& t,const std::string& n,const IInterface* p)  :  
     AthAlgTool(t,n,p),
-    m_weight_csc_on_segment(2.),
-    m_phietahitassociation(0)
+    m_weight_csc_on_segment(2.)
   {
     declareInterface<IMuonHoughPatternFinderTool>(this);
   }
@@ -81,8 +80,6 @@ namespace Muon {
       ATH_MSG_DEBUG ("Hit Reweighting " << m_hit_reweights);
     }
 
-    m_phietahitassociation = new std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >;
-
     ATH_CHECK( m_CosmicPhiPatternsKey.initialize(m_recordAllOutput) );
     ATH_CHECK( m_CosmicEtaPatternsKey.initialize(m_recordAllOutput) );
     ATH_CHECK( m_COMBINED_PATTERNSKey.initialize(m_recordAllOutput) );
@@ -97,12 +94,22 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
                                     const std::vector<const TgcPrepDataCollection*>& tgcCols,  
                                     const std::vector<const RpcPrepDataCollection*>& rpcCols,  
                                     const MuonSegmentCombinationCollection* cscSegmentCombis ) const {
+
+    /** map between mdt chamber identifiers and corresponding rpc hits (hit_no_begin and hit_no_end)*/
+  std::map<int,std::vector<std::pair<int, int> > > rpcmdtstationmap;
+    /** map between mdt chamber identifiers and corresponding tgc hits (hit_no_begin and hit_no_end)*/
+    std::map<int,std::vector<std::pair<int, int> > > tgcmdtstationmap;
+
+    /** map for association between trigger eta hits (first) and phi hits (second) within the same gasgap, used for combining patterns in MuonCombinePatternTool */
+    auto phietahitassociation = std::make_unique<std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> > >();
+
     // read event_data:
-    const MuonHoughHitContainer* hitcontainer = getAllHits( mdtCols, cscCols, tgcCols, rpcCols, cscSegmentCombis );
+  const MuonHoughHitContainer* hitcontainer = getAllHits( mdtCols, cscCols, tgcCols, rpcCols, cscSegmentCombis,
+							  rpcmdtstationmap, tgcmdtstationmap,phietahitassociation.get());
     // analyse data
     std::unique_ptr<MuonPatternCombinationCollection> patCombiCol;
     if( hitcontainer ) {
-      patCombiCol.reset(analyse( *hitcontainer ));
+      patCombiCol.reset(analyse( *hitcontainer, phietahitassociation.get()));
     }else{
       ATH_MSG_INFO (" No hit container created! ");
     }
@@ -124,26 +131,18 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     }
 
     // clean up tool for next call
-    cleanUp();
-  
+
+    //clear stationmaps
+    rpcmdtstationmap.clear();
+    tgcmdtstationmap.clear();
+    //clear etaphi association map
+    phietahitassociation->clear();  
+
     ATH_MSG_VERBOSE ("execute(end) ");
 
     // return result
     return {std::move(patCombiCol), nullptr};
   } 
-
-  void MuonHoughPatternFinderTool::cleanUp() const {
-    //clear csc association map
-    m_cschitsegassociation.clear();
-
-    //clear etaphi association map
-    m_phietahitassociation->clear();
-
-    //clear stationmaps
-    m_rpcmdtstationmap.clear();
-    m_tgcmdtstationmap.clear();
-
-  }
 
   StatusCode MuonHoughPatternFinderTool::finalize()
   {
@@ -155,23 +154,23 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
       m_file=0;
       ATH_MSG_DEBUG ("MuonHoughPatternFinderTool::delete Histogram: ");
     }
-    delete m_phietahitassociation;
-    m_phietahitassociation = 0;
     ATH_MSG_VERBOSE ("finalize()");
 
     return StatusCode::SUCCESS;
   }
 
-  MuonPatternCombinationCollection* MuonHoughPatternFinderTool::analyse( const MuonHoughHitContainer& hitcontainer ) const {
+  MuonPatternCombinationCollection* MuonHoughPatternFinderTool::analyse( const MuonHoughHitContainer& hitcontainer, const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation ) const {
     
     ATH_MSG_DEBUG ("size of event: " << hitcontainer.size());
 
+    /** reconstructed patterns stored per [number_of_ids][level][which_segment] */
+    MuonHoughPatternContainerShip houghpattern = m_muonHoughPatternTool->emptyHoughPattern();
     //  pass through hitcontainer (better still: preprawdata and only after make internal hitcontainer)
-    m_muonHoughPatternTool->makePatterns(&hitcontainer);
+    m_muonHoughPatternTool->makePatterns(&hitcontainer,houghpattern);
       
-    MuonPrdPatternCollection* phipatterns = m_muonHoughPatternTool->getPhiMuonPatterns();
-    MuonPrdPatternCollection* etapatterns = m_muonHoughPatternTool->getEtaMuonPatterns();
-    
+    MuonPrdPatternCollection* phipatterns = m_muonHoughPatternTool->getPhiMuonPatterns(houghpattern);
+    MuonPrdPatternCollection* etapatterns = m_muonHoughPatternTool->getEtaMuonPatterns(houghpattern);
+
     if (m_summary==true || this->msgLvl(MSG::DEBUG)) {
       if( phipatterns->empty() ) msg() << MSG::DEBUG << " summarizing input: Phi pattern combination empty" << endmsg;
       else msg() << MSG::DEBUG << " summarizing Phi pattern combination input: " << std::endl << m_printer->print( *phipatterns ) << endmsg;
@@ -189,8 +188,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     // make + write muonpatterncombinations
     if ( !etapatterns->empty() ) {
       
-      m_muonCombinePatternTool->setPhiEtaHitAssMap(m_phietahitassociation);
-      combinedpatterns = m_muonCombinePatternTool->combineEtaPhiPatterns(phipatterns,etapatterns);
+      combinedpatterns = m_muonCombinePatternTool->combineEtaPhiPatterns(phipatterns,etapatterns,phietahitassociation);
 
     }
 
@@ -205,6 +203,8 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     record( etapatterns, m_CosmicEtaPatternsKey );
     record( combinedpatterns, m_COMBINED_PATTERNSKey );
     
+    /** empty and clear the houghpattern vectors */
+    m_muonHoughPatternTool->reset(houghpattern);
     return patterncombinations;
   }
 
@@ -214,7 +214,10 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 								       const std::vector<const CscPrepDataCollection*>& cscCols,  
 								       const std::vector<const TgcPrepDataCollection*>& tgcCols,  
 								       const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-								       const MuonSegmentCombinationCollection* cscSegmentCombis ) const
+								       const MuonSegmentCombinationCollection* cscSegmentCombis,
+								       std::map<int,std::vector<std::pair<int, int> > >& rpcmdtstationmap,
+								       std::map<int,std::vector<std::pair<int, int> > >& tgcmdtstationmap,
+								       std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation) const
   {
     ATH_MSG_VERBOSE ("getAllHits()");
 
@@ -271,9 +274,6 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 			const Muon::CscPrepData* prd = dynamic_cast<const Muon::CscPrepData*> (cscOnSeg->prepRawData());
 			if (!prd) {ATH_MSG_INFO ("Dynamic cast to CscPrepData failed!"); continue;}
 
-			// hit-segment association, stored for use in downstream algorithms
-			m_cschitsegassociation.insert(std::make_pair(prd,(*msc)));
-
 			csc_rots.push_back(cscOnSeg);
 			csc_prds.push_back(prd);
 
@@ -306,7 +306,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 		      ATH_MSG_VERBOSE ("Number of Phi Csc hits in segment: " << phi_set.size());
 		      std::vector <const Trk::PrepRawData*>::iterator vec_it = eta_vector.begin();
 		      for (;vec_it!=eta_vector.end(); ++vec_it) {
-			m_phietahitassociation->insert(std::make_pair(*vec_it,phi_set));
+			phietahitassociation->insert(std::make_pair(*vec_it,phi_set));
 		      }
 		    }
 		  }
@@ -349,7 +349,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 	for( ;it!=it_end;++it ){
 	  Muon::RpcPrepDataCollection::const_iterator cit_begin = (*it)->begin();
 	  Muon::RpcPrepDataCollection::const_iterator cit_end = (*it)->end();
-	  addRpcCollection(cit_begin,cit_end,hitcontainer);
+	  addRpcCollection(cit_begin,cit_end,hitcontainer,rpcmdtstationmap,phietahitassociation);
 	}
       }
     
@@ -360,7 +360,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 	for( ;it!=it_end;++it ){
 	  Muon::TgcPrepDataCollection::const_iterator cit_begin = (*it)->begin();
 	  Muon::TgcPrepDataCollection::const_iterator cit_end = (*it)->end();
-	  addTgcCollection(cit_begin,cit_end,hitcontainer);
+	  addTgcCollection(cit_begin,cit_end,hitcontainer, tgcmdtstationmap,phietahitassociation);
 	}
       }
 
@@ -371,7 +371,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 	for( ;it!=it_end;++it ){
 	  Muon::MdtPrepDataCollection::const_iterator cit_begin = (*it)->begin();
 	  Muon::MdtPrepDataCollection::const_iterator cit_end = (*it)->end();
-	  addMdtCollection(cit_begin,cit_end,hitcontainer);
+	  addMdtCollection(cit_begin,cit_end,hitcontainer,rpcmdtstationmap,tgcmdtstationmap);
 	}
       }
 
@@ -382,7 +382,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 	for( ;it!=it_end;++it ){
 	  Muon::CscPrepDataCollection::const_iterator cit_begin = (*it)->begin();
 	  Muon::CscPrepDataCollection::const_iterator cit_end = (*it)->end();
-	  addCscCollection(cit_begin,cit_end,hitcontainer);
+	  addCscCollection(cit_begin,cit_end,hitcontainer,phietahitassociation);
 	}
       }
   
@@ -397,7 +397,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 			 << "," << hitcontainer->getHit(i)->getHitz() << ") " << " weight: " << hitcontainer->getHit(i)->getWeight() << " measures phi: " << hitcontainer->getHit(i)->getMeasuresPhi());
       }
     
-    ATH_MSG_VERBOSE ("MuonHoughPatternFinderTool::getAllHits() saving " << m_phietahitassociation->size() 
+    ATH_MSG_VERBOSE ("MuonHoughPatternFinderTool::getAllHits() saving " << phietahitassociation->size() 
 		     << "associated hits ");
     return hitcontainer;
   
@@ -441,7 +441,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     }
   }
 
-  void MuonHoughPatternFinderTool::addRpcCollection(Muon::RpcPrepDataCollection::const_iterator cit_begin, Muon::RpcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer) const
+  void MuonHoughPatternFinderTool::addRpcCollection(Muon::RpcPrepDataCollection::const_iterator cit_begin, Muon::RpcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer, std::map<int,std::vector<std::pair<int, int> > >& rpcmdtstationmap, std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation) const
   {
     if (cit_begin == cit_end) return;
     Muon::RpcPrepDataCollection::const_iterator cit = cit_begin;   
@@ -573,7 +573,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 
     int size_end = hitcontainer->size();
 
-    updateRpcMdtStationMap((*cit_begin)->identify(),size_begin,size_end);
+    updateRpcMdtStationMap((*cit_begin)->identify(),size_begin,size_end,rpcmdtstationmap);
       
     // extract preprawdata from gasgapmap // might not be fastest way (filling immidiately saves this second loop)
       
@@ -588,14 +588,14 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
       
 	gg_it = gasgapphimap.find(gasGapId);
 	if (gg_it!=gasgapphimap.end()) {
-	  m_phietahitassociation->insert(std::make_pair(prd,(*gg_it).second));
+	  phietahitassociation->insert(std::make_pair(prd,(*gg_it).second));
 	}
       }
     }
 
   }
 
-  void MuonHoughPatternFinderTool::addTgcCollection(Muon::TgcPrepDataCollection::const_iterator cit_begin, Muon::TgcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer) const
+  void MuonHoughPatternFinderTool::addTgcCollection(Muon::TgcPrepDataCollection::const_iterator cit_begin, Muon::TgcPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer, std::map<int,std::vector<std::pair<int, int> > >& tgcmdtstationmap,std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation) const
   {
     if (cit_begin == cit_end) return;
     Muon::TgcPrepDataCollection::const_iterator cit = cit_begin;
@@ -717,7 +717,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
       }
 
     int size_end = hitcontainer->size();
-    updateTgcMdtStationMap((*cit_begin)->identify(),size_begin,size_end);
+    updateTgcMdtStationMap((*cit_begin)->identify(),size_begin,size_end,tgcmdtstationmap);
       
     // extract preprawdata from gasgapmap // might not be fastest way (filling immidiately saves this second loop)
       
@@ -732,14 +732,14 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
       
 	gg_it = gasgapphimap.find(gasGapId);
 	if (gg_it!=gasgapphimap.end()) {
-	  m_phietahitassociation->insert(std::make_pair(prd,(*gg_it).second));
+	  phietahitassociation->insert(std::make_pair(prd,(*gg_it).second));
 	}
       }
     }
 
   }
 
-  void MuonHoughPatternFinderTool::addMdtCollection(Muon::MdtPrepDataCollection::const_iterator cit_begin, Muon::MdtPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer) const
+  void MuonHoughPatternFinderTool::addMdtCollection(Muon::MdtPrepDataCollection::const_iterator cit_begin, Muon::MdtPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer, std::map<int,std::vector<std::pair<int, int> > >& rpcmdtstationmap, std::map<int,std::vector<std::pair<int, int> > >& tgcmdtstationmap) const
   {
     if (cit_begin == cit_end) return;
 
@@ -989,9 +989,9 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 
     // rpc:
 
-    std::map<int,std::vector<std::pair<int, int> > >::const_iterator stationmap_it = m_rpcmdtstationmap.find(stationcode);
+    std::map<int,std::vector<std::pair<int, int> > >::const_iterator stationmap_it = rpcmdtstationmap.find(stationcode);
 
-    if (stationmap_it!=m_rpcmdtstationmap.end()) {
+    if (stationmap_it!=rpcmdtstationmap.end()) {
 
       const std::vector<std::pair<int, int> > &stationhits = (*stationmap_it).second;
 
@@ -1033,9 +1033,9 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 
     // tgc:
 
-    stationmap_it = m_tgcmdtstationmap.find(stationcode);
+    stationmap_it = tgcmdtstationmap.find(stationcode);
   
-    if (stationmap_it!=m_tgcmdtstationmap.end()) {
+    if (stationmap_it!=tgcmdtstationmap.end()) {
 
       const std::vector<std::pair<int, int> > &stationhits = (*stationmap_it).second;
 
@@ -1148,7 +1148,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     } // collection
   }
 
-  void MuonHoughPatternFinderTool::addCscCollection(Muon::CscPrepDataCollection::const_iterator cit_begin, Muon::CscPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer)const
+  void MuonHoughPatternFinderTool::addCscCollection(Muon::CscPrepDataCollection::const_iterator cit_begin, Muon::CscPrepDataCollection::const_iterator cit_end, MuonHoughHitContainer* hitcontainer,std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation)const
   {
     if (cit_begin == cit_end) return;
     std::map <int, int> number_of_hits_per_layer;
@@ -1243,13 +1243,13 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
       
 	gg_it = gasgapphimap.find(gasGapId);
 	if (gg_it!=gasgapphimap.end()) {
-	  m_phietahitassociation->insert(std::make_pair(prd,(*gg_it).second));
+	  phietahitassociation->insert(std::make_pair(prd,(*gg_it).second));
 	}
       }
     }
   }
 
-  void MuonHoughPatternFinderTool::updateRpcMdtStationMap(const Identifier rpcid, const int hit_begin, const int hit_end) const
+  void MuonHoughPatternFinderTool::updateRpcMdtStationMap(const Identifier rpcid, const int hit_begin, const int hit_end, std::map<int,std::vector<std::pair<int, int> > >& rpcmdtstationmap) const
   {
     //  input is a RPC identifier, begin container and end container
     //  rpcmdtstationmap is updated
@@ -1265,7 +1265,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 
     // store station code 
   
-    addToStationMap(m_rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
+    addToStationMap(rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
 
     int idphi = m_muonIdHelperTool->rpcIdHelper().stationPhi(rpcid);
     int ideta = m_muonIdHelperTool->rpcIdHelper().stationEta(rpcid);
@@ -1294,10 +1294,10 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     int stationNameMDT = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(station);
 
     stationcode = stationCode(stationNameMDT,idphi1,ideta);
-    addToStationMap(m_rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
+    addToStationMap(rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
 
     stationcode = stationCode(stationNameMDT,idphi2,ideta);
-    addToStationMap(m_rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
+    addToStationMap(rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
 
     //  Also look into Inner station
     
@@ -1311,10 +1311,10 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
  	  	 
     stationNameMDT = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(station);
     stationcode = stationCode(stationNameMDT,idphi,ideta);
-    addToStationMap(m_rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
+    addToStationMap(rpcmdtstationmap,it,stationcode,hit_begin,hit_end);
   }
 
-  void MuonHoughPatternFinderTool::updateTgcMdtStationMap(const Identifier tgcid, int hit_begin, int hit_end) const
+  void MuonHoughPatternFinderTool::updateTgcMdtStationMap(const Identifier tgcid, int hit_begin, int hit_end, std::map<int,std::vector<std::pair<int, int> > >& tgcmdtstationmap) const
   {
     //  input is a TGC identifier, begin container and end container
     //  tgcmdtstationmap is updated
@@ -1384,25 +1384,25 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     // store station Inner and Middle codes
  	  	 
     stationcode = stationCode(stationNameMDT1,idphi1MDT,ideta1MDT);
-    addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+    addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
     stationcode = stationCode(stationNameMDT2,idphi1MDT,ideta1MDT);
-    addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+    addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
     if(ideta1MDT != ideta2MDT) {
       stationcode = stationCode(stationNameMDT1,idphi1MDT,ideta2MDT);
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
       stationcode = stationCode(stationNameMDT2,idphi1MDT,ideta2MDT);
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
     }
     if(idphi1MDT != idphi2MDT) {
       stationcode = stationCode(stationNameMDT1,idphi2MDT,ideta1MDT);
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
       stationcode = stationCode(stationNameMDT2,idphi2MDT,ideta1MDT);
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
       if(ideta1MDT != ideta2MDT) {
 	stationcode = stationCode(stationNameMDT1,idphi2MDT,ideta2MDT);
-	addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+	addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
 	stationcode = stationCode(stationNameMDT2,idphi2MDT,ideta2MDT);
-	addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+	addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
       }
     }
     // Store corresponding Outer stations
@@ -1418,26 +1418,26 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     stationNameMDT2 = m_muonIdHelperTool->mdtIdHelper().stationNameIndex(station2);
 
     stationcode = stationCode(stationNameMDT1,idphi1MDT,ideta1MDT);
-    addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);  
+    addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);  
     stationcode = stationCode(stationNameMDT2,idphi1MDT,ideta1MDT);
-    addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+    addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
     if(ideta1MDT != ideta2MDT) {
       stationcode = stationCode(stationNameMDT1,idphi1MDT,ideta2MDT); 
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);  
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);  
       stationcode = stationCode(stationNameMDT2,idphi1MDT,ideta2MDT); 
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);  
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);  
     }
     if(idphi1MDT != idphi2MDT) {  
       stationcode = stationCode(stationNameMDT1,idphi2MDT,ideta1MDT);
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
       stationcode = stationCode(stationNameMDT2,idphi2MDT,ideta1MDT);
-      addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+      addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
 
       if(ideta1MDT != ideta2MDT) {
 	stationcode = stationCode(stationNameMDT1,idphi2MDT,ideta2MDT);
-	addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+	addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
 	stationcode = stationCode(stationNameMDT2,idphi2MDT,ideta2MDT);
-	addToStationMap(m_tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
+	addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
       }
     }
   }

@@ -1,4 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 from TrkDistributedKalmanFilter.TrkDistributedKalmanFilterConf import Trk__DistributedKalmanFilter
 
@@ -26,17 +27,10 @@ class ConfiguredDistributedKalmanFilter(Trk__DistributedKalmanFilter):
     
     def msgStreamLevel(self, level):
         self.OutputLevel = level
-    
+
     def printInfo(self):
-        print '***** ConfiguredDistributedKalmanFilter ***************************************'
-        print '* - ToolName:                    ',self.name
-        print '* - ROT Creator Tool Name        ',self.ROTcreator.getName()
-        print '* - Extrapolation Tool Name      ',self.ExtrapolatorTool.getName()
-        print '*******************************************************************************'
-
-
-
-
-
-
-
+        print ('***** ConfiguredDistributedKalmanFilter ***************************************')
+        print ('* - ToolName:                    ',self.name)
+        print ('* - ROT Creator Tool Name        ',self.ROTcreator.getName())
+        print ('* - Extrapolation Tool Name      ',self.ExtrapolatorTool.getName())
+        print ('*******************************************************************************')

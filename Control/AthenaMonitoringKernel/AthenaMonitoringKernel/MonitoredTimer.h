@@ -22,9 +22,12 @@ namespace Monitored {
    * See for all options: https://en.cppreference.com/w/cpp/chrono/duration
    *
    * The timer name needs to start with the string "TIME_".
-   * \code
-   *    auto t1 = Monitored::Timer("TIME_t1");
-   * \endcode
+   * Examples:
+   * @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx timerFillingWorked
+   * The histograms are defined in usual way:
+   * @snippet Control/AthenaMonitoringKernel/share/GenericMon.txt HistogramsForTimers
+   * 
+   * @see Monitored::ScopedTimer @see Monitored::Scalar
    **/
   template< typename unit=std::chrono::microseconds>
   class Timer : public IMonitoredVariable {

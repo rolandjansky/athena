@@ -1,4 +1,5 @@
 #!/usr/bin/env physh
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # print command line for logging
 from optparse import OptionParser
 parser = OptionParser(usage = "usage: %prog", version="%prog $Id: LArG4ValidationGenerate.py 583537 2014-02-15 21:17:29Z zmarshal $")
@@ -41,7 +42,7 @@ from AthenaCommon.GlobalFlags import globalflags
 if len(options.condition) > 0 :
     globalflags.ConditionsTag = options.condition
 else :
-    print "No condition tag specified.\nThere is no use in validating FS with some arbitrary condition tag.\n Please, specify one."
+    printfunc ("No condition tag specified.\nThere is no use in validating FS with some arbitrary condition tag.\n Please, specify one.")
     import sys
     sys.exit(1)
 
@@ -93,7 +94,7 @@ if (options.parameterize > 0):
     simFlags.LArParameterization=options.parameterize
 
     if len(options.fsLibs) > 0 :
-        print "Setting up ShowerLib Service"
+        printfunc ("Setting up ShowerLib Service")
         from LArG4ShowerLibSvc.LArG4ShowerLibSvcConf import LArG4ShowerLibSvc
         if not hasattr( ServiceMgr, 'LArG4ShowerLibSvc' ):
              ServiceMgr += LArG4ShowerLibSvc()

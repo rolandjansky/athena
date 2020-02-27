@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBjetMonitorAlgorithm.h"
@@ -63,8 +63,9 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     OffxVtx = (*(offlinepv))[j]->x();
     OffyVtx = (*(offlinepv))[j]->y();
     OffzVtx = (*(offlinepv))[j]->z();
+    fill("TrigBjetMonitor",OffxVtx,OffyVtx,OffzVtx);
   }
-  fill("TrigBjetMonitor",OffNVtx,OffxVtx,OffyVtx,OffzVtx);
+  fill("TrigBjetMonitor",OffNVtx);
   
 
   // print the trigger chain names 

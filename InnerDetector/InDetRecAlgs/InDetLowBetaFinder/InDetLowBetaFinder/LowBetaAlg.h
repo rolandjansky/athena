@@ -28,7 +28,7 @@ author Christopher.Marino <Christopher.Marino@cern.ch>
 #include "xAODTracking/TrackParticleContainer.h"
 #include "InDetLowBetaInfo/InDetLowBetaContainer.h"
 #include "TrkTrack/TrackCollection.h"
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
 
 /////////////////////////////////////////////////////////////////////////////
 

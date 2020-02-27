@@ -2,10 +2,6 @@
 from AthenaCommon.CFElements import parOR
 #from AthenaCommon.Constants import DEBUG
 
-def getFirstStageBjetTracking( jetName,vertexName ):
-    return None
-    # To be implemented on a later stage
-
 def getSecondStageBjetTracking( inputRoI ):
     algSequence = []
 
@@ -16,7 +12,8 @@ def getSecondStageBjetTracking( inputRoI ):
     algSequence.append( parOR("SecondStageFastTrackingSequence",viewAlgs) )
 
     # Precision Tracking
-    from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
+    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjet", inputFTFtracks="TrigFastTrackFinder_Tracks_bjet" )
     algSequence += PTAlgs
 

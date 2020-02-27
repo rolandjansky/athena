@@ -123,9 +123,9 @@ void PerfMonMTSvc::stopAud( const std::string& stepName,
     stopSnapshotAud(stepName, compName);
 
     if( !isLoop() )
-      startCompAud_serial(stepName, compName);
+      stopCompAud_serial(stepName, compName);
     else if( m_doEventLoopMonitoring == true )
-      startCompAud_MT(stepName, compName);
+      stopCompAud_MT(stepName, compName);
   }
 }
 
@@ -406,9 +406,10 @@ void PerfMonMTSvc::report2Log_CompLevel_Time_Parallel() {
   ATH_MSG_INFO("                                  (Parallel Steps)                                     ");
   ATH_MSG_INFO("=======================================================================================");
 
-  ATH_MSG_INFO(format("%1%  %|22t|%2$.2f  %|47t|%3%") % "Step"
-                                                      % "CPU Time [ms]" 
-                                                      % "Component");
+  ATH_MSG_INFO(format("%1%  %|22t|%2$.2f  %|48t|%3$.2f  %|75t|%4%") % "Step"
+                                                                    % "CPU Time [ms]"
+                                                                    % "CPU Time per event [ms]"
+                                                                    % "Component");
 
   parallelDataAggregator();
   divideData2Steps_parallel(); 
@@ -425,7 +426,10 @@ void PerfMonMTSvc::report2Log_CompLevel_Time_Parallel() {
     );
     for(auto it : pairs){
 
-      ATH_MSG_INFO(format("%1%  %|22t|%2$.2f  %|47t|%3%") % it.first.stepName % it.second.cpu_time % it.first.compName);    
+      ATH_MSG_INFO(format("%1%  %|22t|%2$.2f  %|48t|%3$.2f  %|75t|%4%") % it.first.stepName
+                                                                        % it.second.cpu_time
+                                                                        % (it.second.cpu_time / m_eventCounter)
+                                                                        % it.first.compName);
     }
     ATH_MSG_INFO("=======================================================================================");
   }
@@ -468,12 +472,9 @@ void PerfMonMTSvc::report2Log_Summary() {
 
   ATH_MSG_INFO("***************************************************************************************");
 
-  ATH_MSG_INFO(format( "%1% %|30t|%2% ") % "Max Vmem: " % scaleMem(m_measurement.vmemPeak));
-  ATH_MSG_INFO(format( "%1% %|30t|%2% ") % "Max Rss: " % scaleMem(m_measurement.rssPeak));
-  ATH_MSG_INFO(format( "%1% %|30t|%2% ") % "Max Pss: " % scaleMem(m_measurement.pssPeak));
-
-  ATH_MSG_INFO("");
-
+  ATH_MSG_INFO(format( "%1% %|35t|%2% ") % "Max Vmem: " % scaleMem(m_measurement.vmemPeak));
+  ATH_MSG_INFO(format( "%1% %|35t|%2% ") % "Max Rss: " % scaleMem(m_measurement.rssPeak));
+  ATH_MSG_INFO(format( "%1% %|35t|%2% ") % "Max Pss: " % scaleMem(m_measurement.pssPeak));
 
   ATH_MSG_INFO("=======================================================================================");
 }

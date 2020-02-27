@@ -109,8 +109,6 @@ StatusCode MvaTESEvaluator::initialize(){
 //_____________________________________________________________________________
 StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
 
-  // Retrieve input variables
-  
   // Retrieve event info
   const SG::AuxElement::ConstAccessor<float> acc_mu("mu");
   const SG::AuxElement::ConstAccessor<int> acc_nVtxPU("nVtxPU");
@@ -181,6 +179,8 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
     // apply MVA calibration
     xTau.setP4(ptMVA, m_etaDetectorAxis, xTau.phiDetectorAxis(), 0);
   }
+  
+  ATH_MSG_DEBUG("final calib:" << xTau.pt() << " " << xTau.eta() << " " << xTau.phi() << " " << xTau.e());
 
   return StatusCode::SUCCESS;
 }

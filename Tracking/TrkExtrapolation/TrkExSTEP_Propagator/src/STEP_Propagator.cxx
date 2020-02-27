@@ -1358,9 +1358,9 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
 
   // binned material ?
   cache.m_binMat = nullptr;
-  if (cache.m_trackingVolume) {
-    const Trk::AlignableTrackingVolume* aliTV = dynamic_cast<const Trk::AlignableTrackingVolume*> (cache.m_trackingVolume);
-    if (aliTV) cache.m_binMat = aliTV->binnedMaterial();
+  if (cache.m_trackingVolume && cache.m_trackingVolume->isAlignable()){
+    const Trk::AlignableTrackingVolume* aliTV = static_cast<const Trk::AlignableTrackingVolume*> (cache.m_trackingVolume);
+    cache.m_binMat = aliTV->binnedMaterial();
   }
 
   // closest distance estimate

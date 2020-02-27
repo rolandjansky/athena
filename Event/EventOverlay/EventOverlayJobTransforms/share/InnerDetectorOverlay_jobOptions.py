@@ -49,6 +49,8 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
             job += CfgGetter.getAlgorithm("SCTSDOOverlay")
 
         if overlayFlags.isDataOverlay():
+            include("InDetRecExample/InDetRecConditionsAccess.py")
+
             job.InDetSCTRawDataProvider.RDOKey = overlayFlags.dataStore()+"+SCT_RDOs"
             job.InDetSCTRawDataProvider.LVL1IDKey = overlayFlags.dataStore()+"+SCT_LVL1ID"
             job.InDetSCTRawDataProvider.BCIDKey = overlayFlags.dataStore()+"+SCT_BCID"

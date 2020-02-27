@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script building all the externals necessary for the nightly build.
 #
 
@@ -83,10 +85,8 @@ fi
 # Create some directories:
 mkdir -p ${BUILDDIR}/install
 
-# Set some environment variables that the builds use internally:
-export NICOS_PROJECT_VERSION=`cat ${thisdir}/version.txt`
-export NICOS_ATLAS_RELEASE=${NICOS_PROJECT_VERSION}
-export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
+# Get the version of VP1Light for the build.
+version=`cat ${thisdir}/version.txt`
 
 # The directory holding the helper scripts:
 scriptsdir=${thisdir}/../../Build/AtlasBuildScripts
@@ -111,7 +111,7 @@ export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/VP1LightExternals
 ${scriptsdir}/build_atlasexternals.sh \
     -s ${BUILDDIR}/src/VP1LightExternals \
     -b ${BUILDDIR}/build/VP1LightExternals \
-    -i ${BUILDDIR}/install/VP1LightExternals/${NICOS_PROJECT_VERSION} \
+    -i ${BUILDDIR}/install \
     -p VP1LightExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
-    -v ${NICOS_PROJECT_VERSION} \
+    -v ${version} \
     ${EXTRACMAKE[@]/#/-x }

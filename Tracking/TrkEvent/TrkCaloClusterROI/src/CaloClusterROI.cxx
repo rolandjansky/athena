@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //CaloClusterROI.cxx
@@ -47,7 +47,7 @@ Trk::CaloClusterROI::CaloClusterROI() :
 // copy constructor:
 Trk::CaloClusterROI::CaloClusterROI( const Trk::CaloClusterROI& cot) :
   m_localParams( new Trk::LocalParameters(*cot.m_localParams) ),
-  m_surface( cot.m_surface? (cot.m_surface->isFree() ? cot.m_surface->clone():cot.m_surface) : 0),
+  m_surface( cot.m_surface? (cot.m_surface->isFree() ? cot.m_surface->clone():cot.m_surface) : nullptr),
   m_energy(cot.m_energy),
   m_phiWidth(cot.m_phiWidth),
   m_etaWidth(cot.m_etaWidth)
@@ -67,7 +67,7 @@ Trk::CaloClusterROI& Trk::CaloClusterROI::operator=(const Trk::CaloClusterROI& c
     delete m_localParams;
     delete m_surface;
     m_localParams     = new Trk::LocalParameters(*cot.m_localParams);
-    m_surface =  (cot.m_surface? (cot.m_surface->isFree() ? cot.m_surface->clone():cot.m_surface) : 0);
+    m_surface =  (cot.m_surface? (cot.m_surface->isFree() ? cot.m_surface->clone():cot.m_surface) : nullptr);
     m_energy=cot.m_energy;
     m_phiWidth=cot.m_phiWidth;
     m_etaWidth=cot.m_etaWidth;
@@ -75,7 +75,7 @@ Trk::CaloClusterROI& Trk::CaloClusterROI::operator=(const Trk::CaloClusterROI& c
   return *this;
 }
 
-const Amg::Vector3D Trk::CaloClusterROI::globalPosition() const
+Amg::Vector3D Trk::CaloClusterROI::globalPosition() const
 {
     if(m_localParams){
       std::unique_ptr<const Amg::Vector3D> tmp_global(m_surface->localToGlobal(*m_localParams));

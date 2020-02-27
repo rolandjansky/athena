@@ -31,10 +31,10 @@
 #include "TrigFTKTrackConverter/TrigFTKClusterConverterTool.h"
 
 
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h" 
-#include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h" 
-#include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h" 
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h" 
+#include "SCT_ReadoutGeometry/SCT_BarrelModuleSideDesign.h" 
+#include "SCT_ReadoutGeometry/SCT_ForwardModuleSideDesign.h" 
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkParameters/TrackParameters.h" 

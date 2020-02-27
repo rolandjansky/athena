@@ -4,15 +4,15 @@
 #ifndef ProjectionMMClusterBuilderTool_h
 #define ProjectionMMClusterBuilderTool_h
 
-#include "GaudiKernel/ToolHandle.h"
 #include "MMClusterization/IMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
+
 #include <numeric>
-
-#include "TMath.h"
-
 
 
 class MmIdHelper;
@@ -22,7 +22,7 @@ namespace MuonGM
 }
 
 //
-// Simple clusterization tool for MicroMegas
+// fixed angle projection cluster builder tool for MicroMegas
 //
 namespace Muon
 {
@@ -45,12 +45,14 @@ namespace Muon
 
   private: 
 
-    /// Muon Detector Descriptor
-    const MuonGM::MuonDetectorManager* m_muonMgr;
-    const MmIdHelper* m_mmIdHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    double m_vDrift,m_tmin,m_tmax;
+    double m_vDrift,m_tmin,m_tmax,m_tOffset;
     double m_p0,m_p1,m_p2; //correction factors for charge dependence
+
+    int m_t0;
+
+    uint m_minClusterSize;
 
 
     StatusCode calculateCorrection(const std::vector<Muon::MMPrepData> &prdsOfLayer,std::vector<double>& v_posxc,std::vector<double>& v_cor);

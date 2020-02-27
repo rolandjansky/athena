@@ -138,7 +138,16 @@ namespace Monitored {
      * @param hist Histogram handler 
      * @param opt Histogram options (from histogram definition)
      */
-    static void setOpts(TH1* hist, const std::string& opt);
+    static void setOpts(TH1* hist, const HistogramDef& def);
+
+    /**
+     * @brief Set labels for all axes
+     * 
+     * @param hist Histogram pointer
+     * @param def Histogram definition
+     */
+    static void setLabels(TH1* hist, const HistogramDef& def);
+
     /**
      * @brief Setup labels for histogram axes
      * 

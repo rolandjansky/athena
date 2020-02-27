@@ -451,48 +451,10 @@ class  ConfiguredNewTrackingSiPattern:
          # --- set up different Scoring Tool for collisions and cosmics
          #
          if InDetFlags.doCosmics() and NewTrackingCuts.mode() != "DBM":
-            from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetCosmicScoringTool
-            InDetAmbiScoringTool = InDet__InDetCosmicScoringTool(name                 = 'InDetCosmicsScoringTool'+NewTrackingCuts.extension(),
-                                                                 nWeightedClustersMin = NewTrackingCuts.nWeightedClustersMin(),
-                                                                 minTRTHits           = 0,
-                                                                 SummaryTool          = TrackingCommon.getInDetTrackSummaryTool())
+            InDetAmbiScoringTool = TrackingCommon.getInDetCosmicsScoringTool(NewTrackingCuts)
          else:
-            from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
-            have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
-            InDetAmbiScoringTool = InDet__InDetAmbiScoringTool(name                    = 'InDetAmbiScoringTool'+NewTrackingCuts.extension(),
-                                                               Extrapolator            = TrackingCommon.getInDetExtrapolator(),
-                                                               SummaryTool             = TrackingCommon.getInDetTrackSummaryTool(),
-                                                               DriftCircleCutTool      = InDetTRTDriftCircleCut,
-                                                               useAmbigFcn             = True,  # this is NewTracking
-                                                               useTRT_AmbigFcn         = False,
-                                                               minPt                   = NewTrackingCuts.minPT(),
-                                                               maxRPhiImp              = NewTrackingCuts.maxPrimaryImpact(),
-                                                               maxZImp                 = NewTrackingCuts.maxZImpact(),
-                                                               maxEta                  = NewTrackingCuts.maxEta(),
-                                                               minSiClusters           = NewTrackingCuts.minClusters(),
-                                                               minPixel                = NewTrackingCuts.minPixel(),                                     
-                                                               maxSiHoles              = NewTrackingCuts.maxHoles(),
-                                                               maxPixelHoles           = NewTrackingCuts.maxPixelHoles(),
-                                                               maxSCTHoles             = NewTrackingCuts.maxSCTHoles(),
-                                                               maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles(),
-                                                               usePixel                = NewTrackingCuts.usePixel(),
-                                                               useSCT                  = NewTrackingCuts.useSCT(),
-                                                               InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer(),
-                                                               doEmCaloSeed            = have_calo_rois,
-                                                               minTRTonTrk             = 0,
-                                                               minTRTPrecisionFraction = 0)
-            if not InDetAmbiScoringTool.doEmCaloSeed:
-               InDetAmbiScoringTool.InputEmClusterContainerName = ''
-            # allow for some overlap for low-pt tracking
-            #if InDetFlags.doLowPt() and not NewTrackingCuts.mode() == "LowPt":
-            #   InDetAmbiScoringTool.minPt = NewTrackingCuts.minPT()-100.*Units.MeV
+            InDetAmbiScoringTool = TrackingCommon.getInDetAmbiScoringTool(NewTrackingCuts)
 
-         # if NewTrackingCuts.mode() == "ForwardTracks":
-         #   InDetAmbiScoringTool.OutputLevel = VERBOSE   
-
-         ToolSvc += InDetAmbiScoringTool
-         if (InDetFlags.doPrintConfigurables()):
-            printfunc (InDetAmbiScoringTool)
          #
          # --- load Ambiguity Processor
          #

@@ -117,7 +117,8 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
 
       Identifier channelId = rot->identify();
       if (!m_idHelperSvc->isMuon(channelId)) {
-        ATH_MSG_WARNING("Given Identifier "<<channelId.get_compact()<<" is no muon Identifier, continuing...");
+        // the RIO_OnTrack Identifiers could also come from ID or Calo, but this tool is only interested in MS hits
+        ATH_MSG_VERBOSE("Given Identifier "<<channelId.get_compact()<<" is no muon Identifier, continuing");
         continue;
       }
       if (m_idHelperSvc->isMM(channelId)||m_idHelperSvc->issTgc(channelId)) continue; // needs to be still implemented for the NSW

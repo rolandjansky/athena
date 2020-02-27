@@ -15,6 +15,9 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/IdDictDetDescr
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/PixelReadoutGeometry
+			  InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           LArCalorimeter/LArGeoModel/LArReadoutGeometry
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonIdHelpers
@@ -23,12 +26,17 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Eigen )
 find_package( GeoModelCore )
+find_package( Qt5 )
+
+# Run the QT build steps automatically.
+set( CMAKE_AUTOMOC TRUE )
+set( CMAKE_AUTOUIC TRUE )
 
 # Component(s) in the package:
 atlas_add_library( VP12DGeometrySystems
-                   src/*.c*
+		   VP12DGeometrySystems/*.h src/*.cxx src/*.ui
                    PUBLIC_HEADERS VP12DGeometrySystems
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives VP1Base StoreGateLib SGtests CaloDetDescrLib MuonIdHelpersLib
-                   PRIVATE_LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} IdDictDetDescr InDetIdentifier InDetReadoutGeometry LArReadoutGeometry MuonReadoutGeometry TileDetDescr )
+                   PRIVATE_LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} IdDictDetDescr InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry LArReadoutGeometry MuonReadoutGeometry TileDetDescr )
 

@@ -13,11 +13,6 @@
 #include <math.h>
 #include <sstream>
 
-//#include "GaudiKernel/Property.h"
-//#include "FourMomUtils/P4Helpers.h"
-
-//#include "AnalysisUtils/AnalysisMisc.h"
-
 #include "xAODJet/Jet.h"
 #include "xAODTau/TauJet.h"
 
@@ -25,8 +20,6 @@
 #include "tauRecTools/TauSubstructureVariables.h"
 
 #include "tauRecTools/KineUtils.h"
-//#include "CaloUtils/CaloVertexedCluster.h"
-//#include "CaloEvent/CaloVertexedCluster.h"
 
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/SystemOfUnits.h"
@@ -45,7 +38,7 @@ TauSubstructureVariables::TauSubstructureVariables( const std::string& name ) :
 		TauRecToolBase(name),
 		m_maxPileUpCorrection(4 * GeV),
 		m_pileUpAlpha(1.0),
-		m_doVertexCorrection(false), //FF: don't do cell correction by default
+		m_doVertexCorrection(false), 
 		m_inAODmode(false) {
 	declareProperty("maxPileUpCorrection", m_maxPileUpCorrection);
 	declareProperty("pileUpAlpha", m_pileUpAlpha);
@@ -88,8 +81,6 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	//----------------------------------------
 
 	// Getting the jet seed
-	// By asking taujet instead of TauEventData->seed, we take advantage of the machinery already
-	// in place to retrieve a jet seed for track only candidates.
 	//------------------------------------------------------------------------------------------------
 	const xAOD::Jet* taujetseed = (*pTau.jetLink());
 
@@ -244,10 +235,8 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	  }
 	
 	// now sort cluster by energy
-	// AnalysisUtils::Sort::e(&vClusters);
 	std::sort(vClusters.begin(), vClusters.end(), DefCaloClusterCompare());
 	
-
 	// determine energy sum of leading 2 and leading 3 clusters
 	float sum2LeadClusterE(0.);
 	float sum3LeadClusterE(0.);
@@ -272,7 +261,6 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 
 	ATH_MSG_VERBOSE(" caloIso: " << calo_iso);
 	pTau.setDetail(xAOD::TauJetParameters::caloIso, static_cast<float>(calo_iso)  );
-
 
 	// calculate calorimeter energies in different layers
 	float PSSEnergy(0.);
@@ -322,9 +310,6 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	pTau.setDetail(xAOD::TauJetParameters::EMPOverTrkSysP,		static_cast<float>(fEMPOverTrkSysP));
 
 
-	// get primary vertex container
-	// CALO_ISO_CORRECTED
-	// JVF and PT_PILEUP
 	// jvf and sumPtTrk are now a vector and the old run1-type jvf value is stored in the 0-th element
 	// sumPtTrk is calculated wrt Vertices
 

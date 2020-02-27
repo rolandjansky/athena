@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -39,7 +39,7 @@ RecoTimingObj* RecoTimingObjCnv::createTransient()
   if ( compareClassGuid(p1_guid) )
     {
       // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr<RecoTimingObj_p1> persObj( poolReadObject<RecoTimingObj_p1>() );
+      std::unique_ptr<RecoTimingObj_p1> persObj( poolReadObject<RecoTimingObj_p1>() );
       RecoTimingObjCnv_p1 cnv;
       transObj = cnv.createTransient( persObj.get(), *m_msg );
     } else {

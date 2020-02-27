@@ -286,9 +286,7 @@ inline Identifier CaloCell::ID() const {
  *
  * This can be used as the hash function to @c unordered_map and friends.
  */
-struct CaloCellIDFcn
-  : public std::unary_function<const CaloCell*, std::size_t>
-{
+struct CaloCellIDFcn {
   std::size_t operator() (const CaloCell* p) const
   {
     return p->ID().get_identifier32().get_compact();

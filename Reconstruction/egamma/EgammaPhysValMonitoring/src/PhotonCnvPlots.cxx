@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhotonCnvPlots.h"
@@ -10,18 +10,18 @@
 namespace Egamma{
 
 
-PhotonCnvPlots::PhotonCnvPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir), 
+PhotonCnvPlots::PhotonCnvPlots(PlotBase* pParent, const std::string& sDir, const std::string& sParticleType):PlotBase(pParent, sDir), 
 											       m_oKinAllPlots(this, "All/KinPlots/", "Reco " + sParticleType +" Photon"), 
 											       m_oKinIsoPlots(this, "Iso/KinPlots/", "Reco " + sParticleType +" Photon"), 
 											       m_sParticleType(sParticleType),
-											       m_nParticles(0),
-											       m_nVtx(0),
-											       m_convR(0),
-											       m_convRvsEta(0),
+											       m_nParticles(nullptr),
+											       m_nVtx(nullptr),
+											       m_convR(nullptr),
+											       m_convRvsEta(nullptr),
                                                                                                m_convRvsType(nullptr),
-											       m_convType(0),
-											       m_convDeltaEta(0),
-											       m_convDeltaPhi(0)
+											       m_convType(nullptr),
+											       m_convDeltaEta(nullptr),
+											       m_convDeltaPhi(nullptr)
 
 
 {}	
@@ -55,7 +55,8 @@ void PhotonCnvPlots::initializePlots(){
    m_convType->Fill(cvtype);
    float vtxRad = xAOD::EgammaHelpers::conversionRadius(&photon);  
 
-   float cnvDeltaEta1, cnvDeltaPhi1;
+   float cnvDeltaEta1;
+   float cnvDeltaPhi1;
    photon.vertexCaloMatchValue(cnvDeltaEta1, xAOD::EgammaParameters::convMatchDeltaEta1);
    photon.vertexCaloMatchValue(cnvDeltaPhi1, xAOD::EgammaParameters::convMatchDeltaPhi1);
    m_convDeltaEta->Fill(cnvDeltaEta1); 

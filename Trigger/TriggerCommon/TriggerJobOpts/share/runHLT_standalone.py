@@ -363,6 +363,20 @@ if TriggerFlags.doMuon():
 
     include ("MuonRecExample/MuonRecLoadTools.py")
 
+# ---------------------------------------------------------------
+# ID conditions
+# ---------------------------------------------------------------
+
+if TriggerFlags.doID:
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    InDetTrigFlags.doPixelClusterSplitting = False
+
+    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
+    from AthenaCommon.Include import include
+    include("InDetRecExample/InDetRecConditionsAccess.py")
+
+
+
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
@@ -399,8 +413,9 @@ TriggerFlags.triggerMenuSetup = opt.setMenu
 TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
 
-from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
-l1JsonFile = generateL1Menu()
+from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
+generateL1Menu()
+createL1PrescalesFileFromMenu()
 
 from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
 svcMgr += getL1ConfigSvc()
@@ -429,10 +444,13 @@ if opt.doL1Unpacking:
         from L1Decoder.L1DecoderConfig import L1Decoder
         l1decoder = L1Decoder("L1Decoder")
         l1decoder.ctpUnpacker.ForceEnableAllChains = opt.forceEnableAllChains
+        if opt.decodePhaseIL1:
+            from L1Decoder.L1DecoderConfig import L1TriggerResultMaker
+            topSequence += L1TriggerResultMaker()
+        else:
+            l1decoder.L1TriggerResult = ""
         if not opt.decodeLegacyL1:
             l1decoder.RoIBResult = ""
-        if not opt.decodePhaseIL1:
-            l1decoder.L1TriggerResult = ""
         if TriggerFlags.doTransientByteStream():
             transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
             l1decoder.ExtraInputs += [transTypeKey]
@@ -481,19 +499,6 @@ if not opt.createHLTMenuExternally:
     from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
     createHLTPrescalesFileFromMenu()
 
-
-
-# ---------------------------------------------------------------
-# ID conditions
-# ---------------------------------------------------------------
-
-if TriggerFlags.doID:
-    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-    InDetTrigFlags.doPixelClusterSplitting = False
-  
-    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
-    from AthenaCommon.Include import include
-    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 
 # ---------------------------------------------------------------

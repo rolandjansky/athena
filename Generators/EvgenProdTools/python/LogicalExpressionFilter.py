@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##==============================================================================
 ## Name:        LogicalExpressionFilter.py
@@ -24,7 +24,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.Logging import logging
 
 import tokenize
-from cStringIO import StringIO
+from io import StringIO
 
 class LogicalExpressionFilter( PyAthena.Alg ):
     _isLocked=False
@@ -150,7 +150,7 @@ class LogicalExpressionFilter( PyAthena.Alg ):
 
             #execute command once to validate
             #response = bool(eval(self.cmd))
-        except Exception, e:
+        except Exception as e:
             self.msg.fatal("%s is not a valid Python expression string. Exception: %s" % (self.Expression,e))
             return StatusCode.Failure
 

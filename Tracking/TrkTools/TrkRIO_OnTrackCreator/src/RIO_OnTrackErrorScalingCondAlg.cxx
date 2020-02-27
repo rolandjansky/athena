@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkRIO_OnTrack/RIO_OnTrackErrorScaling.h"
@@ -45,7 +45,7 @@ StatusCode RIO_OnTrackErrorScalingCondAlg::initialize ATLAS_NOT_THREAD_SAFE() {
 }
 
 
-void RIO_OnTrackErrorScalingCondAlg::registerAttribute(std::string name, unsigned int type_idx, unsigned int param_idx) {
+void RIO_OnTrackErrorScalingCondAlg::registerAttribute(const std::string& name, unsigned int type_idx, unsigned int param_idx) {
   if (!m_attributeMap.insert( std::make_pair(name, std::make_pair(type_idx,param_idx)) ).second) {
     std::stringstream message;
     message << "Failed to add RIO_OnTrackErrorScaling paramter : " << name << ".";
@@ -126,7 +126,7 @@ StatusCode RIO_OnTrackErrorScalingCondAlg::execute() {
 
   try {
     // now populate output conditions data objects from attribut lists.
-    for (const std::pair<unsigned int, coral::AttributeList>& channel : **readHandle ) {
+    for (const std::pair<const unsigned int, coral::AttributeList>& channel : **readHandle ) {
       const coral::AttributeList &alist = channel.second;
       unsigned int att_i=0;
       const std::string& attr_name=alist[att_i++].data<std::string>();

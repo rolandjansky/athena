@@ -1,14 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 07.10.2006, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
 
 // standard C++ //
 #include <iostream>
@@ -17,11 +9,7 @@
 #include "cmath"
 
 // Gaudi //
-#include "Identifier/Identifier.h"
 #include "StoreGate/StoreGateSvc.h"
-
-//geo model
-#include "MuonIdHelpers/MdtIdHelper.h"
 
 // MuonCalib //
 #include "MdtCalibIOSvc/MdtCalibOutputDbSvc.h"
@@ -30,13 +18,9 @@
 #include "MdtCalibData/MdtTubeFitContainer.h"
 #include "MdtCalibRt/RtCalibrationOutput.h" 
 #include "MdtCalibData/IRtRelation.h"
-//#include "MdtCalibData/RtChebyshev.h"
-//#include "MdtCalibData/RtRelationLookUp.h"
 #include "MdtCalibData/RtResolutionLookUp.h"
-//#include "MuonCalibIdentifier/MuonFixedId.h"
 
 #include "MdtCalibInterfaces/IMdtCalibrationOutput.h"
-//#include "MuonCalibDbOperations/CalibDBCoral.h"
 #include "MdtCalibData/IRtResolution.h"
 #include "MdtCalibData/RtResolutionFromPoints.h"
 
@@ -45,8 +29,6 @@
 //::::::::::::::::::::::::
 //:: NAMESPACE SETTINGS ::
 //::::::::::::::::::::::::
-
-using namespace std;
 using namespace MuonCalib;
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -124,7 +106,7 @@ StatusCode MdtCalibOutputDbSvc::initialize(void) {
     StoreGateSvc *detStore;
     ATH_CHECK( serviceLocator()->service("DetectorStore", detStore) );
     //retrieve mdt id helper
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
     //retrieve detector manager from the conditions store
     ATH_CHECK(m_DetectorManagerKey.initialize());
   }
@@ -220,7 +202,7 @@ StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
     MuonCalib::NtupleStationId the_id(*it);
 // get region geometry if required
     if (m_postprocess_calibration) {
-      if(!the_id.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), MuonDetMgr)) {
+      if(!the_id.InitializeGeometry(m_idHelperSvc->mdtIdHelper(), MuonDetMgr)) {
 	ATH_MSG_ERROR( "Faild to get geometry for " << the_id.regionId() );
       }
     }
@@ -383,7 +365,7 @@ inline void MdtCalibOutputDbSvc::create_default_resolution(const MuonCalib::IRtR
       double r=rt->radius(t);
       double resol(0.0);
       for (int l=0; l<9; l++) {
-	resol = resol+alpha[l]*pow(r, l);
+	resol = resol+alpha[l]*std::pow(r, l);
       }
       par_vec[i+2]=resol;
     }

@@ -1,9 +1,11 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # Reco_trf tweaks (use as preInclude in Reco_trf)
 
 ## Default changes (done for f274 tag)
-# InDetFlags.useBeamConstraint.set_Value_and_Lock(True);
-from CaloRec.CaloCellFlags import jobproperties;
-jobproperties.CaloCellFlags.doLArDeadOTXCorr.set_Value_and_Lock(False); 
+# InDetFlags.useBeamConstraint.set_Value_and_Lock(True)
+from CaloRec.CaloCellFlags import jobproperties
+jobproperties.CaloCellFlags.doLArDeadOTXCorr.set_Value_and_Lock(False)
 
 # Special for LArCafJobs: remove unneccessary stuff
 from RecExConfig.RecFlags import rec

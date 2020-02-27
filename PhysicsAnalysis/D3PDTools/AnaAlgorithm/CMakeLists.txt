@@ -43,10 +43,17 @@ else()
 endif()
 
 # Dictionary for the package's types:
+if( XAOD_STANDALONE )
 atlas_add_dictionary( AnaAlgorithmDict
    AnaAlgorithm/AnaAlgorithmDict.h
    AnaAlgorithm/selection.xml
    LINK_LIBRARIES AnaAlgorithmLib )
+else()
+atlas_add_dictionary( AnaAlgorithmDict
+   AnaAlgorithm/AnaAlgorithmAthenaDict.h
+   AnaAlgorithm/selection_athena.xml
+   LINK_LIBRARIES AnaAlgorithmLib )
+endif()
 
 # Install files from the package:
 if( XAOD_STANDALONE )

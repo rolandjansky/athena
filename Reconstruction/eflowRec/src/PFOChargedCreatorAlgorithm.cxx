@@ -116,14 +116,15 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
 
       for (auto trackClusterLink : thisTracks_trackClusterLinks){
         for (auto trackClusterLinkPair : trackClusterLinkPairs){
-          if (trackClusterLinkPair.first == trackClusterLink && true == trackClusterLinkPair.second) {
+          if (!m_eOverPMode && trackClusterLinkPair.first == trackClusterLink && true == trackClusterLinkPair.second) {
             thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
           }
+          else if (m_eOverPMode) thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
         }
       }
 
       //Now loop over the list of eflowTrackClusterLink which correspond to subtracted clusters matched to this track.
-      
+      bool isFirstCluster = true;
       for (auto trackClusterLink : thisTracks_trackClusterLinksSubtracted){	    
 
         eflowRecCluster* efRecCluster = trackClusterLink->getCluster();
@@ -132,12 +133,22 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
 	      ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
         if(theSisterClusterLink.isValid()) {
         	ATH_MSG_DEBUG("PFO with e and eta of " << thisPFO->e() << " and " << thisPFO->eta() << " is adding cluster with e, eta of " << (*theSisterClusterLink)->e() << " and " << (*theSisterClusterLink)->eta() << " an sistser has " << (*theOriginalClusterLink)->e() << " and " << (*theOriginalClusterLink)->eta());
-        	bool isSet = thisPFO->setClusterLink(theSisterClusterLink);
-        	if (!isSet) { ATH_MSG_WARNING( "Could not set Cluster in PFO " ); }
+          bool isSet = false;
+          if (isFirstCluster){
+            isSet = thisPFO->setClusterLink(theSisterClusterLink);
+            isFirstCluster = false;
+          }
+          else isSet = thisPFO->addClusterLink(theSisterClusterLink);
+          if (!isSet) { ATH_MSG_WARNING( "Could not set Cluster in PFO " ); }
         } else {
         	ATH_MSG_DEBUG("PFO with e and eta of " << thisPFO->e() << " and " << thisPFO->eta() << " is adding cluster with e, eta of " << (*theOriginalClusterLink)->e() << " and " << (*theOriginalClusterLink)->eta());
-        	bool isSet = thisPFO->setClusterLink(theOriginalClusterLink);
-        	if (!isSet) { ATH_MSG_WARNING( "Could not set Cluster in PFO " ); }
+          bool isSet = false;
+          if (isFirstCluster){
+            isSet = thisPFO->setClusterLink(theOriginalClusterLink);
+            isFirstCluster = false;
+          }
+          else isSet = thisPFO->addClusterLink(theOriginalClusterLink);
+          if (!isSet) { ATH_MSG_WARNING( "Could not set Cluster in PFO " ); }
 	      }
       }//track-cluster link loop
     }//addClusters is set to true - so we added the clusters to the xAOD::PFO   

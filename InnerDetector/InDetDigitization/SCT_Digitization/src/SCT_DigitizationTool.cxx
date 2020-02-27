@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DigitizationTool.h"
@@ -18,7 +18,7 @@
 
 // Det Descr includes
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
 // Data Handle
 #include "StoreGate/ReadCondHandle.h"
@@ -642,7 +642,7 @@ SCT_RDO_Collection* SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* co
     // Under the current scheme time bin and ERRORS are hard-coded to
     // default values.
     int ERRORS{0};
-    static std::vector<int> dummyvector;
+    static const std::vector<int> dummyvector;
     for (; i_chargedDiode != i_chargedDiode_end; ++i_chargedDiode) {
       unsigned int flagmask{static_cast<unsigned int>((*i_chargedDiode).second.flag() & 0xFE)};
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // egDetailContainerCnv.cxx 
@@ -52,7 +52,7 @@ egDetailContainer* egDetailContainerCnv::createTransient()
 {
   MsgStream msg( msgSvc(), "egDetailContainerCnv" );
 
-  egDetailContainer *transObj = 0;
+  egDetailContainer *transObj = nullptr;
 
   static pool::Guid tr_guid("F8C02E11-E6C5-4843-A57D-3DB2EFACCC5B");
   static pool::Guid p1_guid("C3E26ADE-A984-41AC-83DF-F430F6DF1F1F");

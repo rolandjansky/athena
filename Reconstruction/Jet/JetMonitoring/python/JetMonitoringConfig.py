@@ -30,6 +30,7 @@ from __future__ import print_function
 ## See python/JetMonitoringExample.py for usage of the system
 
 import six
+from AthenaCommon import  SystemOfUnits
 
 class ConfigDict(dict):
     """A python dictionnary extended so that each entry in the dict can also be accessed as 
@@ -190,7 +191,7 @@ class VarSpec(ToolSpec):
     def __init__(self, Name , Type='float', Index=-1, Scale=1):
         # by default we allow only the properties of a JetHistoVarTool
         if Name.endswith(':GeV'):
-            Scale=0.001
+            Scale=1./SystemOfUnits.GeV
             Name = Name[:-4]
 
 

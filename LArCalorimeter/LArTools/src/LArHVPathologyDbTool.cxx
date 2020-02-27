@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArTools/LArHVPathologyDbTool.h" 
@@ -8,6 +8,7 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
+#include "CxxUtils/checker_macros.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CoralBase/AttributeListException.h"
 #include "CoralBase/Blob.h"
@@ -89,8 +90,9 @@ LArHVPathologiesDb* LArHVPathologyDbTool::attrList2HvPathology(const AthenaAttri
     }
     else
       ATH_MSG_DEBUG ( "Got TClass LArHVPathologiesDb" );
- 
-    TBufferFile buf(TBuffer::kRead, blob.size(), (void*)blob.startingAddress(), false);
+
+    void* data ATLAS_THREAD_SAFE = const_cast<void*> (blob.startingAddress());
+    TBufferFile buf(TBuffer::kRead, blob.size(), data, false);
     LArHVPathologiesDb* container = (LArHVPathologiesDb*)buf.ReadObjectAny(klass);
     return container;
   }catch (coral::AttributeListException &e) {

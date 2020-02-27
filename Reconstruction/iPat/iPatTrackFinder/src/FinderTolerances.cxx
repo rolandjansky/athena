@@ -12,7 +12,7 @@
 
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "iPatTrackFinder/FinderTolerances.h"
 #include "iPatUtility/VertexRegion.h"

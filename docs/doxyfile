@@ -771,8 +771,7 @@ WARN_LOGFILE           = doxygen_warnings.log
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = README.md AtlasGeometryCommon AtlasTest Calorimeter Commission Control DataQuality Database DetectorDescription Event External ForwardDetectors Generators InnerDetector LumiBlock MagneticField MuonSpectrometer PhysicsAnalysis Projects Reconstruction Simulation TestBeam TileCalorimeter Tools Tracking graphics 
-INPUT += Trigger HLT
+INPUT                  = README.md AtlasGeometryCommon AtlasTest Calorimeter Commission Control DataQuality Database DetectorDescription Event External ForwardDetectors Generators HLT InnerDetector LArCalorimeter LumiBlock MagneticField MuonSpectrometer PhysicsAnalysis Projects Reconstruction Simulation TestBeam TileCalorimeter Tools Tracking Trigger graphics
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -851,7 +850,7 @@ EXCLUDE_SYMBOLS        =
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           = 
+EXAMPLE_PATH           = ./
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and
@@ -865,7 +864,7 @@ EXAMPLE_PATTERNS       =
 # irrespective of the value of the RECURSIVE tag.
 # The default value is: NO.
 
-EXAMPLE_RECURSIVE      = YES
+EXAMPLE_RECURSIVE      = NO
 
 # The IMAGE_PATH tag can be used to specify one or more files or directories
 # that contain images that are to be included in the documentation (see the

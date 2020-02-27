@@ -93,6 +93,7 @@ void Make_plots(TString infile_hit, TString infile_truth, TString outfile, bool 
     
     if (dofit) {
         hp_totalEvsZ->Fit("thefun","","",-15.,15.);
+        HistArray.Add(thefun);
     }
     
     cout << "file name " << infile_hit << endl;

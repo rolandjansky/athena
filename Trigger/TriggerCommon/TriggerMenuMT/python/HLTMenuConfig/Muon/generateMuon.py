@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, getChainStepName, createStepView
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastRecoCfg, l2MuFastHypoCfg
@@ -30,7 +30,7 @@ def generateChains( flags, chainDict ):
 
     acc.addEventAlgo(l2muFastHypo, sequenceName=stepView.getName())
 
-    l2muFastSequence = MenuSequence( Sequence = l2muFastReco.sequence(),
+    l2muFastSequence = CAMenuSequence( Sequence = l2muFastReco.sequence(),
                                      Maker = l2muFastReco.inputMaker(),
                                      Hypo = l2muFastHypo,
                                      HypoToolGen = None,
@@ -45,6 +45,12 @@ def generateChains( flags, chainDict ):
     stepEFMSName = getChainStepName('EFMSMuon', 2)
     stepEFMSReco, stepEFMSView = createStepView(stepEFMSName)
 
+    #Clone and replace offline flags so we can set muon trigger specific values
+    muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
+    muonflags.Muon.useTGCPriorNextBC=True
+    muonflags.Muon.enableErrorTuning=False
+    muonflags.lock()
+
     accMS = ComponentAccumulator()
     accMS.addSequence(stepEFMSView)
 
@@ -52,20 +58,24 @@ def generateChains( flags, chainDict ):
     recoMS = InViewReco("EFMuMSReco")
 
     from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
-    segCfg = MooSegmentFinderAlgCfg(flags,name="TrigMooSegmentFinder", TgcPrepDataContainer="TGC_Measurements")
+    segCfg = MooSegmentFinderAlgCfg(muonflags,name="TrigMooSegmentFinder",UseTGCNextBC=False, UseTGCPriorBC=False)
     recoMS.mergeReco(segCfg)
+
+    from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
+    trkCfg = MuonTrackBuildingCfg(muonflags, name="TrigMuPatTrackBuilder")
+    recoMS.mergeReco(trkCfg)
 
     accMS.merge(recoMS, sequenceName=stepEFMSReco.getName())
 
     # TODO remove once full step is in place
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
-    fakeHypoAlg = fakeHypoAlgCfg(flags, name='FakeHypoForMuon')
+    fakeHypoAlg = fakeHypoAlgCfg(muonflags, name='FakeHypoForMuon')
     def makeFakeHypoTool(name, cfg):
         return HLTTest__TestHypoTool(name)
     fakeHypoAlg.HypoTools = [ makeFakeHypoTool(chainDict['chainName'], None) ]
     accMS.addEventAlgo(fakeHypoAlg, sequenceName=stepEFMSView.getName())
 
-    efmuMSSequence = MenuSequence( Sequence = recoMS.sequence(),
+    efmuMSSequence = CAMenuSequence( Sequence = recoMS.sequence(),
                                      Maker = recoMS.inputMaker(),
                                      Hypo = fakeHypoAlg, 
                                      HypoToolGen = None,

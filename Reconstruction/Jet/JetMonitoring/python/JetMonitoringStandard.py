@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file JetMonitoringExample.py
@@ -8,86 +8,125 @@
 @brief Main python configuration for the Run III Jet Monitoring
 '''
 
+from __future__ import print_function
+from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec,  SelectSpec, ToolSpec
 
-def jetMonAntiKt4LCTopo():
-    '''Sets-up AntiKt4 monitoring.'''
+
+# *********************************************
+# Define a list of histograms we want to draw for all jet containers.
+# Write this list as a list of Jet histo specifications. Read comments below for details on specifications
+commonHistoSpecs = [
+    # Specification can be simple string.
+    # in this case they are aliases to standard spec has defined in JetStandardHistoSpecs.knownHistos 
+    "pt",  
+    "highpt",
+    "m",
+    "eta",
+        
+    "leadingJetsRel",
 
 
-    # Declare a configuration dictionnary for a JetContainer
-    from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec,  SelectSpec, ToolSpec
+    # or we can directly add our custom histo specification in the form of a HistoSpec
+    #   (HistoSpec is nothing more than a specialized python dictionnary)
+    HistoSpec('HECFrac', (50,-0.1,1.4), title="HEC E fraction;HEC frac;" ),
+    # the basic call is : HistoSpec( variable, histobins, title='histotile;xtitle,ytitle')
+
+
+    # 2D histos, by concatenating 1D histo speficications :
+    "pt;m",
+    "pt;eta",
+
+
+    # TProfile2D : just use 3 variables. For now the sytem will automatically
+    #  interpret it as a TProfile2D (the 3rd variable being profiled)
+    "phi;eta;e", # --> Average Energy vs pt and eta
+
+    # Histograms build from a selection of filtered jets.
+    #  Use a SelectSpec dictionary to define the selection, and the histo to be drawn from it.
+    SelectSpec( 'central',   # the name of the selection
+                '|eta|<0.5', # selection expression. The form 'min<var<max' is automatically interpreted.
+
+                FillerTools = [
+                    "pt",
+                    "m",
+                    "eta",
+                ] ),
+
+    # another selection : only leading jets
+    SelectSpec( 'leading',
+                '', # no selection on variables
+                SelectedIndex=0, # force 1st (leading) jet (we would set 1 for sub-leading jets)
+                path='standardHistos', # force the path where the histos are saved in the final ROOT file
+                FillerTools = [
+                    "pt",
+                    "m",
+                ] ),
+
+
+    SelectSpec( 'highJVF',
+                '0.3<JVF[0]', # JVF is a vector<float> for each jets. Here we cut on the 0th entry of this vector
+                FillerTools = [
+                    "pt",
+                ] ),
+    # Selecting jets passing the LooseBad selection from the JetCleaningTool.
+    SelectSpec( 'LooseBadJets',
+                'LooseBad', # this is not in the form 'min<x<max', so it will be assumed 'LooseBad' is an entry existing in JetStandardHistoSpecs.knownSelector
+                FillerTools = [
+                    "pt",
+                ] ),
+
+    ]
+
+
+topoHistosSpec = [
+    # histos common to all topo jets
+    # to be filled ...
+]
+
+pflowHistosSpec = [
+    # histos common to all PFlow jets
+    # to be filled ...
+]
+
+
+
+def jetMonAlgConfig(  jetName, truthJetName='', trigger=''):
+    """returns a specification of a JetMonitoringAlg (in the form of a JetMonAlgSpec dictionnary).
+    """
     
     # we use a specialized dictionnary (JetMonAlgSpec) which will be translated into the final C++ tool
-    ak4conf = JetMonAlgSpec(
-        "ak4lcMon",
-        JetContainerName = "AntiKt4LCTopoJets",
-        # TriggerChain = '' ,  --> no trigger filter yet.
+    jetAlgConfig = JetMonAlgSpec(
+        jetName+"MonAlg",
+        JetContainerName = jetName,
+        TriggerChain = trigger ,  
     )
 
+    # the list of histos specifications
+    histoSpecs = []
 
-    # Now start filling the histo spec list    
-    ak4conf.appendHistos(
-        # This python list can be filled with various type of entries :
-        # We can give aliases of standard spec :        
-        "pt",  
-        "highpt",
-        "m",
-        "eta",
-        
-        "leadingJetsRel",
+    # then add pre-defined lists as defined above :
+    histoSpecs += commonHistoSpecs 
 
-        
-
-        # or we can directly add our custom histo specification in the form of a HistoSpec :
-        HistoSpec('HECFrac', (50,-0.1,1.4), title="HEC E fraction;HEC frac;" ),
-        # the basic call is : HistoSpec( variable, histobins, title='histotile;xtitle,ytitle')
-        
-
-        # 2D histos
-        "pt;m",
-        "pt;eta",
+    if 'Topo' in jetName:
+        histoSpecs += topoHistosSpec
+    if 'PFlow' in jetName:
+        histoSpecs += pflowHistosSpec
 
 
-        # TProfile2D : just use 3 variables. For now the sytem will automatically
-        #  interpret it as a TProfile2D (the 3rd variable being profiled)
-        "phi;eta;e", # --> Average Energy vs pt and eta
+    if truthJetName != "" :
+        # then add histos showing efficiency and pT responses vs True
+        from JetMonitoring.JetStandardHistoSpecs import responseAndEffSpecMap
+        if truthJetName not in responseAndEffSpecMap:
+            print( "ERROR !! can't schedule a JetHistoResponseAndEff for truth container : ",truthJetName, ". No specification available" )
+            return None
 
-        
-        # Histograms build from a selection of filtered jets.
-        SelectSpec( 'central',   # the name of the selection
-                    '|eta|<0.5', # selection expression. The form 'min<var<max' is automatically interpreted.
+        histoSpecs +=[ responseAndEffSpecMap[truthJetName]  ]
 
-                    FillerTools = [
-                        "pt",
-                        "m",
-                        "eta",
-                    ] ),
+    # finally all all histos specs to our JetMonitoringAlg specification :
+    jetAlgConfig.appendHistos( * histoSpecs)
 
-        # another selection : only sub-leading jets
-        SelectSpec( 'subleading',
-                    '', # no selection on variables
-                    SelectedIndex=1, # force 2nd (sub-leading) jet (we would set 0 for leading jets)
-                    path='standardHistos', # force the path where the histos are saved in the final ROOT file
-                    FillerTools = [
-                        "pt",
-                        "m",
-                    ] ),
-        
-        
-        SelectSpec( 'highJVF',
-                    '0.3<JVF[0]', # JVF is a vector<float> for each jets. Here we cut on the 0th entry of this vector
-                    FillerTools = [
-                        "pt",
-                    ] ),
-        # Selecting jets passing the LooseBad selection from the JetCleaningTool.
-        SelectSpec( 'LooseBadJets',
-                    'LooseBad', # this is not in the form 'min<x<max', so it will be assumed 'LooseBad' is an entry existing in JetStandardHistoSpecs.knownSelector
-                    FillerTools = [
-                        "pt",
-                    ] ),
-
-
-    )
-    return ak4conf
+    return jetAlgConfig
+    
 
     
 
@@ -96,13 +135,23 @@ def jetMonAntiKt4LCTopo():
 def standardJetMonitoring(inputFlags):
     """Standard jet monitoring function to be inserted from top-level algs. 
     returns an a component accumulator as given by AthMonitorCfgHelper.result()
-    Details of what goes into jet monitoring will be implemented by dedicated functions such as jetMonAntiKt4LCTopo().
+    Details of what goes into jet monitoring is implemented by dedicated functions such as jetMonAlgConfig().
     """
 
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'JetMonitoring')
 
-    ak4conf = jetMonAntiKt4LCTopo()
-    ak4conf.toAlg(helper) # adds the ak4conf as a JEtMonitoringAlg to the helper
+
+    # create a list of JetMonitoringAlg specifications
+    jetAlgConfs = [
+        # use the helper function defined above :
+        jetMonAlgConfig( "AntiKt4LCTopoJets", ),
+        #jetMonAlgConfig( "AntiKt4LCTopoJets", truthJetName="AntiKt4TruthJets"),     #How can we make sure truth jets are available ??
+        jetMonAlgConfig( "AntiKt4EMPFlowJets"),
+        ]
+    
+    # schedule each JetMonitoringAlg by invoking the toAlg() methods of the config specification
+    for conf in jetAlgConfs:        
+        conf.toAlg(helper) # adds the conf as a JetMonitoringAlg to the helper
     
     return helper.result() # the AthMonitorCfgHelper returns an accumulator to be used by the general configuration system.

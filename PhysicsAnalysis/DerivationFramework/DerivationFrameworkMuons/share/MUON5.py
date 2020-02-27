@@ -135,7 +135,7 @@ do_track_thinning = False
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 MUON5TrackThinningTool = DerivationFramework__TrackParticleThinning(name                    = "MUON5TrackThinningTool",
-                                                                    ThinningService         = MUON5ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = streamName,
                                                                     SelectionString         = "abs(DFCommonInDetTrackZ0AtPV) < 10.0",
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 if do_track_thinning:
@@ -164,7 +164,7 @@ from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import Derivation
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 
 MUON5TruthTool = DerivationFramework__GenericTruthThinning(name                         = "MUON5TruthThinningTool",
-                                                           ThinningService              = MUON5ThinningHelper.ThinningSvc(),
+                                                           StreamName                   = streamName,
                                                            ParticleSelectionString      = truth_expression,
                                                            PreserveDescendants          = True,
                                                            PreserveGeneratorDescendants = False,

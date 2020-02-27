@@ -26,7 +26,7 @@ truth_expression = truth_cond1+' || '+truth_cond2 +' || '+truth_cond3 +' || '+tr
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 HIGG3D2TruthParticlesThinningTool = DerivationFramework__GenericTruthThinning( name                    = "HIGG3D2TruthParticlesThinningTool", 
-                                                                               ThinningService         = "HIGG3D2ThinningSvc",
+                                                                               StreamName              = streamName,
                                                                                ParticlesKey            = "TruthParticles",
                                                                                ParticleSelectionString = truth_expression,
                                                                                PreserveDescendants     = False,
@@ -53,12 +53,9 @@ streamName = derivationFlags.WriteDAOD_HIGG3D2Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG3D2Stream )
 HIGG3D2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 HIGG3D2Stream.AcceptAlgs(["HIGG3D2Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="HIGG3D2ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

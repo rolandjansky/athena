@@ -289,7 +289,7 @@ namespace Trk {
     */
 
     /** resize layer to the TrackingVolume dimensions - to be overloaded by the extended classes*/
-    virtual void resizeLayer  (const VolumeBounds&, double) {}
+    virtual void resizeLayer (const VolumeBounds&, double) {}
 
     /** resize layer to the TrackingVolume dimensions const not thread safe */
     virtual void resizeLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds&, double) const {}

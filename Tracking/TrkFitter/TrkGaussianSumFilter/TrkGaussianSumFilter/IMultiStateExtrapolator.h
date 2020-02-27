@@ -23,8 +23,8 @@ decription           : Extrapolation of a MultiComponentState to a destination
 #include "TrkSurfaces/BoundaryCheck.h"
 
 #include "GaudiKernel/IAlgTool.h"
-#include <vector>
 #include <memory>
+#include <vector>
 namespace Trk {
 
 class IPropagator;
@@ -39,7 +39,7 @@ class IMultiStateExtrapolator : virtual public IAlgTool
 {
 public:
   /** Virtual destructor */
-  virtual ~IMultiStateExtrapolator()= default;
+  virtual ~IMultiStateExtrapolator() = default;
 
   /** AlgTool interface method */
   static const InterfaceID& interfaceID() { return IID_IMultiStateExtrapolator; };
@@ -53,7 +53,8 @@ public:
     const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
-  /** - Extrapolation of a MultiComponentState to destination surface without material effects (2) */
+  /** - Extrapolation of a MultiComponentState to destination surface without material effects (2)
+   */
   virtual std::unique_ptr<MultiComponentState> extrapolateDirectly(
     const IPropagator&,
     const MultiComponentState&,
@@ -78,7 +79,7 @@ public:
     const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
-  virtual std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> extrapolateM( 
+  virtual std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> extrapolateM(
     const MultiComponentState&,
     const Surface&,
     PropDirection dir = anyDirection,

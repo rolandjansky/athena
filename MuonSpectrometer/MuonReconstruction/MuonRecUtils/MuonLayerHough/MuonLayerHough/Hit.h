@@ -169,7 +169,7 @@ namespace MuonHough {
   };
 
   /// struct to sort the hits
-  struct SortHitsPerLayer : public std::binary_function<class Hit, class Hit, bool>  {
+  struct SortHitsPerLayer {
     bool operator()(const Hit& hit1, const Hit& hit2 ) const {
       return compare(hit1.ymin, hit2.ymin, hit1.layer, hit2.layer, hit1.debugInfo(), hit2.debugInfo() );  
     }

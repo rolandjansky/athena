@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -41,7 +43,7 @@ if not 'ReadHECPhysWaveFromCOOL' in dir():
    ReadHECPhysWaveFromCOOL = True
 	
 if not 'InputHECPhysWavePoolFileDir' in dir():
-   InputHECMapPoolFileDir  = commands.getoutput("pwd")
+   InputHECMapPoolFileDir  = subprocess.getoutput("pwd")
    
 if not 'InputHECPhysWavePoolFileName' in dir():
    InputHECPhysWavePoolFileName = "LArHECPhysWave.pool.root"   
@@ -51,7 +53,7 @@ if not 'ReadCaliWaveFromCOOL' in dir():
    ReadCaliWaveFromCOOL = True
 
 if not 'InputCaliWavePoolDir' in dir():
-   InputCaliWavePoolDir = commands.getoutput("pwd")
+   InputCaliWavePoolDir = subprocess.getoutput("pwd")
 
 if not 'InputCaliWavePoolFileName' in dir():
    InputCaliWavePoolFileName = "LArCaliWave.pool.root"
@@ -61,7 +63,7 @@ if not 'ReadPulseParamsFromCOOL' in dir():
    ReadPulseParamsFromCOOL = True
 
 if not 'InputPulseParamsPoolDir' in dir():
-   InputPulseParamsPoolDir = commands.getoutput("pwd")
+   InputPulseParamsPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputPulseParamsPoolFileName' in dir():
    InputPulseParamsPoolFileName = "LArCaliPulseParamsVsCalib_AllBoards.pool.root"
@@ -71,7 +73,7 @@ if not 'ReadDetCellParamsFromCOOL' in dir():
    ReadDetCellParamsFromCOOL = True
 
 if not 'InputDetCellParamsPoolDir' in dir():
-   InputDetCellParamsPoolDir = commands.getoutput("pwd")
+   InputDetCellParamsPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputDetCellParamsPoolFileName' in dir():
    InputDetCellParamsPoolFileName = "detector_EMECA_C_v1.pool.root"
@@ -81,7 +83,7 @@ if not 'ReadDTimeFromCOOL' in dir():
    ReadDTimeFromCOOL = True
 
 if not 'InputDTimePoolDir' in dir():
-   InputDTimePoolDir = commands.getoutput("pwd")
+   InputDTimePoolDir = subprocess.getoutput("pwd")
 
 if not 'InputDTimePoolFileName' in dir():
    InputDTimePoolFileName = "tdrift_EMECA_C_v1.pool.root"
@@ -269,13 +271,13 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
 
 if not 'OutputPhysWaveRootFileDir' in dir():
-    OutputPhysWaveRootFileDir= commands.getoutput("pwd")
+    OutputPhysWaveRootFileDir= subprocess.getoutput("pwd")
     
 if not 'OutputPhysWavePoolFileDir' in dir():
-    OutputPhysWavePoolFileDir= commands.getoutput("pwd")
+    OutputPhysWavePoolFileDir= subprocess.getoutput("pwd")
 
 if not 'OutputMphysOverMcalPoolFileDir' in dir():
-    OutputMphysOverMcalPoolFileDir= commands.getoutput("pwd")    
+    OutputMphysOverMcalPoolFileDir= subprocess.getoutput("pwd")    
 
 PhysWaveFileTag = str(RunNumber)+"_"+Partition.replace("*","")
 

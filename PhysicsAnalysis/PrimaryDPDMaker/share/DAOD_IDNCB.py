@@ -61,10 +61,9 @@ streamName = primDPD.WriteDAOD_IDNCBStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDNCBStream )
 IDNCBStream = MSMgr.NewPoolRootStream( streamName, fileName )
 IDNCBStream.AcceptAlgs(["DFIDNCB_KERN"])
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="IDNCBThinningSvc", outStreams=[evtStream] )
+
 #################
 ### Setup tools
 #################
@@ -77,8 +76,10 @@ if dumpTrtInfo:
     TRTCalibDBSvc=TRT_CalDbSvc()
     ServiceMgr += TRTCalibDBSvc
 
-    from TRT_ToT_Tools.TRT_ToT_ToolsConf import TRT_ToT_dEdx
+    from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import TRT_ToT_dEdx
     TRT_dEdx_Tool = TRT_ToT_dEdx(name="NCBTRT_ToT_dEdx")
+    from InDetRecExample.TrackingCommon import getInDetTRT_LocalOccupancy
+    TRT_dEdx_Tool.TRT_LocalOccupancyTool    = getInDetTRT_LocalOccupancy()
     ToolSvc += TRT_dEdx_Tool
 
 #Setup charge->ToT back-conversion to restore ToT info as well
@@ -253,7 +254,7 @@ thinningTools = []
 # TrackParticles directly
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 IDNCBThinningTool = DerivationFramework__TrackParticleThinning(name = "IDNCBThinningTool",
-                                                                 ThinningService         = "IDNCBThinningSvc",
+                                                                 StreamName              = streamName,
                                                                  SelectionString         = thinTrackSelection,
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                  ThinHitsOnTrack = thinHitsOnTrack)

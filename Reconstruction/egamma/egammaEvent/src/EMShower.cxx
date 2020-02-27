@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -104,7 +104,7 @@ void EMShower::set_parameter(egammaParameters::ParamDef key, double value, bool 
   }
 
   if ( p == m_parameters.end() ) {
-    m_parameters.push_back( elParams(key,value) );
+    m_parameters.emplace_back(key,value );
   }
   else {
     if ( overwrite ) {

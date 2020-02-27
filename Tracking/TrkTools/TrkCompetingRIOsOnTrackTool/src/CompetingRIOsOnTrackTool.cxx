@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ StatusCode Trk::CompetingRIOsOnTrackTool::initialize() {
       }
     } else {
       ATH_MSG_DEBUG("No Tool for making CompetingPixelClustersOnTrack given.");
-      m_compPixelTool = 0;
+      m_compPixelTool = nullptr;
     }
    
     if ( ! m_compSCT_Tool.empty() ) {
@@ -154,7 +154,7 @@ const Trk::CompetingRIOsOnTrack* Trk::CompetingRIOsOnTrackTool::createCompetingR
     // --- this is not necessarily a problem or a wrong configuration, e.g. the DAF can
     // --- operate in a mode, where annealing is just performed for some of the sub-detectors
     // simply return a NULL pointer:
-    return 0;
+    return nullptr;
 
 }
 
@@ -195,7 +195,6 @@ void Trk::CompetingRIOsOnTrackTool::updateCompetingROT(
     // --- its assignment probabilities
     ATH_MSG_WARNING( "could not identify CompetingROT as one of those with a detector-specific tool given!");
     ATH_MSG_WARNING( "PRD with identifier " << m_idHelper->print_to_string(id));
-    return;
 }
 
 StatusCode Trk::CompetingRIOsOnTrackTool::updateCompetingROTprobs(
@@ -244,29 +243,29 @@ Trk::CompetingRIOsOnTrackTool::createSimpleCompetingROT
 
   if (mtype == Trk::TrackState::Pixel
       || (mtype==Trk::TrackState::unidentified && m_idHelper->is_pixel(id)) ) {
-    if (!m_compPixelTool) return 0;
+    if (!m_compPixelTool) return nullptr;
     std::list< const Trk::PrepRawData* > plist;
     plist.push_back(&prd);
     return m_compPixelTool->createCompetingROT(plist,trkPar,beta);
   }
   if (mtype == Trk::TrackState::SCT
       || (mtype==Trk::TrackState::unidentified && m_idHelper->is_sct(id)) ) {
-    if (m_compSCT_Tool.empty()) return 0;
+    if (m_compSCT_Tool.empty()) return nullptr;
     std::list< const Trk::PrepRawData* > plist;
     plist.push_back(&prd);
     return m_compSCT_Tool->createCompetingROT(plist,trkPar,beta);
   }
   if (mtype == Trk::TrackState::TRT
       || (mtype==Trk::TrackState::unidentified && m_idHelper->is_trt(id)) )
-    return (m_compTRT_Tool.empty() ? 0 :
+    return (m_compTRT_Tool.empty() ? nullptr :
             m_compTRT_Tool->createSimpleCompetingROT(prd,trkPar,beta) );
 
   if (mtype == Trk::TrackState::MDT
       || (mtype==Trk::TrackState::unidentified && m_idHelper->is_mdt(id)) )
-    return (m_compMuonDriftCircleTool.empty() ? 0 :
+    return (m_compMuonDriftCircleTool.empty() ? nullptr :
         m_compMuonDriftCircleTool->createSimpleCompetingROT(prd,trkPar,beta));
 
-  return (m_compMuonClusterTool.empty() ? 0 :
+  return (m_compMuonClusterTool.empty() ? nullptr :
           m_compMuonClusterTool->createSimpleCompetingROT(prd,trkPar,beta));
 } 
 

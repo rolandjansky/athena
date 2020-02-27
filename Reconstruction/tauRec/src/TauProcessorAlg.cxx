@@ -32,7 +32,6 @@ AthAlgorithm(name, pSvcLocator),
 m_tools(this), //make tools private
 m_maxEta(2.5),
 m_minPt(10000),
-m_data(),
 m_cellMakerTool("",this)
 {
   declareProperty("Tools", m_tools);
@@ -86,7 +85,6 @@ StatusCode TauProcessorAlg::initialize() {
     for (; itT != itTE; ++itT) {
       ++tool_count;
       ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());
-      (*itT)->setTauEventData(&m_data);
     }
     ATH_MSG_INFO(" ");
     ATH_MSG_INFO("------------------------------------");
@@ -226,8 +224,14 @@ StatusCode TauProcessorAlg::execute() {
       ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
       for (; itT != itTE; ++itT) {
 	ATH_MSG_DEBUG("ProcessorAlg Invoking tool " << (*itT)->name());
-	
-	if ( (*itT)->name().find("ShotFinder") != std::string::npos){
+
+        if ((*itT)->type() == "TauVertexFinder" ) { 
+          sc = (*itT)->executeVertexFinder(*pTau);
+        }
+        else if ( (*itT)->type() == "TauTrackFinder") { 
+          sc = (*itT)->executeTrackFinder(*pTau);
+        }
+        else if ( (*itT)->name().find("ShotFinder") != std::string::npos){
 	  sc = (*itT)->executeShotFinder(*pTau, *tauShotClusContainer, *tauShotPFOContainer);
 	}
 	else if ( (*itT)->name().find("Pi0ClusterFinder") != std::string::npos){
@@ -257,7 +261,7 @@ StatusCode TauProcessorAlg::execute() {
     // symlink as INavigable4MomentumCollection (as in CaloRec/CaloCellMaker)
     ATH_CHECK(evtStore()->symLink(Pi0CellContainer, static_cast<INavigable4MomentumCollection*> (0)));
     
-    // sort the cll container by hash
+    // sort the cell container by hash
     ATH_CHECK( m_cellMakerTool->process(static_cast<CaloCellContainer*> (Pi0CellContainer), ctx) );
 
   ATH_MSG_VERBOSE("The tau candidate container has been modified");

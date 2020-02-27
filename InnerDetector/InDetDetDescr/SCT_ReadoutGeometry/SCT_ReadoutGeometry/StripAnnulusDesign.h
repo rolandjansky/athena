@@ -60,7 +60,7 @@ public:
     // Copy constructor and assignment:
     StripAnnulusDesign(const StripAnnulusDesign &design);
     StripAnnulusDesign &operator = (const StripAnnulusDesign &design);
-    int diodesInRow(const int row) const;
+   
 //
 //    Pure virtual methods in base class:
 //

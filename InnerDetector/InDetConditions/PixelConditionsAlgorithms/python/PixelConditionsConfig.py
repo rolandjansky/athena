@@ -202,6 +202,9 @@ def PixelCablingCondAlgCfg(flags, name="PixelCablingCondAlg", **kwargs):
     acc = ComponentAccumulator()
     if not flags.Input.isMC:
         acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList"))
+        kwargs.setdefault("ReadKey", "/PIXEL/CablingMap")
+    else:
+        kwargs.setdefault("ReadKey", "")
 
     # Cabling parameters
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
@@ -254,8 +257,8 @@ def PixelCablingCondAlgCfg(flags, name="PixelCablingCondAlg", **kwargs):
     kwargs.setdefault("MappingFile", IdMappingDat)
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("PixelReadoutSpeedData", "PixelReadoutSpeedData")
-    kwargs.setdefault("ReadKey", "/PIXEL/CablingMap")
     kwargs.setdefault("WriteKey", "PixelCablingCondData")
+    kwargs.setdefault("RecordInInitialize", not flags.Detector.OverlayPixel)
     acc.addCondAlgo(CompFactory.PixelCablingCondAlg(name, **kwargs))
     return acc
 
@@ -288,8 +291,10 @@ def PixelDCSCondStateAlgCfg(flags, name="PixelDCSCondStateAlg", **kwargs):
     acc = ComponentAccumulator()
     if not flags.Input.isMC:
         acc.merge(addFolders(flags, "/PIXEL/DCS/FSMSTATE", "DCS_OFL", className="CondAttrListCollection"))
+        kwargs.setdefault("ReadKeyState", "/PIXEL/DCS/FSMSTATE")
+    else:
+        kwargs.setdefault("ReadKeyState", "")
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
-    kwargs.setdefault("ReadKeyState", "/PIXEL/DCS/FSMSTATE")
     kwargs.setdefault("WriteKeyState", "PixelDCSStateCondData")
     acc.addCondAlgo(CompFactory.PixelDCSCondStateAlg(name, **kwargs))
     return acc
@@ -299,8 +304,10 @@ def PixelDCSCondStatusAlgCfg(flags, name="PixelDCSCondStatusAlg", **kwargs):
     acc = ComponentAccumulator()
     if not flags.Input.isMC:
         acc.merge(addFolders(flags, "/PIXEL/DCS/FSMSTATUS", "DCS_OFL", className="CondAttrListCollection"))
+        kwargs.setdefault("ReadKeyStatus", "/PIXEL/DCS/FSMSTATUS")
+    else:
+        kwargs.setdefault("ReadKeyStatus", "")
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
-    kwargs.setdefault("ReadKeyStatus", "/PIXEL/DCS/FSMSTATUS")
     kwargs.setdefault("WriteKeyStatus", "PixelDCSStatusCondData")
     acc.addCondAlgo(CompFactory.PixelDCSCondStatusAlg(name, **kwargs))
     return acc
@@ -393,8 +400,10 @@ def PixelTDAQCondAlgCfg(flags, name="PixelTDAQCondAlg", **kwargs):
     acc = ComponentAccumulator()
     if flags.Common.isOnline:
         acc.merge(addFolders(flags, "/TDAQ/Resources/ATLAS/PIXEL/Modules", "TDAQ_ONL", className="CondAttrListCollection"))
+        kwargs.setdefault("ReadKey", "/TDAQ/Resources/ATLAS/PIXEL/Modules")
+    else:
+        kwargs.setdefault("ReadKey", "")
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
-    kwargs.setdefault("ReadKey", "/TDAQ/Resources/ATLAS/PIXEL/Modules")
     kwargs.setdefault("WriteKey", "PixelTDAQCondData")
     acc.addCondAlgo(CompFactory.PixelTDAQCondAlg(name, **kwargs))
     return acc

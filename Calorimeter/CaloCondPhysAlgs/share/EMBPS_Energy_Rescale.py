@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloCellCalcEnergyCorr
@@ -22,16 +23,15 @@ Geometry = 'ATLAS-GEO-18-00-00'
 from RecExConfig.RecFlags import rec
 rec.RunNumber.set_Value_and_Lock(RunNumber)
 
-from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
 trigDB=indirectOpen('COOLONL_TRIGGER/COMP200',oracle=True)
 trigfolder=trigDB.getFolder('/TRIGGER/LUMI/LBLB')
 runiov=(RunNumber << 32)+ LumiBlock
-print " runiov ", runiov
+printfunc (" runiov ", runiov)
 obj=trigfolder.findObject(runiov,0)
 payload=obj.payload()
-TimeStamp=payload['StartTime']/1000000000L
+TimeStamp=payload['StartTime']/1000000000
 trigDB.closeDatabase()
 
 # this setting is just to get directly pileup noise as b and write back the same in the database...
@@ -40,7 +40,7 @@ jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(1.)
 
 #TimeStamp = 1274368420
 
-print " TimeStamp : ",TimeStamp
+printfunc (" TimeStamp : ",TimeStamp)
 
 
 #from PerfMonComps.PerfMonFlags import jobproperties

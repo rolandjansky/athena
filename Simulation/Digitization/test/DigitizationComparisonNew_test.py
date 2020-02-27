@@ -43,9 +43,12 @@ ConfigFlags.LAr.ROD.DoOFCPileupOptimization = True
 ConfigFlags.LAr.ROD.FirstSample = 0
 ConfigFlags.LAr.ROD.UseHighestGainAutoCorr = True
 ConfigFlags.Digitization.Pileup = False
-ConfigFlags.Digitization.DoDigiTruth = False
+ConfigFlags.Digitization.DoDigiTruth = True
+ConfigFlags.Digitization.TruthOutput = True
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Concurrency.NumThreads = 1
+ConfigFlags.Tile.BestPhaseFromCOOL = False
+ConfigFlags.Tile.correctTime = False
 ConfigFlags.lock()
 
 # Construct our accumulator to run
@@ -57,14 +60,14 @@ acc.merge(writeDigitizationMetadata(ConfigFlags))
 # TODO include other modules --- to be uncommented once they are made to agree
 # Inner Detector
 # acc.merge(BCM_DigitizationCfg(ConfigFlags))
-# acc.merge(PixelDigitizationCfg(ConfigFlags))
-# acc.merge(SCT_DigitizationCfg(ConfigFlags))
-# acc.merge(TRT_DigitizationCfg(ConfigFlags))
+acc.merge(PixelDigitizationCfg(ConfigFlags))
+acc.merge(SCT_DigitizationCfg(ConfigFlags))
+acc.merge(TRT_DigitizationCfg(ConfigFlags))
 
 # Calorimeter
 acc.merge(LArTriggerDigitizationCfg(ConfigFlags))
-# acc.merge(TileDigitizationCfg(ConfigFlags))
-# acc.merge(TileTriggerDigitizationCfg(ConfigFlags))
+acc.merge(TileDigitizationCfg(ConfigFlags))
+acc.merge(TileTriggerDigitizationCfg(ConfigFlags))
 
 # Muon Spectrometer
 # acc.merge(MDT_DigitizationDigitToRDOCfg(ConfigFlags))
@@ -76,7 +79,21 @@ acc.merge(LArTriggerDigitizationCfg(ConfigFlags))
 acc.merge(MergeRecoTimingObjCfg(ConfigFlags))
 
 # FIXME hack to match to buggy behaviour in old style configuration
-acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ['EventInfo#*']
+acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["EventInfo#*"]
+acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList.remove("xAOD::EventInfo#EventInfo")
+acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList.remove("xAOD::EventAuxInfo#EventInfoAux.")
+# Calorimeter truth output from DigiOutput.py#0082
+acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["CaloCalibrationHitContainer#*"]
+acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["TileHitVector#MBTSHits"]
+# FIXME hack to match in random seed
+acc.getSequence("AthAlgSeq").StandardPileUpToolsAlg.PileUpTools["TRTDigitizationTool"].RandomSeedOffset = 170
+# for Tile
+acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList.remove("TileRawChannelContainer#TileRawChannelCnt_DigiHSTruth")
+# new style configures these, but they are left default in old config
+acc.getSequence("AthAlgSeq").TilePulseForTileMuonReceiver.TileRawChannelBuilderMF.TimeMaxForAmpCorrection = 25.
+acc.getSequence("AthAlgSeq").TilePulseForTileMuonReceiver.TileRawChannelBuilderMF.TimeMinForAmpCorrection = -25.
+acc.getSequence("AthAlgSeq").TileRChMaker.TileRawChannelBuilderFitOverflow.TimeMaxForAmpCorrection = 25.
+acc.getSequence("AthAlgSeq").TileRChMaker.TileRawChannelBuilderFitOverflow.TimeMinForAmpCorrection = -25.
 
 # Dump config
 acc.getService("StoreGateSvc").Dump = True

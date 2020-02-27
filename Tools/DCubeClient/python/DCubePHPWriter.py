@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ##
 # @file DCubeClient/python/DCubePHPWriter.py
 # @author Krzyszotf Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
@@ -59,7 +59,7 @@ class DCubePHPWriter( DCubeObject ):
         target_list = (os.path.abspath(target)).split(os.sep)
 
         for i in range(min(len(base_list), len(target_list))):
-            if base_list[i] <> target_list[i]: break
+            if base_list[i] != target_list[i]: break
             else:
                 i+=1
 
@@ -177,8 +177,8 @@ class test_DCubePHPWriter( unittest.TestCase ):
     # @param self "Me, myself and Irene"
     def test_02_writer( self ):
         phpWriter = DCubePHPWriter( self.parsed )
-        print phpWriter.dcubePHP( )
-        print phpWriter.dcubeLOG( )
+        print(phpWriter.dcubePHP( ))
+        print(phpWriter.dcubeLOG( ))
     
 
 ## test suite execution

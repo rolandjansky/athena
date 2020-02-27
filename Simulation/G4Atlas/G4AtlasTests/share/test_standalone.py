@@ -126,7 +126,7 @@ myTest = MySimSkeleton()
 def change_worldvolume_y():
     myWorld = AtlasG4Eng.G4Eng.Dict_DetFacility.get('WorldVolume')
     myWorld.df.SetDy(2000)
-    print 'Setting Y coordinate of the WorldVolume to 2000'
+    printfunc ('Setting Y coordinate of the WorldVolume to 2000')
 simFlags.InitFunctions.add_function(1, change_worldvolume_y)
 
 

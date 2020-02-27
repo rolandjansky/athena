@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" media="screen" href="hdefhtml.xsl"?>
-<?xml-stylesheet type="text/xsl" media="tty" href="hdeftty.xsl" alternate="yes"?>
+<?xml-stylesheet type="text/xsl" media="screen" href="hdefhtmlCalo.xsl"?>
+<?xml-stylesheet type="text/xsl" media="tty" href="hdefttyCalo.xsl" alternate="yes"?>
 <!DOCTYPE  hdef [
 <!ENTITY PI "3.1415926">
 ]>

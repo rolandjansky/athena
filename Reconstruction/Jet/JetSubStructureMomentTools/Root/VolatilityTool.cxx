@@ -1,17 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/VolatilityTool.h"
 #include "JetSubStructureUtils/Volatility.h"
 
-using namespace std;
-using fastjet::PseudoJet;
-
 VolatilityTool::VolatilityTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
-  ATH_MSG_DEBUG("Initializing volatility tool.");
   declareProperty("NumberOfIterations", m_num_iterations = 100);
   declareProperty("ZCut", m_zcut = 0.01);
   declareProperty("DCut", m_dcut_fctr = 0.5);
