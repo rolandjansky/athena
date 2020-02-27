@@ -15,7 +15,7 @@
 
 //ATLAS includes
 #include "AsgTools/AsgTool.h"
-#include "EgammaAnalysisInterfaces/IElectronPhotonVariableCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 
 //EDM includes
 #include "xAODEgamma/Electron.h"
@@ -31,10 +31,10 @@ class TEnv;
 // Class ElectronPhotonVariableCorrectionTool
 // ===========================================================================
 
-class ElectronPhotonVariableCorrectionTool : public asg::AsgTool, virtual public IElectronPhotonVariableCorrectionTool
+class ElectronPhotonVariableCorrectionTool : public asg::AsgTool, virtual public IElectronPhotonShowerShapeFudgeTool
 {
     /// Declare the interface that the class provides
-    ASG_TOOL_CLASS(ElectronPhotonVariableCorrectionTool, IElectronPhotonVariableCorrectionTool)
+    ASG_TOOL_CLASS(ElectronPhotonVariableCorrectionTool, IElectronPhotonShowerShapeFudgeTool)
 
 public:
     ElectronPhotonVariableCorrectionTool(const std::string& myname);
@@ -43,13 +43,13 @@ public:
     /** Gaudi Service Interface method implementations */
     StatusCode initialize() override;
     /** Gaudi Service Interface method implementations */
-    StatusCode finalize() override; //does finalize need to be public? It's called in the destructor...
+    StatusCode finalize(); //does finalize need to be public? It's called in the destructor...
 
-    const StatusCode applyCorrection( xAOD::Photon& photon ) override;
-    const StatusCode applyCorrection( xAOD::Electron& electron ) override;
-    const StatusCode correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon ) override;
-    const StatusCode correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron) override;
-    const std::string GetCorrectionVariable() override { return m_correctionVariable; };
+    const CP::CorrectionCode applyCorrection( xAOD::Photon& photon ) const override;
+    const CP::CorrectionCode applyCorrection( xAOD::Electron& electron ) const override;
+    const CP::CorrectionCode correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon ) const override;
+    const CP::CorrectionCode correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron) const override;
+    const std::string GetCorrectionVariable() { return m_correctionVariable; };
 
 private:
     // In order to do faster comparisons, use enum and not string for type of function parameter

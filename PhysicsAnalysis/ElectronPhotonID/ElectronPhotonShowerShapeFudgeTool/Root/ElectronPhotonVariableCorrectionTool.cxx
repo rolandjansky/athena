@@ -181,10 +181,13 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
 // ===========================================================================
 // Application of correction
 // ===========================================================================
-const StatusCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Photon& photon )
+const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Photon& photon ) const
 {
     // check if we should only deal with converted / unconverted photons
-    ATH_CHECK(PassedCorrectPhotonType(photon));
+    if (PassedCorrectPhotonType(photon) != StatusCode::SUCCESS)
+    {
+        return CP::CorrectionCode::Error;
+    }
     
     // From the object, get the variable value according to the variable from the conf file
     // if variable not found, fail
@@ -198,7 +201,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Pho
     else
     {
         ATH_MSG_ERROR("The correction variable \"" << m_correctionVariable << "\" provided in the conf file is not available.");
-        return StatusCode::FAILURE;
+        return CP::CorrectionCode::Error;
     }
     
     //declare objects needed to retreive photon properties
@@ -208,22 +211,30 @@ const StatusCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Pho
     float pt; //safe pt of event
 
     //Get all the properties from the photon and fill them to properties, eta, pt
-    ATH_CHECK(GetKinematicProperties(photon, pt, absEta));
-    ATH_CHECK(GetCorrectionParameters(properties, pt, absEta));
+    if (GetKinematicProperties(photon, pt, absEta) != StatusCode::SUCCESS)
+    {
+        ATH_MSG_ERROR("Could not retrieve kinematic properties of this photon object.");
+        return CP::CorrectionCode::Error;
+    }
+    if (GetCorrectionParameters(properties, pt, absEta) != StatusCode::SUCCESS)
+    {
+        ATH_MSG_ERROR("Could not get the correction parameters for this photon object.");
+        return CP::CorrectionCode::Error;
+    }
     
     // Apply the correction, write to the corrected AuxElement
-    ATH_CHECK(Correct((*m_variableToCorrect)(photon),original_variable, properties));
+    Correct((*m_variableToCorrect)(photon),original_variable, properties).ignore(); // ignore as will always return SUCCESS
 
     // everything worked out, so
-    return StatusCode::SUCCESS;
+    return CP::CorrectionCode::Ok;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Electron& electron )
+const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Electron& electron ) const
 {   
     if (m_convertedPhotonsOnly || m_unconvertedPhotonsOnly)
     {
         ATH_MSG_ERROR("You want to correct electrons, but set either ConvertedPhotonsOnly or UnconvertedPhotonsOnly to \"YES\". Are you using the correct conf file?");
-        return StatusCode::FAILURE;
+        return CP::CorrectionCode::Error;
     }
 
     // From the object, get the variable value according to the variable from the conf file
@@ -238,7 +249,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Ele
     else
     {
         ATH_MSG_ERROR("The correction variable \"" << m_correctionVariable << "\" provided in the conf file is not available.");
-        return StatusCode::FAILURE;
+        return CP::CorrectionCode::Error;
     }
     
     //declare objects needed to retreive electron properties
@@ -248,14 +259,22 @@ const StatusCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Ele
     float pt; //safe pt of event
 
     //Get all the properties from the electron and fill them to properties, eta, pt
-    ATH_CHECK(GetKinematicProperties(electron, pt, absEta));
-    ATH_CHECK(GetCorrectionParameters(properties, pt, absEta));
+    if (GetKinematicProperties(electron, pt, absEta) != StatusCode::SUCCESS)
+    {
+        ATH_MSG_ERROR("Could not retrieve kinematic properties of this electron object.");
+        return CP::CorrectionCode::Error;
+    }
+    if (GetCorrectionParameters(properties, pt, absEta) != StatusCode::SUCCESS)
+    {
+        ATH_MSG_ERROR("Could not get the correction parameters for this electron object.");
+        return CP::CorrectionCode::Error;
+    }
     
     // Apply the correction, write to the corrected AuxElement
-    ATH_CHECK(Correct((*m_variableToCorrect)(electron),original_variable, properties));
+    Correct((*m_variableToCorrect)(electron),original_variable, properties).ignore(); // ignore as will always return SUCCESS
 
     // everything worked out, so
-    return StatusCode::SUCCESS;
+    return CP::CorrectionCode::Ok;
 }
 
 const StatusCode ElectronPhotonVariableCorrectionTool::Correct(float& return_corrected_variable, const float &original_variable, std::vector<float>& properties) const
@@ -276,13 +295,13 @@ const StatusCode ElectronPhotonVariableCorrectionTool::Correct(float& return_cor
 // ===========================================================================
 // Corrected Copies
 // ===========================================================================
-const StatusCode ElectronPhotonVariableCorrectionTool::correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon )
+const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::correctedCopy( const xAOD::Photon& in_photon, xAOD::Photon*& out_photon ) const
 {
     out_photon = new xAOD::Photon(in_photon);
     return applyCorrection(*out_photon);
 }
 
-const StatusCode ElectronPhotonVariableCorrectionTool::correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron)
+const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::correctedCopy( const xAOD::Electron& in_electron, xAOD::Electron*& out_electron) const
 {
     out_electron = new xAOD::Electron(in_electron);
     return applyCorrection(*out_electron);
