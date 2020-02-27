@@ -1,10 +1,11 @@
 #!/bin/sh
 
 # art-include: 21.6/AthGeneration
-# art-description: MadGraph Event Generation Test - SUSY OTF
+# art-description: MadGraph Event Generation Test - SUSY OTF EVNT+TXT
 # art-type: grid
 # art-output: test_lhe_events.events
 # art-output: output_hists.root
+# art-output: EVNT.root
 
 Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputEVNTFile=EVNT.root --outputTXTFile=test_lhe_events --jobConfig=950120
 
