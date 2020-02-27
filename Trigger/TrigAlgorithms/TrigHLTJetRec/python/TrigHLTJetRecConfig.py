@@ -810,6 +810,12 @@ def _getJetTrimmerTool2 (merge_param,
     make heavy use of dynamic stores, so all modifiers other than
     calibration are currently disabled."""
 
+    # Output collection name isn't needed here since only calibration modifiers
+    # are used, but the function below requires one even if it won't be used.
+    # No need for a nicer solution since this whole config should be deprecated
+    # and phased out by 2021.
+    output = "DummyCollectionName"
+
 
     # declare jtm as global as this function body may modify it
     # with the += operator
@@ -877,6 +883,7 @@ def _getJetTrimmerTool2 (merge_param,
     try:
         # Ask the jtm to creat and register the trimmer
         jetTrimmerTool = jtm.addTriggerJetTrimmer(
+            output,
             name,
             rclus,
             ptfrac,
