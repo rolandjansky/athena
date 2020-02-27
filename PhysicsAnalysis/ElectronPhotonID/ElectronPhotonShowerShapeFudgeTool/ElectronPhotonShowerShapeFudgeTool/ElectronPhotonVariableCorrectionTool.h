@@ -76,6 +76,8 @@ private:
     bool m_unconvertedPhotonsOnly = false; //set to true if correction is only for unconverted photons
     bool m_retreivedEtaBinning = false; //check if already retreived eta binning
     bool m_retreivedPtBinning = false; //check if already retreived pt binning
+    std::unique_ptr<SG::AuxElement::Accessor<float>> m_variableToCorrect; // accessor for the variable to be corrected
+    std::unique_ptr<SG::AuxElement::Accessor<float>> m_originalVariable; // accessor to store the original value of the corrected variable
     ElectronPhotonVariableCorrectionTool::ParameterType StringToParameterType( const std::string& input ) const; //convert input string to a parameter function type
     const StatusCode PassedCorrectPhotonType(const xAOD::Photon& photon) const; //check if the correct type of photon was passed to the tool, if only (un)converted photons requested
     const StatusCode GetParameterInformationFromConf(TEnv& env, const int& parameter_number, const ElectronPhotonVariableCorrectionTool::ParameterType& type); //depending on parameter type, get the relevant information from conf file

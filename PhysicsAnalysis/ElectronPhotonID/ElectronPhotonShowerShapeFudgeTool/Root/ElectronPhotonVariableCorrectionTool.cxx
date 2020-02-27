@@ -94,6 +94,12 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
         return StatusCode::FAILURE;
     }
 
+    // initialize the variable aux element accessors
+    // variable to be corrected
+    m_variableToCorrect = std::make_unique<SG::AuxElement::Accessor<float>>(m_correctionVariable);
+    // save original value under different name
+    m_originalVariable = std::make_unique<SG::AuxElement::Accessor<float>>(m_correctionVariable + "_original");
+
     // Get the function used to correct the variable
     if (env.Lookup("Function"))
     {
@@ -180,17 +186,14 @@ const StatusCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Pho
     // check if we should only deal with converted / unconverted photons
     ATH_CHECK(PassedCorrectPhotonType(photon));
     
-    // create aux element accessor for correction
-    SG::AuxElement::Accessor<float> VariableToCorrect(m_correctionVariable);
     // From the object, get the variable value according to the variable from the conf file
     // if variable not found, fail
     float original_variable = 0.;
-    if( VariableToCorrect.isAvailable(photon) )
+    if( m_variableToCorrect->isAvailable(photon) )
     {
-        original_variable = VariableToCorrect(photon);
+        original_variable = (*m_variableToCorrect)(photon);
         //Save the original value to the photon under different name
-        SG::AuxElement::Accessor<float> OriginalVariable(m_correctionVariable + "_original");
-        OriginalVariable(photon) = original_variable;
+        (*m_originalVariable)(photon) = original_variable;
     }
     else
     {
@@ -209,7 +212,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Pho
     ATH_CHECK(GetCorrectionParameters(properties, pt, absEta));
     
     // Apply the correction, write to the corrected AuxElement
-    ATH_CHECK(Correct(VariableToCorrect(photon),original_variable, properties));
+    ATH_CHECK(Correct((*m_variableToCorrect)(photon),original_variable, properties));
 
     // everything worked out, so
     return StatusCode::SUCCESS;
@@ -223,17 +226,14 @@ const StatusCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Ele
         return StatusCode::FAILURE;
     }
 
-    // create aux element accessors for correction
-    SG::AuxElement::Accessor<float> VariableToCorrect(m_correctionVariable);
     // From the object, get the variable value according to the variable from the conf file
     // if variable not found, fail
     float original_variable = 0.;
-    if (VariableToCorrect.isAvailable(electron))
+    if (m_variableToCorrect->isAvailable(electron))
     {
-        original_variable = VariableToCorrect(electron);
+        original_variable = (*m_variableToCorrect)(electron);
         //Save the original value to the photon under different name
-        SG::AuxElement::Accessor<float> OriginalVariable(m_correctionVariable + "_original");
-        OriginalVariable(electron) = original_variable;
+        (*m_originalVariable)(electron) = original_variable;
     }
     else
     {
@@ -252,7 +252,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Ele
     ATH_CHECK(GetCorrectionParameters(properties, pt, absEta));
     
     // Apply the correction, write to the corrected AuxElement
-    ATH_CHECK(Correct(VariableToCorrect(electron),original_variable, properties));
+    ATH_CHECK(Correct((*m_variableToCorrect)(electron),original_variable, properties));
 
     // everything worked out, so
     return StatusCode::SUCCESS;
