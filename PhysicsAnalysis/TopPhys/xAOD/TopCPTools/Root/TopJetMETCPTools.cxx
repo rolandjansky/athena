@@ -180,7 +180,7 @@ namespace top {
       top::check(asg::setProperty(jetCalibrationTool, "CalibSequence", calibSequence),
                  "Failed to set CalibSequence " + calibSequence);
       top::check(asg::setProperty(jetCalibrationTool, "IsData", !m_config->isMC()),
-                 "Failed to set IsData " + !m_config->isMC());
+                 "Failed to set IsData " + std::to_string (!m_config->isMC()));
 
       top::check(jetCalibrationTool->initializeTool(jetCalibrationName),
                  "Failed to initialize JetCalibrationTool");
@@ -410,7 +410,7 @@ namespace top {
       top::check(asg::setProperty(jetCalibrationToolLargeR, "CalibArea", calibAreaLargeR),
                  "Failed to set CalibArea " + calibAreaLargeR);
       top::check(asg::setProperty(jetCalibrationToolLargeR, "IsData", !m_config->isMC()),
-                 "Failed to set IsData " + !m_config->isMC());
+                 "Failed to set IsData " + std::to_string (!m_config->isMC()));
       top::check(jetCalibrationToolLargeR->initializeTool(jetCalibrationNameLargeR),
                  "Failed to initialize JetCalibrationToolLargeR");
       m_jetCalibrationToolLargeR = jetCalibrationToolLargeR;
