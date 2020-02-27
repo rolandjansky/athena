@@ -24,7 +24,7 @@ namespace top {
 
     virtual bool apply(const top::Event&) const override;
 
-    std::string name() const {return "RECO:SONNENSCHEIN";}
+    std::string name() const override {return "RECO:SONNENSCHEIN";}
   private:
     bool tWb(const top::Event& event, int start, TLorentzVector& t, TLorentzVector& W, TLorentzVector& b,
              TLorentzVector& l, TLorentzVector& nu) const;
