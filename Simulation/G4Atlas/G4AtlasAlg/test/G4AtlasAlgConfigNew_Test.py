@@ -21,6 +21,7 @@ if __name__ == '__main__':
 
   #import and set config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  ConfigFlags.Input.RunNumber = [284500] #Isn't updating - todo: investigate
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1'] #defaultTestFiles.EVNT
@@ -34,10 +35,8 @@ if __name__ == '__main__':
   ConfigFlags.Sim.CavernBG = "Signal"
   ConfigFlags.Sim.ISFRun = False
 
-  ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
+  ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-14"
   ConfigFlags.GeoModel.Align.Dynamic = False
-  #ConfigFlags.Input.RunNumber = 222510 #Isn't updating - todo: investigate
-
 
   #set the detector flags:
   #inner detectors
@@ -95,7 +94,24 @@ if __name__ == '__main__':
   # Add configuration to read EVNT pool file
   from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
   cfg.merge(PoolReadCfg(ConfigFlags))
-
+  myRunNumber = 284500
+  myFirstLB = 1
+  myInitialTimeStamp = 1446539185
+  evtMax = 1
+  from AthenaServices.Configurables import EvtIdModifierSvc
+  evtIdModifierSvc = EvtIdModifierSvc(EvtStoreName="StoreGateSvc")
+  from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
+  iovDbMetaDataTool = IOVDbMetaDataTool()
+  iovDbMetaDataTool.MinMaxRunNumbers = [myRunNumber, 2147483647]
+  cfg.addPublicTool(iovDbMetaDataTool)
+  evtIdModifierSvc.add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, time_stamp=myInitialTimeStamp, nevts=evtMax)
+  eventSelector = cfg.getService('EventSelector')
+  eventSelector.OverrideRunNumber = True
+  eventSelector.RunNumber = myRunNumber
+  eventSelector.FirstLB = myFirstLB
+  eventSelector.InitialTimeStamp = myInitialTimeStamp # Necessary to avoid a crash
+  if hasattr(eventSelector,'OverrideRunNumberFromInput'): eventSelector.OverrideRunNumberFromInput = True
+  cfg.addService(evtIdModifierSvc)
 
   #add BeamEffectsAlg
   from BeamEffects.BeamEffectsAlgConfig import BeamEffectsAlgCfg
@@ -152,7 +168,7 @@ if __name__ == '__main__':
 
 
   # Execute and finish
-  sc = cfg.run(maxEvents=1)
+  sc = cfg.run(maxEvents=evtMax)
 
 
   b = time.time()
