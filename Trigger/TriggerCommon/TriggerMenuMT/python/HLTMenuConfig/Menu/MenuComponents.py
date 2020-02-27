@@ -439,14 +439,14 @@ class MenuSequence(object):
 
 
     def configureHypoTool(self, chainDict):
-        if type(self.hypoToolConf) is list:
+        if type(self._hypoToolConf) is list:
             log.warning ("This sequence %s has %d multiple HypoTools ",self.sequence.name, len(self.hypoToolConf))
-            for hypo, hypoToolConf in zip(self._hypo, self.hypoToolConf):
+            for hypo, hypoToolConf in zip(self._hypo, self._hypoToolConf):
                 hypoToolConf.setConf( chainDict )
-                hypo.addHypoTool(self.hypoToolConf)
+                hypo.addHypoTool(self._hypoToolConf)
         else:
-            self.hypoToolConf.setConf( chainDict )
-            self._hypo.addHypoTool(self.hypoToolConf) #this creates the HypoTools  
+            self._hypoToolConf.setConf( chainDict )
+            self._hypo.addHypoTool(self._hypoToolConf) #this creates the HypoTools  
 
 
     def addToSequencer(self, stepReco, seqAndView, already_connected):
