@@ -2166,14 +2166,6 @@ namespace CP {
         return 0.;
       }
       else {
-        //double p2_ms_scaling_factor = 1.; // i.e. no scaling :D
-        //if( m_Trel >= MCAST::Release::Recs2019_10_12 ) {
-        //  // For central-value scaling, ignore the last category as it represents 3-station muons passing the HighPt selection 
-        //  // for which only systematics are adjust, but not the central value
-        //  if( muonInfo.sel_category >= 0 && muonInfo.sel_category < m_p1_p2_MS_Categories-1 ) {
-        //    p2_ms_scaling_factor = m_p2_MS_Scaling.at(std::make_pair(muonInfo.detRegion, muonInfo.sel_category));
-        //  }
-        //}
         smear = m_p0_MS[muonInfo.detRegion]*muonInfo.g0/muonInfo.ptms + m_p1_MS[muonInfo.detRegion]*muonInfo.g1 + m_p2_MS[muonInfo.detRegion]*muonInfo.g2*muonInfo.ptms;
         return smear;
       }
