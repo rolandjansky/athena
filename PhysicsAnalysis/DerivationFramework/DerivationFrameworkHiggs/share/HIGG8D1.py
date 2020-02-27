@@ -27,11 +27,8 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG8D1Stream )
 HIGG8D1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 HIGG8D1Stream.AcceptAlgs(["HIGG8D1Kernel"])
 
-# Thinning service name must match the one passed to the thinning tools
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 #augStream = MSMgr.GetStream( streamName )
 #evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="HIGG8D1ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # TAU SELECTOR TOOL 
@@ -152,7 +149,7 @@ truth_cond_comb = "("+truth_cond_lep+"||"+truth_cond_tau+"||"+truth_photon+")"
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 HIGG8D1TruthTool = DerivationFramework__GenericTruthThinning(name                         = "HIGG8D1TruthTool",
-                                                             ThinningService              = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                             StreamName                   = streamName,
                                                              ParticleSelectionString      = truth_cond_tau,
                                                              PreserveDescendants          = False,
                                                              PreserveGeneratorDescendants = True,
@@ -160,7 +157,7 @@ HIGG8D1TruthTool = DerivationFramework__GenericTruthThinning(name               
                                                              TauHandling                  = False)
 
 HIGG8D1TruthTool2 = DerivationFramework__GenericTruthThinning(name                         = "HIGG8D1TruthTool2",
-                                                              ThinningService              = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                              StreamName                   = streamName,
                                                               ParticleSelectionString      = truth_cond_comb,
                                                               PreserveDescendants          = True, # False
                                                               PreserveGeneratorDescendants = False,

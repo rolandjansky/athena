@@ -124,7 +124,7 @@ def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
         from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     	#thin taus
         HIGG4DxTruthTool_TAU = DerivationFramework__GenericTruthThinning(name                         = HIGG4DxName+"TruthTool_TAU",
-                                                                         ThinningService              = HIGG4DxThinningSvc,
+                                                                         StreamName                   = streamName,
                                                                          ParticleSelectionString      = truth_cond_tau,
                                                                          PreserveDescendants          = False,
                                                                          PreserveGeneratorDescendants = True,
@@ -135,7 +135,7 @@ def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
 
 	#thin leptons and taus
         HIGG4DxTruthTool_COMB = DerivationFramework__GenericTruthThinning(name                         = HIGG4DxName+"TruthTool_COMB",
-                                                                          ThinningService              = HIGG4DxThinningSvc,
+                                                                          StreamName                   = streamName,
                                                                           ParticleSelectionString      = truth_cond_comb,
                                                                           PreserveDescendants          = False,
                                                                           PreserveGeneratorDescendants = False,
@@ -147,7 +147,7 @@ def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
 
     	#thin photons
         """HIGG4DxTruthTool_PHO = DerivationFramework__GenericTruthThinning(name                    = "HIGG4DxTruthTool_PHO",
-                                                                     ThinningService         = HIGG4DxThinningHelper.ThinningSvc(),
+                                                                     StreamName              = streamName,
                                                                      ParticlesKey            = "TruthPhotons",
                                                                      ParticleSelectionString = truth_photon_thinning)
     

@@ -113,7 +113,7 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
   
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     JETM2TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "JETM2TruthThinningTool",
-                                                                        ThinningService        = JETM2ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         ParticleSelectionString = truth_expression,
                                                                         PreserveDescendants     = preserveAllDescendants,
                                                                         PreserveGeneratorDescendants = not preserveAllDescendants,

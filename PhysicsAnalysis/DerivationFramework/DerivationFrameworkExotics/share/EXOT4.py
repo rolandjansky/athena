@@ -237,7 +237,7 @@ EXOT4TAMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT4TAMC
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT4MCGenThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT4MCGenThinningTool",
-                                                                ThinningService = "EXOT4ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 ParticleSelectionString = "abs(TruthParticles.pdgId) ==25 || abs(TruthParticles.pdgId)==39 || abs(TruthParticles.pdgId)==32 || abs(TruthParticles.pdgId)==5100021", 
                                                                 PreserveDescendants = False)
 

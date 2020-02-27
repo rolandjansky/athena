@@ -262,7 +262,7 @@ thinningTools.append(EXOT7A10CCThinningTool)
 # MC thinning ( status && Eta cut && pdgids)
 #from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 #EXOT7MCThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT7MCThinningTool",
-#                                                                ThinningService = "EXOT7ThinningSvc",
+#                                                                StreamName              = streamName,
 #                                                                ParticleSelectionString = final_expression, 
 #                                                                PreserveDescendants = False)
 #
@@ -338,7 +338,7 @@ EXOT7TAMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT7TAMC
 #
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT7MCGenThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT7MCGenThinningTool",
-                                                                ThinningService = "EXOT7ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 ParticleSelectionString = "abs(TruthParticles.pdgId) ==25 || abs(TruthParticles.pdgId)==39 || abs(TruthParticles.pdgId)==32 || abs(TruthParticles.pdgId)==5100021", 
                                                                 PreserveDescendants = False)
 
