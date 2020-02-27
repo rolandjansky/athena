@@ -68,7 +68,11 @@ commission_electron = []
 #monitoring_electron = ['HLT_e60_lhmedium_nod0_L1EM24VHI',
 #                       'HLT_e140_lhloose_nod0_L1EM24VHI'
 #                       ]
-monitoring_electron = [] 
+monitoring_electron = [
+                        "HLT_e3_etcut",
+                       "HLT_e5_etcut",
+                       "HLT_e7_etcut",
+                      ] 
 monitoring_electron += commission_electron
 
 # 2018 single electrons triggers to monitor from Zee TP, includes rerun
