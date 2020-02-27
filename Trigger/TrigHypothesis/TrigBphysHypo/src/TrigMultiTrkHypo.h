@@ -1,19 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
  **
- **   File: Trigger/TrigHypothesis/TrigBphysHypo/TrigMultiTrkHypoMT.h
+ **   File: Trigger/TrigHypothesis/TrigBphysHypo/TrigMultiTrkHypo.h
  **
- **   Description: multi-track hypothesis algorithm 
+ **   Description: multi-track hypothesis algorithm
  **
  **   Author: H. Russell
  **
- **************************************************************************/ 
+ **************************************************************************/
 
-#ifndef TRIG_TrigMultiTrkHypoMT_H 
-#define TRIG_TrigMultiTrkHypoMT_H
+#ifndef TRIG_TrigMultiTrkHypo_H
+#define TRIG_TrigMultiTrkHypo_H
 
 // standard stuff
 #include <string>
@@ -23,7 +23,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "xAODMuon/MuonContainer.h"
 
-
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthViews/View.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -32,7 +31,7 @@
 
 #include "DecisionHandling/TrigCompositeUtils.h"
 
-#include "TrigMultiTrkHypoToolMT.h"
+#include "TrigMultiTrkHypoTool.h"
 #include "TrigBphysHelperUtilsTool.h"
 
 #include "DecisionHandling/HypoBase.h"
@@ -42,12 +41,15 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
+#include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
+#include "InDetConversionFinderTools/VertexPointEstimator.h"
 
-class TrigMultiTrkHypoMT: public ::HypoBase  {
+
+class TrigMultiTrkHypo: public ::HypoBase  {
   enum { MaxNumberTools = 20 };
   public:
-    TrigMultiTrkHypoMT(const std::string & name, ISvcLocator* pSvcLocator);
-    ~TrigMultiTrkHypoMT();
+    TrigMultiTrkHypo(const std::string & name, ISvcLocator* pSvcLocator);
+    ~TrigMultiTrkHypo();
 
     virtual StatusCode  initialize() override;
    virtual StatusCode  execute( const EventContext& context ) const override;
@@ -59,15 +61,15 @@ class TrigMultiTrkHypoMT: public ::HypoBase  {
 
   private:
 
-    TrigMultiTrkHypoMT();
-    ToolHandleArray< TrigMultiTrkHypoToolMT > m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"};
+    TrigMultiTrkHypo();
+    ToolHandleArray< TrigMultiTrkHypoTool > m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"};
 
 	bool passNTracks(int nObjMin,
                  const std::vector<float> & ptObjMin,
   				 const std::vector<ElementLink<xAOD::TrackParticleContainer> > & inputTrkVec,
                  std::vector<ElementLink<xAOD::TrackParticleContainer> > & outputTrkVec,
                  float mindR) const;
-                 
+
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey{ this,
         "trackCollectionKey",         // property name
         "Tracks",                     // default value of StoreGate key
@@ -84,15 +86,15 @@ class TrigMultiTrkHypoMT: public ::HypoBase  {
         "Output TrigBphysContainer name"};
 
   static bool sortTracks(ElementLink<xAOD::TrackParticleContainer> &l1, ElementLink<xAOD::TrackParticleContainer> &l2)
-  {	
+  {
     return (*l1)->pt() > (*l2)->pt();
   }
 
-  ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool { this, 
-    "TrigBphysHelperUtilsTool","TrigBphysHelperUtilsTool","Select bphys helper utils tool you want to use"};
-    
-  //need to implement a timer still!
-  //TrigTimer* m_BmmHypTot;
+  xAOD::TrigBphys* fit(const std::vector<ElementLink<xAOD::TrackParticleContainer>>& tracklist) const;
+
+  ToolHandle<InDet::VertexPointEstimator> m_vertexPointEstimator{this, "VertexPointEstimator", "", "find starting point for the vertex fitter"};
+  ToolHandle<Trk::TrkVKalVrtFitter> m_vertexFitter{this, "VertexFitter", "", "VKalVrtFitter tool to fit tracks into the common vertex"};
+  std::unique_ptr<Trk::IVKalState> m_vertexFitterState;
 
   Gaudi::Property<int> m_nTrk { this, "nTrk",2,"Number of tracks in the vertex"};
   Gaudi::Property<int> m_nTrkQ { this, "nTrkCharge",-1,"sum of track charges"}; // if negative - no cut
@@ -103,15 +105,15 @@ class TrigMultiTrkHypoMT: public ::HypoBase  {
   Gaudi::Property<std::vector<float>> m_nTrkMassMax { this, "nTrackMassMax", {100000},"list of maxes for nTrk mass windows"};
 
   Gaudi::Property<float> m_mindR { this, "overlapdR",0.01 ,"Minimum dR between tracks (overlap removal)"};
-    
-  Gaudi::Property<int> m_particleType { this, "particleType", 0, "Types of particles to use. 0 = tracks, 1 = EF Muons, 2 = tbd..."}; 
-  
-  Gaudi::Property<std::string> m_trigLevelString { this, "trigLevelString", "", "Trigger Level to set for created TrigBphys objects."}; 
-    
+
+  Gaudi::Property<int> m_particleType { this, "particleType", 0, "Types of particles to use. 0 = tracks, 1 = EF Muons, 2 = tbd..."};
+
+  Gaudi::Property<std::string> m_trigLevelString { this, "trigLevelString", "", "Trigger Level to set for created TrigBphys objects."};
+
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-  
+
   xAOD::TrigBphys::levelType m_trigLevel;
 
 };
 
-#endif
+#endif  // TRIG_TrigMultiTrkHypo_H

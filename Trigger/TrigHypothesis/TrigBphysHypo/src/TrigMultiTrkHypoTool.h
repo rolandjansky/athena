@@ -1,19 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
  **
- **   File: Trigger/TrigHypothesis/TrigBphysHypo/TrigMultiTrkHypoToolMT.h
+ **   File: Trigger/TrigHypothesis/TrigBphysHypo/TrigMultiTrkHypoTool.h
  **
  **   Description: multi track hypothesis tool
  **
  **   Author: H. Russell
  **
- **************************************************************************/ 
+ **************************************************************************/
 
-#ifndef TRIG_TrigMultiTrkHypoToolMT_H 
-#define TRIG_TrigMultiTrkHypoToolMT_H
+#ifndef TRIG_TrigMultiTrkHypoTool_H
+#define TRIG_TrigMultiTrkHypoTool_H
 
 // standard stuff
 #include <string>
@@ -37,14 +37,14 @@
 #include "DecisionHandling/Combinators.h"
 
 
-class TrigMultiTrkHypoToolMT: public ::AthAlgTool  {
+class TrigMultiTrkHypoTool: public ::AthAlgTool  {
   enum { MaxNumberTools = 20 };
   public:
-    TrigMultiTrkHypoToolMT(const std::string& type,
+    TrigMultiTrkHypoTool(const std::string& type,
                        const std::string & name,
                        const IInterface* parent );
 
-    virtual ~TrigMultiTrkHypoToolMT();
+    virtual ~TrigMultiTrkHypoTool();
 
     struct TrigMultiTrkInfo {
     TrigMultiTrkInfo( TrigCompositeUtils::Decision* d, const xAOD::TrigBphys* c,
@@ -65,9 +65,9 @@ class TrigMultiTrkHypoToolMT: public ::AthAlgTool  {
     };
 
     virtual StatusCode initialize() override;
-    virtual StatusCode decide(std::vector<TrigMultiTrkHypoToolMT::TrigMultiTrkInfo>& toolInput) const;
+    virtual StatusCode decide(std::vector<TrigMultiTrkHypoTool::TrigMultiTrkInfo>& toolInput) const;
     bool decideOnSingleObject(const xAOD::TrigBphys* trigBphys, size_t cutIndex) const;
-    StatusCode inclusiveSelection(std::vector<TrigMultiTrkHypoToolMT::TrigMultiTrkInfo>& toolInput) const;
+    StatusCode inclusiveSelection(std::vector<TrigMultiTrkHypoTool::TrigMultiTrkInfo>& toolInput) const;
 
   private:
 
@@ -75,7 +75,7 @@ class TrigMultiTrkHypoToolMT: public ::AthAlgTool  {
 
 
     // Mass window cuts
-    Gaudi::Property<int> m_nTrk { this, "nTrk",2,"Number of tracks in the vertex"}; 
+    Gaudi::Property<int> m_nTrk { this, "nTrk",2,"Number of tracks in the vertex"};
     Gaudi::Property< bool > m_oppositeCharge{this, "OppositeSign", false, "Require OS tracks" };
     Gaudi::Property< float > m_lowerMassCut{this, "LowerMassCut", -99. , "Lower mass cut for vertex " };
     Gaudi::Property< float > m_upperMassCut{this, "UpperMassCut", -99. , "Upper mass cut for vertex" };
@@ -89,7 +89,7 @@ class TrigMultiTrkHypoToolMT: public ::AthAlgTool  {
     Gaudi::Property< bool > m_acceptAll {this, "AcceptAll", false, "Ignore selection" };
 
     ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-  
+
 };
 
-#endif
+#endif  // TRIG_TrigMultiTrkHypoTool_H

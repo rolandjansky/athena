@@ -1,20 +1,18 @@
-// -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
  **
- **   File: Trigger/TrigHypothesis/TrigBPhysHypo/TrigMultiTrkHypoToolMT.cxx
+ **   File: Trigger/TrigHypothesis/TrigBPhysHypo/TrigMultiTrkHypoTool.cxx
  **
- **   Description:  Multi-track hypothesis tool for bphys triggers
+ **   Description: Multi-track hypothesis tool for bphys triggers
  **
  **   Author: H. Russell
  **
  **************************************************************************/
 
-#include "TrigMultiTrkHypoToolMT.h"
+#include "TrigMultiTrkHypoTool.h"
 
 #include <math.h>
 
@@ -31,17 +29,17 @@
 class ISvcLocator;
 
 
-TrigMultiTrkHypoToolMT::TrigMultiTrkHypoToolMT(const std::string & type,
+TrigMultiTrkHypoTool::TrigMultiTrkHypoTool(const std::string & type,
                                      const std::string & name,
                                      const IInterface* parent )
    : AthAlgTool( type, name, parent ),
      m_decisionId( HLT::Identifier::fromToolName( name ) )
 {}
 
-TrigMultiTrkHypoToolMT::~TrigMultiTrkHypoToolMT()
+TrigMultiTrkHypoTool::~TrigMultiTrkHypoTool()
 { }
 
-StatusCode TrigMultiTrkHypoToolMT::initialize()
+StatusCode TrigMultiTrkHypoTool::initialize()
 {
   ATH_MSG_DEBUG("AcceptAll            = " << (m_acceptAll==true ? "True" : "False") );
   ATH_MSG_DEBUG("OppositeCharge       = " << (m_oppositeCharge==true ? "True" : "False") );
@@ -50,19 +48,19 @@ StatusCode TrigMultiTrkHypoToolMT::initialize()
   ATH_MSG_DEBUG("ApplyUpperMassCut    = " << m_applyUpperMassCut );
   ATH_MSG_DEBUG("ApplyChi2Cut         = " << m_applyChi2Cut );
   ATH_MSG_DEBUG("Chi2VtxCut           = " << m_chi2VtxCut );
-	
+
   if ( not m_monTool.name().empty() ) {
         ATH_CHECK( m_monTool.retrieve() );
         ATH_MSG_DEBUG("m_monTool name: " << m_monTool);
   }
   if(static_cast<int>(m_ptTrkMin.size()) != m_nTrk){
       ATH_MSG_ERROR("Requested " << m_nTrk << " tracks per vertex, but only provided "
-            << m_ptTrkMin.size() << " track pTs!");        
+            << m_ptTrkMin.size() << " track pTs!");
       return StatusCode::FAILURE;
   } else if(msgLvl(MSG::DEBUG)){
       msg() << MSG::DEBUG <<  "requiring " << m_nTrk << " tracks with pT: ";
       for(float pt :  m_ptTrkMin) msg() << MSG::INFO << pt <<", ";
-      msg() << MSG::DEBUG << endmsg;  
+      msg() << MSG::DEBUG << endmsg;
   }
 
   ATH_MSG_DEBUG("Initialization completed successfully");
@@ -72,18 +70,18 @@ StatusCode TrigMultiTrkHypoToolMT::initialize()
 
 
 //-------------------------------------------------------------------------------------
-bool TrigMultiTrkHypoToolMT::decideOnSingleObject( const xAOD::TrigBphys* trigBphys, size_t  ) const{
- 
+bool TrigMultiTrkHypoTool::decideOnSingleObject( const xAOD::TrigBphys* trigBphys, size_t  ) const{
+
   using namespace Monitored;
 
-  ATH_MSG_DEBUG( "in TrigMultiTrkHypoToolMT::decideOnSingleObject(), looking at TrigBphys object");
+  ATH_MSG_DEBUG( "in TrigMultiTrkHypoTool::decideOnSingleObject(), looking at TrigBphys object");
 
   bool thisPassedMassCut = false;
   bool thisPassedChi2Cut = false;
   bool thisPassedTrkPtCut = false;
-  
+
   bool result = false;
-  
+
   std::vector<float> ini_trkPts(0);
 
   auto mon_cutCounter = Monitored::Scalar<int>("CutCounter",-1);
@@ -94,10 +92,10 @@ bool TrigMultiTrkHypoToolMT::decideOnSingleObject( const xAOD::TrigBphys* trigBp
   auto mon = Monitored::Group( m_monTool, mon_cutCounter, mon_fitChi2, mon_vtxMass, mon_trkPts, mon_totCharge);
 
   mon_cutCounter = 0;
-        
+
   if (trigBphys->particleType() == xAOD::TrigBphys::MULTIMU ) {
-  
-      ATH_MSG_DEBUG("Got Bphys particle with mass " << trigBphys->mass() << " chi2 :  " << trigBphys->fitchi2() ); 
+
+      ATH_MSG_DEBUG("Got Bphys particle with mass " << trigBphys->mass() << " chi2 :  " << trigBphys->fitchi2() );
       float vertexMass = trigBphys->mass();
       thisPassedMassCut = (m_lowerMassCut < vertexMass && ((vertexMass < m_upperMassCut) || (!m_applyUpperMassCut) ));
       thisPassedChi2Cut = ((!m_applyChi2Cut) || (trigBphys->fitchi2() < m_chi2VtxCut && trigBphys->fitchi2() >= -1e-10) );
@@ -117,10 +115,10 @@ bool TrigMultiTrkHypoToolMT::decideOnSingleObject( const xAOD::TrigBphys* trigBp
       std::vector<float> trackPts;
       for(unsigned int i=0; i < nTrk; i++ ){
           const auto tp = trigBphys->trackParticle(i);
-          ATH_MSG_DEBUG("Track pt/eta/phi/charge: " << 
+          ATH_MSG_DEBUG("Track pt/eta/phi/charge: " <<
             trigBphys->trackParticle(i)->pt() << ", " <<
-            trigBphys->trackParticle(i)->eta() << ", " << 
-            trigBphys->trackParticle(i)->phi() << ", " << 
+            trigBphys->trackParticle(i)->eta() << ", " <<
+            trigBphys->trackParticle(i)->phi() << ", " <<
             trigBphys->trackParticle(i)->charge());
           totq += (tp->qOverP() > 0) ? 1 : ((tp->qOverP() < 0) ? -1 : 0);
           trackPts.push_back(tp->pt());
@@ -132,41 +130,41 @@ bool TrigMultiTrkHypoToolMT::decideOnSingleObject( const xAOD::TrigBphys* trigBp
           ini_trkPts.push_back(trackPts.at(i)*0.001);
           if(trackPts.at(i) > m_ptTrkMin[i]) nTrk_pass++;
           ATH_MSG_DEBUG("track pt " << trackPts.at(i) << " >? " << m_ptTrkMin[i]);
-      }      
+      }
       ATH_MSG_DEBUG("Passed " << nTrk_pass << " tracks, out of " << nTrk << " tracks");
       if(nTrk_pass == nTrk){
           thisPassedTrkPtCut = true;
       }
       if(!thisPassedMassCut && !thisPassedChi2Cut && !thisPassedTrkPtCut){
           ATH_MSG_DEBUG("Did not pass mass & chi2 & trk pT cuts ");
-      } 
-      
+      }
+
   }
-  
-  if ( thisPassedMassCut ) { 
-    mon_cutCounter++; 
-    if ( thisPassedChi2Cut ) { 
-      mon_cutCounter++; 
+
+  if ( thisPassedMassCut ) {
+    mon_cutCounter++;
+    if ( thisPassedChi2Cut ) {
+      mon_cutCounter++;
       if ( thisPassedTrkPtCut ){
         mon_cutCounter++;
       }
     }
   }
-  if ( thisPassedMassCut && thisPassedChi2Cut && thisPassedTrkPtCut ) { 
-    result = true; 
-    ATH_MSG_DEBUG("accepting event"); 
+  if ( thisPassedMassCut && thisPassedChi2Cut && thisPassedTrkPtCut ) {
+    result = true;
+    ATH_MSG_DEBUG("accepting event");
   }
-  
+
   ATH_MSG_DEBUG("AcceptAll is set to : " << (m_acceptAll ? "True, taking all events " : "False, applying selection" ));
   // Accept-All mode: temporary patch; should be done with force-accept
   if (m_acceptAll) {
       return true;
   }
-  
+
   return result;
 }
 
-StatusCode TrigMultiTrkHypoToolMT::inclusiveSelection(std::vector<TrigMultiTrkHypoToolMT::TrigMultiTrkInfo>& toolInput) const{
+StatusCode TrigMultiTrkHypoTool::inclusiveSelection(std::vector<TrigMultiTrkHypoTool::TrigMultiTrkInfo>& toolInput) const{
 
   for ( auto& i: toolInput ) {
    //should this be configured to do something slightly differently? maybe we don't want the previous decision to pass this way??
@@ -189,12 +187,12 @@ StatusCode TrigMultiTrkHypoToolMT::inclusiveSelection(std::vector<TrigMultiTrkHy
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigMultiTrkHypoToolMT::decide( std::vector<TrigMultiTrkHypoToolMT::TrigMultiTrkInfo> &input) const {
+StatusCode TrigMultiTrkHypoTool::decide( std::vector<TrigMultiTrkHypoTool::TrigMultiTrkInfo> &input) const {
 
   if ( m_nBphysObjects == 1 ) {
     return inclusiveSelection( input );
   } else {
-    ATH_MSG_WARNING("TrigMultiTrkHypoToolMT is not configured to do multiple dimuon objects selection.");
+    ATH_MSG_WARNING("TrigMultiTrkHypoTool is not configured to do multiple dimuon objects selection.");
     ATH_MSG_WARNING("Clever overlap removal needed to ensure that dimuon objectss do not contain identical RoIs!");
     ATH_MSG_WARNING("I'm returning the inclusive selection result!");
     return inclusiveSelection( input );
