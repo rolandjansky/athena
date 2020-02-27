@@ -10,9 +10,9 @@ namespace top {
 
   MuonSelectionBase::~MuonSelectionBase() {
   }
-}
 
-std::ostream& operator << (std::ostream& os, const top::MuonSelectionBase& selection) {
-  selection.print(os);
-  return os;
+  std::ostream& operator << (std::ostream& os, const top::MuonSelectionBase& selection) {
+    selection.print(os);
+    return os;
+  }
 }
