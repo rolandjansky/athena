@@ -373,24 +373,24 @@ class MenuSequence(object):
 
     def getOutputList(self):
         outputlist = []
-        if type(self.__hypo) is list:
+        if type(self._hypo) is list:
 
-            for hypo in self.__hypo:
+            for hypo in self._hypo:
                 outputlist.append(hypo.readOutputList()[0])
         else:
-            outputlist.append(self.__hypo.readOutputList()[0])
+            outputlist.append(self._hypo.readOutputList()[0])
 
         return outputlist
 
 
     def connectToFilter(self, outfilter):
         """ Connect filter to the InputMaker"""
-        self.__maker.addInput(outfilter)
+        self._maker.addInput(outfilter)
       
 
     def connect(self, Hypo, HypoToolGen):
         """ Sets the input and output of the hypo, and links to the input maker """
-        input_maker_output= self.__maker.readOutputList()[0] # only one since it's merged
+        input_maker_output= self._maker.readOutputList()[0] # only one since it's merged
 
          #### Add input/output Decision to Hypo
         if type(Hypo) is list:
@@ -426,7 +426,7 @@ class MenuSequence(object):
 
         log.debug("MenuSequence.connect: connecting InputMaker and HypoAlg and OverlapRemoverAlg, adding: \n\
         InputMaker::%s.output=%s",\
-                        self.__maker.Alg.name(), input_maker_output)
+                        self._maker.Alg.name(), input_maker_output)
         if type(self._hypo) is list:
            for hp, hp_in, hp_out in zip( self._hypo, hypo_input_total, hypo_output_total):
               log.debug("HypoAlg::%s.previousDecision=%s, \n\
@@ -435,7 +435,7 @@ class MenuSequence(object):
         else:
            log.debug("HypoAlg::%s.previousDecision=%s, \n\
                       HypoAlg::%s.output=%s",\
-                           self.__hypo.Alg.name(), input_maker_output, self.__hypo.Alg.name(), self.__hypo.readOutputList()[0])
+                           self._hypo.Alg.name(), input_maker_output, self._hypo.Alg.name(), self._hypo.readOutputList()[0])
 
 
     def configureHypoTool(self, chainDict):
@@ -469,10 +469,10 @@ class MenuSequence(object):
     def buildCFDot(self, cfseq_algs, all_hypos, isCombo, last_step_hypo_nodes, file):
         cfseq_algs.append(self._maker)
         cfseq_algs.append(self.sequence )
-        if self.reuse is False:
-            file.write("    %s[fillcolor=%s]\n"%(self._maker.Alg.name(), algColor(self._maker.Alg)))
-            file.write("    %s[fillcolor=%s]\n"%(self.sequence.Alg.name(), algColor(self.sequence.Alg)))
-            self.reuse=True
+
+        file.write("    %s[fillcolor=%s]\n"%(self._maker.Alg.name(), algColor(self._maker.Alg)))
+        file.write("    %s[fillcolor=%s]\n"%(self.sequence.Alg.name(), algColor(self.sequence.Alg)))
+        
         if type(self._hypo) is list:
             for hp in self._hypo:
                 cfseq_algs.append(hp)
@@ -508,12 +508,12 @@ class MenuSequence(object):
               hyponame.append( hp.Alg.name() )
               hypotool.append( hptool.name )
            return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s \n HypoTool::%s"\
-           %(self.name, hyponame, self.__maker.Alg.name(), self.sequence.Alg.name(), hypotool)
+           %(self.name, hyponame, self._maker.Alg.name(), self.sequence.Alg.name(), hypotool)
         else:
            hyponame = self._hypo.Alg.name()
            hypotool = self.hypoToolConf.name
            return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s \n HypoTool::%s\n"\
-           %(self.name, hyponame, self.__maker.Alg.name(), self.sequence.Alg.name(), hypotool)
+           %(self.name, hyponame, self._maker.Alg.name(), self.sequence.Alg.name(), hypotool)
 
 
 class CAMenuSequence(MenuSequence):
@@ -635,8 +635,6 @@ class Chain(object):
 
             # add one hypotool per sequence and chain part
             for seq, onePartChainDict in zip(step.sequences, listOfChainDictsLegs):
-                if seq.ca is not None: # The CA merging took care of everything
-                    continue
                 seq.configureHypoTool( onePartChainDict )#this creates the HypoTools
 
 

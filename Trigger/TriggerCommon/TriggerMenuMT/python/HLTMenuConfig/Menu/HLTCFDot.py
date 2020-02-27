@@ -129,8 +129,6 @@ def all_DataFlow_to_dot(name, step_list):
                 cfseq_algs = []
                 cfseq_algs.append(cfseq.filter)
 
-                alreadydrawn = set()
-
                 if len(cfseq.step.sequences)==0:
                     last_step_hypoNodes.append(cfseq.filter)
 
@@ -187,8 +185,6 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
             cfseq_algs = []
             cfseq_algs.append(cfseq.filter)
 
-            alreadydrawn = set()
-                    
             for menuseq in cfseq.step.sequences:
                     cfseq_algs, all_hypos, _ = menuseq.buildCFDot(cfseq_algs,
                                                                   all_hypos,
