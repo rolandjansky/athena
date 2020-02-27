@@ -2419,8 +2419,8 @@ namespace top {
     //ReadFloatOption
     float readFloatOption(top::ConfigurationSettings* const& settings, std::string in) const;
   };
-}  // namespace top
 
-std::ostream& operator << (std::ostream& os, const top::TopConfig& config);
+  std::ostream& operator << (std::ostream& os, const TopConfig& config);
+}  // namespace top
 
 #endif

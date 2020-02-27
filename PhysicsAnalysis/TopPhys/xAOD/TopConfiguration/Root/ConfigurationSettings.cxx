@@ -757,30 +757,30 @@ namespace top {
     return(m_killedFeatures.empty() ||
            std::find(m_killedFeatures.begin(), m_killedFeatures.end(), name) == m_killedFeatures.end());
   }
-}
 
-std::ostream& operator << (std::ostream& os, const top::SelectionConfigurationData& data) {
-  os << " - " << data.m_name << "\n";
-  for (const auto& cutname : data.m_cutnames)
-    os << "    " << cutname << "\n";
+  std::ostream& operator << (std::ostream& os, const SelectionConfigurationData& data) {
+    os << " - " << data.m_name << "\n";
+    for (const auto& cutname : data.m_cutnames)
+      os << "    " << cutname << "\n";
 
-  return os;
-}
-
-std::ostream& operator << (std::ostream& os, const top::ConfigurationSettings& settings) {
-  for (std::map<std::string, top::StringData >::const_iterator its = settings.stringData().begin();
-       its != settings.stringData().end(); ++its) {
-    std::stringstream s;
-    s << "\"" << its->first << "\"";
-
-    std::stringstream s2;
-    s2 << "\"" << its->second.m_data << "\"";
-    os << std::setw(40) << std::left << s.str() << " : " << std::setw(35) << s2.str() << " - " << std::right <<
-      its->second.m_human_explanation << "\n";
+    return os;
   }
 
-  //for (const auto& selection : settings.selections())
-  //    os << selection << "\n";
+  std::ostream& operator << (std::ostream& os, const ConfigurationSettings& settings) {
+    for (std::map<std::string, top::StringData >::const_iterator its = settings.stringData().begin();
+         its != settings.stringData().end(); ++its) {
+      std::stringstream s;
+      s << "\"" << its->first << "\"";
 
-  return os;
+      std::stringstream s2;
+      s2 << "\"" << its->second.m_data << "\"";
+      os << std::setw(40) << std::left << s.str() << " : " << std::setw(35) << s2.str() << " - " << std::right <<
+        its->second.m_human_explanation << "\n";
+    }
+
+    //for (const auto& selection : settings.selections())
+    //    os << selection << "\n";
+
+    return os;
+  }
 }
