@@ -90,6 +90,9 @@ def TGC_OverlayDigitizationBasicCfg(flags, **kwargs):
     if flags.Concurrency.NumThreads > 0:
         kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
 
+    # Set common overlay extra inputs
+    kwargs.setdefault("ExtraInputs", flags.Overlay.ExtraInputs)
+
     TGCDigitizer = CompFactory.TGCDigitizer
     acc.addEventAlgo(TGCDigitizer(name="TGC_OverlayDigitizer", **kwargs))
     return acc

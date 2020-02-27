@@ -147,9 +147,12 @@ for i in outSequence.getAllChildren():
         alg = xAODMaker__TrigDecisionCnvAlg()
         alg.AODKey = "TrigDecision"
         alg.xAODKey = "xTrigDecision"
+        alg.ExtraOutputs = [('xAOD::TrigDecision','StoreGateSvc+xTrigDecision')]
         topSequence.insert(idx+1, alg)
         from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigNavigationCnvAlg
-        topSequence.insert(idx+2, xAODMaker__TrigNavigationCnvAlg())
+        trigNavCnv = xAODMaker__TrigNavigationCnvAlg()
+        trigNavCnv.ExtraOutputs = [('xAOD::TrigNavigation','StoreGateSvc+TrigNavigation')]
+        topSequence.insert(idx+2, trigNavCnv)
         _TriggerESDList = {}
         _TriggerAODList = {}
         from TrigEDMConfig.TriggerEDM import getTriggerEDMList

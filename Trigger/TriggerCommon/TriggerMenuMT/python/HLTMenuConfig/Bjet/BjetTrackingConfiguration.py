@@ -2,10 +2,6 @@
 from AthenaCommon.CFElements import parOR
 #from AthenaCommon.Constants import DEBUG
 
-def getFirstStageBjetTracking( jetName,vertexName ):
-    return None
-    # To be implemented on a later stage
-
 def getSecondStageBjetTracking( inputRoI ):
     algSequence = []
 

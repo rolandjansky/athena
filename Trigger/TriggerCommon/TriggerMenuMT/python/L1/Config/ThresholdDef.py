@@ -13,11 +13,10 @@ class ThresholdDef:
     @staticmethod
     def registerThresholds(tc):
 
-        if ThresholdDef.alreadyExecuted: 
+        if ThresholdDef.alreadyExecuted:
             raise RuntimeError("Calling ThresholdDef.registerThresholds twice")
-            return # just for safety
         ThresholdDef.alreadyExecuted = True
-        
+ 
         # MU
         ThresholdValue.setDefaults('MU', {})
 

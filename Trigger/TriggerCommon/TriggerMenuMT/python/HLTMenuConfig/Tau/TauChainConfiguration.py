@@ -12,7 +12,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Tau.TauChainConfiguration")
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase, RecoFragmentsPool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSequence, tauCaloMVAMenuSequence, tauTwoStepTrackSeqCore, tauTwoStepTrackSeqIso, tauIdTrackSeq, tauTrackSeq
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSequence, tauCaloMVAMenuSequence, tauTwoStepTrackSeqCore, tauTwoStepTrackSeqIso, tauIdTrackSeq, tauTrackSeq, tauTrackTwoSeq
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -25,6 +25,9 @@ def getTauCaloMVACfg(flags):
 
 def getTauTrackCfg(flags):
     return tauTrackSeq()
+
+def getTauTrackTwoCfg(flags):
+    return tauTrackTwoSeq()
 
 def getTauIdTrackCfg(flags):
     return tauIdTrackSeq()
@@ -55,10 +58,10 @@ class TauChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
-            "ptonly":[self.getCaloMVASeq(), self.getIdTrack()],
-            "track":[self.getCaloMVASeq(), self.getTrack()],
-            "tracktwo":[self.getCaloMVASeq(), self.getFastTrack(), self.getTrackIso()],
-            "tracktwoMVA":[self.getCaloMVASeq(),self.getFastTrack(), self.getTrackIso()],
+            "ptonly":[self.getCaloSeq(), self.getIdTrack()], #This should use calo only sequence
+            "track":[self.getCaloSeq(), self.getTrack()], #This should use calo only sequence
+            "tracktwo":[self.getCaloSeq(), self.getFastTrack(), self.getTrackTwo()], #This should use calo only sequence
+            "tracktwoMVA":[self.getCaloMVASeq(),self.getFastTrack(), self.getTrackIso()], #This should use calo mva sequence
         }
 
         # this should be extended by the signature expert to make full use of the dictionary!
@@ -90,6 +93,13 @@ class TauChainConfiguration(ChainConfigurationBase):
         stepName = 'StepTrack_tau'
         log.debug("Configuring step " + stepName)
         tauSeq = RecoFragmentsPool.retrieve( getTauTrackCfg, None)
+        return ChainStep(stepName, [tauSeq])
+
+    # --------------------                                                                                                                        
+    def getTrackTwo(self):
+        stepName = 'StepTrackTwo_tau'
+        log.debug("Configuring step " + stepName)
+        tauSeq = RecoFragmentsPool.retrieve( getTauTrackTwoCfg, None)
         return ChainStep(stepName, [tauSeq])
 
     # --------------------                                                                                                                    

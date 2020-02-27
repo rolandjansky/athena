@@ -48,12 +48,6 @@
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 
-#include "TProfile.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TProfile.h"
-#include "TMath.h"
-#include "TLorentzVector.h"
 #include <vector>
 #include <string>
 #include <algorithm>

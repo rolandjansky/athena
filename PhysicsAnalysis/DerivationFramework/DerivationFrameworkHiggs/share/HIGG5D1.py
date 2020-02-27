@@ -50,7 +50,7 @@ truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_con
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 HIGG5D1MCThinningTool = DerivationFramework__GenericTruthThinning(
     name                         = "HIGG5D1MCThinningTool", 
-    ThinningService              = HIGG5D1ThinningHelper.ThinningSvc(),
+    StreamName                   = streamName,
     ParticleSelectionString      = truth_expression,
     PreserveDescendants          = False,
     PreserveGeneratorDescendants = True,
@@ -234,10 +234,8 @@ DerivationFrameworkJob += higg5d1Seq
 
 
 # # Thinning
-# from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 # augStream = MSMgr.GetStream( streamName )
 # evtStream = augStream.GetEventStream()
-# svcMgr += createThinningSvc( svcName="HIGG5D1ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

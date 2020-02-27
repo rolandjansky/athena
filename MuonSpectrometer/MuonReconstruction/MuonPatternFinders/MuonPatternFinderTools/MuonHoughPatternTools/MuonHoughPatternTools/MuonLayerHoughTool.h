@@ -28,7 +28,6 @@
 #include "MuonLayerHough/MuonLayerHoughSelector.h"
 #include "MuonHoughPatternTools/HoughDataPerSec.h"
 
-#include "TMath.h"
 #include <set>
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"

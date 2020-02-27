@@ -36,9 +36,7 @@
 #include "TControlBar.h"
 #include "TApplication.h"
 #include "TLine.h"
-#include "TLegend.h"
 #include "TPaveText.h"
-#include "TMath.h"
 #include "TLatex.h"
 
 // STL //
@@ -297,8 +295,8 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
         }
         scale *= m_scalefactor;
         
-        int canvas_size_x =  TMath::Nint((y_max - y_min)*scale); //1200x500 72er 0.56, 0.71 //48er 0.85, 1.08
-        int canvas_size_y =  TMath::Nint((z_max - z_min)*scale*1.2); 
+        int canvas_size_x = std::round((y_max - y_min)*scale); //1200x500 72er 0.56, 0.71 //48er 0.85, 1.08
+        int canvas_size_y = std::round((z_max - z_min)*scale*1.2); 
         m_canvas = new TCanvas("mdt_display", 
                                "MDT Chamber Display" ,
                                canvas_size_x,canvas_size_y);
@@ -423,7 +421,6 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
         m_canvas_leg->SetFillColor(0);
         m_canvas_leg->Clear();
         m_canvas_leg->Update();
-        //TLegend* leg = new TLegend(0,0,1,1);
         
         int offset     = 40;
         int leftspace  = 40;

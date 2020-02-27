@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* **********************************************************************
@@ -38,10 +38,8 @@
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 // ROOT
-#include "TH1.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include "TMath.h"
 
 // STL
 #include <sstream>

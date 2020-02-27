@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloRescaleNoise
@@ -7,7 +8,7 @@
 
 # TimeStamp gives the time to use to access the new HV setting
 
-from time import strptime,time
+from time import strptime
 from calendar import timegm
 
 if "date" not in dir():
@@ -16,11 +17,11 @@ if "date" not in dir():
 if "TimeStamp" not in dir():
    try:
       ts=strptime(date+'/UTC','%Y-%m-%d:%H:%M:%S/%Z')
-      TimeStamp=int(timegm(ts))*1000000000L
+      TimeStamp=int(timegm(ts))*1000000000
    except ValueError:
-      print "ERROR in time specification, use e.g. 2007-05-25:14:01:00"
+      printfunc ("ERROR in time specification, use e.g. 2007-05-25:14:01:00")
 
-print " TimeStamp to use for HV reading ", TimeStamp
+printfunc (" TimeStamp to use for HV reading ", TimeStamp)
 
 # put here the run number of the period for which the HV correction was the old correction, but after the UPD1 IoV of the mapping change (in case of HV mapping change)
 
@@ -31,7 +32,7 @@ if "RunNumberOld" not in dir():
     from LArCalibProcessing.TimeStampToRunLumi import TimeStampToRunLumi
     rlb=TimeStampToRunLumi(TimeStamp,dbInstance="CONDBR2")
     if rlb is None:
-        print "WARNING: Failed to convert time",TimeStamp,"into a run/lumi number" 
+        printfunc ("WARNING: Failed to convert time",TimeStamp,"into a run/lumi number" )
         RunNumberOld = 999999
         LumiBlock    = 0
     else:
@@ -51,7 +52,7 @@ rec.RunNumber.set_Value_and_Lock(int(RunNumberOld))
 
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doMonitoring = True
-from AthenaCommon.Resilience import treatException,protectedInclude
+from AthenaCommon.Resilience import protectedInclude
 protectedInclude( "PerfMonComps/PerfMonSvc_jobOptions.py" )
 
 from AthenaCommon.DetFlags import DetFlags
@@ -141,7 +142,7 @@ if not hasattr(ServiceMgr, 'THistSvc'):
    from GaudiSvc.GaudiSvcConf import THistSvc
    ServiceMgr += THistSvc()
 
-ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='cellnoise_data.root' OPT='RECREATE'"];
+ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='cellnoise_data.root' OPT='RECREATE'"]
 
 
 #--------------------------------------------------------------

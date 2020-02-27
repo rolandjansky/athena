@@ -1,6 +1,7 @@
 #!/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 import ROOT
 from PyCool import cool
 import os
@@ -27,7 +28,7 @@ def CaloCondBlobWriter(spec,valuePairs,defaultValue):
       pass
 
    
-   print "Build CaloCondBlob object"
+   print ("Build CaloCondBlob object")
    data = cool.Record( spec )
    blob = data['CaloCondBlob16M']
    #flt = g.CaloCondBlobFlt.getInstance(blob)
@@ -35,7 +36,7 @@ def CaloCondBlobWriter(spec,valuePairs,defaultValue):
    flt=fltClass.getInstance(blob)
    flt.init(defVec,nChannels,1)
    
-   print "Filling CaloCondBlob object"
+   print ("Filling CaloCondBlob object")
    dvec=vec()
    dvec.push_back(defaultValue)
 
@@ -44,11 +45,11 @@ def CaloCondBlobWriter(spec,valuePairs,defaultValue):
 
    for (hashid,value) in valuePairs:
       if hashid>=nChannels:
-         print "ERROR: Invalid hash id",hashid
+         print ("ERROR: Invalid hash id",hashid)
          continue
       
       if hashid in foundChans:
-         print "WARNING: Channel with hash",hashid,"encountered twice!"
+         print ("WARNING: Channel with hash",hashid,"encountered twice!")
       else:
         foundChans.add(hashid)
         pass
@@ -57,7 +58,7 @@ def CaloCondBlobWriter(spec,valuePairs,defaultValue):
       pass
    
    if len(foundChans)<nChannels:
-      print "WARNING No values found for",nChannels-len(foundChans),"channels. Left at default value",defaultValue
+      print ("WARNING No values found for",nChannels-len(foundChans),"channels. Left at default value",defaultValue)
       
 
    return data
@@ -70,24 +71,25 @@ def CaloCondBlobWriterFromFile(spec,filename, defaultvalue):
    rein=open(filename)
    for line in rein:
       beforecomment=line.split('#')[0].strip()
-      if len(beforecomment)==0: continue
+      if len(beforecomment)==0:
+         continue
       
       tok=beforecomment.split()
       if len(tok)!=2:
-         print "ERROR: Unexpected syntax:", line
+         print ("ERROR: Unexpected syntax:", line)
          continue
 
       try:
          h=int(tok[0])
          v=float(tok[1])
       except ValueError:
-         print "ERROR: Expected numbers, got",tok[0],tok[1] 
+         print ("ERROR: Expected numbers, got",tok[0],tok[1] )
          continue
 
       fromfile.append((h,v))
       pass
    rein.close()
-   #print fromfile
+   #print (fromfile)
    return CaloCondBlobWriter(spec,fromfile,defaultvalue)
    
 
@@ -98,10 +100,10 @@ def createSqlite(sqliteName,folderName,foldertag,iovMin=cool.ValidityKeyMin,iovM
    dbSvc = cool.DatabaseSvcFactory.databaseService()
 
    if os.access(sqliteName,os.R_OK):
-      print "UPDATING existing sqlite file",sqliteName
+      print ("UPDATING existing sqlite file",sqliteName)
       db=dbSvc.openDatabase("sqlite://;schema="+sqliteName+";dbname=CONDBR2",False)
    else:
-      print "Creating new sqlite file",sqliteName
+      print ("Creating new sqlite file",sqliteName)
       db=dbSvc.createDatabase("sqlite://;schema="+sqliteName+";dbname=CONDBR2")
       
    
@@ -113,19 +115,19 @@ def createSqlite(sqliteName,folderName,foldertag,iovMin=cool.ValidityKeyMin,iovM
    if db.existsFolder(folderName):
       folder=db.getFolder(folderName)
    else:
-      print "Creating COOL folder/tag  %s/%s" % (folderName,foldertag)
+      print ("Creating COOL folder/tag  %s/%s" % (folderName,foldertag))
       #folder = db.createFolder(folderName, spec, desc, cool.FolderVersioning.MULTI_VERSION, True)
       folderSpec = cool.FolderSpecification(cool.FolderVersioning.MULTI_VERSION, spec)
       folder = db.createFolder(folderName, folderSpec, desc, True)
       pass
 
    if inputFileName is None or len(inputFileName)==0:
-      print "No input given. Create empty blob"
+      print ("No input given. Create empty blob")
       data = cool.Record(spec)
    else:
       data=CaloCondBlobWriterFromFile(spec,inputFileName,defaultvalue)
 
-   print "Storing CaloCondBlob object"
+   print ("Storing CaloCondBlob object")
    folder.storeObject(iovMin, iovMax, data, cool.ChannelId(0), foldertag,True)
    
    db.closeDatabase()

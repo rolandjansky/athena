@@ -14,8 +14,8 @@ def RoIBResultDecoderCfg(flags):
   acc.addEventAlgo(decoderAlg)
   return acc
 
-def L1TriggerResultMakerCfg(flags):
-  from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import L1TriggerResultMaker,ExampleL1TriggerByteStreamTool
+def L1TriggerByteStreamDecoderCfg(flags):
+  from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import L1TriggerByteStreamDecoderAlg,ExampleL1TriggerByteStreamTool
   from libpyeformat_helper import SourceIdentifier,SubDetector
 
   # Placeholder for real decoder tools - now it's just an example
@@ -23,14 +23,12 @@ def L1TriggerResultMakerCfg(flags):
   muctpi_robid = int(SourceIdentifier(SubDetector.TDAQ_MUON_CTP_INTERFACE, muctpi_moduleid))
   exampleTool = ExampleL1TriggerByteStreamTool(ROBIDs=[muctpi_robid],
                                                MUCTPIModuleId=muctpi_moduleid,
-                                               MuonRoIContainerWriteKey="LVL1MuonRoIs",
-                                               LinkName="mu_roi")
+                                               MuonRoIContainerWriteKey="LVL1MuonRoIs")
 
   decoderTools = [exampleTool]
 
-  decoderAlg = L1TriggerResultMaker(name="L1TriggerResultMaker",
-                                    L1TriggerResultWHKey="L1TriggerResult",
-                                    DecoderTools=decoderTools)
+  decoderAlg = L1TriggerByteStreamDecoderAlg(name="L1TriggerByteStreamDecoder",
+                                             DecoderTools=decoderTools)
 
   from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
   acc = ComponentAccumulator()
@@ -44,4 +42,4 @@ def L1ByteStreamDecodersRecExSetup(enableRun2L1=True, enableRun3L1=True):
   if enableRun2L1:
     CAtoGlobalWrapper(RoIBResultDecoderCfg,ConfigFlags)
   if enableRun3L1:
-    CAtoGlobalWrapper(L1TriggerResultMakerCfg,ConfigFlags)
+    CAtoGlobalWrapper(L1TriggerByteStreamDecoderCfg,ConfigFlags)

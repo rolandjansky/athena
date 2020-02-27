@@ -1,7 +1,7 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**  
@@ -25,30 +25,37 @@
 #ifndef JETREC_JETCALOQUALITYTOOL_H
 #define JETREC_JETCALOQUALITYTOOL_H
 
-#include "JetRec/JetModifierBase.h"
-
+#include "AsgTools/AsgTool.h"
+#include "JetInterface/IJetDecorator.h"
 #include "JetUtils/JetCaloCalculations.h"
+#include "StoreGate/WriteDecorHandleKeyArray.h"
 
 #include <vector>
 #include <string>
 
 
-class JetCaloQualityTool: public JetModifierBase {
+class JetCaloQualityTool: public asg::AsgTool,
+                          virtual public IJetDecorator {
   ASG_TOOL_CLASS0(JetCaloQualityTool)
   
 public:
   JetCaloQualityTool(const std::string & name);
 
-  virtual int modifyJet(xAOD::Jet& ) const ;
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
  protected:
-  /// Names of calo quantities to compute and to add as attributes
-  std::vector<std::string> m_calculationNames;  
 
-  /// Time cuts for Out-of-time calo quantities.
-  std::vector <double> m_timingTimeCuts;
+  Gaudi::Property<std::vector<std::string> > m_calculationNames{this, "Calculations", {},
+      "Name of calo quantities to compute and add as decorations"};
+  Gaudi::Property<std::vector<double> > m_timingTimeCuts{this, "TimingCuts", {},
+      "Time cuts for out-of-time calo quantities"};
+  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "",
+      "SG key of input jet container"};
+
+  SG::WriteDecorHandleKeyArray<xAOD::JetContainer> m_writeDecorKeys{this, "OutputDecorKeys", {},
+      "SG keys for output decorations (not to be configured manually!)"};
 
   /// This objects holds a list of cluster-based calculators  
   jet::JetCaloCalculations m_jetCalculations;
@@ -56,7 +63,6 @@ public:
   // internal pointer to m_jetCalculations (this pointer is also used in the cell-based derived tool)
   jet::JetCaloCalculations * m_calcProcessor;
 
-  
   bool m_doFracSamplingMax; // internal			     
 };
 #endif 

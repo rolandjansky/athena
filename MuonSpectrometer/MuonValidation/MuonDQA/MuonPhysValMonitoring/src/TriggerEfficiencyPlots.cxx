@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
  #include "TriggerEfficiencyPlots.h"
- #include <TMath.h>
  
  TriggerEfficiencyPlots::TriggerEfficiencyPlots(PlotBase* pParent, const std::string & sDir):PlotBase(pParent, sDir),
    m_pDenomPlots(this, "Denom/", "Muons"),

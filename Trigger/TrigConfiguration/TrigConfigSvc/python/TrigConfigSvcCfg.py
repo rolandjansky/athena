@@ -127,6 +127,9 @@ def getTrigConfigFromFlag( flags=None ):
         "hltpsk" : hltpsk,
         "bgk"    : bgk
     }
+    # this is for backward compatibility
+    if tcdict["source"] == "MCRECO":
+        tcdict["source"] = "FILE"
     return tcdict
 
 

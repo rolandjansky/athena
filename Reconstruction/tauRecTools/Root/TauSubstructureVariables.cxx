@@ -235,10 +235,8 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	  }
 	
 	// now sort cluster by energy
-	// AnalysisUtils::Sort::e(&vClusters);
 	std::sort(vClusters.begin(), vClusters.end(), DefCaloClusterCompare());
 	
-
 	// determine energy sum of leading 2 and leading 3 clusters
 	float sum2LeadClusterE(0.);
 	float sum3LeadClusterE(0.);
@@ -263,7 +261,6 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 
 	ATH_MSG_VERBOSE(" caloIso: " << calo_iso);
 	pTau.setDetail(xAOD::TauJetParameters::caloIso, static_cast<float>(calo_iso)  );
-
 
 	// calculate calorimeter energies in different layers
 	float PSSEnergy(0.);
@@ -313,9 +310,6 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	pTau.setDetail(xAOD::TauJetParameters::EMPOverTrkSysP,		static_cast<float>(fEMPOverTrkSysP));
 
 
-	// get primary vertex container
-	// CALO_ISO_CORRECTED
-	// JVF and PT_PILEUP
 	// jvf and sumPtTrk are now a vector and the old run1-type jvf value is stored in the 0-th element
 	// sumPtTrk is calculated wrt Vertices
 

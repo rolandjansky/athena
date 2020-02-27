@@ -18,7 +18,6 @@
 //_____________________________________________________________________________
 CombinedP4FromRecoTaus::CombinedP4FromRecoTaus(const std::string& name) : 
   TauRecToolBase(name),
-  // move these to another file? :
   m_weight(-1111.),
   m_combined_res(-1111.),
   m_sigma_tauRec(-1111.),

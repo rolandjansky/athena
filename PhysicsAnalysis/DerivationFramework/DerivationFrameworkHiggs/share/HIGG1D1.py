@@ -27,11 +27,8 @@ HIGG1D1Stream.AcceptAlgs(["HIGG1D1Kernel"])
 ## Do not use this variable at the derivation stage
 #HIGG1D1Stream.AddItem("std::vector<int>#leadingV")
 
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="HIGG1D1ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # SKIMMING TOOLS 
@@ -153,7 +150,7 @@ truth_expression = '('+truth_cond_1+' || '+truth_cond_2 +' || '+truth_cond_3 +' 
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 HIGG1D1TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "HIGG1D1TruthThinningTool", 
-                                                                      ThinningService         = "HIGG1D1ThinningSvc",
+                                                                      StreamName              = streamName,
                                                                       ParticleSelectionString = truth_expression,
                                                                       PreserveDescendants     = False,
                                                                       PreserveGeneratorDescendants     = True,

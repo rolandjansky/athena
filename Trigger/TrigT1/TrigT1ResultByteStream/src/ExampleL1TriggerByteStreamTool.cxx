@@ -15,14 +15,19 @@ ExampleL1TriggerByteStreamTool::ExampleL1TriggerByteStreamTool(const std::string
 : base_class(type, name, parent) {}
 
 StatusCode ExampleL1TriggerByteStreamTool::initialize() {
+  if (m_roiWriteKey.empty() == m_roiReadKey.empty()) {
+    ATH_MSG_ERROR("Exactly one of the read / write handle keys has to be set and the other has to be empty, "
+                  << "but they are \"" << m_roiReadKey.key() << "\" / \"" << m_roiWriteKey.key() << "\"");
+    return StatusCode::FAILURE;
+  }
   ATH_CHECK(m_roiWriteKey.initialize(!m_roiWriteKey.empty()));
+  ATH_CHECK(m_roiReadKey.initialize(!m_roiReadKey.empty()));
   return StatusCode::SUCCESS;
 }
 
 // BS->xAOD conversion
-StatusCode ExampleL1TriggerByteStreamTool::convert(const std::vector<const ROBF*>& vrobf,
-                                                   xAOD::TrigComposite& l1TriggerResult,
-                                                   const EventContext& eventContext) const {
+StatusCode ExampleL1TriggerByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vrobf,
+                                                         const EventContext& eventContext) const {
   if (m_roiWriteKey.empty()) {
     ATH_MSG_ERROR("Conversion from BS to xAOD RoI requested but RoI WriteHandleKey is empty");
     return StatusCode::FAILURE;
@@ -35,13 +40,6 @@ StatusCode ExampleL1TriggerByteStreamTool::convert(const std::vector<const ROBF*
   cont->setStore(auxcont.get());
   ATH_CHECK(handle.record(std::move(cont), std::move(auxcont)));
   ATH_MSG_DEBUG("Recorded MuonRoIContainer with key " << m_roiWriteKey.key());
-
-  // Link the RoI container (actually its first element) to L1TriggerResult
-  ElementLink<xAOD::MuonRoIContainer> link = ElementLink<xAOD::MuonRoIContainer>(m_roiWriteKey.key(), 0, eventContext);
-  l1TriggerResult.typelessSetObjectLink(m_linkName.value(),
-                                        link.key(),
-                                        ClassID_traits<xAOD::MuonRoIContainer>::ID(),
-                                        /*index =*/ 0);
 
   // Find the ROB fragment to decode
   const eformat::helper::SourceIdentifier sid(eformat::TDAQ_MUON_CTP_INTERFACE, m_muCTPIModuleID.value());
@@ -68,15 +66,11 @@ StatusCode ExampleL1TriggerByteStreamTool::convert(const std::vector<const ROBF*
 }
 
 /// xAOD->BS conversion
-StatusCode ExampleL1TriggerByteStreamTool::convert(const xAOD::TrigComposite& l1TriggerResult,
-                                                   std::vector<const ROBF*>& /*vrobf*/,
-                                                   const EventContext& /*eventContext*/) const {
-
+StatusCode ExampleL1TriggerByteStreamTool::convertToBS(std::vector<const ROBF*>& /*vrobf*/,
+                                                       const EventContext& eventContext) const {
   // Retrieve the RoI container
-  if (!l1TriggerResult.hasObjectLink(m_linkName.value())) {
-    ATH_MSG_ERROR("L1TriggerResult does not have a link \"" << m_linkName << "\"");
-    return StatusCode::FAILURE;
-  }
+  auto muonRoIs = SG::makeHandle(m_roiReadKey, eventContext);
+  ATH_CHECK(muonRoIs.isValid());
 
   // TODO: implement this part when new code requesting the xAOD->BS conversion is implemented (ATR-19542)
 

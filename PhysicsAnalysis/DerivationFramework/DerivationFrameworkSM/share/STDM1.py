@@ -7,6 +7,20 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 
+#====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_STDM1Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_STDM1Stream )
+STDM1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+STDM1Stream.AcceptAlgs(["STDM1Kernel"]) 
+
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="STDM1ThinningSvc", outStreams=[evtStream] )
+
+
 #=======================================
 # SKIMMING TOOL   
 #=======================================
@@ -68,7 +82,7 @@ if doTruthThinning and globalflags.DataSource()=='geant4':
     
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     STDM1TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "STDM1TruthThinningTool",
-                                                                        ThinningService        = "STDM1ThinningSvc",
+                                                                        StreamName              = streamName,
                                                                         ParticlesKey = "TruthParticles",
                                                                         VerticesKey = "TruthVertices",
                                                                         ParticleSelectionString = truth_expression,
@@ -123,20 +137,6 @@ for radius in [0.2, 0.3, 0.5, 0.6, 0.7, 0.8]:
 #====================================================================
 
 addDefaultTrimmedJets(stdm1Seq,"STDM1")
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_STDM1Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_STDM1Stream )
-STDM1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-STDM1Stream.AcceptAlgs(["STDM1Kernel"]) 
-
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="STDM1ThinningSvc", outStreams=[evtStream] )
-
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

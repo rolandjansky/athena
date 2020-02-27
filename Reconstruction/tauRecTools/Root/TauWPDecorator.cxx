@@ -100,24 +100,21 @@ StatusCode TauWPDecorator::storeLimits(int nProng) {
 
   // Store limits
   for (unsigned int i=0; i<histArray->size(); i++)
-    {
-      TH2* myHist = histArray->at(i).second.get();
-      m_xmin[nProng] = TMath::Min(myHist->GetXaxis()->GetXmin(), m_xmin[nProng]);
-      m_ymin[nProng] = TMath::Min(myHist->GetYaxis()->GetXmin(), m_ymin[nProng]);
+  {
+    TH2* myHist = histArray->at(i).second.get();
+    m_xmin[nProng] = TMath::Min(myHist->GetXaxis()->GetXmin(), m_xmin[nProng]);
+    m_ymin[nProng] = TMath::Min(myHist->GetYaxis()->GetXmin(), m_ymin[nProng]);
 
-      m_xmax[nProng] = TMath::Max(myHist->GetXaxis()->GetBinCenter(myHist->GetNbinsX()), m_xmax[nProng]);
-      m_ymax[nProng] = TMath::Max(myHist->GetYaxis()->GetBinCenter(myHist->GetNbinsY()), m_ymin[nProng]);
+    m_xmax[nProng] = TMath::Max(myHist->GetXaxis()->GetBinCenter(myHist->GetNbinsX()), m_xmax[nProng]);
+    m_ymax[nProng] = TMath::Max(myHist->GetYaxis()->GetBinCenter(myHist->GetNbinsY()), m_ymin[nProng]);
 
-    }
-
-  //ATH_MSG_WARNING("Final limits " << m_xmin[nProng] << " " << m_xmax[nProng] << " " << m_ymin[nProng] << " " << m_ymax[nProng]);
+  }
 
   return StatusCode::SUCCESS;
 }
 
 double TauWPDecorator::transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi) {
   double newscore = 1. - eff_lo - (score - cut_lo)/(cut_hi - cut_lo) * (eff_hi - eff_lo);
-  //if(reverse) newscore = 1.0 - newscore;
   return newscore;
 }
 
@@ -184,15 +181,6 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
   } else {
      y_var = m_mu;
   }
-
-  // ATH_MSG_VERBOSE("========================================");
-  // ATH_MSG_VERBOSE("nProng " << nProng);
-  // ATH_MSG_VERBOSE("pT before " << pt);
-  // ATH_MSG_VERBOSE("y_var before " << y_var);
-
-  //ATH_MSG_ERROR("xmin=" << m_xmin[nProng] << " xmax=" << m_xmax[nProng]);
-  //ATH_MSG_ERROR("ymin=" << m_ymin[nProng] << " ymax=" << m_ymax[nProng]);
-  
 
   ATH_MSG_VERBOSE("pT before " << pt);
   ATH_MSG_VERBOSE("mu before " << y_var);

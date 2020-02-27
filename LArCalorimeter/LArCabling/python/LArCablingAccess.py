@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AlgSequence import AthSequencer
 from IOVDbSvc.CondDB import conddb
@@ -82,7 +82,6 @@ def LArCalibIdMappingSC():
     #conddb.addFolder(dbname,folder,className="AthenaAttributeList")
     # SC only in OFL database
     folder="/LAR/IdentifierOfl/CalibIdMap_SC"
-    dbname="LAR_OFL"
     conddb.addFolder("","<db>sqlite://;schema=/afs/cern.ch/user/p/pavol/w0/public/LAr_Reco_SC_22/run/SCCalibMap.db;dbname=OFLP200</db>"+folder,className="AthenaAttributeList",forceMC=True)
     conddb.addOverride(folder,"LARIdentifierOflCalibIdMap_SC-000")
     condSequence+=LArCalibLineMappingAlg("LArCalibLineMappingAlgSC",ReadKey=folder, WriteKey="LArCalibIdMapSC",isSuperCell=True,MaxCL=16)

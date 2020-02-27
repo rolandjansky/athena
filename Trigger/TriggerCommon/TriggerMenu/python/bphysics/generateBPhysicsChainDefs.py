@@ -1416,12 +1416,8 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
         if topo2StartFrom:
             topo2StartFrom = L2TEname
         
-    if 'Ftk' in topoAlgs:
-        from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-        trkftk = TrigInDetFTKSequence("BeamSpot", "beamSpot", [""]).getSequence()
-    else:
-        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-        [trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+    [trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()
 
 #    from InDetTrigRecExample.EFInDetConfig import *
 #    theTrigEFIDInsideOut = TrigEFIDInsideOut_Bphysics().getSequence()
@@ -1471,20 +1467,14 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
         EFHypo = EFBMuMuXHypo_TauMuMuX()
         
     elif 'bBmumuxv2' in topoAlgs:
-        if 'Ftk' in topoAlgs:
-           from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_FTK
-           from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_FTK
-           EFFex  =  EFBMuMuXFex_FTK()
-           EFHypo = EFBMuMuXHypo_FTK()
-        else:
-           from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_1
-           from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_1  
-           EFFex  =  EFBMuMuXFex_1()
-           EFHypo = EFBMuMuXHypo_1()
-           # legacy vertexing
-           if 'legacyVtx' in topoAlgs:
-               from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_1_legacyVtx
-               EFFex  =  EFBMuMuXFex_1_legacyVtx()
+        from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_1
+        from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_1  
+        EFFex  =  EFBMuMuXFex_1()
+        EFHypo = EFBMuMuXHypo_1()
+        # legacy vertexing
+        if 'legacyVtx' in topoAlgs:
+            from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_1_legacyVtx
+            EFFex  =  EFBMuMuXFex_1_legacyVtx()
         
     elif 'bBmumuxv3' in topoAlgs:
 #        print ('MOOOO in bBmumuxv3')
@@ -1560,38 +1550,6 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
         theChainDef.addSequence([EFFex, EFHypo], EFoutTEs, EFChainName)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
     
-    elif 'Ftk' in topoAlgs:
-    
-    #------- L2 Sequences -------
-    # create the individual outputTEs together with the first sequences that are run
-        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2TEname, topo_start_from = topoStartFrom)
-        theChainDef.addSignatureL2([L2TEname])
-
-
-    #------- EF Sequences -------
-        from TrigGenericAlgs.TrigGenericAlgsConf import  PESA__DummyUnseededAllTEAlgo
-        dummyAlgo = PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")
-        trkFTK=[dummyAlgo]+trkftk[0]
-        EFTEcount = 0
-        EFoutputTEsftk = []
-        for EFinputTE in inputTEsEF:
-            EFTEcount = EFTEcount + 1
-            EFoutputTEftk = EFinputTE+'_ftk'+str(EFTEcount)
-            EFoutputTEsftk.append(EFoutputTEftk)
-        EFoutputTEftk = inputTEsEF[0]+'_ftk'
-
-        theChainDef.addSequence(trkFTK , L2TEname, EFoutputTEftk)
-
-        inputTEs_ftk = [EFoutputTEftk]+inputTEsEF
-
-        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFoutputTEftk])
-
-
-
-        theChainDef.addSequence([EFFex, EFHypo], inputTEs_ftk , EFTEname, topo_start_from = topo2StartFrom)
-        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])        
-
-
     else:
     #------- L2 Sequences -------
     # create the individual outputTEs together with the first sequences that are run
@@ -1632,9 +1590,6 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
 #
 ###################################################################################
 
-# the FTK part here was not tested
-
-
     #L2ChainName = "L2_" + chainDict['chainName']
     #EFChainName = "EF_" + chainDict['chainName']
     topoAlgs = chainDict["topo"]
@@ -1649,13 +1604,8 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
 
     fexNameExt,trkelectrons, mult, pid  = getBphysElectronThresholds(chainDict)
 
-    if 'Ftk' in topoAlgs:
-        log.error("BPhysicsChainDefs not setup for ftk in beex topos yet!") 
-        #from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-        #trkftk = TrigInDetFTKSequence("BeamSpot", "beamSpot", [""]).getSequence()
-    else:
-        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-        [trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+    [trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()
 
 #    from InDetTrigRecExample.EFInDetConfig import *
 #    theTrigEFIDInsideOut = TrigEFIDInsideOut_Bphysics().getSequence()

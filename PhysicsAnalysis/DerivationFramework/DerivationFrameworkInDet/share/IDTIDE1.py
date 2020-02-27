@@ -246,11 +246,22 @@ thinningTools = []
 
 # TrackParticles directly
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+kw = {}
+if not idDxAOD_doPix:
+  kw['InDetTrackStatesPixKey'] = ''
+  kw['InDetTrackMeasurementsPixKey'] = ''
+if not idDxAOD_doSct:
+  kw['InDetTrackStatesSctKey'] = ''
+  kw['InDetTrackMeasurementsSctKey'] = ''
+if not idDxAOD_doTrt:
+  kw['InDetTrackStatesTrtKey'] = ''
+  kw['InDetTrackMeasurementsTrtKey'] = ''
 IDTIDE1ThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTIDE1ThinningTool",
                                                                  StreamName              = streamName,
                                                                  SelectionString         = "abs(DFCommonInDetTrackZ0AtPV) < 5.0",
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                 ThinHitsOnTrack =  InDetDxAODFlags.ThinHitsOnTrack())
+                                                                 ThinHitsOnTrack =  InDetDxAODFlags.ThinHitsOnTrack(),
+                                                                 **kw)
 ToolSvc += IDTIDE1ThinningTool
 thinningTools.append(IDTIDE1ThinningTool)
 

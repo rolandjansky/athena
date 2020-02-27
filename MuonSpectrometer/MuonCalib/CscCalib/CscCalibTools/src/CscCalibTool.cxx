@@ -47,18 +47,18 @@ Double_t bipfunc(const Double_t *x, const Double_t *par){
   Double_t signalWidth = par[4]; //50 ns
   Double_t sum = integrationNumber+integrationNumber2;
   Double_t z0 = 0.5*( (sum+2)
-                      -sqrt(std::pow(sum+2,2)
+                      -std::sqrt(std::pow(sum+2,2)
                             -4*integrationNumber*(integrationNumber2+1))
                       );
 
   Double_t norm = (1.0 - z0 / (1 + integrationNumber2))
-    * TMath::Power(z0, 1.0 * integrationNumber)
-    * TMath::Exp(-z0);
+    * std::pow(z0, 1.0 * integrationNumber)
+    * std::exp(-z0);
 
   Double_t z = (x[0]-par[1])/signalWidth;//*3.47/samplingTime;
   Double_t amplitude =
     par[0]*(1-z/(1+integrationNumber2))
-    *TMath::Power(z,integrationNumber)*TMath::Exp(-1.0*z)/norm;
+    *std::pow(z,integrationNumber)*std::exp(-1.0*z)/norm;
   return amplitude;
 }
 // To add two bipolar function and get a distribution, this function is defined
@@ -612,7 +612,7 @@ bool CscCalibTool::adcToCharge(const std::vector<uint16_t>& samples, uint32_t st
 double CscCalibTool::getZ0() const{
   double sum = m_integrationNumber+m_integrationNumber2;
   double z0 = 0.5*( (sum+2)
-                    -sqrt(std::pow(sum+2,2)
+                    -std::sqrt(std::pow(sum+2,2)
                           -4*m_integrationNumber*(m_integrationNumber2+1))
                     );
   return z0;

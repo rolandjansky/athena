@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -292,6 +292,19 @@ std::string RDBAccessSvc::getChildTag(const std::string& childNode,
 				      const std::string& parentNode,
 				      const std::string& connName)
 {
+  return getChildTag(childNode
+		     , parentTag
+		     , parentNode
+		     , connName
+		     , false);
+}
+
+std::string RDBAccessSvc::getChildTag(const std::string& childNode,
+				      const std::string& parentTag,
+				      const std::string& parentNode,
+				      const std::string& connName,
+				      bool force)
+{
   ATH_MSG_DEBUG("getChildTag for " << childNode << " " << parentTag << " " << parentNode);
   std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -304,7 +317,9 @@ std::string RDBAccessSvc::getChildTag(const std::string& childNode,
       return childtagdet->second.first;
     }
     else {
-      return std::string("");
+      if(!force) {
+	return std::string("");
+      }
     }
   }
 
@@ -476,6 +491,49 @@ void RDBAccessSvc::getAllLeafNodes(std::vector<std::string>& list,
   disconnect(connName);
 }
 
+std::vector<std::string> RDBAccessSvc::getLockedSupportedTags(const std::string& connName)
+{
+  std::vector<std::string> taglist;
+  if(!connect(connName)) {
+    ATH_MSG_ERROR("Failed to open connection " << connName);
+  }
+  else {
+    try{
+      coral::ISessionProxy* session = m_sessions[connName];
+      // Start new readonly transaction
+      session->transaction().start(true);
+
+      coral::ITable& tableTag2Node = session->nominalSchema().tableHandle("HVS_TAG2NODE");
+      coral::IQuery* queryTag2Node = tableTag2Node.newQuery();
+      queryTag2Node->addToOutputList("TAG_NAME");
+      queryTag2Node->setMemoryCacheSize(1);
+      queryTag2Node->setCondition("NODE_ID=0 AND LOCKED=1 AND SUPPORTED=22",coral::AttributeList());
+      queryTag2Node->addToOrderList("TAG_NAME");
+
+      coral::ICursor& cursorTagName = queryTag2Node->execute();
+      while(cursorTagName.next()) {
+	const coral::AttributeList& row = cursorTagName.currentRow();
+	taglist.push_back(row["TAG_NAME"].data<std::string>());
+      }
+      delete queryTag2Node;
+
+      if(session->transaction().isActive()) {
+	session->transaction().commit();
+      }
+    } 
+    catch(coral::SchemaException& se) {
+      ATH_MSG_ERROR("Schema Exception : " << se.what());
+    }
+    catch(std::exception& e) {
+      ATH_MSG_ERROR(e.what());
+    }
+    catch(...) {
+      ATH_MSG_ERROR("Exception caught(...)");
+    }    
+  }
+  disconnect(connName);
+  return taglist;
+}
 
 StatusCode RDBAccessSvc::initialize()
 {

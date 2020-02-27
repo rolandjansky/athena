@@ -209,8 +209,6 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
 
     if (energyLC <= 0) {
       ATH_MSG_DEBUG("tau energy at LC scale is " << energyLC << "--> set energy=0.001");           
-      //TODO: we can not set tau energy to 0 due to bug in P4Helpers during deltaR calculation
-      //will set it to 0.001 MeV
       pTau.setP4(0.001, pTau.eta(), pTau.phi(), pTau.m());
       return StatusCode::SUCCESS;
     }

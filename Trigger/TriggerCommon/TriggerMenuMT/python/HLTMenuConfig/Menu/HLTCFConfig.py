@@ -29,6 +29,7 @@ from builtins import zip
 from builtins import str
 from builtins import map
 from builtins import range
+from collections import OrderedDict
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaCommon.AlgSequence import dumpSequence
@@ -45,7 +46,7 @@ def makeSummary(name, flatDecisions):
     from DecisionHandling.DecisionHandlingConfig import TriggerSummaryAlg    
     summary = TriggerSummaryAlg( CFNaming.stepSummaryName(name) )
     summary.InputDecision = "L1DecoderSummary"
-    summary.FinalDecisions = list(set(flatDecisions))
+    summary.FinalDecisions = list(OrderedDict.fromkeys(flatDecisions))
     return summary
 
 

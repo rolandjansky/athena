@@ -319,7 +319,7 @@ def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     TOPQPhotonThinning = DerivationFramework__GenericTruthThinning(
                            name                    = TOPQname + "PhotonThinning",
-                           ThinningService         = TOPQThinningSvc,
+                           StreamName              = streamName,
                            ParticlesKey            = "TruthPhotons", 
                            ParticleSelectionString = "(TruthPhotons.classifierParticleOrigin != 42) || (TruthPhotons.pt > 20.0*GeV)")
 
@@ -334,7 +334,7 @@ def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
     #from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     #TOPQGluonThinning = DerivationFramework__GenericTruthThinning(
     #                      name                    = TOPQname + "GluonThinning",
-    #                      ThinningService         = TOPQThinningSvc,
+    #                      StreamName              = streamName,
     #                      ParticlesKey            = "TruthParticles", 
     #                      ParticleSelectionString = "(TruthParticles.pdgId  != 21)")
 

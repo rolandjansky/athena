@@ -1,19 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon import CfgMgr
 from AthenaConfiguration.ComponentFactory import CompFactory
-
-def getPixelDetectorTool(name="PixelDetectorTool", **kwargs):
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
-    if InDetGeometryFlags.isSLHC():
-        kwargs.setdefault("ServiceBuilderTool",    "InDetServMatBuilderToolSLHC")
-    else:
-        kwargs.setdefault("ServiceBuilderTool",    "")
-
-    return CfgMgr.PixelDetectorTool(name, **kwargs)
-
-
-############## ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 def PixelGeometryCfg( flags ):

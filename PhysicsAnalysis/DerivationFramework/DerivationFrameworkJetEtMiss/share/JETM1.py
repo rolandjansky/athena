@@ -76,7 +76,7 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     JETM1TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "JETM1TruthThinningTool",
-                                                                        ThinningService = "JETM1ThinningSvc",
+                                                                        StreamName              = streamName,
                                                                         ParticlesKey = "TruthParticles",
                                                                         VerticesKey = "TruthVertices",
                                                                         ParticleSelectionString = truth_expression,

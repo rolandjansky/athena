@@ -1,3 +1,6 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+import sys
 from AthenaCommon.Logging import logging
 recoLog = logging.getLogger('LArNoise')
 
@@ -61,10 +64,10 @@ rec.doWriteAOD=False
 from AthenaCommon.JobProperties import jobproperties
 #if hasattr(runArgs,'geometryVersion'):
 #    jobproperties.Global.DetDescrVersion = runArgs.geometryVersion
-#    print "I found the geometryVersion of",defaultGeoVersion
+#    printfunc ("I found the geometryVersion of",defaultGeoVersion)
 #else:
 #    defaultGeoVersion="ATLAS-GEO-18-00-01"
-#    print "No geometryVersion given, use default value of",defaultGeoVersion
+#    printfunc ("No geometryVersion given, use default value of",defaultGeoVersion)
 #    jobproperties.Global.DetDescrVersion = defaultGeoVersion
    
 from AthenaCommon.DetFlags import DetFlags
@@ -101,12 +104,12 @@ from LArConditionsCommon.LArCondFlags import larCondFlags
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 if not hasattr(runArgs,"conditionsTag") or runArgs.conditionsTag=="CURRENT":
-    print "Resolving 'CURRENT' express conditions tag ..."
+    printfunc ("Resolving 'CURRENT' express conditions tag ...")
     sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
     from AtlCoolBKLib import resolveAlias
     resolver=resolveAlias()
     currentGlobalES=resolver.getCurrentES().replace("*","ST")
-    print "Found ",currentGlobalES
+    printfunc ("Found ",currentGlobalES)
     svcMgr.IOVDbSvc.GlobalTag=currentGlobalES
 else:
     svcMgr.IOVDbSvc.GlobalTag=runArgs.conditionsTag
@@ -121,7 +124,7 @@ if hasattr(runArgs,"maxEvents"):
 
 #
 #####################
-from RecExConfig.ObjKeyStore import objKeyStore, CfgKeyStore
+from RecExConfig.ObjKeyStore import objKeyStore
 from PyUtils.MetaReaderPeeker import convert_itemList
 objKeyStore.addManyTypesInputFile(convert_itemList(layout = '#join'))
 

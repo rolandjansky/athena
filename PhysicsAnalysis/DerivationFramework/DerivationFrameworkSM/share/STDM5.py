@@ -97,19 +97,19 @@ if globalflags.DataSource()=='geant4':
 
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     STDM5TruthLepTool = DerivationFramework__GenericTruthThinning(name                         = "STDM5TruthLepTool", 
-                                                                  ThinningService              = STDM5ThinningHelper.ThinningSvc(),
+                                                                  StreamName                   = streamName,
                                                                   ParticleSelectionString      = truth_cond_Lepton,
                                                                   PreserveDescendants          = False,
                                                                   PreserveGeneratorDescendants = False,
                                                                   PreserveAncestors            = True)
     
     STDM5PhotonThinning = DerivationFramework__GenericTruthThinning(name                    = "STDM5PhotonThinning",
-                                                                    ThinningService         = STDM5ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = streamName,
                                                                     ParticlesKey            = "TruthPhotons", 
                                                                     ParticleSelectionString = photonthinningexpr)
     
     STDM5TruthBosTool = DerivationFramework__GenericTruthThinning(name                         = "STDM5TruthBosTool",
-                                                                  ThinningService              = STDM5ThinningHelper.ThinningSvc(),
+                                                                  StreamName                   = streamName,
                                                                   ParticleSelectionString      = truth_cond_boson,
                                                                   PreserveDescendants          = False,
                                                                   PreserveGeneratorDescendants = True,
@@ -184,12 +184,6 @@ DerivationFrameworkJob += STDM5Sequence
 #fileName   = buildFileName( derivationFlags.WriteDAOD_STDM5Stream )
 #STDM5Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 #STDM5Stream.AcceptAlgs(["STDM5Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-#augStream = MSMgr.GetStream( streamName )
-#evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="STDM5ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

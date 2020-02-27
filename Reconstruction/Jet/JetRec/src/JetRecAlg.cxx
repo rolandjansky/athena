@@ -61,19 +61,19 @@ StatusCode JetRecAlg::execute() {
   }
   std::unique_ptr<xAOD::JetAuxContainer>  auxCont( dynamic_cast<xAOD::JetAuxContainer *>(jets->getStore() ) );  
 
-  
-  // Calculate moments, calibrate, sort, filter...  -----------
-  for(const ToolHandle<IJetModifier> t : m_modifiers){
-    ATH_CHECK(t->modify(*jets));
-  }
+  ATH_MSG_DEBUG("Created jet container of size "<< jets->size() << "  | writing to "<< m_output.key() );
 
-
-  ATH_MSG_DEBUG("Done jet finding "<< jets->size() << "  | writing to "<< m_output.key() );
-  
   // Write out JetContainer and JetAuxContainer
   SG::WriteHandle<xAOD::JetContainer> jetContHandle(m_output);
   ATH_CHECK( jetContHandle.record(std::move(jets), std::move(auxCont) ) );
-  
+
+  ATH_MSG_DEBUG("Applying jet modifiers to " << m_output.key());
+
+  // Calculate moments, calibrate, sort, filter...  -----------
+  for(const ToolHandle<IJetModifier> t : m_modifiers){
+    ATH_CHECK(t->modify(*jetContHandle));
+  }
+
   return StatusCode::SUCCESS;
 
 }

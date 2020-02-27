@@ -36,7 +36,6 @@ if not 'vp1ToyDetector' in dir(): vp1ToyDetector=False
 if not 'vp1GeoModelStats' in dir(): vp1GeoModelStats=False
 if not 'vp1NoAutoConf' in dir(): vp1NoAutoConf=False
 if not 'vp1Trig' in dir(): vp1Trig=False
-if not 'vp1NSW' in dir(): vp1NSW=False
 if not 'vp1CustomGeometry' in dir(): vp1CustomGeometry=False
 if not 'vp1SLHC' in dir(): vp1SLHC=False
 
@@ -60,10 +59,6 @@ if (vp1FatrasCalo and not vp1Calo):
 if ( vp1FatrasTruthKey != "" and not vp1Fatras ):
     vp1CfgErr("FatrasTruthKey set but Fatras not enabled. Unsetting FatrasTruthKey.")
     vp1FatrasTruthKey=""
-
-if (vp1NSW and not vp1Muon):
-    vp1CfgErr("Muon New Small Wheel (NSW) turned on, but no Muon geometry. Disabling NSW.")
-    vp1NSW=False
 
 #print "*** VP1 NOTE *** setting COIN_GLXGLUE env vars to make screenshots working remotely..."
 #print "*** VP1 NOTE *** COIN_GLXGLUE_NO_GLX13_PBUFFERS=1 - " + "COIN_GLXGLUE_NO_PBUFFERS=1"
@@ -180,7 +175,6 @@ if (vp1ForwardRegion): DetFlags.FwdRegion_setOn()
 else:          DetFlags.FwdRegion_setOff()
 if (vp1ZDC): DetFlags.ZDC_setOn()
 else:          DetFlags.ZDC_setOff()
-if (vp1NSW): DetFlags.Micromegas_setOn() #FIXME - sTGC?
 DetFlags.Print()
 if (vp1CustomGeometry):
     print "Configuring Custom geometry."
@@ -238,9 +232,6 @@ if vp1ToyDetector:
 #  - Muon is ON
 #  - Major geometry version is greater than 10
 if (vp1Muon):
-    if (vp1NSW):
-      #DetDescrVersion="ATLAS-GEO-21-00-01"
-      include('MuonGeoModelTest/NSWGeoSetup.py')
 
     from AtlasGeoModel import Agdd2Geo
 

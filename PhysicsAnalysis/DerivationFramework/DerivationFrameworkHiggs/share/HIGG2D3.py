@@ -115,7 +115,7 @@ truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_con
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 HIGG2D3TruthThinningTool = DerivationFramework__GenericTruthThinning(name                         = "HIGG2D3TruthThinningTool", 
-                                                                     ThinningService              = HIGG2D3ThinningHelper.ThinningSvc(),
+                                                                     StreamName                   = streamName,
                                                                      ParticleSelectionString      = truth_expression,
                                                                      PreserveDescendants          = False,
                                                                      PreserveGeneratorDescendants = True,

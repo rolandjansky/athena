@@ -30,10 +30,8 @@ EGAM6Stream.AcceptAlgs(["EGAM6Kernel"])
 
 #Special lines for thinning
 # Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EGAM6ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # SKIMMING TOOLS
@@ -271,7 +269,7 @@ truth_expression = '(' + truth_cond_WZH + ' ||  ' + truth_cond_lep +' || '+truth
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EGAM6TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "EGAM6TruthThinningTool",
-                                                                   ThinningService         = "EGAM6ThinningSvc",
+                                                                   StreamName              = streamName,
                                                                    ParticleSelectionString = truth_expression,
                                                                    PreserveDescendants     = False,
                                                                    PreserveGeneratorDescendants     = True,

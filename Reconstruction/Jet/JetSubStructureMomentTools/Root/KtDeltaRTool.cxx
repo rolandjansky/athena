@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // KtDeltaRTool.cxx
@@ -30,6 +30,7 @@ int KtDeltaRTool::modifyJet(xAOD::Jet& injet) const {
 }
 
 void KtDeltaRTool::print() const {
-  ATH_MSG_INFO("Reclustering size parameter: " << m_jetrad);
+  JetSubStructureMomentToolsBase::print();
+  ATH_MSG_INFO("JetRadius: " << m_jetrad);
 }
 
