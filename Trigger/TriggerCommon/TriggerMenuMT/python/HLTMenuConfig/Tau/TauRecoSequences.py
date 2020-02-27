@@ -281,7 +281,7 @@ def tauFTFTrackTwoSequence(ConfigFlags):
 
     ftfTrackTwoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFTrackTwo")
     ftfTrackTwoViewsMaker.RoIsLink          = "roi" # -||-
-    ftfTrackTwoViewsMaker.InViewRoIs        = "TIdViewRoIs" # contract with the fast track core
+    ftfTrackTwoViewsMaker.InViewRoIs        = "TIsoViewRoIs" # contract with the fast track core
     ftfTrackTwoViewsMaker.Views             = "TAUFTFTrackTwoViews"
     ftfTrackTwoViewsMaker.ViewFallThrough   = True
     ftfTrackTwoViewsMaker.RequireParentView = True
