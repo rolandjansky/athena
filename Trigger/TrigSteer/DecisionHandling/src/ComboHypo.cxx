@@ -21,7 +21,7 @@ ComboHypo::~ComboHypo()
 
 
 StatusCode ComboHypo::initialize() {
-  ATH_CHECK( m_hypoTools.retrieve() );
+
   ATH_CHECK( m_outputs.initialize() );
   ATH_CHECK( m_inputs.initialize() );
   ATH_CHECK( m_inputs.size() == m_outputs.size() );
@@ -29,6 +29,9 @@ StatusCode ComboHypo::initialize() {
   for (auto inp:m_inputs){
     ATH_MSG_INFO("-- "<< inp.key());
   }
+  
+  if (m_hypoTools.size()>0)
+    ATH_CHECK(m_hypoTools.retrieve());
   
   // find max inputs size
   auto maxMultEl = std::max_element( m_multiplicitiesReqMap.begin(), m_multiplicitiesReqMap.end(),  
@@ -79,18 +82,11 @@ StatusCode ComboHypo::copyDecisions(  std::map<TrigCompositeUtils::DecisionID, s
   for (auto const& element : passingCombinations) {
     passing.insert(element.first);
   }
-  ATH_MSG_DEBUG( "Copying "<<passing.size()<<" positive decisions to outputs");
-
-
-// }
-
-
-// StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const EventContext& context ) const {
-
- 
   
-//   ATH_MSG_DEBUG( "Copying "<<passing.size()<<" positive decisions to outputs");
-  for ( size_t input_counter = 0; input_counter < m_inputs.size(); ++input_counter ) {
+  
+  ATH_MSG_DEBUG( "Copying "<<passing.size()<<" positive decision IDs to outputs");
+
+ for ( size_t input_counter = 0; input_counter < m_inputs.size(); ++input_counter ) {
 
     // new output decisions
     SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(m_outputs.at(input_counter), context ); 
@@ -156,43 +152,40 @@ StatusCode ComboHypo::copyDecisions(  std::map<TrigCompositeUtils::DecisionID, s
 StatusCode ComboHypo::execute(const EventContext& context ) const {
   ATH_MSG_DEBUG( "Executing " << name() << "..." );
   
-  DecisionIDContainer passing;
+  //  DecisionIDContainer passing;
   // this map is filled with the count of positive decisions from each input
   // it maps decidionID to the combinations (list of dec object) that passed that ID
   CombinationMap dmap;
-
-
-  uint nRequiredUnique;
   ATH_CHECK( fillDecisionsMap( dmap, context ) );
 
-  //this is added for hypocombo tools:
-  CombinationMap GoodMultCombMap;
+  //this is added for saving good combinations for the hypocombo tools:
+  CombinationMap goodMultCombMap;
 
   // first check multiplicity:
-
-  for ( const auto& m : m_multiplicitiesReqMap ) { // loop over all chains
+  // loop over all chains in the mult-map
+  for ( const auto& m : m_multiplicitiesReqMap ) { 
     uint32_t nRequiredUnique = 0;
-    const HLT::Identifier chain = HLT::Identifier(m.first);
+    const HLT::Identifier chainId = HLT::Identifier(m.first);
     const std::vector<int>& multiplicityPerLeg = m.second;
-    const DecisionID requiredDecisionID = chain.numeric();
+    const DecisionID requiredDecisionID = chainId.numeric();
 
     DecisionIDContainer allDecisionIds;
     allDecisionIds.insert(requiredDecisionID);
 
     bool overallDecision = true;
     DecisionIDContainer uniqueDecisions;
+    CombinationMap thisChainCombMap;
 
-    // Check multiplicity of each leg 
+    // Check multiplicity of each leg of this chain
     for ( size_t legIndex = 0; legIndex <  multiplicityPerLeg.size(); ++legIndex ) {
       const size_t requiredMultiplicity =  multiplicityPerLeg.at( legIndex );
       nRequiredUnique += requiredMultiplicity;
 
-      HLT::Identifier legId = TrigCompositeUtils::createLegName(chain, legIndex);
-
+      HLT::Identifier legId = TrigCompositeUtils::createLegName(chainId, legIndex);
       // If there is only one leg, then we just use the chain's name.
       if (multiplicityPerLeg.size() == 1) {
-        ATH_MSG_DEBUG(chain << " has multiplicityPerLeg.size() == 1, so we don't use legXXX_HLT_YYY, we just use HLT_YYY");
-        legId = chain; 
+        ATH_MSG_DEBUG(chainId << " has multiplicityPerLeg.size() == 1, so we don't use legXXX_HLT_YYY, we just use HLT_YYY");
+        legId = chainId; 
       }
 
       const DecisionID requiredDecisionIDLeg = legId.numeric();
@@ -224,8 +217,8 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
         // TODO - do something with entry.second (the ROI)
       }
 
-      // save combinations for the tools
-      //GoodMultCombMap.insert (*it);
+      // save combinations of all legs for the tools
+      thisChainCombMap.insert (*it);
       allDecisionIds.insert(requiredDecisionIDLeg);
     }
 
@@ -236,51 +229,61 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
     }
 
     //Overall chain decision
-    ATH_MSG_DEBUG( "Chain " << chain <<  ( overallDecision ? " is accepted" : " is rejected") );
+    ATH_MSG_DEBUG( "Chain " << chainId <<  ( overallDecision ? " is accepted" : " is rejected")  <<" after multiplicity requirements" );
     if ( overallDecision == true ) {
       for (auto decID: allDecisionIds) {
-        passing.insert( passing.end(), decID );
-	GoodMultCombMap.insert ( *dmap.find(decID));
-        ATH_MSG_DEBUG("  Passing " << HLT::Identifier(decID));
+	//        passing.insert( passing.end(), decID );
+	// saving the good combiantions
+	goodMultCombMap.insert (thisChainCombMap.begin(), thisChainCombMap.end());
+        ATH_MSG_DEBUG("  Passing " << HLT::Identifier(decID)<<" after multiplicity test");
       }
     }      
   }
 
-
-  // need to extend CombinationMap, for now  just do the simple exercise:
   // launching the tools:
-
+  ///////////////////////
+  // need to extend CombinationMap, for now  just do the simple exercise:
   // get all the decisions
   std::vector<TrigCompositeUtils::DecisionContainer> decisions;
-  // can we use EL:  const ElementLinkVector<DecisionContainer> ?
-  for ( size_t i = 0; i < m_inputs.size(); ++i ) {   
-    auto inputHandle = SG::makeHandle( m_inputs.at(i), context );
-    decisions.push_back(*inputHandle);
-  }
+    // can we use EL:  const ElementLinkVector<DecisionContainer> ?
+    for ( size_t i = 0; i < m_inputs.size(); ++i ) {   
+      auto inputHandle = SG::makeHandle( m_inputs.at(i), context );
+      decisions.push_back(*inputHandle);
+    }
     
- 
-  std::map<TrigCompositeUtils::DecisionID, std::vector< std::pair<uint32_t,uint16_t> >> passingCombinations;
-  for ( auto& tool: m_hypoTools ) {
-    ATH_MSG_DEBUG( "Calling  tool "<<tool->name());
-    ATH_CHECK( tool->decide( decisions, GoodMultCombMap, passingCombinations ) );
-  }
+    std::map<TrigCompositeUtils::DecisionID, std::vector< std::pair<uint32_t,uint16_t> >> passingCombinations;
+    if (m_hypoTools.size()>0){
+      for ( auto& tool: m_hypoTools ) {
+	ATH_MSG_DEBUG( "Calling  tool "<<tool->name());
+	ATH_CHECK( tool->decide( decisions, goodMultCombMap, passingCombinations ) );
+      }
+    }
+    else{
+      // just retrieve the combinations in a different format... to review with better classes
+      for (auto id: goodMultCombMap){
+	auto decId=id.first;
+	ComboHypoCombination comb = id.second;
+	auto combinations = comb.getCombinations();
+	passingCombinations[ decId] =combinations;
+      }
+    }
 
-  DecisionIDContainer passingTools;
-  for (auto const& element : passingCombinations) {
-    passingTools.insert(element.first);
-  }
- 
-  
-  if (msgLvl(MSG::DEBUG)){
-    for (auto p: passingTools)
-      ATH_MSG_DEBUG("Passing "<<HLT::Identifier(p));
-  }
+    // this is only for debug:
+    if (msgLvl(MSG::DEBUG)){
+      DecisionIDContainer passing;
+      for (auto const& element : passingCombinations) {
+	passing.insert(element.first);
+      }
+      for (auto p: passing)
+	ATH_MSG_DEBUG("Passing "<<HLT::Identifier(p));
+    }
 
   // need to pass single combinations, since not all element pass the decID
   ATH_CHECK( copyDecisions( passingCombinations, context ) );
   
   return StatusCode::SUCCESS;
 }
+
 
 StatusCode ComboHypo::extractFeatureAndRoI(const Decision* d, const std::string& input,
   uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex) const 
@@ -314,7 +317,7 @@ StatusCode ComboHypo::fillDecisionsMap( CombinationMap &  dmap, const EventConte
     }
     ATH_MSG_DEBUG( "Found ReadHandle from " << inputHandle.key() <<" with "<< inputHandle->size() << " elements:"  );
     for ( const Decision* decision : *inputHandle ) {
-      ATH_MSG_DEBUG( "Input Decision #"<< decision->index() <<" with "<< decisionIDs( decision ).size() << " active IDs" );
+      ATH_MSG_DEBUG( "Input Decision #"<< decision->index() <<" with "<< decisionIDs( decision ).size() << " active IDs; these are found in the multiplicity map:" );
       for ( const DecisionID id: decisionIDs( decision ) ) {
         for ( const auto& m : m_multiplicitiesReqMap ) {
           // Search for this ID in the list of active chains processed by this ComboHypo

@@ -139,6 +139,12 @@ class HypoToolConf(object):
     def create(self):
         """creates instance of the hypo tool"""
         return self.hypoToolGen( self.chainDict )
+    
+    
+    def confAndCreate(self, chainDict):
+        """sets the configuration and creates instance of the hypo tool"""
+        self.setConf(chainDict)
+        return self.create()
 
 
 class HypoAlgNode(AlgNode):
@@ -262,17 +268,14 @@ class ComboMaker(AlgNode):
     def addComboHypoToolConfs(self, comboToolConfs):
         self._hypoToolConf = [ HypoToolConf( tool ) for tool in comboToolConfs ]
         for conf in self._hypoToolConf:
-            print "CACCA addComboHypoToolConfs %s %s "%(self.Alg.name(), conf.name)
+            log.debug("ComboMaker.addComboHypoToolConfs %s %s", self.Alg.name(), conf.name)
 
     def createComboHypoTools(self, chainDict):
-        # now configure hypotools
-        print "CACCA createComboHypoTools is called %s %d "%(self.Alg.name(), len(self._hypoToolConf))
-        for conf in self._hypoToolConf:
-            print "CACCA createComboHypoTools ", conf.name
-            conf.setConf( chainDict )
-            
-        self.Alg.ComboHypoTools = [conf.create() for conf in self._hypoToolConf]
-        print "Added comboTools in ", self.Alg
+        """Ccreated the ComboHypoTools"""
+        if not len(self._hypoToolConf):
+            return
+        log.debug("ComboMaker.createComboHypoTools for %s with %d tools", self.Alg.name(), len(self._hypoToolConf))        
+        self.Alg.ComboHypoTools = [conf.confAndCreate( chainDict ) for conf in self._hypoToolConf]
         
 
 
@@ -483,10 +486,10 @@ class Chain(object):
                 log.debug( "setSeedsToSequences: Chain %s adding seed %s to sequence in step %s", self.name, seed, step.name )
 
     def getChainLegs(self):
-        """ This is extrapolating the chain legs"""
+        """ This is extrapolating the chain legs from the chain dictionary"""
         from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInDict
         listOfChainDictsLegs = splitChainInDict(self.name)
-        legs = [part['chainName'] for part in listOfChainDictsLegs]
+        legs = [part['chainName'] for part in listOfChainDictsLegs]      
         return legs
 
 
@@ -514,7 +517,8 @@ class Chain(object):
                 for seq, onePartChainDict in zip(step.sequences, listOfChainDictsLegs):
                     seq.createHypoTools( onePartChainDict )
 
-            step.createComboHypoTools(listOfChainDictsLegs)
+           
+            step.createComboHypoTools(self.name) 
 
 
     def __repr__(self):
@@ -631,10 +635,11 @@ class ChainStep(object):
         self.combo =  RecoFragmentsPool.retrieve(createComboAlg, None, name=CFNaming.comboHypoName(self.name), multiplicity=hashableMult)
         self.combo.addComboHypoToolConfs(comboToolConfs)
 
-    def createComboHypoTools(self, listOfChainDictsLegs):
+    def createComboHypoTools(self, chainName):
         if self.isCombo:
-            print "CACCA I'm in the step creator"
-            chainDict = listOfChainDictsLegs[0]
+            from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+            chainDict = TriggerConfigHLT.getChainDictFromChainName(chainName)
+            #chainDict = listOfChainDictsLegs[0]
             self.combo.createComboHypoTools(chainDict)
         
         
