@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
+def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
 
   from AthenaCommon.Constants import INFO,ERROR,FALSE,TRUE,DEBUG,VERBOSE
 
@@ -14,7 +14,16 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
 
   if not 'rec' in dir():
     from RecExConfig.RecFlags  import rec
-
+    
+  from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
+  from TriggerJobOpts.TriggerFlags import TriggerFlags
+      
+  EDMDecodingVersion()
+      
+  mt_chains = True
+  if ( TriggerFlags.EDMDecodingVersion < 3 or legacy_monitoring ) :
+    mt_chains = False
+        
   if rec.doInDet:
     from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestPhysValMon
     from AthenaCommon.AppMgr import release_metadata
@@ -22,15 +31,6 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
 
     def makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic = False, useOffline = False, doFS=False ):
 
-      from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
-      from TriggerJobOpts.TriggerFlags import TriggerFlags
-      
-      EDMDecodingVersion()
-      
-      mt_chains = True
-      if ( TriggerFlags.EDMDecodingVersion < 3 or legacy_monitoring ) :
-        mt_chains = False
-        
       Monname = "TestIDPhysValMon" + name
       TestIDPhysValMon = TrigTestPhysValMon(name=Monname)
       TestIDPhysValMon.SliceTag = "HLT/IDMon/" + name
