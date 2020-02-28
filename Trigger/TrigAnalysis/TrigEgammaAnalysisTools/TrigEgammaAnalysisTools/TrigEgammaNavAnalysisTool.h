@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigEgammaNavAnalysisTool_H
@@ -14,20 +14,10 @@ class TrigEgammaNavAnalysisTool : public TrigEgammaNavBaseTool,
     ASG_TOOL_CLASS(TrigEgammaNavAnalysisTool, ITrigEgammaAnalysisBaseTool)
     public:
         TrigEgammaNavAnalysisTool( const std::string& myname );
-        ~TrigEgammaNavAnalysisTool() {};
+        virtual ~TrigEgammaNavAnalysisTool() {};
+        virtual StatusCode childInitialize() override;
+        virtual StatusCode childExecute( const EventContext& ctx) const override;
+        virtual StatusCode childFinalize() override;
 
-        StatusCode childInitialize();
-        StatusCode childBook();
-        StatusCode childExecute();
-        StatusCode childFinalize();
-    protected:
-
-    private:
-        /*! Method to book histograms for each trigger */
-        void bookPerSignature(const std::string);
-        /*! Method to book histograms for each MaM category */
-        void bookPerCategory(const std::string);
-
-        unsigned int        m_eventCounter;
 };
 #endif

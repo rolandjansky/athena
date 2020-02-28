@@ -12,6 +12,7 @@ from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
 from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
 from InDetOverlay.TRTOverlayConfig import TRTOverlayCfg
+from LArDigitization.LArDigitizationConfigNew import LArOverlayCfg
 from MuonConfig.CscOverlayConfig import CscOverlayCfg
 from MuonConfig.MdtOverlayConfig import MdtOverlayCfg
 from MuonConfig.RpcOverlayConfig import RpcOverlayCfg
@@ -62,6 +63,10 @@ def OverlayMainCfg(configFlags):
         acc.merge(SCTOverlayCfg(configFlags))
     if configFlags.Detector.OverlayTRT:
         acc.merge(TRTOverlayCfg(configFlags))
+
+    # Calorimeters
+    if configFlags.Detector.OverlayLAr:
+        acc.merge(LArOverlayCfg(configFlags))
 
     # Muon system
     if configFlags.Detector.OverlayCSC:

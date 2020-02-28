@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, InEventReco, getChainStepName, createStepView
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, InEventReco, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
@@ -65,7 +65,7 @@ def generateChains( flags, chainDict ):
     hypo.Jets = jetsfullname
     acc.addEventAlgo(hypo)
 
-    jetSequence = MenuSequence( Sequence    = inEventReco.sequence(),
+    jetSequence = CAMenuSequence( Sequence    = inEventReco.sequence(),
                                 Maker       = inEventReco.inputMaker(),
                                 Hypo        = hypo,
                                 HypoToolGen = trigJetHypoToolFromDict,

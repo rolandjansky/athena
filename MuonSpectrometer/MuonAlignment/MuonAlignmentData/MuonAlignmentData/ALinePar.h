@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONALIGNMENTDATA_ALINEPAR_H
@@ -16,10 +16,7 @@ class ALinePar : public MuonAlignmentPar {
   // Default constructor
   ALinePar();
   // destructor
-  ~ALinePar();
-
-  // Full constructor
-
+  virtual ~ALinePar() override = default;
 
   void setParameters(float s, float z, float t, 
 		     float rotS, float rotZ, float rotT);

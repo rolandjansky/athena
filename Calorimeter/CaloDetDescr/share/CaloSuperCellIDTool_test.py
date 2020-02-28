@@ -1,4 +1,4 @@
-# $Id$
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # @file CaloDetDescr/share/CaloSuperCellIDTool_test.py
 # @author scott snyder <snyder@bnl.gov>
@@ -173,9 +173,8 @@ class CaloSuperCellIDToolTest (PyAthena.Alg):
 
 
     def init (self):
-        if self.tool != None:
+        if self.tool is not None:
             return
-        sg = PyAthena.py_svc('StoreGateSvc')
         ds = PyAthena.py_svc('DetectorStore')
         self.calocell_helper = ds['CaloCell_ID']
         self.calosc_helper = ds['CaloCell_SuperCell_ID']
@@ -220,8 +219,8 @@ class CaloSuperCellIDToolTest (PyAthena.Alg):
                 cell_id = calocell_helper.cell_id (subcalo, *cell_tuple)
                 sc_id = tool.offlineToSuperCellID (cell_id)
                 if self.unpack (sc_id, calosc_helper) != sc_tuple:
-                    print 'ERROR cell->sc', subcalo, cell_tuple, sc_tuple, \
-                          self.unpack (sc_id, calosc_helper)
+                    printfunc ('ERROR cell->sc', subcalo, cell_tuple, sc_tuple,
+                               self.unpack (sc_id, calosc_helper))
                     assert False
         return
 
@@ -236,8 +235,8 @@ class CaloSuperCellIDToolTest (PyAthena.Alg):
                 sc_id = calosc_helper.cell_id (subcalo, *sc_tuple)
                 idlist = tool.superCellToOfflineID (sc_id)
                 if self.unpack_list (idlist, calocell_helper) != cell_list:
-                    print 'ERROR sc->cell', subcalo, sc_tuple, cell_list, \
-                          self.unpack_list (idlist, calocell_helper)
+                    printfunc ('ERROR sc->cell', subcalo, sc_tuple, cell_list, 
+                           self.unpack_list (idlist, calocell_helper))
                     assert False
         return
 
@@ -263,23 +262,25 @@ class CaloSuperCellIDToolTest (PyAthena.Alg):
         for cell_id in toiter (calocell.cell_range (subcalo)):
             sc_id = t.offlineToSuperCellID (cell_id)
             if not sc_id.is_valid():
-                if calocell.is_tile_gap (cell_id): continue
+                if calocell.is_tile_gap (cell_id):
+                    continue
                 if (calocell.is_em_barrel (cell_id) and
                     calocell.calo_sample (cell_id) == 0 and
                     calocell.eta (cell_id) == 60):
                     continue
-                print 'ERROR unmapped cell subcalo', \
-                      calocell.sub_calo (cell_id), \
-                      'sample', calocell.calo_sample (cell_id),\
-                      'posneg', calocell.pos_neg (cell_id),\
-                      'region', calocell.region (cell_id),\
-                      'eta', calocell.eta (cell_id),\
-                      'phi', calocell.phi (cell_id)
+                printfunc ('ERROR unmapped cell subcalo',
+                           calocell.sub_calo (cell_id),
+                           'sample', calocell.calo_sample (cell_id),
+                           'posneg', calocell.pos_neg (cell_id),
+                           'region', calocell.region (cell_id),
+                           'eta', calocell.eta (cell_id),
+                           'phi', calocell.phi (cell_id))
                 assert False
             hvec[calosc.calo_cell_hash(sc_id).value() - hmin] = 1
             idlist = t.superCellToOfflineID (sc_id)
             for id2 in idlist:
-                if cell_id == id2: break
+                if cell_id == id2:
+                    break
             else:
                 raise Exception ("Didn't find cell")
 
@@ -319,7 +320,8 @@ class CaloSuperCellIDToolTest (PyAthena.Alg):
             if hvec[i] == 0:
                 h = PyAthena.IdentifierHash (i)
                 id = calocell.cell_id (subcalo, h)
-                if calocell.is_tile_gap(id): continue
+                if calocell.is_tile_gap(id):
+                    continue
                 if (calocell.is_em_barrel (id) and
                     calocell.calo_sample (id) == 0 and
                     calocell.eta (id) == 60):

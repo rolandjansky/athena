@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -22,13 +22,13 @@
 #include "TrigT1CaloCalibTools/TriggerTowerThinningAlg.h"
 // TrigT1 common definitions
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 namespace DerivationFramework {
 
   TriggerTowerThinningAlg::TriggerTowerThinningAlg(const std::string& t, const std::string& n, const IInterface* p) :
-    AthAlgTool(t,n,p),
-    m_thinningSvc( "ThinningSvc",  n ),
-    m_triggerTowerLocation(LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation),
+    base_class(t,n,p),
     m_minCaloCellET(0.4),
     m_minADC(32),
     m_useRandom(false),
@@ -40,9 +40,6 @@ namespace DerivationFramework {
     m_nTriggerTowersRejected(0),
     m_random(0)
   {
-    declareInterface<DerivationFramework::IThinningTool>(this);    
-    declareProperty("ThinService",m_thinningSvc);
-    declareProperty("TriggerTowerLocation", m_triggerTowerLocation);
     declareProperty("MinCaloCellET",m_minCaloCellET);
     declareProperty("MinADC",m_minADC);
     declareProperty("UseRandom",m_useRandom);
@@ -56,6 +53,8 @@ namespace DerivationFramework {
   StatusCode TriggerTowerThinningAlg::initialize(){
     ATH_MSG_INFO("L1Calo TriggerTowerThinningAlg::initialize()");
 
+    ATH_CHECK( m_triggerTowerLocation.initialize (m_streamName) );
+
     // Random number generator
     if(m_useRandom == true){
       m_random = new TRandom3(0);
@@ -65,7 +64,7 @@ namespace DerivationFramework {
   }
 
   StatusCode TriggerTowerThinningAlg::doThinning() const{
-    StatusCode sc;
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
     // Create the mask to be used for thinning
     std::vector<bool> mask;
@@ -74,14 +73,8 @@ namespace DerivationFramework {
     unsigned long nKeep(0),nReject(0),nTotal(0);
     ++m_nEventsProcessed;
     
-    // Shall I proceed?
-    if (!evtStore()->contains<xAOD::TriggerTowerContainer>( m_triggerTowerLocation )) {    
-      ATH_MSG_ERROR("No TriggerTowers in input file, so can't do any thinning!");
-      return StatusCode::FAILURE;
-    }
-    
-    const xAOD::TriggerTowerContainer* tts(nullptr);
-    CHECK( evtStore()->retrieve( tts , m_triggerTowerLocation ) );
+    SG::ThinningHandle<xAOD::TriggerTowerContainer> tts
+      (m_triggerTowerLocation, ctx);
     
     mask.assign(tts->size(),false); // default: don't keep any clusters
     
@@ -143,10 +136,7 @@ namespace DerivationFramework {
     } // End loop over trigger towers
 
 
-    if (m_thinningSvc->filter(*tts,mask,IThinningSvc::Operator::Or).isFailure()) {
-      ATH_MSG_ERROR("Application of thinning service failed! ");
-      return StatusCode::FAILURE;
-    }
+    tts.keep (mask);
 
     // Counters
     m_nTriggerTowersProcessed += nTotal;
@@ -157,7 +147,7 @@ namespace DerivationFramework {
           << " and rejecting " << nReject << " cells");
 
 
-    return sc;
+    return StatusCode::SUCCESS;
   }
 
   StatusCode TriggerTowerThinningAlg::finalize(){

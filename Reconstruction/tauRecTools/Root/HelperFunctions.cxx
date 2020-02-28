@@ -127,8 +127,6 @@ bool tauRecTools::TRTBDT::init(const char* weightFile){
   }    
 
   std::cout << "tauRecTools::configureMVABDT opened file: " << weightFile << std::endl;
-  // tBDT->Print();
-  // std::cout << "CHECK 123" << std::endl;
 
   std::vector<float*> vars;
 

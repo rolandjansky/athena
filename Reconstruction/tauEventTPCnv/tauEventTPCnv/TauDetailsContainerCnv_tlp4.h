@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @file TauDetailsContainerCnv_tlp4.h
@@ -20,6 +20,7 @@
 #include "tauEventTPCnv/TauPi0CandidateCnv_p1.h"
 #include "tauEventTPCnv/TauPi0ClusterCnv_p1.h"
 #include "tauEventTPCnv/TauShotCnv_p1.h"
+#include "tauEventTPCnv/TauEventDummyCnv_px.h"
 #include "TrkEventTPCnv/VxVertex/RecVertexCnv_p1.h"
 #include "TrkEventTPCnv/VxVertex/VertexCnv_p1.h"
 #include "TrkEventTPCnv/TrkEventPrimitives/FitQualityCnv_p1.h"
@@ -46,6 +47,10 @@ protected:
 
     ///TauPi0Details Converter
     TauPi0DetailsCnv_p2 m_TauPi0DetailsCnv;
+
+    ///Dummy converter to take the place of the now-deleted PanTauDetailsCnv_p1.
+    ///Needed to avoid changing the ordering of other converters.
+    TauEventDummyCnv_px m_dummyCnv;
 
     ///TauPi0Candidate Converter
     TauPi0CandidateCnv_p1 m_TauPi0CandidateCnv;

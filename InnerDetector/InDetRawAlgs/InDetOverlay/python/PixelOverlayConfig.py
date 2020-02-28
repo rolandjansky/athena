@@ -45,10 +45,17 @@ def PixelOverlayAlgCfg(flags, name="PixelOverlay", **kwargs):
     acc.addEventAlgo(alg)
 
     # Setup output
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
-        "PixelRDO_Container#PixelRDOs"
-    ]))
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "PixelRDO_Container#PixelRDOs"
+        ]))
+
+    if flags.Output.doWriteRDO_SGNL:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
+            "PixelRDO_Container#" + flags.Overlay.SigPrefix + "PixelRDOs"
+        ]))
 
     return acc
 
@@ -70,10 +77,17 @@ def PixelTruthOverlayCfg(flags, name="PixelSDOOverlay", **kwargs):
     acc.addEventAlgo(alg)
 
     # Setup output
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
-        "InDetSimDataCollection#PixelSDO_Map"
-    ]))
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "InDetSimDataCollection#PixelSDO_Map"
+        ]))
+    
+    if flags.Output.doWriteRDO_SGNL:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
+            "InDetSimDataCollection#" + flags.Overlay.SigPrefix + "PixelSDO_Map"
+        ]))
 
     return acc
 

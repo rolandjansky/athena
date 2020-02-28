@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Reweighting_h
@@ -9,13 +9,10 @@
 
 #include <TROOT.h>
 #include <TChain.h>
-#include <TRandom3.h>
 #include <TFile.h>
 #include <TSelector.h>
 #include <TH2.h>
-#include <TMath.h>
-#include <TLorentzVector.h>
-#include <TStyle.h>
+
 
 #define MuonMass 0.10565837 
 

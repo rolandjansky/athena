@@ -157,6 +157,9 @@ def TRT_OverlayDigitizationBasicCfg(flags, **kwargs):
     if flags.Concurrency.NumThreads > 0:
         kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
 
+    # Set common overlay extra inputs
+    kwargs.setdefault("ExtraInputs", flags.Overlay.ExtraInputs)
+
     TRTDigitization = CompFactory.TRTDigitization
     acc.addEventAlgo(TRTDigitization(name="TRT_OverlayDigitization", **kwargs))
     return acc

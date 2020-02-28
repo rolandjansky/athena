@@ -34,7 +34,7 @@ else:
       printfunc ("* Major FAILURE : InDet reconstruction in seeded brem mode, *")
       printfunc ("*                 but LAr is off                            *")
       printfunc ("*************************************************************")
-      # raise RuntimeError,"Conflict in InDetRec setup: seeded Brem recovery, but Calo is off"
+      # raise RuntimeError ("Conflict in InDetRec setup: seeded Brem recovery, but Calo is off")
       if InDetFlags.doBremRecovery.is_locked():
         InDetFlags.doBremRecovery.unlock()
       printfunc (" ------------> WARNING: turning off brem recovery")

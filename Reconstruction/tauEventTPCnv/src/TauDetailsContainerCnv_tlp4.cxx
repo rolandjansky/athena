@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @file TauDetailsContainerCnv_tlp4.cxx
@@ -11,12 +11,15 @@
 
 TauDetailsContainerCnv_tlp4 :: TauDetailsContainerCnv_tlp4(){
     addMainTPConverter();
+    // NEVER reorder this list, or delete an entry from the middle.
+    // That will break backwards compatibility!
     addTPConverter(&m_recVertexCnv );
     addTPConverter(&m_vertexCnv );
     addTPConverter(&m_fitQualityCnv );
     addTPConverter(&m_errorMatrixCnv );
     addTPConverter(&m_tauCommonDetailsCnv );
     addTPConverter(&m_tauCommonExtraDetailsCnv );
+    addTPConverter(&m_dummyCnv);
     addTPConverter(&m_TauPi0ClusterCnv);
     addTPConverter(&m_TauPi0CandidateCnv);
     addTPConverter(&m_TauShotCnv);

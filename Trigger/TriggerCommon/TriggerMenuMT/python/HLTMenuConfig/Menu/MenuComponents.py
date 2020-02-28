@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -286,12 +286,11 @@ class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
     """ By construction it has one Hypo Only; behaviour changed to support muFastOvlpRmSequence() which has two, but this will change"""
 
-    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
+    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen):
         assert Maker.name().startswith("IM"), "The input maker {} name needs to start with letter: IM".format(Maker.name())
         self._sequence     = Node( Alg=Sequence)
         self._maker       = InputMakerNode( Alg = Maker )
         self._seed=''
-        self.ca = CA
 
         if isinstance(Hypo, list): # we will remove support for this and will issue error
             log.warning("Sequence %s has more than one Hypo; correct your sequence in the next development cycle", self.name)
@@ -349,23 +348,14 @@ class MenuSequence(object):
 
     @property
     def sequence(self):
-        if self.ca is not None:
-            makerAlg = self.ca.getEventAlgo(self._maker.Alg.name())
-            self._maker.Alg = makerAlg
         return self._sequence
 
     @property
     def maker(self):
-        if self.ca is not None:
-            makerAlg = self.ca.getEventAlgo(self._maker.Alg.name())
-            self._maker.Alg = makerAlg
         return self._maker
 
     @property
     def hypo(self):
-        if self.ca is not None:
-            hypoAlg = self.ca.getEventAlgo(self._hypo.Alg.name())
-            self._hypo.Alg = hypoAlg
         return self._hypo
 
     def connectToFilter(self, outfilter):
@@ -401,6 +391,30 @@ class MenuSequence(object):
            %(self.name, hyponame, self.maker.Alg.name(), self.sequence.Alg.name(), hypotool)
 
 
+class CAMenuSequence(MenuSequence):
+    ''' MenuSequence with Compoment Accumulator '''
+
+    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA):
+        self.ca = CA
+        MenuSequence.__init__(self, Sequence, Maker,  Hypo, HypoToolGen)
+
+    @property
+    def sequence(self):
+        makerAlg = self.ca.getEventAlgo(self._maker.Alg.name())
+        self._maker.Alg = makerAlg
+        return self._sequence
+
+    @property
+    def maker(self):
+        makerAlg = self.ca.getEventAlgo(self._maker.Alg.name())
+        self._maker.Alg = makerAlg
+        return self._maker
+
+    @property
+    def hypo(self):
+        hypoAlg = self.ca.getEventAlgo(self._hypo.Alg.name())
+        self._hypo.Alg = hypoAlg
+        return self._hypo
 
 
 #################################################

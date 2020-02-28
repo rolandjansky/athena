@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -13,8 +13,6 @@
 // Subject: RPC-->Offline Muon Data Quality
 // 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         
-#include "GaudiKernel/MsgStream.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -43,12 +41,11 @@
   
 #include "xAODEventInfo/EventInfo.h" 
 #include "RpcRawDataMonitoring/RpcGlobalUtilities.h"  
-    
+
+#include <TError.h> // for ROOT kInfo
 #include <fstream> 
 #include <sstream>
 #include <iostream>     
-
-using namespace std;
 
 static const   int maxPRD 	      = 50000;
 static const   int timeminrange	      =	 -200;
@@ -1150,7 +1147,7 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		 
 	
             ATH_MSG_DEBUG (  " RPC PrepRawData has" << m_nPrd <<  "PRD number " );
-            map<string,int>::iterator iter_hitsperchamber = m_hitsperchamber_map.find(m_hardware_name);
+            std::map<std::string,int>::iterator iter_hitsperchamber = m_hitsperchamber_map.find(m_hardware_name);
             if ( iter_hitsperchamber  == m_hitsperchamber_map.end() ){ 
               m_hitsperchamber_map.insert( make_pair( m_hardware_name,1 ) );  
             } else {iter_hitsperchamber->second+=1;}	
@@ -2094,7 +2091,6 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpcevents->GetYaxis()->SetTitle("Number of Hits/Events"); 
 	
 	  ATH_MSG_DEBUG (  "INSIDE bookHistograms : " << rpcevents << generic_path_rpcevents.c_str() );
-	  //ATH_MSG_DEBUG (  "SHIFT : " << shift );
 	  ATH_MSG_DEBUG (  "RUN : " << run );
 	  ATH_MSG_DEBUG (  "Booked bookrpcevents successfully" );       
 	
@@ -4207,7 +4203,6 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpctime->GetYaxis()->SetTitle("Counts/(3.125ns)"); 
 	 
 	  ATH_MSG_DEBUG (  "INSIDE bookHistograms : " << rpctime << rpctime_title.c_str() );
-	  //ATH_MSG_DEBUG (  "SHIFT : " << shift );
 	  ATH_MSG_DEBUG (  "RUN : " << run );	       
 	  ATH_MSG_DEBUG (  "Booked bookrpctimedistribution successfully" );     
           
@@ -4364,7 +4359,6 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 
 void RpcRawDataValAlg::bookRPCLayerHistograms(std::string hardware_name, std::string layer_name, std::string layer0_name, int bin, int binmin, int binmax )
 {
-  //gErrorIgnoreLevel=kError;
   gErrorIgnoreLevel=kInfo;
   
   StatusCode sc = StatusCode::SUCCESS;
@@ -4390,7 +4384,6 @@ void RpcRawDataValAlg::bookRPCLayerHistograms(std::string hardware_name, std::st
 
     
       ATH_MSG_DEBUG (  "INSIDE bookRPCLayerHistograms : " << rpcstriplayer << generic_path_rpcstriplayer.c_str() );
-      //ATH_MSG_DEBUG (  "SHIFT : " << shift );
       ATH_MSG_DEBUG (  "RUN : " << run );
   
       sc = rpcprd_expert.regHist( rpcstriplayer );
@@ -4434,7 +4427,6 @@ void RpcRawDataValAlg::bookRPCLayerHistograms(std::string hardware_name, std::st
 
      
       ATH_MSG_DEBUG (  "INSIDE bookRPCLayerHistograms : " << rpcclusterlayer << generic_path_rpcclusterlayer.c_str() );
-     // ATH_MSG_DEBUG (  "SHIFT : " << shift );
       ATH_MSG_DEBUG (  "RUN : " << run );    
   
       sc = rpcprd_expert.regHist( rpcclusterlayer );
@@ -4446,7 +4438,6 @@ void RpcRawDataValAlg::bookRPCLayerHistograms(std::string hardware_name, std::st
 		
 void RpcRawDataValAlg::bookRPCLayerHistogramsPanel(std::string hardware_name, std::string layer_name )
 {
-  //gErrorIgnoreLevel=kError;
   gErrorIgnoreLevel=kInfo;
 
   StatusCode sc = StatusCode::SUCCESS;
@@ -4473,7 +4464,6 @@ void RpcRawDataValAlg::bookRPCLayerHistogramsPanel(std::string hardware_name, st
 
      
       ATH_MSG_DEBUG (  "INSIDE bookRPCLayerHistogramsPanels : " << rpcclustersizedislayer << generic_path_rpcclustersizedislayer.c_str() );
-      //ATH_MSG_DEBUG (  "EXPERT : " << expert );
       ATH_MSG_DEBUG (  "RUN : " << run );     
 
       sc = rpcprd_expert.regHist( rpcclustersizedislayer );
@@ -4486,7 +4476,6 @@ void RpcRawDataValAlg::bookRPCLayerHistogramsPanel(std::string hardware_name, st
   
 void RpcRawDataValAlg::bookRPCLayervsTimeHistograms(std::string  hardware_name, std::string layer_name, int bin, int binmin, int binmax)
 {
-  //gErrorIgnoreLevel=kError;
   gErrorIgnoreLevel=kInfo;
   
   StatusCode sc = StatusCode::SUCCESS;
@@ -4525,7 +4514,6 @@ void RpcRawDataValAlg::bookRPCLayervsTimeHistograms(std::string  hardware_name, 
 
 void RpcRawDataValAlg::bookRPCLayerPhiAmbiHistograms(std::string hardware_name, std::string layer_name, std::string layer0_name, int bin, int binmin, int binmax )
 {
-  // gErrorIgnoreLevel=kError;
   gErrorIgnoreLevel=kInfo;
 
   StatusCode sc = StatusCode::SUCCESS;
@@ -4550,7 +4538,6 @@ void RpcRawDataValAlg::bookRPCLayerPhiAmbiHistograms(std::string hardware_name, 
   
      
       ATH_MSG_DEBUG (  "INSIDE bookRPCLayerPhiAmbiHistograms : " << rpcstripPhiAmbilayer << generic_path_rpcstripPhiAmbilayer.c_str() );
-      //ATH_MSG_DEBUG (  "EXPERT : " << expert );
       ATH_MSG_DEBUG (  "RUN : " << run );
 
       sc = rpcprd_expert.regHist( rpcstripPhiAmbilayer ); 
@@ -4562,7 +4549,6 @@ void RpcRawDataValAlg::bookRPCLayerPhiAmbiHistograms(std::string hardware_name, 
 
 void RpcRawDataValAlg::bookRPCLayerPhivsEtaHistograms(std::string hardware_name, std::string layerPhivsEta_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx )
 {
-  //gErrorIgnoreLevel=kError;
   gErrorIgnoreLevel=kInfo;
 
   
@@ -4594,7 +4580,6 @@ void RpcRawDataValAlg::bookRPCLayerPhivsEtaHistograms(std::string hardware_name,
       rpcstriplayerPhivsEta->GetYaxis()->SetTitle("<--- HV side     Rpc Phi strip     RO side --->");
      
       ATH_MSG_DEBUG (  "INSIDE bookRPCLayerPhivsEtaHistograms : " << rpcstriplayerPhivsEta << generic_path_rpcstriplayerPhivsEta.c_str() );
-     // ATH_MSG_DEBUG (  "EXPERT : " << expert );
       ATH_MSG_DEBUG (  "RUN : " << run );
 	   
       sc  = rpcprd_expert.regHist( rpcstriplayerPhivsEta ); 
@@ -4607,7 +4592,6 @@ void RpcRawDataValAlg::bookRPCLayerPhivsEtaHistograms(std::string hardware_name,
 //void RpcRawDataValAlg::bookRPCLayerPhivsEtaSectorHistograms(std::string hardware_name,std::string m_sector_name, std::string m_layerPhivsEtaSector_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx )
 void RpcRawDataValAlg::bookRPCLayerPhivsEtaSectorHistograms(std::string sector_name, std::string layerPhivsEtaSector_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx )
 {
-  //  gErrorIgnoreLevel=kError;
   gErrorIgnoreLevel=kInfo;
   if ( binmaxx==64  ) { binmaxx=96 ; } //exception for SU2 / SU3 chambers
   if ( binmaxx==112 ) { binmaxx=128; } //exception for BML7 chambers
@@ -4646,7 +4630,7 @@ void RpcRawDataValAlg::bookRPCLayerPhivsEtaSectorHistograms(std::string sector_n
  
  
       //histo path for rpc cluster 
-      if ( layerPhivsEtaSector_name.find("Trigger", 0) == string::npos ) { 
+      if ( layerPhivsEtaSector_name.find("Trigger", 0) == std::string::npos ) { 
 	std::string generic_path_rpcclusterlayerPhivsEtaSector = generic_path_rpcmonitoring+"/Sectors/"+sector_name+"/PhivsEta/";
 	generic_path_rpcclusterlayerPhivsEtaSector += layerPhivsEtaSector_name + "_cluster"  ;
 	std::string rpcclusterlayerPhivsEtaSector_title = layerPhivsEtaSector_name + "_cluster"   ; 	
@@ -4664,7 +4648,6 @@ void RpcRawDataValAlg::bookRPCLayerPhivsEtaSectorHistograms(std::string sector_n
     
        
         ATH_MSG_DEBUG (  "INSIDE bookRPCLayerPhivsEtaSectorHistograms : " << rpcclusterlayerPhivsEtaSector << generic_path_rpcclusterlayerPhivsEtaSector.c_str() );
-       // ATH_MSG_DEBUG (  "EXPERT : " << expert );
         ATH_MSG_DEBUG (  "RUN : " << run );
     
 	sc = rpcprd_expert.regHist( rpcclusterlayerPhivsEtaSector ); 
@@ -4680,7 +4663,6 @@ void RpcRawDataValAlg::bookRPCLayervsLayerHistograms(std::string hardware_name, 
                                                      std::string   layer1_name, std::string layer2_name, 
 						     int binx, int binminx, int binmaxx, int biny, int binminy, int binmaxy)
 {
-  // gErrorIgnoreLevel=kError;
   gErrorIgnoreLevel=kInfo;
     
   StatusCode sc = StatusCode::SUCCESS;
@@ -4840,7 +4822,7 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
   
   
   // Fill strip Id histogram
-  if ( (histName.find("PanelId", 0)) != string::npos ) {
+  if ( (histName.find("PanelId", 0)) != std::string::npos ) {
   
     sc = rpcCoolDb.getHist( m_rpcCool_PanelIdHist, histName.c_str() );
     if( sc.isFailure() ) ATH_MSG_WARNING (  "couldn't get "<< histName << " hist" );
@@ -4852,7 +4834,6 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
     
       
     for (int ieta=0; ieta!=17; ieta++) {
-      //if((ieta-8)!=6)continue;//932
       for ( int iNameF=iName; iNameF!= iNameMax+1 ; iNameF++ ) {
         int kNameF = iNameF;
 	if(kNameF==1)kNameF=53;//BMLE
@@ -4876,31 +4857,18 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
     	  for ( int istripEta=0; istripEta!=rpcElemEtaStrip; istripEta++ ) {
     	    Identifier strip_id  =  m_muonIdHelperTool->rpcIdHelper().channelID(idr, iz+1, idblPhi+1, ig+1, 0, istripEta+1) ;
     	    Identifier panel_id  =  m_muonIdHelperTool->rpcIdHelper().panelID( strip_id ) ;
-	    
-	    
-	    //  if((istatPhi+1)==4&&kNameF==2&&(ieta-8)==-1&&irc==1&&(iz+1==1)&&(idblPhi+1==1)&&(ig+1==2)){ 
-	    //std::cout << istripEta << " ETA FOUND!!! and panel_Id= " << panel_id  << " " <<panel_id.get_identifier32().get_compact() << " " << strip_id<<std::endl;
-	    //}
+
     	    if( strip_id == 0 ) continue;
     	    coolStripIndex = (RpcGM::RpcStripShift(MuonDetMgr,m_muonIdHelperTool->rpcIdHelper(), strip_id, 0)).at(16);
-	    //std::cout << " coolStripIndex "<<coolStripIndex << " kNameF, eta, irc, iz+1, idblPhi+1, ig+1, istripEta+1 "<<kNameF << " " <<ieta-8 <<" " <<irc << " "<< iz+1<< " "<< idblPhi+1<< " "<< ig+1 << " "<< " "<< istripEta+1<< " "<<std::endl;
-	    //if(panel_id.get_identifier32().get_compact()<1000)std::cout<< "Less than 1000: "  << panel_id.get_identifier32().get_compact()<<std::endl;
     	    m_rpcCool_PanelIdHist->Fill(coolStripIndex, panel_id.get_identifier32().get_compact()) ;
           }
     	  for ( int istripPhi=0; istripPhi!=rpcElemPhiStrip; istripPhi++ ) {
     	    Identifier strip_id  =  m_muonIdHelperTool->rpcIdHelper().channelID(idr, iz+1, idblPhi+1, ig+1, 1, istripPhi+1) ;				     
     	    Identifier panel_id  =  m_muonIdHelperTool->rpcIdHelper().panelID( strip_id ) ;
-	    
-	     
- 	    //if((istatPhi+1)==4&&kNameF==2&&(ieta-8)==-1&&irc==1&&(iz+1==1)&&(idblPhi+1==1)&&(ig+1==2)){ 
- 	    //std::cout << istripPhi << " PHI FOUND!!! and panel_Id= " << panel_id  << " " <<panel_id.get_identifier32().get_compact() << " " << strip_id<<std::endl;
- 	    //}
-	    
+
     	    if( strip_id == 0 ) continue;
     	    coolStripIndex = (RpcGM::RpcStripShift(MuonDetMgr,m_muonIdHelperTool->rpcIdHelper(), strip_id, 0)).at(16);
-	    //std::cout << " coolStripIndex "<<coolStripIndex << " kNameF, eta, irc, iz+1, idblPhi+1, ig+1, istripPhi+1 "<<kNameF << " " <<ieta-8 <<" " <<irc << " "<< iz+1<< " "<< idblPhi+1<< " "<< ig+1 << " "<< " "<< istripPhi+1<< " "<< std::endl;
 
-	    //if(panel_id.get_identifier32().get_compact()<1000)std::cout<< "Less than 1000: "  << panel_id.get_identifier32().get_compact()<<std::endl;
     	    m_rpcCool_PanelIdHist->Fill(coolStripIndex, panel_id.get_identifier32().get_compact() );
           }
         } // end loop on doubletZ
@@ -4963,13 +4931,12 @@ StatusCode RpcRawDataValAlg::procHistograms()
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *   
 	std::ofstream myfile;
 	if(m_rpcfile){
-	  myfile.open ("rpccosmic.txt",ios::out); 
+	  myfile.open ("rpccosmic.txt",std::ios::out); 
 	  myfile << "-------- Counts per Chamber Statistics--------\n";} //only if m_rpcfile==true
 
     
 	if(m_rpcfile){
 	  myfile << "----Total events / Events in selected area----\n";
-	  // myfile << m_rpc_eventstotal << "     /     " << rpc_event_inarea << "\n";
 	  myfile.close();}  //only if m_rpcfile==true
       
 	  
@@ -4988,7 +4955,6 @@ StatusCode RpcRawDataValAlg::procHistograms()
 	    list_name.insert(7, "/Panels/")	  ; 
 	    panel_name.insert(7, "_")         ;
             std::string sector_num  = name.substr(5, 2)   ;
-	    //sector_name = "Sector"+sector_num ;
                   
 	  }
     

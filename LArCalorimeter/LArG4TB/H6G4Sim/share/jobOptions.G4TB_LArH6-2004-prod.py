@@ -1,47 +1,48 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # --- Steering flags -----------------------------------------
-if not "XCryo" in dir():
+if "XCryo" not in dir():
    XCryo = 0.
 
-if not "YTable" in dir():
+if "YTable" not in dir():
    YTable = 0.
 
-if not "BeamE" in dir():
+if "BeamE" not in dir():
    BeamE = " log 200. 300000."
 
-if not "Xsmear" in dir():
+if "Xsmear" not in dir():
    Xsmear =  50.
 
-if not "Ysmear" in dir():
+if "Ysmear" not in dir():
    Ysmear = 50.   
 
-if not "EvtMax" in dir():
+if "EvtMax" not in dir():
    EvtMax = 10   
 
-if not "G4seed" in dir():
+if "G4seed" not in dir():
    G4seed = 1234
 
-if not "GSeed1" in dir():
+if "GSeed1" not in dir():
    GSeed1 = "2000160768"
 
-if not "GSeed2" in dir():
+if "GSeed2" not in dir():
    GSeed2 = "643921183"
 
-if not "ParticlePDG" in dir():
+if "ParticlePDG" not in dir():
    ParticlePDG = "211"
 
-if not "PhysicsList" in dir():
+if "PhysicsList" not in dir():
    PhysicsList = "QGSP_BERT"
 
-if not "PoolHitsOutput" in dir():
+if "PoolHitsOutput" not in dir():
    PoolHitsOutput = 'H6LAr_MyOutputFile.root'
 
-if not "SingleRun" in dir():
+if "SingleRun" not in dir():
    SingleRun = False
 
-if not "doFilter" in dir():
+if "doFilter" not in dir():
    doFilter = False
 
-if not "doBirk" in dir():
+if "doBirk" not in dir():
    doBirk = True
 
 # -------- end of steering flags ------------------
@@ -123,8 +124,8 @@ simFlags.RandomSeedOffset.set_Value_and_Lock(G4seed)
 if SingleRun:
    try:
       Energy=float(BeamE)
-   except:
-      print "Wrong energy literal: ",BeamE," using 100 GeV !!!"
+   except ValueError:
+      printfunc ("Wrong energy literal: ",BeamE," using 100 GeV !!!")
       Energy=100000.
 
 simFlags.PhysicsList.set_Value_and_Lock(PhysicsList)

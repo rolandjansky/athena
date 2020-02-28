@@ -18,7 +18,7 @@
  */
 
 typedef uuid_t JobID_t;
-typedef unsigned char* PJobID_t;
+typedef const unsigned char* PJobID_t;
 
 class IJobIDSvc : virtual public IService {
 public:

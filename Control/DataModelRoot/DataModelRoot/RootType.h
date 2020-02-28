@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DATAMODELROOT_ROOT_TYPE_H
@@ -116,11 +116,11 @@ private:
 };
 
 
-class ATLAS_NOT_THREAD_SAFE TScopeAdapter {
+class TScopeAdapter {
 public:
    TScopeAdapter();
    TScopeAdapter( TClass* klass );
-   TScopeAdapter( const std::string& name, Bool_t load = kTRUE, Bool_t quiet = kFALSE );
+   ATLAS_NOT_THREAD_SAFE TScopeAdapter( const std::string& name, Bool_t load = kTRUE, Bool_t quiet = kFALSE );
    TScopeAdapter( const TMemberAdapter& );
    TScopeAdapter( const std::type_info &typeinfo );
    operator TClass*() const { return fClass.GetClass(); }
@@ -131,7 +131,7 @@ public:
       const std::string& name, Bool_t load = kTRUE, Bool_t quiet = kTRUE );
 
    static TScopeAdapter TypeAt( size_t nth );
-   static size_t TypeSize();
+   static size_t TypeSize ();
 
 public:
    std::string Name( unsigned int mod = Reflex::SCOPED ) const;

@@ -44,7 +44,7 @@ if InDetFlags.doxKalman():
                           
    topSequence += XKaMField
    if (InDetFlags.doPrintConfigurables()):
-     print XKaMField
+     printfunc (XKaMField)
 
    #
    # xKalman geomodel  service
@@ -69,7 +69,7 @@ if InDetFlags.doxKalman():
 
    topSequence += XKaDetectorBuilder
    if (InDetFlags.doPrintConfigurables()):
-     print XKaDetectorBuilder
+     printfunc (XKaDetectorBuilder)
 
    #
    # xKalman seeds service
@@ -80,7 +80,7 @@ if InDetFlags.doxKalman():
                           
    topSequence += XKaSeedsManager
    if (InDetFlags.doPrintConfigurables()):
-     print XKaSeedsManager
+     printfunc (XKaSeedsManager)
 
    #
    # xKalman seed for full event reconstruction
@@ -91,7 +91,7 @@ if InDetFlags.doxKalman():
                             RoadParameters = [InDetNewTrackingCuts.minPT(),3.2,2.6,240.,InDetNewTrackingCuts.maxPrimaryImpact()])
    topSequence += XKaSeedALL
    if (InDetFlags.doPrintConfigurables()):
-     print XKaSeedALL
+     printfunc (XKaSeedALL)
 
    #
    # xKalman reconstruction menager
@@ -123,7 +123,7 @@ if InDetFlags.doxKalman():
                       ExtraInformation             = 2              )
    topSequence += XKalMan
    if (InDetFlags.doPrintConfigurables()):
-     print XKalMan
+     printfunc (XKalMan)
 
    #
    # xKalman clusters production
@@ -137,7 +137,7 @@ if InDetFlags.doxKalman():
                                                   PrintLevelDetector = -1                        )
    topSequence += XKaClustersProduction
    if (InDetFlags.doPrintConfigurables()):
-     print XKaClustersProduction
+     printfunc (XKaClustersProduction)
 
    #
    # xKalman space points production
@@ -150,7 +150,7 @@ if InDetFlags.doxKalman():
                                                        PrintLevelDetector = -1                        )
    topSequence += XKaSpacePointsProduction
    if (InDetFlags.doPrintConfigurables()):
-     print XKaSpacePointsProduction
+     printfunc (XKaSpacePointsProduction)
 
    #
    # xKalman reconstruction started from space points seeds
@@ -162,7 +162,7 @@ if InDetFlags.doxKalman():
                                                 PrintLevelTracks  = [-1,1]                )
    topSequence += XKaSILReconstruction
    if (InDetFlags.doPrintConfigurables()):
-     print XKaSILReconstruction
+     printfunc (XKaSILReconstruction)
 
    #
    # xKalman reconstruction using only TRT information
@@ -174,7 +174,7 @@ if InDetFlags.doxKalman():
                                                 PrintLevelTracks  = [-1,1]                )
    topSequence += XKaTRTReconstruction
    if (InDetFlags.doPrintConfigurables()):
-     print XKaTRTReconstruction
+     printfunc (XKaTRTReconstruction)
 
    #
    # xKalman ambiguity solving
@@ -186,7 +186,7 @@ if InDetFlags.doxKalman():
                                               PrintLevelTracks  = [-1,1]               )
    topSequence += XKaTracksComparison
    if (InDetFlags.doPrintConfigurables()):
-     print XKaTracksComparison
+     printfunc (XKaTracksComparison)
 
    #
    # xKalman track extension to TRT
@@ -198,7 +198,7 @@ if InDetFlags.doxKalman():
                                                PrintLevelTracks  = [-1,1]                )
    topSequence += XKaTrackTRTExtension
    if (InDetFlags.doPrintConfigurables()):
-     print XKaTrackTRTExtension
+     printfunc (XKaTrackTRTExtension)
    #
    # xKalman simple tracks production
    #
@@ -213,7 +213,7 @@ if InDetFlags.doxKalman():
                                                         RIOonTrackTool    = InDetRotCreator            )
    topSequence += XKaSimpleTracksProduction        
    if (InDetFlags.doPrintConfigurables()):
-     print XKaSimpleTracksProduction
+     printfunc (XKaSimpleTracksProduction)
 
    if InDetFlags.doTruth():
       #

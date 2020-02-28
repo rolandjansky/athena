@@ -111,7 +111,7 @@ if useGenericTruthThinning:
 
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     HIGG2D4TruthThinningTool = DerivationFramework__GenericTruthThinning(name                         = "HIGG2D4TruthThinningTool", 
-                                                                         ThinningService              = HIGG2D4ThinningHelper.ThinningSvc(),
+                                                                         StreamName                   = streamName,
                                                                          ParticleSelectionString      = truth_expression,
                                                                          PreserveDescendants          = False,
                                                                          PreserveGeneratorDescendants = True,

@@ -86,7 +86,7 @@ truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.p
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT9TruthTool2 = DerivationFramework__GenericTruthThinning(name                         = "EXOT9TruthTool2",
-                                                            ThinningService              = "EXOT9ThinningSvc",
+                                                            StreamName                   = streamName,
                                                             ParticleSelectionString      = truth_cond_Lepton,
                                                             PreserveDescendants          = False,
                                                             PreserveGeneratorDescendants = True,

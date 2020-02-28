@@ -66,23 +66,14 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
     // Any tau needs to have PanTauCellBasedProto 4mom. Set it to 0 before nTrack cut
     pTau.setP4(xAOD::TauJetParameters::PanTauCellBasedProto, 0.0, 0.0, 0.0, 0.0);
 
-    //---------------------------------------------------------------------
     // only run shower subtraction on 1-5 prong taus 
-    //---------------------------------------------------------------------
     if (pTau.nTracks() == 0 || pTau.nTracks() >5 ) {
         return StatusCode::SUCCESS;
     }
     ATH_MSG_DEBUG("ClusterCreator: new tau. \tpt = " << pTau.pt() << "\teta = " << pTau.eta() << "\tphi = " << pTau.phi() << "\tnprongs = " << pTau.nTracks());
 
-    //---------------------------------------------------------------------
-    // TODO: May want to use tau vertex in the future to calculate some cluster moments (DELTA_THETA, etc.).
-    // Doesn't help now, since all moments are calculated wrt 0.0.0 atm.
-    //---------------------------------------------------------------------
-
     // Retrieve Ecal1 shots and match them to clusters
-    //---------------------------------------------------------------------
     // pPi0ClusterContainer from CaloClusterMaker
-
     std::vector<const xAOD::PFO*> shotVector;
     unsigned nShots = pTau.nShotPFOs();
     for(unsigned iShot=0;iShot<nShots;++iShot){

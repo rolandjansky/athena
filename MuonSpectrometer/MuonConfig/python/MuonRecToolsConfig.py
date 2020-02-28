@@ -48,7 +48,6 @@ def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
             acc = DCMathSegmentMakerCfg( flags, name = "MCTBDCMathSegmentMaker", MdtSegmentFinder = mdt_segment_finder, SinAngleCut = 0.1,  DoGeometry = False, AddUnassociatedPhiHits= True )
         seg_maker = acc.getPrimary()
         result.merge(acc)
-        result.addPublicTool(seg_maker)
         kwargs.setdefault("SegmentMaker", seg_maker)
         kwargs.setdefault("SegmentMakerNoHoles", seg_maker) #FIXME. Just remove one.
     if not flags.Detector.GeometryCSC:
@@ -84,7 +83,6 @@ def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", 
     acc = MuonSTEP_PropagatorCfg(flags)
     muon_prop = acc.getPrimary()
     result.merge(acc)
-    result.addPublicTool(muon_prop)
     kwargs.setdefault("PropagatorTool", muon_prop)
     
     kwargs.setdefault("HasCSC",  flags.Detector.GeometryCSC)
@@ -198,13 +196,11 @@ def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
 
     acc = MCTBFitterCfg(flags, name = "MCTBSLFitterMaterialFromTrack", StraightLine=True, GetMaterialFromTrack=True)
     slfitter = acc.getPrimary()
-    acc.addPublicTool(slfitter)
     result.merge(acc)
     kwargs.setdefault("SLFitter", slfitter)
 
     acc = MCTBFitterCfg(flags, name = "MCTBFitterMaterialFromTrack", GetMaterialFromTrack=True)
     fitter = acc.getPrimary()
-    acc.addPublicTool(fitter)
     result.merge(acc)
     kwargs.setdefault("Fitter", fitter)
 

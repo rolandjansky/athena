@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -11,16 +11,14 @@
 #include "CscFit.h"
 
 #include <cmath>
-#include "TMath.h"
 #include "TF1.h"
-#include "TH1.h"
+#include "TH1F.h"
+
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 CscFit::CscFit(double sigma) {
   m_sigma            = sigma;
-  m_msgSvc           =  0;
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
-  if (sc.isFailure()) std::cout << "CscFit::Fail to locate Message Service" << std::endl;
 }
 
 /// clustering by a Gaussing fit to the charge distribution
@@ -34,7 +32,9 @@ CscFit::CscFit(double sigma) {
 void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& ncl, 
 		    double* sig, double* zpos, double& noise) {
 
-  MsgStream log(m_msgSvc, "CscFit");
+#ifndef NDEBUG
+  MsgStream log(Athena::getMessageSvc(),"CscFit");
+#endif
 
   const int NN=100;
   int NPT;
@@ -48,9 +48,9 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
   double zl,zr;
   double q1,q2;
   double /* ddz=0, */ zfcsc1=-1000.0,zcscl=0,zcscr=0; // dlr=-1000.0;
+#ifndef NDEBUG
   double fErr1 = 10000.0;
-  //double fErr2 = 10000.0;
-
+#endif
   double dzcut = da/25.0;
 
   int L = maxStrip;
@@ -105,9 +105,11 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
        func->SetParameters(qstr[imax],x0,s0,0.0);
        int status = hist->Fit("f1gauss","QRI");
        func->GetParameters(&par[0]);
+#ifndef NDEBUG
        fErr1 = func->GetParError(1);
        log << MSG::DEBUG << "One Gaussing Left Fit: " << "Avg = " << zl << " Mean = " 
            << par[1] << " Error = " << fErr1 << " status = " << status << endmsg;
+#endif
        if (status ==0) {  
           al = (double) par[0];
           zl = (double) par[1];
@@ -150,9 +152,11 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
        func->SetParameters(qstr[imax],x0,s0,0.0);
        int status = hist->Fit("f1gauss","QRI");
        func->GetParameters(&par[0]);
+#ifndef NDEBUG
        fErr1 = func->GetParError(1);
        log << MSG::DEBUG << "One Gaussing Right Fit: " << "Avg = " << zr << " Mean = " 
            << par[1] << " Error = " << fErr1 << " status = " << status << endmsg;
+#endif
        if (status == 0) {   
           ar = (double) par[0];
           zr = (double) par[1];
@@ -204,12 +208,16 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
        if (status == 0) {
           zfcsc1 = (double) par[1];
           sigMainFit = (double) par[2];
+#ifndef NDEBUG
           fErr1 = func->GetParError(1);
+#endif
           mainFit = true;
-       }  
+       }
+#ifndef NDEBUG
        log << MSG::DEBUG << "One Gaussing Main Fit: " << "Avg = " << z0 << " Mean = " 
            << par[1] << " Error = " << fErr1 << " baseline = " << par[3] 
            << " status = " << status << endmsg;
+#endif
     }
     delete func; 
     delete hist;
@@ -255,8 +263,8 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
           doubleGaussianFit = true;
           zcscl = (double) par[1];
           zcscr = (double) par[4];
-          // fErr2  = std::min( func->GetParError(1), func->GetParError(4) );
        }
+#ifndef NDEBUG
        log << MSG::DEBUG << "Double Gaussing Fit: " << "Avg = " << z0  
            << " Mean One Gaussian = " << zfcsc1  
            << " Mean1 = " << par[1] << " Error1 = " << func->GetParError(1)  
@@ -264,8 +272,8 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
            << " baseline = " << par[6]
            << " status = " << status 
            << endmsg;
+#endif
     }
-    // dlr   = fabs(zcscr-zcscl);
     delete func; 
     delete hist;
 
@@ -299,7 +307,9 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
     bool checkIt = (dx0 < dzcut) || (dx1 < dzcut) || (dx2 < dzcut);
 
     if ( mainFit && doubleGaussianFit && checkIt) {
+#ifndef NDEBUG
        log << MSG::DEBUG << "Double Gaussian Fit converged ..." << endmsg;
+#endif
        ncl = std::min (NN,ncl+1);
        if ( dx0 < dx1 && dx0 < dx2) {
           *(zpos+ncl-1) = xp0;
@@ -312,14 +322,18 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
        }
        *(sig+ncl-1) = wErr;
     } else if ( mainFit && (dx0 < dzcut)) {
+#ifndef NDEBUG
        log << MSG::DEBUG << "One Gaussian Fit converged ..." << endmsg;
+#endif
        ncl = std::min (NN,ncl+1);
        *(zpos+ncl-1) = xp0;
        *(sig+ncl-1) = wErr;
     } else { 
       if (ysum > 0) {
 	ncl = std::min (NN,ncl+1);
+#ifndef NDEBUG
 	log << MSG::DEBUG << "Fit was not meaningful: using weighted average" << endmsg;
+#endif
 	*(zpos+ncl-1) = z0;
 	*(sig+ncl-1) = wErr;
       }
@@ -348,7 +362,7 @@ int CscFit::icmax(double* qstr, const int& i1, const int& i2) {
 Double_t f1gauss(Double_t *x, Double_t *par) {
    Double_t arg = 0;
    arg = (x[0] - par[1])/par[2];
-   Double_t fitval = par[3] + par[0]*TMath::Exp(-0.5*arg*arg);
+   Double_t fitval = par[3] + par[0]*std::exp(-0.5*arg*arg);
    return fitval;
 }
 
@@ -358,8 +372,8 @@ Double_t f2gauss(Double_t *x, Double_t *par) {
    Double_t arg2 = 0;
    if (par[2] != 0) arg1 = (x[0] - par[1])/par[2];
    if (par[5] != 0) arg2 = (x[0] - par[4])/par[5];
-   Double_t fitval = par[0]*TMath::Exp(-0.5*arg1*arg1)+
-                     par[3]*TMath::Exp(-0.5*arg2*arg2) + par[6];
+   Double_t fitval = par[0]*std::exp(-0.5*arg1*arg1)+
+                     par[3]*std::exp(-0.5*arg2*arg2) + par[6];
    return fitval;
 }
 

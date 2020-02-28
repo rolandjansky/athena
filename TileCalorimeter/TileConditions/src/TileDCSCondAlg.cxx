@@ -1,6 +1,6 @@
 //Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -134,7 +134,7 @@ StatusCode TileDCSCondAlg::execute(const EventContext& ctx) const {
   if (m_readHV) {
 
     SG::ReadCondHandle<CondAttrListCollection> hv(m_hvKey, ctx);
-    for (const CondAttrListCollection::ChanAttrListPair chanAttrListPair : **hv) {
+    for (const CondAttrListCollection::ChanAttrListPair& chanAttrListPair : **hv) {
 
       const CondAttrListCollection::ChanNum coolChannel = chanAttrListPair.first;
 
@@ -173,7 +173,7 @@ StatusCode TileDCSCondAlg::execute(const EventContext& ctx) const {
   if (m_readHVSet) {
 
     SG::ReadCondHandle<CondAttrListCollection> hvSet(m_hvSetKey, ctx);
-    for (const CondAttrListCollection::ChanAttrListPair chanAttrListPair : **hvSet) {
+    for (const CondAttrListCollection::ChanAttrListPair& chanAttrListPair : **hvSet) {
 
       const CondAttrListCollection::ChanNum coolChannel = chanAttrListPair.first;
 
@@ -218,7 +218,7 @@ StatusCode TileDCSCondAlg::execute(const EventContext& ctx) const {
   if (m_readStates) {
 
     SG::ReadCondHandle<CondAttrListCollection> states(m_statesKey, ctx);
-    for (const CondAttrListCollection::ChanAttrListPair chanAttrListPair : **states) {
+    for (const CondAttrListCollection::ChanAttrListPair& chanAttrListPair : **states) {
 
       CondAttrListCollection::ChanNum coolChannel = chanAttrListPair.first;
 

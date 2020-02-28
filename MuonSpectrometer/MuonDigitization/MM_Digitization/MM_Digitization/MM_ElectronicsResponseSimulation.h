@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_MM_ELECTRONICSRESPONSESIMULATION_H
@@ -23,20 +23,7 @@
 
 */
 
-
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/Service.h"
-#include "AthenaKernel/MsgStreamMember.h"
-#include "GaudiKernel/StatusCode.h"
-
-
-/// ROOT
-#include <TROOT.h>
-#include <TH1.h>
-#include <TH1F.h>
-#include <TH2F.h>
 #include <TF1.h>
-#include <TMath.h>
 
 /// STD'S
 #include <algorithm>
@@ -56,16 +43,6 @@
 
 //VMM Mapping
 #include "MM_Digitization/MM_StripVmmMappingTool.h"
-
-using std::vector;
-using std::cout;
-using std::endl;
-
-/// ROOT Classed
-class TF1;
-class TH1;
-class TH1F;
-class TH2F;
 
 class MM_ElectronicsResponseSimulation {
 

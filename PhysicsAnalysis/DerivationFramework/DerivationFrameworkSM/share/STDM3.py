@@ -99,21 +99,21 @@ if globalflags.DataSource()=='geant4':
     from DerivationFrameworkSM.STDMCommonTruthTools import *
     
     STDM3TruthLepTool = DerivationFramework__GenericTruthThinning(name                         = "STDM3TruthLepTool",
-                                                                  ThinningService              = STDM3ThinningHelper.ThinningSvc(),
+                                                                  StreamName                   = streamName,
                                                                   ParticleSelectionString      = truth_cond_lepton,
                                                                   PreserveDescendants          = False,
                                                                   PreserveGeneratorDescendants = False,
                                                                   PreserveAncestors            = True)
     
     STDM3TruthBosTool = DerivationFramework__GenericTruthThinning(name                         = "STDM3TruthBosTool",
-                                                                  ThinningService              = STDM3ThinningHelper.ThinningSvc(),
+                                                                  StreamName                   = streamName,
                                                                   ParticleSelectionString      = truth_cond_boson,
                                                                   PreserveDescendants          = False,
                                                                   PreserveGeneratorDescendants = True,
                                                                   PreserveAncestors            = False)
     
     STDM3PhotonThinning = DerivationFramework__GenericTruthThinning(name                    = "STDM3PhotonThinning",
-                                                                    ThinningService         = STDM3ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = streamName,
                                                                     ParticlesKey            = "TruthPhotons",
                                                                     ParticleSelectionString = photonthinningexpr)
 
@@ -176,13 +176,6 @@ DerivationFrameworkJob += STDM3Sequence
 #fileName   = buildFileName( derivationFlags.WriteDAOD_STDM3Stream )
 #STDM3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 #STDM3Stream.AcceptAlgs(["STDM3Kernel"])
-
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-# from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-# augStream = MSMgr.GetStream( streamName )
-# evtStream = augStream.GetEventStream()
-# svcMgr += createThinningSvc( svcName="STDM3ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

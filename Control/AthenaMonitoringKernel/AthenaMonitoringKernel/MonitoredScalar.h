@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoringKernel_MonitoredScalar_h
@@ -14,42 +14,76 @@
 namespace Monitored {
 
   /**
-   * Declare a monitored scalar
+   * Declare a monitored scalar variable.
    *
-   * Monitoring for any double-convertable scalar
+   * A monitored Scalar behaves similar to a regular builtin type:
    *
-   * @param name            Name of monitored quantity
-   * @param defaultValue    Default value assigned to the monitored scalar
-   * @param valueTransform  Optional transformation applied to value
+   * @tparam T  Type of scalar (convertable to double or string)
    *
-   * \code
-   *   auto phi = Monitored::Scalar("phi", 4.2);                                                        // deduced double
-   *   auto eta = Monitored::Scalar<float>("eta", 0);                                                   // explicit float
-   *   auto theta = Monitored::Scalar<double>("theta", 0.0, [](double value) { return value * 1000; }); // with transformation
-   *   auto z = Monitored::Scalar<double>("theta", []() { return 2.5; });                               // fetch the content dynamically
-   * \endcode
+   * ###Examples:
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx assign
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx operators_comp
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx operators_examples
+   *
+   * In case of std::string an alphanumeric histogram fill will be performed:
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx stringFilling
+   *
+   * @see Monitored::Collection
+   * @see Monitored::Timer
+   * @ingroup MonAPI
    */
   template <class T> class Scalar : public IMonitoredVariable {
   public:
     static_assert(std::is_convertible<T, double>::value or std::is_constructible<std::string, T>::value, "Conversion of scalar template type to double or string is impossible");
 
+    /**
+     * %Scalar with optional default value.
+     *
+     * @param name            Name of monitored quantity
+     * @param defaultValue    Optional default value
+     *
+     * #### Example
+     * @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromScalar
+     * @ingroup MonAPI
+     */
     Scalar(std::string name, const T& defaultValue = {}) :
         IMonitoredVariable(std::move(name)),
         m_value(defaultValue),
         m_valueTransform()
     {}
 
+    /**
+     * %Scalar with default value and optional transformation applied before filling.
+     *
+     * @param name            Name of monitored quantity
+     * @param defaultValue    Default value assigned to the monitored scalar
+     * @param valueTransform  Optional transformation applied to value before filling
+     *
+     * #### Example
+     * @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromScalarTrf
+     * @ingroup MonAPI
+     */
     Scalar(std::string name, const T& defaultValue, std::function<double(const T&)> valueTransform) :
         IMonitoredVariable(std::move(name)),
         m_value(defaultValue),
         m_valueTransform(valueTransform)
     {}
 
+    /**
+     * %Scalar with generator function to retrieve the value.
+     *
+     * @param name            Name of monitored quantity
+     * @param generator       Function returning the monitored value
+     *
+     * #### Example
+     * @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromNonTrivialSources_lambda
+     * @ingroup MonAPI
+     */
     Scalar(std::string name, std::function<T()> generator) :
-        IMonitoredVariable(std::move(name)),
-	m_value(0),
-	m_valueTransform(),
-	m_valueGenerator( generator )
+      IMonitoredVariable(std::move(name)),
+      m_value(0),
+      m_valueTransform(),
+      m_valueGenerator( generator )
     {}
 
     Scalar(Scalar&&) = default;

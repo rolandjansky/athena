@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONALIGNMENTDATA_BLINEPAR_H
@@ -14,11 +14,7 @@ class BLinePar : public MuonAlignmentPar {
   // Default constructor
   BLinePar();
   // destructor
-  ~BLinePar();
-
-  // Full constructor
-
-
+  virtual ~BLinePar() override = default;
 
   void setParameters(float bz,
 		     float bp,

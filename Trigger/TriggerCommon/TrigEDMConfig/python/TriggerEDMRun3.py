@@ -279,8 +279,8 @@ TriggerHLTListRun3 = [
 
     # tau
     # will enable when needed
-    # ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_CaloOnly',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUCaloViews'),
-    # ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_CaloOnlyAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
+    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_CaloOnly',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUCaloViews'),
+    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_CaloOnlyAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_CaloOnlyMVA',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUCaloMVAViews'),
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_CaloOnlyMVAAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),

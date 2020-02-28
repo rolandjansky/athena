@@ -78,18 +78,18 @@ StatusCode DerivationFramework::TrackParticleThinning::initialize()
     if (m_thinHitsOnTrack) {
       ATH_MSG_INFO("Pixel states collection as source for thinning: " << m_statesPixSGKey.key());
       ATH_MSG_INFO("Pixel measurements collection as source for thinning: " << m_measurementsPixSGKey.key());
-      ATH_CHECK( m_statesPixSGKey.initialize (m_streamName) );
-      ATH_CHECK( m_measurementsPixSGKey.initialize (m_streamName) );
+      ATH_CHECK( m_statesPixSGKey.initialize (m_streamName, !m_statesPixSGKey.empty()) );
+      ATH_CHECK( m_measurementsPixSGKey.initialize (m_streamName, !m_measurementsPixSGKey.empty()) );
 
       ATH_MSG_INFO("SCT states collection as source for thinning: " << m_statesSctSGKey.key());
       ATH_MSG_INFO("SCT measurements collection as source for thinning: " << m_measurementsSctSGKey.key());
-      ATH_CHECK( m_statesSctSGKey.initialize (m_streamName) );
-      ATH_CHECK( m_measurementsSctSGKey.initialize (m_streamName) );
+      ATH_CHECK( m_statesSctSGKey.initialize (m_streamName, !m_statesSctSGKey.empty()) );
+      ATH_CHECK( m_measurementsSctSGKey.initialize (m_streamName, !m_measurementsSctSGKey.empty()) );
 
       ATH_MSG_INFO("TRT states collection as source for thinning: " << m_statesTrtSGKey.key());
       ATH_MSG_INFO("TRT measurements collection as source for thinning: " << m_measurementsTrtSGKey.key());
-      ATH_CHECK( m_statesTrtSGKey.initialize (m_streamName) );
-      ATH_CHECK( m_measurementsTrtSGKey.initialize (m_streamName) );
+      ATH_CHECK( m_statesTrtSGKey.initialize (m_streamName, !m_statesTrtSGKey.empty()) );
+      ATH_CHECK( m_measurementsTrtSGKey.initialize (m_streamName, !m_measurementsTrtSGKey.empty()) );
     }
 
     ATH_CHECK(m_SCTDetEleCollKey.initialize());
@@ -215,27 +215,8 @@ void DerivationFramework::TrackParticleThinning::filterTrackHits
    std::atomic<unsigned int>& npass_states,
    std::atomic<unsigned int>& npass_measurements) const
 {
-  SG::ThinningHandle<xAOD::TrackStateValidationContainer> importedStates
-    (statesKey, ctx);
   std::vector<bool> maskStates;
-  unsigned int size_states = importedStates->size();
-  if (size_states == 0) {
-    ATH_MSG_WARNING("States container is empty: " << statesKey.key());
-  } else {
-    maskStates.assign(size_states, false); // default: don't keep any
-    ntot_states += size_states;
-  }
-
-  SG::ThinningHandle<xAOD::TrackMeasurementValidationContainer> importedMeasurements
-    (measurementsKey, ctx);
   std::vector<bool> maskMeasurements;
-  unsigned int size_measurements = importedMeasurements->size();
-  if (size_measurements == 0) {
-    ATH_MSG_WARNING("Measurements container is empty: " << measurementsKey.key());
-  } else {
-    maskMeasurements.assign(size_measurements,false); // default: don't keep any
-    ntot_measurements += size_measurements;
-  }
 
   selectTrackHits (inputTrackParticles, inputMask, detTypeToSelect,
                    maskStates, maskMeasurements);
@@ -245,8 +226,41 @@ void DerivationFramework::TrackParticleThinning::filterTrackHits
   npass_states += count (maskStates);
   npass_measurements += count (maskMeasurements);
 
-  importedStates.keep (maskStates);
-  importedMeasurements.keep (maskMeasurements);
+  if (!statesKey.empty()) {
+    SG::ThinningHandle<xAOD::TrackStateValidationContainer> importedStates
+      (statesKey, ctx);
+    unsigned int size_states = importedStates->size();
+    if (size_states == 0) {
+      ATH_MSG_WARNING("States container is empty: " << statesKey.key());
+    }
+    else {
+      ntot_states += size_states;
+      if (maskStates.size() > size_states) {
+        ATH_MSG_ERROR("States mask size mismatch " << maskStates.size() <<
+                      " > " << size_states);
+      }
+      maskStates.resize (size_states);
+      importedStates.keep (maskStates);
+    }
+  }
+
+  if (!measurementsKey.empty()) {
+    SG::ThinningHandle<xAOD::TrackMeasurementValidationContainer> importedMeasurements
+      (measurementsKey, ctx);
+    unsigned int size_measurements = importedMeasurements->size();
+    if (size_measurements == 0) {
+      ATH_MSG_WARNING("Measurements container is empty: " << measurementsKey.key());
+    }
+    else {
+      ntot_measurements += size_measurements;
+      if (maskMeasurements.size() > size_measurements) {
+        ATH_MSG_ERROR("Measurements mask size mismatch " << maskMeasurements.size() <<
+                      " > " << size_measurements);
+      }
+      maskMeasurements.resize (size_measurements);
+      importedMeasurements.keep (maskMeasurements);
+    }
+  }
 }
 
 
@@ -278,6 +292,9 @@ void DerivationFramework::TrackParticleThinning::selectTrackHits(const xAOD::Tra
 	ATH_MSG_VERBOSE("Discarding TrackState as not of correct type " << detTypeToSelect);
 	continue;
       }
+      if (trkState_el.index() >= outputStatesMask.size()) {
+        outputStatesMask.resize (trkState_el.index()+1);
+      }
       outputStatesMask[trkState_el.index()] = true;
 
       // get the corresponding TrackMeasurementValidation object, if any, and add it to the outputMeasurementsMask
@@ -291,6 +308,9 @@ void DerivationFramework::TrackParticleThinning::selectTrackHits(const xAOD::Tra
 	ATH_MSG_VERBOSE("Invalid pointer to TrackMeasurementValidation object from track state for track index: " << trkIndex
 			<< ", trackState index: " << trkState_el.index());
 	continue; //not linking to a valid object -- is it necessary?
+      }
+      if (trkMeasurement_el.index() >= outputMeasurementsMask.size()) {
+        outputMeasurementsMask.resize (trkMeasurement_el.index()+1);
       }
       outputMeasurementsMask[trkMeasurement_el.index()] = true;
     }

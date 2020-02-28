@@ -86,6 +86,9 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_shift_y(0.0),
   m_doCloneRemoval(true),
   m_useBeamSpot(true),
+  m_doZFinder(false),
+  m_doZFinderOnly(false),
+  m_storeZFinderVertices(false),
   m_nfreeCut(5), 
   m_nTracks(0),
   m_nPixSPsInRoI(0),
@@ -131,9 +134,12 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
   declareProperty( "VertexSeededMode",    m_vertexSeededMode = false);
   declareProperty( "doZFinder",           m_doZFinder = true);
+  declareProperty( "doZFinderOnly",       m_doZFinderOnly = false);
 
-  declareProperty( "doFastZVertexSeeding",           m_doFastZVseeding = true);
+  declareProperty( "doFastZVertexSeeding",        m_doFastZVseeding = true);
   declareProperty( "zVertexResolution",           m_tcs.m_zvError = 10.0);
+  declareProperty( "StoreZFinderVertices",        m_storeZFinderVertices = false );
+
 
   declareProperty("Triplet_MinPtFrac",        m_tripletMinPtFrac = 0.3);
   declareProperty("pTmin",                    m_pTmin = 1000.0);
@@ -588,6 +594,8 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   if( m_roi_nSPs >= m_minHits ) {
     ATH_MSG_DEBUG("REGTEST / Found " << m_roi_nSPs << " space points.");
+    ATH_MSG_DEBUG("REGTEST / Found " << m_nPixSPsInRoI << " Pixel space points.");
+    ATH_MSG_DEBUG("REGTEST / Found " << m_nSCTSPsInRoI << " SCT space points.");
     m_countRoIwithEnoughHits++;
   }
   else {
@@ -598,40 +606,65 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   m_currentStage = 2;
   mnt_roi_lastStageExecuted = 2; // Run3 monitoring
 
-  std::unique_ptr<TrigRoiDescriptor> superRoi = std::make_unique<TrigRoiDescriptor>(roi);
+
+  /// this uses move semantics so doesn't do a deep copy, so ...
+  std::unique_ptr<TrigRoiDescriptor> tmpRoi = std::make_unique<TrigRoiDescriptor>(roi);
+  /// need to disable managment of the constituents
+  tmpRoi->manageConstituents(false);
+
 
   if (m_doZFinder) {
+
     if ( timerSvc() ) m_ZFinderTimer->start();
+
     mnt_timer_ZFinder.start(); // Run3 monitoring
     m_tcs.m_vZv.clear();
-    superRoi->setComposite(true);
+
+    /// create a new internal superRoi - should really record this
+    tmpRoi = std::make_unique<TrigRoiDescriptor>(true);
+    tmpRoi->setComposite(true);
 
     TrigVertexCollection* vertexCollection = m_trigZFinder->findZ( convertedSpacePoints, roi);
 
     ATH_MSG_DEBUG("vertexCollection->size(): " << vertexCollection->size());
 
-    for (auto vertex : *vertexCollection) {
-      ATH_MSG_DEBUG("REGTEST / ZFinder vertex: " << *vertex);
-      float z      = vertex->z();
-      float zMinus = z - 7.0;
-      float zPlus  = z + 7.0;
-      TrigRoiDescriptor* newRoi =  new TrigRoiDescriptor(roi.eta(), roi.etaMinus(), roi.etaPlus(), 
-          roi.phi(), roi.phiMinus(), roi.phiPlus(), z, zMinus, zPlus);
-      superRoi->push_back(newRoi);
-      m_zVertices.push_back(z);
-      m_tcs.m_vZv.push_back(z);
+    if ( m_doFastZVseeding ) { 
+
+      for (auto vertex : *vertexCollection) {
+	ATH_MSG_DEBUG("REGTEST / ZFinder vertex: " << *vertex);
+	float z      = vertex->z();
+	float zMinus = z - 7.0;
+	float zPlus  = z + 7.0;
+	TrigRoiDescriptor* newRoi =  new TrigRoiDescriptor(roi.eta(), roi.etaMinus(), roi.etaPlus(), 
+							   roi.phi(), roi.phiMinus(), roi.phiPlus(), z, zMinus, zPlus);
+	tmpRoi->push_back(newRoi);
+	m_zVertices.push_back(z);
+	m_tcs.m_vZv.push_back(z);
+      }
+
+      ATH_MSG_DEBUG("REGTEST / tmpRoi: " << *tmpRoi);
     }
-    ATH_MSG_DEBUG("REGTEST / superRoi: " << *superRoi);
-    delete vertexCollection;
+    
     if ( timerSvc() ) m_ZFinderTimer->stop();
     mnt_timer_ZFinder.stop(); // Run3 monitoring
+    
+    if (  m_doZFinderOnly ) { 
+      /// write vertex collection ... 
+      /// TODO: add vertexCollection collection handling here,
+      /// should not be 0 at this point unless fastZVseeding 
+      /// is enabled
+      delete vertexCollection;
+      return StatusCode::SUCCESS;
+    }
+    
+    delete vertexCollection;
+
   }
-  else {
-    superRoi->manageConstituents(false);
-  }
+
 
   m_currentStage = 3;
   mnt_roi_lastStageExecuted = 3; // Run3 monitoring
+
 
   if (m_retrieveBarCodes) {
     std::vector<int> vBar;
@@ -668,8 +701,9 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   seedGen.loadSpacePoints(convertedSpacePoints);
 
-  if (m_doZFinder && m_doFastZVseeding) seedGen.createSeedsZv(superRoi.get());
-  else seedGen.createSeeds(superRoi.get());
+  if (m_doZFinder && m_doFastZVseeding) seedGen.createSeedsZv(tmpRoi.get());
+  else seedGen.createSeeds(tmpRoi.get());
+
   std::vector<TrigInDetTriplet*> triplets;
   seedGen.getSeeds(triplets);
 
