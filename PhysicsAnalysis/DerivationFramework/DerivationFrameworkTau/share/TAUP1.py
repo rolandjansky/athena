@@ -190,6 +190,7 @@ if DerivationFrameworkIsMonteCarlo:
                                         "xAOD::TruthParticleAuxContainer#TruthPhotonsAux.",
                                         "xAOD::TruthParticleContainer#TruthNeutrinos",
                                         "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux."]
+  TAUP1SlimmingHelper.SmartCollections += ["AntiKt4TruthJets"]
 
 TAUP1SlimmingHelper.IncludeMuonTriggerContent    = False
 TAUP1SlimmingHelper.IncludeTauTriggerContent     = True
