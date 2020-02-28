@@ -51,39 +51,39 @@ StatusCode LarEMSamplingFraction::initialize()
   ServiceHandle<ITHistSvc> histSvc("THistSvc",name()); 
   ATH_CHECK( histSvc.retrieve() );
 	
-	mytree = new TTree("mytree","mytree");
-	mytree->Branch("energy_reco",          &energy_reco);
-	mytree->Branch("energy_hit",           &energy_hit);
-	mytree->Branch("energy_inactive_total",&energy_inactive_total);
-	mytree->Branch("energy_inactive_em",   &energy_inactive_em);
-	mytree->Branch("energy_inactive_nonem",&energy_inactive_nonem);
-	mytree->Branch("energy_inactive_inv",  &energy_inactive_inv);
-	mytree->Branch("energy_inactive_esc",  &energy_inactive_esc);
-	mytree->Branch("energy_active_total_corrected",&energy_active_total_corrected);
-	mytree->Branch("energy_active_total",&energy_active_total);
-	mytree->Branch("energy_active_em",   &energy_active_em);
-	mytree->Branch("energy_active_nonem",&energy_active_nonem);
-	mytree->Branch("energy_active_inv",  &energy_active_inv);
-	mytree->Branch("energy_active_esc",  &energy_active_esc);
-	mytree->Branch("mc_pdg", &mc_pdg);
-	mytree->Branch("mc_eta", &mc_eta);
-	mytree->Branch("mc_phi", &mc_phi);
-	mytree->Branch("mc_e",   &mc_e);
-	mytree->Branch("mc_pt",  &mc_pt);
+	m_mytree = new TTree("mytree","mytree");
+	m_mytree->Branch("energy_reco",          &m_energy_reco);
+	m_mytree->Branch("energy_hit",           &m_energy_hit);
+	m_mytree->Branch("energy_inactive_total",&m_energy_inactive_total);
+	m_mytree->Branch("energy_inactive_em",   &m_energy_inactive_em);
+	m_mytree->Branch("energy_inactive_nonem",&m_energy_inactive_nonem);
+	m_mytree->Branch("energy_inactive_inv",  &m_energy_inactive_inv);
+	m_mytree->Branch("energy_inactive_esc",  &m_energy_inactive_esc);
+	m_mytree->Branch("energy_active_total_corrected",&m_energy_active_total_corrected);
+	m_mytree->Branch("energy_active_total",&m_energy_active_total);
+	m_mytree->Branch("energy_active_em",   &m_energy_active_em);
+	m_mytree->Branch("energy_active_nonem",&m_energy_active_nonem);
+	m_mytree->Branch("energy_active_inv",  &m_energy_active_inv);
+	m_mytree->Branch("energy_active_esc",  &m_energy_active_esc);
+	m_mytree->Branch("mc_pdg", &m_mc_pdg);
+	m_mytree->Branch("mc_eta", &m_mc_eta);
+	m_mytree->Branch("mc_phi", &m_mc_phi);
+	m_mytree->Branch("mc_e",   &m_mc_e);
+	m_mytree->Branch("mc_pt",  &m_mc_pt);
 
   if(m_docells) {
-	  mytree->Branch("cell_identifier",&m_cell_identifier);
-	  mytree->Branch("cell_energy_reco",&m_cell_energy_reco);
-	  mytree->Branch("cell_energy_inactive_total",&m_cell_energy_inactive_total);
-  	mytree->Branch("cell_energy_active_total_corrected",&m_cell_energy_active_total_corrected);
-	  mytree->Branch("cell_energy_active_total",&m_cell_energy_active_total);
-	  mytree->Branch("cell_sampling",&m_cell_sampling);
-	  mytree->Branch("cell_eta",&m_cell_eta);
-	  mytree->Branch("cell_phi",&m_cell_phi);
+    m_mytree->Branch("cell_identifier",&m_cell_identifier);
+    m_mytree->Branch("cell_energy_reco",&m_cell_energy_reco);
+    m_mytree->Branch("cell_energy_inactive_total",&m_cell_energy_inactive_total);
+    m_mytree->Branch("cell_energy_active_total_corrected",&m_cell_energy_active_total_corrected);
+    m_mytree->Branch("cell_energy_active_total",&m_cell_energy_active_total);
+    m_mytree->Branch("cell_sampling",&m_cell_sampling);
+    m_mytree->Branch("cell_eta",&m_cell_eta);
+    m_mytree->Branch("cell_phi",&m_cell_phi);
   }  
 
-	histSvc->regTree("/MYSTREAM/myTree",mytree).ignore();
-    
+	histSvc->regTree("/MYSTREAM/myTree",m_mytree).ignore();
+
   // pointer to detector manager:
   m_calo_dd_man = CaloDetDescrManager::instance(); 
   m_calo_id = m_calo_dd_man->getCaloCell_ID();
@@ -105,14 +105,13 @@ StatusCode LarEMSamplingFraction::initialize()
     return StatusCode::FAILURE;
   }
 
-  detStore()->retrieve(m_tileInfo,"TileInfo");
+  sc=detStore()->retrieve(m_tileInfo,"TileInfo");
   if(sc.isFailure())
   {
     ATH_MSG_ERROR("Unable to retrieve TileInfo from DetectorStore");
     return StatusCode::FAILURE;
   }
   
-
   return StatusCode::SUCCESS;
 }
 
@@ -162,11 +161,11 @@ StatusCode LarEMSamplingFraction::execute()
 	}
 	HepMC::GenEvent::particle_const_iterator pit  = truthEvent->at(0)->particles_begin();
 	const HepMC::GenParticle * gen  = *pit;
-	mc_pdg = gen->pdg_id();
-	mc_eta = gen->momentum().pseudoRapidity();
-	mc_phi = gen->momentum().phi();
-	mc_e = gen->momentum().e();
-	mc_pt = sqrt(pow(gen->momentum().px(),2)+pow(gen->momentum().py(),2));
+	m_mc_pdg = gen->pdg_id();
+	m_mc_eta = gen->momentum().pseudoRapidity();
+	m_mc_phi = gen->momentum().phi();
+	m_mc_e = gen->momentum().e();
+	m_mc_pt = sqrt(pow(gen->momentum().px(),2)+pow(gen->momentum().py(),2));
 	
 	//inspiration:
 	//see https://gitlab.cern.ch/atlas/athena/blob/master/Calorimeter/CaloCalibHitRec/src/CalibHitToCaloCell.cxx
@@ -175,21 +174,21 @@ StatusCode LarEMSamplingFraction::execute()
 	const CaloDetDescrManager* caloDDMgr = nullptr;
 	ATH_CHECK(detStore()->retrieve(caloDDMgr, "CaloMgr"));
 	
-	energy_reco          =new vector<float>;
-	energy_hit          =new vector<float>;
+	m_energy_reco          =new vector<float>;
+	m_energy_hit          =new vector<float>;
   
- 	energy_inactive_total=new vector<float>;
-	energy_inactive_em   =new vector<float>;
-	energy_inactive_nonem=new vector<float>;
-	energy_inactive_inv  =new vector<float>;
-	energy_inactive_esc  =new vector<float>;
+ 	m_energy_inactive_total=new vector<float>;
+	m_energy_inactive_em   =new vector<float>;
+	m_energy_inactive_nonem=new vector<float>;
+	m_energy_inactive_inv  =new vector<float>;
+	m_energy_inactive_esc  =new vector<float>;
 	
-	energy_active_total_corrected=new vector<float>;
-	energy_active_total=new vector<float>;
-	energy_active_em   =new vector<float>;
-	energy_active_nonem=new vector<float>;
-	energy_active_inv  =new vector<float>;
-	energy_active_esc  =new vector<float>;
+	m_energy_active_total_corrected=new vector<float>;
+	m_energy_active_total=new vector<float>;
+	m_energy_active_em   =new vector<float>;
+	m_energy_active_nonem=new vector<float>;
+	m_energy_active_inv  =new vector<float>;
+	m_energy_active_esc  =new vector<float>;
 	
   if(m_docells) {
     m_cell_identifier                   =new std::vector<Long64_t>;
@@ -217,21 +216,21 @@ StatusCode LarEMSamplingFraction::execute()
 
 	for(int s=0;s<24;s++)
 	{
-		energy_reco->push_back(0.0);
-		energy_hit->push_back(0.0);
+		m_energy_reco->push_back(0.0);
+		m_energy_hit->push_back(0.0);
     
-		energy_inactive_total->push_back(0.0);
-		energy_inactive_em   ->push_back(0.0);
-		energy_inactive_nonem->push_back(0.0);
-		energy_inactive_inv  ->push_back(0.0);
-		energy_inactive_esc  ->push_back(0.0);
+		m_energy_inactive_total->push_back(0.0);
+		m_energy_inactive_em   ->push_back(0.0);
+		m_energy_inactive_nonem->push_back(0.0);
+		m_energy_inactive_inv  ->push_back(0.0);
+		m_energy_inactive_esc  ->push_back(0.0);
 		
-		energy_active_total_corrected->push_back(0.0);
-		energy_active_total->push_back(0.0);
-		energy_active_em   ->push_back(0.0);
-		energy_active_nonem->push_back(0.0);
-		energy_active_inv  ->push_back(0.0);
-		energy_active_esc  ->push_back(0.0);
+		m_energy_active_total_corrected->push_back(0.0);
+		m_energy_active_total->push_back(0.0);
+		m_energy_active_em   ->push_back(0.0);
+		m_energy_active_nonem->push_back(0.0);
+		m_energy_active_inv  ->push_back(0.0);
+		m_energy_active_esc  ->push_back(0.0);
 	}
 	
 	std::vector<const CaloCalibrationHitContainer * >::const_iterator it;
@@ -285,23 +284,23 @@ StatusCode LarEMSamplingFraction::execute()
 
 				if(m_CalibrationHitContainerNames[count]=="LArCalibrationHitInactive" || m_CalibrationHitContainerNames[count]=="TileCalibHitInactiveCell")
 				{
-					energy_inactive_total->at(sampling)+=Etot;
-					energy_inactive_em   ->at(sampling)+=Eem;
-					energy_inactive_nonem->at(sampling)+=Enonem;
-					energy_inactive_inv  ->at(sampling)+=Einv;
-					energy_inactive_esc  ->at(sampling)+=Eesc;
+					m_energy_inactive_total->at(sampling)+=Etot;
+					m_energy_inactive_em   ->at(sampling)+=Eem;
+					m_energy_inactive_nonem->at(sampling)+=Enonem;
+					m_energy_inactive_inv  ->at(sampling)+=Einv;
+					m_energy_inactive_esc  ->at(sampling)+=Eesc;
 
           if(m_docells) cell_info_map[id.get_compact()].cell_energy_inactive_total+=Etot;
 				}
 				
 				if(m_CalibrationHitContainerNames[count]=="LArCalibrationHitActive" || m_CalibrationHitContainerNames[count]=="TileCalibHitActiveCell")
 				{
-					energy_active_total_corrected->at(sampling)+=Etot*Efactor;
-					energy_active_total->at(sampling)+=Etot;
-					energy_active_em   ->at(sampling)+=Eem;
-					energy_active_nonem->at(sampling)+=Enonem;
-					energy_active_inv  ->at(sampling)+=Einv;
-					energy_active_esc  ->at(sampling)+=Eesc;
+					m_energy_active_total_corrected->at(sampling)+=Etot*Efactor;
+					m_energy_active_total->at(sampling)+=Etot;
+					m_energy_active_em   ->at(sampling)+=Eem;
+					m_energy_active_nonem->at(sampling)+=Enonem;
+					m_energy_active_inv  ->at(sampling)+=Einv;
+					m_energy_active_esc  ->at(sampling)+=Eesc;
 
           if(m_docells) {
             cell_info_map[id.get_compact()].cell_energy_active_total_corrected+=Etot*Efactor;
@@ -333,7 +332,7 @@ StatusCode LarEMSamplingFraction::execute()
 			int sampling=-1;
 			if(caloDDE) {
 				sampling = caloDDE->getSampling();
-        energy_reco->at(sampling)+=(*itrCell)->energy();
+        m_energy_reco->at(sampling)+=(*itrCell)->energy();
   	    if((sampling>=12 && sampling<=20)) {
           Identifier cell_id = m_tileID->cell_id(id);
           if(m_calo_dd_man->get_element(cell_id)) {
@@ -373,7 +372,7 @@ StatusCode LarEMSamplingFraction::execute()
     if(m_calo_dd_man->get_element(larhitid))
     {
      CaloCell_ID::CaloSample larlayer = m_calo_dd_man->get_element(larhitid)->getSampling();
-     energy_hit->at(larlayer)+=ghit.Energy();
+     m_energy_hit->at(larlayer)+=ghit.Energy();
     }
    } // End while LAr hits
    ATH_MSG_DEBUG( "Read "<<hitnumber<<" G4Hits from "<<lArKey[i]);
@@ -403,7 +402,7 @@ StatusCode LarEMSamplingFraction::execute()
     {
      //!!
      ATH_MSG_DEBUG( "Tile subhit: "<<tilesubhit_i<<"/"<<(*i_hit).size()<< " E: "<<(*i_hit).energy(tilesubhit_i) );
-     energy_hit->at(layer) += (*i_hit).energy(tilesubhit_i);
+     m_energy_hit->at(layer) += (*i_hit).energy(tilesubhit_i);
     }
    }
   }
@@ -421,22 +420,22 @@ StatusCode LarEMSamplingFraction::execute()
 	  m_cell_energy_inactive_total        ->push_back(cell.second.cell_energy_inactive_total);
 	}
 	
-	mytree->Fill();
+	m_mytree->Fill();
 	
-	delete energy_reco;
-	delete energy_hit;
-	delete energy_inactive_total;
-	delete energy_inactive_em;
-	delete energy_inactive_nonem;
-	delete energy_inactive_inv;
-	delete energy_inactive_esc;
+	delete m_energy_reco;
+	delete m_energy_hit;
+	delete m_energy_inactive_total;
+	delete m_energy_inactive_em;
+	delete m_energy_inactive_nonem;
+	delete m_energy_inactive_inv;
+	delete m_energy_inactive_esc;
 
-	delete energy_active_total_corrected;
-	delete energy_active_total;
-	delete energy_active_em;
-	delete energy_active_nonem;
-	delete energy_active_inv;
-	delete energy_active_esc;
+	delete m_energy_active_total_corrected;
+	delete m_energy_active_total;
+	delete m_energy_active_em;
+	delete m_energy_active_nonem;
+	delete m_energy_active_inv;
+	delete m_energy_active_esc;
 	  
   if(m_docells) {
     delete m_cell_identifier;
