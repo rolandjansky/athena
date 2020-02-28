@@ -40,7 +40,8 @@ public:
 
     m_useTrigSeedML = 0;
     m_vLUT.clear();
-
+    m_useSCT_middleSP = true;
+    m_maxEC_len = 1.5;
   }
 
   int m_maxBarrelPix, m_minEndcapPix, m_maxEndcapPix, m_maxSiliconLayer;
@@ -67,6 +68,9 @@ public:
   int m_useTrigSeedML;
   std::vector<const TrigSeedML_LUT*> m_vLUT;
 
+  bool m_useSCT_middleSP;
+  float m_maxEC_len;
+  
 } TRIG_COMBINATORIAL_SETTINGS;
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSTruthState_h
@@ -15,21 +15,20 @@ class TFCSTruthState:public TLorentzVector {
     void set_pdgid(int val) {m_pdgid=val;};
     void set_vertex(const TLorentzVector& val) {m_vertex=val;};
     void set_vertex(Double_t x, Double_t y, Double_t z, Double_t t=0) {m_vertex.SetXYZT(x,y,z,t);};
+    void set_Ekin_off(double val) {m_ekin_off=val;};
 
     int    pdgid() const {return m_pdgid;};
-    double Ekin() const {return E()-M();};
+    double Ekin() const {return E()-M()+m_ekin_off;};
+    double Ekin_off() const {return m_ekin_off;};
     const TLorentzVector& vertex() const {return m_vertex;};
 
     void Print(Option_t *option="") const;
   private:
     int m_pdgid;
     TLorentzVector m_vertex;
+    double m_ekin_off = 0; 
 
-  ClassDef(TFCSTruthState,1)  //TFCSTruthState
+  ClassDef(TFCSTruthState, 2)  //TFCSTruthState
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSTruthState+;
-#endif
 
 #endif

@@ -906,7 +906,8 @@ StatusCode PixelFastDigitizationTool::digitize()
       
       HepMcParticleLink trklink(hit->particleLink());
       if (m_needsMcEventCollHelper) {
-        trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType()) );
+        MsgStream* amsg = &(msg());
+        trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType(), amsg) );
       }
       if (trklink.isValid()){
         const int barcode( trklink.barcode());

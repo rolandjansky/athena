@@ -7,6 +7,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "GaudiKernel/MsgStream.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "GeneratorObjects/McEventCollectionHelper.h"
 #include "InDetBCM_RawData/BCM_RawData.h"
@@ -111,8 +112,10 @@ void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTim
   m_timeVect[moduleNo].push_back(hitTime);
   // Create new deposit and add to vector
   HepMcParticleLink trklink(currentHit.particleLink());
-  if (m_needsMcEventCollHelper)
-    trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(pileupType) );
+  if (m_needsMcEventCollHelper) {
+    MsgStream* amsg = &(msg());
+    trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(pileupType, amsg) );
+  }
   InDetSimData::Deposit deposit(trklink,currentHit.energyLoss());
   int barcode = deposit.first.barcode();
   if (barcode == 0 || barcode == 10001){

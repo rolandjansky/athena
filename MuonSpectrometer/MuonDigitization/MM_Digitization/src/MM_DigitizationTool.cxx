@@ -680,9 +680,10 @@ StatusCode MM_DigitizationTool::doDigitization() {
       
       HepMcParticleLink trklink(hit.particleLink());
       if (m_needsMcEventCollHelper) {
-	if(phit.pileupType()!=lastPileupType)        {
-	  currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType());
-	  lastPileupType=phit.pileupType();
+	if (phit.pileupType()!=lastPileupType) {
+      MsgStream* amsg = &(msg());
+      currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType(), amsg);
+      lastPileupType=phit.pileupType();
 	}
 	trklink.setEventCollection(currentMcEventCollection);
       }

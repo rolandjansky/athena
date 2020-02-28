@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCS1DFunctionHistogram_h
@@ -33,20 +33,16 @@ class TFCS1DFunctionHistogram:public TFCS1DFunction
     double  sample_from_histo(TH1* hist, double);
     double  sample_from_histovalues(double);
 
-    vector<float> get_HistoBorders() {return m_HistoBorders;};
-    vector<float> get_HistoContents()  {return m_HistoContents;};
+    std::vector<float> get_HistoBorders() {return m_HistoBorders;};
+    std::vector<float> get_HistoContents()  {return m_HistoContents;};
 
   protected:
 
-    vector<float> m_HistoBorders;
-    vector<float> m_HistoContents;
+    std::vector<float> m_HistoBorders;
+    std::vector<float> m_HistoContents;
 
   ClassDef(TFCS1DFunctionHistogram,1)  //TFCS1DFunctionHistogram
 
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCS1DFunctionHistogram+;
-#endif
 
 #endif
