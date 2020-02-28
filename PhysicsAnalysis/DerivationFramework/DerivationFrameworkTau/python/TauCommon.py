@@ -25,9 +25,24 @@ TauRecAODProcessor_FTau()
 
 DFCommonTauWrapperTools = []
 
+# VeryLoose
+DFCommonTausSelectorVeryLoose = TauAnalysisTools__TauSelectionTool(name="DFCommonTausSelectorVeryLoose")
+DFCommonTausSelectorVeryLoose.JetIDWP = 19
+DFCommonTausSelectorVeryLoose.SelectionCuts = 1<<6
+DFCommonTausSelectorVeryLoose.ConfigPath = ''
+#TauAnalysisTools::CutJetIDWP should be used but issue with the dictionnary
+ToolSvc += DFCommonTausSelectorVeryLoose
+DFCommonTausVeryLooseWrapper = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonTausVeryLooseWrapper",
+                                                                         AsgSelectionTool = DFCommonTausSelectorVeryLoose,
+                                                                         StoreGateEntryName   = "DFCommonTausVeryLoose",
+                                                                         ContainerName        = "TauJets")
+ToolSvc += DFCommonTausVeryLooseWrapper
+dftaulog.info(DFCommonTausVeryLooseWrapper)
+DFCommonTauWrapperTools.append(DFCommonTausVeryLooseWrapper)
+
 # Loose
 DFCommonTausSelectorLoose = TauAnalysisTools__TauSelectionTool(name="DFCommonTausSelectorLoose")
-DFCommonTausSelectorLoose.JetIDWP = 2
+DFCommonTausSelectorLoose.JetIDWP = 20
 DFCommonTausSelectorLoose.SelectionCuts = 1<<6
 DFCommonTausSelectorLoose.ConfigPath = ''
 #TauAnalysisTools::CutJetIDWP should be used but issue with the dictionnary
@@ -42,7 +57,7 @@ DFCommonTauWrapperTools.append(DFCommonTausLooseWrapper)
 
 # Medium
 DFCommonTausSelectorMedium = TauAnalysisTools__TauSelectionTool(name="DFCommonTausSelectorMedium")
-DFCommonTausSelectorMedium.JetIDWP = 3
+DFCommonTausSelectorMedium.JetIDWP = 21
 DFCommonTausSelectorMedium.SelectionCuts = 1<<6
 DFCommonTausSelectorMedium.ConfigPath = ''
 ToolSvc += DFCommonTausSelectorMedium
@@ -56,7 +71,7 @@ DFCommonTauWrapperTools.append(DFCommonTausMediumWrapper)
 
 # Tight
 DFCommonTausSelectorTight = TauAnalysisTools__TauSelectionTool(name="DFCommonTausSelectorTight")
-DFCommonTausSelectorTight.JetIDWP = 4
+DFCommonTausSelectorTight.JetIDWP = 22
 DFCommonTausSelectorTight.SelectionCuts = 1<<6
 DFCommonTausSelectorTight.ConfigPath = ''
 ToolSvc += DFCommonTausSelectorTight
