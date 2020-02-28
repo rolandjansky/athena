@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TileCalibBlobPython_badChannelExample.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-12-19
@@ -8,7 +8,7 @@
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileCalibDefaultWriter
 from TileCalibBlobPython import TileBchTools
-from TileCalibBlobObjs.Classes import * 
+from TileCalibBlobObjs.Classes import TileBchPrbs, TileBchDecoder
 
 #=======================================================
 #=== create bad channel manager

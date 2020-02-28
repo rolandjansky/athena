@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # TileCalibTools.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-23
 # Carlos Solans <carlos.solans@cern.ch>, 2012-10-19
@@ -11,14 +11,17 @@
 Python helper module for managing COOL DB connections and TileCalibBlobs. 
 """
 
+from __future__ import print_function
+
 import ROOT
 ROOT.gInterpreter.EnableAutoLoading()
 
-import cx_Oracle
+import cx_Oracle # noqa: F401
 from PyCool import cool
 import time, types, re, sys, os
 import urllib2
 import cppyy
+import six
 
 cppyy.makeClass('std::vector<float>')
 cppyy.makeClass('std::vector<std::vector<float> >')
@@ -28,7 +31,9 @@ cppyy.makeClass('std::vector<unsigned int>')
 cppyy.makeClass('std::vector<std::vector<unsigned int> >')
 
 
-from TileCalibBlobObjs.Classes import *
+from TileCalibBlobObjs.Classes import TileCalibUtils, TileCalibDrawerCmt, \
+     TileCalibDrawerInt, TileCalibDrawerOfc, TileCalibDrawerBch, \
+     TileCalibDrawerFlt, TileCalibType
 
 sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
 from AtlCoolBKLib import resolveAlias
@@ -77,7 +82,7 @@ def getLastRunNumber():
                     break
             if run>0:
                 break
-        except:
+        except Exception:
             continue
 
     return max(run+1,222222)
@@ -95,7 +100,8 @@ def getPromptCalibRunNumber():
 
     for line in fin:
         try:
-            if line: promptCalibRuns.append( int(line) )
+            if line:
+                promptCalibRuns.append( int(line) )
         except ValueError:
             pass
 
@@ -187,7 +193,8 @@ def openDb(db, instance, mode="READONLY",schema="COOLONL_TILE",sqlfn="tileSqlite
             raise Exception( "Sqlite file %s does not exist" % (sqlfn) )
         if (mode=="RECREATE" or mode=="UPDATE") and not os.path.exists(os.path.dirname(sqlfn)):
             dirn=os.path.dirname(sqlfn)
-            if dirn: os.makedirs(dirn)
+            if dirn:
+                os.makedirs(dirn)
         connStr="sqlite://X;schema=%s;dbname=%s" % (sqlfn,instance)
     elif db=='ORACLE':
         connStr='oracle://%s;schema=ATLAS_%s;dbname=%s' % ('ATLAS_COOLPROD',schema,instance)
@@ -218,9 +225,9 @@ def openDbConn(connStr, mode="READONLY"):
     dbSvc = cool.DatabaseSvcFactory.databaseService()
     log.info( "---------------------------------------------------------------------------------" )
     log.info( "-------------------------- TileCalibTools.openDbConn ----------------------------" )
-    log.info( "- using COOL version %s" % dbSvc.serviceVersion()                                  )
-    log.info( "- opening TileDb: %s" %connStr_new                                                    )
-    log.info( "- mode: %s" %mode                                                                  )
+    log.info( "- using COOL version %s", dbSvc.serviceVersion()                                  )
+    log.info( "- opening TileDb: %s",connStr_new                                                    )
+    log.info( "- mode: %s", mode                                                                  )
     log.info( "---------------------------------------------------------------------------------" )
 
     #=== action depends on mode
@@ -228,7 +235,7 @@ def openDbConn(connStr, mode="READONLY"):
         #=== open read only
         try:
             db=dbSvc.openDatabase(connStr_new,True)
-        except Exception, e:
+        except Exception as e:
             log.debug( e )
             log.critical("Could not connect to %s" % connStr )
             return None
@@ -238,7 +245,7 @@ def openDbConn(connStr, mode="READONLY"):
         dbSvc.dropDatabase(connStr_new)
         try:
             db = dbSvc.createDatabase(connStr_new)
-        except Exception, e:
+        except Exception as e:
             log.debug( e )
             log.critical( "Could not create database, giving up..." )
             return None
@@ -247,18 +254,18 @@ def openDbConn(connStr, mode="READONLY"):
         #=== update database
         try:
             db=dbSvc.openDatabase(connStr_new,False)
-        except Exception, e:
+        except Exception as e:
             log.debug( e )
-            log.warning( "Could not connect to \'%s\', trying to create it...." % connStr )
+            log.warning( "Could not connect to \'%s\', trying to create it...." , connStr )
             try:
                 db=dbSvc.createDatabase(connStr_new)
-            except Exception, e:
+            except Exception as e:
                 log.debug( e )
                 log.critical( "Could not create database, giving up..." )
                 return None
         return db
     else:
-        log.error("Mode \"%s\" not recognized" % mode )
+        log.error("Mode \"%s\" not recognized", mode )
         return None
 
 
@@ -292,18 +299,20 @@ def getCoolValidityKey(pointInTime, isSince=True):
     validityKey = None
     
     #=== string: convert to unix time and treat as latter
-    if type(pointInTime) == types.StringType:
+    if isinstance(pointInTime, types.StringType):
         pointInTime = decodeTimeString(pointInTime)
 
     #=== integer: unix time stamp
-    if type(pointInTime) == types.IntType:
+    if isinstance(pointInTime, types.IntType):
         if pointInTime >=0:
             validityKey = pointInTime * UNIX2COOL
         else:
-            if isSince: validityKey = int(time.time()) * UNIX2COOL
-            else      : validityKey = cool.ValidityKeyMax
+            if isSince:
+                validityKey = int(time.time()) * UNIX2COOL
+            else      :
+                validityKey = cool.ValidityKeyMax
     #=== run-lumi tuple
-    elif type(pointInTime) == types.TupleType:
+    elif isinstance(pointInTime, types.TupleType):
         validityKey = coolTimeFromRunLumi(pointInTime[0],pointInTime[1])
     #=== catch other types
     else:
@@ -318,55 +327,55 @@ def getFolderTag(db, folderPath, globalTag):
     tag=""
     if globalTag.startswith("/") or globalTag.startswith("TileO"):
         tag = globalTag
-        log.warning("Using tag as-is for folder %s" % folderPath)
+        log.warning("Using tag as-is for folder %s", folderPath)
     elif '/TILE/ONL01' in folderPath:
-        log.info("Using empty tag for single-version folder %s" % folderPath)
+        log.info("Using empty tag for single-version folder %s", folderPath)
     elif globalTag.startswith(" "):
-        log.warning("Using empty tag for folder %s" % folderPath)
+        log.warning("Using empty tag for folder %s", folderPath)
     elif globalTag=="":
         tag = TileCalibUtils.getFullTag(folderPath, globalTag)
-        log.warning("Using tag with empty suffix for folder %s" % folderPath)
+        log.warning("Using tag with empty suffix for folder %s", folderPath)
     else:
         schema='COOLOFL_TILE/CONDBR2'
-        if isinstance(db, (str, unicode)):
+        if isinstance(db, six.string_types):
             if 'OFLP200' in db or 'MC' in db:
                 schema='COOLOFL_TILE/OFLP200'
                 if not globalTag.startswith("OFLCOND"):
                    if globalTag.startswith("RUN"):
                       globalTag='OFLCOND-'+globalTag
-                      log.info("Using Simulation global tag \'%s\'" % globalTag)
+                      log.info("Using Simulation global tag \'%s\'", globalTag)
             elif 'COMP200' in db or 'RUN1' in db:
                 schema='COOLOFL_TILE/COMP200'
                 if globalTag!='UPD1' and globalTag!='UPD4' and ('UPD1' in globalTag or 'UPD4' in globalTag or 'COND' not in globalTag):
-                   log.info("Using suffix \'%s\' as it is" % globalTag)
+                   log.info("Using suffix \'%s\' as it is", globalTag)
                 else:
                    globalTag='COMCOND-BLKPA-RUN1-06'
-                   log.info("Using RUN1 global tag \'%s\'" % globalTag)
+                   log.info("Using RUN1 global tag \'%s\'", globalTag)
         if schema == 'COOLOFL_TILE/CONDBR2':
             if globalTag=='CURRENT' or globalTag=='UPD4' or globalTag=='':
                 globalTag=resolveAlias.getCurrent()
-                log.info("Resolved CURRENT globalTag to \'%s\'" % globalTag)
+                log.info("Resolved CURRENT globalTag to \'%s\'", globalTag)
             elif globalTag=='CURRENTES' or globalTag=='UPD1':
                 globalTag=resolveAlias.getCurrentES()
-                log.info("Resolved CURRENT ES globalTag to \'%s\'" % globalTag)
+                log.info("Resolved CURRENT ES globalTag to \'%s\'", globalTag)
             elif globalTag=='NEXT':
                 globalTag=resolveAlias.getNext()
-                log.info("Resolved NEXT globalTag to \'%s\'" % globalTag)
+                log.info("Resolved NEXT globalTag to \'%s\'", globalTag)
             elif globalTag=='NEXTES':
                 globalTag=resolveAlias.getNextES()
-                log.info("Resolved NEXT ES globalTag to \'%s\'" % globalTag)
+                log.info("Resolved NEXT ES globalTag to \'%s\'", globalTag)
         globalTag=globalTag.replace('*','')
         if 'UPD1' in globalTag or 'UPD4' in globalTag or 'COND' not in globalTag:
             tag = TileCalibUtils.getFullTag(folderPath, globalTag)
-            log.info("Resolved localTag \'%s\' to folderTag \'%s\'" % (globalTag,tag))
+            log.info("Resolved localTag \'%s\' to folderTag \'%s\'", (globalTag,tag))
         else:
-            if not isinstance(db, (str, unicode)):
+            if not isinstance(db, six.string_types):
                 try:
                     folder = db.getFolder(folderPath)
                     tag = folder.resolveTag(globalTag)
-                    log.info("Resolved globalTag \'%s\' to folderTag \'%s\'" % (globalTag,tag))
+                    log.info("Resolved globalTag \'%s\' to folderTag \'%s\'", globalTag,tag)
                     schema=""
-                except Exception, e:
+                except Exception as e:
                     log.warning(e)
                     log.warning("Using %s to resolve globalTag",schema)
             if len(schema):
@@ -374,7 +383,7 @@ def getFolderTag(db, folderPath, globalTag):
                 folder = dbr.getFolder(folderPath)
                 tag = folder.resolveTag(globalTag)
                 dbr.closeDatabase()
-                log.info("Resolved globalTag \'%s\' to folderTag \'%s\'" % (globalTag,tag))
+                log.info("Resolved globalTag \'%s\' to folderTag \'%s\'", globalTag,tag)
 
     return tag
 
@@ -387,7 +396,7 @@ def runLumiFromCoolTime(iov):
 #____________________________________________________________________
 def copyFolder(dbr, dbw, folder, tagr, tagw, chanNum, pointInTime1, pointInTime2):
 
-    log.info("Copy channel %i" % chanNum)
+    log.info("Copy channel %i", chanNum)
 
     folderR = dbr.getFolder(folder)
     folderW = dbw.getFolder(folder)
@@ -412,7 +421,7 @@ def copyFolder(dbr, dbw, folder, tagr, tagw, chanNum, pointInTime1, pointInTime2
         data=obj.payload()
         sinceTup = runLumiFromCoolTime(sinceCool)
         untilTup = runLumiFromCoolTime(untilCool)
-        log.debug("Copy entry: [%i,%i] - [%i,%i]: " % (sinceTup[0],sinceTup[1],untilTup[0],untilTup[1]), data)
+        log.debug("Copy entry: [%i,%i] - [%i,%i]: %s", sinceTup[0],sinceTup[1],untilTup[0],untilTup[1], data)
         folderW.storeObject(sinceCool, untilCool, data, chanNum, tagw, multiVersion)
 
 
@@ -465,8 +474,10 @@ class TileBlobWriter(TileCalibLogger):
                 modeInCool = self.__folder.versioningMode()
                 if modeInCool!=folderMode:
                     str = "Incompatible folder mode detected, COOL folder has type "
-                    if modeInCool==cool.FolderVersioning.MULTI_VERSION: str += "MULTI"
-                    else:                                               str += "SINGLE"
+                    if modeInCool==cool.FolderVersioning.MULTI_VERSION:
+                        str += "MULTI"
+                    else:
+                        str += "SINGLE"
                     raise Exception(str)
             else:
                 #=== create folder if it does not exist
@@ -474,7 +485,7 @@ class TileBlobWriter(TileCalibLogger):
                 payloadSpec.extend( 'TileCalibBlob', cool.StorageType.Blob64k )
                 folderSpec = cool.FolderSpecification(folderMode, payloadSpec)
                 self.__folder = db.createFolder(folderPath, folderSpec, folderDescr, True)
-        except Exception, e:
+        except Exception as e:
             self.log().critical( e )
             raise
 
@@ -520,7 +531,7 @@ class TileBlobWriter(TileCalibLogger):
             userTagOnly = False
             #=== no folder Tag allowed for singleversion
             if tag!="":
-                self.log().warning( "Trying to store with tag \"%s\" to SINGLE_VERSION folder" % tag )
+                self.log().warning( "Trying to store with tag \"%s\" to SINGLE_VERSION folder", tag )
                 self.log().warning( "... resetting tag to \"\"!"                                     )
                 tag=""
 
@@ -532,7 +543,7 @@ class TileBlobWriter(TileCalibLogger):
 
         #=== build IOV string
         iovString = ""       
-        if type(since) == types.TupleType:
+        if isinstance(since, types.TupleType):
             iovString = "[%i,%i] - [%i,%i]" % (since[0],since[1],until[0],until[1])
         else:
             sinceInfo = time.localtime( sinceCool / UNIX2COOL )
@@ -550,28 +561,29 @@ class TileBlobWriter(TileCalibLogger):
         #=== print info
         comment=self.getComment()
         noComment = (comment is None) or (comment == "None") or (comment.startswith("None") and comment.endswith("None"))
-        self.log().info( "Registering folder %s with tag \"%s\"" % (self.__folder.fullPath(),folderTag))
-        self.log().info( "... with IOV          : %s"            % iovString                          )
+        self.log().info( "Registering folder %s with tag \"%s\"", self.__folder.fullPath(),folderTag)
+        self.log().info( "... with IOV          : %s" , iovString                          )
         if noComment:
             self.log().info( "... WITHOUT comment field" )
         else:
-            self.log().info( "... with comment field: \"%s\""        % self.getComment()                  )
+            self.log().info( "... with comment field: \"%s\"", self.getComment()                  )
 
         #=== register all channels by increasing channel number
         chanList = sorted(self.__chanDictRecord.keys())
         cnt=0
         for chanNum in chanList:
-            if chanNum==1000 and noComment: continue
+            if chanNum==1000 and noComment:
+                continue
             data = self.__chanDictRecord[chanNum]
             strout = "cool channel=%4i" % chanNum
-            self.log().debug("Registering %s %s" % (strout, data))
+            self.log().debug("Registering %s %s", strout, data)
             channelId = cool.ChannelId(chanNum)
             self.__folder.storeObject(sinceCool, untilCool, data, channelId, folderTag, userTagOnly)
             cnt+=1
         if noComment:
-            self.log().info( "... %d cool channels have been written in total" % cnt )
+            self.log().info( "... %d cool channels have been written in total", cnt )
         else:
-            self.log().info( "... %d cool channels have been written in total (including comment field)" % cnt )
+            self.log().info( "... %d cool channels have been written in total (including comment field)", cnt )
 
     #____________________________________________________________________
     def setComment(self, author, comment):
@@ -586,8 +598,8 @@ class TileBlobWriter(TileCalibLogger):
                 data = cool.Record( spec )
                 self.__chanDictRecord[chanNum] = data
             blob = data['TileCalibBlob']
-            cmt = TileCalibDrawerCmt.getInstance(blob,author,comment)
-        except Exception, e:
+            TileCalibDrawerCmt.getInstance(blob,author,comment)
+        except Exception as e:
             self.log().critical( e )
         
     #____________________________________________________________________
@@ -603,7 +615,7 @@ class TileBlobWriter(TileCalibLogger):
             blob = data['TileCalibBlob']
             cmt = TileCalibDrawerCmt.getInstance(blob)
             return cmt.getFullComment()
-        except Exception, e:
+        except Exception as e:
             self.log().critical( e )
 
     #____________________________________________________________________
@@ -645,7 +657,7 @@ class TileBlobWriter(TileCalibLogger):
             self.__chanDictDrawer[chanNum] = calibDrawer
             return calibDrawer
 
-        except Exception, e:
+        except Exception as e:
             self.log().critical( e )
             return None
 
@@ -655,7 +667,6 @@ class TileBlobWriter(TileCalibLogger):
         Resets blob size to zero
         """
         try:
-            calibDrawer = None
             chanNum = TileCalibUtils.getDrawerIdx(ros,drawer)
             data = self.__chanDictRecord.get(chanNum)
             if not data:
@@ -664,7 +675,7 @@ class TileBlobWriter(TileCalibLogger):
                 self.__chanDictRecord[chanNum] = data
             blob = data['TileCalibBlob']
             blob.resize(0)
-        except Exception, e:
+        except Exception as e:
             self.log().critical( e )
             return None
 
@@ -697,9 +708,9 @@ class TileBlobReader(TileCalibLogger):
 
         #=== try to open db
         try:
-            self.__db  = db                             # type: CoraCoolDatabase
-            self.__folder = self.__db.getFolder(folder) # type: CoraCoolFolder
-        except Exception, e:
+            self.__db  = db                             # CoraCoolDatabase
+            self.__folder = self.__db.getFolder(folder) # CoraCoolFolder
+        except Exception as e:
             self.log().critical( e )
             raise
 
@@ -726,11 +737,11 @@ class TileBlobReader(TileCalibLogger):
         try:
             chanNum = TileCalibUtils.getCommentChannel()
             obj = self.__folder.findObject(validityKey, chanNum, self.__tag)
-            self.log().debug("getComment:Fetching from DB: %s" % obj)
+            self.log().debug("getComment:Fetching from DB: %s", obj)
             blob = obj.payload()[0]
             cmt = TileCalibDrawerCmt.getInstance(blob)
             return cmt.getFullComment()
-        except Exception, e:
+        except Exception:
             return "<no comment found>"
         
     #____________________________________________________________________
@@ -779,7 +790,7 @@ class TileBlobReader(TileCalibLogger):
         """
 
         validityKey = getCoolValidityKey(pointInTime)
-        self.log().debug("Validity key is %s" % validityKey)
+        self.log().debug("Validity key is %s", validityKey)
         try:
             calibDrawer = None
             #=== Have we retrieved data previously?
@@ -789,9 +800,9 @@ class TileBlobReader(TileCalibLogger):
             if not obj:
                 chanNum = TileCalibUtils.getDrawerIdx(ros,drawer)
                 obj = self.__folder.findObject(validityKey, chanNum, self.__tag)
-                self.log().debug("Fetching from DB: %s" % obj)
+                self.log().debug("Fetching from DB: %s", obj)
                 blob = obj.payload()[0]
-                self.log().debug("blob size: %d" % blob.size())
+                self.log().debug("blob size: %d", blob.size())
                 #=== default policy 
                 if not useDefault and blob.size()==0:
                     return 0
@@ -808,7 +819,7 @@ class TileBlobReader(TileCalibLogger):
                 self.__objDict[key] = obj
             #=== get blob
             blob = obj.payload()[0]
-            self.log().debug("blob size: %d" % blob.size())
+            self.log().debug("blob size: %d", blob.size())
                 
             #=== create calibDrawer depending on type
             calibDrawer = TileCalibDrawerCmt.getInstance(blob)
@@ -829,8 +840,9 @@ class TileBlobReader(TileCalibLogger):
             else:
                 raise Exception( "Invalid blob type requested: %s" % typeName )
             return calibDrawer
-        except Exception, e:
-            if printError: self.log().error("TileCalibTools.getDrawer(): Fetching of ros=%i, drawer=%i failed with exception %s"%(ros,drawer,e))
+        except Exception as e:
+            if printError:
+                self.log().error("TileCalibTools.getDrawer(): Fetching of ros=%i, drawer=%i failed with exception %s", ros,drawer,e)
             return None
 
     #____________________________________________________________________
@@ -840,7 +852,7 @@ class TileBlobReader(TileCalibLogger):
         """
 
         validityKey = getCoolValidityKey(pointInTime)
-        self.log().debug("Validity key is %s" % validityKey)
+        self.log().debug("Validity key is %s", validityKey)
         try:
             calibDrawer = None
             #=== Have we retrieved data previously?
@@ -850,9 +862,9 @@ class TileBlobReader(TileCalibLogger):
             if not obj:
                 chanNum = TileCalibUtils.getDrawerIdx(ros,drawer)
                 obj = self.__folder.findObject(validityKey, chanNum, self.__tag)
-                self.log().debug("Fetching from DB: %s" % obj)
+                self.log().debug("Fetching from DB: %s", obj)
                 blob = obj.payload()[0]
-                self.log().debug("blob size: %d" % blob.size())
+                self.log().debug("blob size: %d", blob.size())
                 #=== default policy 
                 while blob.size()==0:
                     #=== no default at all?
@@ -867,7 +879,7 @@ class TileBlobReader(TileCalibLogger):
                 self.__objDict[key] = obj
             #=== get blob
             blob = obj.payload()[0]
-            self.log().debug("blob size: %d" % blob.size())
+            self.log().debug("blob size: %d", blob.size())
                 
             #=== create calibDrawer depending on type
             calibDrawer = TileCalibDrawerCmt.getInstance(blob)
@@ -888,8 +900,9 @@ class TileBlobReader(TileCalibLogger):
             else:
                 raise Exception( "Invalid blob type requested: %s" % typeName )
             return calibDrawer
-        except Exception, e:
-            if printError: self.log().error("TileCalibTools.getDefaultDrawer(): Fetching of ros=%i, drawer=%i failed with exception %s"%(ros,drawer,e))
+        except Exception as e:
+            if printError:
+                self.log().error("TileCalibTools.getDefaultDrawer(): Fetching of ros=%i, drawer=%i failed with exception %s", ros,drawer,e)
             return None
 
     #____________________________________________________________________
@@ -903,7 +916,7 @@ class TileBlobReader(TileCalibLogger):
         validityKey2 = getCoolValidityKey(point2inTime,False)
 
         #print "Validity keys range is %s - %s" % (validityKey1, validityKey2)
-        self.log().debug("Validity key range is %s - %s" % (validityKey1,validityKey2))
+        self.log().debug("Validity key range is %s - %s", validityKey1,validityKey2)
 
         objs = None
         try:
@@ -911,8 +924,9 @@ class TileBlobReader(TileCalibLogger):
             dbChanSel = cool.ChannelSelection(dbChanNum)
             #self.log().debug("Fetching blobs from DB: %s" % obj)
             objs = self.__folder.browseObjects(validityKey1,validityKey2,dbChanSel,self.__tag)
-        except Exception, e:
-            if printError: self.log().error("TileCalibTools.getDBobjsWithinRange(): Fetching of ros=%i, drawer=%i failed with exception %s"%(ros,drawer,e))
+        except Exception as e:
+            if printError:
+                self.log().error("TileCalibTools.getDBobjsWithinRange(): Fetching of ros=%i, drawer=%i failed with exception %s", ros,drawer,e)
 
         return objs
 
@@ -926,10 +940,10 @@ class TileBlobReader(TileCalibLogger):
         validityKey1 = getCoolValidityKey(point1inTime,True)
         validityKey2 = getCoolValidityKey(point2inTime,False)
 
-        print "Validity keys range is %s - %s" % (validityKey1, validityKey2)
-        self.log().debug("Validity key range is %s - %s" % (validityKey1,validityKey2))
+        print ("Validity keys range is %s - %s" % (validityKey1, validityKey2))
+        self.log().debug("Validity key range is %s - %s", validityKey1,validityKey2)
 
-        objs = getDBobjsWithinRange(self, ros, drawer, point1inTime, point2inTime)
+        objs = self.getDBobjsWithinRange(self, ros, drawer, point1inTime, point2inTime)
 
         #-- Loop over objs to extract blobs
         blobs = []
@@ -941,8 +955,8 @@ class TileBlobReader(TileCalibLogger):
                 sinceCool = validityKey1
             untilCool=obj.until()
             blob = obj.payload()[0]
-            print "[%d,%d)-[%d,%d) - %s" % ((sinceCool>>32),(sinceCool&0xFFFFFFFF),(untilCool>>32),(untilCool&0xFFFFFFFF),blob)
-            self.log().debug("blob size: %d" % blob.size())
+            print ("[%d,%d)-[%d,%d) - %s" % ((sinceCool>>32),(sinceCool&0xFFFFFFFF),(untilCool>>32),(untilCool&0xFFFFFFFF),blob))
+            self.log().debug("blob size: %d", blob.size())
 
             #=== default policy 
             while blob.size()==0:
@@ -954,7 +968,7 @@ class TileBlobReader(TileCalibLogger):
                 chanNum = TileCalibUtils.getDrawerIdx(ros,drawer)
                 obj = self.__folder.findObject(sinceCool, chanNum, self.__tag)
                 blob = obj.payload()[0]
-                self.log().debug("blob size: 0 --> default: %d" % blob.size())
+                self.log().debug("blob size: 0 --> default: %d", blob.size())
 
             #=== store object in dictionary
             self.__objDict[sinceCool] = obj
@@ -1019,7 +1033,7 @@ class TileASCIIParser(TileCalibLogger):
         self.__dataDict = {}
         try:
             lines = open(fileName,"r").readlines()
-        except Exception, e:
+        except Exception as e:
             self.log().error( "TileCalibASCIIParser::ERROR: Problem opening input file:" )
             self.log().error( e )
             return 
@@ -1027,8 +1041,10 @@ class TileASCIIParser(TileCalibLogger):
         for line in lines:
             fields = line.strip().split()
             #=== ignore empty and comment lines
-            if not len(fields)          : continue
-            if fields[0].startswith("#"): continue 
+            if not len(fields)          :
+                continue
+            if fields[0].startswith("#"):
+                continue 
 
             #=== read in fields
             type = fields[0]
@@ -1048,8 +1064,10 @@ class TileASCIIParser(TileCalibLogger):
             if frag.startswith('0x') or frag.startswith('-0x'):
                 frg = int(frag,16)
                 ros = frg>>8
-                if frg<0: mod = (-frg)&255
-                else: mod = frg&255
+                if frg<0:
+                    mod = (-frg)&255
+                else:
+                    mod = frg&255
                 chn = int(chan)
             elif frag.startswith('h_'):
                 part_dict = {'LBA':1,'LBC':2,'EBA':3,'EBC':4}
@@ -1138,7 +1156,7 @@ class TileASCIIParser2(TileCalibLogger):
         self.__dataDict = {}
         try:
             lines = open(fileName,"r").readlines()
-        except Exception, e:
+        except Exception as e:
             self.log().error( "TileCalibASCIIParser2::ERROR: Problem opening input file:" )
             self.log().error( e )
             return 
@@ -1150,8 +1168,10 @@ class TileASCIIParser2(TileCalibLogger):
         for line in lines:
             fields = line.strip().split()
             #=== ignore empty and comment lines
-            if not len(fields)          : continue
-            if fields[0].startswith("#"): continue 
+            if not len(fields)          :
+                continue
+            if fields[0].startswith("#"):
+                continue 
 
             #=== read in fields
             if len(calibId)>0:
@@ -1177,8 +1197,10 @@ class TileASCIIParser2(TileCalibLogger):
             if frag.startswith('0x') or frag.startswith('-0x'):
                 frg = int(frag,16)
                 ros = frg>>8
-                if frg<0: mod = (-frg)&255
-                else: mod = frg&255
+                if frg<0:
+                    mod = (-frg)&255
+                else:
+                    mod = frg&255
             elif (frag.startswith("AUX") or 
                   frag.startswith("LBA") or 
                   frag.startswith("LBC") or 
@@ -1236,11 +1258,11 @@ class TileASCIIParser2(TileCalibLogger):
                adcmin=adc
                adcmax=adc+1
 
-            for ros in xrange(rosmin,rosmax):
-               for mod in xrange(modmin,modmax):
-                  for chn in xrange(chnmin,chnmax):
+            for ros in range(rosmin,rosmax):
+               for mod in range(modmin,modmax):
+                  for chn in range(chnmin,chnmax):
                      if allchannels or self.channel2PMT(ros,mod,chn)>0: 
-                        for adc in xrange (adcmin,adcmax):
+                        for adc in range (adcmin,adcmax):
                            dictKey = (ros,mod,chn,adc)
                            self.__dataDict[dictKey] = data
 
@@ -1309,7 +1331,7 @@ class TileASCIIParser3(TileCalibLogger):
         self.__dataDict = {}
         try:
             lines = open(fileName,"r").readlines()
-        except Exception, e:
+        except Exception as e:
             self.log().error( "TileCalibASCIIParser3::ERROR: Problem opening input file:" )
             self.log().error( e )
             return 
@@ -1317,8 +1339,10 @@ class TileASCIIParser3(TileCalibLogger):
         for line in lines:
             fields = line.strip().split()
             #=== ignore empty and comment lines
-            if not len(fields)          : continue
-            if fields[0].startswith("#"): continue 
+            if not len(fields)          :
+                continue
+            if fields[0].startswith("#"):
+                continue 
 
             #=== read in fields
             type = fields[0]
@@ -1335,8 +1359,10 @@ class TileASCIIParser3(TileCalibLogger):
 
             frg = int(frag,16)
             ros = frg>>8
-            if frg<0: mod = (-frg)&255
-            else: mod = frg&255
+            if frg<0:
+                mod = (-frg)&255
+            else:
+                mod = frg&255
             
             #=== fill dictionary
             dictKey = (ros, mod)
