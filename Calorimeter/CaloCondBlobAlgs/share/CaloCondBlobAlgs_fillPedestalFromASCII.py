@@ -1,10 +1,12 @@
 #!/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # CaloCondBlobAlgs_fillPedestalFromASCII
 # Nils Gollub <nils.gollub@cern.ch>, 2008-01-11
 
 import cppyy
 from PyCool import cool
 from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
+import six
 
 #==================================================
 #===
@@ -48,12 +50,12 @@ try:
     #=== create the folder
     folderPath = CaloCondTools.getCaloPrefix()+"Pedestal/CellPedestal"
     folderTag  = g.CaloCondUtils.getFullTag(folderPath,tag)
-    log.info( "Filling COOL folder %s with tag %s" % ( folderPath, folderTag ))
+    log.info( "Filling COOL folder %s with tag %s", folderPath, folderTag )
     desc = CaloCondTools.getAthenaFolderDescr()
     try:
         folder = db.getFolder(folderPath)
-    except Exception, e:
-        log.warning("Folder %s not found, creating it..." % folderPath)
+    except Exception:
+        log.warning("Folder %s not found, creating it...", folderPath)
         folder = db.createFolder(folderPath, spec, desc, cool.FolderVersioning.MULTI_VERSION, True)
         
     #==================================================
@@ -85,18 +87,18 @@ try:
                    48 : ( 5184,      0, defVecTile, 'TILE'     ) 
                    }
     fltDict = {}
-    for systemId, info in systemDict.iteritems():
+    for systemId, info in six.iteritems (systemDict):
         nChannel = info[0] 
         defVec   = info[2]
         sysName  = info[3]
-        log.info("Creating BLOB for %s" % sysName)
+        log.info("Creating BLOB for %s", sysName)
         data = cool.Record( spec )
         blob = data['CaloCondBlob16M']
         flt = g.CaloCondBlobFlt.getInstance(blob)
         flt.init(defVec,nChannel,2,author,comment)
         fltDict[systemId] = [data,flt]
         mbSize = float(blob.size()) / 1024.
-        log.info("---> BLOB size is %4.1f kB" % mbSize)
+        log.info("---> BLOB size is %4.1f kB", mbSize)
 
     #=== read noise values from file
     lines = open(inputFile,"r").readlines()
@@ -114,16 +116,17 @@ try:
         flt.setData(hash,gain,1,noiseB)
         
     #=== write to DB
-    for systemId, dataList in fltDict.iteritems():
+    for systemId, dataList in six.iteritems (fltDict):
         sysName  = systemDict[systemId][3]
-        log.info("Committing BLOB for %s" % sysName)
+        log.info("Committing BLOB for %s", sysName)
         channelId = cool.ChannelId(systemId)
         data = dataList[0]
         folder.storeObject(iovSince, iovUntil, data, channelId, folderTag)
         
-except Exception, e:
+except Exception:
+    import traceback
     log.fatal("Exception caught:")
-    print e
+    log.fatal (traceback.format_exc())
 
 #=== close the database
 db.closeDatabase()
