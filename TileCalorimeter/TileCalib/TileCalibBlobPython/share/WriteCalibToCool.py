@@ -22,6 +22,8 @@ def usage():
     print "-R, --run2=     specify run  number for new IOV where correction is undone"
     print "-l, --lumi=     specify lumi block number, default is 0"
     print "-L, --lumi2=    specify lumi block number for new IOV where correction is undone"
+    print "-b, --begin=    specify run number of first iov in multi-iov mode, by default uses very first iov"
+    print "-e, --end=      specify run number of last iov in multi-iov mode, by default uses latest iov"
     print "-c, --channel   if present, means that one constant per channel is expected (i.e. no gain field)"
     print "-d, --default   if present, means that also default values stored in AUX01-AUX20 should be updated"
     print "-a, --all       if present, means that all drawers are saved, otherwise only those which were updated"
@@ -41,8 +43,8 @@ def usage():
     print "-s, --schema=     specify input/output schema to use when both input and output schemas are the same"
     print "-u  --update      set this flag if output sqlite file should be updated, otherwise it'll be recreated"
     
-letters = "hr:l:R:L:s:i:o:t:T:f:F:C:G:n:v:x:m:U:p:dcazZuk:"
-keywords = ["help","run=","lumi=","run2=","lumi2=","schema=","inschema=","outschema=","tag=","outtag=","folder=","outfolder=","nchannel=","ngain=","nval=","version=","txtfile=","comment=","user=","prefix=","default","channel","all","zero","allzero","update","keep="]
+letters = "hr:l:R:L:b:e:s:i:o:t:T:f:F:C:G:n:v:x:m:U:p:dcazZuk:"
+keywords = ["help","run=","lumi=","run2=","lumi2=","begin=","end=","schema=","inschema=","outschema=","tag=","outtag=","folder=","outfolder=","nchannel=","ngain=","nval=","version=","txtfile=","comment=","user=","prefix=","default","channel","all","zero","allzero","update","keep="]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -77,6 +79,9 @@ comment = ""
 prefix = ""
 update = False
 keep=[]
+iov = False
+beg = 0
+end = 2147483647
 try:
     user=os.getlogin()
 except:
@@ -127,6 +132,12 @@ for o, a in opts:
         run2 = int(a)
     elif o in ("-L","--lumi2"):
         lumi2 = int(a)
+    elif o in ("-b","--begin"):
+        beg = int(a)
+        iov = True
+    elif o in ("-e","--end"):
+        end = int(a)
+        iov = True
     elif o in ("-x","--txtfile"):
         txtFile = a
     elif o in ("-m","--comment"):
@@ -164,7 +175,8 @@ from TileCalibBlobObjs.Classes import *
 from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
 log = getLogger("WriteCalibToCool")
 import logging
-log.setLevel(logging.DEBUG)
+if iov: log.setLevel(logging.INFO)
+else:   log.setLevel(logging.DEBUG)
 
 #=== set database
 dbr = TileCalibTools.openDbConn(inSchema,'READONLY')
@@ -185,26 +197,94 @@ else:
         outfolderTag = TileCalibTools.getFolderTag(dbr, outfolderPath, outtag )
 log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
 
-# set run number
-if run==0: begin=(0,0)
-if run<=0:
-    if "UPD4" in outtag:
-        run=TileCalibTools.getPromptCalibRunNumber()
-        log.warning( "Run number is not specified, using minimal run number in calibration loop %d" %run )
-    else:
-        run=TileCalibTools.getLastRunNumber()
-        log.warning( "Run number is not specified, using current run number %d" %run )
-    if run<0:
-        log.error( "Bad run number" )
-        sys.exit(2)
-since = (run, lumi)
-if not "begin" in dir(): begin=since
-until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)
-
-#=== initialize blob reader to read previous comments
+iovAll = []
+iovList = []
 blobReader = TileCalibTools.TileBlobReader(dbr,folderPath, folderTag)
-#=== get drawer with status at given run
-log.info("Initializing for run %d, lumiblock %d" % (run,lumi))
+if iov:
+    #=== filling the iovList
+    log.info( "Looking for IOVs" )
+    for ros in xrange(rosmin,5):
+        for mod in xrange(min(64,TileCalibUtils.getMaxDrawer(ros))):
+            iovMod=[]
+            try:
+              dbobjs = blobReader.getDBobjsWithinRange(ros,mod)
+              if (dbobjs == None): raise Exception("No DB objects retrieved when building IOV list!")
+              while dbobjs.goToNext():
+                obj = dbobjs.currentRef()
+                objsince = obj.since()
+                sinceRun = objsince >> 32
+                sinceLum = objsince & 0xFFFFFFFF
+                since    = (sinceRun, sinceLum)
+                iovMod.append(since)
+            except:
+              log.warning( "Warning: can not read IOVs from input DB file" )
+              sys.exit(2)
+            iovAll+=[iovMod]
+            iovList+=iovMod
+    import functools
+    def compare(item1,item2):
+        if item1[0]!=item2[0]: return item1[0]-item2[0]
+        else: return item1[1]-item2[1]
+    iovList=list(set(iovList))
+    iovList=sorted(iovList,key=functools.cmp_to_key(compare))
+
+    be=iovList[0][0]
+    en=iovList[-1][0]
+
+    if beg != be or end != en:
+        ib=0
+        ie=len(iovList)
+        for i,iovs in enumerate(iovList):
+            run = iovs[0]
+            if (run<beg and run>be) or run==beg :
+                be=run
+                ib=i
+            if (run>end and run<en) :
+                en=run
+                ie=i
+        if ie>0: en=iovList[ie-1][0]
+        if be != beg:
+            log.info( "Changing begin run from %d to %d (start of IOV)" % (beg,be) )
+            beg=be
+        if en != end:
+            log.info( "Changing end run from %d to %d (start of IOV)" % (end,en) )
+            end=en
+        iovList=iovList[ib:ie]
+
+    since = iovList[0]
+    run=since[0]
+    lumi=since[1]
+    undo = False
+
+    log.info( "IOVs: %s" % (str(iovList)) )
+    log.info( "%d IOVs in total" % (len(iovList)) )
+
+else:
+    #=== set run number
+    if run==0: begin=(0,0)
+    if run<=0:
+        if "UPD4" in outtag:
+            run=TileCalibTools.getPromptCalibRunNumber()
+            log.warning( "Run number is not specified, using minimal run number in calibration loop %d" %run )
+        else:
+            run=TileCalibTools.getLastRunNumber()
+            log.warning( "Run number is not specified, using current run number %d" %run )
+        if run<0:
+            log.error( "Bad run number" )
+            sys.exit(2)
+
+    since = (run, lumi)
+    iovList = [since]
+    if not "begin" in dir(): begin=since
+    if run2<0: run2=begin[0]
+    if run2>begin[0] or (run2==begin[0] and lumi2>begin[1]):
+        undo=True
+        blobWriter2 = TileCalibTools.TileBlobWriter(dbw,outfolderPath,'Flt',(True if len(outtag) else False))
+    else:
+        undo=False
+
+    log.info("Initializing for run %d, lumiblock %d" % (run,lumi))
+
 flt=None
 r=5
 d=0
@@ -228,16 +308,14 @@ else:
 nchanDef=nchan
 ngainDef=ngain
 
-log.info("Comment: %s" % blobReader.getComment((run,lumi)))
+comments = []
+blobWriters = []
+for since in iovList:
+    comm=blobReader.getComment(since)
+    log.info("Comment: %s" % comm)
+    comments+=[comm]
+    blobWriters += [TileCalibTools.TileBlobWriter(dbw,outfolderPath,'Flt',(True if len(outtag) else False))]
 log.info( "\n" )
-
-blobWriter = TileCalibTools.TileBlobWriter(dbw,outfolderPath,'Flt',(True if len(outtag) else False))
-if run2<0: run2=begin[0]
-if run2>begin[0] or (run2==begin[0] and lumi2>begin[1]):
-    undo=True
-    blobWriter2 = TileCalibTools.TileBlobWriter(dbw,outfolderPath,'Flt',(True if len(outtag) else False))
-else:
-    undo=False
 
 if len(txtFile)>0:
     #=== create default: one number per ADC
@@ -252,163 +330,174 @@ if len(txtFile)>0:
     blobParser = TileCalibTools.TileASCIIParser2(txtFile,prefix,readGain);
     mval=0
 
-    nold=0
-    nnew=0
-    ndef=0
-    nvold=0
-    nvnew=0
-    nvdef=0
-    #=== initialize defaults
-    #ros = 0
-    #for mod in xrange(20):
-    #    flt = blobWriter.zeroBlob(ros,mod)
-    #flt = blobWriter.getDrawer(0, 0)
-    #flt.init(defConst,1,0)        
-    #=== loop over whole detector
-    for ros in xrange(rosmin,5):
-        for mod in xrange(min(64,TileCalibUtils.getMaxDrawer(ros))):
-            modName = TileCalibUtils.getDrawerString(ros,mod)
-            if modName in ['EBA39','EBA40','EBA41','EBA42','EBA55','EBA56','EBA57','EBA58',
-                           'EBC39','EBC40','EBC41','EBC42','EBC55','EBC56','EBC57','EBC58' ]:
-                modSpec = 'EBspC10'
-            elif modName in ['EBA15','EBC18']:
-                modSpec = 'EBspD4'
-            elif modName in ['EBC29','EBC32','EBC34','EBC37']:
-                modSpec = 'EBspE4'
-            elif modName in ['EBA07', 'EBA25', 'EBA44', 'EBA53',
-                             'EBC07', 'EBC25', 'EBC44', 'EBC53',
-                             'EBC28', 'EBC31', 'EBC35', 'EBC38' ]:
-                modSpec = 'EBspE1'
-            elif modName in ['EBA08', 'EBA24', 'EBA43', 'EBA54',
-                             'EBC08', 'EBC24', 'EBC43', 'EBC54' ]:
-                modSpec = 'EBMBTS'
-            else:
-                modSpec = modName
-            newDrawer=True
-            flt1 = blobReader.getDrawer(ros, mod, since, False, False)
-            nchan = nchanDef if nchanDef>0 else (flt1.getNChans() if flt1 else TileCalibUtils.max_chan())
-            ngain = ngainDef if ngainDef>0 else (flt1.getNGains() if flt1 else TileCalibUtils.max_gain())
-            for chn in xrange(nchan):
-                #=== loop over gains
-                for adc in xrange(ngain):
-                    data = blobParser.getData(ros,mod,chn,adc)
-                    if not len(data) and allzero:
-                        continue
-                    if not len(data) and (not all or (not flt1 and not rosmin)):
-                        if not rosmin: log.warning("%i/%2i/%2i/%i: No value found in file" % (ros,mod,chn,adc))
-                        continue
-                    #=== need to invalidate previous blob in DB when reading from ASCII file
-                    if newDrawer:
-                        newDrawer=False
-                        blobWriter.zeroBlob(ros,mod)
-                    #=== init drawer for first entry
-                    calibDrawer = blobWriter.getDrawer(ros,mod)
-                    if not calibDrawer.getNObjs():
-                        log.info("Initializing drawer %i/%2i\t%i" % (ros,mod,calibDrawer.getNObjs()))
-                        flt = blobReader.getDrawer(ros, mod, since)
-                        if nval<1: 
+    #=== loop over all IOVs
+    for io,since in enumerate(iovList):
+
+        log.info( "Updating IOV %s" % str(since) )
+        nold=0
+        nnew=0
+        ndef=0
+        nvold=0
+        nvnew=0
+        nvdef=0
+
+        #=== loop over whole detector
+        irm=-1
+        for ros in xrange(rosmin,5):
+            for mod in xrange(min(64,TileCalibUtils.getMaxDrawer(ros))):
+                irm+=1
+                if iov and since not in iovAll[irm]:
+                    continue
+                modName = TileCalibUtils.getDrawerString(ros,mod)
+                if modName in ['EBA39','EBA40','EBA41','EBA42','EBA55','EBA56','EBA57','EBA58',
+                               'EBC39','EBC40','EBC41','EBC42','EBC55','EBC56','EBC57','EBC58' ]:
+                    modSpec = 'EBspC10'
+                elif modName in ['EBA15','EBC18']:
+                    modSpec = 'EBspD4'
+                elif modName in ['EBC29','EBC32','EBC34','EBC37']:
+                    modSpec = 'EBspE4'
+                elif modName in ['EBA07', 'EBA25', 'EBA44', 'EBA53',
+                                 'EBC07', 'EBC25', 'EBC44', 'EBC53',
+                                 'EBC28', 'EBC31', 'EBC35', 'EBC38' ]:
+                    modSpec = 'EBspE1'
+                elif modName in ['EBA08', 'EBA24', 'EBA43', 'EBA54',
+                                 'EBC08', 'EBC24', 'EBC43', 'EBC54' ]:
+                    modSpec = 'EBMBTS'
+                else:
+                    modSpec = modName
+                newDrawer=True
+                flt1 = blobReader.getDrawer(ros, mod, since, False, False)
+                nchan = nchanDef if nchanDef>0 else (flt1.getNChans() if flt1 else TileCalibUtils.max_chan())
+                ngain = ngainDef if ngainDef>0 else (flt1.getNGains() if flt1 else TileCalibUtils.max_gain())
+                for chn in xrange(nchan):
+                    #=== loop over gains
+                    for adc in xrange(ngain):
+                        data = blobParser.getData(ros,mod,chn,adc)
+                        if not len(data) and allzero:
+                            continue
+                        if not len(data) and (not all or (not flt1 and not rosmin)):
+                            if not rosmin: log.warning("%i/%2i/%2i/%i: No value found in file" % (ros,mod,chn,adc))
+                            continue
+                        #=== need to invalidate previous blob in DB when reading from ASCII file
+                        if newDrawer:
+                            newDrawer=False
+                            blobWriters[io].zeroBlob(ros,mod)
+                        #=== init drawer for first entry
+                        calibDrawer = blobWriters[io].getDrawer(ros,mod)
+                        if not calibDrawer.getNObjs():
+                            log.info("Initializing drawer %s" % modName)
+                            flt = blobReader.getDrawer(ros, mod, since)
+                            if nval<1:
+                                mval = flt.getObjSizeUint32()
+                                default.clear()
+                                for n in xrange(mval):
+                                    default.push_back(0.)
+                                defConst.clear()
+                                for ng in xrange(ngain):
+                                    defConst.push_back(default) # low/high  gain
+                            else:
+                                mval = nval
+                            kval = mval if mval < flt.getObjSizeUint32() else flt.getObjSizeUint32()
+                            if blobVersion<0:
+                                blobVersion = flt.getObjVersion()
+                            calibDrawer.init(defConst,nchan,blobVersion)
+                            if undo:
+                                calibDrawer2 = blobWriter2.getDrawer(ros,mod)
+                                calibDrawer2.init(defConst,nchan,blobVersion)
+                            for ch in xrange(nchan):
+                                for ad in xrange(ngain):
+                                    nold+=1
+                                    for n in xrange(0,kval):
+                                        nvold+=1
+                                        val=flt.getData(ch,ad,n)
+                                        log.debug("%i/%2i/%2i/%i: old data[%i] = %f" % (ros,mod,ch,ad, n, val))
+                                        calibDrawer.setData(ch,ad,n,val)
+                                        if undo:
+                                            calibDrawer2.setData(ch,ad,n,val)
+
+                        if not len(data):
+                            if not rosmin: log.warning("%i/%2i/%2i/%i: No value found in file" % (ros,mod,chn,adc))
+                            continue
+                        #=== loop over new data
+                        if nval<1:
                             mval = flt.getObjSizeUint32()
-                            default.clear()
-                            for n in xrange(mval):
-                                default.push_back(0.)
-                            defConst.clear()
-                            for ng in xrange(ngain):
-                                defConst.push_back(default) # low/high  gain
                         else:
                             mval = nval
-                        kval = mval if mval < flt.getObjSizeUint32() else flt.getObjSizeUint32() 
+                        nnew+=1
+                        kval=mval-len(data)
+                        if kval>0:
+                            ndef+=1
+                            mval-=kval
+                        for n in xrange(mval):
+                            coef=None
+                            strval=data[n]
+                            if strval.startswith("*"):
+                                coef=float(strval[1:])
+                                val = calibDrawer.getData(chn,adc,n)*coef
+                                log.debug("%i/%2i/%2i/%i: new data[%i] = %s  scale old value by %s" % (ros,mod,chn,adc, n, val, coef))
+                            elif strval.startswith("++") or strval.startswith("+-") :
+                                coef=float(strval[1:])
+                                val = calibDrawer.getData(chn,adc,n)+coef
+                                log.debug("%i/%2i/%2i/%i: new data[%i] = %s  shift old value by %s" % (ros,mod,chn,adc, n, val, coef))
+                            elif strval=="sync":
+                                val = calibDrawer.getData(chn,adc,n)
+                                if val==0.0 or val==-1.0 or val==1.0: # copy from another gain only if in this gain one of default values
+                                    val = calibDrawer.getData(chn,1-adc,n)
+                            elif strval=="copy":
+                                val = calibDrawer.getData(chn,1-adc,n) # copy from another gain
+                            elif strval=="lg" and adc==1:
+                                val = calibDrawer.getData(chn,0,n) # copy from low gain
+                            elif strval=="hg" and adc==0:
+                                val = calibDrawer.getData(chn,1,n) # copy from high gain
+                            elif strval=="keep" or strval=="None" or str(n) in keep or modName in keep or  modSpec in keep or modName[:3] in keep or  modName[:2] in keep \
+                                 or ("%sch%i"% (modName,chn)) in keep or ("%sch%i"% (modSpec,chn)) in keep or ("%sch%i"% (modName[:3],chn)) in keep or ("%sch%i"% (modName[:2],chn)) in keep \
+                                 or ("%sch%ig%i"% (modName,chn,adc)) in keep or ("%sch%ig%i"% (modSpec,chn,adc)) in keep or ("%sch%ig%i"% (modName[:3],chn,adc)) in keep or ("%sch%ig%i"% (modName[:2],chn,adc)) in keep:
+                                val = None
+                            else:
+                                val = float(strval)
+                            if val is not None:
+                                nvnew+=1
+                                calibDrawer.setData(chn,adc,n,val)
+                                if coef is None:
+                                    log.debug("%i/%2i/%2i/%i: new data[%i] = %s" % (ros,mod,chn,adc, n, val))
+                        for n in xrange(mval,kval+mval):
+                            nvdef+=1
+                            val = calibDrawer.getData(chn,adc,n)
+                            log.debug("%i/%2i/%2i/%i: def data[%i] = %s" % (ros,mod,chn,adc, n, val))
+                if (zero or allzero) and newDrawer:
+                    blobWriters[io].zeroBlob(ros,mod)
+                    if ros==0 and mod==0:
                         if blobVersion<0:
                             blobVersion = flt.getObjVersion()
-                        calibDrawer.init(defConst,nchan,blobVersion)
-                        if undo:
-                            calibDrawer2 = blobWriter2.getDrawer(ros,mod)
-                            calibDrawer2.init(defConst,nchan,blobVersion)
-                        for ch in xrange(nchan):
-                            for ad in xrange(ngain):
-                                nold+=1
-                                for n in xrange(0,kval):
-                                    nvold+=1
-                                    val=flt.getData(ch,ad,n)
-                                    log.debug("%i/%2i/%2i/%i: old data[%i] = %f" % (ros,mod,ch,ad, n, val))
-                                    calibDrawer.setData(ch,ad,n,val)
-                                    if undo:
-                                        calibDrawer2.setData(ch,ad,n,val)
-                                    
-                    if not len(data):
-                        if not rosmin: log.warning("%i/%2i/%2i/%i: No value found in file" % (ros,mod,chn,adc))
-                        continue
-                    #=== loop over new data
-                    if nval<1:
-                        mval = flt.getObjSizeUint32()
-                    else:
-                        mval = nval
-                    nnew+=1
-                    kval=mval-len(data)
-                    if kval>0:
-                        ndef+=1
-                        mval-=kval
-                    for n in xrange(mval):
-                        coef=None
-                        strval=data[n]
-                        if strval.startswith("*"):
-                            coef=float(strval[1:])
-                            val = calibDrawer.getData(chn,adc,n)*coef
-                            log.debug("%i/%2i/%2i/%i: new data[%i] = %s  scale old value by %s" % (ros,mod,chn,adc, n, val, coef))
-                        elif strval.startswith("++") or strval.startswith("+-") :
-                            coef=float(strval[1:])
-                            val = calibDrawer.getData(chn,adc,n)+coef
-                            log.debug("%i/%2i/%2i/%i: new data[%i] = %s  shift old value by %s" % (ros,mod,chn,adc, n, val, coef))
-                        elif strval=="sync":
-                            val = calibDrawer.getData(chn,adc,n)
-                            if val==0.0 or val==-1.0 or val==1.0: # copy from another gain only if in this gain one of default values
-                                val = calibDrawer.getData(chn,1-adc,n)
-                        elif strval=="copy":
-                            val = calibDrawer.getData(chn,1-adc,n) # copy from another gain
-                        elif strval=="lg" and adc==1:
-                            val = calibDrawer.getData(chn,0,n) # copy from low gain
-                        elif strval=="hg" and adc==0:
-                            val = calibDrawer.getData(chn,1,n) # copy from high gain
-                        elif strval=="keep" or strval=="None" or str(n) in keep or modName in keep or  modSpec in keep or modName[:3] in keep or  modName[:2] in keep \
-                             or ("%sch%i"% (modName,chn)) in keep or ("%sch%i"% (modSpec,chn)) in keep or ("%sch%i"% (modName[:3],chn)) in keep or ("%sch%i"% (modName[:2],chn)) in keep \
-                             or ("%sch%ig%i"% (modName,chn,adc)) in keep or ("%sch%ig%i"% (modSpec,chn,adc)) in keep or ("%sch%ig%i"% (modName[:3],chn,adc)) in keep or ("%sch%ig%i"% (modName[:2],chn,adc)) in keep:
-                            val = None
-                        else:
-                            val = float(strval)
-                        if val is not None:
-                            nvnew+=1
-                            calibDrawer.setData(chn,adc,n,val)
-                            if coef is None:
-                                log.debug("%i/%2i/%2i/%i: new data[%i] = %s" % (ros,mod,chn,adc, n, val))
-                    for n in xrange(mval,kval+mval):
-                        nvdef+=1
-                        val = calibDrawer.getData(chn,adc,n)
-                        log.debug("%i/%2i/%2i/%i: def data[%i] = %s" % (ros,mod,chn,adc, n, val))
-            if (zero or allzero) and newDrawer:
-                blobWriter.zeroBlob(ros,mod)
-                if ros==0 and mod==0:
-                    if blobVersion<0:
-                        blobVersion = flt.getObjVersion()
-                    calibDrawer = blobWriter.getDrawer(ros,mod)
-                    calibDrawer.init(defConst,1,blobVersion)
-    
-    log.info("%d/%d old channels*gains/values have been read from database" % (nold,nvold))
-    log.info("%d/%d new channels*gains/values have been read from input ascii file" % (nnew,nvnew))
-    if nold>nnew or nvold>nvnew: log.info("%d/%d old channels*gains/values remain unchanged" % (nold-nnew,nvold-nvnew))
-    if nold<nnew or nvold<nvnew: log.info("%d/%d new channels*gains/values have been added to database" % (nnew-nold,nvnew-nvold))
-    if ndef: log.info("%d/%d new channels*gains/values with default values have been added to database" % (ndef-nold,nvdef))
+                        calibDrawer = blobWriters[io].getDrawer(ros,mod)
+                        calibDrawer.init(defConst,1,blobVersion)
+
+        log.info("%d/%d old channels*gains/values have been read from database" % (nold,nvold))
+        log.info("%d/%d new channels*gains/values have been read from input ascii file" % (nnew,nvnew))
+        if nold>nnew or nvold>nvnew: log.info("%d/%d old channels*gains/values remain unchanged" % (nold-nnew,nvold-nvnew))
+        if nold<nnew or nvold<nvnew: log.info("%d/%d new channels*gains/values have been added to database" % (nnew-nold,nvnew-nvold))
+        if ndef: log.info("%d/%d new channels*gains/values with default values have been added to database" % (ndef-nold,nvdef))
     
 #=== commit changes
 if mval!=0 and (len(comment)>0 or len(txtFile)>0):
-    if (comment is None) or (comment == "None"):
-        blobWriter.setComment("None","None")
-    else:
-        if len(comment)==0:
-            if begin[1]==0:
-                comment="Update for run %i from file %s" % (begin[0],txtFile)
+    if not iov:
+        iovList = [begin]
+    until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)
+    for io,begin in enumerate(iovList):
+        if (comment is None) or (comment == "None"):
+            blobWriters[io].setComment("None","None")
+        else:
+            if len(comment)==0:
+                if begin[1]==0:
+                    comm="Update for run %i from file %s" % (begin[0],txtFile)
+                else:
+                    comm="Update for run,lumi %i,%i from file %s" % (begin[0],begin[1],txtFile)
             else:
-                comment="Update for run,lumi %i,%i from file %s" % (begin[0],begin[1],txtFile)
-        blobWriter.setComment(user,comment)
-    blobWriter.register(begin, until, outfolderTag)
+                comm=comment
+            if iov:
+                comm+=" - "+comments[io]
+            blobWriters[io].setComment(user,comm)
+        blobWriters[io].register(begin, until, outfolderTag)
     if undo:
         if (comment is None) or (comment == "None"):
             blobWriter2.setComment("None","None")
