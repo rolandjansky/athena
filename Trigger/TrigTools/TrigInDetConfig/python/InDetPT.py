@@ -184,9 +184,9 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
 
             #-----------------------------------------------------------------------------
             #                        TRT extension
-            #Keep track that this needs to have a switch between DAF and XK
-            #trkExtensionType = 'XK'
-            #if InDetTrigFlags.trtExtensionType() is 'DAF' :
+            # Keep track that this needs to have a switch between DAF and XK
+            # trkExtensionType = 'XK'
+            # if InDetTrigFlags.trtExtensionType() is 'DAF' :
 
             from InDetTrigRecExample.InDetTrigCommonTools import  InDetTrigTRT_DriftCircleTool
  
