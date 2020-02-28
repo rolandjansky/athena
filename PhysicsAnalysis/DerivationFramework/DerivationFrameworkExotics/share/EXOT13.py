@@ -72,7 +72,7 @@ thinningTools.append(EXOT13TPThinningTool)
 # Thin truth
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT13MCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT13MCThinningTool",
-                                                             ThinningService = EXOT13ThinningHelper.ThinningSvc(),
+                                                              StreamName                 = streamName,
                                                               WritePartons               = False,
                                                               WriteHadrons               = True,
                                                               WriteBHadrons              = True,
@@ -107,13 +107,6 @@ DerivationFrameworkJob += exot13Seq
 exot13Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT13Kernel_skim", SkimmingTools = [EXOT13StringSkimmingTool])
 exot13Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT13Kernel", ThinningTools = thinningTools)
 
-
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools 
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-#augStream = MSMgr.GetStream( streamName )
-#evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="EXOT13ThinningSvc", outStreams=[evtStream] )
 
 
 #====================================================================
