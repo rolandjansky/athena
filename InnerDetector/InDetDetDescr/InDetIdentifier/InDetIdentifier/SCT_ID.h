@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETIDENTIFIER_SCT_ID_H
@@ -17,7 +17,6 @@
  * $Id: SCT_ID.h,v 1.30 2008-12-13 07:11:00 dquarrie Exp $
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "Identifier/Identifier.h"
@@ -28,18 +27,12 @@
 #include "AthenaKernel/CLASS_DEF.h"
 
 #include <string>
-#include <assert.h>
+#include <cassert>
 #include <algorithm>
 
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
 
 class IdDictDictionary;
 
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 /**
  **  @class SCT_ID
@@ -81,7 +74,7 @@ public:
     typedef MultiRange::const_identifier_factory        const_expanded_id_iterator;
     //@}
 
-    /// @name strutors
+    /// @name structors
     //@{
     SCT_ID(void);
     virtual ~SCT_ID(void) = default;
@@ -120,7 +113,7 @@ public:
     Identifier  wafer_id ( const Identifier& strip_id ) const;
 
     /// From hash - optimized
-    Identifier  wafer_id ( IdentifierHash wafer_hash ) const;
+    Identifier  wafer_id ( const IdentifierHash & wafer_hash ) const;
 
     /// For an individual strip
     Identifier  strip_id ( int barrel_ec, 
@@ -186,7 +179,7 @@ public:
     /// @name Optimized accessors  - ASSUMES id IS a sct id, i.e. NOT pixel or other
     //@{
     /// wafer hash from id - optimized
-    IdentifierHash      wafer_hash      (Identifier wafer_id) const;
+    IdentifierHash      wafer_hash      (const Identifier & wafer_id) const;
 
     /// Test for barrel - WARNING: id MUST be sct id, otherwise answer is not accurate. Use SiliconID for generic test.
     bool        is_barrel       (const Identifier& id) const;  
@@ -314,6 +307,9 @@ private:
     int         init_hashes(void);
 
     int         init_neighbors(void);
+    
+    IdentifierHash 
+    nextInSequence(const IdentifierHash& id,const hash_vec & vectorOfHashes) const;
 
     // Temporary method for adapting an identifier for the MultiRange
     // check - MR is missing the InnerDetector level
@@ -355,12 +351,6 @@ private:
     IdDictFieldImplementation   m_strip_impl	;
 };
     
-
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-
-/////////////////////////////////////////////////////////////////////////////
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
-/////////////////////////////////////////////////////////////////////////////
 
 //using the macros below we can assign an identifier (and a version)
 //This is required and checked at compile time when you try to record/retrieve
@@ -468,13 +458,15 @@ SCT_ID::wafer_id ( const Identifier& strip_id ) const
 }
 
 //----------------------------------------------------------------------------
-inline Identifier  SCT_ID::wafer_id ( IdentifierHash wafer_hash ) const
+inline Identifier  
+SCT_ID::wafer_id ( const IdentifierHash & wafer_hash ) const
 {
     return (m_wafer_vec[wafer_hash]);
 }
 
 //----------------------------------------------------------------------------
-inline IdentifierHash      SCT_ID::wafer_hash      (Identifier wafer_id) const 
+inline IdentifierHash      
+SCT_ID::wafer_hash      (const Identifier & wafer_id) const 
 {
     id_vec_it it = std::lower_bound(m_wafer_vec.begin(), 
                                     m_wafer_vec.end(), 
@@ -819,6 +811,17 @@ SCT_ID::strip           (const Identifier& id) const
 {
     return (m_strip_impl.unpack(id));
 }
+
+inline IdentifierHash
+SCT_ID::nextInSequence(const IdentifierHash& id, const hash_vec & vectorOfHashes) const{
+   unsigned short index = id;
+   if (index < vectorOfHashes.size()) {
+        return  vectorOfHashes[index]; 
+    }
+    return NOT_VALID_HASH;
+}
+
+
 
 
 #endif // INDETIDENTIFIER_SCT_ID_H
