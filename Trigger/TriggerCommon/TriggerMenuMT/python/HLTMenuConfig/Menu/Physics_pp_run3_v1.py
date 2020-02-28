@@ -8,6 +8,7 @@
 # always required are: name, stream and groups
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
 
 PhysicsStream="Main"
 SingleMuonGroup = ['RATE:SingleMuon', 'BW:Muon']
@@ -117,24 +118,7 @@ def setupMenu():
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = [ ]
 
-    signatureList=[]
-    for prop in dir(TriggerFlags):
-        if prop[-5:]=='Slice':
-            sliceName=prop
-            slice=getattr(TriggerFlags,sliceName)
-            if slice.signatures():
-                signatureList.extend(slice.signatures())
-            else:
-                log.debug('SKIPPING '+str(sliceName))
-    mySigList=[]
-    for allInfo in signatureList:
-        mySigList.append(allInfo[0])
-    mydict={}
-    for chain in mySigList:
-        mydict[chain]=[-1,0,0]
-    mydict.update(Prescales.HLTPrescales_cosmics)
-    from copy import deepcopy
-    Prescales.HLTPrescales_cosmics = deepcopy(mydict)
+    addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
 
 
 class Prescales(object):
