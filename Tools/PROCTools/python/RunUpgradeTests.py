@@ -33,21 +33,36 @@ def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
     s=stest 
     geotag = "ATLAS-P2-ITK-20-04-00_VALIDATION"
     layoutoption = "InclinedDuals"
-
-    if s == 's2':
-      geotag = "ATLAS-P2-ITK-17-06-00_VALIDATION"
-      layoutoption = "InclinedAlternative"  
-    logging.info("Running clean "+s)
-    logging.info("\"Sim_tf.py --AMIConfig "+s+" ("+geotag+","+layoutoption+") --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
-
     CleanDirName="clean_run_"+s+"_"+UniqID
+    trfcmd = "echo \"NO VALID CONFIGURATION SELECTED!\""
+
+    ###This is the config for the latest (and future) configuration, and differs in several ways from the older configurations - for the time being it relies on a local geometry
+    if s == 's3':
+
+        geotag = "ATLAS-P2-ITK-22-00-00_VALIDATION"
+        logging.info("Running clean "+s)
+        logging.info("\"Sim_tf.py --AMIConfig "+s+" ("+geotag+") --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
+
+        trfcmd = " Sim_tf.py --randomSeed 873254 --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-03 --truthStrategy   MC15aPlus --DataRunNumber 242000 --preInclude  all:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' --preExec all:'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.UseLocalGeometry.set_Value_and_Lock(True)' --postInclude all:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' --postExec EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours=False;ServiceMgr.DetDescrCnvSvc.OutputLevel=VERBOSE; from AthenaCommon import CfgGetter; CfgGetter.getService(\"ISF_MC15aPlusTruthService\").BeamPipeTruthStrategies+=[\"ISF_MCTruthStrategyGroupIDHadInt_MC15\"];ServiceMgr.PixelLorentzAngleSvc.ITkL03D = True' --inputEVNTFile "+input_file+" --outputHITSFile myHITS.pool.root --imf False  "
+     
+    else:
+     
+        if s == 's2':
+            geotag = "ATLAS-P2-ITK-17-06-00_VALIDATION"
+            layoutoption = "InclinedAlternative"  
+        logging.info("Running clean "+s)
+        logging.info("\"Sim_tf.py --AMIConfig "+s+" ("+geotag+","+layoutoption+") --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
+
+        trfcmd = " Sim_tf.py --randomSeed 873254 --geometryVersion "+geotag+" --conditionsTag   OFLCOND-MC15c-SDR-14-03 --truthStrategy   MC15aPlus --DataRunNumber 242000 --preInclude  all:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py,InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' --preExec all:'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True); SLHC_Flags.LayoutOption=\""+layoutoption+"\";' --postInclude all:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' --postExec    EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours=False; from AthenaCommon import CfgGetter; CfgGetter.getService(\"ISF_MC15aPlusTruthService\").BeamPipeTruthStrategies+=[\"ISF_MCTruthStrategyGroupIDHadInt_MC15\"];' --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False "
+
 
     cmd = ( " mkdir -p " + CleanRunHeadDir +" ;" + 
             " cd "       + CleanRunHeadDir +" ;" + 
-            " mkdir -p " + CleanDirName    +" ;" + 
+            " mkdir -p " + CleanDirName    +" ;" +
             " cd "       + CleanDirName    +" ;" + 
-            " source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ;" +
-            " Sim_tf.py --randomSeed 873254 --geometryVersion "+geotag+" --conditionsTag   OFLCOND-MC15c-SDR-14-03 --truthStrategy   MC15aPlus --DataRunNumber 242000 --preInclude  all:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py,InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' --preExec all:'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True); SLHC_Flags.LayoutOption=\""+layoutoption+"\";' --postInclude all:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' --postExec    EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours=False; from AthenaCommon import CfgGetter; CfgGetter.getService(\"ISF_MC15aPlusTruthService\").BeamPipeTruthStrategies+=[\"ISF_MCTruthStrategyGroupIDHadInt_MC15\"];' --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root --imf False " +extraArg+" > "+s+".log 2>&1" )
+            trfcmd + extraArg+" > "+s+".log 2>&1" )
+
+
     subprocess.call(cmd,shell=True)
 
     logging.info("Finished clean "+s)
@@ -61,12 +76,27 @@ def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False):
     s=stest 
     geotag = "ATLAS-P2-ITK-20-04-00_VALIDATION"
     layoutoption = "InclinedDuals"
+    trfcmd = "echo \"NO VALID CONFIGURATION SELECTED!\""
 
-    if s == 's2':
-      geotag = "ATLAS-P2-ITK-17-06-00_VALIDATION"
-      layoutoption = "InclinedAlternative" 
-    logging.info("Running patched "+s)
-    logging.info("\"Sim_tf.py --AMIConfig "+s+" ("+geotag+","+layoutoption+") --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
+    if s == 's3':
+       geotag = "ATLAS-P2-ITK-22-00-00_VALIDATION"  
+       trfcmd = " Sim_tf.py --randomSeed 873254 --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-03 --truthStrategy   MC15aPlus --DataRunNumber 242000 --preInclude  all:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' --preExec all:'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.UseLocalGeometry.set_Value_and_Lock(True)' --postInclude all:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' --postExec EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours=False;ServiceMgr.DetDescrCnvSvc.OutputLevel=VERBOSE; from AthenaCommon import CfgGetter; CfgGetter.getService(\"ISF_MC15aPlusTruthService\").BeamPipeTruthStrategies+=[\"ISF_MCTruthStrategyGroupIDHadInt_MC15\"];ServiceMgr.PixelLorentzAngleSvc.ITkL03D = True' --inputEVNTFile "+input_file+" --outputHITSFile myHITS.pool.root --imf False  "
+
+       logging.info("Running patched "+s)
+       logging.info("\"Sim_tf.py --AMIConfig "+s+" ("+geotag+") --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
+
+
+    else:
+       
+        if s == 's2':
+            geotag = "ATLAS-P2-ITK-17-06-00_VALIDATION"
+            layoutoption = "InclinedAlternative" 
+
+
+        trfcmd = " Sim_tf.py --randomSeed 873254 --geometryVersion "+geotag+" --conditionsTag   OFLCOND-MC15c-SDR-14-03 --truthStrategy   MC15aPlus --DataRunNumber 242000 --preInclude  all:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py,InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' --preExec all:'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True); SLHC_Flags.LayoutOption=\""+layoutoption+"\";' --postInclude all:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' --postExec    EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours=False; from AthenaCommon import CfgGetter; CfgGetter.getService(\"ISF_MC15aPlusTruthService\").BeamPipeTruthStrategies+=[\"ISF_MCTruthStrategyGroupIDHadInt_MC15\"];' --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root --imf False "
+            
+        logging.info("Running patched "+s)
+        logging.info("\"Sim_tf.py --AMIConfig "+s+" ("+geotag+","+layoutoption+") --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
 
     cmd = " cd "+pwd+" ;"
     if nosetup:
@@ -78,7 +108,7 @@ def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False):
     else :
         cmd = ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" )
     cmd += " mkdir -p run_"+s+"; cd run_"+s+";"
-    cmd += " Sim_tf.py --randomSeed 873254 --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-03 --truthStrategy   MC15aPlus --DataRunNumber 242000 --preInclude  all:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py,InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' --preExec all:'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.LayoutOption=\""+layoutoption+"\";' --postInclude all:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' --postExec    EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours=False; from AthenaCommon import CfgGetter; CfgGetter.getService(\"ISF_MC15aPlusTruthService\").BeamPipeTruthStrategies+=[\"ISF_MCTruthStrategyGroupIDHadInt_MC15\"];' --inputEVNTFile "+input_file+" --outputHITSFile myHITS.pool.root --imf False "+extraArg+" > "+s+".log 2>&1"
+    cmd += trfcmd + extraArg+" > "+s+".log 2>&1"
     
     subprocess.call(cmd,shell=True)
     logging.info("Finished patched "+s)
@@ -95,7 +125,7 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID):
         layoutoption = "InclinedAlternative"
         inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/InclinedAlternative_HITS.root"
 
-    logging.info("Running clean "+q+" \"Reco_tf.py --AMI "+q+" ("+geotag+","+layoutoption+") --imf False "+extraArg+"\"")
+    logging.info("Running clean "+q+" ("+geotag+","+layoutoption+") \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
     #Check if CleanRunHead directory exists if not exist with a warning 
 
     CleanDirName="clean_run_"+q+"_"+UniqID
@@ -133,7 +163,7 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, nosetup=False):
     else :
         cmd = ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" )
     cmd += " mkdir -p run_"+q+"; cd run_"+q+";"
-    cmd += " Reco_tf.py --inputHITSFile "+inputfile+" --outputRDOFile myRDO.pool.root --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputDAOD_IDTRKVALIDFile myIDTRKVALID.pool.root --maxEvents 10 --digiSteeringConf StandardInTimeOnlyTruth --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-03 --DataRunNumber 242000 --postInclude all:'InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py' HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' RAWtoESD:'InDetSLHC_Example/postInclude.DigitalClustering.py' --preExec all:'from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock(\"geant4\"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True); SLHC_Flags.LayoutOption=\""+layoutoption+"\";' HITtoRDO:'from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=[\"SimLayout\",\"PhysicsList\"];' RAWtoESD:'from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doStandardPlots.set_Value_and_Lock(True)' ESDtoDPD:'rec.DPDMakerScripts.set_Value_and_Lock([\"InDetPrepRawDataToxAOD/InDetDxAOD.py\",\"PrimaryDPDMaker/PrimaryDPDMaker.py\"]);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.useDCS.set_Value_and_Lock(True);from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();ServiceMgr.PixelCalibSvc.DisableDB=True' --preInclude  all:'InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,InDetSLHC_Example/preInclude.SLHC_Calorimeter_mu0.py' HITtoRDO:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py' default:'InDetSLHC_Example/preInclude.SLHC.NoTRT_NoBCM_NoDBM.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py' RDOMergeAthenaMP:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py' POOLMergeAthenaMPAOD0:'InDetSLHC_Example/preInclude.SLHC.NoTRT_NoBCM_NoDBM.Ana.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' POOLMergeAthenaMPDAODIDTRKVALID0:'InDetSLHC_Example/preInclude.SLHC.NoTRT_NoBCM_NoDBM.Ana.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' --postExec HITtoRDO:'pixeldigi.EnableSpecialPixels=False; CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"];' RAWtoESD:'ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO' --imf False > "+q+".log 2>&1" 
+    cmd += " Reco_tf.py --inputHITSFile "+inputfile+" --outputRDOFile myRDO.pool.root --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputDAOD_IDTRKVALIDFile myIDTRKVALID.pool.root --maxEvents 10 --digiSteeringConf StandardInTimeOnlyTruth --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-03 --DataRunNumber 242000 --postInclude all:'InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py' HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' RAWtoESD:'InDetSLHC_Example/postInclude.DigitalClustering.py' --preExec all:'from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock(\"geant4\"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True); SLHC_Flags.LayoutOption=\""+layoutoption+"\";' HITtoRDO:'from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=[\"SimLayout\",\"PhysicsList\"];' RAWtoESD:'from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doStandardPlots.set_Value_and_Lock(True)' ESDtoDPD:'rec.DPDMakerScripts.set_Value_and_Lock([\"InDetPrepRawDataToxAOD/InDetDxAOD.py\",\"PrimaryDPDMaker/PrimaryDPDMaker.py\"]);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.useDCS.set_Value_and_Lock(True);from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();ServiceMgr.PixelCalibSvc.DisableDB=True' --preInclude  all:'InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,InDetSLHC_Example/preInclude.SLHC_Calorimeter_mu0.py' HITtoRDO:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py' default:'InDetSLHC_Example/preInclude.SLHC.NoTRT_NoBCM_NoDBM.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py' RDOMergeAthenaMP:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py' POOLMergeAthenaMPAOD0:'InDetSLHC_Example/preInclude.SLHC.NoTRT_NoBCM_NoDBM.Ana.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' POOLMergeAthenaMPDAODIDTRKVALID0:'InDetSLHC_Example/preInclude.SLHC.NoTRT_NoBCM_NoDBM.Ana.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' --postExec HITtoRDO:'pixeldigi.EnableSpecialPixels=False; CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"];' RAWtoESD:'ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO' --imf False > "+q+".log 2>&1"
     
     subprocess.call(cmd,shell=True)
 
@@ -535,6 +565,13 @@ def main():
                       default=False,
                       help="no-setup will not setup athena - only for CI tests!")
 
+    parser.add_option("-u",
+                      "--updated-test",
+                      action="store_true",
+                      dest="updatedtest_flag",
+                      default=False,
+                      help="Run newest development version tests")
+
 
     (options,args)=parser.parse_args()
 
@@ -550,6 +587,7 @@ def main():
     CleanRunHeadDir = options.cleanDir  
     ciMode          = options.ci_flag
     NoCheck         = options.nocheck_flag
+    RunUpdated      = options.updatedtest_flag
 
 #        tct_ESD = "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/tct/"+latest_nightly+"/"+release+"/"+platform+"/offline/Tier0ChainTests/"+q+"/myESD.pool.root"          
 
@@ -558,7 +596,16 @@ def main():
         logging.info("")
         logging.info("You're running with no-setup. This is suggested to be used only in CI tests.")
         logging.info("This mode assumes athena is setup w/ necessary patches and only runs patched tests.")
-        logging.info("Then results are checked against reference files and no performance test is run.")
+        logging.info("If you don't know what this mode does, you shouldn't be using it.")
+        logging.info("")
+        RunPatchedOnly = True
+        NoCheck = True
+
+    if RunUpdated:
+        logging.info("")
+        logging.info("You are running with the Updated tests, which are for development purposes and may be subject to change!")
+        logging.info("This mode currently assumes you have a local geometry checked out, and conforming to the latest changes in the master branch")
+        logging.info("This mode assumes athena is setup w/ necessary patches and only runs patched tests.")
         logging.info("If you don't know what this mode does, you shouldn't be using it.")
         logging.info("")
         RunPatchedOnly = True
@@ -608,6 +655,10 @@ def main():
         if RunSim:
             qTestsToRun = {
             's2':['EVNTtoHITS']
+            }
+        elif RunUpdated:
+            qTestsToRun = {
+            's3':['EVNTtoHITS']
             }
         else:
             qTestsToRun = {
@@ -666,6 +717,21 @@ def main():
             for thread in mythreads:
                 mythreads[thread].join()
 
+
+        elif RunUpdated:
+
+             for qtest in qTestsToRun:
+                q=str(qtest)
+
+                def mypatchedqtest():
+                    RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg, nosetup=ciMode)
+
+                mythreads[q+"_patched"] = threading.Thread(target=mypatchedqtest)
+                mythreads[q+"_patched"].start()
+
+             for thread in mythreads:
+                mythreads[thread].join()   
+
         elif RunPatchedOnly:
 
             for qtest in qTestsToRun:
@@ -683,8 +749,6 @@ def main():
 
             for thread in mythreads:
                 mythreads[thread].join()
-
-            
 
         else :
             for qtest in qTestsToRun:
