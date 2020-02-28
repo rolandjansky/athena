@@ -25,13 +25,13 @@ namespace Monitored {
    * @param collection  Collection to be monitored (e.g. STL container or array)
    *
    * #### Examples:
-   * Various types of collections can be monitored
+   * Various types of collections can be monitored. STL containers:
    *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromNonTrivialSources_collection
+   * or more generally, any iterable container:
    *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromNonTrivialSources_array
    *
    * @see Monitored::Scalar
    * @see Monitored::Group
-   * @ingroup MonAPI
    */
   template <class T> ValuesCollection<T> Collection(std::string name, const T& collection) {
     return ValuesCollection<T>(std::move(name), collection);
@@ -59,7 +59,6 @@ namespace Monitored {
    *
    * @see Monitored::Scalar
    * @see Monitored::Group
-   * @ingroup MonAPI
    */
   template <class T>
   ObjectsCollection<T, double>
