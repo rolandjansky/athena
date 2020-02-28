@@ -16,7 +16,7 @@ endif()
 atlas_add_library( TrigCompositeUtilsLib
   TrigCompositeUtils/*.h TrigCompositeUtils/*.icc Root/*.cxx ${extra_srcs}
   PUBLIC_HEADERS TrigCompositeUtils
-  LINK_LIBRARIES HLTUtilsLib CxxUtils AsgMessagingLib ${extra_libs} )
+  LINK_LIBRARIES TrigConfHLTUtilsLib CxxUtils AsgMessagingLib ${extra_libs} )
 
 # Install files from the package.
 atlas_install_python_modules( python/*.py )

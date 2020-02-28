@@ -1,4 +1,4 @@
-# HLTUtils
+# TrigConfHLTUtils
 
 Package to host the `string2hash`, `hash2string`, `hashes2file` and `file2hashes` helper functions.
 

@@ -3,7 +3,7 @@
 */
 
 /// Hashing functions have moved here
-#include "HLTUtils/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #ifndef TrigConfHLTData_HLTUtils
 #define TrigConfHLTData_HLTUtils

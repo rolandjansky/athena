@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HLTUtils_HLTUtils
-#define HLTUtils_HLTUtils
+#ifndef TrigConfHLTUtils_HLTUtils
+#define TrigConfHLTUtils_HLTUtils
 
 #include <string>
 #include <inttypes.h>
