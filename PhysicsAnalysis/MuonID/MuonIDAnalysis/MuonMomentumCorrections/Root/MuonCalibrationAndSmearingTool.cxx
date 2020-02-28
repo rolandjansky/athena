@@ -515,12 +515,12 @@ namespace CP {
       else muonInfo.ptcb = 0.;
       if( m_useStatComb && muonInfo.ptcb > m_StatCombPtThreshold && isBadMuon(mu, muonInfo)) {
         if(m_doNotUseAMGMATRIXDECOR){
-          muonInfo.ptcb = sin(muonInfo.cbParsA[3])/fabs(muonInfo.cbParsA[4])/MCAST_GEV;
+          muonInfo.ptcb = sin(muonInfo.cbParsA[3])/std::abs(muonInfo.cbParsA[4])/MCAST_GEV;
         }
         else {
           if(!mu.isAvailable < AmgVector(5) >( "StatCombCBPars" )) return CorrectionCode::Error;
           AmgVector(5) parsCB = mu.auxdata < AmgVector(5) >( "StatCombCBPars" );
-          muonInfo.ptcb = sin(parsCB[3])/fabs(parsCB[4])/MCAST_GEV;
+          muonInfo.ptcb = sin(parsCB[3])/std::abs(parsCB[4])/MCAST_GEV;
         }}
 
       if( ( mu.inDetTrackParticleLink() ).isValid() ) {
@@ -607,15 +607,15 @@ namespace CP {
 
       double CBqOverPE = 1e10;
       if( ID_track != nullptr && ME_track != nullptr )
-        CBqOverPE=pow(sqrt( ID_track->definingParametersCovMatrix()( 4, 4 ) + ME_track->definingParametersCovMatrix()( 4, 4 ))/1e3,2);
+        CBqOverPE=std::pow(std::sqrt( ID_track->definingParametersCovMatrix()( 4, 4 ) + ME_track->definingParametersCovMatrix()( 4, 4 ))/1e3,2);
 
       double IDqOverPE =  1e10;
       if(ID_track!=nullptr)
-        IDqOverPE=pow( ID_track->definingParametersCovMatrix()( 4, 4 )/1e3,2);
+        IDqOverPE=std::pow( ID_track->definingParametersCovMatrix()( 4, 4 )/1e3,2);
 
       double MEqOverPE = 1e10;
       if(ME_track!=nullptr)
-        MEqOverPE = pow( ME_track->definingParametersCovMatrix()( 4, 4 )/1e3,2);
+        MEqOverPE = std::pow( ME_track->definingParametersCovMatrix()( 4, 4 )/1e3,2);
 
 
       CalcCBWeights( mu, muonInfo );
@@ -625,8 +625,8 @@ namespace CP {
       double pTilde = ((1/IDqOverPE)*(1/muonInfo.ptid) + (1/MEqOverPE)*(1/muonInfo.ptms))/(1/IDqOverPE+1/MEqOverPE);
       double deltaPTilde  =(1/muonInfo.ptcb-pTilde)/(1/muonInfo.ptcb);
 
-      double deltaID=fabs((1/muonInfo.ptid-1/muonInfo.ptcb)/(1/muonInfo.ptcb));
-      double deltaMS=fabs((1/muonInfo.ptms-1/muonInfo.ptcb)/(1/muonInfo.ptcb));
+      double deltaID=std::abs((1/muonInfo.ptid-1/muonInfo.ptcb)/(1/muonInfo.ptcb));
+      double deltaMS=std::abs((1/muonInfo.ptms-1/muonInfo.ptcb)/(1/muonInfo.ptcb));
       if(deltaID == 0 ) deltaID=1e-6;
       if(deltaMS == 0 ) deltaMS=1e-6;
 
@@ -748,8 +748,8 @@ namespace CP {
 
       if(parsCB[2]>M_PI)       parsCB[2] -= 2.*M_PI;
       else if(parsCB[2]<-M_PI) parsCB[2] += 2.*M_PI;
-      double statCombPtNom = sin(parsCBNom[3])/fabs(parsCBNom[4])/MCAST_GEV;
-      double statCombPt    = sin(parsCB[3])/fabs(parsCB[4])/MCAST_GEV;
+      double statCombPtNom = sin(parsCBNom[3])/std::abs(parsCBNom[4])/MCAST_GEV;
+      double statCombPt    = sin(parsCB[3])/std::abs(parsCB[4])/MCAST_GEV;
       //muonInfo.ptcb= statCombPt; 
       muonInfo.ptcb =  muonInfo.ptcb * (1  +  (statCombPt-statCombPtNom)/statCombPtNom ) ;
       ATH_MSG_VERBOSE(" Poor man's combination "<<simpleCombPt<<" Stat comb "<<statCombPt<<" Stat comb nom "<<" statCombPtNom "<<statCombPtNom ); 
@@ -823,20 +823,20 @@ namespace CP {
       if(isSystematic ) {
         double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true ) * muonInfo.ptcb;
         double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, true ) * muonInfo.ptcb;
-        double denominator = (  muonInfo.ptcb  ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
-        //double res= denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
-        double res= denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
+        double denominator = (  muonInfo.ptcb  ) * std::sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
+        //double res= denominator ? std::sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
+        double res= denominator ? std::sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
 
         if(m_currentParameters->SagittaRho==MCAST::SystVariation::Up){
-          central=central + std::fabs(0.5 * res  * central);
+          central=central + std::abs(0.5 * res  * central);
         }
         else if(m_currentParameters->SagittaRho==MCAST::SystVariation::Down){
-          central=central - std::fabs(0.5 * res  * central);
+          central=central - std::abs(0.5 * res  * central);
         }
       }
       
       if(!m_useFixedRho){
-        sigmas=(fabs(muonInfo.ptcb - central)/width);
+        sigmas=(std::abs(muonInfo.ptcb - central)/width);
         rho= 1/sigmas;
         if(sigmas <  1 ) rho=1;
       }
@@ -1003,12 +1003,12 @@ namespace CP {
       CorrectionCode cbCode=applyStatCombination(mu, muonInfo);
       if( cbCode==CorrectionCode::Ok){
         if(m_doNotUseAMGMATRIXDECOR){
-          muonInfo.ptcb = sin(muonInfo.cbParsA[3])/fabs(muonInfo.cbParsA[4])/MCAST_GEV;
+          muonInfo.ptcb = sin(muonInfo.cbParsA[3])/std::abs(muonInfo.cbParsA[4])/MCAST_GEV;
         }
         else {
           if(!mu.isAvailable < AmgVector(5) >( "StatCombCBPars" )) return CorrectionCode::Error;
           AmgVector(5) parsCB = mu.auxdata < AmgVector(5) >( "StatCombCBPars" );
-          muonInfo.ptcb = sin(parsCB[3])/fabs(parsCB[4])/MCAST_GEV;
+          muonInfo.ptcb = sin(parsCB[3])/std::abs(parsCB[4])/MCAST_GEV;
         }
       }
     }
@@ -1085,8 +1085,8 @@ namespace CP {
     }
 
     CalcCBWeights( mu, muonInfo );
-    ATH_MSG_VERBOSE( "Checking Weights - weightID: " << muonInfo.weightID << " - fabs( weightID - 1 ): " << fabs( muonInfo.weightID - 1 ) );
-    ATH_MSG_VERBOSE( "Checking Weights - weightMS: " << muonInfo.weightMS << " - fabs( weightMS - 1 ): " << fabs( muonInfo.weightMS - 1 ) );
+    ATH_MSG_VERBOSE( "Checking Weights - weightID: " << muonInfo.weightID << " - std::abs( weightID - 1 ): " << std::abs( muonInfo.weightID - 1 ) );
+    ATH_MSG_VERBOSE( "Checking Weights - weightMS: " << muonInfo.weightMS << " - std::abs( weightMS - 1 ): " << std::abs( muonInfo.weightMS - 1 ) );
     muonInfo.smearDeltaCB = muonInfo.smearDeltaID * muonInfo.weightID + muonInfo.smearDeltaMS * muonInfo.weightMS;
 
     // Calibrate the pt of the muon:
@@ -1132,8 +1132,8 @@ namespace CP {
     //}
 
     // Override combined momentum for special cases
-    if( fabs( muonInfo.weightID - 1 ) < EPSILON ) res_cbPt = res_idPt;
-    if( fabs( muonInfo.weightMS - 1 ) < EPSILON ) res_cbPt = res_msPt;
+    if( std::abs( muonInfo.weightID - 1 ) < EPSILON ) res_cbPt = res_idPt;
+    if( std::abs( muonInfo.weightMS - 1 ) < EPSILON ) res_cbPt = res_msPt;
 
     // Using ToroidOff flag
     mu.auxdata< float >( "InnerDetectorPt" ) = res_idPt;
@@ -1701,7 +1701,7 @@ namespace CP {
     // These are alternative scale corrections (KPKM,KC,K,C) they are != 0. if Tscale != SCALE_DEFAULT.
     //double s1_ID = 0., s2_ID = 0., s1_MS = 0., s2_MS = 0., s1_CB = 0., s2_CB = 0.;//Description of these is in ApplyScale
 
-    if( fabs( scaleVar ) != 1. && scaleVar != 0. ) ATH_MSG_ERROR( "Unpredicted scale variation of Delta "<<scaleVar<<" sigmas!" );
+    if( std::abs( scaleVar ) != 1. && scaleVar != 0. ) ATH_MSG_ERROR( "Unpredicted scale variation of Delta "<<scaleVar<<" sigmas!" );
 
     if( m_scale_ID[muonInfo.detRegion] != -1 ) {
       if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
@@ -1758,7 +1758,7 @@ namespace CP {
         if( m_Tsmear == MCAST::SmearingType::Pt )  outPtID = outPtID * tmpDelta;
         if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtID = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtID / tmpDelta;
       }
-      outPtID = ScaleApply( fabs(outPtID), scaleID, 0., muonInfo );
+      outPtID = ScaleApply( std::abs(outPtID), scaleID, 0., muonInfo );
       if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
         if( m_Tsmear == MCAST::SmearingType::Pt )  outPtID = outPtID * tmpDelta;
         if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtID = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtID / tmpDelta;
@@ -1783,7 +1783,7 @@ namespace CP {
         if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtMS = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtMS / tmpDelta;
       }
       ATH_MSG_VERBOSE( "Double-Checking outPtMS = " << outPtMS << " at second..." );
-      outPtMS = ScaleApply( fabs( outPtMS ), scaleMS, enLossCorrMS, muonInfo );
+      outPtMS = ScaleApply( std::abs( outPtMS ), scaleMS, enLossCorrMS, muonInfo );
       ATH_MSG_VERBOSE( "Double-Checking outPtMS = " << outPtMS << " at third..." );
       if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
         if( m_Tsmear == MCAST::SmearingType::Pt )  outPtMS = outPtMS * tmpDelta;
@@ -1807,7 +1807,7 @@ namespace CP {
         if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtCB = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtCB / tmpDelta;
       }
 
-      outPtCB = ScaleApply( fabs(outPtCB), scaleCB, 0., muonInfo );
+      outPtCB = ScaleApply( std::abs(outPtCB), scaleCB, 0., muonInfo );
       if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
         if( m_Tsmear == MCAST::SmearingType::Pt )  outPtCB = outPtCB * tmpDelta;
         if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtCB = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtCB / tmpDelta;
@@ -2156,10 +2156,10 @@ namespace CP {
       if((m_extra_p1_p2_MS_Misaligned.find(key) != m_extra_p1_p2_MS_Misaligned.end()) and (m_extra_p1_p2_MS_AlignedAndCorrected.find(key) != m_extra_p1_p2_MS_AlignedAndCorrected.end())) {
         std::pair<double, double> Misaligned = m_extra_p1_p2_MS_Misaligned.at(key);
         std::pair<double, double> AlignedAndCorrected = m_extra_p1_p2_MS_AlignedAndCorrected.at(key);
-        double reso_Misaligned = TMath::Sqrt(TMath::Power(Misaligned.first, 2) + TMath::Power(Misaligned.second*muonInfo.ptcb, 2));
-        double reso_AlignedAndCorrected = TMath::Sqrt(TMath::Power(AlignedAndCorrected.first, 2) + TMath::Power(AlignedAndCorrected.second*muonInfo.ptcb, 2));
+        double reso_Misaligned = std::sqrt(std::pow(Misaligned.first, 2) + std::pow(Misaligned.second*muonInfo.ptcb, 2));
+        double reso_AlignedAndCorrected = std::sqrt(std::pow(AlignedAndCorrected.first, 2) + std::pow(AlignedAndCorrected.second*muonInfo.ptcb, 2));
         if(reso_Misaligned > reso_AlignedAndCorrected) {
-          smear = TMath::Sqrt(TMath::Power(reso_Misaligned, 2) - TMath::Power(reso_AlignedAndCorrected, 2));
+          smear = std::sqrt(std::pow(reso_Misaligned, 2) - std::pow(reso_AlignedAndCorrected, 2));
         }
       }
       return smear; 
@@ -2176,9 +2176,9 @@ namespace CP {
     else if( DetType == MCAST::DetectorType::ID ) {
       if( m_Trel >= MCAST::Release::Rec_2015_11_15 ) {
         float additional_weight = 1.;
-        ATH_MSG_VERBOSE( "muonInfo.eta = " << muonInfo.eta << ",  abs( muonInfo.eta ) = " << std::abs( muonInfo.eta ) << ",  fabs( muonInfo.eta ) = " << fabs( muonInfo.eta ) );
-        ATH_MSG_VERBOSE( "Case 0: useTan2 && abs( muonInfo.eta ) > 2 = " << useTan2 << " && " << ( std::abs( muonInfo.eta ) > 2 ) );
-        if ( useTan2 && fabs( muonInfo.eta ) > 2 ) {
+        ATH_MSG_VERBOSE( "muonInfo.eta = " << muonInfo.eta << ",  std::abs( muonInfo.eta ) = " << std::abs( muonInfo.eta ) );
+        ATH_MSG_VERBOSE( "Case 0: useTan2 && std::abs( muonInfo.eta ) > 2 = " << useTan2 << " && " << ( std::abs( muonInfo.eta ) > 2 ) );
+        if ( useTan2 && std::abs( muonInfo.eta ) > 2 ) {
           ATH_MSG_VERBOSE( "Case 1: Using p1ID = " << m_p1_ID[muonInfo.detRegion] << " and p2ID = " << m_p2_ID[muonInfo.detRegion] );
           additional_weight = sinh( muonInfo.eta ) * sinh( muonInfo.eta );
         }
@@ -2223,10 +2223,10 @@ namespace CP {
     double SigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, doNotAddSmearing );
     double SigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, doNotAddSmearing );
     double Nsigma = m_useNsigmaForICombine;
-    if( fabs( muonInfo.ptcb - muonInfo.ptms ) > Nsigma * SigmaMS * muonInfo.ptcb || fabs( muonInfo.ptcb - muonInfo.ptid ) > Nsigma * SigmaID * muonInfo.ptcb ) {
+    if( std::abs( muonInfo.ptcb - muonInfo.ptms ) > Nsigma * SigmaMS * muonInfo.ptcb || std::abs( muonInfo.ptcb - muonInfo.ptid ) > Nsigma * SigmaID * muonInfo.ptcb ) {
       double R=1, Rplus;
-      if( fabs( muonInfo.ptcb-muonInfo.ptms ) == fabs( muonInfo.ptcb - muonInfo.ptid ) ) return; //This case returns weightID = weightMS = 0.5
-      if( fabs( muonInfo.ptcb-muonInfo.ptms ) != 0 && fabs( muonInfo.ptcb-muonInfo.ptms ) > fabs( muonInfo.ptcb-muonInfo.ptid ) ) {
+      if( std::abs( muonInfo.ptcb-muonInfo.ptms ) == std::abs( muonInfo.ptcb - muonInfo.ptid ) ) return; //This case returns weightID = weightMS = 0.5
+      if( std::abs( muonInfo.ptcb-muonInfo.ptms ) != 0 && std::abs( muonInfo.ptcb-muonInfo.ptms ) > std::abs( muonInfo.ptcb-muonInfo.ptid ) ) {
         R = ( muonInfo.ptid - muonInfo.ptcb )/( muonInfo.ptcb - muonInfo.ptms ); /* R~wMS/wID */
         Rplus = 1 + R;
         if ( Rplus != 0 && R > 0 ) {
@@ -2235,7 +2235,7 @@ namespace CP {
           return;
         }
       }
-      if ( fabs( muonInfo.ptcb-muonInfo.ptid ) != 0 && fabs( muonInfo.ptcb-muonInfo.ptms ) < fabs( muonInfo.ptcb-muonInfo.ptid ) ) {
+      if ( std::abs( muonInfo.ptcb-muonInfo.ptid ) != 0 && std::abs( muonInfo.ptcb-muonInfo.ptms ) < std::abs( muonInfo.ptcb-muonInfo.ptid ) ) {
         R = ( muonInfo.ptms - muonInfo.ptcb )/( muonInfo.ptcb - muonInfo.ptid ); /* R~wID/wMS */
         Rplus = 1 + R;
         if ( Rplus != 0 && R > 0 ) {
@@ -2247,8 +2247,8 @@ namespace CP {
     }
 
     
-    double wMS = muonInfo.ptms/muonInfo.ptcb/pow(SigmaMS,2);
-    double wID = muonInfo.ptid/muonInfo.ptcb/pow(SigmaID,2);
+    double wMS = muonInfo.ptms/muonInfo.ptcb/std::pow(SigmaMS,2);
+    double wID = muonInfo.ptid/muonInfo.ptcb/std::pow(SigmaID,2);
     muonInfo.weightID =  wID/(wMS + wID);
     muonInfo.weightMS =  wMS/(wMS + wID);
     return;
@@ -2382,25 +2382,25 @@ namespace CP {
     if ( DetType == MCAST::DetectorType::MS ) {
       ATH_MSG_VERBOSE("MS resolution");
       if (loc_ptms == 0) return 1e12;
-      double p0 = mc ? m_MC_p0_MS[loc_detRegion] : ( sqrt(m_MC_p0_MS[loc_detRegion]*m_MC_p0_MS[loc_detRegion] + m_p0_MS[loc_detRegion]*m_p0_MS[loc_detRegion]));
-      double p1 = mc ? m_MC_p1_MS[loc_detRegion] : ( sqrt(m_MC_p1_MS[loc_detRegion]*m_MC_p1_MS[loc_detRegion] + m_p1_MS[loc_detRegion]*m_p1_MS[loc_detRegion]));
-      double p2 = mc ? m_MC_p2_MS[loc_detRegion] : ( sqrt(m_MC_p2_MS[loc_detRegion]*m_MC_p2_MS[loc_detRegion] + m_p2_MS[loc_detRegion]*m_p2_MS[loc_detRegion]));
+      double p0 = mc ? m_MC_p0_MS[loc_detRegion] : ( std::sqrt(m_MC_p0_MS[loc_detRegion]*m_MC_p0_MS[loc_detRegion] + m_p0_MS[loc_detRegion]*m_p0_MS[loc_detRegion]));
+      double p1 = mc ? m_MC_p1_MS[loc_detRegion] : ( std::sqrt(m_MC_p1_MS[loc_detRegion]*m_MC_p1_MS[loc_detRegion] + m_p1_MS[loc_detRegion]*m_p1_MS[loc_detRegion]));
+      double p2 = mc ? m_MC_p2_MS[loc_detRegion] : ( std::sqrt(m_MC_p2_MS[loc_detRegion]*m_MC_p2_MS[loc_detRegion] + m_p2_MS[loc_detRegion]*m_p2_MS[loc_detRegion]));
     ATH_MSG_VERBOSE("p0,p1,p2 = "<<p0<<"  "<<p1<<"  "<<p2);
-      expRes =  sqrt( pow( p0/loc_ptms, 2 ) + pow( p1, 2 ) + pow( p2*loc_ptms ,2 ) );
+      expRes =  std::sqrt( std::pow( p0/loc_ptms, 2 ) + std::pow( p1, 2 ) + std::pow( p2*loc_ptms ,2 ) );
       ATH_MSG_VERBOSE("expRes = "<<expRes);
       return expRes; //+++++No SYS!!!
     }
     else if ( DetType == MCAST::DetectorType::ID ) {
       ATH_MSG_VERBOSE("ID resolution");
       if ( loc_ptid == 0 ) ATH_MSG_DEBUG( "ptid == 0" );
-      double p1 = mc ? m_MC_p1_ID[loc_detRegion] : ( sqrt(m_MC_p1_ID[loc_detRegion]*m_MC_p1_ID[loc_detRegion] + m_p1_ID[loc_detRegion]*m_p1_ID[loc_detRegion]));
-      double p2 = mc ? m_MC_p2_ID[loc_detRegion] : ( sqrt(m_MC_p2_ID[loc_detRegion]*m_MC_p2_ID[loc_detRegion] + m_p2_ID[loc_detRegion]*m_p2_ID[loc_detRegion]));
+      double p1 = mc ? m_MC_p1_ID[loc_detRegion] : ( std::sqrt(m_MC_p1_ID[loc_detRegion]*m_MC_p1_ID[loc_detRegion] + m_p1_ID[loc_detRegion]*m_p1_ID[loc_detRegion]));
+      double p2 = mc ? m_MC_p2_ID[loc_detRegion] : ( std::sqrt(m_MC_p2_ID[loc_detRegion]*m_MC_p2_ID[loc_detRegion] + m_p2_ID[loc_detRegion]*m_p2_ID[loc_detRegion]));
       if ( m_MC_p2_ID_TAN[loc_detRegion] != 0 && useTan2 ) {
-        p2 = mc ? m_MC_p2_ID_TAN[loc_detRegion] : ( sqrt(m_MC_p2_ID_TAN[loc_detRegion]*m_MC_p2_ID_TAN[loc_detRegion] + m_p2_ID_TAN[loc_detRegion]*m_p2_ID_TAN[loc_detRegion]));
+        p2 = mc ? m_MC_p2_ID_TAN[loc_detRegion] : ( std::sqrt(m_MC_p2_ID_TAN[loc_detRegion]*m_MC_p2_ID_TAN[loc_detRegion] + m_p2_ID_TAN[loc_detRegion]*m_p2_ID_TAN[loc_detRegion]));
         p2 = p2*sinh( mu.eta() )*sinh( mu.eta() );
       }
       ATH_MSG_VERBOSE("p1,p2 = "<<p1<<"  "<<p2);
-      expRes = sqrt( pow( p1, 2 ) + pow( p2*loc_ptid ,2 ) );
+      expRes = std::sqrt( std::pow( p1, 2 ) + std::pow( p2*loc_ptid ,2 ) );
       ATH_MSG_VERBOSE("expRes = "<<expRes);
       return expRes; //+++++No SYS!!!
     }
@@ -2408,14 +2408,14 @@ namespace CP {
       ATH_MSG_VERBOSE("CB resolution");
       // Due to complicated maths, the expected combined resolution
       // is given by this equation (note: all sigmas are fractional uncertainties):
-      // sigma_CB = sqrt(2) * sigma_ID * sigma_MS * pTMS * pTID / {pTCB * sqrt({sigma_ID*pTID}^2 + {sigma_MS*pTMS}^2)}
+      // sigma_CB = std::sqrt(2) * sigma_ID * sigma_MS * pTMS * pTID / {pTCB * std::sqrt({sigma_ID*pTID}^2 + {sigma_MS*pTMS}^2)}
       // Do a little recursive calling to make things easier to read
       // Turn these into *absolute* uncertainties to make life easier
       double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, mc ) * loc_ptid;
       double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, mc ) * loc_ptms;
       ATH_MSG_VERBOSE("sigmaID,sigmaMS = "<<sigmaID<<"  "<<sigmaMS);
-      double denominator = ( loc_ptcb ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
-      //return denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
+      double denominator = ( loc_ptcb ) * std::sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
+      //return denominator ? std::sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
       return denominator ?  sigmaID * sigmaMS / denominator : 0.;
     }
     else {
@@ -2866,14 +2866,14 @@ namespace CP {
         if((m_extra_p1_p2_MS_Misaligned.find(key) != m_extra_p1_p2_MS_Misaligned.end()) and (m_extra_p1_p2_MS_AlignedOnly.find(key) != m_extra_p1_p2_MS_AlignedOnly.end())) {
           std::pair<double, double> Misaligned = m_extra_p1_p2_MS_Misaligned.at(key);
           std::pair<double, double> AlignedOnly = m_extra_p1_p2_MS_AlignedOnly.at(key);
-          double reso_Misaligned = TMath::Sqrt(TMath::Power(Misaligned.first, 2) + TMath::Power(Misaligned.second*muonInfo.ptcb, 2));
-          double reso_AlignedOnly = TMath::Sqrt(TMath::Power(AlignedOnly.first, 2) + TMath::Power(AlignedOnly.second*muonInfo.ptcb, 2));
+          double reso_Misaligned = std::sqrt(std::pow(Misaligned.first, 2) + std::pow(Misaligned.second*muonInfo.ptcb, 2));
+          double reso_AlignedOnly = std::sqrt(std::pow(AlignedOnly.first, 2) + std::pow(AlignedOnly.second*muonInfo.ptcb, 2));
           double smear_mod = 0.;
           if(reso_Misaligned > reso_AlignedOnly) {
-            smear_mod = TMath::Sqrt(TMath::Power(reso_Misaligned, 2) - TMath::Power(reso_AlignedOnly, 2));
+            smear_mod = std::sqrt(std::pow(reso_Misaligned, 2) - std::pow(reso_AlignedOnly, 2));
           }
           // Taking 50% difference between perfectly aligned and misaligned samples
-          newSmear = TMath::Sqrt(TMath::Power(smear, 2) + var*TMath::Power(0.5*smear_mod, 2)); 
+          newSmear = std::sqrt(std::pow(smear, 2) + var*std::pow(0.5*smear_mod, 2)); 
           if(newSmear<0.) newSmear = 0.;
         }
         return newSmear; 
@@ -2883,9 +2883,9 @@ namespace CP {
         return 0;
       } else {
         if( m_Trel < MCAST::Release::Rel17_2_Sum13 ) {
-          p0_MS_var = pow( m_E_p0_MS[ muonInfo.detRegion ] * m_E_p0_MS[ muonInfo.detRegion ] + m_S_p0_MS[ muonInfo.detRegion ] * m_S_p0_MS[ muonInfo.detRegion ], 0.5 );
-          p1_MS_var = pow( m_E_p1_MS[ muonInfo.detRegion] * m_E_p1_MS[ muonInfo.detRegion ] + m_S_p1_MS[ muonInfo.detRegion ] * m_S_p1_MS[ muonInfo.detRegion ], 0.5 );
-          p2_MS_var = pow( m_E_p2_MS[ muonInfo.detRegion] * m_E_p2_MS[ muonInfo.detRegion ] + m_S_p2_MS[ muonInfo.detRegion ] * m_S_p2_MS[ muonInfo.detRegion ], 0.5 );
+          p0_MS_var = std::pow( m_E_p0_MS[ muonInfo.detRegion ] * m_E_p0_MS[ muonInfo.detRegion ] + m_S_p0_MS[ muonInfo.detRegion ] * m_S_p0_MS[ muonInfo.detRegion ], 0.5 );
+          p1_MS_var = std::pow( m_E_p1_MS[ muonInfo.detRegion] * m_E_p1_MS[ muonInfo.detRegion ] + m_S_p1_MS[ muonInfo.detRegion ] * m_S_p1_MS[ muonInfo.detRegion ], 0.5 );
+          p2_MS_var = std::pow( m_E_p2_MS[ muonInfo.detRegion] * m_E_p2_MS[ muonInfo.detRegion ] + m_S_p2_MS[ muonInfo.detRegion ] * m_S_p2_MS[ muonInfo.detRegion ], 0.5 );
         } else {//Syst are not more symmetric in the latest release, the stat/sys add in quadrature is already done
           p0_MS_var = var > 0. ? m_SUp_p0_MS[ muonInfo.detRegion ] : m_SDw_p0_MS[ muonInfo.detRegion ];
           p1_MS_var = var > 0. ? m_SUp_p1_MS[ muonInfo.detRegion ] : m_SDw_p1_MS[ muonInfo.detRegion ];
@@ -2904,9 +2904,9 @@ namespace CP {
       }
     } else if( DetType == MCAST::DetectorType::ID ) {
       if( m_Trel < MCAST::Release::Rel17_2_Sum13 ) {
-        p1_ID_var     = pow( m_E_p1_ID[ muonInfo.detRegion ] * m_E_p1_ID[ muonInfo.detRegion ] + m_S_p1_ID[ muonInfo.detRegion ] * m_S_p1_ID[ muonInfo.detRegion ], 0.5 );
-        p2_ID_var     = pow( m_E_p2_ID[ muonInfo.detRegion ] * m_E_p2_ID[ muonInfo.detRegion ] + m_S_p2_ID[ muonInfo.detRegion ] * m_S_p2_ID[ muonInfo.detRegion ], 0.5 );
-        p2_ID_TAN_var = pow( m_E_p2_ID_TAN[ muonInfo.detRegion ] * m_E_p2_ID_TAN[ muonInfo.detRegion ] + m_S_p2_ID_TAN[ muonInfo.detRegion ] * m_S_p2_ID_TAN[ muonInfo.detRegion ], 0.5 );
+        p1_ID_var     = std::pow( m_E_p1_ID[ muonInfo.detRegion ] * m_E_p1_ID[ muonInfo.detRegion ] + m_S_p1_ID[ muonInfo.detRegion ] * m_S_p1_ID[ muonInfo.detRegion ], 0.5 );
+        p2_ID_var     = std::pow( m_E_p2_ID[ muonInfo.detRegion ] * m_E_p2_ID[ muonInfo.detRegion ] + m_S_p2_ID[ muonInfo.detRegion ] * m_S_p2_ID[ muonInfo.detRegion ], 0.5 );
+        p2_ID_TAN_var = std::pow( m_E_p2_ID_TAN[ muonInfo.detRegion ] * m_E_p2_ID_TAN[ muonInfo.detRegion ] + m_S_p2_ID_TAN[ muonInfo.detRegion ] * m_S_p2_ID_TAN[ muonInfo.detRegion ], 0.5 );
       } else {//Syst are not more symmetric in the latest release, the stat/sys add in quadrature is already done
         p1_ID_var     = var > 0. ? m_SUp_p1_ID[ muonInfo.detRegion ] : m_SDw_p1_ID[ muonInfo.detRegion ];
         p2_ID_var     = var > 0. ? m_SUp_p2_ID[ muonInfo.detRegion ] : m_SDw_p2_ID[ muonInfo.detRegion ];
@@ -3015,11 +3015,11 @@ namespace CP {
 
     chi2   = 1e20;
     AmgVector(5) parsID = (*inDetTrackParticle)->definingParameters();;
-    parsID[4] = fabs(parsID[4]);
+    parsID[4] = std::abs(parsID[4]);
 
     AmgVector(5) parsMS = (*extrTrackParticle)->definingParameters();;
-    //int chargeMS = parsMS[4]/fabs(parsMS[4]);
-    parsMS[4] = fabs(parsMS[4]);
+    //int chargeMS = parsMS[4]/std::abs(parsMS[4]);
+    parsMS[4] = std::abs(parsMS[4]);
 
     AmgSymMatrix(5) covID = (*inDetTrackParticle)->definingParametersCovMatrix();
 
@@ -3036,7 +3036,7 @@ namespace CP {
     double dSigma[5] = { 1.0, 2.0/sin(parsMS[3]), 0.001, 0.001, 0.0};
     double factor[5];
     for ( int i = 0; i<5 ; i++ ) {
-      factor[i] = sqrt((covMS(i,i)+dSigma[i]*dSigma[i])/covMS(i,i));
+      factor[i] = std::sqrt((covMS(i,i)+dSigma[i]*dSigma[i])/covMS(i,i));
     }
     for ( int i = 0 ; i<5 ; i++ ) {
       for ( int j = 0 ; j<5 ; j++ ) {
@@ -3100,17 +3100,17 @@ namespace CP {
     // ::
     bool IsBadMuon = false;
     if( idtrack && metrack && cbtrack ) {
-      ATH_MSG_VERBOSE("ME ERROR "<<sqrt( metrack->definingParametersCovMatrix()(4,4) )<<" ID ERROR"<<sqrt( idtrack->definingParametersCovMatrix()(4,4) )<<" CB error "<<sqrt( cbtrack->definingParametersCovMatrix()(4,4) ));
+      ATH_MSG_VERBOSE("ME ERROR "<<std::sqrt( metrack->definingParametersCovMatrix()(4,4) )<<" ID ERROR"<<std::sqrt( idtrack->definingParametersCovMatrix()(4,4) )<<" CB error "<<std::sqrt( cbtrack->definingParametersCovMatrix()(4,4) ));
       // ::
       double qOverP_ME = metrack->qOverP();
-      double qOverPerr_ME = sqrt( metrack->definingParametersCovMatrix()(4,4) );
+      double qOverPerr_ME = std::sqrt( metrack->definingParametersCovMatrix()(4,4) );
       // ::
       // recipe for high-pt selection
-      // From Peter ( qOverPerr_ME*MCAST_GEV > sqrt( pow(0.07*fabs(qOverP_ME*MCAST_GEV),2) + pow(0.0005*sin(metrack->theta()),2) ) );
+      // From Peter ( qOverPerr_ME*MCAST_GEV > std::sqrt( std::pow(0.07*std::abs(qOverP_ME*MCAST_GEV),2) + std::pow(0.0005*sin(metrack->theta()),2) ) );
       // an other recipie....
-      ATH_MSG_VERBOSE("fabs("<<qOverPerr_ME<<"/"<<qOverP_ME<<") < sqrt( pow(8/"<<muonInfo.ptms<<",2) + pow(0.07,2) + pow(0.0005*"<<muonInfo.ptms<<",2))");
+      ATH_MSG_VERBOSE("std::abs("<<qOverPerr_ME<<"/"<<qOverP_ME<<") < std::sqrt( std::pow(8/"<<muonInfo.ptms<<",2) + std::pow(0.07,2) + std::pow(0.0005*"<<muonInfo.ptms<<",2))");
 
-      IsBadMuon = fabs(qOverPerr_ME / qOverP_ME)<sqrt( pow(8/muonInfo.ptms,2) + pow(0.07,2) + pow(0.0005*muonInfo.ptms,2));
+      IsBadMuon = std::abs(qOverPerr_ME / qOverP_ME)<std::sqrt( std::pow(8/muonInfo.ptms,2) + std::pow(0.07,2) + std::pow(0.0005*muonInfo.ptms,2));
     }
     ATH_MSG_VERBOSE( std::string(IsBadMuon ? " IS BAD MUON ": " IS GOOD MUON"));
     return IsBadMuon;
