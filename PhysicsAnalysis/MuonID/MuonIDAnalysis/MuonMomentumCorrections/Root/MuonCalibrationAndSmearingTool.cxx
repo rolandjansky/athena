@@ -3116,7 +3116,7 @@ namespace CP {
     return IsBadMuon;
   }
 
-  int MuonCalibrationAndSmearingTool::ConvertToMacroCategory( int raw_mst_category ) const {
+  int MuonCalibrationAndSmearingTool::ConvertToMacroCategory( const int raw_mst_category ) const {
 
     if( raw_mst_category < 0 ) {
       return MCAST::MST_Categories::Undefined;
