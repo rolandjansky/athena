@@ -37,6 +37,7 @@
 		#include "JetAnalysisInterfaces/IJetSelectorTool.h"
 //#include "BoostedJetTaggers/JSSTaggerBase.h"
 
+#include "JetUncertainties/Helpers.h"
 
 /*
 #include "BoostedJetTaggers/IJetSelectorLabelTool.h"
@@ -134,12 +135,6 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IFFJetSmearingTool
 
         double Read3DHistogram(TH3* histo, double x, double y, double z);
 
-	double My_Interpolate(TH3* histo, double x, double y, double z);
-
-Int_t My_FindBin(const TAxis* axis, const double x);
-
-
-double Interpolate2D(const TH1* histo, const double x, const double y, const int xAxis, const int yAxis, const int otherDimBin);
 
 
 

@@ -16,6 +16,7 @@
 #include "TFile.h"
 
 #include "AsgTools/MsgStreamMacros.h"
+	#include "AsgTools/AsgMessaging.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetAccessors.h"
@@ -187,6 +188,36 @@ std::vector<T> utils::vectorize(const TString& str, const TString& sep)
 }
 
 } // end jet namespace
+
+
+class TAxis;
+
+class Helpers /*: public asg::AsgMessaging*/
+//namespace Helpers
+{
+
+// Histogram reading helpers
+	//        double readHisto(const double var1, const double var2=0, const double var3=0) const;
+	//        double checkBoundaries(const TAxis* axis, const int numBins, const double valInput) const;
+
+        // Helper to have a const method for interpolation (why is there not a const version in ROOT???)
+public:
+        double Interpolate(const TH1* histo, const double x) const;
+        double Interpolate(const TH1* histo, const double x, const double y) const;
+        double Interpolate(const TH1* histo, const double x, const double y, const double z) const;
+        Int_t FindBin(const TAxis* axis, const double x) const;
+        
+        double Interpolate2D(const TH1* histo, const double x, const double y, const int xAxis=1, const int yAxis=2, const int otherDimBin=-1) const;
+
+	Int_t test();
+
+private:
+
+};
+
+
+
+
 
 #endif
 
