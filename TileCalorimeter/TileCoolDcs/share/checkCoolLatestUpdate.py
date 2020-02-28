@@ -1,4 +1,8 @@
 #!/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 import time
 from TileCoolDcs.TileDCSDataGrabber import TileDCSDataGrabber
 
@@ -12,15 +16,15 @@ variables  = ["FORDAQ_MBHV", "hvOut10"]
 now = int(time.time()) + 60*60*24
 
 
-print "\n\n   ====    SUMMARY OF LAST FOLDER/CHANNEL UPDATES   ======\n\n"
+print ("\n\n   ====    SUMMARY OF LAST FOLDER/CHANNEL UPDATES   ======\n\n")
 
 
 for var in variables:
     for part in partitions:
-        for num in xrange(1,65):
+        for num in range(1,65):
             strNum = ("0"+str(num))[-2:]
             drawer = part+strNum
             folder, chanNum = dg.info.get_folder_and_channel(var, drawer)
             iovSince = dg.getEntry(drawer, var, now)[1]
-            print folder, drawer," (",chanNum,")", " ---> ", time.ctime(iovSince/dg.unix2cool)," (",iovSince,")"
+            print (folder, drawer," (",chanNum,")", " ---> ", time.ctime(iovSince/dg.unix2cool)," (",iovSince,")")
 

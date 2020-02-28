@@ -427,20 +427,29 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
   ATH_MSG_INFO("Starting loop on events");
 
   EventID::number_type maxLB = 0;  // Max lumiblock number we have seen
-  bool loop_ended = false;
-  bool events_available = true; // DataCollector has more events
+  bool events_available = true; // Event source has more events
+  bool trigger_on_hold = false; // Event source temporarily paused providing events
+  bool loop_ended = false; // No more events available and all ongoing processing has finished
 
   while (!loop_ended) {
     ATH_MSG_DEBUG("Free processing slots = " << m_schedulerSvc->freeSlots());
     ATH_MSG_DEBUG("Free event data slots = " << m_whiteboard->freeSlots());
+
     if (m_schedulerSvc->freeSlots() != m_whiteboard->freeSlots()) {
       // Starvation detected - try to recover and return FAILURE if the recovery fails. This can only happen if there
       // is an unhandled error after popping an event from the scheduler and before clearing the event data slot for
       // this finished event. It's an extra protection in the unlikely case that failedEvent doesn't cover all errors.
       ATH_CHECK(recoverFromStarvation());
     }
-    // Normal event processing
-    else if (m_schedulerSvc->freeSlots()>0 && events_available) {
+
+    // Decide what to do in this event loop step
+    bool do_start_next_event = m_schedulerSvc->freeSlots()>0 && events_available && !trigger_on_hold;
+    bool do_drain_scheduler = !do_start_next_event;
+    // Clear the trigger_on_hold flag
+    if (trigger_on_hold) trigger_on_hold = false;
+
+    // Read in and start processing another event
+    if (do_start_next_event) {
       ATH_MSG_DEBUG("Free slots = " << m_schedulerSvc->freeSlots() << ". Reading the next event.");
 
       //------------------------------------------------------------------------
@@ -505,6 +514,16 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         if (sc.isFailure()) {
           ATH_MSG_WARNING("Failed to clear the whiteboard slot " << eventContext->slot()
                           << " after NoMoreEvents detected");
+        }
+        continue;
+      }
+      catch (const hltonl::Exception::NoEventsTemporarily& e) {
+        sc = StatusCode::SUCCESS;
+        trigger_on_hold = true;
+        sc = clearWBSlot(eventContext->slot());
+        if (sc.isFailure()) {
+          ATH_MSG_WARNING("Failed to clear the whiteboard slot " << eventContext->slot()
+                          << " after NoEventsTemporarily detected");
         }
         continue;
       }
@@ -588,8 +607,10 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       // We have passed the event to the scheduler and we are entering back a context-less environment
       Gaudi::Hive::setCurrentContext( EventContext() );
 
-    } // End of if(free slots && events available)
-    else {
+    } // End of if(do_start_next_event)
+
+    // Wait for events to finish processing and write their output
+    if (do_drain_scheduler) {
       ATH_MSG_DEBUG("No free slots or no more events to process - draining the scheduler");
       DrainSchedulerStatusCode drainResult = drainScheduler();
       if (drainResult==DrainSchedulerStatusCode::FAILURE) {

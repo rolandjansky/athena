@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,10 +7,7 @@
  -------------------------------------------
 ***************************************************************************/
 
-//<doc><file>   $Id: SCT_ID.cxx,v 1.43.2.1 2009-03-26 21:54:31 jtseng Exp $
-//<version>     $Name: not supported by cvs2svn $
 
-//<<<<<< INCLUDES                                                       >>>>>>
 #include "GaudiKernel/MsgStream.h"
 
 #include "InDetIdentifier/SCT_ID.h"
@@ -20,20 +17,7 @@
 #include <algorithm>
 #include <iostream>
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
-
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
 
 
 SCT_ID::SCT_ID(void)
@@ -453,49 +437,45 @@ SCT_ID::init_hashes(void)
 int             
 SCT_ID::get_prev_in_phi(const IdentifierHash& id, IdentifierHash& prev) const
 {
-    unsigned short index = id;
-    if (index < m_prev_phi_wafer_vec.size()) {
-        if (m_prev_phi_wafer_vec[index] == NOT_VALID_HASH) return (1);
-        prev =  m_prev_phi_wafer_vec[index];
-        return (0);
+    const auto result = nextInSequence(id,m_prev_phi_wafer_vec);
+    if (result != NOT_VALID_HASH){
+      prev=result;
+      return 0;
     }
-    return (1);
+    return 1;
 }
 
 int             
 SCT_ID::get_next_in_phi(const IdentifierHash& id, IdentifierHash& next) const
 {
-    unsigned short index = id;
-    if (index < m_next_phi_wafer_vec.size()) {
-        if (m_next_phi_wafer_vec[index] == NOT_VALID_HASH) return (1);
-        next =  m_next_phi_wafer_vec[index];
-        return (0);
+    const auto result = nextInSequence(id,m_next_phi_wafer_vec);
+    if (result != NOT_VALID_HASH){
+      next=result;
+      return 0;
     }
-    return (1);
+    return 1;
 }
 
 int             
 SCT_ID::get_prev_in_eta(const IdentifierHash& id, IdentifierHash& prev) const
 {
-    unsigned short index = id;
-    if (index < m_prev_eta_wafer_vec.size()) {
-        if (m_prev_eta_wafer_vec[index] == NOT_VALID_HASH) return (1);
-        prev =  m_prev_eta_wafer_vec[index];
-        return (0);
+    const auto result = nextInSequence(id,m_prev_eta_wafer_vec);
+    if (result != NOT_VALID_HASH){
+      prev=result;
+      return 0;
     }
-    return (1);
+    return 1;
 }
 
 int
 SCT_ID::get_next_in_eta(const IdentifierHash& id, IdentifierHash& next) const
 {
-    unsigned short index = id;
-    if (index < m_next_eta_wafer_vec.size()) {
-        if (m_next_eta_wafer_vec[index] == NOT_VALID_HASH) return (1);
-        next =  m_next_eta_wafer_vec[index];
-        return (0);
+    const auto result = nextInSequence(id,m_next_eta_wafer_vec);
+    if (result != NOT_VALID_HASH){
+      next=result;
+      return 0;
     }
-    return (1);
+    return 1;
 }
 
 int
@@ -642,21 +622,6 @@ SCT_ID::init_neighbors(void)
                 }
                 m_next_eta_wafer_vec[index] = hash_id;
             }
-            
-
-//          std::cout << " SCT_ID::init_neighbors "
-//                    << " phi, previous, next " << id[m_PHI_MODULE_INDEX]
-//                    << " " << pphi
-//                    << " " << previous_phi
-//                    << " " << nphi
-//                    << " " << next_phi
-//                    << " eta, previous, next " << id[m_ETA_MODULE_INDEX]
-//                    << " " << peta
-//                    << " " << previous_eta
-//                    << " " << neta
-//                    << " " << next_eta
-//                    << " id " << (std::string)(*first) 
-//                    << std::endl;
         }
     }
     return (0);
@@ -764,13 +729,7 @@ SCT_ID::initLevelsFromDict()
     	m_ROW_INDEX 	= field->m_index;
 	m_hasRows	= true		;
     }
-	    
-    else {
-
-    	//log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'row' field " << endmsg;
-	//return (1);
-    }
-
+	  
 
     field = m_dict->find_field("strip");
     if (field) {
@@ -825,16 +784,6 @@ SCT_ID::initLevelsFromDict()
 	}
         std::cout << " DEBUG strip    "  << m_strip_impl.show_to_string() << std::endl; 
     }
-    
-//      std::cout << "SCT_ID::initLevelsFromDict - found levels "       << std::endl;
-//      std::cout << "subdet        "   << m_INDET_INDEX        << std::endl;
-//      std::cout << "part          "   << m_SCT_INDEX          << std::endl;
-//      std::cout << "barrel_endcap "   << m_BARREL_EC_INDEX    << std::endl;
-//      std::cout << "layer or disk "   << m_LAYER_DISK_INDEX   << std::endl;
-//      std::cout << "phi_module    "   << m_PHI_MODULE_INDEX   << std::endl;
-//      std::cout << "eta_module    "   << m_ETA_MODULE_INDEX   << std::endl;
-//      std::cout << "side          "   << m_SIDE_INDEX         << std::endl;
-//      std::cout << "strip         "   << m_STRIP_INDEX        << std::endl;
 
     std::cout << "indet "  << m_indet_impl.decode_index() << " " 
               <<   (std::string)m_indet_impl.ored_field() << " " 

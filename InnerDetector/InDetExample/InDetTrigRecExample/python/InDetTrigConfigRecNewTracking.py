@@ -56,8 +56,8 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
                                                maxdImpact             = EFIDTrackingCutsCosmics.maxPrimaryImpact(),
                                                maxZ                   = EFIDTrackingCutsCosmics.maxZImpact(),
                                                minZ                   = -EFIDTrackingCutsCosmics.maxZImpact(),
-                                               SpacePointsPixelName   = 'SCT_CosmicsTrigSpacePoints',
-                                               SpacePointsSCTName     = 'PixelCosmicsTrigSpacePoints',
+                                               SpacePointsPixelName   = 'PixelCosmicsTrigSpacePoints',
+                                               SpacePointsSCTName     = 'SCT_CosmicsTrigSpacePoints',
                                                #SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                PRDtoTrackMap          = '')
     elif lowPt:

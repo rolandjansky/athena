@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCnv_p4.cxx 
@@ -255,12 +255,11 @@ void JetCnv_p4::transToPers( const Jet* trans,
   }
 
    SignalStateCnv statecnv;
-   trans->setSignalState(P4SignalState::CALIBRATED);
 
-   pers->m_ratioE  = statecnv.char_from_ratio(trans->getRawE()  / trans->e() );
-   pers->m_ratioPx = statecnv.char_from_ratio(trans->getRawPx() / trans->px());
-   pers->m_ratioPy = statecnv.char_from_ratio(trans->getRawPy() / trans->py());
-   pers->m_ratioPz = statecnv.char_from_ratio(trans->getRawPz() / trans->pz());
+   pers->m_ratioE  = statecnv.char_from_ratio(trans->getRawE()  / trans->e(P4SignalState::CALIBRATED) );
+   pers->m_ratioPx = statecnv.char_from_ratio(trans->getRawPx() / trans->px(P4SignalState::CALIBRATED));
+   pers->m_ratioPy = statecnv.char_from_ratio(trans->getRawPy() / trans->py(P4SignalState::CALIBRATED));
+   pers->m_ratioPz = statecnv.char_from_ratio(trans->getRawPz() / trans->pz(P4SignalState::CALIBRATED));
    
 
 

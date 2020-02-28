@@ -1,18 +1,20 @@
 #!/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Author: nils.gollub@cern.ch
 
-import sys, os, re
-import time
+from __future__ import print_function
+
+import sys, re
 import ROOT
 from TileCoolDcs import TileDCSDataInfo
 
 
 buffer=[]
 
-re_ai     = re.compile("ATLTILLV(\d{2})(:ELMB/LVCAN.*_)(\d*)/AI/M5VMB_TEMP2.value")
-re_states = re.compile("ATLTILLV(\d{2})(:ELMB/LVCAN.*_)(\d*)/states.ForDAQ_MBHV")
-re_hv     = re.compile("ATLTILLV(\d{2}):Drawer(\d*).Readings.Monitoring.hvOut1.value")
-re_hvset  = re.compile("ATLTILLV(\d{2}):Drawer(\d*).Readings.Requests.hvOut1.order")
+re_ai     = re.compile("ATLTILLV(\\d{2})(:ELMB/LVCAN.*_)(\\d*)/AI/M5VMB_TEMP2.value")
+re_states = re.compile("ATLTILLV(\\d{2})(:ELMB/LVCAN.*_)(\\d*)/states.ForDAQ_MBHV")
+re_hv     = re.compile("ATLTILLV(\\d{2}):Drawer(\\d*).Readings.Monitoring.hvOut1.value")
+re_hvset  = re.compile("ATLTILLV(\\d{2}):Drawer(\\d*).Readings.Requests.hvOut1.order")
 re_daq    = re.compile("ATLTILSCS:DAQ(.*).state")
 
 #=== mapping of system name number to partition
@@ -28,17 +30,17 @@ par = sys.argv
 info = TileDCSDataInfo.TileDCSDataInfo()
 dbstring=info.get_dbstring('ORACLE',int(par[1]) if len(par)>1 and par[1].isdigit() else 2)
 if dbstring is None:
-    print "Unknown DB"
+    print ("Unknown DB")
     sys.exit(2)
 
-print "Connecting to",dbstring[0]
+print ("Connecting to",dbstring[0])
 
 db = ROOT.TSQLServer.Connect( dbstring[0], dbstring[1], dbstring[2])
 
 
 statement  = "select ELEMENT_NAME, SYS_ID, DP_ID from ATLAS_PVSSTIL.elements"
 stmt = db.Statement(statement)
-if stmt.Process()==True:
+if stmt.Process() is True:
     stmt.StoreResult()
     while stmt.NextResultRow():
 
@@ -60,7 +62,8 @@ if stmt.Process()==True:
             partition = partitionID[int(result_ai.groups()[0])]
             drawer    = partition+('00'+result_ai.groups()[2])[-2:]
             oracleId  = "ATLTILLV"
-            for part in result_ai.groups(): oracleId += part
+            for part in result_ai.groups():
+                oracleId += part
             oracleId += "/AI"
             buffer.append( "/TILE/DCS/AI\t%s\t%s\t%s\n"%(drawer,channel_id,oracleId) )
 
@@ -68,7 +71,8 @@ if stmt.Process()==True:
             partition = partitionID[int(result_states.groups()[0])]
             drawer    = partition+('00'+result_states.groups()[2])[-2:]
             oracleId  = "ATLTILLV"
-            for part in result_states.groups(): oracleId += part
+            for part in result_states.groups():
+                oracleId += part
             oracleId += "/states"
             buffer.append( "/TILE/DCS/STATES\t%s\t%s\t%s\n"%(drawer,channel_id,oracleId) )
 
@@ -100,8 +104,8 @@ if stmt.Process()==True:
 #=== write file
 oldname=info.find_data_file("cool_channel_id.dat")
 newname="cool_channel_id.dat"
-print "Old file:", oldname
-print "New file:", newname
+print ("Old file:", oldname)
+print ("New file:", newname)
 buffer.sort()
 file = open(newname,"w")
 for item in buffer:
