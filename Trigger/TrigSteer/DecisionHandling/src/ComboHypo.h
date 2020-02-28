@@ -25,6 +25,8 @@
  * the multiplicity specification like this:
  * "HLT_4e10_2mu7_j100" : [ 4, 2, 1 ] will apply respectively requirement of 4, 2, 1 positive decisions in electron, muon and jet inputs
  **/
+
+
 class ComboHypo : public ::AthReentrantAlgorithm {
 public:
   ComboHypo(const std::string& name, ISvcLocator* pSvcLocator);
@@ -52,7 +54,7 @@ private:
   **/
   
   StatusCode copyDecisions( std::map<TrigCompositeUtils::DecisionID, std::vector< std::pair<uint32_t,uint16_t> >> & passingComb, const EventContext& context ) const;
-  //StatusCode copyDecisions( const TrigCompositeUtils::DecisionIDContainer& passing, const EventContext& context ) const;
+
 
   /**
    * @brief For a given Decision node from a HypoAlg, extracts type-less identification data on the node's Feature and seeding ROI.
@@ -74,7 +76,6 @@ private:
 
   StatusCode fillDecisionsMap( CombinationMap& dmap, const EventContext& context) const;
 
-  // ComboHypoTools
   ToolHandleArray< IComboHypoTool > m_hypoTools {this, "ComboHypoTools", {}, "Tools to perform selection"};
 
 };

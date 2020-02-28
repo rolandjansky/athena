@@ -42,9 +42,9 @@ def getThreshold(chainDict, signature):
 
 
 def dimuDrComboHypoTool(chainDict):
-    from DecisionHandling.DecisionHandlingConf import dR2RoIComboHypoTool
+    from DecisionHandling.DecisionHandlingConf import DeltaRRoIComboHypoTool
     name = chainDict['chainName']
-    tool= dR2RoIComboHypoTool(name)
+    tool= DeltaRRoIComboHypoTool(name)
     tool.DRcut=0.3
     return tool
 
