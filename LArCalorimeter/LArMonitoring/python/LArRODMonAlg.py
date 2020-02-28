@@ -2,16 +2,35 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-def LArRODMonConfig(inputFlags, cellDebug=False, dspDebug=False):
+def LArRODMonConfigOld(inputFlags,cellDebug=False, dspDebug=False):
+    from AthenaMonitoring import AthMonitorCfgHelperOld
+    from LArMonitoring.LArMonitoringConf import  LArRODMonAlg
+
+    helper = AthMonitorCfgHelperOld(inputFlags, 'LArRODMonCfg')
+    LArRODMonConfigCore(helper, LArRODMonAlg,inputFlags,cellDebug, dspDebug)
+
+    return helper.result()
+
+def LArRODMonConfig(inputFlags,cellDebug=False, dspDebug=False):
 
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArRODMonCfg')
 
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    
+    
+    LArRODMonConfigCore(helper, CompFactory.LArRODMonAlg,inputFlags,cellDebug, dspDebug)
+
+    return helper.result()
+
+
+def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDebug=False):
+
+    larRODMonAlg = helper.addAlgorithm(algoinstance,'larRODMonAlg')
+
     from LArMonitoring.GlobalVariables import lArDQGlobals
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    larRODMonAlg = helper.addAlgorithm(CompFactory.LArRODMonAlg,'larRODMonAlg')
-
+    
     GroupName="RODMon"
     nslots=[]
     for i in range(0,len(lArDQGlobals.FEB_Slot)): 
@@ -43,17 +62,25 @@ def LArRODMonConfig(inputFlags, cellDebug=False, dspDebug=False):
 
     #from AthenaCommon.Constants import VERBOSE
     #larRODMonAlg.OutputLevel=VERBOSE
-
-    # adding BadChan masker private tool
-    from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
-    acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys","almostDead","short","sporadicBurstNoise"],ToolName="BadLArChannelMask")
-    larRODMonAlg.LArBadChannelMask=acc.popPrivateTools()
-    helper.resobj.merge(acc)
+    from AthenaCommon.Configurable import Configurable
+    if Configurable.configurableRun3Behavior :
+        # adding BadChan masker private tool
+        from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
+        acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys","almostDead","short","sporadicBurstNoise"],ToolName="BadLArChannelMask")
+        larRODMonAlg.LArBadChannelMask=acc.popPrivateTools()
+        helper.resobj.merge(acc)
+    else :
+        from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
+        theLArBadChannelsMasker=LArBadChannelMasker("BadLArRawChannelMask")
+        theLArBadChannelsMasker.DoMasking=True
+        theLArBadChannelsMasker.ProblemsToMask=["deadReadout","deadPhys","short","almostDead","highNoiseHG","highNoiseMG","highNoiseLG","sporadicBurstNoise"]
+        larRODMonAlg.LArBadChannelMask=theLArBadChannelsMasker
+    
 
     Group = helper.addGroup(
         larRODMonAlg,
         GroupName,
-        '/LAr/DSPMonitoring'
+        '/LAr/DSPMonitoringNewAlg'
     )
 
 
@@ -135,7 +162,7 @@ def LArRODMonConfig(inputFlags, cellDebug=False, dspDebug=False):
           )
 
     #DQMD histos
-    dqmd_hist_path='/LAr/DSPMonitoring/DQMD/'
+    dqmd_hist_path='/LAr/DSPMonitoringNewAlg/DQMD/'
     darray = helper.addArray([lArDQGlobals.Partitions+['all']],larRODMonAlg,"RODMon")
     darray.defineHistogram('Ediff,Erange;DE_ranges', title='E_{online} - E_{offline} for all ranges : E_{offline} - E_{online} (MeV) : Energy range ',
                            type='TH2F', path=dqmd_hist_path,
@@ -143,7 +170,7 @@ def LArRODMonConfig(inputFlags, cellDebug=False, dspDebug=False):
                            ybins=lArDQGlobals.DSPRanges_Bins, ymin=lArDQGlobals.DSPRanges_Min, ymax=lArDQGlobals.DSPRanges_Max,
                            #labels=?+lArDQGlobals.DSPRanges # how to put labels only on Y-axis ?
           )
-    dqmd_hist_path='/LAr/DSPMonitoring/DQMD/'
+    dqmd_hist_path='/LAr/DSPMonitoringNewAlg/DQMD/'
     darray = helper.addArray([lArDQGlobals.Partitions+['all']],larRODMonAlg,"RODMon")
     darray.defineHistogram('Ediff,Erange;DE_ranges', title='E_{online} - E_{offline} for all ranges : E_{offline} - E_{online} (MeV) : Energy range ',
                            type='TH2F', path=dqmd_hist_path,
@@ -153,7 +180,7 @@ def LArRODMonConfig(inputFlags, cellDebug=False, dspDebug=False):
           )
 
     #per partition, currently in one dir only
-    part_hist_path='/LAr/DSPMonitoring/perPartition/'
+    part_hist_path='/LAr/DSPMonitoringNewAlg/perPartition/'
     darray.defineHistogram('Ediff;DE', title='E_{offline} - E_{online}:E_{offline} - E_{online}',
                            type='TH1F', path=part_hist_path,
                            xbins=lArDQGlobals.DSPEnergy_Bins, xmin=lArDQGlobals.DSPEnergy_Min, xmax=lArDQGlobals.DSPEnergy_Max)
