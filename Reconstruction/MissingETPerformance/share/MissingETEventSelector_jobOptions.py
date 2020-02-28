@@ -59,4 +59,4 @@ if MissingETEventSelector.SelectionType == "passesMBTSCut":
     include( "RecExCond/AllDet_detDescr.py")
 
 ToolSvc += MissingETEventSelector
-print      MissingETEventSelector
+printfunc (     MissingETEventSelector)
