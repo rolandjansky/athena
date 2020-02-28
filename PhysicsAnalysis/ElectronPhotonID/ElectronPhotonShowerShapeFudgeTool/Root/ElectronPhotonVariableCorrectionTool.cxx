@@ -39,25 +39,8 @@ ElectronPhotonVariableCorrectionTool::ElectronPhotonVariableCorrectionTool(const
 }
 
 // ===========================================================================
-// Standard Destructor
+// Initialize
 // ===========================================================================
-ElectronPhotonVariableCorrectionTool::~ElectronPhotonVariableCorrectionTool()
-{
-    //check status code of finalize
-    if(finalize().isFailure())
-    {
-        ATH_MSG_ERROR( "Failure in ElectronPhotonVariableCorrectionTool finalize()");
-    }
-}
-
-// ===========================================================================
-// Initialize and Finalize
-// ===========================================================================
-StatusCode ElectronPhotonVariableCorrectionTool::finalize()
-{
-    return StatusCode::SUCCESS;
-}
-
 StatusCode ElectronPhotonVariableCorrectionTool::initialize()
 {
     // Locate configuration file, abort if not found

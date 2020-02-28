@@ -21,8 +21,10 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 
+//Root includes
+#include "TF1.h"
+
 // forward declarations
-class TF1;
 class TGraph;
 class TFile;
 class TEnv;
@@ -38,12 +40,10 @@ class ElectronPhotonVariableCorrectionTool : public asg::AsgTool, virtual public
 
 public:
     ElectronPhotonVariableCorrectionTool(const std::string& myname);
-    ~ElectronPhotonVariableCorrectionTool();
+    ~ElectronPhotonVariableCorrectionTool() {};
 
     /** Gaudi Service Interface method implementations */
     StatusCode initialize() override;
-    /** Gaudi Service Interface method implementations */
-    StatusCode finalize(); //does finalize need to be public? It's called in the destructor...
 
     const CP::CorrectionCode applyCorrection( xAOD::Photon& photon ) const override;
     const CP::CorrectionCode applyCorrection( xAOD::Electron& electron ) const override;
