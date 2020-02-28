@@ -438,7 +438,7 @@ class MenuSequence(object):
                            self._hypo.Alg.name(), input_maker_output, self._hypo.Alg.name(), self._hypo.readOutputList()[0])
 
 
-    def configureHypoTool(self, chainDict):
+    def createHypoTools(self, chainDict):
         if type(self._hypoToolConf) is list:
             log.warning ("This sequence %s has %d multiple HypoTools ",self.sequence.name, len(self.hypoToolConf))
             for hypo, hypoToolConf in zip(self._hypo, self._hypoToolConf):
@@ -630,12 +630,12 @@ class Chain(object):
                 chainDict = listOfChainDictsLegs[0]
                 chainDict['chainName']= self.name # rename the chaindict to remove the leg name
                 for seq in step.sequences:
-                    seq.configureHypoTool( chainDict ) #this creates the HypoTools                    
+                    seq.createHypoTools( chainDict ) #this creates the HypoTools                    
                 continue
 
             # add one hypotool per sequence and chain part
             for seq, onePartChainDict in zip(step.sequences, listOfChainDictsLegs):
-                seq.configureHypoTool( onePartChainDict )#this creates the HypoTools
+                seq.createHypoTools( onePartChainDict )#this creates the HypoTools
 
 
     def __repr__(self):
