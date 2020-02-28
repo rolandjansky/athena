@@ -843,33 +843,13 @@ class L2EFChain_mu(L2EFChainDef):
                              [theL2StandAloneHypo],
                              'L2_mu_hypo1']] 
 
-    EFinputTE = ''
-
-    if "L2Star" in self.chainPart['L2IDAlg']:                             # ---> this is Run1 tracking - keep it here
-      from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonA     # ---> this is Run1 tracking - keep it here
-      theTrigL2SiTrackFinder_MuonA = TrigL2SiTrackFinder_MuonA()
-      from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonB
-      theTrigL2SiTrackFinder_MuonB = TrigL2SiTrackFinder_MuonB()
-      from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonC
-      theTrigL2SiTrackFinder_MuonC = TrigL2SiTrackFinder_MuonC()
-
-      self.L2sequenceList += [[['L2_mu_step1'],
-                               [theTrigL2SiTrackFinder_MuonA, 
-                                theTrigL2SiTrackFinder_MuonB,
-                                theTrigL2SiTrackFinder_MuonC, 
-                                theL2CombinedAlg],
-                               'L2_mu_step2']]
-      self.L2sequenceList += [[['L2_mu_step2'],
-                               [theL2CombinedHypo],
-                               'L2_mu_hypo2']]
-    else:
-      self.L2sequenceList += [[['L2_mu_step1'],
-                               trkfast+
-                               [theL2CombinedAlg],
-                               'L2_mu_step2']]
-      self.L2sequenceList += [[['L2_mu_step2'],
-                               [theL2CombinedHypo],
-                                'L2_mu_hypo2']]
+    self.L2sequenceList += [[['L2_mu_step1'],
+                             trkfast+
+                             [theL2CombinedAlg],
+                             'L2_mu_step2']]
+    self.L2sequenceList += [[['L2_mu_step2'],
+                             [theL2CombinedHypo],
+                              'L2_mu_hypo2']]
 
     EFinputTE = 'L2_mu_step2'
 
