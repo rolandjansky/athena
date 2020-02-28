@@ -341,13 +341,16 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
           caloExtension = uniqueExtension.get();
         }
 
-        const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = caloExtension->caloLayerIntersections();
-
-        if (!caloExtension or clParametersVector.empty() )
+        if (!caloExtension)
         { 
             ATH_MSG_DEBUG("Track extrapolation failed");
         }
         else {
+            const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = caloExtension->caloLayerIntersections();
+            if (clParametersVector.empty()) {
+              ATH_MSG_DEBUG("Track extrapolation failed");
+            }
+
             ATH_MSG_DEBUG("Scanning samplings");
             bool validECal = false;
             bool validHCal = false;
