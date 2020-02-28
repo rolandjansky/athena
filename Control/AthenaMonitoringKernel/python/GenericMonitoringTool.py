@@ -202,7 +202,6 @@ def _options(opt):
 #  @param zlabels  List of x bin labels.
 #  @param merge    Merge method to use for object, if not default. Possible algorithms for offline DQM
 #                  are given in https://twiki.cern.ch/twiki/bin/view/Atlas/DQMergeAlgs
-#  @ingroup MonAPI
 def defineHistogram(varname, type='TH1F', path=None,
                     title=None, weight=None, alias=None,
                     xbins=100, xmin=0, xmax=1, xlabels=None,

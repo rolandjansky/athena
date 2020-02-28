@@ -30,11 +30,13 @@ namespace Monitored {
    *
    * @see Monitored::Collection
    * @see Monitored::Timer
-   * @ingroup MonAPI
    */
   template <class T> class Scalar : public IMonitoredVariable {
   public:
     static_assert(std::is_convertible<T, double>::value or std::is_constructible<std::string, T>::value, "Conversion of scalar template type to double or string is impossible");
+
+    /** @name Client API */
+    ///@{
 
     /**
      * %Scalar with optional default value.
@@ -44,7 +46,6 @@ namespace Monitored {
      *
      * #### Example
      * @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromScalar
-     * @ingroup MonAPI
      */
     Scalar(std::string name, const T& defaultValue = {}) :
         IMonitoredVariable(std::move(name)),
@@ -61,7 +62,6 @@ namespace Monitored {
      *
      * #### Example
      * @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromScalarTrf
-     * @ingroup MonAPI
      */
     Scalar(std::string name, const T& defaultValue, std::function<double(const T&)> valueTransform) :
         IMonitoredVariable(std::move(name)),
@@ -77,7 +77,6 @@ namespace Monitored {
      *
      * #### Example
      * @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromNonTrivialSources_lambda
-     * @ingroup MonAPI
      */
     Scalar(std::string name, std::function<T()> generator) :
       IMonitoredVariable(std::move(name)),
@@ -85,6 +84,8 @@ namespace Monitored {
       m_valueTransform(),
       m_valueGenerator( generator )
     {}
+
+    ///@}
 
     Scalar(Scalar&&) = default;
     Scalar(Scalar const&) = delete;

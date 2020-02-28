@@ -81,8 +81,6 @@ namespace Monitored {
  * Optionally, a colon-separated list of bin labels ("bin1:bin2:bin3:") can be provided (at least one
  * colon is required). In case of a 2D histogram the labels are assigned consecutively to the x-axis 
  * and then y-axis bins.
- *
- * @ingroup MonAPI
  */
 class GenericMonitoringTool : public AthAlgTool {
 public:
