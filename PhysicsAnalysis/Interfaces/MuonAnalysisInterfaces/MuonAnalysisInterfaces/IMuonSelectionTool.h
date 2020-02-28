@@ -28,6 +28,18 @@ namespace CP {
       ASG_TOOL_INTERFACE( CP::IMuonSelectionTool )
 
    public:
+
+      ///Enum for resolution categories, the "merged" categories Zero to Four group together categories with similar resolution
+      enum ResolutionCategory {
+	unclassified=-1, missingInner=1, missingMiddle=1<<1, missingOuter=1<<2, highPt2station=1<<3, highPt=1<<4,
+	spoiledCSC=1<<5, BEoverlap=1<<6, BIS78=1<<7, missingBEE=1<<8, oneStation=1<<9,
+	CategoryZero = missingInner | spoiledCSC | BEoverlap | BIS78 | missingBEE, 
+	CategoryOne = missingMiddle | oneStation, 
+	CategoryTwo = missingOuter, 
+	CategoryThree = highPt2station, 
+	CategoryFour = highPt
+      };
+
       /// Decide whether the muon in question is a "good muon" or not
       virtual const asg::AcceptInfo& getAcceptInfo() const = 0;
 
@@ -73,6 +85,9 @@ namespace CP {
 
      /// Returns true if the muon passes additional calo-tag quality cuts
      virtual bool passedCaloTagQuality (const xAOD::Muon& mu) const = 0;
+
+     /// Returns an integer corresponding to categorization of muons with different resolutions
+     virtual int getResolutionCategory(const xAOD::Muon&) const=0;
 
    }; // class IMuonSelectionTool
 
