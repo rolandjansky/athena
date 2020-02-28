@@ -14,11 +14,8 @@ from DerivationFrameworkMCTruth.TruthDerivationTools import *
 streamName = derivationFlags.WriteDAOD_TRUTH5Stream.StreamName
 fileName = buildFileName( derivationFlags.WriteDAOD_TRUTH5Stream )
 TRUTH5Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="TRUTH5ThinningSvc", outStreams=[evtStream] )
 
 # Only events that pass the filters listed are written out
 # AcceptAlgs  = logical OR of filters
@@ -79,7 +76,7 @@ DerivationFrameworkJob += metAlg
 #==============================================================================
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 TRUTH5TruthThinning = DerivationFramework__MenuTruthThinning(name                      = "TRUTH5TruthThinning",
-                                                            ThinningService            = "TRUTH5ThinningSvc",
+                                                            StreamName                 = streamName,
                                                             WritePartons               = False,
                                                             WriteHadrons               = False,
                                                             WriteBHadrons              = True,

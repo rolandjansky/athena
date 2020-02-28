@@ -15,11 +15,8 @@ augmentationTools = []
 streamName = derivationFlags.WriteDAOD_TRUTH1Stream.StreamName
 fileName = buildFileName( derivationFlags.WriteDAOD_TRUTH1Stream )
 TRUTH1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="TRUTH1ThinningSvc", outStreams=[evtStream] )
 
 # Only events that pass the filters listed are written out
 # AcceptAlgs  = logical OR of filters
@@ -133,7 +130,7 @@ if len(f.infos['run_number']) > 0:
 #==============================================================================
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 TRUTH1TruthThinning = DerivationFramework__MenuTruthThinning(name                      = "TRUTH1TruthThinning",
-                                                            ThinningService            = "TRUTH1ThinningSvc",
+                                                            StreamName                 = streamName,
                                                             WritePartons               = False,
                                                             WriteHadrons               = False,
                                                             WriteBHadrons              = True,

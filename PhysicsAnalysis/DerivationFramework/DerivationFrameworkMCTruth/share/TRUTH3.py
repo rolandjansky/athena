@@ -144,11 +144,8 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH3Ke
 streamName = derivationFlags.WriteDAOD_TRUTH3Stream.StreamName
 fileName = buildFileName( derivationFlags.WriteDAOD_TRUTH3Stream )
 TRUTH3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="TRUTH3ThinningSvc", outStreams=[evtStream] )
 
 # Only events that pass the filters listed are written out
 # AcceptAlgs  = logical OR of filters
