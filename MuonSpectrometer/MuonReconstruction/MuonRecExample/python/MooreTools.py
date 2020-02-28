@@ -257,6 +257,10 @@ def MooTrackBuilder(name="MooTrackBuilderTemplate",
         oldMatchingToolName = getProperty(builder,"CandidateMatchingTool").getName()
         newMatchingToolName = namePrefix+oldMatchingToolName+namePostfix
         builder.CandidateMatchingTool = getPublicToolClone(newMatchingToolName,oldMatchingToolName,extraFlags=extraFlags)
+
+    import MuonCombinedRecExample.CombinedMuonTrackSummary
+    from AthenaCommon.AppMgr import ToolSvc
+    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
     
     return builder
 
