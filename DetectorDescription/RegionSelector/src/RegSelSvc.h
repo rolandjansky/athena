@@ -513,7 +513,6 @@ private:
 
   BooleanProperty                    m_initFTK;
   ToolHandle<IRegionIDLUT_Creator>   m_lutCreatorToolFTK;
-  RegSelSiLUT*                       m_ftklut{nullptr};
 
   bool m_duplicateRemoval;
 
