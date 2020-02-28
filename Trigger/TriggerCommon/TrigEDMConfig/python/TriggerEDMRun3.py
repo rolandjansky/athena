@@ -99,8 +99,12 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigElectronContainer#HLT_L2Electrons',                 'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
     ('xAOD::TrigElectronAuxContainer#HLT_L2ElectronsAux.',          'BS ESD AODFULL', 'Egamma'),
 
-    ('xAOD::TrackParticleContainer#HLT_xAODTracks_Electron',        'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_ElectronAux.', 'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_FTF',        'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_FTFAux.', 'BS ESD AODFULL', 'Egamma'),
+
+#   ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_IDTrig',        'BS ESD AODFULL', 'Egamma', 'inViews:EMElectronViews'),
+#   ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_IDTrigAux.', 'BS ESD AODFULL', 'Egamma'),
+
     
     #these two corresponds to the output of the precisionCalo step
     ('xAOD::CaloClusterContainer#HLT_CaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews'),
@@ -130,17 +134,20 @@ TriggerHLTListRun3 = [
     # Muon
 
     #Id track particles
-    ('xAOD::TrackParticleContainer#HLT_xAODTracks_Muon',                 'BS ESD AODFULL', 'Muon', 'inViews:MUCombViewRoIs'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_MuonAux.',          'BS ESD AODFULL', 'Muon'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_Muon_FTF',                 'BS ESD AODFULL', 'Muon', 'inViews:MUCombViewRoIs'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Muon_FTFAux.',          'BS ESD AODFULL', 'Muon'),
 
-    ('xAOD::TrackParticleContainer#HLT_xAODTracks_MuonFS',                 'BS ESD AODFULL', 'Muon', 'inViews:MUCBFSViews'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_MuonFSAux.',          'BS ESD AODFULL', 'Muon'),
+#   ('xAOD::TrackParticleContainer#HLT_IDTrack_Muon_IDTrig',                 'BS ESD AODFULL', 'Muon', 'inViews:MUCombViewRoIs'),
+#   ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Muon_IDTrigAux.',          'BS ESD AODFULL', 'Muon'),
 
-    ('xAOD::TrackParticleContainer#HLT_xAODTracks_MuonIso',                 'BS ESD AODFULL', 'Muon', 'inViews:MUEFIsoViewRoIs'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_MuonIsoAux.',          'BS ESD AODFULL', 'Muon'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_MuonFS_FTF',                 'BS ESD AODFULL', 'Muon', 'inViews:MUCBFSViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_MuonFS_FTFAux.',          'BS ESD AODFULL', 'Muon'),
 
-    ('xAOD::TrackParticleContainer#HLT_xAODTracks_MuonLate',                 'BS ESD AODFULL', 'Muon', 'inViews:MUEFLATEViewRoIs'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_MuonLateAux.',          'BS ESD AODFULL', 'Muon'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_MuonIso_FTF',                 'BS ESD AODFULL', 'Muon', 'inViews:MUEFIsoViewRoIs'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_MuonIso_FTFAux.',          'BS ESD AODFULL', 'Muon'),
+
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_MuonLate_FTF',                 'BS ESD AODFULL', 'Muon', 'inViews:MUEFLATEViewRoIs'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_MuonLate_FTFAux.',          'BS ESD AODFULL', 'Muon'),
 
     #bphys
     ('xAOD::TrigBphysContainer#TrigBphysDimu',                              'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'Bphys'),
@@ -200,14 +207,17 @@ TriggerHLTListRun3 = [
 
     # Tau
 
-    ('xAOD::TrackParticleContainer#HLT_xAODTracks_TauCore',                 'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFCoreViews'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_TauCoreAux.',          'BS ESD AODFULL', 'Tau'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_TauCore_FTF',                 'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFCoreViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_TauCore_FTFAux.',          'BS ESD AODFULL', 'Tau'),
 
-    ('xAOD::TrackParticleContainer#HLT_xAODTracks_TauIso',                 'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFIsoViews'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_TauIsoAux.',          'BS ESD AODFULL', 'Tau'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_TauIso_FTF',                 'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFIsoViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_TauIso_FTFAux.',          'BS ESD AODFULL', 'Tau'),
 
-    ('xAOD::TrackParticleContainer#HLT_xAODTracks_Tau',                 'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFIdViews'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_TauAux.',          'BS ESD AODFULL', 'Tau'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_Tau_FTF',                 'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFIdViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Tau_FTFAux.',          'BS ESD AODFULL', 'Tau'),
+
+#   ('xAOD::TrackParticleContainer#HLT_IDTrack_Tau_IDTrig',                 'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFIdViews'),
+#   ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Tau_IDTrigAux.',          'BS ESD AODFULL', 'Tau'),
 
     # Jet
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS',                      'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
@@ -252,8 +262,8 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',              'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftfAux.',       'BS ESD AODFULL', 'Jet'),
 
-    ('xAOD::TrackParticleContainer#HLT_xAODTracks_FS',                 'BS ESD AODFULL', 'Jet'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_FSAux.',          'BS ESD AODFULL', 'Jet'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_FS_FTF',                 'BS ESD AODFULL', 'Jet'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_FS_FTFAux.',          'BS ESD AODFULL', 'Jet'),
 
     # MET
     ('xAOD::TrigMissingETContainer#HLT_MET_cell',                               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
@@ -307,8 +317,13 @@ TriggerHLTListRun3 = [
     ('xAOD::TauTrackAuxContainer#HLT_tautrack_PreselAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     #bjet Second Stage Fast tracks 
-    ('xAOD::TrackParticleContainer#HLT_xAODTracks_bjet',        'BS ESD AODFULL', 'Bjet', 'inViews:BTagViews'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_bjetAux.', 'BS ESD AODFULL', 'Bjet'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_Bjet_FTF',        'BS ESD AODFULL', 'Bjet', 'inViews:BTagViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Bjet_FTFAux.', 'BS ESD AODFULL', 'Bjet'),
+
+    #bjet Second Stage Precision tracks 
+#   ('xAOD::TrackParticleContainer#HLT_IDTrack_Bjet_IDTrig',        'BS ESD AODFULL', 'Bjet', 'inViews:BTagViews'),
+#   ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Bjet_IDTrigAux.', 'BS ESD AODFULL', 'Bjet'),
+
 
     #bjet jets
     ('xAOD::JetContainer#HLT_GSCJet',                             'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:FullScanBjetView'),
@@ -323,13 +338,13 @@ TriggerHLTListRun3 = [
     ('xAOD::BTaggingAuxContainer#HLT_BTaggingAux.',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
 
     # MinBias
-    ('xAOD::TrackParticleContainer#HLT_xAODTracksMinBias',                 'BS ESD AODFULL', 'MinBias'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracksMinBiasAux.',          'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_MinBias',                 'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_MinBiasAux.',          'BS ESD AODFULL', 'MinBias'),
 
     # ID
     # Requested by TrigUpgradeTest/IDCalo.py
-    ('xAOD::TrackParticleContainer#HLT_xAODTracks',                        'BS ESD AODFULL', 'ID'),
-    ('xAOD::TrackParticleAuxContainer#HLT_xAODTracksAux.',                 'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack',                        'BS ESD AODFULL', 'ID'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrackAux.',                 'BS ESD AODFULL', 'ID'),
 
     ('ROIB::RoIBResult#*',                         'ESD', 'Misc'), 
 
