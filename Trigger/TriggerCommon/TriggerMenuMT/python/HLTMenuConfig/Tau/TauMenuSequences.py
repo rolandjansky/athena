@@ -6,7 +6,8 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
-from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIdSequence, tauFTFTrackSequence, tauFTFTrackTwoSequence
+
+from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIdSequence, tauFTFTrackSequence, tauFTFTrackTwoSequence, tauEFSequence
 
 # ====================================================================================================  
 #    Get MenuSequences
@@ -159,3 +160,20 @@ def tauTwoStepTrackSeqIso():
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
 
 
+# ===============================================================================================                                             #                                                                                                                                             # ===============================================================================================                                                                                 
+
+
+def tauTrackTwoEFSeq():
+
+    (sequence, efViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauEFSequence,ConfigFlags )
+
+    from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlgMT
+    precisionHypo = TrigEFTauMVHypoAlgMT("EFTauMVHypoAlg")
+    precisionHypo.taujetcontainer = sequenceOut
+
+    from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
+
+    return  MenuSequence( Sequence    = sequence,
+                          Maker       = efViewsMaker,
+                          Hypo        = precisionHypo,
+                          HypoToolGen = TrigEFTauMVHypoToolFromDict )
