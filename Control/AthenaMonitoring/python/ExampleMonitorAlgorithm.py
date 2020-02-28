@@ -110,9 +110,9 @@ def ExampleMonitoringConfig(inputFlags):
     # number of histograms in an organized manner. (For instance, one plot for each ASIC
     # in the subdetector, and these components are mapped in eta, phi, and layer.) Thus,
     # one might have an array of TH1's such as quantity[etaIndex][phiIndex][layerIndex].
-    for alg in [exampleMonAlg,anotherExampleMonAlg]:
+    for alg in [exampleMonAlg, anotherExampleMonAlg]:
         # Using an array of groups
-        topPath = 'OneRing' if alg == exampleMonAlg else ''
+        topPath = 'OneRing' if alg == exampleMonAlg else 'top'
         array = helper.addArray([2],alg,'ExampleMonitor', topPath=topPath)
         array.defineHistogram('a,b',title='AB',type='TH2F',path='Eta',
                               xbins=10,xmin=0.0,xmax=10.0,
@@ -122,15 +122,21 @@ def ExampleMonitoringConfig(inputFlags):
         array = helper.addArray([4,2],alg,'ExampleMonitor', topPath=topPath)
         array.defineHistogram('a',title='A',path='EtaPhi',
                               xbins=10,xmin=0.0,xmax=10.0)
+
         # Using a map of groups
-        layerList = ['layer1','layer2']
-        clusterList = ['clusterX','clusterB']
-        array = helper.addArray([layerList],alg,'ExampleMonitor', topPath=topPath)
-        array.defineHistogram('c',title='C',path='Layer',
-                              xbins=10,xmin=0,xmax=10.0)
-        array = helper.addArray([layerList,clusterList],alg,'ExampleMonitor', topPath=topPath)
-        array.defineHistogram('c',title='C',path='LayerCluster',
-                              xbins=10,xmin=0,xmax=10.0)
+        layerList = ['layer1', 'layer2']
+        clusterList = ['clusterX', 'clusterB']
+        array1D = helper.addArray([layerList], alg, 'ExampleMonitor', topPath=topPath)
+        array1D.defineHistogram('c', title='C', path='Layer',
+                                xbins=10, xmin=0, xmax=10.0)
+        array2D = helper.addArray([layerList, clusterList], alg, 'ExampleMonitor', topPath=topPath)
+        array2D.defineHistogram('c', title='C', path='LayerCluster',
+                                xbins=10, xmin=0, xmax=10.0)
+
+        # Using templates for histogram titles or paths
+        array1D.defineHistogram('c', title='Layer {0}', path='Keys', xmax=3.)
+        array1D.defineHistogram('c;c_alternate', title='Layer', path='Keys/{0}', xmax=3.)
+        array2D.defineHistogram('c', title='Cluster {1}, Layer {0}', path='Keys/{1}', xmax=3.)
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
