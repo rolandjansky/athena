@@ -15,10 +15,8 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_STDM1Stream )
 STDM1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 STDM1Stream.AcceptAlgs(["STDM1Kernel"]) 
 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="STDM1ThinningSvc", outStreams=[evtStream] )
 
 
 #=======================================
@@ -42,7 +40,7 @@ skimmingTools.append(STDM1SkimmingTool)
 #if globalflags.DataSource()=='geant4':
 #    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 #    STDM1TruthThinningTool = DerivationFramework__MenuTruthThinning(name               = "STDM1TruthThinningTool",
-#                                                            ThinningService            = "STDM1ThinningSvc",
+#                                                            StreamName                 = streamName,
 #                                                            WritePartons               = False,
 #                                                            WriteHadrons               = True,
 #                                                            WriteBHadrons              = True,
