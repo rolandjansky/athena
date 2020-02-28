@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
+def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
 
   from AthenaCommon.Constants import INFO,ERROR,FALSE,TRUE,DEBUG,VERBOSE
 
