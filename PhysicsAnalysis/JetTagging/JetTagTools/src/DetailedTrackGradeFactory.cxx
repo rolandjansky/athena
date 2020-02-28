@@ -137,7 +137,7 @@ StatusCode DetailedTrackGradeFactory::initialize()
 
   else if(m_useITkTrackGrading){
 
-   if(m_ITkTrackGradingVersion==5 || m_ITkTrackGradingVersion==6){
+    if(m_ITkTrackGradingVersion==5){
 
       myGrades.push_back( TrackGrade(nbGrades, std::string( "A01")) ); 	// 0HitIn0HitNInExp2
       nbGrades++;
@@ -151,24 +151,10 @@ StatusCode DetailedTrackGradeFactory::initialize()
       nbGrades++;
       myGrades.push_back( TrackGrade(nbGrades,std::string("A0910")) );// PixShared>0
       nbGrades++;
-    
-      if(m_ITkTrackGradingVersion==5){
-	myGrades.push_back( TrackGrade(nbGrades,std::string("A14A")) );// GoodIn1
-	nbGrades++;
-	myGrades.push_back( TrackGrade(nbGrades,std::string("A14B")) );// GoodIn2
-	nbGrades++;
-      }
-      else if(m_ITkTrackGradingVersion==6){
-	myGrades.push_back( TrackGrade(nbGrades,std::string("A14AL")) );// GoodIn1 low pT
-	nbGrades++;
-	myGrades.push_back( TrackGrade(nbGrades,std::string("A14AH")) );// GoodIn1 high pT
-	nbGrades++;
-	myGrades.push_back( TrackGrade(nbGrades,std::string("A14BL")) );// GoodIn2 low pT
-	nbGrades++;
-	myGrades.push_back( TrackGrade(nbGrades,std::string("A14BH")) );// GoodIn2 high pT
-	nbGrades++;
-      }
-
+      myGrades.push_back( TrackGrade(nbGrades,std::string("A14A")) );// GoodIn1
+      nbGrades++;
+      myGrades.push_back( TrackGrade(nbGrades,std::string("A14B")) );// GoodIn2
+      nbGrades++;
       myGrades.push_back( TrackGrade(nbGrades,std::string("B01")) );
       nbGrades++;
       myGrades.push_back( TrackGrade(nbGrades,std::string("B05")) );
@@ -177,17 +163,8 @@ StatusCode DetailedTrackGradeFactory::initialize()
       nbGrades++;
       myGrades.push_back( TrackGrade(nbGrades,std::string("B11")) );
       nbGrades++;
-       if(m_ITkTrackGradingVersion==5){
-	myGrades.push_back( TrackGrade(nbGrades,std::string("B14")) );
-	nbGrades++;
-      }
-      else if(m_ITkTrackGradingVersion==6){
-	myGrades.push_back( TrackGrade(nbGrades,std::string("B14L")) );
-	nbGrades++;
-	myGrades.push_back( TrackGrade(nbGrades,std::string("B14H")) );
-	nbGrades++;
-      }
-
+      myGrades.push_back( TrackGrade(nbGrades,std::string("B14")) );
+      nbGrades++;
       myGrades.push_back( TrackGrade(nbGrades,std::string("zone_1")) );
       nbGrades++;
       myGrades.push_back( TrackGrade(nbGrades,std::string("zone_2")) );
@@ -373,8 +350,6 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
   //Itk specific flags:
   bool InnermostLayer1(false);	// 1 Hit in innermost layer
   bool InnermostLayer2_and_beyond(false);      // 2 Hits or more in innermost layer
-
-  bool pt_0_5(false);
 
   int eta_region = -1; // 0 = 0<|eta|<1, 1 = 1<|eta|<2, 2 = 2<|eta|<3 , 3 = |eta|>3
   int gamma_region = -1;
@@ -758,7 +733,6 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
     double etaTrack = fabs(track.eta());
     double ptTrack = track.pt();
     double thetaTrack=track.theta();
-    pt_0_5 = (1e-3*ptTrack)<5;
     if (etaTrack<=1) eta_region = 0;
     else if (etaTrack>1 && etaTrack<=2) eta_region = 1;
     else if (etaTrack>2) eta_region = 2;
@@ -778,7 +752,7 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
     
     if(eta_region==0){
 
-     if(m_ITkTrackGradingVersion==5 || m_ITkTrackGradingVersion==6){
+      if(m_ITkTrackGradingVersion==5){
 
 	if( nohitInnermostLayer &&  nohitNextToInnermostLayer)  gradeToReturn=m_trackGradesDefinition.getGrade(std::string("A01"));
 
@@ -800,23 +774,15 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
 
 	  if(InnermostLayer1){
 	    if(m_ITkTrackGradingVersion==5) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("A14A"));
-	    else if(m_ITkTrackGradingVersion==6){
-	      if(pt_0_5) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("A14AL"));
-	      else gradeToReturn=m_trackGradesDefinition.getGrade(std::string("A14AH"));
-	    }
 	  }
 
 	  else if(InnermostLayer2_and_beyond){
 	    if(m_ITkTrackGradingVersion==5) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("A14B"));
-	    else if(m_ITkTrackGradingVersion==6){
-	      if(pt_0_5) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("A14BL"));
-	      else gradeToReturn=m_trackGradesDefinition.getGrade(std::string("A14BH"));
-	    }
 	  }
 	  
 	} // End good categories
 
-      } // Cat v5 or v6
+      } // Cat v5 
 
 
 
@@ -851,10 +817,10 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
       
     else if(eta_region==1){
 
-      if(m_ITkTrackGradingVersion==5 || m_ITkTrackGradingVersion==6){
+      if(m_ITkTrackGradingVersion==5){
 
 	if (  nohitInnermostLayer &&  nohitNextToInnermostLayer ) {
-	  if( (m_ITkTrackGradingVersion==5 && exphitInnermostLayer && exphitNextToInnermostLayer) || m_ITkTrackGradingVersion==6 ) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("B01"));
+	  if( m_ITkTrackGradingVersion==5 && exphitInnermostLayer && exphitNextToInnermostLayer ) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("B01"));
 	}
 	else if(nohitInnermostLayer &&  !nohitNextToInnermostLayer){
 	  if ( exphitInnermostLayer )  gradeToReturn=m_trackGradesDefinition.getGrade(std::string("B05"));
@@ -862,18 +828,14 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
 
 	if(sharedClass && gradeToReturn==0){
 	  if(pixsharedClass) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("B0910"));
-	  else if(sctsharedClass && (m_ITkTrackGradingVersion==5 || m_ITkTrackGradingVersion==6)) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("B11"));
+	  else if(sctsharedClass && (m_ITkTrackGradingVersion==5)) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("B11"));
 	}
       	
 	if(gradeToReturn==0){
 	  if(m_ITkTrackGradingVersion==5) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("B14"));
-	  else if(m_ITkTrackGradingVersion==6){
-	    if(pt_0_5) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("B14L"));
-	    else gradeToReturn=m_trackGradesDefinition.getGrade(std::string("B14H"));
-	  }
 	}
 
-      } //cat v5 or v6
+      } //cat v5
 
 
       else if(m_ITkTrackGradingVersion==7){
@@ -907,7 +869,7 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
 
     else if(eta_region==2){
 
-      if(m_ITkTrackGradingVersion==5 || m_ITkTrackGradingVersion==6){
+      if(m_ITkTrackGradingVersion==5){
 	if(gamma_region==3)  gradeToReturn=m_trackGradesDefinition.getGrade(std::string("zone_1"));
 	else if(gamma_region==2) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("zone_2"));
 	else if(gamma_region==1) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("zone_3"));
