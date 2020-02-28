@@ -9,7 +9,8 @@
 #include <TTree.h>
 
 //::: Framework includes
-#include <CLHEP/Units/SystemOfUnits.h>
+#include "GaudiKernel/SystemOfUnits.h"
+
 //::: EDM includes
 #include <xAODTracking/TrackParticlexAODHelpers.h>
 
@@ -32,7 +33,7 @@ class TrackInfo {
     void Fill(const xAOD::TrackParticle* tp);
     TLorentzVector GetFourMomentum(bool calib=false);
     int GetCharge() { return m_Charge; }
-    void SetCalibPt(float calib_pt, std::string syst) { m_CalibPt[syst] = calib_pt / CLHEP::GeV; }
+    void SetCalibPt(float calib_pt, std::string syst) { m_CalibPt[syst] = calib_pt / Gaudi::Units::perThousand; }
 };
 
 #endif

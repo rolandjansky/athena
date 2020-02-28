@@ -103,13 +103,13 @@ StatusCode TestMCASTTool::execute() {
     const xAOD::TrackParticle* meTrack = NULL;
     try {
       meTrack = (*mu_itr)->trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
-    } catch (SG::ExcBadAuxVar b) { meTrack = (*mu_itr)->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle); }
+    } catch (SG::ExcBadAuxVar& b) { meTrack = (*mu_itr)->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle); }
     if(meTrack) m_MSExtr->Fill(meTrack);
 
     const xAOD::TrackParticle* msoeTrack = NULL;
     try {
       msoeTrack = (*mu_itr)->trackParticle(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle);
-    } catch (SG::ExcBadAuxVar b) { msoeTrack = (*mu_itr)->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle); }
+    } catch (SG::ExcBadAuxVar& b) { msoeTrack = (*mu_itr)->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle); }
     if(msoeTrack) m_MSOnlyExtr->Fill(msoeTrack);
 
     //---\\---// Calibrating muon

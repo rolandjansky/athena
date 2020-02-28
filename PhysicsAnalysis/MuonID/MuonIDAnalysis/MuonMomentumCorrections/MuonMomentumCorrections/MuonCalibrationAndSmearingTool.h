@@ -32,7 +32,6 @@
 #define DEFAULT_INIT_VAL -999
 #define MCAST_MAX_PT 100000000
 #define MZPDG 91.1876
-#define MCAST_GEV 1000.
 
 namespace CP {
 
