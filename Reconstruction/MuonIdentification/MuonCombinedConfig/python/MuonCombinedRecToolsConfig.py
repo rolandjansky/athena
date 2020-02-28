@@ -686,8 +686,9 @@ def TrackDepositInCaloToolCfg(flags, name ='TrackDepositInCaloTool', **kwargs ):
     return result
 
 def CaloMuonLikelihoodToolCfg(flags, name='CaloMuonLikelihoodTool', **kwargs ):
-    result = TrackEnergyInCaloToolCfg(flags)
-    kwargs.setdefault("TrackEnergyInCaloTool", result.popPrivateTools() )
+    from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
+    result = ParticleCaloExtensionToolCfg(flags)
+    kwargs.setdefault("ParticleCaloExtensionTool",       result.popPrivateTools() )
     tool = CompFactory.CaloMuonLikelihoodTool(name, **kwargs )
     result.setPrivateTools(tool)
     return result
