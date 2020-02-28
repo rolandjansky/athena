@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg, PhysicsListSvcCfg
 from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, GeoIDSvcCfg, InputConverterCfg
-from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg
+from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg, FastSimulationMasterToolCfg
 from G4AtlasServices.G4AtlasUserActionConfigNew import UserActionSvcCfg
 from G4AtlasApps.G4Atlas_MetadataNew import writeSimulationParametersMetadata
 
@@ -68,6 +68,11 @@ def G4AtlasAlgCfg(ConfigFlags, name='G4AtlasAlg', **kwargs):
     accSensitiveDetector = SensitiveDetectorMasterToolCfg(ConfigFlags)
     result.merge(accSensitiveDetector)
     kwargs.setdefault('SenDetMasterTool', result.getPublicTool("SensitiveDetectorMasterTool")) #NOTE - is still a public tool
+
+    #fast simulation master tool
+    accFastSimulation = FastSimulationMasterToolCfg(ConfigFlags)
+    result.merge(accFastSimulation)
+    kwargs.setdefault('FastSimMasterTool', result.getPublicTool("FastSimulationMasterTool")) # NOTE - is still a public tool
 
     #Write MetaData container
     result.merge(writeSimulationParametersMetadata(ConfigFlags))

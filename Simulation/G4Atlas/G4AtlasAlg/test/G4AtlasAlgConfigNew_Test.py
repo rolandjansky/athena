@@ -30,10 +30,11 @@ if __name__ == '__main__':
   #Sim ConfigFlags
   #ConfigFlags.Sim.WorldRRange = 15000
   #ConfigFlags.Sim.WorldZRange = 27000 #change defaults?
-  ConfigFlags.Sim.CalibrationRun = 'DeadLAr' # is this correct?
+  ConfigFlags.Sim.CalibrationRun = 'Off'
   ConfigFlags.Sim.RecordStepInfo = False
   ConfigFlags.Sim.CavernBG = "Signal"
   ConfigFlags.Sim.ISFRun = False
+  ConfigFlags.Sim.BeamPipeSimMode = 'FastSim'
 
   ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-14"
   ConfigFlags.GeoModel.Align.Dynamic = False

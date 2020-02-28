@@ -10,7 +10,7 @@ def createSimConfigFlags():
     scf.addFlag("Sim.ISFRun",False)
     scf.addFlag("Sim.ISF.HITSMergingRequired", True)
     scf.addFlag("Sim.ParticleID",False)
-    scf.addFlag("Sim.CalibrationRun", False) # "LAr", "Tile", "LAr+Tile", "DeadLAr"
+    scf.addFlag("Sim.CalibrationRun", "DeadLAr") # "LAr", "Tile", "LAr+Tile", "DeadLAr", "Off"
 
     scf.addFlag("Sim.CavernBG",False) #"Write" , "Read" , "Signal" , "WriteWorld" , "SignalWorld"
     scf.addFlag("Sim.ReadTR",False)
@@ -50,6 +50,8 @@ def createSimConfigFlags():
     #For G4AtlasToolsConfig
     scf.addFlag('Sim.RecordStepInfo',False) 
     scf.addFlag('Sim.StoppedParticleFile', False) 
+    scf.addFlag('Sim.BeamPipeSimMode', 'Normal')  ## ['Normal', 'FastSim', 'EGammaRangeCuts', 'EGammaPRangeCuts']
+    scf.addFlag('Sim.LArParameterization', 2)  ## 0 = No frozen showers, 1 = Frozen Showers, 2 = DeadMaterial Frozen Showers
 
     #For BeameffectsAlg
     scf.addFlag('Sim.Vertex.Source', 'CondDB' ) #'CondDB', 'VertexOverrideEventFile.txt', 'VertexOverride.txt',"LongBeamspot"

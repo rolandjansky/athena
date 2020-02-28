@@ -47,7 +47,7 @@ def getDefaultActions(ConfigFlags):
     if ConfigFlags.Sim.CalibrationRun == 'LAr+Tile':
         actions+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
 
-    actions += [ result.popToolsAndMerge( LooperKillerToolCfg(ConfigFlags) ) ] 
+    actions += [ result.popToolsAndMerge( LooperKillerToolCfg(ConfigFlags) ) ]
     return actions
 
 def UserActionSvcCfg(ConfigFlags, name="G4UA::UserActionSvc", **kwargs):
