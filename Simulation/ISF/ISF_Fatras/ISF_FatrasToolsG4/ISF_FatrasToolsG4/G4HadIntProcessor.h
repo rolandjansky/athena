@@ -107,10 +107,10 @@ namespace iFatras {
 					 const Trk::Material *ematprop) const;
 
       //!< Initialize inleastic hadronic Geant4 processes 
-      std::map<int,G4VProcess*>::iterator  initProcessPDG(int pdg) const;
+      std::map<int,G4VProcess*>::iterator  initProcessPDG(int pdg) const;//!
 
       //!< choose for list of predefined (pure) materials
-      std::pair<G4Material*,G4MaterialCutsCouple*> retrieveG4Material(const Trk::Material* ematprop) const;
+      std::pair<G4Material*,G4MaterialCutsCouple*> retrieveG4Material(const Trk::Material* ematprop) const;//!
 
       //!< random number service
       ServiceHandle<IAtRndmGenSvc>         m_rndGenSvc;
@@ -118,17 +118,17 @@ namespace iFatras {
       ToolHandle<ISF::IG4RunManagerHelper> m_g4RunManagerHelper;
 
       //!< steering: enable elastic interactions?
-      bool                                 m_doElastic;
+      bool                                 m_doElastic;//!
 
       /* scale factors for hadronic/electromagnetic interactions */
-      double                               m_hadIntProbScale;
+      double                               m_hadIntProbScale;//!
 
       // internal steering : clone type
-      double                               m_minMomentum;
-      mutable bool                         m_cloneParameters;
+      double                               m_minMomentum;//!
+      mutable bool                         m_cloneParameters;//!
 
       /** describe deflection parametric/do real deflection */
-      bool                                  m_parametricScattering;
+      bool                                  m_parametricScattering;//!
 
       /*
        * Geant4 engine
@@ -142,14 +142,14 @@ namespace iFatras {
        * - Used only for "easy access" to processes
        * - Does not take ownership -> no smart pointers
       */
-      mutable std::map<int, G4VProcess*>   m_g4HadrInelasticProcesses;
-      mutable std::map<int, G4VProcess*>   m_g4HadrElasticProcesses;
+      mutable std::map<int, G4VProcess*>   m_g4HadrInelasticProcesses;//!
+      mutable std::map<int, G4VProcess*>   m_g4HadrElasticProcesses;//!
 
       //!< locally stored Geant4 instances (speeds up processing)
-      mutable std::unique_ptr<G4ThreeVector> m_g4zeroPos;
-      mutable std::unique_ptr<G4Step>        m_g4step;
-      mutable std::unique_ptr<G4StepPoint>   m_g4stepPoint;
-      mutable std::vector<std::pair<float,std::pair< G4Material*, G4MaterialCutsCouple*> > > m_g4Material;
+      mutable std::unique_ptr<G4ThreeVector> m_g4zeroPos;//!
+      mutable std::unique_ptr<G4Step>        m_g4step;//!
+      mutable std::unique_ptr<G4StepPoint>   m_g4stepPoint;//!
+      mutable std::vector<std::pair<float,std::pair< G4Material*, G4MaterialCutsCouple*> > > m_g4Material;//!
 
       /** ISF services & Tools */
       ServiceHandle<ISF::IParticleBroker>  m_particleBroker;
