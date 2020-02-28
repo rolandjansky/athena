@@ -128,7 +128,7 @@ thinningTools.append(SUSY9TauTPThinningTool)
 #====================================================================
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 SUSY9TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY9TruthThinningTool",
-                                                     ThinningService              = SUSY9ThinningHelper.ThinningSvc(),
+                                                     StreamName                   = streamName,
                                                      WritePartons                 = False,
                                                      WriteHadrons                 = False,
                                                      WriteBHadrons                = True,

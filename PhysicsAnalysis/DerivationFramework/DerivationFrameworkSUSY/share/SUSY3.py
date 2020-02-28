@@ -44,7 +44,7 @@ SUSY3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(
 	TriggerListOR = triggerRegEx )
 ToolSvc += SUSY3TriggerSkimmingTool
 
-SUSY3ThinningHelper.AppendToStream( SUSY3Stream ) # needs to go after SUSY3ThinningHelper.TriggerChains = ... but before accesses to SUSY3ThinningHelper.ThinningSvc()
+SUSY3ThinningHelper.AppendToStream( SUSY3Stream ) # needs to go after SUSY3ThinningHelper.TriggerChains = ...
 
 
 #====================================================================
@@ -105,7 +105,7 @@ thinningTools.append(SUSY3TauTPThinningTool)
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY3TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY3TruthThinningTool",
-                                                       ThinningService              = SUSY3ThinningHelper.ThinningSvc(),
+                                                       StreamName                   = streamName,
                                                        WritePartons                 = False,
                                                        WriteHadrons                 = False,
                                                        WriteBHadrons                = True,

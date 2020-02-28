@@ -110,7 +110,7 @@ if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY10TruthThinningTool = DerivationFramework__MenuTruthThinning(
     name              = "SUSY10TruthThinningTool",
-    ThinningService              = SUSY10ThinningHelper.ThinningSvc(),
+    StreamName                   = streamName,
     WritePartons                 = False,
     WriteHadrons                 = False,
     WriteBHadrons                = False,
