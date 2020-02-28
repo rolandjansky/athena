@@ -2861,7 +2861,7 @@ namespace CP {
     double newSmear = 0.;
     if ( DetType == MCAST::DetectorType::CB ) {
         double smear = GetSmearing(DetType, muonInfo);
-        std::pair<int, int> key = std::make_pair(muonInfo.detRegion, muonInfo.sel_category); 
+        std::pair<int, int> key = std::make_pair(muonInfo.detRegion, ConvertToMacroCategory(muonInfo.sel_category)); 
         ATH_MSG_VERBOSE("[Direct CB Smearing] Map Key: " << muonInfo.detRegion << ", " << muonInfo.sel_category);
         if((m_extra_p1_p2_MS_Misaligned.find(key) != m_extra_p1_p2_MS_Misaligned.end()) and (m_extra_p1_p2_MS_AlignedOnly.find(key) != m_extra_p1_p2_MS_AlignedOnly.end())) {
           std::pair<double, double> Misaligned = m_extra_p1_p2_MS_Misaligned.at(key);
@@ -3119,14 +3119,14 @@ namespace CP {
   int MuonCalibrationAndSmearingTool::ConvertToMacroCategory( int raw_mst_category ) const {
 
     if( raw_mst_category < 0 ) {
-      return -1;
+      return MCAST::MST_Categories::Undefined;
     }
-    else if( raw_mst_category & IMuonSelectionTool::CategoryZero ) return 0;
-    else if( raw_mst_category & IMuonSelectionTool::CategoryOne ) return 1;
-    else if( raw_mst_category & IMuonSelectionTool::CategoryTwo ) return 2;
-    else if( raw_mst_category & IMuonSelectionTool::CategoryThree ) return 3;
-    else if( raw_mst_category & IMuonSelectionTool::CategoryFour ) return 4;
-    else return -1;
+    else if( raw_mst_category & IMuonSelectionTool::CategoryZero ) return MCAST::MST_Categories::Zero;
+    else if( raw_mst_category & IMuonSelectionTool::CategoryOne ) return MCAST::MST_Categories::One;
+    else if( raw_mst_category & IMuonSelectionTool::CategoryTwo ) return MCAST::MST_Categories::Two;
+    else if( raw_mst_category & IMuonSelectionTool::CategoryThree ) return MCAST::MST_Categories::Three;
+    else if( raw_mst_category & IMuonSelectionTool::CategoryFour ) return MCAST::MST_Categories::Four;
+    else return MCAST::MST_Categories::Undefined;
 
   }
 

@@ -46,7 +46,7 @@ namespace MCAST {
   namespace SystVariation { enum { Default = 0, Down = -1, Up = 1 }; }
   namespace SagittaCorType { enum { CB=0, ID=1, ME=2, WEIGHTS=3, AUTO=4}; }
   namespace SagittaSysType { enum { NOMINAL=0, RHO=1, BIAS=2}; }
-
+  namespace MST_Categories { enum { Undefined = -1, Zero = 0, One = 1, Two = 2, Three = 3, Four = 4 }; }
 }
 
 class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgTool {
@@ -166,7 +166,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     virtual void ConvertToSagittaBias(TH2F *h,float mean=1);
     virtual TProfile2D* GetHist(std::string fname="", std::string hname="inclusive",double GlobalScale=MZPDG);
     virtual bool isBadMuon( const xAOD::Muon& mu, InfoHelper& muonInfo ) const;
-    const int ConvertToMacroCategory( int raw_mst_category ) const;
+    int ConvertToMacroCategory( int raw_mst_category ) const;
     //private:
     // fake assignment operator missing actual implementation
     MuonCalibrationAndSmearingTool& operator=(const MuonCalibrationAndSmearingTool& );
