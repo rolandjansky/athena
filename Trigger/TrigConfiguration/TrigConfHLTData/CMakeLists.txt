@@ -9,7 +9,7 @@ atlas_subdir( TrigConfHLTData )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
    Trigger/TrigConfiguration/TrigConfL1Data
-   Trigger/TrigSteer/TrigCompositeUtils )
+   Trigger/TrigConfiguration/HLTUtils )
 
 # External dependencies:
 find_package( Boost COMPONENTS system thread )
