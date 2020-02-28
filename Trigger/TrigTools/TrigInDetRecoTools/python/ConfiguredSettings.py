@@ -134,18 +134,6 @@ class SettingsForStrategyC(CommonSettings) :
         self.db['nHolesMax'] = nholesmax
         self.db['nHolesGapMax'] = nholesgapmax
         
-class SettingsForStrategyF(CommonSettings) :
-    def __init__(self):
-        CommonSettings.__init__(self)
-        # strategy-specific settings defined below
-        chi2cut = {}
-        for i in self.allowedInstanceNames :
-            chi2cut[i] = 1000.0
-        
-        # customize setting here: for example width['Tau'] = 20.
-        # extend settings database
-        self.db['Chi2Cut']=chi2cut
-
 class SettingsForStrategyA(CommonSettings) :
     def __init__(self):
         CommonSettings.__init__(self)

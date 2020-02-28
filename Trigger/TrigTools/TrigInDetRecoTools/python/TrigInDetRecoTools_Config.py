@@ -3,7 +3,6 @@
 from TrigInDetRecoTools.ConfiguredSettings import CommonSettings
 from TrigInDetRecoTools.TrigInDetRecoTools_ConfigB import FactoryForStrategyB
 from TrigInDetRecoTools.TrigInDetRecoTools_ConfigC import FactoryForStrategyC
-from TrigInDetRecoTools.TrigInDetRecoTools_ConfigF import FactoryForStrategyF
 from TrigInDetRecoTools.TrigInDetRecoTools_ConfigA import FactoryForStrategyA
 
 class TrigL2PattRecoStrategyFactory() :
@@ -14,7 +13,6 @@ class TrigL2PattRecoStrategyFactory() :
         self.commonSettings = CommonSettings()
         self.factoryForStrB = FactoryForStrategyB()        
         self.factoryForStrC = FactoryForStrategyC()
-        self.factoryForStrF = FactoryForStrategyF()
         self.factoryForStrA = FactoryForStrategyA()
     def createStrategy(self, instName, strName, roiPhi=0.1, roiEta=0.1, ptCut = 2500.0) :
         if strName in self.allowedStrNames :
@@ -32,10 +30,6 @@ class TrigL2PattRecoStrategyFactory() :
                     configuredStrC = self.factoryForStrC.createStrategy(instName)
                     return configuredStrC
                 
-                if strName=='F' :
-                    configuredStrF = self.factoryForStrF.createStrategy(instName)
-                    return configuredStrF
-
             else :
                 print "Instance "+instName+" of the Strategy"+strName+" is not supported !"
                 return None
