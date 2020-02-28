@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef CALOEVENT_CALOBCIDAVERAGE_H
 #define CALOEVENT_CALOBCIDAVERAGE_H
@@ -14,24 +14,32 @@
 class CaloBCIDAverage {
  public:
   CaloBCIDAverage() = delete;
-  CaloBCIDAverage(const LArMCSym* mcSym, std::unordered_map<unsigned, float>&& data);
+  CaloBCIDAverage(const LArMCSym* mcSym, std::vector<float>&& data);
   
-  float average(const Identifier id) const {
+  float average(const Identifier& id) const {
     if (!id.is_valid()) return 0;
-    const HWIdentifier hwid=m_mcSym->ZPhiSymOfl(id);
-    if (!hwid.is_valid()) return 0; //Catches the tile-case
-    const unsigned id32=hwid.get_identifier32().get_compact();
-    const auto it=m_avg.find(id32);
-    if (it==m_avg.end()) {
-      std::abort();
-    }
-    return it->second;
+    const size_t idx = m_mcSym->ZPhiSymOflIndex(id);
+    if (idx == LArMCSym::NO_INDEX) return 0; //Catches the tile-case
+    return m_avg[idx];
   }
 
+
+  float average(const HWIdentifier& id) const {
+    if (!id.is_valid()) return 0;
+    const size_t idx = m_mcSym->ZPhiSymOnlIndex(id);
+    if (idx == LArMCSym::NO_INDEX) return 0; //Catches the tile-case
+    return m_avg[idx];
+  }
+
+  
+  float average(size_t idx) const {
+    return m_avg.at(idx);
+  }
+
+  
  private:
   const LArMCSym* m_mcSym;
-  std::unordered_map<unsigned,float> m_avg;
-
+  std::vector<float> m_avg;
 };
 
 
