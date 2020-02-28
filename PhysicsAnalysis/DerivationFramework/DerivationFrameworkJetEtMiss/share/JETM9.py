@@ -39,11 +39,8 @@ streamName = derivationFlags.WriteDAOD_JETM9Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_JETM9Stream )
 JETM9Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 JETM9Stream.AcceptAlgs(["JETM9Kernel"])
-# for thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="JETM9ThinningSvc", outStreams=[evtStream] )
 
 # Truth particle thinning
 thinningTools = []
@@ -51,7 +48,7 @@ from AthenaCommon.GlobalFlags import globalflags
 if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
     JETM9TruthThinning = DerivationFramework__MenuTruthThinning(name                  = "JETM9TruthThinning",
-                                                                ThinningService            = "JETM9ThinningSvc",
+                                                                StreamName                 = streamName,
                                                                 WriteStatus3               = True,
                                                                 PreserveAncestors          = True,
                                                                 WriteFirstN                = 10)
