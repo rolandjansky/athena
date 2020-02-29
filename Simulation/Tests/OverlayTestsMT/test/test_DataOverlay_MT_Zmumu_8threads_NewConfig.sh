@@ -26,7 +26,7 @@ echo "art-result: $rc overlay"
 # then
 #     ArtPackage=$1
 #     ArtJobName=$2
-#     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --error-mode resilient --mode=semi-detailed --order-trees
+#     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --error-mode resilient --mode=semi-detailed --order-trees --diff-root
 #     rc2=$?
 # fi
 # echo  "art-result: $rc2 regression"
