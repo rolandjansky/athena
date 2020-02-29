@@ -169,8 +169,10 @@ T_AthenaPoolCustCnv<TRANS, PERS>::PoolToDataObject(DataObject*& pObj,
 // the object that will be read next.  Required by compareClassGuid()
 template <class TRANS, class PERS>
 inline void T_AthenaPoolCustCnv<TRANS, PERS>::setToken(const std::string& token_str) {
-   if (this->m_i_poolToken == nullptr) this->m_i_poolToken = new Token;
-   const_cast<Token*>(this->m_i_poolToken)->fromString(token_str);
+   delete this->m_i_poolToken; this->m_i_poolToken = nullptr;
+   Token* token = new Token;
+   token->fromString(token_str);
+   this->m_i_poolToken = token; token = nullptr;
    m_classID = this->m_i_poolToken->classID();
 }
 //__________________________________________________________________________
