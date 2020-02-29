@@ -13,7 +13,7 @@ def LArDigitThinnerCfg(flags, **kwargs):
     # based on DefaultLArDigitThinner
     acc = ComponentAccumulator()
 
-    if (not flags.Input.isMC) and (not flags.Overlay.DataOverlay) and flags.Input.Format == "bytestream":
+    if (not flags.Input.isMC) and (not flags.Overlay.DataOverlay) and flags.Input.Format == "BS":
         acc.merge(LArRawDataReadingAlg(InputContainerName="FREE"))
 
     acc.merge(LArOnOffIdMappingCfg(flags))

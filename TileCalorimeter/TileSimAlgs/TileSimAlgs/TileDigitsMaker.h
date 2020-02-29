@@ -36,7 +36,6 @@
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileCablingSvc.h"
-#include "TileRecUtils/ITileDQstatusTool.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -96,11 +95,8 @@ class TileDigitsMaker: public AthAlgorithm {
                                                           "input Tile hit container key"};
 
     Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
-    SG::ReadHandleKey<TileDigitsContainer> m_overlayDigitContainerKey{this, "OverlayTileDigitContainerName","",""};
-    std::string m_overlayDigitContainerName{""};
-
-    SG::ReadHandleKey<TileRawChannelContainer> m_overlayRawChannelContainerKey{this, "OverlayTileRawChannelContainerName","TileRawChannelCnt",""};
-    std::string m_overlayRawChannelContainerName{""};
+    SG::ReadHandleKey<TileDigitsContainer> m_inputDigitContainerKey{this, "InputTileDigitContainer","",""};
+    std::string m_inputDigitContainerName{""};
 
     SG::WriteHandleKey<TileDigitsContainer> m_digitsContainerKey{this,"TileDigitsContainer",
                                                                  "TileDigitsCnt",
@@ -131,7 +127,6 @@ class TileDigitsMaker: public AthAlgorithm {
     const TileHWID* m_tileHWID;
     const TileInfo* m_tileInfo;
     const TileCablingService* m_cabling; //!< TileCabling instance
-    const TileDQstatus* m_DQstatus;
 
     std::vector<HWIdentifier *> m_all_ids;
     std::vector<double *> m_drawerBufferHi; //!< Vector used to store pointers to digits for a single drawer (high gain)
@@ -187,11 +182,8 @@ class TileDigitsMaker: public AthAlgorithm {
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
         "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
 
-    ToolHandle<ITileDQstatusTool> m_DQstatusTool { this,
-        "TileDQstatusTool", "TileDQstatusTool", "Tool to create TileDQstatus" };
-
-    SG::WriteHandleKey<TileDQstatus> m_DQstatusKey {this,
-        "TileDQstatus", "TileDQstatus", "Output TileDQstatus key" };
+    SG::ReadHandleKey<TileDQstatus> m_DQstatusKey {this,
+        "TileDQstatus", "", "Input TileDQstatus key" };
 
 };
 

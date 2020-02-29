@@ -72,7 +72,6 @@ TileDigitsMaker::TileDigitsMaker(std::string name, ISvcLocator* pSvcLocator)
     m_tileHWID(nullptr),
     m_tileInfo(nullptr),
     m_cabling(nullptr),
-    m_DQstatus(nullptr),
     m_nSamples(0),
     m_iTrig(0),
     m_tileNoise(false),
@@ -210,10 +209,8 @@ StatusCode TileDigitsMaker::initialize() {
   m_binTime0Lo = m_tileInfo->digitsTime0BinLo();
   m_timeStepLo = 25.0 / m_nBinsPerXLo;
 
-  m_overlayDigitContainerName = m_overlayDigitContainerKey.key();
-  ATH_CHECK( m_overlayDigitContainerKey.initialize(!m_onlyUseContainerName && m_rndmEvtOverlay) );
-  m_overlayRawChannelContainerName = m_overlayRawChannelContainerKey.key();
-  ATH_CHECK( m_overlayRawChannelContainerKey.initialize(!m_onlyUseContainerName && m_rndmEvtOverlay) );
+  m_inputDigitContainerName = m_inputDigitContainerKey.key();
+  ATH_CHECK( m_inputDigitContainerKey.initialize(!m_onlyUseContainerName && m_rndmEvtOverlay) );
 
   if (m_rndmEvtOverlay) {
     m_tileNoise = false;
@@ -229,12 +226,10 @@ StatusCode TileDigitsMaker::initialize() {
 
     ATH_MSG_INFO( "PileUpMergeSvc successfully initialized");
 
-    ATH_CHECK( m_DQstatusTool.retrieve() );
     ATH_CHECK( m_DQstatusKey.initialize() );
 
   } else {
-    m_DQstatusTool.disable();
-    m_DQstatusKey = "";
+    ATH_CHECK( m_DQstatusKey.initialize(!m_DQstatusKey.empty()) );
 
     if (m_allChannels<0) m_allChannels = 0;                 // do not create all channels by default
     if (m_tileNoise || m_tileCoherNoise) m_allChannels = 2; // unless noise is set to True
@@ -516,12 +511,10 @@ StatusCode TileDigitsMaker::execute() {
                                                                             TileRawChannelUnit::ADCcounts);
     ATH_CHECK( backgroundDigitContainer->status() );
 
-    const TileRawChannelContainer* rndm_rawchan_container{};
-    auto dqStatus = std::make_unique<TileDQstatus>();
     if (m_onlyUseContainerName) {
       typedef PileUpMergeSvc::TimedList<TileDigitsContainer>::type TimedDigitContList;
       TimedDigitContList digitContList;
-      ATH_CHECK( m_mergeSvc->retrieveSubEvtsData(m_overlayDigitContainerName, digitContList));
+      ATH_CHECK( m_mergeSvc->retrieveSubEvtsData(m_inputDigitContainerName, digitContList));
       ATH_MSG_DEBUG( "TileDigitsCnt successfully retrieved ");
 
 
@@ -537,26 +530,9 @@ StatusCode TileDigitsMaker::execute() {
           ATH_CHECK(backgroundDigitContainer->push_back(std::move(pDigits)));
         }
       }
-      typedef PileUpMergeSvc::TimedList<TileRawChannelContainer>::type TimedRawChanContList;
-      TimedRawChanContList rawchanContList;
-      if (!(m_mergeSvc->retrieveSubEvtsData(m_overlayRawChannelContainerName, rawchanContList).isSuccess())) {
-        ATH_MSG_ERROR( "Cannot retrieve TileRawChannelContainer for DQ check");
-      } else {
-        ATH_MSG_DEBUG( "TileRawChannelContainer for DQ check retrieved");
-      }
-
-      if (!rawchanContList.empty()) {
-        TimedRawChanContList::iterator iTzeroRawChanCont(rawchanContList.begin());
-        rndm_rawchan_container = iTzeroRawChanCont->second;
-      }
-      ATH_CHECK( m_DQstatusTool->makeStatus (ctx,
-                                             rndm_rawchan_container,
-                                             backgroundDigitContainer.get(),
-                                             nullptr, // TileBeamElemContainer
-                                             *dqStatus) );
     }
     else {
-      SG::ReadHandle<TileDigitsContainer> tileDigitsContainerHandle(m_overlayDigitContainerKey);
+      SG::ReadHandle<TileDigitsContainer> tileDigitsContainerHandle(m_inputDigitContainerKey);
       if (tileDigitsContainerHandle.isValid()) {
         for (const auto* digitCollection : *tileDigitsContainerHandle) {
           for (const auto* digit : *digitCollection) {
@@ -567,23 +543,10 @@ StatusCode TileDigitsMaker::execute() {
       }
       else {
         ATH_MSG_ERROR("ReadHandle to Background Digits is invalid.");
+        return StatusCode::FAILURE;
       }
-      SG::ReadHandle<TileRawChannelContainer> tileRawChannelContainerHandle(m_overlayRawChannelContainerKey);
-      if (tileRawChannelContainerHandle.isValid()) {
-        rndm_rawchan_container = &*tileRawChannelContainerHandle;
-      }
-      else {
-        ATH_MSG_WARNING("ReadHandle to Background Raw Channels is invalid.");
-      }
-      ATH_CHECK( m_DQstatusTool->makeStatus (ctx,
-                                             rndm_rawchan_container,
-                                             backgroundDigitContainer.get(),
-                                             nullptr, // TileBeamElemContainer
-                                           *dqStatus) );
     }
-    m_DQstatus = dqStatus.get();
 
-    ATH_CHECK( SG::makeHandle (m_DQstatusKey, ctx).record (std::move (dqStatus)) );
     collItrRndm = backgroundDigitContainer->begin();
     lastCollRndm = backgroundDigitContainer->end();
   }
@@ -1378,6 +1341,9 @@ StatusCode TileDigitsMaker::overlayBackgroundDigits( const TileDigitsCollection 
     return StatusCode::FAILURE;
   }
 
+  SG::ReadHandle<TileDQstatus> DQstatus(m_DQstatusKey);
+  ATH_CHECK( DQstatus.isValid() );
+
   // iterate over all digits in a collection
   for (const auto* bkgDigit : *bkgDigitCollection) {
 
@@ -1389,7 +1355,7 @@ StatusCode TileDigitsMaker::overlayBackgroundDigits( const TileDigitsCollection 
     igain[channel] = gain;
 
     // get channel status
-    bool good_dq = m_DQstatus->isAdcDQgood(ros, drawer, channel, gain);
+    bool good_dq = DQstatus->isAdcDQgood(ros, drawer, channel, gain);
     bool good_ch = (!m_tileBadChanTool->getAdcStatus(drawerIdx, channel, gain).isBad());
 
     // get digits

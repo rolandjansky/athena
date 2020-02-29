@@ -16,8 +16,9 @@ def TileTriggerDigitizationCfg(flags):
         from TileSimAlgs.TileMuonReceiverDecisionConfig import TileMuonReceiverDecisionOutputCfg
         acc.merge( TileMuonReceiverDecisionOutputCfg(flags) )
 
-        from TileL2Algs.TileL2Config import TileRawChannelToL2OutputCfg
-        acc.merge( TileRawChannelToL2OutputCfg(flags, streamName = 'RDO') )
+        if flags.Output.doWriteRDO:
+            from TileL2Algs.TileL2Config import TileRawChannelToL2OutputCfg
+            acc.merge( TileRawChannelToL2OutputCfg(flags, streamName = 'RDO') )
 
     return acc
 
@@ -27,7 +28,7 @@ def TileDigitizationCfg(flags):
     from TileSimAlgs.TileDigitsMakerConfig import TileDigitsMakerOutputCfg
     acc = TileDigitsMakerOutputCfg(flags)
 
-    if not flags.Digitization.PileUpPremixing:
+    if not flags.Digitization.PileUpPremixing and flags.Output.doWriteRDO:
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerOutputCfg
         acc.merge( TileRawChannelMakerOutputCfg(flags, streamName = 'RDO') )
 

@@ -20,6 +20,7 @@ from MuonConfig.TgcOverlayConfig import TgcOverlayCfg
 from OverlayCopyAlgs.OverlayCopyAlgsConfig import \
     CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyMcEventCollectionCfg, \
     CopyTimingsCfg, CopyTrackRecordCollectionsCfg
+from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg
 from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoOverlayCfg
 
 
@@ -67,6 +68,8 @@ def OverlayMainCfg(configFlags):
     # Calorimeters
     if configFlags.Detector.OverlayLAr:
         acc.merge(LArOverlayCfg(configFlags))
+    if configFlags.Detector.OverlayTile:
+        acc.merge(TileDigitizationCfg(configFlags))
 
     # Muon system
     if configFlags.Detector.OverlayCSC:

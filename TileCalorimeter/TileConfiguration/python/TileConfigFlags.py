@@ -144,7 +144,10 @@ def _getRawChannelContainer(prevFlags):
      if prevFlags.Tile.doOpt2:
           rawChannelContainer = 'TileRawChannelOpt2'
      if prevFlags.Tile.doOptATLAS:
-          rawChannelContainer = 'TileRawChannelCnt' if prevFlags.Input.isMC else 'TileRawChannelFixed'
+          if not (prevFlags.Input.isMC or prevFlags.Overlay.DataOverlay) and prevFlags.Input.Format == 'BS':
+               rawChannelContainer = 'TileRawChannelFixed'                                                   
+          else:                               
+               rawChannelContainer = 'TileRawChannelCnt'
 
      return rawChannelContainer
 
