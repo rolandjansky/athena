@@ -1,11 +1,13 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 def LArBadChannelAccess(algname="LArBadChannelCondAlg",dbString=None):
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
 
     if hasattr(condSeq,algname):
-        print "Access to bad Feb info already set up"
+        print ("Access to bad Feb info already set up")
         return
 
 
