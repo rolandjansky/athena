@@ -13,7 +13,7 @@
 #include <vector>
 #include <fstream>
 
-#include "TrigCompositeUtils/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 #include "CxxUtils/checker_macros.h"
 
 using namespace TrigConf;

@@ -3,7 +3,7 @@
 */
 
 #include <iostream>
-#include "TrigCompositeUtils/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 int main (int argc, char *argv []) {
   if (argc > 1) {

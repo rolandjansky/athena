@@ -12,19 +12,14 @@ if( NOT XAOD_STANDALONE )
     xAODTrigger )
 endif()
 
-# Add the package's library.
+# Add the package's dual use library.
 atlas_add_library( TrigCompositeUtilsLib
   TrigCompositeUtils/*.h TrigCompositeUtils/*.icc Root/*.cxx ${extra_srcs}
   PUBLIC_HEADERS TrigCompositeUtils
-  LINK_LIBRARIES CxxUtils AsgMessagingLib ${extra_libs} )
+  LINK_LIBRARIES TrigConfHLTUtilsLib CxxUtils AsgMessagingLib ${extra_libs} )
 
 # Install files from the package.
 atlas_install_python_modules( python/*.py )
-
-# Executable(s).
-atlas_add_executable( trigconf_string2hash
-  util/trigconf_string2hash.cxx
-  LINK_LIBRARIES TrigCompositeUtilsLib )
 
 # Unit test(s).
 if( NOT XAOD_STANDALONE )
