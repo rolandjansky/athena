@@ -26,14 +26,12 @@ def generateChains( flags, chainDict ):
                                     name = 'TrigL2MuFastHypo',
                                     muFastInfo = 'MuonL2SAInfo' )
 
-    l2muFastHypo.HypoTools = [ TrigMufastHypoToolFromDict(chainDict) ]
-
     acc.addEventAlgo(l2muFastHypo, sequenceName=stepView.getName())
 
     l2muFastSequence = CAMenuSequence( Sequence = l2muFastReco.sequence(),
                                      Maker = l2muFastReco.inputMaker(),
                                      Hypo = l2muFastHypo,
-                                     HypoToolGen = None,
+                                     HypoToolGen = TrigMufastHypoToolFromDict,
                                      CA = acc )
 
     l2muFastStep = ChainStep( stepName, [l2muFastSequence] )
@@ -72,13 +70,13 @@ def generateChains( flags, chainDict ):
     fakeHypoAlg = fakeHypoAlgCfg(muonflags, name='FakeHypoForMuon')
     def makeFakeHypoTool(name, cfg):
         return HLTTest__TestHypoTool(name)
-    fakeHypoAlg.HypoTools = [ makeFakeHypoTool(chainDict['chainName'], None) ]
+
     accMS.addEventAlgo(fakeHypoAlg, sequenceName=stepEFMSView.getName())
 
     efmuMSSequence = CAMenuSequence( Sequence = recoMS.sequence(),
                                      Maker = recoMS.inputMaker(),
                                      Hypo = fakeHypoAlg, 
-                                     HypoToolGen = None,
+                                     HypoToolGen = makeFakeHypoTool,
                                      CA = accMS )
 
     efmuMSStep = ChainStep( stepEFMSName, [efmuMSSequence] )
