@@ -345,7 +345,7 @@ ElectronChainParts = {
     'caloInfo'       : [],
     'lhInfo'         : [],
     'L2IDAlg'        : [],
-    'addInfo'        : ['etcut', 'etcut1step',"v2","v3"],
+    'addInfo'        : ['noringer', 'etcut', 'etcut1step',"v2","v3"],
     }
 # ---- Egamma Dictinary of default Values ----
 ElectronChainParts_Default = {
