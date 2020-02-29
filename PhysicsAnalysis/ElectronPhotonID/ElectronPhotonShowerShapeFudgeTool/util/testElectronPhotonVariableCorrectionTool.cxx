@@ -116,7 +116,7 @@ int main (int argc, char* argv[])
         ANA_CHECK(CorrectUnconvertedPhotonTool.setProperty("ConfigFile",configFilePathUnconverted));
         ANA_CHECK(CorrectUnconvertedPhotonTool.initialize());
 
-        std::string correctionVariable = CorrectConvertedPhotonTool.GetCorrectionVariable();
+        std::string correctionVariable = CorrectConvertedPhotonTool.getCorrectionVariable();
         ANA_MSG_INFO("Correcting Variable: " << correctionVariable);
 
         //loop over the events
@@ -187,7 +187,7 @@ int main (int argc, char* argv[])
         ANA_CHECK(CorrectElectronTool.setProperty("ConfigFile",configFilePath));
         ANA_CHECK(CorrectElectronTool.initialize());
 
-        std::string correctionVariable = CorrectElectronTool.GetCorrectionVariable();
+        std::string correctionVariable = CorrectElectronTool.getCorrectionVariable();
         ANA_MSG_INFO("Correcting Variable: " << correctionVariable);
 
         //loop over the events

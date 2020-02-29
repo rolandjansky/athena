@@ -120,15 +120,15 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
         if (env.Lookup(parameterType))
         {
             // convert string to ParameterType, fail if non-existing type
-            ElectronPhotonVariableCorrectionTool::ParameterType type = StringToParameterType(env.GetValue(parameterType.Data(),""));
-            if( type == ElectronPhotonVariableCorrectionTool::ParameterType::Failure )
+            ElectronPhotonVariableCorrectionTool::parameterType type = stringToParameterType(env.GetValue(parameterType.Data(),""));
+            if( type == ElectronPhotonVariableCorrectionTool::parameterType::Failure )
             {
                 ATH_MSG_ERROR("Parameter " << parameter_itr << " read-in failed, not an allowed parameter type.");
                 return StatusCode::FAILURE;
             }
             // save type, get according type information and save it
             m_ParameterTypeVector.at(parameter_itr) = type;
-            ATH_CHECK(GetParameterInformationFromConf(env, parameter_itr, type));
+            ATH_CHECK(getParameterInformationFromConf(env, parameter_itr, type));
         }
         // else fail
         else
@@ -167,7 +167,7 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
 const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Photon& photon ) const
 {
     // check if we should only deal with converted / unconverted photons
-    if (PassedCorrectPhotonType(photon) != StatusCode::SUCCESS)
+    if (passedCorrectPhotonType(photon) != StatusCode::SUCCESS)
     {
         return CP::CorrectionCode::Error;
     }
@@ -194,19 +194,19 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection(x
     float pt; //safe pt of event
 
     //Get all the properties from the photon and fill them to properties, eta, pt
-    if (GetKinematicProperties(photon, pt, absEta) != StatusCode::SUCCESS)
+    if (getKinematicProperties(photon, pt, absEta) != StatusCode::SUCCESS)
     {
         ATH_MSG_ERROR("Could not retrieve kinematic properties of this photon object.");
         return CP::CorrectionCode::Error;
     }
-    if (GetCorrectionParameters(properties, pt, absEta) != StatusCode::SUCCESS)
+    if (getCorrectionParameters(properties, pt, absEta) != StatusCode::SUCCESS)
     {
         ATH_MSG_ERROR("Could not get the correction parameters for this photon object.");
         return CP::CorrectionCode::Error;
     }
     
     // Apply the correction, write to the corrected AuxElement
-    Correct((*m_variableToCorrect)(photon),original_variable, properties).ignore(); // ignore as will always return SUCCESS
+    correct((*m_variableToCorrect)(photon),original_variable, properties).ignore(); // ignore as will always return SUCCESS
 
     // everything worked out, so
     return CP::CorrectionCode::Ok;
@@ -242,25 +242,25 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection(x
     float pt; //safe pt of event
 
     //Get all the properties from the electron and fill them to properties, eta, pt
-    if (GetKinematicProperties(electron, pt, absEta) != StatusCode::SUCCESS)
+    if (getKinematicProperties(electron, pt, absEta) != StatusCode::SUCCESS)
     {
         ATH_MSG_ERROR("Could not retrieve kinematic properties of this electron object.");
         return CP::CorrectionCode::Error;
     }
-    if (GetCorrectionParameters(properties, pt, absEta) != StatusCode::SUCCESS)
+    if (getCorrectionParameters(properties, pt, absEta) != StatusCode::SUCCESS)
     {
         ATH_MSG_ERROR("Could not get the correction parameters for this electron object.");
         return CP::CorrectionCode::Error;
     }
     
     // Apply the correction, write to the corrected AuxElement
-    Correct((*m_variableToCorrect)(electron),original_variable, properties).ignore(); // ignore as will always return SUCCESS
+    correct((*m_variableToCorrect)(electron),original_variable, properties).ignore(); // ignore as will always return SUCCESS
 
     // everything worked out, so
     return CP::CorrectionCode::Ok;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionTool::Correct(float& return_corrected_variable, const float &original_variable, std::vector<float>& properties) const
+const StatusCode ElectronPhotonVariableCorrectionTool::correct(float& return_corrected_variable, const float &original_variable, std::vector<float>& properties) const
 {   
     // set the parameters of the correction function
     for (unsigned int parameter_itr = 0; parameter_itr < properties.size(); parameter_itr++)
@@ -294,7 +294,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::correctedCopy( co
 // Helper Functions
 // ===========================================================================
 
-const StatusCode ElectronPhotonVariableCorrectionTool::GetKinematicProperties(const xAOD::Egamma& egamma_object, float& pt, float& absEta) const
+const StatusCode ElectronPhotonVariableCorrectionTool::getKinematicProperties(const xAOD::Egamma& egamma_object, float& pt, float& absEta) const
 {
     // just reteriving eta and pt is probably less expensive then checking if I need it and
     // then retreive it only if I actually need it
@@ -323,7 +323,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::GetKinematicProperties(co
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionTool::GetParameterInformationFromConf(TEnv& env, const int& parameter_number, const ElectronPhotonVariableCorrectionTool::ParameterType& type)
+const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFromConf(TEnv& env, const int& parameter_number, const ElectronPhotonVariableCorrectionTool::parameterType& type)
 {
     // don't want to write the same code multiple times, so set flags when to retrieve eta/pt bins
     bool getEtaBins = false;
@@ -337,7 +337,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::GetParameterInformationFr
     TString graphName = "";
 
     // according to the parameter type, retreive the information from conf
-    if (type == ElectronPhotonVariableCorrectionTool::ParameterType::EtaDependentTGraph || type == ElectronPhotonVariableCorrectionTool::ParameterType::PtDependentTGraph)
+    if (type == ElectronPhotonVariableCorrectionTool::parameterType::EtaDependentTGraph || type == ElectronPhotonVariableCorrectionTool::parameterType::PtDependentTGraph)
     {
         // check if necessary information is in conf, else fail
         if (env.Lookup(filePathKey))
@@ -368,23 +368,23 @@ const StatusCode ElectronPhotonVariableCorrectionTool::GetParameterInformationFr
         m_graphCopies.at(parameter_number) = (TGraph*)graph->Clone(); //Or use copy constructor?
         file->Close();
     }
-    else if (type == ElectronPhotonVariableCorrectionTool::ParameterType::EtaBinned )
+    else if (type == ElectronPhotonVariableCorrectionTool::parameterType::EtaBinned )
     {
         //get eta binning later
         getEtaBins = true;
     }
-    else if (type == ElectronPhotonVariableCorrectionTool::ParameterType::PtBinned )
+    else if (type == ElectronPhotonVariableCorrectionTool::parameterType::PtBinned )
     {
         //get pt binning later
         getPtBins = true;
     }
-    else if (type == ElectronPhotonVariableCorrectionTool::ParameterType::EtaTimesPtBinned )
+    else if (type == ElectronPhotonVariableCorrectionTool::parameterType::EtaTimesPtBinned )
     {
         //get eta and pt binning later
         getEtaBins = true;
         getPtBins = true;
     }
-    else if (type == ElectronPhotonVariableCorrectionTool::ParameterType::EventDensity )
+    else if (type == ElectronPhotonVariableCorrectionTool::parameterType::EventDensity )
     {
         // nothing has to be retrieved, no additional parameters for EventDensity currently
         return StatusCode::SUCCESS;
@@ -456,42 +456,42 @@ const StatusCode ElectronPhotonVariableCorrectionTool::GetParameterInformationFr
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionTool::GetCorrectionParameters(std::vector<float>& properties, const float& pt, const float& absEta) const
+const StatusCode ElectronPhotonVariableCorrectionTool::getCorrectionParameters(std::vector<float>& properties, const float& pt, const float& absEta) const
 {
     // according to the parameter type, get the actual parameter going to the correction function
     // for this, loop over the parameter type vector
     for (unsigned int parameter_itr = 0; parameter_itr < m_ParameterTypeVector.size(); parameter_itr++)
     {
-        ElectronPhotonVariableCorrectionTool::ParameterType type = m_ParameterTypeVector.at(parameter_itr);
-        if (type == ElectronPhotonVariableCorrectionTool::ParameterType::EtaDependentTGraph)
+        ElectronPhotonVariableCorrectionTool::parameterType type = m_ParameterTypeVector.at(parameter_itr);
+        if (type == ElectronPhotonVariableCorrectionTool::parameterType::EtaDependentTGraph)
         {
             // evaluate TGraph at abs(eta)
             properties.at(parameter_itr) = m_graphCopies.at(parameter_itr)->Eval(absEta);
         }
-        else if (type == ElectronPhotonVariableCorrectionTool::ParameterType::PtDependentTGraph)
+        else if (type == ElectronPhotonVariableCorrectionTool::parameterType::PtDependentTGraph)
         {
             // evaluate TGraph at pt
             properties.at(parameter_itr) = m_graphCopies.at(parameter_itr)->Eval(pt);
         }
-        else if (type == ElectronPhotonVariableCorrectionTool::ParameterType::EtaBinned)
+        else if (type == ElectronPhotonVariableCorrectionTool::parameterType::EtaBinned)
         {
             // get value of correct eta bin
-            ATH_CHECK(Get1DBinnedParameter(properties.at(parameter_itr),absEta,m_etaBins,parameter_itr));
+            ATH_CHECK(get1DBinnedParameter(properties.at(parameter_itr),absEta,m_etaBins,parameter_itr));
         }
-        else if (type == ElectronPhotonVariableCorrectionTool::ParameterType::PtBinned)
+        else if (type == ElectronPhotonVariableCorrectionTool::parameterType::PtBinned)
         {
             // get value of correct pt bin
-            ATH_CHECK(Get1DBinnedParameter(properties.at(parameter_itr),pt,m_ptBins,parameter_itr));
+            ATH_CHECK(get1DBinnedParameter(properties.at(parameter_itr),pt,m_ptBins,parameter_itr));
         }
-        else if (type == ElectronPhotonVariableCorrectionTool::ParameterType::EtaTimesPtBinned)
+        else if (type == ElectronPhotonVariableCorrectionTool::parameterType::EtaTimesPtBinned)
         {
             // get value of correct eta x pt bin
-            ATH_CHECK(Get2DBinnedParameter(properties.at(parameter_itr),absEta,pt,parameter_itr));
+            ATH_CHECK(get2DBinnedParameter(properties.at(parameter_itr),absEta,pt,parameter_itr));
         }
-        else if (type == ElectronPhotonVariableCorrectionTool::ParameterType::EventDensity)
+        else if (type == ElectronPhotonVariableCorrectionTool::parameterType::EventDensity)
         {
             // get event density
-            ATH_CHECK(GetDensity(properties.at(parameter_itr), "TopoClusterIsoCentralEventShape"));
+            ATH_CHECK(getDensity(properties.at(parameter_itr), "TopoClusterIsoCentralEventShape"));
         }
     }
 
@@ -499,7 +499,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::GetCorrectionParameters(s
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionTool::Get1DBinnedParameter(float& return_parameter_value, const float& evalPoint, const std::vector<float>& binning, const int& parameter_number) const
+const StatusCode ElectronPhotonVariableCorrectionTool::get1DBinnedParameter(float& return_parameter_value, const float& evalPoint, const std::vector<float>& binning, const int& parameter_number) const
 {
     ANA_MSG_VERBOSE("Get 1DBinnedParameters...");
     ANA_MSG_VERBOSE("EvalPoint: " << evalPoint);
@@ -531,7 +531,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::Get1DBinnedParameter(floa
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionTool::Get2DBinnedParameter(float& return_parameter_value, const float& etaEvalPoint, const float& ptEvalPoint, const int& parameter_number) const
+const StatusCode ElectronPhotonVariableCorrectionTool::get2DBinnedParameter(float& return_parameter_value, const float& etaEvalPoint, const float& ptEvalPoint, const int& parameter_number) const
 {
     //need to find eta bin, and need to find pt bin
     //from this, calculate which parameter of the list is needed to be returned.
@@ -593,7 +593,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::Get2DBinnedParameter(floa
     return StatusCode::SUCCESS;
 }
 
-const StatusCode ElectronPhotonVariableCorrectionTool::GetDensity(float& value, const std::string& eventShapeContainer) const
+const StatusCode ElectronPhotonVariableCorrectionTool::getDensity(float& value, const std::string& eventShapeContainer) const
 {
     // retreive the event shape container
     const xAOD::EventShape* evtShape = nullptr;
@@ -606,24 +606,24 @@ const StatusCode ElectronPhotonVariableCorrectionTool::GetDensity(float& value, 
     return StatusCode::SUCCESS;
 }
 
-ElectronPhotonVariableCorrectionTool::ParameterType ElectronPhotonVariableCorrectionTool::StringToParameterType( const std::string& input ) const
+ElectronPhotonVariableCorrectionTool::parameterType ElectronPhotonVariableCorrectionTool::stringToParameterType( const std::string& input ) const
 {
     // return parameter type according to string given in conf file
-    if( input == "EtaDependentTGraph") return ElectronPhotonVariableCorrectionTool::ParameterType::EtaDependentTGraph;
-    else if( input == "PtDependentTGraph") return ElectronPhotonVariableCorrectionTool::ParameterType::PtDependentTGraph;
-    else if( input == "EtaBinned") return ElectronPhotonVariableCorrectionTool::ParameterType::EtaBinned;
-    else if( input == "PtBinned") return ElectronPhotonVariableCorrectionTool::ParameterType::PtBinned;
-    else if( input == "EtaTimesPtBinned") return ElectronPhotonVariableCorrectionTool::ParameterType::EtaTimesPtBinned;
-    else if( input == "EventDensity") return ElectronPhotonVariableCorrectionTool::ParameterType::EventDensity;
+    if( input == "EtaDependentTGraph") return ElectronPhotonVariableCorrectionTool::parameterType::EtaDependentTGraph;
+    else if( input == "PtDependentTGraph") return ElectronPhotonVariableCorrectionTool::parameterType::PtDependentTGraph;
+    else if( input == "EtaBinned") return ElectronPhotonVariableCorrectionTool::parameterType::EtaBinned;
+    else if( input == "PtBinned") return ElectronPhotonVariableCorrectionTool::parameterType::PtBinned;
+    else if( input == "EtaTimesPtBinned") return ElectronPhotonVariableCorrectionTool::parameterType::EtaTimesPtBinned;
+    else if( input == "EventDensity") return ElectronPhotonVariableCorrectionTool::parameterType::EventDensity;
     else
     {
         // if not a proper type, return failure type - check and fail on this!
         ATH_MSG_ERROR(input.c_str() << " is not an allowed parameter type.");
-        return ElectronPhotonVariableCorrectionTool::ParameterType::Failure;
+        return ElectronPhotonVariableCorrectionTool::parameterType::Failure;
     }
 }
 
-const StatusCode ElectronPhotonVariableCorrectionTool::PassedCorrectPhotonType(const xAOD::Photon& photon) const
+const StatusCode ElectronPhotonVariableCorrectionTool::passedCorrectPhotonType(const xAOD::Photon& photon) const
 {
     //check if the passed photon type is the same as the requested photon type, if only one photon type was requested
     if (m_convertedPhotonsOnly != m_unconvertedPhotonsOnly)
