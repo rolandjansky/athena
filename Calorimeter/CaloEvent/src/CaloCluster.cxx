@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -1343,19 +1343,6 @@ void CaloCluster::setCalEta(double eta) { P4EEtaPhiM::setEta(eta); }
 void CaloCluster::setCalPhi(double phi) { P4EEtaPhiM::setPhi(phi); }
 void CaloCluster::setCalM(double m)     { P4EEtaPhiM::setM(m); }
 
-bool CaloCluster::setSignalState(signalstate_t s) const
-{
-  if ( !this->hasSignalState(s) ) return false;
-  
-  m_signalState = s;
-  
-  return 
-    s == statename_t::CALIBRATED    ? this->setStateCal() : 
-    s == statename_t::ALTCALIBRATED ? this->setStateAlt() : 
-    s == statename_t::UNCALIBRATED  ? this->setStateRaw() :
-    false;
-}
-
 bool CaloCluster::setSignalState(signalstate_t s)
 {
   if ( !this->hasSignalState(s) ) return false;
@@ -1379,11 +1366,6 @@ bool CaloCluster::hasSignalState(signalstate_t s) const
 bool CaloCluster::isAtSignalState(signalstate_t s) const
 {
   return s == m_signalState;
-}
-
-void CaloCluster::resetSignalState() const
-{
-  this->setSignalState(m_defSigState);
 }
 
 void CaloCluster::resetSignalState()
@@ -1538,11 +1520,22 @@ unsigned int CaloCluster::getClusterPhiSize() const{
 CLHEP::HepLorentzVector
 CaloCluster::hlv(CaloCluster::signalstate_t s) const {
   if(hasSignalState(s)){
-    signalstate_t bak = signalState();
-    setSignalState(s);
-    CLHEP::HepLorentzVector v = hlv();
-    setSignalState(bak);
-    return v;
+    switch (s) {
+    case statename_t::CALIBRATED: {
+      P4EEtaPhiM tmp = *this;
+      return tmp.hlv();
+    }
+    case statename_t::UNCALIBRATED: {
+      P4EEtaPhiM tmp (m_rawE, m_rawEta, m_rawPhi, m_rawM);
+      return tmp.hlv();
+    }
+    case statename_t::ALTCALIBRATED: {
+      P4EEtaPhiM tmp (m_altE, m_altEta, m_altPhi, m_altM);
+      return tmp.hlv();
+    }
+    default:
+      break;
+    }
   }
   return this->hlv();
 }
