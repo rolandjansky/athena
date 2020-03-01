@@ -91,8 +91,10 @@ StatusCode LArPileUpTool::initialize()
      ATH_MSG_INFO(" No overlay of random events");
   }
 
-  ATH_CHECK(m_mergeSvc.retrieve());
-  ATH_MSG_INFO( "PileUpMergeSvc successfully initialized");
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+    ATH_MSG_INFO( "PileUpMergeSvc successfully initialized");
+  }
 
   //
   // ......... print the noise flag
