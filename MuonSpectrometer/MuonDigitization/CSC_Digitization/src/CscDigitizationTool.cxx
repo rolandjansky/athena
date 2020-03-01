@@ -56,7 +56,9 @@ StatusCode CscDigitizationTool::initialize() {
   ATH_CHECK(detStore()->retrieve(m_geoMgr));
   ATH_MSG_DEBUG ( "MuonDetectorManager retrieved from StoreGate.");
 
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
 
   //random number initialization
   ATH_CHECK(m_rndmSvc.retrieve());
