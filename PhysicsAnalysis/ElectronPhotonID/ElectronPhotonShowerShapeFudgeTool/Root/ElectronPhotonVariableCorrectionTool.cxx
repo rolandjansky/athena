@@ -61,12 +61,12 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
         return StatusCode::FAILURE;
     }
 
-    // Retreive properties from configuration file, using TEnv class
+    // retrieve properties from configuration file, using TEnv class
     TEnv env(configFile.c_str());
     // Send warning if duplicates found in conf file
     env.IgnoreDuplicates(false);
 
-    //retreive variable to correct
+    //retrieve variable to correct
     if (env.Lookup("Variable"))
     {
         m_correctionVariable = env.GetValue("Variable","");
@@ -187,7 +187,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection(x
         return CP::CorrectionCode::Error;
     }
     
-    //declare objects needed to retreive photon properties
+    //declare objects needed to retrieve photon properties
     std::vector<float> properties; //safe value of function parameter i at place i
     properties.resize(m_numberOfFunctionParameters);
     float absEta; //safe absolute value of eta of event
@@ -235,7 +235,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection(x
         return CP::CorrectionCode::Error;
     }
     
-    //declare objects needed to retreive electron properties
+    //declare objects needed to retrieve electron properties
     std::vector<float> properties; //safe value of function parameter i at place i
     properties.resize(m_numberOfFunctionParameters);
     float absEta; //safe absolute value of eta of event
@@ -297,7 +297,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::correctedCopy( co
 const StatusCode ElectronPhotonVariableCorrectionTool::getKinematicProperties(const xAOD::Egamma& egamma_object, float& pt, float& absEta) const
 {
     // just reteriving eta and pt is probably less expensive then checking if I need it and
-    // then retreive it only if I actually need it
+    // then retrieve it only if I actually need it
 
     // protection against bad clusters
     const xAOD::CaloCluster* cluster  = egamma_object.caloCluster();
@@ -328,7 +328,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
     // don't want to write the same code multiple times, so set flags when to retrieve eta/pt bins
     bool getEtaBins = false;
     bool getPtBins = false;
-    // form strings according to which parameter to retreive
+    // form strings according to which parameter to retrieve
     TString filePathKey = TString::Format("Parameter%dFile",parameter_number);
     TString graphNameKey = TString::Format("Parameter%dGraphName",parameter_number);
     TString binValues = TString::Format("Parameter%dValues",parameter_number);
@@ -336,7 +336,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
     TString filePath = "";
     TString graphName = "";
 
-    // according to the parameter type, retreive the information from conf
+    // according to the parameter type, retrieve the information from conf
     if (type == ElectronPhotonVariableCorrectionTool::parameterType::EtaDependentTGraph || type == ElectronPhotonVariableCorrectionTool::parameterType::PtDependentTGraph)
     {
         // check if necessary information is in conf, else fail
@@ -347,7 +347,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
         }
         else
         {
-            ATH_MSG_ERROR("Could not retreive parameter %d file path.");
+            ATH_MSG_ERROR("Could not retrieve parameter %d file path.");
             return StatusCode::FAILURE;
         }
         // check if necessary information is in conf, else fail
@@ -358,7 +358,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
         }
         else
         {
-            ATH_MSG_ERROR("Could not retreive parameter %d graph name.");
+            ATH_MSG_ERROR("Could not retrieve parameter %d graph name.");
             return StatusCode::FAILURE;
         }
         // open file, get graph, store a copy
@@ -390,8 +390,8 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
         return StatusCode::SUCCESS;
     }
 
-    // if needed and not already retreived, get eta binning
-    if (getEtaBins && !m_retreivedEtaBinning)
+    // if needed and not already retrieved, get eta binning
+    if (getEtaBins && !m_retrievedEtaBinning)
     {
         // check if necessary information is in conf, else fail
         if (env.Lookup("EtaBins"))
@@ -404,17 +404,17 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
                 ATH_MSG_ERROR("Lowest bin edge given for parameter " << parameter_number << " is not 0. Please provide the lower bin edges of your correction binning in the conf file, starting with 0.");
                 return StatusCode::FAILURE;
             }
-            // don't want to retreive the same thing twice from conf
-            m_retreivedEtaBinning = true;
+            // don't want to retrieve the same thing twice from conf
+            m_retrievedEtaBinning = true;
         }
         else
         {
-            ATH_MSG_ERROR("Could not retreive eta binning.");
+            ATH_MSG_ERROR("Could not retrieve eta binning.");
             return StatusCode::FAILURE;
         }
     }
-    // if needed and not already retreived, get pt binning
-    if (getPtBins && !m_retreivedPtBinning)
+    // if needed and not already retrieved, get pt binning
+    if (getPtBins && !m_retrievedPtBinning)
     {
         // check if necessary information is in conf, else fail
         if (env.Lookup("PtBins"))
@@ -427,12 +427,12 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
                 ATH_MSG_ERROR("Lowest bin edge given for parameter " << parameter_number << " is not 0. Please provide the lower bin edges of your correction binning in the conf file, starting with 0.");
                 return StatusCode::FAILURE;
             }
-            // don't want to retreive the same thing twice from conf
-            m_retreivedPtBinning = true;
+            // don't want to retrieve the same thing twice from conf
+            m_retrievedPtBinning = true;
         }
         else
         {
-            ATH_MSG_ERROR("Could not retreive pt binning.");
+            ATH_MSG_ERROR("Could not retrieve pt binning.");
             return StatusCode::FAILURE;
         }
     }
@@ -447,7 +447,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
         }
         else
         {
-            ATH_MSG_ERROR("Could not retreive binned values.");
+            ATH_MSG_ERROR("Could not retrieve binned values.");
             return StatusCode::FAILURE;
         }
     }
@@ -595,7 +595,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::get2DBinnedParameter(floa
 
 const StatusCode ElectronPhotonVariableCorrectionTool::getDensity(float& value, const std::string& eventShapeContainer) const
 {
-    // retreive the event shape container
+    // retrieve the event shape container
     const xAOD::EventShape* evtShape = nullptr;
     if(evtStore()->retrieve(evtShape, eventShapeContainer).isFailure()){
         ATH_MSG_ERROR("Cannot retrieve density container " << eventShapeContainer);

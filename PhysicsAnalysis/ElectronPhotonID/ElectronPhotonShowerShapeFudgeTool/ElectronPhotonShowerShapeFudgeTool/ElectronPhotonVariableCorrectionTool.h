@@ -74,8 +74,8 @@ private:
     std::vector<float> m_ptBins; //if needed, store a list of bin boundaries in pt
     bool m_convertedPhotonsOnly = false; //set to true if correction is only for converted photons
     bool m_unconvertedPhotonsOnly = false; //set to true if correction is only for unconverted photons
-    bool m_retreivedEtaBinning = false; //check if already retreived eta binning
-    bool m_retreivedPtBinning = false; //check if already retreived pt binning
+    bool m_retrievedEtaBinning = false; //check if already retrieved eta binning
+    bool m_retrievedPtBinning = false; //check if already retrieved pt binning
     std::unique_ptr<SG::AuxElement::Accessor<float>> m_variableToCorrect; // accessor for the variable to be corrected
     std::unique_ptr<SG::AuxElement::Accessor<float>> m_originalVariable; // accessor to store the original value of the corrected variable
     ElectronPhotonVariableCorrectionTool::parameterType stringToParameterType( const std::string& input ) const; //convert input string to a parameter function type
