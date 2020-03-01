@@ -344,10 +344,16 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
         {
             //get the path to the root file where the graph is saved
             filePath = PathResolverFindCalibFile(env.GetValue(filePathKey.Data(),""));
+            // fail if file not found
+            if (filePath == "")
+            {
+                ATH_MSG_ERROR("Could not locate Parameter" << parameter_number << " TGraph file.");
+                return StatusCode::FAILURE;
+            }
         }
         else
         {
-            ATH_MSG_ERROR("Could not retrieve parameter %d file path.");
+            ATH_MSG_ERROR("Could not retrieve Parameter" << parameter_number << " file path.");
             return StatusCode::FAILURE;
         }
         // check if necessary information is in conf, else fail
@@ -358,15 +364,32 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
         }
         else
         {
-            ATH_MSG_ERROR("Could not retrieve parameter %d graph name.");
+            ATH_MSG_ERROR("Could not retrieve Parameter" << parameter_number << " graph name.");
             return StatusCode::FAILURE;
         }
-        // open file, get graph, store a copy
-        //TODO: Check if opening file works & if graph is found, else warning + fail
+        // open file, if it works, try to find graph, get graph, store a copy, else warning + fail
         std::unique_ptr<TFile> file (new TFile(filePath.Data(),"READ"));
-        std::unique_ptr<TGraph> graph ((TGraph*)file->Get(graphName.Data()));
-        m_graphCopies.at(parameter_number) = (TGraph*)graph->Clone(); //Or use copy constructor?
-        file->Close();
+        // check if file is open - if open, get graph, if not, fail
+        if (file->IsOpen())
+        {
+            // if graph exists, get it, else fail
+            if (file->GetListOfKeys()->Contains(graphName))
+            {
+                std::unique_ptr<TGraph> graph ((TGraph*)file->Get(graphName.Data()));
+                m_graphCopies.at(parameter_number) = (TGraph*)graph->Clone(); //Or use copy constructor?
+                file->Close();
+            }
+            else
+            {
+                ATH_MSG_ERROR("Could not find TGraph " << graphName << " in file " << filePath);
+                return StatusCode::FAILURE;
+            }
+        }
+        else
+        {
+            ATH_MSG_ERROR("Could not open Parameter" << parameter_number << " TGraph file " << filePath.Data());
+            return StatusCode::FAILURE;
+        }
     }
     else if (type == ElectronPhotonVariableCorrectionTool::parameterType::EtaBinned )
     {
