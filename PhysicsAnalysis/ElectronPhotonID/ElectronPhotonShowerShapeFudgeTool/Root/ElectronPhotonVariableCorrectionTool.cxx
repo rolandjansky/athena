@@ -610,7 +610,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::get2DBinnedParameter(floa
      * etc.
      * the correct parameter is saved in the vector at 4*ptBinNumber + etaBinNumber
      * */
-    return_parameter_value = m_binValues.at(parameter_number).at(4 * ptBin + etaBin);
+    return_parameter_value = m_binValues.at(parameter_number).at(m_etaBins.size() * ptBin + etaBin);
 
     // everything went fine, so
     return StatusCode::SUCCESS;
