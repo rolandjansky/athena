@@ -120,6 +120,7 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.OverlayLAr',   False) # Add separate em HEC and FCAL flags?
     dcf.addFlag('Detector.OverlayTile',  False)
     dcf.addFlag('Detector.OverlayCalo',  lambda prevFlags : (prevFlags.Detector.OverlayLAr or prevFlags.Detector.OverlayTile))
+    dcf.addFlag('Detector.OverlayL1Calo',False)
     dcf.addFlag('Detector.OverlayCSC',   False)
     dcf.addFlag('Detector.OverlayMDT',   False)
     dcf.addFlag('Detector.OverlayRPC',   False)

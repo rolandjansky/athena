@@ -84,8 +84,9 @@ def TileRawChannelToL2OutputCfg(flags, streamName = 'RDO', **kwargs):
     else:
         tileL2Container = tileRawChanToL2Alg.getDefaultProperty('TileL2Container')
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge( OutputStreamCfg(flags, streamName, ['TileL2Container#' + tileL2Container]) )
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge( OutputStreamCfg(flags, streamName, ['TileL2Container#' + tileL2Container]) )
 
     return acc
 
