@@ -373,7 +373,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
         if (file->IsOpen())
         {
             // if graph exists, get it, else fail
-            if (file->GetListOfKeys()->Contains(graphName))
+            if (file->Get(graphName))
             {
                 std::unique_ptr<TGraph> graph ((TGraph*)file->Get(graphName.Data()));
                 m_graphCopies.at(parameter_number) = (TGraph*)graph->Clone(); //Or use copy constructor?
