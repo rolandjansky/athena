@@ -2086,7 +2086,6 @@ namespace CP {
       // Important categories to remember: 
       // 3 --> high-pt, 2-station muons
       // 4 --> high-pt, 3-station muons
-      m_p1_p2_MS_Categories = 5;
       std::map<std::string, std::map<std::pair<int, int>, std::pair<double, double> >* > files_and_maps;
       files_and_maps["ExtraHighPt_AlignedOnly"] = &m_extra_p1_p2_MS_AlignedOnly;
       files_and_maps["ExtraHighPt_AlignedAndCorrected"] = &m_extra_p1_p2_MS_AlignedAndCorrected;
@@ -2116,7 +2115,7 @@ namespace CP {
             if( i == 0 ) {
               getline(InValues, tmpname);
             }
-            for(int cat_index = 0; cat_index < m_p1_p2_MS_Categories; cat_index++) {
+            for(int cat_index = 0; cat_index < MCAST::MST_Categories::Total; cat_index++) {
                 InValues>>tmp_p1;
                 InValues>>tmp_p2;
                 (*this_map)[std::make_pair(reg_index, cat_index)] = std::make_pair(tmp_p1, tmp_p2);

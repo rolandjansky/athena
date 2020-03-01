@@ -45,7 +45,7 @@ namespace MCAST {
   namespace SystVariation { enum { Default = 0, Down = -1, Up = 1 }; }
   namespace SagittaCorType { enum { CB=0, ID=1, ME=2, WEIGHTS=3, AUTO=4}; }
   namespace SagittaSysType { enum { NOMINAL=0, RHO=1, BIAS=2}; }
-  namespace MST_Categories { enum { Undefined = -1, Zero = 0, One = 1, Two = 2, Three = 3, Four = 4 }; }
+  namespace MST_Categories { enum { Undefined = -1, Zero = 0, One = 1, Two = 2, Three = 3, Four = 4, Total = 5 }; }
 }
 
 class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgTool {
@@ -211,7 +211,6 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     std::vector<double> m_MC_p1_ID, m_MC_p2_ID, m_MC_p2_ID_TAN, m_MC_p0_MS, m_MC_p1_MS, m_MC_p2_MS;
     // Special "p2" systematics and corrections for non-three-station muons
     // Maps have two keys: detector region and category
-    int m_p1_p2_MS_Categories;
     std::map<std::pair<int, int>, std::pair<double, double> > m_extra_p1_p2_MS_AlignedOnly, m_extra_p1_p2_MS_AlignedAndCorrected, m_extra_p1_p2_MS_Misaligned;
 
     std::vector<std::string> m_names;
