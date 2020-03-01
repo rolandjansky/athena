@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DSConfigSvc.cxx 742408 2016-04-23 18:55:57Z stelzer $
@@ -311,10 +311,10 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          CondAttrListCollection::size_type nCh = lvl1MenuAttrColl->size();
          CondAttrListCollection::const_iterator chIt = lvl1MenuAttrColl->begin();
          for( ; chIt != lvl1MenuAttrColl->end(); ++chIt ) {
-            CondAttrListCollection::ChanAttrListPair idListPair = *chIt;
+            const CondAttrListCollection::ChanAttrListPair& idListPair = *chIt;
             // the attributeList for this channel (a channel corresponds to a triggerItem)
             CondAttrListCollection::ChanNum       ctpid   = idListPair.first;
-            CondAttrListCollection::AttributeList atrList = idListPair.second;
+            const CondAttrListCollection::AttributeList& atrList = idListPair.second;
             TrigConf::TriggerItem* ti = createLvl1TriggerItem( atrList );
             ti->setCtpId( ( int ) ctpid ); // ChanNum is a typedef of uint32
             m_ctpConfig.menu().addTriggerItem( ti ); // the menu takes the ownership of the TI
@@ -334,10 +334,10 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          CondAttrListCollection::size_type nCh = lvl1PitAttrColl->size();
          CondAttrListCollection::const_iterator chIt = lvl1PitAttrColl->begin();
          for( ; chIt != lvl1PitAttrColl->end(); ++chIt ) {
-            CondAttrListCollection::ChanAttrListPair idListPair = *chIt;
+            const CondAttrListCollection::ChanAttrListPair& idListPair = *chIt;
             // the attributeList for this channel (a channel corresponds to a PIT)
             CondAttrListCollection::ChanNum       tipNumber = idListPair.first;
-            CondAttrListCollection::AttributeList attrList   = idListPair.second;
+            const CondAttrListCollection::AttributeList& attrList   = idListPair.second;
             TrigConf::PIT* pit = readLvl1InputMap( attrList );
             TrigConf::TIP* tip = readLvl1TIPMap( attrList );
             pit->setPitNumber( ( int ) tipNumber );   // ChanNum is a typedef of uint32
@@ -362,7 +362,7 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          m_hltFrame.theHLTSequenceList().clear();
          size_t nChains(0);
          for(CondAttrListCollection::const_iterator attrListIt = hltMenuAttrColl->begin(); attrListIt != hltMenuAttrColl->end(); attrListIt++ ) {
-            CondAttrListCollection::AttributeList attrList = attrListIt->second;
+            const CondAttrListCollection::AttributeList& attrList = attrListIt->second;
             m_hltFrame.theHLTChainList().addHLTChain( createHLTChain( attrList, &m_hltFrame.theHLTSequenceList() ) );
             nChains++;
          }
@@ -383,7 +383,7 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          // set the HLT merged/not merged chains
          bool mergedHLT = false;
          CondAttrListCollection::const_iterator attrListIt = hltMenuAttrColl->begin();
-         CondAttrListCollection::AttributeList attrList = attrListIt->second;
+         const CondAttrListCollection::AttributeList& attrList = attrListIt->second;
          if (attrList["ChainName"].data<cool::String255>().find("HLT") != std::string::npos) mergedHLT=true;
          ATH_MSG_INFO( "  HLT prescale key : " << m_hltPsKey );
          // set the prescale, pass-through and rerun-prescale values
@@ -393,10 +393,10 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          uint npositivepsHLT( 0 );
          CondAttrListCollection::const_iterator chIt = prescaleAL->begin();
          for( ; chIt != prescaleAL->end(); ++chIt ) {
-            CondAttrListCollection::ChanAttrListPair idListPair = *chIt;
+            const CondAttrListCollection::ChanAttrListPair& idListPair = *chIt;
             // the attributeList for this channel (a channel corresponds to a triggerItem)
             CondAttrListCollection::ChanNum       ch      = idListPair.first;
-            CondAttrListCollection::AttributeList attrList = idListPair.second;
+            const CondAttrListCollection::AttributeList& attrList = idListPair.second;
             float ps, pt, rrps;
             readHltPrescale( attrList, ps, pt, rrps);
             TrigConf::HLTLevel level = (mergedHLT ? HLT :( ( ch % 2 ==0 ) ? L2 : EF));
@@ -437,7 +437,7 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          for( CondAttrListCollection::ChanNum ch = 0; ch != nCh; ++ch ) {
             // the attributeList for this channel (a channel corresponds to a
             // single prescale, the channel id is the ctpid)
-            CondAttrListCollection::AttributeList attrList =
+            const CondAttrListCollection::AttributeList& attrList =
                lvl1PsAtrColl->chanAttrListPair( ch )->second;
             readLvl1Prescale( attrList, ps );
             if( isRun2 ) {
@@ -459,7 +459,7 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          ATH_MSG_INFO( "Updating trigger configuration: HLT chain groups" );
          size_t nGroups(0);
          for(CondAttrListCollection::const_iterator attrListIt = hltgrpAtrColl->begin(); attrListIt != hltgrpAtrColl->end(); attrListIt++ ) {
-            CondAttrListCollection::AttributeList attrList = attrListIt->second;
+            const CondAttrListCollection::AttributeList& attrList = attrListIt->second;
             addGroupsToHltChain( attrList, m_hltFrame.theHLTChainList() );
             nGroups++;
          }
@@ -475,7 +475,7 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          ATH_MSG_INFO( "  Number of thresholds: " << nCh );
          vector<TriggerThreshold*> tmpThrVector;
          for( CondAttrListCollection::ChanNum ch = 0; ch != nCh; ++ch ) {
-            CondAttrListCollection::AttributeList attrList = l1thrAtrColl->chanAttrListPair( ch )->second;
+            const CondAttrListCollection::AttributeList& attrList = l1thrAtrColl->chanAttrListPair( ch )->second;
             tmpThrVector.push_back(createLvl1Threshold( attrList ) );
          }
          /**
@@ -542,10 +542,10 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
 
          CondAttrListCollection::const_iterator chIt = l1itemdefAttrColl->begin();
          for( ; chIt != l1itemdefAttrColl->end(); ++chIt ) {
-            CondAttrListCollection::ChanAttrListPair idListPair = *chIt;
+            const CondAttrListCollection::ChanAttrListPair& idListPair = *chIt;
             // the attributeList for this channel (a channel corresponds to a triggerItem)
             CondAttrListCollection::ChanNum       ctpid   = idListPair.first;
-            CondAttrListCollection::AttributeList attrList = idListPair.second;
+            const CondAttrListCollection::AttributeList& attrList = idListPair.second;
             TrigConf::TriggerItem* l1item = m_ctpConfig.menu().findTriggerItem( ctpid );
             addThresholdsToTriggerItem( attrList, l1item,
                                         m_ctpConfig.menu().thresholdVector() );
