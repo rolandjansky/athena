@@ -143,7 +143,9 @@ StatusCode TRTDigitizationTool::initialize()
   m_particleTable = p_PartPropSvc->PDT();
 
   //locate the PileUpMergeSvc and initialize our local ptr
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
 
   //Retrieve TRT_StrawNeighbourService.
   ATH_CHECK(m_TRTStrawNeighbourSvc.retrieve());
