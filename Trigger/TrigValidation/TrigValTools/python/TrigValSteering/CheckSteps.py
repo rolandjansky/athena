@@ -262,7 +262,7 @@ class RegTestStep(RefComparisonStep):
     def __init__(self, name='RegTest'):
         super(RegTestStep, self).__init__(name)
         self.regex = 'REGTEST'
-        self.executable = 'regtest.py'
+        self.executable = 'regtest.pl'
         self.input_base_name = 'athena'
         self.args += ' --linematch ".*"'
         self.auto_report_result = True
