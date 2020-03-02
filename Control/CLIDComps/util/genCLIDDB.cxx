@@ -32,12 +32,13 @@ IAppMgrUI* initGaudi(const std::string& options, ISvcLocator*& svcLocator) {
   IAppMgrUI* theApp = Gaudi::createApplicationMgr();
   SmartIF<IProperty> propMgr(theApp);
   if(strlen(options.c_str())) {
-    propMgr->setProperty("JobOptionsPath", options);
+    CHECK_WITH_CONTEXT( propMgr->setProperty("JobOptionsPath", options), "initGaudi", nullptr );
   } else {
-    propMgr->setProperty("JobOptionsType", "NONE"); //no joboptions given
+    //no joboptions given
+    CHECK_WITH_CONTEXT( propMgr->setProperty("JobOptionsType", "NONE"), "initGaudi", nullptr );
   }
-  theApp->configure();
-  theApp->initialize();
+  CHECK_WITH_CONTEXT( theApp->configure(), "initGaudi", nullptr );
+  CHECK_WITH_CONTEXT( theApp->initialize(), "initGaudi", nullptr );
   svcLocator = Gaudi::svcLocator();
   return theApp;
 
