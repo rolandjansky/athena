@@ -47,7 +47,6 @@
 // Constructor with parameters:
 Muon::MuonTGMeasurementTool::MuonTGMeasurementTool(const std::string &type, const std::string &name, const IInterface* parent ) :
   AthAlgTool(type,name,parent),
-  m_trackingGeometry(0),
   m_muonDetMgr(nullptr),
   //m_assocMeasName("MuonTGMeasAssocAlg"),
   m_hits(0),
@@ -84,8 +83,6 @@ StatusCode Muon::MuonTGMeasurementTool::initialize()
   m_rpcProjPhi = new AmgMatrix(5,5);
   m_rpcProjPhi->setIdentity();
 
-  ATH_CHECK(detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName));
-
   return StatusCode::SUCCESS;
 }
 
@@ -108,8 +105,9 @@ const std::vector<const Trk::PrepRawData*>* Muon::MuonTGMeasurementTool::getMeas
   ATH_MSG_DEBUG("Muon::MuonTGMeasurementTool::getMeasurementOnLayer");
   const std::vector<const Trk::PrepRawData*>* hitsOnLayer = 0; 
   // 
-  if (!m_trackingGeometry)return hitsOnLayer; 
-
+  const Trk::TrackingGeometry* trackingGeometry;
+  if ( detStore()->retrieve(trackingGeometry, m_trackingGeometryName).isFailure() )return hitsOnLayer; 
+  
   if (m_hits && lay) {
     const Trk::DetachedTrackingVolume* station = lay->enclosingDetachedTrackingVolume();
     if (!station) ATH_MSG_WARNING("no enclosing station found");
@@ -181,7 +179,8 @@ const std::vector<const Trk::Segment*>* Muon::MuonTGMeasurementTool::getSegments
   ATH_MSG_DEBUG("Muon::MuonTGMeasurementTool::getSegments");
   const std::vector<const Trk::Segment*>* segments = 0; 
   // 
-  if (!m_trackingGeometry)return segments; 
+  const Trk::TrackingGeometry* trackingGeometry;
+  if ( detStore()->retrieve(trackingGeometry, m_trackingGeometryName).isFailure() )return segments; 
 
   if (m_segments && station) {
     unsigned int ist=0;
@@ -219,7 +218,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
     if (!lay || !parm || !id.get_identifier32().get_compact() ) return projPar;
 
     // get tracking geometry
-    if (!m_trackingGeometry)return projPar; 
+    const Trk::TrackingGeometry* trackingGeometry;
+    if ( detStore()->retrieve(trackingGeometry, m_trackingGeometryName).isFailure() )return projPar; 
 
     // check compatibility of layer info and required id ? this was already done when associating !
     if (!lay->layerType()) return projPar;
@@ -481,7 +481,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
     if (!lay || !parm || !(id.get_identifier32().get_compact()>0) ) return projPar;
 
     // get tracking geometry
-    if (!m_trackingGeometry)return projPar; 
+    const Trk::TrackingGeometry* trackingGeometry;
+    if ( detStore()->retrieve(trackingGeometry, m_trackingGeometryName).isFailure() )return projPar; 
 
     // check compatibility of layer info and required id ? this was already done when associating !
     if (!lay->layerType()) return projPar;
@@ -715,7 +716,8 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
     if (!lay || !parm || !rio ) return projRIO;
 
     // get tracking geometry
-    if (!m_trackingGeometry)return projRIO; 
+    const Trk::TrackingGeometry* trackingGeometry;
+    if ( detStore()->retrieve(trackingGeometry, m_trackingGeometryName).isFailure() )return projRIO; 
 
     // check compatibility of layer info and required id ? this was already done when associating !
     Identifier id = rio->identify();
@@ -892,7 +894,8 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
   if (!lay || !parm || !lay->layerType() ) return nid;
   
   // get tracking geometry
-  if (!m_trackingGeometry)return nid; 
+  const Trk::TrackingGeometry* trackingGeometry;
+  if ( detStore()->retrieve(trackingGeometry, m_trackingGeometryName).isFailure() )return nid; 
 
   // check compatibility of layer info and required id ? this was already done when associating !
   Identifier layId(lay->layerType());
@@ -1219,11 +1222,16 @@ const Trk::Layer* Muon::MuonTGMeasurementTool::associatedLayer(Identifier id, Am
   if (!id.get_identifier32().get_compact() ) return lay;
   
   // get tracking geometry
-  if (!m_trackingGeometry)return lay; 
+  const Trk::TrackingGeometry* trackingGeometry;
+  StatusCode sc = detStore()->retrieve(trackingGeometry, m_trackingGeometryName);
+  if ( sc.isFailure() ){
+    ATH_MSG_FATAL("Could not find tool "<< m_trackingGeometryName<<". Exiting.");
+    return lay; 
+  }else ATH_MSG_DEBUG("tracking geometry Svc \""<<m_trackingGeometryName<<"\" booked ");
   
   // rely on having misalignment uncertainty covered by span safety marge ( don't loose station from static volume 
   //  when misaligned
-  const Trk::TrackingVolume* staticVol = m_trackingGeometry->lowestStaticTrackingVolume(gp);
+  const Trk::TrackingVolume* staticVol = trackingGeometry->lowestStaticTrackingVolume(gp);
   const Trk::DetachedTrackingVolume* station = 0;
   if (staticVol && staticVol->confinedDetachedVolumes()) {
     const std::vector<const Trk::DetachedTrackingVolume*>* detTV = staticVol->confinedDetachedVolumes(); 
