@@ -135,36 +135,14 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::applyToFlagMatches
         // get ApplyTo flag
         ElectronPhotonVariableCorrectionTool::EGammaObjects confFileType = toolHolder.at(tool_itr)->isAppliedTo();
         // skip all further tests if should be applied to all objects
-        if (!(confFileType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allEGammaObjects))
-        {
-            // if tool for converted photons, but not the conf file, fail
-            if (toolHolderType == ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons)
-            {
-                if (!(confFileType == ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons || confFileType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allPhotons))
-                {
-                    ATH_MSG_ERROR("In " << name() << ": In conf " << confFiles.at(tool_itr) << ": You specified tool should be applied to converted photons in the wrapper, but the ApplyTo flag doesn't match.");
-                    return StatusCode::FAILURE;
-                }
-            }
-            // if tool for unconverted photons, but not the conf file, fail
-            if (toolHolderType == ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons)
-            {
-                if (!(confFileType == ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons || confFileType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allPhotons))
-                {
-                    ATH_MSG_ERROR("In " << name() << ": In conf " << confFiles.at(tool_itr) << ": You specified tool should be applied to unconverted photons in the wrapper, but the ApplyTo flag doesn't match.");
-                    return StatusCode::FAILURE;
-                }
-            }
-            // if tool for electrons, but not the conf file, fail
-            if (toolHolderType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons)
-            {
-                if (!(confFileType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons))
-                {
-                    ATH_MSG_ERROR("In " << name() << ": In conf " << confFiles.at(tool_itr) << ": You specified tool should be applied to electrons in the wrapper, but the ApplyTo flag doesn't match.");
-                    return StatusCode::FAILURE;
-                }
-            }
-        }
+        if ((confFileType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allEGammaObjects)) continue;
+        // continue if ApplyTo flag matches toolholder
+        if (toolHolderType == ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons && toolHolder.at(tool_itr)->applyToConvertedPhotons()) continue;
+        if (toolHolderType == ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons && toolHolder.at(tool_itr)->applyToUnconvertedPhotons()) continue;
+        if (toolHolderType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons && toolHolder.at(tool_itr)->applyToElectrons()) continue;
+        // if this point is reached, something is wrong, so
+        ATH_MSG_ERROR("In " << name() << ": In conf " << confFiles.at(tool_itr) << ": The ApplyTo flag does not match with the wrapper conf file container type.");
+        return StatusCode::FAILURE;
     }
     //everything worked out, so
     return StatusCode::SUCCESS;

@@ -59,6 +59,9 @@ public:
         allEGammaObjects
     }; //end enum EGammaObjects
     ElectronPhotonVariableCorrectionTool::EGammaObjects isAppliedTo() { return m_applyToObjects; };
+    bool applyToConvertedPhotons() const; //check if passed flag is compatible with converted photon
+    bool applyToUnconvertedPhotons() const; //check if passed flag is compatible with unconverted photon
+    bool applyToElectrons() const; //check if passed flag is compatible with electron
 
 private:
     // In order to do faster comparisons, use enum and not string for type of function parameter
@@ -89,8 +92,6 @@ private:
     ElectronPhotonVariableCorrectionTool::parameterType stringToParameterType( const std::string& input ) const; //convert input string to a parameter function type
     ElectronPhotonVariableCorrectionTool::EGammaObjects stringToEGammaObject( const std::string& input ) const; //convert input string to egamma object type
     bool passedCorrectPhotonType(const xAOD::Photon& photon) const; //check if the correct type of photon was passed to the tool, if only (un)converted photons requested
-    bool applyToConvertedPhoton( const ElectronPhotonVariableCorrectionTool::EGammaObjects applyToObjects) const; //check if passed flag is compatible with converted photon
-    bool applyToUnconvertedPhoton( const ElectronPhotonVariableCorrectionTool::EGammaObjects applyToObjects) const; //check if passed flag is compatible with unconverted photon
     const StatusCode getParameterInformationFromConf(TEnv& env, const int& parameter_number, const ElectronPhotonVariableCorrectionTool::parameterType& type); //depending on parameter type, get the relevant information from conf file
     const StatusCode getCorrectionParameters(std::vector<float>& properties, const float& pt, const float& absEta) const; //get the actual parameters entering the correction TF1
     const StatusCode get1DBinnedParameter(float& return_parameter_value, const float& evalPoint, const std::vector<float>& binning, const int& parameter_number) const; //get the parameter if saved binned (eta or pt) in conf
