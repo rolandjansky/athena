@@ -204,6 +204,7 @@
 + MuonSpectrometer/MuonSimData
 
 # Physics analysis package(s):
+- PhysicsAnalysis/Algorithms/StandaloneAnalysisAlgorithms
 + PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AODSelect
 + PhysicsAnalysis/AnalysisCommon/AnalysisUtils
