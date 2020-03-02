@@ -105,10 +105,20 @@ StatusCode JetBadChanCorrTool::initialize()
     }
   }
 
+  if(m_jetContainerName.empty()){
+    ATH_MSG_ERROR("JetBadChanCorrTool needs to have its input jet container name configured!");
+    return StatusCode::FAILURE;
+  }
+
   ATH_CHECK(m_badCellMap_key.initialize());
+
+  m_corrCellKey = m_jetContainerName + "." + m_corrCellKey.key();
   ATH_CHECK(m_corrCellKey.initialize());
 
   if (!m_useClusters){
+    m_corrDotxKey       = m_jetContainerName + "." + m_corrDotxKey.key();
+    m_corrJetKey        = m_jetContainerName + "." + m_corrJetKey.key();
+    m_corrJetForCellKey = m_jetContainerName + "." + m_corrJetForCellKey.key();
     ATH_CHECK(m_corrDotxKey.initialize());
     ATH_CHECK(m_corrJetKey.initialize());
     ATH_CHECK(m_corrJetForCellKey.initialize());

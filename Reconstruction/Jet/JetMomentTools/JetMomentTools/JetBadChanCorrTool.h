@@ -57,7 +57,7 @@ public:
 
   virtual ~JetBadChanCorrTool();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
 
@@ -75,6 +75,7 @@ protected:
 
   ServiceHandle<ITHistSvc> m_thistSvc;
 
+  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "SG key for the input jet container"};
   Gaudi::Property<int> m_nBadCellLimit{this, "NBadCellLimit", 10000, "Limit to calculate moments"};
 
   // for jet-level correction
