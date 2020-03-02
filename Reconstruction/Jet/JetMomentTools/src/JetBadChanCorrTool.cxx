@@ -107,9 +107,12 @@ StatusCode JetBadChanCorrTool::initialize()
 
   ATH_CHECK(m_badCellMap_key.initialize());
   ATH_CHECK(m_corrCellKey.initialize());
-  ATH_CHECK(m_corrDotxKey.initialize());
-  ATH_CHECK(m_corrJetKey.initialize());
-  ATH_CHECK(m_corrJetForCellKey.initialize());
+
+  if (!m_useClusters){
+    ATH_CHECK(m_corrDotxKey.initialize());
+    ATH_CHECK(m_corrJetKey.initialize());
+    ATH_CHECK(m_corrJetForCellKey.initialize());
+  }
 
   return StatusCode::SUCCESS;
 }
