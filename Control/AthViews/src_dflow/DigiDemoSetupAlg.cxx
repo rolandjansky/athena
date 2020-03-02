@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DigiDemoSetupAlg.h"
@@ -66,7 +66,7 @@ StatusCode DigiDemoSetupAlg::execute()
 
   //Hacky way to determine if you've already done the setup
   SG::ReadHandle< int > firstHandle( "FirstTimeFlag" );
-  firstHandle.setProxyDict( digiStorePointer );
+  CHECK( firstHandle.setProxyDict( digiStorePointer ) );
   if ( firstHandle.isValid() )
   {
     //Skip first time setup
@@ -77,16 +77,16 @@ StatusCode DigiDemoSetupAlg::execute()
     //Do first time setup
     ATH_MSG_INFO( "Setting up digi store" );
     SG::WriteHandle< int > firstHandleFiller( "FirstTimeFlag" );
-    firstHandleFiller.setProxyDict( digiStorePointer );
-    firstHandleFiller.record( std::make_unique< int >( 1 ) );
+    CHECK( firstHandleFiller.setProxyDict( digiStorePointer ) );
+    CHECK( firstHandleFiller.record( std::make_unique< int >( 1 ) ) );
 
     //Make all the "pileup events"
     for ( int eventIndex = 0; eventIndex < 100; ++eventIndex )
     {
       SG::View * digiView = new SG::View( m_viewBaseName, eventIndex, false, digiStorePointer->name() );
       SG::WriteHandle< std::vector< int > > digiHandle( m_w_ints );
-      digiHandle.setProxyDict( digiView );
-      digiHandle.record( std::make_unique< std::vector< int > >( 1, eventIndex ) );
+      CHECK( digiHandle.setProxyDict( digiView ) );
+      CHECK( digiHandle.record( std::make_unique< std::vector< int > >( 1, eventIndex ) ) );
       delete digiView;
     }
   }
@@ -108,7 +108,7 @@ StatusCode DigiDemoSetupAlg::execute()
 
   //Store the collection of views
   SG::WriteHandle< ViewContainer > outputViewHandle( m_w_views, ctx );
-  outputViewHandle.record( std::move( viewVector ) );
+  CHECK( outputViewHandle.record( std::move( viewVector ) ) );
 
   return StatusCode::SUCCESS;
 }

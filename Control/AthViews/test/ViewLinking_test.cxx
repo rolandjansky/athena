@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ClassID.h"
@@ -30,7 +30,7 @@ void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
     
   {
     SG::WriteHandle<TestClass> wh( "test1" );
-    wh.setProxyDict( parentView );
+    wh.setProxyDict( parentView ).ignore();
     auto status = wh.record( std::move( t1 ) );
     VALUE( status.isSuccess() ) EXPECTED( true );
   }
@@ -41,7 +41,7 @@ void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
   t2->value = 2;
   {
     SG::WriteHandle<TestClass> wh( "test2" );
-    wh.setProxyDict( childView );
+    wh.setProxyDict( childView ).ignore();
     auto status = wh.record( std::move( t2 ) );
     VALUE( status.isSuccess() ) EXPECTED( true ); 
   }
@@ -50,7 +50,7 @@ void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
   {
     // rtivial test, we ask for a wrong object
     SG::ReadHandle<TestClass> rh( "test" );
-    rh.setProxyDict( childView );
+    rh.setProxyDict( childView ).ignore();
     VALUE( rh.isValid() ) EXPECTED( false );
   }
 
@@ -58,14 +58,14 @@ void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
 
   {
     SG::ReadHandle<TestClass> rh( "test2" );
-    rh.setProxyDict( childView );
+    rh.setProxyDict( childView ).ignore();
     VALUE( rh.isValid() ) EXPECTED( true );
     VALUE( rh->value ) EXPECTED( 2 );
   }
 
   {
     SG::ReadHandle<TestClass> rh( "test1" );
-    rh.setProxyDict( childView );
+    rh.setProxyDict( childView ).ignore();
     VALUE( rh.isValid() ) EXPECTED( false );
   }
   log << MSG::INFO << "Views that are not linked behave correctly " << endmsg;
@@ -74,13 +74,13 @@ void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
 
   {
     SG::ReadHandle<TestClass> rh( "test2" );
-    rh.setProxyDict( childView );
+    rh.setProxyDict( childView ).ignore();
     VALUE( rh.isValid() ) EXPECTED( true );
     VALUE( rh->value ) EXPECTED( 2 );
   }
   {
     SG::ReadHandle<TestClass> rh( "test1" );
-    rh.setProxyDict( childView );
+    rh.setProxyDict( childView ).ignore();
     VALUE( rh.isValid() ) EXPECTED( true );
     VALUE( rh->value ) EXPECTED( 1 );
   }
@@ -92,14 +92,14 @@ void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
 
   {
     SG::WriteHandle<TestClass> wh( "test1" );
-    wh.setProxyDict( childView );
+    wh.setProxyDict( childView ).ignore();
     auto status = wh.record( std::move( t3 ) );
     VALUE( status.isSuccess() ) EXPECTED( true );
   }
 
   {
     SG::ReadHandle<TestClass> rh( "test1" );
-    rh.setProxyDict( childView );
+    rh.setProxyDict( childView ).ignore();
     VALUE( rh.isValid() ) EXPECTED( true );
     VALUE( rh->value ) EXPECTED ( 3 );
   }
@@ -112,7 +112,7 @@ void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
 void testFallThrough( StoreGateSvc* sg , MsgStream& log) {
   auto t = std::make_unique<TestClass>();
   SG::WriteHandle<TestClass> wh( "inStore" );
-  wh.setProxyDict( sg );
+  wh.setProxyDict( sg ).ignore();
   auto status = wh.record( std::move( t ) );
   VALUE( status.isSuccess() ) EXPECTED( true ); 
     
@@ -122,13 +122,13 @@ void testFallThrough( StoreGateSvc* sg , MsgStream& log) {
   {
     auto opaqueView = new View( "OpaqueView", -1, false );
     SG::ReadHandle<TestClass> rh( "inStore" );
-    rh.setProxyDict( opaqueView ); 
+    rh.setProxyDict( opaqueView ).ignore();
     VALUE( rh.isValid() ) EXPECTED( false );
   }
   {
     auto transparentView = new View( "TransparentView", -1 );
     SG::ReadHandle<TestClass> rh( "inStore" );
-    rh.setProxyDict( transparentView ); 
+    rh.setProxyDict( transparentView ).ignore();
     VALUE( rh.isValid() ) EXPECTED( true );
   }
   log << MSG::INFO << "Fall through works as expected " << endmsg;
