@@ -4,6 +4,8 @@
 
 #include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionToolWrapper.h"
 #include "AsgElectronPhotonCorrectionConfigHelper.h"
+#include "PathResolver/PathResolver.h"
+#include "TEnv.h"
 
 // ===========================================================================
 // Standard Constructor

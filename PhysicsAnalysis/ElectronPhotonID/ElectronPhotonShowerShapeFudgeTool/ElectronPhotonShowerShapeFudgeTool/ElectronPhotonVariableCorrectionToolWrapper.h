@@ -10,20 +10,14 @@
    @date   February 2020
 */
 
-#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"
-#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
-
-#include "TFile.h"
-#include "PathResolver/PathResolver.h"
-#include "TEnv.h"
+//ATLAS includes
 #include "AsgTools/AsgTool.h"
+#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
+#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"
+
+//EDM includes
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
-
-// forward declarations
-class TF1;
-class TFile;
-class TEnv;
 
 // ===========================================================================
 // Class ElectronPhotonVariableCorrectionToolWrapper

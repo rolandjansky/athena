@@ -26,7 +26,6 @@
 
 // forward declarations
 class TGraph;
-class TFile;
 class TEnv;
 
 // ===========================================================================
