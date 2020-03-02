@@ -55,6 +55,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_pseudoSigCut(3.),
     m_FillHist(false),
     m_existIBL(true),
+    m_IsPhase2(false),
     m_RobustFit(5),
     m_Xbeampipe (0.),
     m_Ybeampipe (0.),
@@ -122,6 +123,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
     declareProperty("FillHist",   m_FillHist, "Fill technical histograms"  );
     declareProperty("ExistIBL",   m_existIBL, "Inform whether 3-layer or 4-layer detector is used "  );
+    declareProperty("m_IsPhase2", m_IsPhase2, "Configuration for Itk phase2"  );
 
     declareProperty("RobustFit",  m_RobustFit, "Use vertex fit with RobustFit functional(VKalVrt) for common secondary vertex fit" );
 
