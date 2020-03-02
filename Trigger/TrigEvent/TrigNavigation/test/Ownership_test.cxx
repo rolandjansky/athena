@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "iostream"
@@ -57,7 +57,7 @@ TestBContainer* makeContainer(SG::OwnershipPolicy policy, int initval) {
 
 bool noMixTest() {
   BEGIN_TEST("noMixTest");
-  pStore->clearStore();
+  pStore->clearStore().ignore();
   hns->reset();
   hns->prepare();
   
@@ -85,7 +85,7 @@ bool noMixTest() {
 
 bool firsInsertDecidesPolicy() {
   BEGIN_TEST("testing if the insert operation on an empty container makes it a view container");
-  pStore->clearStore();
+  pStore->clearStore().ignore();
   hns->reset();
   hns->prepare();
   
