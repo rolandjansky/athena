@@ -243,7 +243,7 @@ class TriggerConfigGetter(Configured):
         EDMDecodingVersion()  # In most use cases this needs to be called much earlier than in HLTTriggerResultGetter
 
         if TriggerFlags.EDMDecodingVersion() >= 3:
-            if hasxAODMeta:
+            if self.hasxAODMeta:
                 if not hasattr(svcMgr, 'xAODConfigSvc'):
                     from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
                     svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
