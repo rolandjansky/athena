@@ -37,6 +37,51 @@ StatusCode LArNoisyROMonAlg::initialize()
   return AthMonitorAlgorithm::initialize();
 }
 
+/*
+StatusCode LArNoisyROMonAlg::bookHistograms()
+{
+    
+    m_eventCounter=0;
+    std::string hTitle;
+    std::stringstream tit;
+
+    MonGroup overall(this, "/LAr/NoisyRO", run, ATTRIB_MANAGED );
+    if(m_doHisto) {
+    // Book histograms per partitions    
+    MonGroup GroupBarrel(this, "/LAr/NoisyRO/Barrel", run, ATTRIB_MANAGED );
+    MonGroup GroupBarrelFrac(this, "/LAr/NoisyRO/Barrel", run, ATTRIB_MANAGED ,"", "weightedEff");
+    MonGroup GroupBarrelFracBin(this, "/LAr/NoisyRO/Barrel", run, ATTRIB_MANAGED ,"", "perBinEffPerCent");
+    m_partHistos.resize(4);
+    bookPartitionHistos(m_partHistos[1],"EMBA",GroupBarrel,GroupBarrelFrac,GroupBarrelFracBin);
+    bookPartitionHistos(m_partHistos[2],"EMBC",GroupBarrel,GroupBarrelFrac,GroupBarrelFracBin);
+    
+    MonGroup GroupEMEC(this, "/LAr/NoisyRO/EMEC", run, ATTRIB_MANAGED );
+    MonGroup GroupEMECFrac(this, "/LAr/NoisyRO/EMEC", run, ATTRIB_MANAGED,"", "weightedEff" );
+    MonGroup GroupEMECFracBin(this, "/LAr/NoisyRO/EMEC", run, ATTRIB_MANAGED,"", "perBinEffPerCent" );
+    bookPartitionHistos(m_partHistos[0],"EMECA",GroupEMEC,GroupEMECFrac,GroupEMECFracBin);
+    bookPartitionHistos(m_partHistos[3],"EMECC",GroupEMEC,GroupEMECFrac,GroupEMECFracBin);
+
+    
+    // Fill Suspicious MNB FEBs
+    for (uint i=0;i<m_knownMNBFEBs.size();i++){
+      const HWIdentifier& febid = HWIdentifier(m_knownMNBFEBs[i]);
+      HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
+      int FT = m_LArOnlineIDHelper->feedthrough(id);
+      int slot = m_LArOnlineIDHelper->slot(id);
+      int partition = partitionNumber(febid);
+      m_partHistos[partition].h_MNBKnownFEB->Fill(slot,FT);
+    }
+
+
+    }
+
+    
+  return StatusCode::SUCCESS;
+}
+
+*/
+
+
 StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
 {
   { // extra namespace for mutex
@@ -172,6 +217,9 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
 
   if ( algo != 0 ) {
     if ( burstveto ) algo |= 0x4;
+    //unsigned uf=algo;
+    //std::cout<<"LArNoisyROMonAlg flag: "<<uf<<std::endl;
+    //m_NoiseTimeTree->Fill();
     ATH_MSG_DEBUG("Filling LArNoise tree with algo: " << algo);
     fill(m_MonGroupName,time,time_ns,algo);
   } else { 
@@ -204,16 +252,15 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
 
   for (size_t i = 0; i<noisyFEB.size(); i++)
   {
+    //std::cout << "Noisy FEB " <<  noisyFEB[i].get_compact() << std::endl;
     NbNoisyFEB++;
     const HWIdentifier& febid = noisyFEB[i];
-    // Will be used in nest versions:
-    //HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
-    //int FT = m_LArOnlineIDHelper->feedthrough(id);
-    //int slot = m_LArOnlineIDHelper->slot(id);
+    HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
+    int FT = m_LArOnlineIDHelper->feedthrough(id);
+    int slot = m_LArOnlineIDHelper->slot(id);
     int partition = partitionNumber(febid);
 
     if (partition<4){
-      // FIXME:
       //if (m_IsOnline)
       //	  m_partHistos[partition].h_NoisyFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
       //	else
@@ -230,30 +277,27 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   // Fill two histograms with veto cut and all events
   for (size_t i = 0; i<mnbtightFEB.size(); i++)
   {
+    //std::cout << "MNBTight FEB " <<  noisyFEB[i].get_compact() << std::endl;
     const HWIdentifier& febid = mnbtightFEB[i];
-    // Will be used in next iteration
-    //HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
-    //int FT = m_LArOnlineIDHelper->feedthrough(id);
-    //int slot = m_LArOnlineIDHelper->slot(id);
+    HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
+    int FT = m_LArOnlineIDHelper->feedthrough(id);
+    int slot = m_LArOnlineIDHelper->slot(id);
     int partition = partitionNumber(febid);
 
     if (partition<4){
-       //FIXME
       if (m_IsOnline)
         {
 	  //m_partHistos[partition].h_CandidateMNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-          if((noisyRO->MNBTightFlaggedPartitions() & partMask[partition]) != 0){ 
+          if((noisyRO->MNBTightFlaggedPartitions() & partMask[partition]) != 0) 
             //m_partHistos[partition].h_MNBTightFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
             ;
-          }
         }
         else
         {
 	  //m_partHistos[partition].h_CandidateMNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-          if((noisyRO->MNBTightFlaggedPartitions() & partMask[partition]) != 0){ 
+          if((noisyRO->MNBTightFlaggedPartitions() & partMask[partition]) != 0) 
             //m_partHistos[partition].h_MNBTightFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
             ;
-          }
         }
     }
 
@@ -266,29 +310,27 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   for (size_t i = 0; i<mnbtight_PsVetoFEB.size(); i++)
   {
     const HWIdentifier& febid = mnbtight_PsVetoFEB[i];
-    // Will be used in next iteration
-    //HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
-    //int FT = m_LArOnlineIDHelper->feedthrough(id);
-    //int slot = m_LArOnlineIDHelper->slot(id);
+    HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
+    int FT = m_LArOnlineIDHelper->feedthrough(id);
+    int slot = m_LArOnlineIDHelper->slot(id);
     int partition = partitionNumber(febid);
+//    std::cout << "MNBTight_PsVeto FEB " <<  mnbtight_PsVetoFEB[i].get_compact() << std::endl;
+//    std::cout << "Partitions : " << (noisyRO->MNBTight_PsVetoFlaggedPartitions() & partMask[partition]) << std::endl;
 
     if (partition<4){
-      //FIXME
       if (m_IsOnline)
         {
         //m_partHistos[partition].h_CandidateMNBTight_PsVetoFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-          if((noisyRO->MNBTight_PsVetoFlaggedPartitions() & partMask[partition]) != 0){ 
+          if((noisyRO->MNBTight_PsVetoFlaggedPartitions() & partMask[partition]) != 0) 
             //m_partHistos[partition].h_MNBTight_PsVetoFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
              ;
-          }
         }
         else
         {
         //m_partHistos[partition].h_CandidateMNBTight_PsVetoFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-          if((noisyRO->MNBTight_PsVetoFlaggedPartitions() & partMask[partition]) != 0){ 
+          if((noisyRO->MNBTight_PsVetoFlaggedPartitions() & partMask[partition]) != 0) 
             //m_partHistos[partition].h_MNBTight_PsVetoFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
             ;
-          }
         }
     }
 
@@ -301,29 +343,25 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   {
     //std::cout << "MNBLoose FEB " <<  noisyFEB[i].get_compact() << std::endl;
     const HWIdentifier& febid = mnblooseFEB[i];
-    // Will be used in next iteration:
-    //HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
-    //int FT = m_LArOnlineIDHelper->feedthrough(id);
-    //int slot = m_LArOnlineIDHelper->slot(id);
+    HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
+    int FT = m_LArOnlineIDHelper->feedthrough(id);
+    int slot = m_LArOnlineIDHelper->slot(id);
     int partition = partitionNumber(febid);
 
     if (partition<4){
-      // FIXME
       if (m_IsOnline)
         {
 	  //m_partHistos[partition].h_CandidateMNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-          if((noisyRO->MNBLooseFlaggedPartitions() & partMask[partition]) != 0) {
+          if((noisyRO->MNBLooseFlaggedPartitions() & partMask[partition]) != 0) 
             //m_partHistos[partition].h_MNBLooseFEBPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
             ;
-          }
         }
         else
         {
 	  //m_partHistos[partition].h_CandidateMNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
-          if((noisyRO->MNBLooseFlaggedPartitions() & partMask[partition]) != 0){ 
+          if((noisyRO->MNBLooseFlaggedPartitions() & partMask[partition]) != 0) 
             //m_partHistos[partition].h_MNBLooseFEBFracPerEvt->Fill(static_cast<double>(slot), static_cast<double>(FT)+0.1);
             ;
-          }
         }
     }
 
@@ -337,7 +375,6 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   if ( BadFEBPartitions != 0) {
     for (int i= 0;i<4;i++){
       if ( (BadFEBPartitions & partMask[i]) != 0 ) {
-         //FIXME
 	//m_partHistos[i].h_NoisyEvent->Fill(LBN);
 	//if ( m_doTrigger ) fillTriggerHisto(m_partHistos[i],trigbits,L1trigbits);
 	//if ( ! burstveto ) m_partHistos[i].h_NoisyEventTimeVeto->Fill(LBN);
@@ -350,7 +387,6 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   if ( eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ) ) {
     for (int i= 0;i<4;i++){
       if ( (SatTightPartitions & partMask[i]) != 0 ) {
-         //FIXME
 	//m_partHistos[i].h_SaturatedNoisyEvent->Fill(LBN);
 	//if ( ! burstveto ) m_partHistos[i].h_SaturatedNoisyEventTimeVeto->Fill(LBN);
       }
@@ -363,7 +399,6 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   if ( MNBTightPartitions != 0) {
     for (int i= 0;i<4;i++){
       if ( (MNBTightPartitions & partMask[i]) != 0 ) {
-         //FIXME
 	//m_partHistos[i].h_MNBTightEvent->Fill(LBN);
 	//if ( ! burstveto ) m_partHistos[i].h_MNBTightEventTimeVeto->Fill(LBN);
       }
@@ -375,7 +410,6 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   if ( MNBTight_PsVetoPartitions != 0) {
     for (int i= 0;i<4;i++){
       if ( (MNBTight_PsVetoPartitions & partMask[i]) != 0 ) {
-      //FIXME
       //m_partHistos[i].h_MNBTight_PsVetoEvent->Fill(LBN);
       //if ( ! burstveto ) m_partHistos[i].h_MNBTight_PsVetoEventTimeVeto->Fill(LBN);
       }
@@ -387,7 +421,6 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
   if ( MNBLoosePartitions != 0) {
     for (int i= 0;i<4;i++){
       if ( (MNBLoosePartitions & partMask[i]) != 0 ) {
-        //FIXME
 	//m_partHistos[i].h_MNBLooseEvent->Fill(LBN);
 	//if ( ! burstveto ) m_partHistos[i].h_MNBLooseEventTimeVeto->Fill(LBN);
       }
@@ -396,4 +429,379 @@ StatusCode LArNoisyROMonAlg::fillHistograms(const EventContext& ctx) const
     
   return StatusCode::SUCCESS;
 }
+
+/*
+StatusCode LArNoisyROMonAlg::procHistograms()
+{  
+  if(!m_doHisto) return StatusCode::SUCCESS;
+
+  if ( endOfRunFlag() || endOfEventsBlockFlag()){
+    if ( m_IsOnline ){
+      // copy the "running" histo to the final ones, to be normalised
+      for (int i=0;i<4;i++){
+	copyHisto(m_partHistos[i].h_NoisyFEBPerEvt,m_partHistos[i].h_NoisyFEBFracPerEvt);
+	copyHisto(m_partHistos[i].h_MNBTightFEBPerEvt,m_partHistos[i].h_MNBTightFEBFracPerEvt);
+        copyHisto(m_partHistos[i].h_MNBTight_PsVetoFEBPerEvt,m_partHistos[i].h_MNBTight_PsVetoFEBFracPerEvt);
+	copyHisto(m_partHistos[i].h_MNBLooseFEBPerEvt,m_partHistos[i].h_MNBLooseFEBFracPerEvt);
+	copyHisto(m_partHistos[i].h_CandidateMNBTightFEBPerEvt,m_partHistos[i].h_CandidateMNBTightFEBFracPerEvt);
+        copyHisto(m_partHistos[i].h_CandidateMNBTight_PsVetoFEBPerEvt,m_partHistos[i].h_CandidateMNBTight_PsVetoFEBFracPerEvt);
+	copyHisto(m_partHistos[i].h_CandidateMNBLooseFEBPerEvt,m_partHistos[i].h_CandidateMNBLooseFEBFracPerEvt);
+      }
+    }
+
+    if (m_eventCounter>0) {
+      const double scale =  100./static_cast<double>(m_eventCounter);
+
+      for (int i=0;i<4;i++){
+	m_partHistos[i].h_NoisyFEBFracPerEvt->scaleContentsAndErrors(scale);
+	m_partHistos[i].h_NoisyFEBFracPerEvt->SetEntries(m_eventCounter);
+	m_partHistos[i].h_MNBTightFEBFracPerEvt->scaleContentsAndErrors(scale);
+	m_partHistos[i].h_MNBTightFEBFracPerEvt->SetEntries(m_eventCounter);
+        m_partHistos[i].h_MNBTight_PsVetoFEBFracPerEvt->scaleContentsAndErrors(scale);
+        m_partHistos[i].h_MNBTight_PsVetoFEBFracPerEvt->SetEntries(m_eventCounter);
+	m_partHistos[i].h_MNBLooseFEBFracPerEvt->scaleContentsAndErrors(scale);
+	m_partHistos[i].h_MNBLooseFEBFracPerEvt->SetEntries(m_eventCounter);
+	m_partHistos[i].h_CandidateMNBTightFEBFracPerEvt->scaleContentsAndErrors(scale);
+	m_partHistos[i].h_CandidateMNBTightFEBFracPerEvt->SetEntries(m_eventCounter);
+        m_partHistos[i].h_CandidateMNBTight_PsVetoFEBFracPerEvt->scaleContentsAndErrors(scale);
+        m_partHistos[i].h_CandidateMNBTight_PsVetoFEBFracPerEvt->SetEntries(m_eventCounter);
+	m_partHistos[i].h_CandidateMNBLooseFEBFracPerEvt->scaleContentsAndErrors(scale);
+	m_partHistos[i].h_CandidateMNBLooseFEBFracPerEvt->SetEntries(m_eventCounter);
+	divideHisto(m_partHistos[i].h_NoisyEventFrac,m_partHistos[i].h_NoisyEvent,m_h_LBN);
+	m_partHistos[i].h_NoisyEventFrac->SetEntries(m_eventCounter);
+	divideHisto(m_partHistos[i].h_SaturatedNoisyEventFrac,m_partHistos[i].h_SaturatedNoisyEvent,m_h_LBN);
+	m_partHistos[i].h_SaturatedNoisyEventFrac->SetEntries(m_eventCounter);
+	divideHisto(m_partHistos[i].h_MNBTightEventFrac,m_partHistos[i].h_MNBTightEvent,m_h_LBN);
+	m_partHistos[i].h_MNBTightEventFrac->SetEntries(m_eventCounter);
+        divideHisto(m_partHistos[i].h_MNBTight_PsVetoEventFrac,m_partHistos[i].h_MNBTight_PsVetoEvent,m_h_LBN);
+        m_partHistos[i].h_MNBTight_PsVetoEventFrac->SetEntries(m_eventCounter);
+	divideHisto(m_partHistos[i].h_MNBLooseEventFrac,m_partHistos[i].h_MNBLooseEvent,m_h_LBN);
+	m_partHistos[i].h_MNBLooseEventFrac->SetEntries(m_eventCounter);
+	divideHisto(m_partHistos[i].h_NoisyEventTimeVetoFrac,m_partHistos[i].h_NoisyEventTimeVeto,m_h_LBN);
+	m_partHistos[i].h_NoisyEventTimeVetoFrac->SetEntries(m_eventCounter);
+	divideHisto(m_partHistos[i].h_SaturatedNoisyEventTimeVetoFrac,m_partHistos[i].h_SaturatedNoisyEventTimeVeto,m_h_LBN);
+	m_partHistos[i].h_SaturatedNoisyEventTimeVetoFrac->SetEntries(m_eventCounter);
+	divideHisto(m_partHistos[i].h_MNBTightEventTimeVetoFrac,m_partHistos[i].h_MNBTightEventTimeVeto,m_h_LBN);
+	m_partHistos[i].h_MNBTightEventTimeVetoFrac->SetEntries(m_eventCounter);
+        divideHisto(m_partHistos[i].h_MNBTight_PsVetoEventTimeVetoFrac,m_partHistos[i].h_MNBTight_PsVetoEventTimeVeto,m_h_LBN);
+        m_partHistos[i].h_MNBTight_PsVetoEventTimeVetoFrac->SetEntries(m_eventCounter);
+	divideHisto(m_partHistos[i].h_MNBLooseEventTimeVetoFrac,m_partHistos[i].h_MNBLooseEventTimeVeto,m_h_LBN);
+	m_partHistos[i].h_MNBLooseEventTimeVetoFrac->SetEntries(m_eventCounter);
+      }    
+    }//end if m_eventCounter>0
+  }
+  
+
+  return StatusCode::SUCCESS;
+}
+*/
+
+/*
+void LArNoisyROMonAlg::bookPartitionHistos(partitionHistos& partition, const std::string& name, MonGroup& group, MonGroup& groupfrac, MonGroup& groupfracbin )
+{
+  std::string hName, hTitle;
+  std::stringstream tit;
+  
+  // declare histograms properties
+  // Endcaps
+  int FEB=25,slot=15;
+  double FEB_low=-0.5, FEB_up=24.5, slot_low=0.5, slot_up=15.5;
+  // for Barrel
+  if( name == "EMBA" || name == "EMBC")
+  {
+    FEB=32, slot=14;
+    FEB_low=-0.5, FEB_up=31.5, slot_low=0.5, slot_up=14.5;
+  }
+
+  // 2D FEB maps (x : slot / y : FT) with z: fraction of events for which the FEB is noisy or mini-noisy.
+  hName  = "MNBKnownFEB_"+name;
+  hTitle = "Suspicious MNB FEBs - "+name;
+  partition.h_MNBKnownFEB = TH2I_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+  partition.h_MNBKnownFEB->GetXaxis()->SetTitle("Slot");
+  partition.h_MNBKnownFEB->GetYaxis()->SetTitle("Feedthrough");
+  groupfrac.regHist(partition.h_MNBKnownFEB).ignore();
+  
+
+  hName  = "NoisyFEBFracPerEvt_"+name;
+  hTitle = "Yield of events with FEB noisy "+m_NoisyFEBDefStr+" - "+name;
+  partition.h_NoisyFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+  partition.h_NoisyFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
+  partition.h_NoisyFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");
+  groupfrac.regHist(partition.h_NoisyFEBFracPerEvt).ignore();
+  
+  if ( m_IsOnline )
+  {
+    hName="temp_"+hName;
+    partition.h_NoisyFEBPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+    group.regHist(partition.h_NoisyFEBPerEvt).ignore();
+  }
+   
+  hName  = "MNBTightFEBFracPerEvt_"+name;
+  hTitle = "Yield of events with FEB MNB-Tight " + m_MNBTightFEBDefStr+ " - "+name+" (only vetoed events)";
+  partition.h_MNBTightFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+  partition.h_MNBTightFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
+  partition.h_MNBTightFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");
+  groupfrac.regHist(partition.h_MNBTightFEBFracPerEvt).ignore();
+  
+  if ( m_IsOnline )
+  {
+    hName="temp_"+hName;
+    partition.h_MNBTightFEBPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+    group.regHist(partition.h_MNBTightFEBPerEvt).ignore();
+  }
+
+  hName  = "MNBTight_PsVetoFEBFracPerEvt_"+name;
+  hTitle = "Yield of events with FEB MNB-Tight_PsVeto " + m_MNBTight_PsVetoFEBDefStr+ " - "+name+" (only vetoed events)";
+  partition.h_MNBTight_PsVetoFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+  partition.h_MNBTight_PsVetoFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
+  partition.h_MNBTight_PsVetoFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");
+  groupfrac.regHist(partition.h_MNBTight_PsVetoFEBFracPerEvt).ignore();  
+
+  if ( m_IsOnline )
+  {
+    hName="temp_"+hName;
+    partition.h_MNBTight_PsVetoFEBPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+    group.regHist(partition.h_MNBTight_PsVetoFEBPerEvt).ignore();
+  }
+      
+  hName  = "MNBLooseFEBFracPerEvt_"+name;
+  hTitle = "Yield of events with FEB MNB-Loose " + m_MNBLooseFEBDefStr + " - "+name+" (only vetoed events)";
+  partition.h_MNBLooseFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+  partition.h_MNBLooseFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
+  partition.h_MNBLooseFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");
+  groupfrac.regHist(partition.h_MNBLooseFEBFracPerEvt).ignore();
+  
+  if ( m_IsOnline )
+  {
+    hName="temp_"+hName;
+    partition.h_MNBLooseFEBPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+    group.regHist(partition.h_MNBLooseFEBPerEvt).ignore();
+  }
+
+  hName  = "CandidateMNBTightFEBFracPerEvt_"+name;
+  hTitle = "Yield of events with FEB MNB-Tight "+ m_MNBTightFEBDefStr+ " - "+name;
+  partition.h_CandidateMNBTightFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+  partition.h_CandidateMNBTightFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
+  partition.h_CandidateMNBTightFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");
+  groupfrac.regHist(partition.h_CandidateMNBTightFEBFracPerEvt).ignore();
+  
+  if ( m_IsOnline )
+  {
+    hName="temp_"+hName;
+    partition.h_CandidateMNBTightFEBPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+    group.regHist(partition.h_CandidateMNBTightFEBPerEvt).ignore();
+  }
+
+   hName  = "CandidateMNBTight_PsVetoFEBFracPerEvt_"+name;
+  hTitle = "Yield of events with FEB MNB-Tight_PsVeto "+ m_MNBTight_PsVetoFEBDefStr+ " - "+name;
+  partition.h_CandidateMNBTight_PsVetoFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+  partition.h_CandidateMNBTight_PsVetoFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
+  partition.h_CandidateMNBTight_PsVetoFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");
+  groupfrac.regHist(partition.h_CandidateMNBTight_PsVetoFEBFracPerEvt).ignore();  
+
+  if ( m_IsOnline )
+  {
+    hName="temp_"+hName;
+    partition.h_CandidateMNBTight_PsVetoFEBPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+    group.regHist(partition.h_CandidateMNBTight_PsVetoFEBPerEvt).ignore();
+  }
+      
+  hName  = "CandidateMNBLooseFEBFracPerEvt_"+name;
+  hTitle = "Yield of events with FEB MNB-Loose " + m_MNBLooseFEBDefStr + " - "+name;
+  partition.h_CandidateMNBLooseFEBFracPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+  partition.h_CandidateMNBLooseFEBFracPerEvt->GetXaxis()->SetTitle("Slot");
+  partition.h_CandidateMNBLooseFEBFracPerEvt->GetYaxis()->SetTitle("Feedthrough");
+  groupfrac.regHist(partition.h_CandidateMNBLooseFEBFracPerEvt).ignore();
+  
+  if ( m_IsOnline )
+  {
+    hName="temp_"+hName;
+    partition.h_CandidateMNBLooseFEBPerEvt = TH2F_LW::create(hName.c_str(), hTitle.c_str(), slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
+    group.regHist(partition.h_CandidateMNBLooseFEBPerEvt).ignore();
+  }
+
+  // Fraction of events found noisy per LB - Regular Noise Burst(RNB) Standard flag
+  hName = "NoisyEvent_"+name;
+  hTitle = "Yield of events flagged as RNB-Standard - " + name;
+  partition.h_NoisyEventFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_NoisyEventFrac->GetXaxis()->SetTitle("Luminosity Block");
+  groupfracbin.regHist(partition.h_NoisyEventFrac).ignore();  
+  // Histogram below is temporary. Normalized at the end of run to produce the above histograms
+  hName = "temp_NoisyEvent_"+name;
+  partition.h_NoisyEvent = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_NoisyEvent->GetXaxis()->SetTitle("Luminosity Block");
+
+  // Fraction of events found noisy per LB - RNB-Saturated flag
+  hName = "SaturatedNoisyEvent_"+name;
+  hTitle = "Yield of events flagged as RNB-Saturated - "+name;
+  partition.h_SaturatedNoisyEventFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_SaturatedNoisyEventFrac->GetXaxis()->SetTitle("Luminosity Block");
+  groupfracbin.regHist(partition.h_SaturatedNoisyEventFrac).ignore();  
+  // Histogram below is temporary. Normalized at the end of run to produce the above histograms
+  hName = "temp_NoisyEvent_"+name;
+  partition.h_SaturatedNoisyEvent = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_SaturatedNoisyEvent->GetXaxis()->SetTitle("Luminosity Block");
+
+  hName = "MNBTightEvent_"+name;
+  hTitle = "Yield of events flagged as MNB-Tight - "+name;
+  partition.h_MNBTightEventFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_MNBTightEventFrac->GetXaxis()->SetTitle("Luminosity Block");
+  groupfracbin.regHist(partition.h_MNBTightEventFrac).ignore();  
+  // Histogram below is temporary. Normalized at the end of run to produce the above histograms
+  hName = "temp_MNBTightEvent_"+name;
+  partition.h_MNBTightEvent = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_MNBTightEvent->GetXaxis()->SetTitle("Luminosity Block");
+
+  hName = "MNBTight_PsVetoEvent_"+name;
+  hTitle = "Yield of events flagged as MNB-Tight_PsVeto - "+name;
+  partition.h_MNBTight_PsVetoEventFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_MNBTight_PsVetoEventFrac->GetXaxis()->SetTitle("Luminosity Block");
+  groupfracbin.regHist(partition.h_MNBTight_PsVetoEventFrac).ignore();  
+  // Histogram below is temporary. Normalized at the end of run to produce the above histograms
+  hName = "temp_MNBTight_PsVetoEvent_"+name;
+  partition.h_MNBTight_PsVetoEvent = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_MNBTight_PsVetoEvent->GetXaxis()->SetTitle("Luminosity Block");
+
+  hName = "MNBLooseEvent_"+name;
+  hTitle = "Yield of events flagged as MNB-Loose - "+name;
+  partition.h_MNBLooseEventFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_MNBLooseEventFrac->GetXaxis()->SetTitle("Luminosity Block");
+  groupfracbin.regHist(partition.h_MNBLooseEventFrac).ignore();  
+  // Histogram below is temporary. Normalized at the end of run to produce the above histograms
+  hName = "temp_MNBLooseEvent_"+name;
+  partition.h_MNBLooseEvent = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_MNBLooseEvent->GetXaxis()->SetTitle("Luminosity Block");
+
+//  // Fraction of events found noisy per LB - Weighted flag
+//  hName = "NoisyWEvent_"+name;
+//  partition.h_NoisyWEventFrac = TH1F_LW::create(hName.c_str(), "Yield of events flagged as LArNoisyRO_StdOpt", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+//  partition.h_NoisyWEventFrac->GetXaxis()->SetTitle("Luminosity Block");
+//  groupfracbin.regHist(partition.h_NoisyWEventFrac).ignore();  
+//  hName = "temp_NoisyWEvent_"+name;
+//  partition.h_NoisyWEvent = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+//  partition.h_NoisyWEvent->GetXaxis()->SetTitle("Luminosity Block");
+  
+  // Fraction of events found noisy per LB after time veto - Std flag
+  hName = "NoisyEvent_TimeVeto_"+name;
+  hTitle = "Yield of events flagged as RNB-Standard not vetoed by time window - "+name;
+  partition.h_NoisyEventTimeVetoFrac = TH1F_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_NoisyEventTimeVetoFrac->GetXaxis()->SetTitle("Luminosity Block");
+  groupfracbin.regHist(partition.h_NoisyEventTimeVetoFrac).ignore();
+
+  hName = "temp_NoisyEvent_TimeVeto_"+name;
+  partition.h_NoisyEventTimeVeto = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_NoisyEventTimeVeto->GetXaxis()->SetTitle("Luminosity Block");
+
+  // Fraction of events found noisy per LB after time veto - Sat flag
+  hName = "SaturatedNoisyEvent_TimeVeto_"+name;
+  hTitle = "Yield of events flagged as RNB-Saturated not vetoed by time window - "+ name;
+  partition.h_SaturatedNoisyEventTimeVetoFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_SaturatedNoisyEventTimeVetoFrac->GetXaxis()->SetTitle("Luminosity Block");
+  groupfracbin.regHist(partition.h_SaturatedNoisyEventTimeVetoFrac).ignore();
+
+  hName = "temp_SaturatedNoisyEvent_TimeVeto_"+name;
+  partition.h_SaturatedNoisyEventTimeVeto = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_SaturatedNoisyEventTimeVeto->GetXaxis()->SetTitle("Luminosity Block");
+
+  hName = "MNBTightEvent_TimeVeto_"+name;
+  hTitle =  "Yield of events flagged as MNB-Tight not vetoed by time window - " + name;
+  partition.h_MNBTightEventTimeVetoFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_MNBTightEventTimeVetoFrac->GetXaxis()->SetTitle("Luminosity Block");
+  groupfracbin.regHist(partition.h_MNBTightEventTimeVetoFrac).ignore();
+    
+  hName = "temp_MNBTightEvent_TimeVeto_"+name;
+  partition.h_MNBTightEventTimeVeto = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_MNBTightEventTimeVeto->GetXaxis()->SetTitle("Luminosity Block");
+
+  hName = "MNBTight_PsVetoEvent_TimeVeto_"+name;
+  hTitle =  "Yield of events flagged as MNB-Tight_PsVeto not vetoed by time window - " + name;
+  partition.h_MNBTight_PsVetoEventTimeVetoFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_MNBTight_PsVetoEventTimeVetoFrac->GetXaxis()->SetTitle("Luminosity Block");
+  groupfracbin.regHist(partition.h_MNBTight_PsVetoEventTimeVetoFrac).ignore();    
+
+  hName = "temp_MNBTight_PsVetoEvent_TimeVeto_"+name;
+  partition.h_MNBTight_PsVetoEventTimeVeto = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_MNBTight_PsVetoEventTimeVeto->GetXaxis()->SetTitle("Luminosity Block");
+
+  hName = "MNBLooseEvent_TimeVeto_"+name;
+  hTitle = "Yield of events flagged as MNB-Loose not vetoed by time window - " + name;
+  partition.h_MNBLooseEventTimeVetoFrac = TH1F_LW::create(hName.c_str(),hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_MNBLooseEventTimeVetoFrac->GetXaxis()->SetTitle("Luminosity Block");
+  groupfracbin.regHist(partition.h_MNBLooseEventTimeVetoFrac).ignore();
+    
+  hName = "temp_MNBLooseEvent_TimeVeto_"+name;
+  partition.h_MNBLooseEventTimeVeto = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+  partition.h_MNBLooseEventTimeVeto->GetXaxis()->SetTitle("Luminosity Block");
+
+//  // Fraction of events found noisy per LB after time veto - Weighted flag
+//  hName = "NoisyWEvent_TimeVeto_"+name;
+//  partition.h_NoisyWEventTimeVetoFrac = TH1F_LW::create(hName.c_str(), "Yield of events flagged as RNB-StandardOpt not vetoed by time window", m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+//  partition.h_NoisyWEventTimeVetoFrac->GetXaxis()->SetTitle("Luminosity Block");
+//  groupfracbin.regHist(partition.h_NoisyWEventTimeVetoFrac).ignore();
+//  
+//  hName = "temp_NoisyWEvent_TimeVeto_"+name;
+//  partition.h_NoisyWEventTimeVeto = TH1I_LW::create(hName.c_str(), hTitle.c_str(), m_lumi_blocks+1, -0.5, (float)m_lumi_blocks+0.5);
+//  partition.h_NoisyWEventTimeVeto->GetXaxis()->SetTitle("Luminosity Block");
+  
+  if ( m_doTrigger ) 
+  {
+    unsigned int siz = m_EF_NoiseBurst_Triggers.size();
+    hName = "NoisyEventTrigger_"+name;
+    hTitle = "Trigger fired for RNB flagged events - "+name;
+    partition.h_NoisyEventTrigger = TH1I_LW::create(hName.c_str(), hTitle.c_str(), siz+1, 0.5, siz+1.5);
+    LWHist::LWHistAxis* axis = partition.h_NoisyEventTrigger->GetXaxis();
+    axis->SetTitle("Special trigger fired");
+    for ( size_t i = 0; i < siz; i++)
+    {
+      axis->SetBinLabel(i+1,m_EF_NoiseBurst_Triggers[i].c_str());
+    }
+    axis->SetBinLabel(siz+1,"NONE");
+    group.regHist(partition.h_NoisyEventTrigger).ignore();
+
+
+    siz = m_L1_NoiseBurst_Triggers.size();
+    hName = "NoisyEventL1Term_"+name;
+    hTitle = "L1 term fired for RNB flagged events - "+name;
+    partition.h_NoisyEventTriggerL1 = TH1I_LW::create(hName.c_str(), hTitle.c_str(), siz+1, 0.5, siz+1.5);
+    axis = partition.h_NoisyEventTriggerL1->GetXaxis();
+    axis->SetTitle("L1 term fired");
+    for ( size_t i = 0; i < siz; i++)
+    {
+      axis->SetBinLabel(i+1,m_L1_NoiseBurst_Triggers[i].c_str());
+    }
+    axis->SetBinLabel(siz+1,"NONE");
+    group.regHist(partition.h_NoisyEventTriggerL1).ignore();
+  }
+}
+*/
+
+/*
+void LArNoisyROMonAlg::fillTriggerHisto(partitionHistos& partition, uint8_t triggerbits, uint8_t L1triggerbits)
+{
+  if ( triggerbits ==0 )
+  {
+    partition.h_NoisyEventTrigger->Fill(double(m_EF_NoiseBurst_Triggers.size()+1));
+  }
+  else
+  {
+    for ( size_t i = 0; i < m_EF_NoiseBurst_Triggers.size(); i++)
+    {
+      if ( triggerbits & (0x1 << i) ) partition.h_NoisyEventTrigger->Fill(double(i+1));
+    }
+  }
+
+  if ( L1triggerbits ==0 )
+  {
+    partition.h_NoisyEventTriggerL1->Fill(double(m_L1_NoiseBurst_Triggers.size()+1));
+  }
+  else
+  {
+    for ( size_t i = 0; i < m_L1_NoiseBurst_Triggers.size(); i++)
+    {
+      if ( L1triggerbits & (0x1 << i) ) partition.h_NoisyEventTriggerL1->Fill(double(i+1));
+    }
+  }
+
+}
+*/
 

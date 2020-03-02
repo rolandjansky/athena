@@ -1,16 +1,31 @@
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
+def LArFEBMonConfigOld(inputFlags, cellDebug=False, dspDebug=False):
+    from AthenaMonitoring import AthMonitorCfgHelperOld
+    from LArMonitoring.LArMonitoringConf import  LArFEBMonAlg
+
+    helper = AthMonitorCfgHelperOld(inputFlags, 'LArFEBMonCfg')
+    LArFEBMonConfigCore(helper, LArFEBMonAlg,inputFlags,cellDebug, dspDebug)
+
+    return helper.result()
+
 
 def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
 
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArFEBMonCfg')
 
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    LArFEBMonConfigCore(helper, CompFactory.LArFEBMonAlg,inputFlags,cellDebug, dspDebug)
+
+    return helper.result()
+
+def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebug=False):
+
     from LArMonitoring.GlobalVariables import lArDQGlobals
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    larFEBMonAlg = helper.addAlgorithm(CompFactory.LArFEBMonAlg,'larFEBMonAlg')
+    larFEBMonAlg = helper.addAlgorithm(algoinstance,'larFEBMonAlg')
 
     GroupName="FEBMon"
     nslots=[]
@@ -21,11 +36,6 @@ def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
     larFEBMonAlg.PartitionNames=lArDQGlobals.Partitions
     larFEBMonAlg.SubDetNames=lArDQGlobals.SubDet
     larFEBMonAlg.Streams=lArDQGlobals.defaultStreamNames
-
-    # adding LArFebErrorSummary algo
-    from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
-    acc = LArFebErrorSummaryMakerCfg(inputFlags)
-    helper.resobj.merge(acc)
 
     if "COMP200" not in inputFlags.IOVDb.DatabaseInstance:
        iovDbSvc=helper.resobj.getService("IOVDbSvc")
@@ -43,6 +53,18 @@ def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
        helper.resobj.addFolderList(inputFlags,[(fld,db,obj)])
        larFEBMonAlg.keyDSPThresholds="LArDSPThresholds"
 
+    #from AthenaCommon.Constants import VERBOSE
+    #larFEBMonAlg.OutputLevel=VERBOSE
+
+    # adding LArFebErrorSummary algo
+    from AthenaCommon.Configurable import Configurable
+    if Configurable.configurableRun3Behavior :
+        from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
+        acc = LArFebErrorSummaryMakerCfg(inputFlags)
+        helper.resobj.merge(acc)
+    else :
+        #put here what to do else
+        pass
     Group = helper.addGroup(
         larFEBMonAlg,
         GroupName,
@@ -358,7 +380,7 @@ if __name__=='__main__':
 
    from AthenaConfiguration.AllConfigFlags import ConfigFlags
    from AthenaCommon.Logging import log
-   from AthenaCommon.Constants import DEBUG,WARNING
+   from AthenaCommon.Constants import DEBUG
    from AthenaCommon.Configurable import Configurable
    Configurable.configurableRun3Behavior=1
    log.setLevel(DEBUG)
@@ -367,20 +389,18 @@ if __name__=='__main__':
    from LArMonitoring.LArMonConfigFlags import createLArMonConfigFlags
    createLArMonConfigFlags()
 
-   ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data",]
+   from AthenaConfiguration.TestDefaults import defaultTestFiles
+   ConfigFlags.Input.Files = defaultTestFiles.RAW
 
    ConfigFlags.Output.HISTFileName = 'LArFEBMonOutput.root'
-   ConfigFlags.DQ.enableLumiAccess = False
-   ConfigFlags.DQ.useTrigger = False
+   ConfigFlags.DQ.enableLumiAccess = True
+   ConfigFlags.DQ.useTrigger = True
    ConfigFlags.Beam.Type = 'collisions'
    ConfigFlags.lock()
 
-   from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-   cfg = MainServicesSerialCfg()
-
 
    from CaloRec.CaloRecoConfig import CaloRecoCfg
-   cfg.merge(CaloRecoCfg(ConfigFlags))
+   cfg=CaloRecoCfg(ConfigFlags)
 
    #from CaloD3PDMaker.CaloD3PDConfig import CaloD3PDCfg,CaloD3PDAlg
    #cfg.merge(CaloD3PDCfg(ConfigFlags, filename=ConfigFlags.Output.HISTFileName, streamname='CombinedMonitoring'))
@@ -395,4 +415,4 @@ if __name__=='__main__':
    cfg.store(f)
    f.close()
 
-   cfg.run(10,OutputLevel=WARNING)
+   #cfg.run(100,OutputLevel=WARNING)
