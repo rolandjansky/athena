@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DVCollectionProxy.cxx,v 1.11 2009-02-02 02:42:16 ssnyder Exp $
 /**
  * @file  AthenaROOTAccess/src/DVCollectionProxy.cxx
  * @author scott snyder
@@ -15,7 +14,7 @@
 #include "AthContainers/DataVector.h"
 #include "CxxUtils/no_sanitize_undefined.h"
 #include "TError.h"
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 #include "TClass.h"
 #include "TBaseClass.h"
 #include "TMethodCall.h"

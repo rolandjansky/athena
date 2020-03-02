@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PyROOTInspector.cxx 790007 2016-12-15 17:46:55Z ssnyder $
@@ -14,7 +14,6 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include "Python.h"
 
 // ROOT includes
-#include "TClassEdit.h"
 #include "TClassRef.h"
 #include "TDataMember.h"
 #include "TDataType.h"
