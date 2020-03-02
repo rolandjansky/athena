@@ -337,9 +337,14 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
   ATH_MSG_DEBUG("Trying a stop-start of CoreDumpSvc");
   SmartIF<IService> svc = serviceLocator()->service("CoreDumpSvc", /*createIf=*/ false);
   if (svc.isValid()) {
-    svc->stop();
-    svc->start();
-    ATH_MSG_DEBUG("Done a stop-start of CoreDumpSvc");
+    StatusCode sc = svc->stop();
+    sc &= svc->start();
+    if (sc.isFailure()) {
+      ATH_MSG_WARNING("Could not perform stop/start for CoreDumpSvc");
+    }
+    else {
+      ATH_MSG_DEBUG("Done a stop-start of CoreDumpSvc");
+    }
   }
   else {
     ATH_MSG_WARNING("Could not retrieve CoreDumpSvc");
@@ -1003,7 +1008,7 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
     hltResultPtr = std::make_unique<HLT::HLTResultMT>(*hltResultRH);
 
   SG::WriteHandleKey<HLT::HLTResultMT> hltResultWHK(m_hltResultRHKey.key()+"_FailedEvent");
-  hltResultWHK.initialize();
+  ATH_CHECK(hltResultWHK.initialize());
   auto hltResultWH = SG::makeHandle(hltResultWHK,eventContext);
   if (hltResultWH.record(std::move(hltResultPtr)).isFailure()) {
     ATH_MSG_ERROR("Failed to record the HLT Result in event store while handling a failed event."
@@ -1019,16 +1024,16 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   hltResultWH->addErrorCode(errorCode);
   switch (errorCode) {
     case HLT::OnlineErrorCode::PROCESSING_FAILURE:
-      hltResultWH->addStreamTag({m_algErrorDebugStreamName.value(), eformat::DEBUG_TAG, true});
+      ATH_CHECK(hltResultWH->addStreamTag({m_algErrorDebugStreamName.value(), eformat::DEBUG_TAG, true}));
       break;
     case HLT::OnlineErrorCode::TIMEOUT:
-      hltResultWH->addStreamTag({m_timeoutDebugStreamName.value(), eformat::DEBUG_TAG, true});
+      ATH_CHECK(hltResultWH->addStreamTag({m_timeoutDebugStreamName.value(), eformat::DEBUG_TAG, true}));
       break;
     case HLT::OnlineErrorCode::RESULT_TRUNCATION:
-      hltResultWH->addStreamTag({m_truncationDebugStreamName.value(), eformat::DEBUG_TAG, true});
+      ATH_CHECK(hltResultWH->addStreamTag({m_truncationDebugStreamName.value(), eformat::DEBUG_TAG, true}));
       break;
     default:
-      hltResultWH->addStreamTag({m_fwkErrorDebugStreamName.value(), eformat::DEBUG_TAG, true});
+      ATH_CHECK(hltResultWH->addStreamTag({m_fwkErrorDebugStreamName.value(), eformat::DEBUG_TAG, true}));
       break;
   }
 
