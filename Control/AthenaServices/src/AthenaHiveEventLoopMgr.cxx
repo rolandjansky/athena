@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define  ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_CPP
@@ -752,7 +752,7 @@ StatusCode AthenaHiveEventLoopMgr::stop()
   // So make sure that all stores have been cleared at this point.
   size_t nslot = m_whiteboard->getNumberOfStores();
   for (size_t islot = 0; islot < nslot; islot++) {
-    clearWBSlot (islot);
+    sc &= clearWBSlot (islot);
   }
 
   Gaudi::Hive::setCurrentContext( EventContext() );
