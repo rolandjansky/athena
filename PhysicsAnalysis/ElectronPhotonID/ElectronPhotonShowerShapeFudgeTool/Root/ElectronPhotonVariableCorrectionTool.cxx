@@ -142,7 +142,7 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
     if (env.Lookup("ApplyTo"))
     {
         std::string applyToObjectsFlag = env.GetValue("ApplyTo","Failure");
-        m_applyToObjects = StringToEGammaObject(applyToObjectsFlag);
+        m_applyToObjects = stringToEGammaObject(applyToObjectsFlag);
         // fail if not passed a proper type
         if (m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::Failure)
         {
@@ -458,6 +458,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
             ATH_MSG_ERROR("In " << name()  << ": Could not retrieve pt binning.");
             return StatusCode::FAILURE;
         }
+    }
     if ( getEtaBins || getPtBins)
     {
         // check if necessary information is in conf, else fail

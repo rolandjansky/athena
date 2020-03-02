@@ -22,7 +22,7 @@
 int main(/*int argc, char* argv[]*/) //unused variable warnings!!
 {
     Info(MSGSOURCE, "Configuring the ElectronPhotonVariableCorrectionTool");
-    asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> myTool("ElectronPhotonVariableCorrectionTool");
+    asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> myTool("ElectronPhotonVariableCorrectionTool/myTool");
     myTool.setProperty("ConfigFile", "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleElectronConf_Eratio.conf").ignore();
     if(myTool.initialize() != StatusCode::SUCCESS)
     {

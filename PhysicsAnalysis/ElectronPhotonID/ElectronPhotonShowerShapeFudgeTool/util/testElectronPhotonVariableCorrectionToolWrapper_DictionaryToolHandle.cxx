@@ -15,14 +15,14 @@
 #include "AsgTools/AnaToolHandle.h"
 
 
-#include "EgammaAnalysisInterfaces/IElectronPhotonVariableCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 
 #define MSGSOURCE "testElectronPhotonVariableCorrectionTool_DictionaryToolHandle"
 
 int main(/*int argc, char* argv[]*/) //unused variable warnings!!
 {
     Info(MSGSOURCE, "Configuring the ElectronPhotonVariableCorrectionToolWrapper");
-    asg::AnaToolHandle<IElectronPhotonVariableCorrectionTool> myTool("ElectronPhotonVariableCorrectionToolWrapper");
+    asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> myTool("ElectronPhotonVariableCorrectionToolWrapper/myWrapper");
     myTool.setProperty("ConfigFile", "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionToolWrapper_ExampleConf.conf").ignore();
     if(myTool.initialize() != StatusCode::SUCCESS)
     {

@@ -59,7 +59,7 @@ public:
         allElectrons,
         allEGammaObjects
     }; //end enum EGammaObjects
-    ElectronPhotonVariableCorrectionTool::EGammaObjects IsAppliedTo() { return m_applyToObjects; };
+    ElectronPhotonVariableCorrectionTool::EGammaObjects isAppliedTo() { return m_applyToObjects; };
 
 private:
     // In order to do faster comparisons, use enum and not string for type of function parameter
