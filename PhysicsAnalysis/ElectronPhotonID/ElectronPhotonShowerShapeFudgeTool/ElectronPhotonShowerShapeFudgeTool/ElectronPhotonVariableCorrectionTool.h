@@ -88,7 +88,9 @@ private:
     std::unique_ptr<SG::AuxElement::Accessor<float>> m_originalVariable; // accessor to store the original value of the corrected variable
     ElectronPhotonVariableCorrectionTool::parameterType stringToParameterType( const std::string& input ) const; //convert input string to a parameter function type
     ElectronPhotonVariableCorrectionTool::EGammaObjects stringToEGammaObject( const std::string& input ) const; //convert input string to egamma object type
-    const StatusCode passedCorrectPhotonType(const xAOD::Photon& photon) const; //check if the correct type of photon was passed to the tool, if only (un)converted photons requested
+    bool passedCorrectPhotonType(const xAOD::Photon& photon) const; //check if the correct type of photon was passed to the tool, if only (un)converted photons requested
+    bool applyToConvertedPhoton( const ElectronPhotonVariableCorrectionTool::EGammaObjects applyToObjects) const; //check if passed flag is compatible with converted photon
+    bool applyToUnconvertedPhoton( const ElectronPhotonVariableCorrectionTool::EGammaObjects applyToObjects) const; //check if passed flag is compatible with unconverted photon
     const StatusCode getParameterInformationFromConf(TEnv& env, const int& parameter_number, const ElectronPhotonVariableCorrectionTool::parameterType& type); //depending on parameter type, get the relevant information from conf file
     const StatusCode getCorrectionParameters(std::vector<float>& properties, const float& pt, const float& absEta) const; //get the actual parameters entering the correction TF1
     const StatusCode get1DBinnedParameter(float& return_parameter_value, const float& evalPoint, const std::vector<float>& binning, const int& parameter_number) const; //get the parameter if saved binned (eta or pt) in conf

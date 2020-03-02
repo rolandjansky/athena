@@ -167,8 +167,9 @@ StatusCode ElectronPhotonVariableCorrectionTool::initialize()
 const CP::CorrectionCode ElectronPhotonVariableCorrectionTool::applyCorrection(xAOD::Photon& photon ) const
 {
     // check if we should only deal with converted / unconverted photons
-    if (passedCorrectPhotonType(photon) != StatusCode::SUCCESS)
+    if (!passedCorrectPhotonType(photon))
     {
+        ATH_MSG_ERROR("In " << name()  << ": You specified in the conf file that the tool should only be used for (un-)converted photons, but passed the other conversion type.");
         return CP::CorrectionCode::Error;
     }
     
@@ -661,33 +662,28 @@ ElectronPhotonVariableCorrectionTool::EGammaObjects ElectronPhotonVariableCorrec
     }
 }
 
-const StatusCode ElectronPhotonVariableCorrectionTool::passedCorrectPhotonType(const xAOD::Photon& photon) const
+bool ElectronPhotonVariableCorrectionTool::passedCorrectPhotonType(const xAOD::Photon& photon) const
 {
-    // check if conf file is set to be used for photons - fail if not
-    if (m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons)
-    {
-        ATH_MSG_ERROR("In " << name()  << ": You specified in the conf file that it should be used for electrons, but passed it to a photon container in the wrapper.");
-        return StatusCode::FAILURE;
-    }
-    //check if the passed photon type is the same as the requested photon type, if only one photon type was requested
-    if (!(m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allPhotons || m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allEGammaObjects))
-    {
-        bool isConvertedPhoton = xAOD::EgammaHelpers::isConvertedPhoton(&photon);
-        bool isUnconvertedPhoton = !isConvertedPhoton;
-        //check if the correct photon was passed to the tool (unconverted/converted)
-        //if the photon is not ((converted and converted requested) or (unconverted and unconverted requested)) fail
-        if (!((isConvertedPhoton && m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons) || (isUnconvertedPhoton && m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons)))
-        {
-            if (m_applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons)
-            {
-                ATH_MSG_ERROR("In " << name()  << ": You specified in the conf file that it only should be used for converted photons, but passed it to the unconverted photons container in the wrapper.");
-            }
-            else
-            {
-                ATH_MSG_ERROR("In " << name()  << ": You specified in the conf file that it only should be used for unconverted photons, but passed it to the converted photons container in the wrapper.");
-            }
-            return StatusCode::FAILURE;
-        }
-    }
-    return StatusCode::SUCCESS;
+    // retrieve if photon is converted or unconverted
+    bool isConvertedPhoton = xAOD::EgammaHelpers::isConvertedPhoton(&photon);
+    bool isUnconvertedPhoton = !isConvertedPhoton;
+
+    // check if conf file ApplyTo flag matches photon conversion type
+    return ((applyToConvertedPhoton(m_applyToObjects) && isConvertedPhoton) || (applyToUnconvertedPhoton(m_applyToObjects) && isUnconvertedPhoton));
+}
+
+bool ElectronPhotonVariableCorrectionTool::applyToConvertedPhoton( const ElectronPhotonVariableCorrectionTool::EGammaObjects applyToObjects) const
+{
+    bool applyToAllEGamma = (applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allEGammaObjects);
+    bool applyToAllPhotons = (applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allPhotons);
+    bool applyToConvertedPhotons = (applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::convertedPhotons);
+    return (applyToAllEGamma || applyToAllPhotons || applyToConvertedPhotons);
+}
+
+bool ElectronPhotonVariableCorrectionTool::applyToUnconvertedPhoton( const ElectronPhotonVariableCorrectionTool::EGammaObjects applyToObjects) const
+{
+    bool applyToAllEGamma = (applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allEGammaObjects);
+    bool applyToAllPhotons = (applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::allPhotons);
+    bool applyToUnconvertedPhotons = (applyToObjects == ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons);
+    return (applyToAllEGamma || applyToAllPhotons || applyToUnconvertedPhotons);
 }
