@@ -8,6 +8,7 @@ import os
 import re
 from contextlib import contextmanager
 
+
 def package_prefix(package):
     '''Returns a prefix included in names of all tests from the given package'''
     from TrigValTools.TrigValSteering.Common import package_prefix_dict
@@ -44,6 +45,7 @@ def find_scripts(patterns):
     scripts.sort()
     return scripts
 
+
 @contextmanager
 def remember_cwd():
     '''Simple pushd/popd replacement from https://stackoverflow.com/a/169112'''
@@ -52,3 +54,28 @@ def remember_cwd():
         yield
     finally:
         os.chdir(curdir)
+
+
+def first_existing_file(file_list):
+    '''
+    Returns the first file name from the list which corresponds to an existing file.
+    Returns None if none of the files in the list exist.
+    '''
+    for file_name in file_list:
+        if os.path.isfile(file_name):
+            return file_name
+    return None
+
+
+def newest_file(pattern):
+    '''
+    Returns the newest file (by modification date) in the current directory
+    with a name matching the pattern. Returns None if no file is matched.
+    '''
+    all_files = os.listdir('.')
+    rx = re.compile(pattern)
+    matched_files = [f for f in all_files if re.search(rx, f)]
+    if not matched_files:
+        return None
+    matched_files.sort(key=lambda f: os.stat(f).st_mtime)
+    return matched_files[-1]
