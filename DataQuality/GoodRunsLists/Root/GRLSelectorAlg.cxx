@@ -24,6 +24,7 @@ StatusCode GRLSelectorAlg::initialize() {
   m_total=0;
   m_passed=0;
   ANA_CHECK( m_grlTool.retrieve() );
+  ANA_CHECK( m_filterHandle.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -36,7 +37,7 @@ StatusCode GRLSelectorAlg::finalize() {
 }
 
 StatusCode GRLSelectorAlg::execute() {  
-  setFilterPassed(false);
+  m_filterHandle.beginExecute ();
 
   m_total++;
   const xAOD::EventInfo* evtInfo = 0;
@@ -44,7 +45,7 @@ StatusCode GRLSelectorAlg::execute() {
   if(!m_grlTool->passRunLB(*evtInfo)) return StatusCode::SUCCESS;
 
   m_passed++;
-  setFilterPassed(true);
+  m_filterHandle.setPassed (true);
 
   return StatusCode::SUCCESS;
 }

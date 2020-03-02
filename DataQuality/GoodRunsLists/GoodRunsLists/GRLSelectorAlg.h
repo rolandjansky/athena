@@ -6,6 +6,7 @@
 #define GOODRUNSLISTS_GRLSELECTORALG_H 1
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
+#include <AnaAlgorithm/AnaFilterHandle.h>
 #include <AsgTools/ToolHandle.h> //included under assumption you'll want to use some tools! Remove if you don't!
 
 #include "AsgAnalysisInterfaces/IGoodRunsListSelectionTool.h"
@@ -28,6 +29,7 @@ class GRLSelectorAlg: public EL::AnaAlgorithm {
 
  private: 
   ToolHandle<IGoodRunsListSelectionTool> m_grlTool;
+  EL::AnaFilterHandle m_filterHandle {this};
   int m_passed = 0;
   int m_total = 0;
 
