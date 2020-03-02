@@ -225,9 +225,11 @@ StatusCode TileDigitsMaker::initialize() {
     ATH_MSG_INFO( "Pileup and/or noise added by overlaying digits of random events");
 
     // locate the PileUpMergeSvc and initialize our local ptr
-    ATH_CHECK( service("PileUpMergeSvc", m_mergeSvc) );
+    if (m_onlyUseContainerName) {
+      ATH_CHECK( service("PileUpMergeSvc", m_mergeSvc) );
 
-    ATH_MSG_INFO( "PileUpMergeSvc successfully initialized");
+      ATH_MSG_INFO( "PileUpMergeSvc successfully initialized");
+    }
 
     ATH_CHECK( m_DQstatusTool.retrieve() );
     ATH_CHECK( m_DQstatusKey.initialize() );
