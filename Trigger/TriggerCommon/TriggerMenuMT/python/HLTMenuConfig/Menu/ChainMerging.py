@@ -77,8 +77,8 @@ def serial_zip(*allSteps):
     for chain_index, chainsteps in enumerate(allSteps):
         for sequence in chainsteps:
             step = [EmptyMenuSequence() for _x in range(n_chains)]
-            step[i] = sequence
-            yield row
+            step[chain_index] = sequence
+            yield step
 
 def mergeSerial(chainDefList):
     allSteps = []

@@ -308,18 +308,13 @@ class EmptyMenuSequence(object):
     """ Class to emulate reco sequences with no Hypo"""
     """ By construction it has no Hypo;"""
     
-    def __init__(self, CA=None):
+    def __init__(self):
         Maker = CompFactory.HLTTest__TestInputMaker("Empty", RoIsLink="initialRoI", LinkName="initialRoI")
         self.name = "Empty"
-        self.reuse = False # flag to draw dot diagrmas
         self._maker       = InputMakerNode( Alg = Maker )
-        self.ca = CA
 
     @property
     def __maker(self):
-        if self.ca is not None:
-            makerAlg = self.ca.getEventAlgo(self._maker.Alg.name())
-            self._maker.Alg = makerAlg
         return self._maker
 
     def getOutputList(self):
@@ -329,7 +324,7 @@ class EmptyMenuSequence(object):
         """ Connect filter to the InputMaker"""
         self.__maker.addInput(outfilter)
 
-    def configureHypoTool(self, chainDict):
+    def createHypoTools(self, chainDict):
         log.debug("This sequence is empty. No Hypo to conficure")
 
     def addToSequencer(self, stepReco, seqAndView, already_connected):
@@ -338,10 +333,7 @@ class EmptyMenuSequence(object):
         return stepReco, seqAndView, already_connected        
 
     def buildCFDot(self, cfseq_algs, all_hypos, isCombo, last_step_hypo_nodes, file):
-        if self.reuse is False:
-            file.write("    %s[fillcolor=%s]\n"%("none", algColor(None)))
-            self.reuse=True
-
+        file.write("    %s[fillcolor=%s]\n"%("none", algColor(None)))
         return cfseq_algs, all_hypos, last_step_hypo_nodes
 
     def getTools(self):

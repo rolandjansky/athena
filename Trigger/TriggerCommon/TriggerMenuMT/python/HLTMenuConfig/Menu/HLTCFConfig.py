@@ -253,7 +253,7 @@ def matrixDisplay( allCFSeq ):
         for cfseq in cfseq_list:
             chains = __getHyposOfStep(cfseq.step)
             for seq in cfseq.step.sequences:
-                if seq.name is "Empty":
+                if seq.name == "Empty":
                     mx[stepNumber, "Empty"].extend(chains)
                 else:
                     mx[stepNumber, seq.sequence.Alg.name()].extend(chains)
