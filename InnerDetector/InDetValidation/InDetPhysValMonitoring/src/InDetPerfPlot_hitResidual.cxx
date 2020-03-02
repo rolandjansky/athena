@@ -284,10 +284,10 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
             if (type!=INVALID_LAYER) fillHisto(m_residualy_perType[type], residualLocY);
           }
           fillHisto(m_residualpullx[det][region], pullLocX);
-          if (type!=INVALID_LAYER) fillHisto(m_residualpullx_perType[type], residualLocX);
+          if (type!=INVALID_LAYER) fillHisto(m_residualpullx_perType[type], pullLocX);
           if (hasYCoordinate) { // SCT & TRT do not have LocY
             fillHisto(m_residualpully[det][region], pullLocY);
-            if (type!=INVALID_LAYER) fillHisto(m_residualpully_perType[type], residualLocY);
+            if (type!=INVALID_LAYER) fillHisto(m_residualpully_perType[type], pullLocY);
           }
           if ((det == TRT)or(det == DBM) ) {
             continue;
