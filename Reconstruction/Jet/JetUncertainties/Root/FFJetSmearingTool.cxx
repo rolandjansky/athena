@@ -31,13 +31,13 @@ FFJetSmearingTool::FFJetSmearingTool(const std::string name/*, std::string truth
     , m_release("")
     , m_truth_jetColl("")
     , m_EtaRange(0)
+    , m_calibArea("CalibArea-08")
     , m_histFileName("")
     , m_InfoWarnings(0)
     {
     declareProperty( "MassDef", m_MassDef = ""                             );
     declareProperty( "ConfigFile", m_ConfigFile = ""        );//Path to the config file. By default it points to XXX
-    // Apply nominal sys config
-    //applySystematicVariation(CP::SystematicSet()).ignore();
+    declareProperty("Path",m_path);
 }
 
 // Destructor
@@ -97,6 +97,8 @@ StatusCode FFJetSmearingTool::initialize(/*const std::string&*/)
   TEnv settings;
 
   TString configFilePath = m_ConfigFile; //In future versions of the tool you can add a CalibrArea and other specifications as in jetuncertaintiestool
+
+//  const TString configFilePath = jet::utils::findFilePath(m_ConfigFile.c_str(),m_path.c_str(),m_calibArea.c_str());
 
   if (settings.ReadFile( configFilePath.Data(),kEnvGlobal))
   {
@@ -944,7 +946,7 @@ double FFJetSmearingTool::Read3DHistogram(TH3* histo, double x, double y, double
         if(z <= zMin) aux_z = zMin+1e-6 ; //so it fits the low-most z-bin
 
 	//Use the interpolate function from Heleprs.cxx
-	Helpers help_interpolate;
+	RootHelpers help_interpolate;
 
       double weight = help_interpolate.Interpolate(histo, aux_x, aux_y, aux_z);
 

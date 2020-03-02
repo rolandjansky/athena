@@ -38,6 +38,7 @@
 //#include "BoostedJetTaggers/JSSTaggerBase.h"
 
 #include "JetUncertainties/Helpers.h"
+#include "JetUncertainties/RootHelpers.h"
 
 /*
 #include "BoostedJetTaggers/IJetSelectorLabelTool.h"
@@ -147,7 +148,8 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IFFJetSmearingTool
         TString m_histFileName;
 	TString m_MassDef;
 	std::string m_ConfigFile;
-
+	std::string m_calibArea;
+        std::string m_path;
 
 	//Response matrix
 	TH2D* m_CALO_ResponseMap;

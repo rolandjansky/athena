@@ -94,7 +94,7 @@ void usage() {
 //  std::cout << "        --isMC=FALSE : Specify isMC false for FFJetSmearingTool" << std::endl;
 //  std::cout << "	--The FFJetSmearingTool can only be used to smear and unsmear MC jets" << std::endl;
   std::cout << "        --sample= : Specify input xAOD" << std::endl;
-  std::cout << "        Example: FFJetSmearingTool_MyExample  --truth_jetColl=AntiKt10TruthTrimmedPtFrac5SmallR20Jets --reco_jetColl=AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets --MassDef=Comb  --sample=DAOD_JETM6.16317590._000003.pool.root.1  --output=file_name.root --ConfigFile=../athena/Reconstruction/Jet/JetUncertainties//share/FFJetSmearingTool_2020/FFJetSmearingTool_options_JMS_JMR.config  --DebugTool=true" << std::endl;
+  std::cout << "        Example: FFJetSmearingTool_MyExample  --truth_jetColl=AntiKt10TruthTrimmedPtFrac5SmallR20Jets --reco_jetColl=AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets --MassDef=Comb  --sample=DAOD_JETM6.16317590._000003.pool.root.1  --output=file_name.root --ConfigFile=../athena/Reconstruction/Jet/JetUncertainties/share/FFJetSmearingTool_2020/FFJetSmearingTool_options_JMS_JMR.config  --DebugTool=true" << std::endl;
 }
 
 
