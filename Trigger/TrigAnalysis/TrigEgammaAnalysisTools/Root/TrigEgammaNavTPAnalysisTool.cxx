@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -26,7 +26,7 @@ TrigEgammaNavTPAnalysisTool( const std::string& myname )
 
 StatusCode TrigEgammaNavTPAnalysisTool::childInitialize(){
 
-    TrigEgammaNavTPBaseTool::childInitialize();
+    ATH_CHECK(TrigEgammaNavTPBaseTool::childInitialize());
     ATH_MSG_INFO("Now configuring chains for analysis: " << name() );
     m_trigList = m_trigInputList;
     for(const auto trigName:m_trigInputList){
@@ -38,7 +38,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childInitialize(){
 
 
 StatusCode TrigEgammaNavTPAnalysisTool::childFinalize(){
-    TrigEgammaNavTPBaseTool::childFinalize();
+    ATH_CHECK(TrigEgammaNavTPBaseTool::childFinalize());
     return StatusCode::SUCCESS;
 }
 
