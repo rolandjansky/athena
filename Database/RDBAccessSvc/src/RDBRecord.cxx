@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -29,7 +29,9 @@ RDBRecord::RDBRecord(const coral::AttributeList& attList,
   m_values(0),
   m_tableName(tableName)
 {
-  m_values = new coral::AttributeList(attList);
+  // Copy attList.  Try to avoid sharing, for thread-safety.
+  m_values = new coral::AttributeList(attList.specification(), false);
+  m_values->fastCopyData (attList);
 
   for(unsigned int i=0; i<m_values->size(); i++)
   {
