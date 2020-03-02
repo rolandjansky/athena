@@ -35,21 +35,23 @@ namespace EL
 
 
 
-  void AnaFilterHandle ::
+  StatusCode AnaFilterHandle ::
   beginExecute () noexcept
   {
     assert (m_isInitialized);
     ANA_MSG_DEBUG ("resetting algorithm-filter-passed flag at beginning of execute()");
     m_setFilterPassed (false);
+    return StatusCode::SUCCESS;
   }
 
 
 
-  void AnaFilterHandle ::
+  StatusCode AnaFilterHandle ::
   setPassed (bool val_passed) noexcept
   {
     assert (m_isInitialized);
     ANA_MSG_DEBUG ("setting algorithm-filter-passed flag to " << val_passed);
     m_setFilterPassed (val_passed);
+    return StatusCode::SUCCESS;
   }
 }
