@@ -283,19 +283,19 @@ class HistogramFactoryTestSuite {
 
     void clearHistogramService() {
       for (string histName : m_histSvc->getHists()) {
-        m_histSvc->deReg(histName);
+        assert(m_histSvc->deReg(histName).isSuccess());
       }
 
       for (string treeName : m_histSvc->getTrees()) {
-        m_histSvc->deReg(treeName);
+        assert(m_histSvc->deReg(treeName).isSuccess());
       }
 
       for (string graphName : m_histSvc->getGraphs()) {
-        m_histSvc->deReg(graphName);
+        assert(m_histSvc->deReg(graphName).isSuccess());
       }
 
       for (string efficiencyName : m_histSvc->getEfficiencies()) {
-        m_histSvc->deReg(efficiencyName);
+        assert(m_histSvc->deReg(efficiencyName).isSuccess());
       }
     }
 
