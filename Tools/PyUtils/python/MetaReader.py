@@ -393,7 +393,11 @@ def _read_guid(filename):
 
     for i in range(params.GetEntries()):
         params.GetEntry(i)
-        param = params.db_string
+        # Work around apparent pyroot issue:
+        # If we try to access params.db_string directly, we see trailing
+        # garbage, which can confuse python's bytes->utf8 conversion
+        # and result in an error.
+        param = params.GetLeaf('db_string').GetValueString()
 
         result = regex.match(param)
         if result:
