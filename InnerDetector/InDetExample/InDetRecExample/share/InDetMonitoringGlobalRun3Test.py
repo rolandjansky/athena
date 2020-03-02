@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -21,18 +21,18 @@ from InDetRecExample.InDetKeys import InDetKeys
 
 
 kwargsInDetGlobalTrackMonAlg = {
-           'DoIBL' : True,           #InDetFlags.doIBL(), #Turn on/off IBL histograms
-           'TrackName'  : 'CombinedInDetTracks',  #InDetKeys.Tracks()
-           'TrackName2' : 'CombinedInDetTracks',  #
-           'TrackName3' : 'CombinedInDetTracks',  #
-                                }
+    'DoIBL' : True,           #InDetFlags.doIBL(), #Turn on/off IBL histograms
+    'TrackName'  : 'CombinedInDetTracks',  #InDetKeys.Tracks()
+    'TrackName2' : 'CombinedInDetTracks',  #
+    'TrackName3' : 'CombinedInDetTracks',  #
+}
 
 kwargsInDetGlobalPrimaryVertexMonAlg = { 
-           'vxContainerName'                      : 'PrimaryVertices', #InDetKeys.xAODVertexContainer(),
-           'vxContainerNameWithOutBeamConstraint' : 'VxPrimaryCandidateWithBeamConstraint', #InDetKeys.PrimaryVerticesWithoutBeamConstraint(),
-           'vxContainerNameSplit'                 : 'VxPrimaryCandidateSplitStream', #InDetKeys.PrimaryVerticesSplitStream(),
-           'doEnhancedMonitoring'                 : False # InDetFlags.doMonitoringPrimaryVertexingEnhanced()
-                                       }
+    'vxContainerName'                      : 'PrimaryVertices', #InDetKeys.xAODVertexContainer(),
+    'vxContainerNameWithOutBeamConstraint' : 'VxPrimaryCandidateWithBeamConstraint', #InDetKeys.PrimaryVerticesWithoutBeamConstraint(),
+    'vxContainerNameSplit'                 : 'VxPrimaryCandidateSplitStream', #InDetKeys.PrimaryVerticesSplitStream(),
+    'doEnhancedMonitoring'                 : False # InDetFlags.doMonitoringPrimaryVertexingEnhanced()
+}
 
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 
