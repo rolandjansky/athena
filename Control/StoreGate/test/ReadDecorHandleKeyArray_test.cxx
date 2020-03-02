@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -93,7 +93,7 @@ void test1()
   k1 = {"bbb.foo1", "bbb.foo2", "bbb.foo3"};
   assert (k1[2].key() == "bbb.foo3");
 
-  k1.assign ({"ccc.fee1", "ccc.fee2", "ccc.fee3"});
+  assert (k1.assign ({"ccc.fee1", "ccc.fee2", "ccc.fee3"}).isSuccess());
   assert (k1[1].key() == "ccc.fee2");
 }
 
@@ -114,7 +114,7 @@ void test1a()
   k1 = {"bbb.foo1", "bbb.foo2", "bbb.foo3"};
   assert (k1[2].key() == "bbb.foo3");
 
-  k1.assign ({"ccc.fee1", "ccc.fee2", "ccc.fee3"});
+  assert (k1.assign ({"ccc.fee1", "ccc.fee2", "ccc.fee3"}).isSuccess());
   assert (k1[1].key() == "ccc.fee2");
 
 }
