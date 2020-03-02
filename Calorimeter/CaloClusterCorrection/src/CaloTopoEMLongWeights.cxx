@@ -109,7 +109,7 @@ void CaloTopoEMLongWeights::makeTheCorrection
   //			   i+1,
   //			   interp_barriers);
   
-  static
+  static const
   CaloSampling::CaloSample samps[2][4] = {
     { CaloSampling::PreSamplerB,
       CaloSampling::EMB1,

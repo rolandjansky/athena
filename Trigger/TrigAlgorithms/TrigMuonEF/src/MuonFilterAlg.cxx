@@ -1,7 +1,7 @@
 /*
   Filter algorithms for muon trigger
   
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonFilterAlg.h"
@@ -39,7 +39,12 @@ StatusCode MuonFilterAlg::execute()
 
   //if we find no muons, pass
   const xAOD::MuonContainer *muons = rh_muons.ptr();
-  if(muons->size()==0) pass = true;
+  int nCBmuons=0;
+  for(auto mu : *muons){
+    if(mu->author()==1) nCBmuons++; //count only combined muons
+  }
+  if(nCBmuons==0) pass = true;
+
   ATH_MSG_DEBUG("Found: "<<muons->size()<<" muons; pass="<<pass);
   setFilterPassed(pass);
 

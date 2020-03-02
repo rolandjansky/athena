@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # Revised: J. Maneira (Feb08)
@@ -29,7 +29,7 @@ class TileCosmicMuonGetter ( Configured )  :
             from TileCosmicAlgs.TileCosmicAlgsConf import TileMuonFitter                
         except:
             mlog.error("could not import TileCosmicAlgs.TileMuonFitter")
-            print traceback.format_exc()
+            mlog.error (traceback.format_exc())
             return False
 
         theTileMuonFitter=TileMuonFitter()

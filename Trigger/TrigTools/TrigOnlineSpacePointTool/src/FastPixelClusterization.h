@@ -8,7 +8,7 @@
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 #include "InDetRawData/PixelRDORawData.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "Identifier/Identifier.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 

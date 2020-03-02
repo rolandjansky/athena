@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_DIGITIZATION_TOOL_H
@@ -116,8 +116,8 @@ class AFP_PileUpTool: public PileUpToolBase {
 
   TH1F  m_Signal[4][32][2];
   
-  float m_deposited_charge[645120]; // = 4 x 6 x 336 x 80
-  float m_deposited_energy[645120];
+  std::vector<float> m_deposited_charge {645120}; // = 4 x 6 x 336 x 80
+  std::vector<float> m_deposited_energy {645120};
 
   std::vector<double> m_SignalVect;
 

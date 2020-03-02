@@ -13,7 +13,7 @@ def make_exec_steps(nforks, nthreads, nslots):
     # Step dumping athenaHLT config
     ex = ExecStep.ExecStep('Config.'+id_str)
     ex.type = 'athenaHLT'
-    ex.job_options = 'TrigUpgradeTest/full_menu.py'
+    ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
     ex.input = 'data'
     ex.forks = nforks
     ex.threads = nthreads

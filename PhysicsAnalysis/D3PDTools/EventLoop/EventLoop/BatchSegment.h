@@ -45,9 +45,20 @@ namespace EL
     ~BatchSegment ();
 
 
-    /// description: the name to use for this segment
+    /// \brief the name of the sample for this segment
   public:
-    std::string name;
+    std::string sampleName;
+
+
+    /// \brief the name/id to use for this segment (including the sample name)
+  public:
+    std::string fullName;
+
+
+    /// \brief the name/id to use for this segment (not
+    /// including the sample name)
+  public:
+    std::string segmentName;
 
 
     /// description: the index of the sample we are using

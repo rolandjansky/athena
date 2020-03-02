@@ -57,7 +57,7 @@ if DerivationFrameworkIsMonteCarlo:
                                                                 WriteFirstN                = 10)
     # from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     # JETM9TruthParticleThinning = DerivationFramework__GenericTruthThinning(name                    = "JETM9TruthThinning",
-    #                                                                        ThinningService         = "JETM9TruthThinningSvc",
+    #                                                                        StreamName              = streamName,
     #                                                                        ParticlesKey            = "TruthParticles",  
     #                                                                        ParticleSelectionString = "")
     ToolSvc += JETM9TruthThinning

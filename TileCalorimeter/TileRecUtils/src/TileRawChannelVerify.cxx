@@ -45,7 +45,7 @@ using namespace std;
 @brief Small class holding a single method to compare two different TileRawChannel  
  
 */
-class CompRawChannel: public binary_function<const TileRawChannel*, const TileRawChannel*, bool> {
+class CompRawChannel {
   public:
     bool operator()(const TileRawChannel* p1, const TileRawChannel* p2) {
       return p1->amplitude() < p2->amplitude();

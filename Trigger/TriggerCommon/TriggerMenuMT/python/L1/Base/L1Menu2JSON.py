@@ -45,6 +45,7 @@ class L1MenuJSONConverter(object):
         # thresholds
         confObj["thresholds"] = odict()
         confObj["thresholds"]["internal"] = odict()
+        confObj["thresholds"]["internal"]["type"] = "internal"
         confObj["thresholds"]["internal"]["names"] = [ "BGRP%i" % bg.internalNumber for bg in self.menu.ctp.bunchGroupSet.bunchGroups] + \
                                                      [ "RNDM%i" % i for i in range(0,len(self.menu.ctp.random.names)) ]
         confObj["thresholds"]["internal"]["randoms"] = odict( [ ("RNDM%i" %i , { "cut" : c }) for i,c in enumerate( self.menu.ctp.random.cuts) ] )

@@ -33,56 +33,56 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
 
     if DetFlags.overlay.CSC_on():
         job += CfgGetter.getAlgorithm("CscOverlayDigitBuilder")
-        job += CfgGetter.getAlgorithm("OverlayCscDigitToCscRDO")
+        job += CfgGetter.getAlgorithm("CscDigitToCscRDO4")
         job += CfgGetter.getAlgorithm("CscOverlay")
         if not overlayFlags.isDataOverlay():
             job += CfgGetter.getAlgorithm("CscTruthOverlay")
 
     if DetFlags.overlay.MDT_on():
-        job += CfgGetter.getAlgorithm("MdtRdoToMdtDigitOverlayAlg")
+        job += CfgGetter.getAlgorithm("MdtRdoToMdtDigitAlg")
         job += CfgGetter.getAlgorithm("MDT_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("MdtOverlay")
         if not overlayFlags.isDataOverlay():
             job += CfgGetter.getAlgorithm("MdtTruthOverlay")
-        job += CfgGetter.getAlgorithm("OverlayMdtDigitToMdtRDO")
+        job += CfgGetter.getAlgorithm("MdtDigitToMdtRDO")
 
     if DetFlags.overlay.sTGC_on():
         # As of July 2019, the input RDOs still hold a DigitContainer
         # so no Need to run Rdo->Digit
         # To be changed when we remove digitContainer from RDO
-        #job += CfgGetter.getAlgorithm("STGC_RdoToDigitOverlayAlg")
+        #job += CfgGetter.getAlgorithm("STGC_RdoToDigitAlg")
         job += CfgGetter.getAlgorithm("STGC_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("STGC_Overlay")
         if not overlayFlags.isDataOverlay():
             job += CfgGetter.getAlgorithm("STGC_TruthOverlay")
-        job += CfgGetter.getAlgorithm("OverlaySTGC_DigitToRDO")
+        job += CfgGetter.getAlgorithm("STGC_DigitToRDO")
 
     if DetFlags.overlay.Micromegas_on():
         # As of July 2019, the input RDOs still hold a DigitContainer
         # so no need to run Rdo->Digit
         # To be changed when we remove digitContainer from RDO
-        #job += CfgGetter.getAlgorithm("MM_RdoToDigitOverlayAlg")
+        #job += CfgGetter.getAlgorithm("MM_RdoToDigitAlg")
         job += CfgGetter.getAlgorithm("MM_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("MM_Overlay")
         if not overlayFlags.isDataOverlay():
             job += CfgGetter.getAlgorithm("MM_TruthOverlay")
-        job += CfgGetter.getAlgorithm("OverlayMM_DigitToRDO")
+        job += CfgGetter.getAlgorithm("MM_DigitToRDO")
 
     if DetFlags.overlay.RPC_on():
-        job += CfgGetter.getAlgorithm("RpcRdoToRpcDigitOverlayAlg")
+        job += CfgGetter.getAlgorithm("RpcRdoToRpcDigitAlg")
         job += CfgGetter.getAlgorithm("RPC_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("RpcOverlay")
         if not overlayFlags.isDataOverlay():
             job += CfgGetter.getAlgorithm("RpcTruthOverlay")
-        job += CfgGetter.getAlgorithm("OverlayRpcDigitToRpcRDO")
+        job += CfgGetter.getAlgorithm("RpcDigitToRpcRDO")
 
     if DetFlags.overlay.TGC_on():
-        job += CfgGetter.getAlgorithm("TgcRdoToTgcDigitOverlayAlg")
+        job += CfgGetter.getAlgorithm("TgcRdoToTgcDigitAlg")
         job += CfgGetter.getAlgorithm("TGC_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("TgcOverlay")
         if not overlayFlags.isDataOverlay():
             job += CfgGetter.getAlgorithm("TgcTruthOverlay")
-        job += CfgGetter.getAlgorithm("OverlayTgcDigitToTgcRDO")
+        job += CfgGetter.getAlgorithm("TgcDigitToTgcRDO")
 
     # storegate dump
     #StoreGateSvc = Service( "StoreGateSvc" )

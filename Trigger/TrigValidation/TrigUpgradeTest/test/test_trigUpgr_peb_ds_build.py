@@ -10,8 +10,9 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 ex = ExecStep.ExecStep()
 ex.type = 'athena'
-ex.job_options = 'TrigUpgradeTest/PEBDSTest.py'
+ex.job_options = 'TrigP1Test/PEBDSTest.py'
 ex.input = 'data'
+ex.args = '-c "forceEnableAllChains=True;"'
 
 test = Test.Test()
 test.art_type = 'build'

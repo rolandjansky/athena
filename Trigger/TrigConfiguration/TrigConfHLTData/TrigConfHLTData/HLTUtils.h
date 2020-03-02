@@ -2,6 +2,9 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+/// Hashing functions have moved here
+#include "TrigCompositeUtils/HLTUtils.h"
+
 #ifndef TrigConf_HLTUtils
 #define TrigConf_HLTUtils
 
@@ -19,28 +22,14 @@ namespace TrigConf {
    class HLTSequence;
    class HLTPrescale;
    class HLTFrame;
-
-   typedef uint32_t HLTHash; 
-  
-   class HLTUtils {
+     
+  /**
+   * @brief HLTUtils is renamed in r22 toHLTTEUtils. The hashing functionality remains in HLTUtils, which moves to the TrigCompositeUtils package
+   */ 
+   class HLTTEUtils {
 
    public:
 
-      /**@brief hash function translating TE names into identifiers*/
-      static HLTHash string2hash( const std::string&, const std::string& category="TE" );
-      /**@brief hash function translating identifiers into names (via internal dictionary)*/
-      static const std::string hash2string( HLTHash, const std::string& category="TE" );
-      /**@brief debugging output of internal dictionary*/
-      static void hashes2file( const std::string& fileName="hashes2string.txt" );
-      /**@brief debugging output of internal dictionary*/
-      static void file2hashes( const std::string& fileName="hashes2string.txt" );
-      /**@brief Multi-threaded protection for the static hash operations*/
-      static std::mutex s_mutex;
-      /**@brief In-file identifier*/
-      static std::string s_newCategory;
-
-
-    
       /**
        * @brief returns list of TEids which can be poduced at given level (L2 or EF) in currecnt configuration
        * @warning this method is dooing quite extensive menu inspection so it should not be executed to often ...

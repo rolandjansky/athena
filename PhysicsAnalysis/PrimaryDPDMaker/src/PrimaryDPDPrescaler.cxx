@@ -76,13 +76,15 @@ StatusCode PrimaryDPDPrescaler::initialize()
   ATH_MSG_DEBUG( "Accept Algs, Size: "  <<  m_theAcceptAlgs.size()  <<  " Empty: " << m_theAcceptAlgs.empty() );
   for(std::vector<Gaudi::Algorithm*>::iterator i=m_theAcceptAlgs.begin(),end=m_theAcceptAlgs.end(); i != end; ++i) {
     ATH_MSG_DEBUG( (*i)->name() );
-    cutFlowSvc()->registerCut((*i)->name(), "", cutID());
+    // TODO: update to the new interface
+    // cutFlowSvc()->registerCut((*i)->name(), "", cutID());
   }
 
   ATH_MSG_DEBUG( "Require Algs, Size: " <<  m_theRequireAlgs.size()  <<  " Empty: " << m_theRequireAlgs.empty() );
   for(std::vector<Gaudi::Algorithm*>::iterator i=m_theRequireAlgs.begin(),end=m_theRequireAlgs.end(); i != end; ++i) {
     ATH_MSG_DEBUG(  (*i)->name() );
-    cutFlowSvc()->registerCut((*i)->name(), "", cutID());
+    // TODO: update to the new interface
+    // cutFlowSvc()->registerCut((*i)->name(), "", cutID());
   }
 
 

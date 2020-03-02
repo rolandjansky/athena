@@ -167,8 +167,8 @@ if isOnline:
     svcMgr.ToolSvc += BSMon( FillStateCoolFolderName=UsedFillStateCoolFolderName)
     #    RecMuCTPIByteStreamTool.OutputLevel = INFO #DEBUG
     
-    print topSequence
-    print svcMgr
+    printfunc (topSequence)
+    printfunc (svcMgr)
 
 
    
@@ -196,13 +196,17 @@ if not isOnline:
 
         from AthenaMonitoring.DQMonFlags import DQMonFlags
         histbase = "/" + DQMonFlags.monManFileKey() + "/"
-        if DQMonFlags.monManRun():
-            histbase += "run_RUNNR/"
+        # temporary disable until solution is found how to provide metadata
+        #if DQMonFlags.monManRun():
+        #    from RecExConfig.AutoConfiguration import GetRunNumber
+        #    histbase += "run_%i/" % GetRunNumber()
+        histbase += "L1/"
         try:
-            topSequence.CTPSimulation.HistBase = histbase
-        except AttributeError, ex:
-            print ex," ignore for now"
-
+            topSequence.CTPSimulation.HistPath = histbase
+        except AttributeError as ex:
+            printfunc (ex," ignore for now")
+            import traceback
+            traceback.print_exc()
 
     ## AthenaMonManager is the Algorithm that manages many classes inheriting
     ## from ManagedMonitorToolBase

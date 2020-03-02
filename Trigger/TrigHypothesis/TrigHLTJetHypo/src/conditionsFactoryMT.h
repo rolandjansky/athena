@@ -42,7 +42,11 @@ ConditionsMT conditionsFactoryTLAMT(const std::vector<double>& etasMin,
                                     const std::vector<double>& massesMin,
                                     const std::vector<double>& massesMax);
 
-ConditionsMT conditionsFactoryHTMT(double htMin);
+ConditionsMT conditionsFactoryHTMT(double htMin,
+				   double etmin,
+				   double absetamin,
+				   double absetamax
+				   );
 
 
 

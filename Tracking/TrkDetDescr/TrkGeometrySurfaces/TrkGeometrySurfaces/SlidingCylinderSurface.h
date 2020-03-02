@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -45,9 +45,9 @@ public:
 
   /**Constructor */
   SlidingCylinderSurface(const CylinderSurface& surf,
-                         Trk::BinUtility* bu = 0,
-                         const std::vector<float>* offset = 0,
-                         Amg::Transform3D* align = 0);
+                         Trk::BinUtility* bu = nullptr,
+                         const std::vector<float>* offset = nullptr,
+                         Amg::Transform3D* align = nullptr);
 
   /**Destructor*/
   virtual ~SlidingCylinderSurface();

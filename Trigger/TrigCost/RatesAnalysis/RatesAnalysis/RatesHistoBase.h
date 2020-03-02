@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RATESANALYSIS_RATESHISTOBASE_H
@@ -38,8 +38,11 @@ enum ExtrapStrat_t{
  * Lables a bin in a histogram.
  */
 enum RatesBinIdentifier_t{
-  kRATE_BIN_OR, //!< Bin used to store the total rate (OR)
-  kRATE_BIN_AND, //!< Bin used to store the total rate (AND)
+  kACTIVE_RAW_BIN, //!< Bin used to store the raw total events in which the trigger was active
+  kACTIVE_WEIGHTED_BIN, //!< Bin used to store the weighted events in which the trigger was active
+  kPASS_RAW_BIN, //!< Bin used to store the raw total events in which the trigger passed
+  kPASS_WEIGHTED_OR_BIN, //!< Bin used to store the total rate (OR)
+  kPASS_WEIGHTED_AND_BIN, //!< Bin used to store the total rate (AND)
   kEXPRESS_BIN, //!< Bin used to store the express rate.
   kUNIQUE_BIN, //!< Bin used to store data needed to get the unique rate
   kNRATES_BINS //!< Must always come last

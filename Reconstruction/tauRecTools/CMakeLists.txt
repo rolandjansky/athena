@@ -53,9 +53,11 @@ else()
       Event/FourMomUtils
       Event/NavFourMom
       Event/xAOD/xAODJet
+      LumiBlock/LumiBlockComps
       GaudiKernel
       InnerDetector/InDetRecTools/InDetRecToolInterfaces
       InnerDetector/InDetRecTools/InDetTrackSelectionTool
+      InnerDetector/InDetConditions/BeamSpotConditionsData
       Reconstruction/Jet/JetEDM
       Reconstruction/RecoTools/ITrackToVertex
       Reconstruction/RecoTools/RecoToolInterfaces
@@ -84,20 +86,17 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauSubstructureVariables.h
   tauRecTools/TauCommonCalcVars.h
   tauRecTools/TauGenericPi0Cone.h
-  tauRecTools/TauIDPileupCorrection.h
   tauRecTools/TauTrackFilter.h
   tauRecTools/MvaTESVariableDecorator.h
   tauRecTools/MvaTESEvaluator.h
   tauRecTools/CombinedP4FromRecoTaus.h
   tauRecTools/TauTrackClassifier.h
   tauRecTools/TauTrackRNNClassifier.h
-  tauRecTools/TauChargedPFOCreator.h
   tauRecTools/TauWPDecorator.h
   tauRecTools/TauJetBDTEvaluator.h
   tauRecTools/TauJetRNNEvaluator.h
   tauRecTools/TauIDVarCalculator.h
   tauRecTools/TauEleOLRDecorator.h
-  tauRecTools/TauProcessorTool.h
   Root/LinkDef.h
   EXTERNAL_PACKAGES ROOT
   )
@@ -114,7 +113,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
       xAODTracking xAODParticleEvent
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet
-      PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
+      PathResolver MVAUtils ElectronPhotonSelectorToolsLib LumiBlockCompsLib)
 else()
    atlas_add_library( tauRecToolsLib
       tauRecTools/*.h Root/*.cxx tauRecTools/lwtnn/*.h Root/lwtnn/*.cxx  ${tauRecToolsLibCintDict}
@@ -126,7 +125,7 @@ else()
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
       xAODTracking xAODParticleEvent CaloUtilsLib Particle
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet
-      PathResolver MVAUtils ElectronPhotonSelectorToolsLib)
+      PathResolver MVAUtils ElectronPhotonSelectorToolsLib LumiBlockCompsLib)
 endif()
 
 if( NOT XAOD_STANDALONE )
@@ -136,7 +135,7 @@ if( NOT XAOD_STANDALONE )
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} xAODTau
          xAODTracking xAODEgamma AthContainers FourMomUtils xAODCaloEvent xAODJet 
-         xAODPFlow xAODParticleEvent MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel tauRecToolsLib )
+         xAODPFlow xAODParticleEvent MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel tauRecToolsLib LumiBlockCompsLib)
    else()
       atlas_add_component( tauRecTools
          src/*.h src/*.cxx src/components/*.cxx
@@ -148,7 +147,7 @@ if( NOT XAOD_STANDALONE )
          RecoToolInterfaces TrkLinks TrkParametersIdentificationHelpers
          TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces
          TrkVertexFittersLib InDetTrackSelectionToolLib
-         tauRecToolsLib )
+         tauRecToolsLib LumiBlockCompsLib)
    endif()
 endif()
 

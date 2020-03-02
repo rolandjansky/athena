@@ -6,7 +6,7 @@
  * @package: TrigT2BeamSpot
  * @class  : T2Track
  *
- * @brief Helper class that provides an interface to TrigInDetTrack
+ * @brief Helper class that provides an interface to Trk::Track
  *        with some additional functionality used by the beam spot algorithm
  *
  * @author Rainer Bartoldus, SLAC, <bartoldu@slac.stanford.edu>
@@ -16,7 +16,6 @@
 #ifndef TRIGT2BEAMSPOT_T2TRACK_H
 #define TRIGT2BEAMSPOT_T2TRACK_H
 /// Externals
-#include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrkTrack/Track.h" 
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
@@ -33,7 +32,6 @@ namespace PESA {
 
   class T2Track;
 
-  int    trackNDF     ( const TrigInDetTrack& track );
   double trackChi2Prob( const T2Track& track );
 
   class T2Track
@@ -41,23 +39,6 @@ namespace PESA {
   public:
 
     // Constructor
-    T2Track( const TrigInDetTrack& track )
-      : m_Pt      ( std::abs(track.param()->pT())/Gaudi::Units::GeV  )
-      , m_Eta     ( track.param()->eta()          )
-      , m_Phi     ( track.param()->phi0()         )
-      , m_Z0      ( track.param()->z0()           )
-      , m_D0      ( track.param()->a0()           )
-      , m_Z0err   ( track.param()->ez0()          )
-      , m_D0err   ( track.param()->ea0()          )
-      , m_NDF     ( trackNDF( track )             )
-      , m_Qual    ( track.chi2()                  ) // Note this is the reduced chi2 (chi2/NDF)
-      , m_Chi2Prob( -1.                           ) // lazy evaluation
-      , m_SiHits  ( track.siSpacePoints()->size() )
-      , m_PIXHits ( track.NPixelSpacePoints()     )
-      , m_SCTHits ( track.NSCT_SpacePoints()      )
-      , m_TRTHits ( track.NStrawHits()            )
-      {}
-
     T2Track( const Trk::Track& track )
       : m_Chi2Prob( -1.                           ) // lazy evaluation
       {
@@ -157,11 +138,6 @@ namespace PESA {
     }
 
     // Update method
-    void push_back( const TrigInDetTrack& track )
-    {
-      push_back( T2Track( track ) );
-    }
-
     void push_back( const T2Track& track )
     {
       m_Pt      .push_back( track.Pt      () );

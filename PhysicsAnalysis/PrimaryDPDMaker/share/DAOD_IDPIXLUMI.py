@@ -109,10 +109,9 @@ if dumpPixInfo:
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackMeasurementThinning
     thinning_expression = DxAODPixLumiFlags.ModulesSelection()
     IDPIXLUMIThinningTool = DerivationFramework__TrackMeasurementThinning( name = "IDPIXLUMIThinningTool",
-        ThinningService = IDPIXLUMIThinningHelper.ThinningSvc(),
+        StreamName = streamName,
         SelectionString = thinning_expression,
-        TrackMeasurementValidationKey = "PixelClusters",
-        ApplyAnd = False)
+        TrackMeasurementValidationKey = "PixelClusters")
     ToolSvc += IDPIXLUMIThinningTool
     thinningTools.append(IDPIXLUMIThinningTool)
 

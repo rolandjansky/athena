@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">   
+<unifiedTestConfiguration> 
+  <atn>
+    <TEST name="EventLoopTest" type="makecheck">
+      <timelimit>15</timelimit>
+      <author>Nils Krumnack</author>
+      <mailto>krumnack@cern.ch</mailto>
+      <expectations>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+  </atn>
+</unifiedTestConfiguration>

@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import CaloRingerToolsConf
+from . import CaloRingerToolsConf
 
 from egammaRec.Factories import PublicToolFactory, FcnWrapper
 from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray

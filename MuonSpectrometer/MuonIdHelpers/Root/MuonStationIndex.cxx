@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: MuonStationIndex.cxx 732860 2016-03-30 08:53:44Z mcorradi $
 
 // Local include(s):
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include <array>
-#include <experimental/array>
 
 namespace Muon {
 

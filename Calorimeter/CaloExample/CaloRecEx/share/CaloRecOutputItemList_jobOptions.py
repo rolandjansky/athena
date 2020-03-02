@@ -39,7 +39,7 @@ for theKey in CaloClusterKeys:
 
 CaloESDList+=CaloClusterItemList
 logRecoOutputItemList_jobOptions.info('CaloClusterItemList = ')
-print CaloClusterItemList
+printfunc (CaloClusterItemList)
 
 #CaloTowerContainer needed for jet->cell
 #FIXME

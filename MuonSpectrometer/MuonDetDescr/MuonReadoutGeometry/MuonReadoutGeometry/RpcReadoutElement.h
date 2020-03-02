@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  Rpc Readout Element properties
  -----------------------------------------
 ***************************************************************************/
-
-//<doc><file>	$Id: RpcReadoutElement.h,v 1.3 2009-03-03 00:27:38 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #ifndef MUONGEOMODEL_RPCREADOUTELEMENT_H
 # define MUONGEOMODEL_RPCREADOUTELEMENT_H
@@ -317,18 +314,6 @@ namespace MuonGM {
     return surfaceHash(manager()->rpcIdHelper()->doubletPhi(id),manager()->rpcIdHelper()->gasGap(id),manager()->rpcIdHelper()->measuresPhi(id));
   }
 
-  inline int RpcReadoutElement::surfaceHash( int dbPhi, int gasGap, int measPhi) const {
-    
-    // if there is only one doublet phi we should always use one in the hash calculation
-    if ( m_nphistrippanels == 1 ) dbPhi = 1;
-    if( dbPhi > NphiStripPanels() || gasGap > numberOfLayers(true) ) {
-      (*m_Log)  << MSG::WARNING << " surfaceHash: identifier out of range dbphi " << dbPhi << " max " << NphiStripPanels() 
-	      << " ch dbphi " << getDoubletPhi() << " gp " << gasGap << " max " << numberOfLayers() << endmsg;
-      return -1;
-    }
-    return  (dbPhi-1)*(2*NphiStripPanels()) + 2*(gasGap-1) + (measPhi ? 0 : 1);
-  }
-
   inline const Amg::Vector3D  RpcReadoutElement::REcenter()    const { 
     if (NphiStripPanels() == 1) return MuonClusterReadoutElement::center(0);
     return 0.5*(MuonClusterReadoutElement::center(0)+MuonClusterReadoutElement::center(2));
@@ -336,18 +321,6 @@ namespace MuonGM {
 
   inline int RpcReadoutElement::layerHash( const Identifier& id ) const {
     return layerHash(manager()->rpcIdHelper()->doubletPhi(id),manager()->rpcIdHelper()->gasGap(id));
-  }
-
-  inline int RpcReadoutElement::layerHash( int dbPhi, int gasGap) const {
-
-    if ( m_nphistrippanels == 1 ) dbPhi = 1;
-
-    if( dbPhi > NphiStripPanels() || gasGap > numberOfLayers(true) ) {
-      (*m_Log)  << MSG::WARNING << " layerHash: identifier out of range dbphi " << dbPhi << " max " << NphiStripPanels() 
-	      << " ch dbphi " << getDoubletPhi() << " gp " << gasGap << " max " << numberOfLayers() << endmsg;
-      return -1;
-    }
-    return (dbPhi-1)*(NphiStripPanels()) + (gasGap-1);
   }
 
   inline int  RpcReadoutElement::boundaryHash(const Identifier& id) const { 
@@ -358,15 +331,6 @@ namespace MuonGM {
     return manager()->rpcIdHelper()->measuresPhi(id);
   }
 
-
-  inline const MuonStripDesign* RpcReadoutElement::getDesign( const Identifier& id ) const {
-    int phipanel = m_nphistrippanels == 1 ? 1 : manager()->rpcIdHelper()->doubletPhi(id);
-    if( phipanel > (int)m_phiDesigns.size() ) {
-      (*m_Log)  << MSG::WARNING << " bad identifier, no MuonStripDesign found " << endmsg;
-      return 0;
-    }
-    return manager()->rpcIdHelper()->measuresPhi(id) ? &m_phiDesigns[phipanel-1] : &m_etaDesigns[phipanel-1];
-  }
   inline double RpcReadoutElement::distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const {
     const MuonStripDesign* design = getDesign(id);
     if( !design ) return 0;

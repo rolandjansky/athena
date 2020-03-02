@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Pythia8_i/Pythia8_i.h"
@@ -29,6 +29,25 @@ using boost::assign::operator+=;
 /**
  * author: James Monk (jmonk@cern.ch)
  */
+
+
+namespace {
+
+std::string py8version()
+{
+  static const std::string incdir (PY8INCLUDE_DIR);
+  std::string::size_type pos = incdir.find ("/pythia8/");
+  if (pos == std::string::npos) return "";
+  pos += 9;
+  std::string::size_type pos2 = incdir.find ("/", pos);
+  if (pos2 == std::string::npos) pos2 = incdir.size();
+  return incdir.substr (pos, pos2-pos);
+}
+
+
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 Pythia8_i::Pythia8_i(const string &name, ISvcLocator *pSvcLocator)
 : GenModule(name, pSvcLocator),
@@ -98,7 +117,7 @@ StatusCode Pythia8_i::genInitialize() {
   
   std::string pythiaVersion = boost::lexical_cast<std::string>(m_version + 0.00000000001);
   pythiaVersion.erase(5);
-  std::string libVersion = "8." + std::string(PY8VERSION);
+  std::string libVersion = "8." + std::string(py8version());
   
   if(pythiaVersion != libVersion){
     ATH_MSG_ERROR("Version of Pythia in xmldoc (" + pythiaVersion + ") does not matched linked library version (" + libVersion + ")");
@@ -518,7 +537,7 @@ StatusCode Pythia8_i::genFinalize(){
   xs *= 1000. * 1000.;//convert to nb
 
   std::cout << "MetaData: cross-section (nb)= " << xs <<std::endl;
-  std::cout << "MetaData: generator= Pythia 8." << PY8VERSION <<std::endl;
+  std::cout << "MetaData: generator= Pythia 8." << py8version() <<std::endl;
 
   if(m_doLHE3Weights || m_weightIDs.size()>1 ){
     std::cout<<"MetaData: weights = ";
@@ -562,31 +581,10 @@ string Pythia8_i::findValue(const string &command, const string &key){
 ////////////////////////////////////////////////////////////////////////////////
 string Pythia8_i::xmlpath(){
     
-  char *cmtpath = getenv("CMTPATH");
-  char *cmtconfig = getenv("CMTCONFIG");
-  
   string foundpath = "";
   
-  if(cmtpath != 0 && cmtconfig != 0){
-    
-    std::vector<string> cmtpaths;
-    boost::split(cmtpaths, cmtpath, boost::is_any_of(string(":")));
-    
-    string installPath = "/InstallArea/" + string(cmtconfig) + "/share/Pythia8/xmldoc";
-    
-    for(std::vector<string>::const_iterator path = cmtpaths.begin();
-        path != cmtpaths.end() && foundpath == ""; ++path){
-      string testPath = *path + installPath;
-      std::ifstream testFile(testPath.c_str());
-      if(testFile.good()) foundpath = testPath;
-      testFile.close();
-    }
-    
-  } else {
-     // If the CMT environment is missing, try to find the xmldoc directory
-     // using PathResolver:
-     foundpath = PathResolverFindCalibDirectory( "Pythia8/xmldoc" );
-  }
+  // Try to find the xmldoc directory using PathResolver:
+  foundpath = PathResolverFindCalibDirectory( "Pythia8/xmldoc" );
   
   return foundpath;
 }

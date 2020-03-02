@@ -40,6 +40,10 @@ StatusCode CaloThinCellsByClusterAlg::execute (const EventContext& ctx) const
   cells.thinAll();
 
   SG::ReadHandle<xAOD::CaloClusterContainer> clusters (m_clusters, ctx);
+  if(!clusters.isValid()){
+     ATH_MSG_WARNING( "Collection  " << m_clusters.key()<<" is not valid");
+     return StatusCode::SUCCESS;
+  }
   for (const xAOD::CaloCluster* clust : *clusters) {
     const CaloClusterCellLink* cellLinks = clust->getCellLinks();
     if (!cellLinks) {

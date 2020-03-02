@@ -108,7 +108,7 @@ namespace PESA {
 
 
          void reconstructSplitVertices( ConstDataVector<TrackCollection>& mySelectedTrackCollection,
-               DataVector< TrigVertexCollection >& mySplitVertexCollections );
+               DataVector< TrigVertexCollection >& mySplitVertexCollections, T2TrackClusterer& trackClusterer );
 
 
          bool eventStage( Statistics stage );
@@ -119,9 +119,6 @@ namespace PESA {
 
          /* Track manager */
          T2TrackManager m_trackManager;
-
-         /* Track clusterer */
-         std::auto_ptr< T2TrackClusterer > m_trackClusterer;
 
          /* Number of Z blocks */
          double       m_trackClusDZ;
@@ -176,7 +173,7 @@ namespace PESA {
          void monitor_tracks(std::string prefix, std::string suffix, std::vector<const T2Track*> tracks );
 
          /* Monitor cluster parameters */
-         void monitor_cluster( T2TrackClusterer& clusterer  );
+         void monitor_cluster( const T2TrackClusterer& clusterer  );
 
          /* Monitor  parameters of tracks inside the cluster */
          void monitor_cluster_tracks(T2TrackClusterer& clusterer, const Trk::Track & track  );

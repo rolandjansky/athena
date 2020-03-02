@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRACKPERFORMANCEALG_H
@@ -19,8 +19,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTruthData/TruthTrajectory.h"
 
-#include "MuonIdHelpers/MuonStationIndex.h"
-
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
@@ -28,6 +26,9 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
 #include <fstream>
 #include <iostream>
@@ -35,7 +36,6 @@
 #include <vector>
 #include <set>
 
-class MsgStream;
 class TFile;
 class TruthTrajectory;
 
@@ -46,12 +46,9 @@ namespace HepMC{
 namespace Trk {
   class Track;
   class TrackSummary;
-  class ITrackSummaryHelperTool;  
 }
 
 namespace Muon {
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
   class MuonSegmentCombination;
   class MuonSegment;
 }
@@ -299,7 +296,7 @@ private:
   bool m_writeToFile;
   bool m_doStau;
 
-  ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
   ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
     "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 

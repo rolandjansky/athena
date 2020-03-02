@@ -32,7 +32,7 @@ namespace Athena {
  * the concrete class in one place.  The concrete service may be left
  * unspecified, in which case no garbage collection will be done.
  */
-class ConditionsCleanerSvc
+class ATLAS_CHECK_THREAD_SAFETY ConditionsCleanerSvc
   : public extends<AthService, IConditionsCleanerSvc>
 {
 public:

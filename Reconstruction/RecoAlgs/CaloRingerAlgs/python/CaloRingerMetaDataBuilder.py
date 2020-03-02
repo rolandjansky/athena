@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import traceback
-import CaloRingerAlgsConf
+from . import CaloRingerAlgsConf
 from AthenaCommon.Resilience import treatException
 from RecExConfig.Configured import Configured
 from CaloRingerAlgs.CaloRingerKeys import *

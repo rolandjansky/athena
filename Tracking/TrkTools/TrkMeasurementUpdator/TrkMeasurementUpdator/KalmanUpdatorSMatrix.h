@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -158,10 +158,10 @@ class KalmanUpdatorSMatrix : virtual public IUpdator, public AthAlgTool {
                                                                                  const int&, 
                                                                                  Trk::FitQualityOnSurface*&, 
                                                                                  bool ) const override final
-    {return 0;}
+    {return nullptr;}
 
     //! give back how updator is configured for inital covariances
-    virtual const std::vector<double>  initialErrors() const override final;
+    virtual std::vector<double>  initialErrors() const override final;
 		
 private:
     //! common code analysing the measurement's rank and calling the appropriate implementation for this rank.

@@ -48,7 +48,7 @@ class  ConfiguredInDetTrackTruth:
         #    DetailedTruthMaker.OutputLevel = VERBOSE
         topSequence += DetailedTruthMaker
         if (InDetFlags.doPrintConfigurables()):
-            print DetailedTruthMaker        
+            printfunc (DetailedTruthMaker        )
         #
         # --- Detailed to old TrackTruth
         #
@@ -57,7 +57,7 @@ class  ConfiguredInDetTrackTruth:
         elif InDetFlags.truthMatchStrategy() == 'TruthMatchTanimoto':
             from TrkTruthCreatorTools.TrkTruthCreatorToolsConf import Trk__TruthMatchTanimoto as InDetTruthMatchTool
         else:
-            print "ConfiguredInDetTrackTruth: error! InDetFlags.truthMatchStrategy must be TruthMatchRatio or TruthMatchTanimoto but is: "+InDetFlags.truthMatchStrategy()
+            printfunc ("ConfiguredInDetTrackTruth: error! InDetFlags.truthMatchStrategy must be TruthMatchRatio or TruthMatchTanimoto but is: "+InDetFlags.truthMatchStrategy())
 
         InDetTruthMatchSimilarityTool = InDetTruthMatchTool(name        = "InDetTruthMatchTool",
                                                             WeightPixel =  10.,
@@ -68,7 +68,7 @@ class  ConfiguredInDetTrackTruth:
         if not hasattr(ToolSvc, "InDetTruthMatchTool"):
             ToolSvc += InDetTruthMatchSimilarityTool
             if (InDetFlags.doPrintConfigurables()):
-                print InDetTruthMatchSimilarityTool
+                printfunc (InDetTruthMatchSimilarityTool)
 
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSimilaritySelector
         InDetTruthSimilaritySelector = TrackTruthSimilaritySelector(name                     = TracksTruth+"Selector",
@@ -79,7 +79,7 @@ class  ConfiguredInDetTrackTruth:
         #    InDetTruthSimilaritySelector.OutputLevel = VERBOSE
         topSequence += InDetTruthSimilaritySelector
         if (InDetFlags.doPrintConfigurables()):
-            print InDetTruthSimilaritySelector
+            printfunc (InDetTruthSimilaritySelector)
 
         # --- remember imput
         self.__Tracks        = Tracks

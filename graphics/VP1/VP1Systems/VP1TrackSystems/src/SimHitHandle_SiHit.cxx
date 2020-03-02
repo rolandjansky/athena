@@ -19,8 +19,8 @@
 
 #include "InDetSimEvent/SiHit.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "VP1TrackSystems/VP1TrackSanity.h"

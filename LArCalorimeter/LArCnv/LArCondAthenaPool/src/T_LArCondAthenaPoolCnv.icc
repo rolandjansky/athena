@@ -16,14 +16,7 @@ T_LArCondAthenaPoolCnv<T>::~T_LArCondAthenaPoolCnv()
 }
 
 template <class T> 
- StatusCode T_LArCondAthenaPoolCnv<T>::DataObjectToPers(DataObject* pObj, std::string tname)
-{
-   return LArCondAthenaPoolCnvBase::DataObjectToPers(pObj, tname) ;
-
-}
-
-template <class T> 
- StatusCode T_LArCondAthenaPoolCnv<T>::DataObjectToPool(DataObject* pObj, std::string tname)
+StatusCode T_LArCondAthenaPoolCnv<T>::DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pObj)
 {
 
    T* obj = 0;
@@ -49,13 +42,13 @@ template <class T>
 */
 
 
-   return LArCondAthenaPoolCnvBase::DataObjectToPool(pObj, tname) ;
+   return LArCondAthenaPoolCnvBase::DataObjectToPool(pAddr, pObj) ;
 
 }
 
 
 template <class T> 
- StatusCode
+StatusCode
 T_LArCondAthenaPoolCnv<T>::PoolToDataObject(DataObject*& pObj,
                                             const std::string& token,
                                             const std::string& key)

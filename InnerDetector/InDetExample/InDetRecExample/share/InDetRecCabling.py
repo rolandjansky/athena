@@ -13,8 +13,8 @@ from AthenaCommon.DetFlags import DetFlags
 # --- Pixel cabling
 #
 if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
-  from AthenaCommon.CfgGetter import getService
-  PixelCablingSvc = getService("PixelCablingSvc")
+  from PixelCabling.PixelCablingConf import PixelCablingSvc
+  PixelCablingSvc = PixelCablingSvc()
   ServiceMgr += PixelCablingSvc
   if (InDetFlags.doPrintConfigurables()):
     printfunc  (PixelCablingSvc)

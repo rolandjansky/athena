@@ -376,7 +376,7 @@ void Trk::RungeKuttaUtils::transformGlobalToLine
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToCone
-(const Trk::Surface* su,bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
+(const Trk::Surface* su,bool useJac,const double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
 {
 
   const Amg::Transform3D&  T = su->transform();  
@@ -427,7 +427,7 @@ double Trk::RungeKuttaUtils::stepEstimator
 /////////////////////////////////////////////////////////////////////////////////
 
 double Trk::RungeKuttaUtils::stepEstimatorToPlane 
-(double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q) const
+(const double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q) const
 {
   const double* r = &P[0];          // Start coordinate
   const double* a = &P[3];          // Start direction
@@ -510,7 +510,7 @@ double Trk::RungeKuttaUtils::stepEstimatorToCylinder
 /////////////////////////////////////////////////////////////////////////////////
 
 double Trk::RungeKuttaUtils::stepEstimatorToStraightLine
-(double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q) const
+(const double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q) const
 {
   const double* r = &P[0];          // Start coordinate
   const double* a = &P[3];          // Start direction
@@ -1247,7 +1247,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToCylinder
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToStraightLine
-(double*ATH_RESTRICT P,double*ATH_RESTRICT Jac) const 
+(const double*ATH_RESTRICT P,double*ATH_RESTRICT Jac) const 
 {
   const double* p  = &P[ 0];
   const double* At = &P[ 4];

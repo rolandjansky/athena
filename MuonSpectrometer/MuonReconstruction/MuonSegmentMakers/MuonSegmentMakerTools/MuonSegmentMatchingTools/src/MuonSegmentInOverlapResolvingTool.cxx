@@ -1,17 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentInOverlapResolvingTool.h"
  
 #include "GaudiKernel/MsgStream.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
-
-#include "TrkExInterfaces/IPropagator.h"
 
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
@@ -29,60 +22,26 @@ namespace Muon {
 
   MuonSegmentInOverlapResolvingTool::MuonSegmentInOverlapResolvingTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
-      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
       m_magFieldProperties(Trk::NoField),
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
   {
     declareInterface<IMuonSegmentInOverlapResolvingTool>(this);
-
   }
-
-
-  MuonSegmentInOverlapResolvingTool::~MuonSegmentInOverlapResolvingTool(){}
-
 
   StatusCode MuonSegmentInOverlapResolvingTool::initialize()
   {
-    if ( AthAlgTool::initialize().isFailure() ) {
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(AthAlgTool::initialize());
 
-    if( m_edmHelperSvc.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_edmHelperSvc);
-      return StatusCode::FAILURE;
-    }
-
-    if( m_printer.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_printer ); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_idHelperTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_idHelperTool ); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_propagator.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not find "<<m_propagator);
-      return StatusCode::FAILURE;
-    } 
-
-    if( m_pullCalculator.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_pullCalculator);
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_edmHelperSvc.retrieve());
+    ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_CHECK(m_propagator.retrieve());
+    ATH_CHECK(m_pullCalculator.retrieve());
 
     return StatusCode::SUCCESS;
   }
-
-  StatusCode MuonSegmentInOverlapResolvingTool::finalize()
-  {
-    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
-    return StatusCode::SUCCESS;
-  }
-
 
   Amg::Vector3D MuonSegmentInOverlapResolvingTool::updateSegmentDirection( const MuonSegment& seg, double phi ) const {
     
@@ -471,8 +430,8 @@ namespace Muon {
       if( mdt ){
 	hasMdt = true;
 	const Identifier& id = mdt->identify();
-	int layer = m_idHelperTool->mdtIdHelper().tubeLayer(id);
-	int tube  = m_idHelperTool->mdtIdHelper().tube(id);
+	int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
+	int tube  = m_idHelperSvc->mdtIdHelper().tube(id);
 	double tubelen    = mdt->prepRawData()->detectorElement()->getActiveTubeLength(layer,tube);
 	if( tubelen < shortestTubeLen ) {
 	  shortestTubeLen = tubelen;
@@ -552,7 +511,7 @@ namespace Muon {
     for( ;mit!=mit_end;++mit ){
       
       Identifier id = m_edmHelperSvc->getIdentifier(**mit);
-      if( !id.is_valid() || !m_idHelperTool->measuresPhi(id) ) continue;
+      if( !id.is_valid() || !m_idHelperSvc->measuresPhi(id) ) continue;
 
       // predict onto segment surface
       const Trk::Surface& measSurf = (**mit).associatedSurface();
@@ -573,21 +532,14 @@ namespace Muon {
       
 	// sanity check
 	if( resPull->pull().size() != 1 ){
-	  ATH_MSG_WARNING(" ResidualPull with empty pull vector for channel " << m_idHelperTool->toString(id));
+	  ATH_MSG_WARNING(" ResidualPull with empty pull vector for channel " << m_idHelperSvc->toString(id));
 	  delete resPull;
 	  delete exPars;
 	  continue;
 	}
       
-// 	double residual = resPull->residual().front(); 
 	double pull = resPull->pull().front();
-	// 	double locInSeg = (geometry.globalToSeg*(**mit).globalPosition()).x();
-	// 	ATH_MSG_VERBOSE(" " << m_idHelperTool->toString(id) 
-	// 	       << " res " << std::setw(5) << residual
-	// 	       << " pull " << std::setw(5) << pull
-	// 	       << " loc meas " << locInSeg  
-	// 	       << "  phi meas " << (**mit).globalPosition().phi());
-	//     }
+
 	averagePull += pull;
 	++nphiMeas;
 	delete resPull;

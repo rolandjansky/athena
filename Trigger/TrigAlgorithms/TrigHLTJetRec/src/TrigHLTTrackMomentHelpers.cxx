@@ -16,7 +16,9 @@
 
 TrigHLTTrackMomentHelpers::TrigHLTTrackMomentHelpers(const std::string& name, 
                                            ISvcLocator* pSvcLocator):
-  HLT::FexAlgo(name, pSvcLocator) {
+  HLT::FexAlgo(name, pSvcLocator),
+  m_tvassocTool("",this) 
+{
   declareProperty("tvassocTool", m_tvassocTool);
   declareProperty("trackSGkey", m_trackSGKey);
   declareProperty("primVtxSGkey", m_primVtxSGKey);

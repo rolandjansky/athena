@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 
@@ -14,6 +14,8 @@ from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorr
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import CenterOfMassShapesTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
+#from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import MultiplicitiesTool # currently disabled
+from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SoftDropObservablesTool
 
 def declareDefaultTools():
   from JetRecConfig.JetRecStandardToolManager import jtm
@@ -69,6 +71,12 @@ def declareDefaultTools():
 
   # Jet charge
   jtm += JetChargeTool("charge", K=1.0)
+
+  # Soft Drop Observables: zg, rg
+  jtm += SoftDropObservablesTool("softdropObservables")
+
+  # multiplicities (NSD, LHM)
+  #jtm += MultiplicitiesTool("multiplicities") # currently disabled
 
   # generalized ECFs
   jtm += EnergyCorrelatorGeneralizedTool("energycorrelatorgeneralized")

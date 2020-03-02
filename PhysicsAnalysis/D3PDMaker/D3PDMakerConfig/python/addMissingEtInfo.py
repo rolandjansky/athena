@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id: addMissingEtInfo.py
 # by Lei Zhou
@@ -29,8 +29,6 @@ def addMissingEtInfo   ( alg = None,
                          seq = topSequence,
                          **kw ):
     
-    print "adding MissingEt info..."
-
     if not alg:
         from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
         alg = MSMgr.NewRootStream(tuplename, file, asAlg=True)

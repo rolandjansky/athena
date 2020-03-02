@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger includes
@@ -39,13 +39,15 @@ namespace {
       return (randomRealNumber(0.0, 1.0) < acceptRate);
   }
   /// ROBFragments vector print helper
-  std::ostream& operator<<(std::ostream& str, const IROBDataProviderSvc::VROBFRAG& robFragments) {
+  /// Can't do it via operator<< as this is in an anonymous namespace.
+  std::string format(const IROBDataProviderSvc::VROBFRAG& robFragments) {
+    std::ostringstream ss;
     for (const IROBDataProviderSvc::ROBF* robf : robFragments) {
-      str << "---> ROB ID = 0x" << std::hex << robf->rob_source_id() << std::dec << std::endl
+      ss << "---> ROB ID = 0x" << std::hex << robf->rob_source_id() << std::dec << std::endl
           << "     ROD ID = 0x" << std::hex << robf->rod_source_id() << std::dec << std::endl
           << "     ROD Level-1 ID = " << robf->rod_lvl1_id() << std::endl;
     }
-    return str;
+    return ss.str();
   }
   /// Print helper for a container with ROB/SubDet IDs
   template<typename Container>
@@ -213,7 +215,7 @@ StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) co
         m_robDataProviderSvc->getROBData(input.eventContext, robs, robFragments, name()+"-GET");
         ATH_MSG_DEBUG("Number of ROBs retrieved: " << robFragments.size());
         if (!robFragments.empty())
-          ATH_MSG_DEBUG("List of ROBs found: " << std::endl << robFragments);
+          ATH_MSG_DEBUG("List of ROBs found: " << std::endl << format(robFragments));
         break;
       }
       case ROBRequestInstruction::Type::COL: {

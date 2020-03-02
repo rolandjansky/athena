@@ -1,23 +1,24 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: PropertyMgr.h 615760 2014-09-09 12:50:01Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_PROPERTYMGR_H
 #define ASGTOOLS_PROPERTYMGR_H
 
 // Local include(s):
-#include "AsgTools/AsgToolsConf.h"
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   include "GaudiKernel/PropertyMgr.h"
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
 
 // System include(s):
 #include <string>
 #include <map>
 
 // Local include(s):
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 #include "AsgTools/Property.h"
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 /// Replacement of Gaudi's property manager in standalone usage
 ///
@@ -91,7 +92,5 @@ private:
 // Include the template implementations:
 #include "AsgTools/PropertyMgr.icc"
 
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
 #endif // ASGTOOLS_PROPERTYMGR_H

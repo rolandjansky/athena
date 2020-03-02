@@ -39,5 +39,6 @@ atlas_add_test( TrigValSteering_flake8
 
 atlas_add_test( TrigValSteering_unit_test
                 SCRIPT test_unit_trigvalsteering.py
+                PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh )
 

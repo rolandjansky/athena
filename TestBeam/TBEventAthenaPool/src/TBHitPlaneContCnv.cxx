@@ -62,10 +62,3 @@ StatusCode TBHitPlaneContCnv::PoolToDataObject(DataObject*& pObj,
 
   return StatusCode::SUCCESS; 
 }
-
-StatusCode TBHitPlaneContCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBHitPlaneContCnv::DataObjectToPool" );
-  
-  return TBHitPlaneContCnvBase::DataObjectToPool( pObj, tname) ;
-}

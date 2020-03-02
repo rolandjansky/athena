@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -10,17 +10,7 @@
 // date:        2012-10-09
 //-----------------------------------------------------------------------------
 
-#include <TString.h>
-
-//#include "GaudiKernel/IToolSvc.h"
-
-//#include "CaloEvent/CaloCellContainer.h"
-//#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloUtils/CaloCellList.h"
-
-//#include "AthContainers/OwnershipPolicy.h"
-#include "NavFourMom/INavigable4MomentumCollection.h"
-
 #include "TauPi0CreateROI.h"
 
 #include <boost/scoped_ptr.hpp>
@@ -54,29 +44,7 @@ StatusCode TauPi0CreateROI::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0CreateROI::eventInitialize() {
-    
-    const CaloCell_ID* cellID;
-    if((detStore()->retrieve(cellID)).isFailure()){
-        ATH_MSG_ERROR("Unable to retrieve caloCell_ID helper from DetectorStore");
-        return StatusCode::FAILURE;
-    }
-
-    // Get hash range
-    IdentifierHash hashMax;
-    hashMax = cellID->calo_cell_hash_max();
-    ATH_MSG_VERBOSE("CaloCell Hash Max: " << hashMax);
-
-    // Reset addedCellsMap
-    m_addedCellsMap.clear();
-    for (unsigned i = 0; i < hashMax; i++) {
-        m_addedCellsMap.push_back(NULL);
-    }
-
-    return StatusCode::SUCCESS;
-}
-
-StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& pPi0CellContainer) {
+StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& pPi0CellContainer, std::vector<CaloCell*>& addedCellsMap) {
 
     //---------------------------------------------------------------------
     // only run on 1-5 prong taus 
@@ -117,37 +85,21 @@ StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellCont
         if(samp>7) continue;
 
         // Store cell in output container
-        storeCell(cell, pPi0CellContainer);
+        const IdentifierHash cellHash = cell->caloDDE()->calo_hash();
+        bool isNewCell = (addedCellsMap.at(cellHash)==NULL);
+
+        if(isNewCell){
+            CaloCell* copyCell = cell->clone();
+            pPi0CellContainer.push_back(copyCell);
+            addedCellsMap[cellHash] = copyCell;
+        }
     }
 
     return StatusCode::SUCCESS;
-}
-
-StatusCode TauPi0CreateROI::eventFinalize() {
-
-  return StatusCode::SUCCESS;
 }
 
 StatusCode TauPi0CreateROI::finalize() {
     return StatusCode::SUCCESS;
-}
-
-void TauPi0CreateROI::storeCell(const CaloCell* cell, CaloCellContainer& cellContainer){
-    // Store cell in output container if it is a new cell
-    // Produce a copy of the cell, in order to prevent 
-    // the energy of the original cell to be changed. 
-    // Store unweighted cells, since the cell weights are applied during reclustering
-    
-    //Ask cell for it's hash
-    const IdentifierHash cellHash = cell->caloDDE()->calo_hash();
-    //Check if this cell is already part of reducedCellContainer
-    bool isNewCell = (m_addedCellsMap.at(cellHash)==NULL);
-
-    if(isNewCell){
-        CaloCell* copyCell = cell->clone();
-        cellContainer.push_back(copyCell);
-        m_addedCellsMap[cellHash] = copyCell;
-    }
 }
 
 #endif

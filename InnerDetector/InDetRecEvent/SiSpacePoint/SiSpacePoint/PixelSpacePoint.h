@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,17 +44,23 @@ namespace InDet
 
     /** Parametrised constructor */
     PixelSpacePoint( IdentifierHash elementId, 
-		     const Trk::PrepRawData* clus);
+                     const Trk::PrepRawData* clus);
     
     /** Parametrised constructor with Covariance Matrix pointer so for L2 at the moment */
     PixelSpacePoint( IdentifierHash elementId,  
-		     const Trk::PrepRawData* clus, 
-		     const Amg::MatrixX* globcov);
+                     const Trk::PrepRawData* clus, 
+                     const Amg::MatrixX* globcov);
     
     /** Parametrised constructor with Covariance Matrix reference so for L2 at the moment */
     PixelSpacePoint( IdentifierHash elementId,  
-		     const Trk::PrepRawData* clus, 
-		     const Amg::MatrixX& globcov);
+                     const Trk::PrepRawData* clus, 
+                     const Amg::MatrixX& globcov);
+    
+    /** add Covariance Matrix and global position directly */
+    PixelSpacePoint( IdentifierHash elementId,
+                     const Trk::PrepRawData* clus,
+                     const Amg::Vector3D& globpos,
+                     const Amg::MatrixX& globcov);
     
     /** Copy constructor */
     PixelSpacePoint( const PixelSpacePoint & PSP);

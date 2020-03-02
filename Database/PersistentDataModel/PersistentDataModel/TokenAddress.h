@@ -46,6 +46,7 @@ public:
    virtual ~TokenAddress() { delete m_token; m_token = 0; }
 
    Token* getToken() { return m_token; }
+   const Token* getToken() const { return m_token; }
    void setToken(Token* token) {
       delete m_token;
       m_token = token;

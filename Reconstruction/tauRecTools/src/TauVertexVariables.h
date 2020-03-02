@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUVERTEXVARIABLES_H
@@ -10,8 +10,9 @@
 #include "tauRecTools/TauRecToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "BeamSpotConditionsData/BeamSpotData.h"
+
 // forwards
-class TauEventData;
 namespace Trk {
 	class ITrackToVertexIPEstimator;
     class IVertexFitter;
@@ -34,14 +35,9 @@ public:
     ASG_TOOL_CLASS2(TauVertexVariables, TauRecToolBase, ITauToolBase);
     ~TauVertexVariables();
     
-    virtual StatusCode initialize();
-    virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pVertexContainer); 
-    virtual StatusCode eventInitialize();
-    virtual StatusCode finalize();
-    virtual StatusCode eventFinalize();
-
-    virtual void print() const { }
-    
+    virtual StatusCode initialize() override;
+    virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pVertexContainer) override; 
+    virtual StatusCode finalize() override;
     //-------------------------------------------------------------
     //! determines the transverse flight path significance from
     //! the primary vertex and the secondary vertex of tau candidate
@@ -52,10 +48,8 @@ private:
     ToolHandle< Trk::ITrackToVertexIPEstimator > m_trackToVertexIPEstimator;
     ToolHandle< Trk::IVertexFitter >     m_fitTool; //!< Pointer to the base class of the fit algtools
     ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
-    
-    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
-    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
 
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };    
 };
 
 #endif	/* TAUREC_TAUVERTEXVARIABLES_H */

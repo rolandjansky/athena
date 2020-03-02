@@ -31,7 +31,7 @@
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/Logger.h"
 #include "TrigSteeringEvent/Enums.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 namespace HLT {
   class Chain;

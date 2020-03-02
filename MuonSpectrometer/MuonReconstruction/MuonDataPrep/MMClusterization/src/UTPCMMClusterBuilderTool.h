@@ -4,11 +4,11 @@
 #ifndef UTPCMMClusterBuilderTool_h
 #define UTPCMMClusterBuilderTool_h
 
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "MMClusterization/IMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <numeric>
 #include <cmath>
@@ -46,8 +46,7 @@ namespace Muon
   private:
 
     /// Muon Detector Descriptor
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     // params for the hough trafo
     double m_alphaMin,m_alphaMax,m_alphaResolution,m_selectionCut;
@@ -58,8 +57,8 @@ namespace Muon
     double m_outerChargeRatioCut;
     int m_maxStripsCut;
 
-    double m_toRad=M_PI/180.;
-
+    bool m_digiHasNegativeAngles;
+    float m_scaleClusterError;
 
     StatusCode runHoughTrafo(std::vector<int>& flag,std::vector<double>& xpos, std::vector<double>& time,std::vector<int>& idx_selected);
     StatusCode fillHoughTrafo(std::unique_ptr<TH2D>& cummulator,std::vector<int>& flag, std::vector<double>& xpos, std::vector<double>& time);
@@ -70,7 +69,7 @@ namespace Muon
 
     StatusCode transformParameters(double alpha, double d, double dRMS, double& slope,double& intercept, double& interceptRMS);
     StatusCode applyCrossTalkCut(std::vector<int> &idxSelected,const std::vector<MMPrepData> &MMPrdsOfLayer,std::vector<int> &flag,int &nStripsCut);
-    StatusCode finalFit(std::vector<double>& xpos, std::vector<double>& time, std::vector<int>& idxSelected,double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb);
+    StatusCode finalFit(const std::vector<Muon::MMPrepData> &mmPrd, std::vector<double>& time, std::vector<int>& idxSelected,double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb);
 };
 
 

@@ -5,15 +5,13 @@
 #include "PixelChargeCalibCondAlg.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "GaudiKernel/EventIDRange.h"
 #include <memory>
 #include <sstream>
 
 PixelChargeCalibCondAlg::PixelChargeCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator),
-  m_pixelID(nullptr),
-  m_condSvc("CondSvc", name)
+  ::AthAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -79,7 +77,7 @@ StatusCode PixelChargeCalibCondAlg::execute() {
 
     for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
       CondAttrListCollection::ChanNum channelNumber = attrList->first;
-      CondAttrListCollection::AttributeList payload = attrList->second;
+      const CondAttrListCollection::AttributeList& payload = attrList->second;
 
       if (payload.exists("data") and not payload["data"].isNull()) {
         std::string stringStatus = payload["data"].data<std::string>();
@@ -212,11 +210,6 @@ StatusCode PixelChargeCalibCondAlg::execute() {
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode PixelChargeCalibCondAlg::finalize() {
-  ATH_MSG_DEBUG("PixelChargeCalibCondAlg::finalize()");
   return StatusCode::SUCCESS;
 }
 

@@ -15,20 +15,33 @@ namespace Monitored {
 
   // Forward declares
   template <class T> class ValuesCollection;
-  template <class T> class ObjectsCollection;
+  template <class T, class R> class ObjectsCollection;
 
   /**
-   * Declare a monitored (double-convertable) collection
+   * Declare a monitored (double-convertible) collection
    *
-   * Any iterable container with elements covertable to double can be monitored.
+   * Any iterable container with elements cover table to double can be monitored.
    *
    * @param name        Name of monitored quantity
    * @param collection  Collection to be monitored (e.g. STL container or array)
    *
-   * \code
-   *   std::vector<float> eta( {0.2, 0.1} );
-   *   auto m = Monitored::Collection("Eta", eta);
-   * \endcode
+   * Examples:
+   * - Various types of collections can be monitored
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromNonTrivialSourcesWorked_colection
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromNonTrivialSourcesWorked_array
+   * - Also the collection of objects can be monitored provided an appropriate accessor functions to plain values is provided
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromNonTrivialSourcesWorked_obj_collection
+   * Corresponding histogram definitions
+   * @snippet Control/AthenaMonitoringKernel/share/GenericMon.txt 1DHistograms
+   * @snippet Control/AthenaMonitoringKernel/share/GenericMon.txt 2DHistograms
+   *
+   * - The collection of strings can also be used to fill labelled histograms
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx stringFromCollectionWorked
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx string2DFillingWorked
+   * Corresponding histogram definitions:
+   * @snippet Control/AthenaMonitoringKernel/share/GenericMon.txt LabeledHistograms   
+   *
+   * @see Monitored::Scalar @see Monitored::Timer
    */
   template <class T> ValuesCollection<T> Collection(std::string name, const T& collection) {
     return ValuesCollection<T>(std::move(name), collection);
@@ -53,11 +66,31 @@ namespace Monitored {
    *   auto phi = Monitored::Collection("Phi", tracks, [](const Track& t) {return t.phi();});
    * \endcode
    */
-  template <class T> ObjectsCollection<T>
+  template <class T>
+  ObjectsCollection<T, double>
   Collection(std::string name, const T& collection,
-             std::function<double(const typename ObjectsCollection<T>::const_value_type&)> converterToDouble) {
-    return ObjectsCollection<T>(std::move(name), collection, std::move(converterToDouble));
+	     std::function<double(const typename ObjectsCollection<T, double>::const_value_type&)> converterToDouble) {
+    return ObjectsCollection<T, double>(std::move(name), collection, std::move(converterToDouble));
   }
+
+  template <class T>
+  ObjectsCollection<T, double>
+  Collection(std::string name, const T&& collection,
+             std::function<double(const typename ObjectsCollection<T, double>::const_value_type&)> converterToDouble) = delete;
+
+
+  template <class T>
+  ObjectsCollection<T, std::string>
+  Collection(std::string name, const T& collection,
+	     std::function<std::string(const typename ObjectsCollection<T, std::string>::const_value_type&)> converterToDouble) {
+    return ObjectsCollection<T, std::string>(std::move(name), collection, std::move(converterToDouble));
+  }
+
+  template <class T>
+  ObjectsCollection<T, std::string>
+  Collection(std::string name, const T&& collection,
+             std::function<std::string(const typename ObjectsCollection<T, std::string>::const_value_type&)> converterToDouble) = delete;
+
 
   namespace detail {
     /// Get element type for containers
@@ -81,13 +114,13 @@ namespace Monitored {
 
     static_assert(std::is_convertible<value_type, double>::value or std::is_constructible<std::string, value_type>::value, "Conversion of collection values to double or string is impossible");
 
-
     /// @brief .     \if empty doc string required due to doxygen bug 787131 \endif
     friend ValuesCollection<T> Collection<T>(std::string name, const T& collection);
+    friend ValuesCollection<T> Collection<T>(std::string name, const T&& collection);
 
     ValuesCollection(ValuesCollection&&) = default;
 
-    const std::vector<double> getVectorRepresentation() const override {
+    std::vector<double> getVectorRepresentation() const override {
       return convertToDouble( m_collection );
     }
 
@@ -97,13 +130,18 @@ namespace Monitored {
     virtual bool hasStringRepresentation() const override {
       return std::is_constructible<std::string, value_type>::value;
     }
+    virtual size_t size() const override {
+      return std::size(m_collection);
+    }
 
   private:
     const T& m_collection;
 
+
     ValuesCollection(std::string vname, const T& collection)
-        : IMonitoredVariable(std::move(vname)), m_collection(collection) {
+      : IMonitoredVariable(std::move(vname)), m_collection{collection} {
     }
+
     ValuesCollection(ValuesCollection const&) = delete;
     ValuesCollection& operator=(ValuesCollection const&) = delete;
 
@@ -131,51 +169,87 @@ namespace Monitored {
   /**
    * Monitoring of object collections
    *
+   * Template types are: T - collection, R - result type of the converter function (either convertible to double or to string)
    * This class is not supposed to be used by the end user.
    */
-  template <class T> class ObjectsCollection : public IMonitoredVariable {
+  template <class T, class R> class ObjectsCollection : public IMonitoredVariable {
   public:
     /// Type of the collection elements
     using value_type = typename detail::get_value_type<T>::value_type;
     using const_value_type = typename detail::make_pointer_const<value_type>::type;
 
+    static_assert(std::is_convertible<R, double>::value or std::is_constructible<std::string, R>::value, "Conversion from type returned by the converter/accessor to double or string is impossible");
 
     /// @brief .     \if empty doc string required due to doxygen bug 787131 \endif
     // With a non-template friend declaration, clang 4.0.1
     // fails to match the friend.
-    template <class U> friend ObjectsCollection<U>
+    template <class U> friend ObjectsCollection<U, double>
     Collection(std::string name, const U& collection,
-               std::function<double(const typename ObjectsCollection<U>::const_value_type&)> converterToDouble);
+               std::function<double(const typename ObjectsCollection<U, double>::const_value_type&)> converterToDouble);
+
+    template <class U> friend ObjectsCollection<U, std::string>
+    Collection(std::string name, const U& collection,
+               std::function<std::string(const typename ObjectsCollection<U, std::string>::const_value_type&)> converterToString);
 
     ObjectsCollection(ObjectsCollection&&) = default;
 
-    const std::vector<double> getVectorRepresentation() const override {
-      // Reserve space and fill vector
-      std::vector<double> result;
-      result.reserve(std::size(m_collection));
-      for (auto value : m_collection) result.push_back(m_converterToDouble(value));
-
-      return result;
+    std::vector<double> getVectorRepresentation() const override {
+      return convertToDouble<R>();
     }
-    
+
     virtual std::vector<std::string> getStringVectorRepresentation() const override {
-      return std::vector<std::string>();
+      return convertToString<R>();
     };
     virtual bool hasStringRepresentation() const override {
-      return false;
+      return std::is_constructible<std::string, R>::value;
     };
+    virtual size_t size() const override {
+      return std::size(m_collection);
+    }
 
   private:
     const T& m_collection;
-    std::function<double(const const_value_type&)> m_converterToDouble;
+    std::function<R(const const_value_type&)> m_converterToR;
 
     ObjectsCollection(std::string name, const T& collection,
-                      std::function<double(const const_value_type&)> converterToDouble)
+                      std::function<R(const const_value_type&)> converterToR)
         : IMonitoredVariable(std::move(name)),
-          m_collection(collection),
-          m_converterToDouble(std::move(converterToDouble)) {}
+	  m_collection(std::move(collection)),
+          m_converterToR(std::move(converterToR)) {}
+
     ObjectsCollection(ObjectsCollection const&) = delete;
+
     ObjectsCollection& operator=(ObjectsCollection const&) = delete;
+
+    template< typename U, std::enable_if_t< std::is_convertible<U, double>::value, int> = 0>
+    inline std::vector<double> convertToDouble() const {
+      // Reserve space and fill vector
+      std::vector<double> result;
+      result.reserve(std::size(m_collection));      
+      for (const auto& value : m_collection) result.push_back(m_converterToR(value));
+      return result;
+    }
+
+    template< typename U, std::enable_if_t< !std::is_convertible<U, double>::value, int> = 0>
+    inline std::vector<double> convertToDouble() const {
+      return {};
+    }
+
+    template< typename U, std::enable_if_t< std::is_constructible<U, std::string>::value, int> = 0>
+    inline std::vector<std::string> convertToString() const {
+      // Reserve space and fill vector
+      std::vector<std::string> result;
+      result.reserve(std::size(m_collection));
+      for (const auto& value : m_collection) result.push_back(m_converterToR(value));
+      return result;
+    }
+
+    template< typename U, std::enable_if_t< !std::is_constructible<U, std::string>::value, int> = 0>
+    inline std::vector<std::string> convertToString() const {
+      return {};
+    }
+
+
 
   };
 

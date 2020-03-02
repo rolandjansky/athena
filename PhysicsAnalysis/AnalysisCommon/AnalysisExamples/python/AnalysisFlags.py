@@ -24,9 +24,9 @@ class _AnalysisFlags:
         format = "%17s : %s"
         for attr in self._partAna:
             if getattr(self, attr):
-                print format % (attr, "ON")
+                print(format % (attr, "ON"))
             else:
-                print format % (attr, "--")
+                print(format % (attr, "--"))
 
 AnalysisFlags = _AnalysisFlags()
 

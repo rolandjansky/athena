@@ -48,6 +48,4 @@ HLTMonManager.AthenaMonTools += [ HLTMon ];
 
 HLTMonManager.FileKey = "GLOBAL"
 
-print HLTMonManager;
-
-
+printfunc (HLTMonManager)

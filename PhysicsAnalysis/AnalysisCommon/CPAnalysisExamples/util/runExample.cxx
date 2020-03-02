@@ -18,7 +18,6 @@
 #include "SampleHandler/ToolsDiscovery.h"
 #include "EventLoop/Job.h"
 #include "EventLoop/DirectDriver.h"
-#include "EventLoop/ProofDriver.h"
 
 #include <TFile.h>
 #include <TChain.h>
@@ -75,23 +74,11 @@ int main( int argc, char* argv[] ) {
   if( evtMax > 0 ) job.options()->setDouble(EL::Job::optMaxEvents, evtMax);
 
   // From https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EventLoop#PROOF_Driver
+
   if( proofFlag == "none" ){
     std::cout <<"runExample running locally" <<std::endl;
     EL::DirectDriver driver;
     driver.submit( job, jobName.c_str() );
-  } else if( proofFlag == "lite" ){
-    std::cout <<"runExample running with ProofLite" <<std::endl;
-    EL::ProofDriver driver;
-    driver.submit( job, jobName.c_str() );
-    gSystem->Exit (0);
-  } else {
-    std::cout <<"runExample running with Proof on " <<proofFlag <<std::endl;
-    EL::ProofDriver driver;
-    driver.proofMaster = proofFlag.c_str();
-    driver.makeParOptions = "";
-    driver.returnFiles = false;
-    driver.submit( job, jobName.c_str() );
-    gSystem->Exit (0);
   }
 
   return 0;

@@ -62,8 +62,4 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
  
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSPCAEnergyParametrization+;
-#endif
-
 #endif

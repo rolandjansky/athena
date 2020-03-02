@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TruthElectronHistograms.h"
@@ -48,7 +48,9 @@ void TruthElectronHistograms::fill(const xAOD::TruthParticle *truth, const xAOD:
 
   const xAOD::TrackParticle* track  = electron->trackParticle(); 
 
-  float dphires2(0.), dphi2(0.), deta2(0);
+  float dphires2(0.);
+  float dphi2(0.);
+  float deta2(0);
 
   if (electron->trackCaloMatchValue(dphires2, xAOD::EgammaParameters::deltaPhiRescaled2 )) histoMap["deltaPhiRescaled2"]->Fill(dphires2);
   if (electron->trackCaloMatchValue(dphi2, xAOD::EgammaParameters::deltaPhi2 ))    histoMap["deltaPhi2"]->Fill(dphi2);

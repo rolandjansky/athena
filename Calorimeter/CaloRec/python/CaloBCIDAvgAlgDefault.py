@@ -37,11 +37,11 @@ def CaloBCIDAvgAlgDefault():
             from LArRecUtils.LArOFCCondAlgDefault import LArOFCCondAlgDefault
             from LArRecUtils.LArAutoCorrTotalCondAlgDefault import  LArAutoCorrTotalCondAlgDefault
             from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
+            from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
             LArADC2MeVCondAlgDefault()
             LArAutoCorrTotalCondAlgDefault()
             LArOFCCondAlgDefault()
-            from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-            theBunchCrossingTool = BunchCrossingTool()
+            BunchCrossingCondAlgDefault()
             conddb.addFolder("LAR_OFL","/LAR/ElecCalibMC/LArPileupAverage",className="LArMinBiasAverageMC")
             
             from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
@@ -49,6 +49,6 @@ def CaloBCIDAvgAlgDefault():
 
             topSequence+=CaloBCIDAvgAlg(isMC=True,
                                         LuminosityCondDataKey = '',
-                                        BunchCrossingTool = theBunchCrossingTool,ShapeKey="LArShapeSym")
+                                        ShapeKey="LArShapeSym")
             
     return 

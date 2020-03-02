@@ -174,8 +174,8 @@ namespace Trk
                 const MeasurementBase          *meas,
                 const TrackParameters          *trackParameter,
                 const FitQualityOnSurface      *fitQoS,
-                const MaterialEffectsBase      *materialEffects = 0,
-                const AlignmentEffectsOnTrack  *alignmentEffectsOnTrack = 0
+                const MaterialEffectsBase      *materialEffects = nullptr,
+                const AlignmentEffectsOnTrack  *alignmentEffectsOnTrack = nullptr
                 );
 
             /**
@@ -209,7 +209,7 @@ namespace Trk
                 const FitQualityOnSurface       *fitQoS,
                 const MaterialEffectsBase       *materialEffectsOnTrack,
                 const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern,
-                const AlignmentEffectsOnTrack    *alignmentEffectsOnTrack=0 /// @todo remove =0 at some point
+                const AlignmentEffectsOnTrack    *alignmentEffectsOnTrack=nullptr /// @todo remove =0 at some point
                 );
 
             /**
@@ -359,8 +359,7 @@ inline const Trk::AlignmentEffectsOnTrack *Trk::TrackStateOnSurface::alignmentEf
 inline bool Trk::TrackStateOnSurface::type( const TrackStateOnSurfaceType& type ) const
 {
     if (type==NumberOfTrackStateOnSurfaceTypes || type==Unknown) return false;
-    if (m_typeFlags.test(type)) return true;
-    return false;
+    return m_typeFlags.test(type);
 }
 
 inline void Trk::TrackStateOnSurface::setFlags()

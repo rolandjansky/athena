@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAOUTPUTSTREAM_H
@@ -76,13 +76,19 @@ protected:
    ServiceHandle<OutputStreamSequencerSvc>  m_outSeqSvc;
   
    /// Vector of item names
-   StringArrayProperty      m_itemList;
+  StringArrayProperty      m_itemList{this,"ItemList",{},"List of items to write","Set<std::string>"};
    /// Vector of item names
    StringArrayProperty      m_metadataItemList;
    /// Vector of item names
    StringArrayProperty      m_excludeList;
    /// Vector of item names
-   StringArrayProperty      m_compressionList;
+   StringArrayProperty      m_compressionListHigh;
+   /// Vector of item names
+   StringArrayProperty      m_compressionListLow;
+   /// Number of mantissa bits in the float compression
+   unsigned int             m_compressionBitsHigh;
+   /// Number of mantissa bits in the float compression
+   unsigned int             m_compressionBitsLow;
    /// List of items that are known to be present in the transient store
    /// (and hence we can make input dependencies on them).
    StringArrayProperty      m_transientItems;
@@ -90,8 +96,10 @@ protected:
    ToolHandle<SG::IFolder>  m_p2BWritten;
    /// the top-level folder with items to be written
    ToolHandle<SG::IFolder>  m_decoder;
-   /// the top-level folder with items to be written
-   ToolHandle<SG::IFolder>  m_compressionDecoder;
+   /// the top-level folder with items to be compressed high
+   ToolHandle<SG::IFolder>  m_compressionDecoderHigh;
+   /// the top-level folder with items to be compressed low
+   ToolHandle<SG::IFolder>  m_compressionDecoderLow;
    /// Decoded list of transient ids.
    ToolHandle<SG::IFolder>  m_transient;
    /// map of (clid,key) pairs to be excluded (comes from m_excludeList)
@@ -136,9 +144,7 @@ protected:
    std::map< std::string, std::unique_ptr<IAthenaOutputStreamTool> > m_streamerMap;
    /// mutex for this Stream write() and handle() methods
    typedef std::recursive_mutex mutex_t;
-   mutable mutex_t  m_mutex;    // mutable so const functions can lock
-   /// mutexes for event slots when writing
-   static std::map< EventContext::ContextID_t, std::mutex > m_toolMutexMap;
+   mutex_t  m_mutex;
 
 protected:
    /// Handler for ItemNames Property
@@ -146,7 +152,9 @@ protected:
    /// Handler for ItemNames Property
    void excludeListHandler(Property& /* theProp */);
    /// Handler for ItemNames Property
-   void compressionListHandler(Property& /* theProp */);
+   void compressionListHandlerHigh(Property& /* theProp */);
+   /// Handler for ItemNames Property
+   void compressionListHandlerLow(Property& /* theProp */);
 
 public:
    typedef std::vector<std::pair<std::string, std::string> > TypeKeyPairs;

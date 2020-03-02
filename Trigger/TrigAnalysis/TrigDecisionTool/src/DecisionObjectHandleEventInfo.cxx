@@ -10,33 +10,39 @@
 
 using namespace Trig;
 
-DecisionObjectHandleEventInfo::DecisionObjectHandleEventInfo( StoreGateSvc* sg, const std::string& key )
-  : m_sg(sg),
-    m_key(key),
+DecisionObjectHandleEventInfo::DecisionObjectHandleEventInfo( SG::ReadHandleKey<EventInfo>* oldEventInfoKey )
+  : m_oldEventInfoKey(oldEventInfoKey),
     m_object(nullptr)
 {
 }
 
 TriggerInfo const * DecisionObjectHandleEventInfo::getDecision() const {
-  // register handle
-  if ( !isInitialized() ) {
-    if ( m_sg->regHandle(*this, m_key).isFailure() ) {
-      ATH_MSG_INFO("Can't register handle for TrigDecision objects from SG for a key  " << m_key << " (check file with checkSG.py)");    }
+
+  if ( !m_object && !m_oldEventInfoKey->empty() ) {
+    const EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadHandle<EventInfo> oldEventInfo = SG::makeHandle(*m_oldEventInfoKey, ctx);
+    if( ! oldEventInfo.isValid() ) {
+      static bool warningPrinted = false;
+      if( ! warningPrinted ) {
+         ATH_MSG_WARNING( "EventInfo is not available on the "
+                          "input" );
+         warningPrinted = true;
+      }
+      return nullptr;
+    }
+    m_object = oldEventInfo.ptr(); 
   }
-  
-  if ( !m_object ) {
-    m_object = cptr(); 
-  }
+
   return m_object->trigger_info();
 }
 void const * DecisionObjectHandleEventInfo::getNavigation() const {
   ATH_MSG_ERROR("TDT configured with EventInfo object handle. It does not support navigation access!"); 
-  return 0;
+  return nullptr;
 }
 
 void DecisionObjectHandleEventInfo::reset (bool hard) {
   DataHandle<EventInfo>::reset (hard);
-  m_object = 0;
+  m_object = nullptr;
   invalidate();
   ATH_MSG_DEBUG("invalidated decision object");
 }

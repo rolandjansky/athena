@@ -1,7 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "AthenaKernel/StoreID.h"
+#include "GaudiKernel/System.h"
+#include <typeinfo>
 
 namespace SG {
   
@@ -10,8 +13,8 @@ namespace SG {
                                   const std::string& dbKey,
                                   Gaudi::DataHandle::Mode mode ) :
     VarHandleKey(ClassID_traits<T>::ID(), key, mode,
-                 "StoreGateSvc/MetaDataStore"),
-    m_store("StoreGateSvc/MetaDataStore","MetaHandleKey"),
+                 StoreID::storeName(StoreID::METADATA_STORE), true),
+    m_store(StoreID::storeName(StoreID::METADATA_STORE),"MetaHandleKey"),
     m_dbKey(dbKey)
   {}
 
@@ -22,13 +25,13 @@ namespace SG {
   MetaHandleKey<T>::initialize() {
     if (m_isInit) return StatusCode::SUCCESS;
     
-
     if (VarHandleKey::initialize() != StatusCode::SUCCESS) {
       return StatusCode::FAILURE;
     }
-
+    if (empty()) return StatusCode::SUCCESS;
+    
+    MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
     if (!m_store.isValid()) {
-      MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
       msg << MSG::ERROR 
           << "MetaHandleKey::initialize() :Unable to locate MetaDataStore " 
           << m_store.name()
@@ -36,41 +39,52 @@ namespace SG {
       return StatusCode::FAILURE;
     }
 
-
-    // If container does not exist, then create it in the store
-    //   otherwise cache pointer to container    
-    if (m_store->contains< MetaCont<T> > (SG::VarHandleKey::key())) {
-      MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
-      if (m_store->retrieve(m_cont, SG::VarHandleKey::key()).isFailure()) {
-        msg << MSG::ERROR 
-            << "MetaHandleKey::init(): unable to retrieve MetaCont of "
-            << Gaudi::DataHandle::fullKey() << " from MetaDataStore" 
-            << endmsg;
-        return StatusCode::FAILURE;
+    if (mode() == DataHandle::Writer) {
+      if (m_store->contains< MetaCont<T> > (SG::VarHandleKey::key())) {
+	msg << MSG::ERROR
+	    << StoreID::storeName( StoreID::METADATA_STORE )
+	    << " already contains a MetaCont of type "
+	    << Gaudi::DataHandle::fullKey()
+	    << endmsg;
+	return StatusCode::FAILURE;
       }
       else {
-        msg << MSG::DEBUG << "MetaCont found with key= " 
-            << SG::VarHandleKey::key() << endmsg;
+	m_cont = new MetaCont<T>();
+	if(m_store->record(m_cont,SG::VarHandleKey::key()).isFailure()) {
+	  msg << MSG::ERROR
+	      << "MetaHandleKey::init(): unable to record empty MetaCont of "
+	      << Gaudi::DataHandle::fullKey() << " in "
+	      << StoreID::storeName( StoreID::METADATA_STORE )
+	      << " with key " << SG::VarHandleKey::key() << endmsg;
+	  delete m_cont;
+	  m_cont = nullptr;
+	  return StatusCode::FAILURE;
+	}
       }
-    } else {
-      m_cont = new MetaCont<T>(SG::VarHandleKey::key());
-      if (m_store->record(m_cont, SG::VarHandleKey::key()).isFailure()) {
-        MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
-        msg << MSG::ERROR 
-            << "MetaHandleKey::init(): unable to record empty MetaCont of " 
-            << Gaudi::DataHandle::fullKey() << " in MetaDataStore" << endmsg;
-        delete m_cont;
-        m_cont = 0;
-        return StatusCode::FAILURE;
+    }
+    else {
+      // lets see if we get lucky and the Write alg already created the
+      // container we want
+      if (m_store->contains<MetaCont<T>>(SG::VarHandleKey::key()) ) {
+	if (m_store->retrieve(m_cont, SG::VarHandleKey::key()).isFailure()) {
+	  msg << MSG::ERROR
+	      << "MetaHandleKey::init(): unable to retrieve MetaCont of "
+	      << Gaudi::DataHandle::fullKey() << " from "
+	      << StoreID::storeName(StoreID::METADATA_STORE)
+	      << " with key " << SG::VarHandleKey::key()
+	      << endmsg;
+	  m_cont = 0;
+	  return StatusCode::FAILURE;
+	}
       }
     }
 
+/*
     // Retrieve the guid/SID from the data header
     const DataHeader* thisDH;
     ServiceHandle<StoreGateSvc> instore("StoreGateSvc/InputMetaDataStore","MetaHandleKey");
     if (instore.retrieve().isFailure()) return StatusCode::FAILURE;
     if(instore->retrieve(thisDH)!=StatusCode::SUCCESS) {
-      MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
       msg << MSG::ERROR << "Unable to get DataHeader" << endmsg;
       msg << instore->dump() << endmsg;
       return StatusCode::FAILURE;
@@ -80,11 +94,10 @@ namespace SG {
 
     // if you can't get the sid, then this won't work, so fail
     if (m_dbKey.size()==0) {
-      MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
       msg << MSG::ERROR << "Unable to get source id from dataheader" << endmsg;
       return StatusCode::FAILURE;
     }
-
+*/
     m_isInit = true;
 
     return StatusCode::SUCCESS;

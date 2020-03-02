@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: Egamma_v1$
@@ -189,7 +189,7 @@ const Egamma_v1* Egamma_v1::ambiguousObject() const{
   if(acc.isAvailable(*this) && acc(*this).isValid()){
     return (*acc(*this));
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -378,11 +378,11 @@ size_t Egamma_v1::nCaloClusters() const {
 const xAOD::CaloCluster* Egamma_v1::caloCluster( size_t index ) const {
 
   if( index >= nCaloClusters() ) {
-    return 0;
+    return nullptr;
   }
   const CLELVec_t& cls = caloClusterLinks();
   if( ! cls[ index ].isValid() ) {
-    return 0;
+    return nullptr;
   }
   return *( cls[ index ] );
 }
@@ -423,7 +423,6 @@ bool Egamma_v1::passSelection(const xAOD::EgammaParameters::SelectionMenu menu  
 void Egamma_v1::setPassSelection(bool value, const xAOD::EgammaParameters::SelectionMenu menu){
   const SG::AuxElement::Accessor< char >* acc = selectionMenuAccessorV1( menu );
   ( *acc )(*this)=value;
-  return;
 }
 
 bool Egamma_v1::selectionisEM(unsigned int&  value, const xAOD::EgammaParameters::SelectionisEM isEM) const {
@@ -447,7 +446,6 @@ unsigned int Egamma_v1::selectionisEM(const xAOD::EgammaParameters::SelectionisE
 void Egamma_v1::setSelectionisEM(unsigned int value, const xAOD::EgammaParameters::SelectionisEM isEM){
   const SG::AuxElement::Accessor< unsigned int >* acc = selectionisEMAccessorV1( isEM );
   ( *acc )(*this)=value;
-  return;
 }
 
 ///Then with strings (full flexibility when adding new menus dynamically)
@@ -468,7 +466,6 @@ bool Egamma_v1::passSelection(const std::string& menu ) const {
 void Egamma_v1::setPassSelection(bool value, const std::string& menu){
   const SG::AuxElement::Accessor< char > acc( menu );
   acc(*this)=value;
-  return;
 }
 
 bool Egamma_v1::selectionisEM(unsigned int&  value, const std::string& isEM) const{
@@ -488,7 +485,6 @@ unsigned int Egamma_v1::selectionisEM(const std::string& isEM) const{
 void Egamma_v1::setSelectionisEM(unsigned int value, const std::string& isEM){
   const SG::AuxElement::Accessor< unsigned int > acc( isEM );
   acc(*this)=value;
-  return;
 }
 
 bool Egamma_v1::likelihoodValue(float&  value, const std::string& LHValue/*=std::string("LHValue")*/) const{
@@ -508,7 +504,6 @@ float Egamma_v1::likelihoodValue(const std::string& LHValue/*=std::string("LHVal
 void Egamma_v1::setLikelihoodValue(float value, const std::string& LHValue/*=std::string("LHValue")*/){
   const SG::AuxElement::Accessor<float> acc( LHValue);
   acc(*this)=value;
-  return;
 }
 
 } // namespace xAOD

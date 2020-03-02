@@ -29,7 +29,7 @@ if os.environ.has_key("CALIBMERGE_PEEKRUN"):
 else:
   peekrun=2147483647
 
-print "Peeking input database at run",peekrun
+printfunc ("Peeking input database at run",peekrun)
 
 if not "ShapeFolder" in dir():
   ShapeFolder="/LAR/ElecCalibOfl/Shape/RTM/5samples1phase"
@@ -44,7 +44,7 @@ else:
   shapeResidualTag=""
 
 folderInfo=extractFolderInfo(inputDB,checkFolders=[ShapeFolder,],runnumber=peekrun)
-print folderInfo
+printfunc (folderInfo)
 
 import AthenaCommon.AtlasUnixGeneratorJob #use MC event selector
 
@@ -64,12 +64,12 @@ svcMgr.PoolSvc.FileOpen="update"
 runNoForFileName=2147483647
 
 if len(folderInfo)==0:
-  print "ERROR, No input shape found in input db",inputDB,"folder",ShapeFolder
+  printfunc ("ERROR, No input shape found in input db",inputDB,"folder",ShapeFolder)
   sys.exit(-1)
   pass
 
 if len(folderInfo)>1:
-  print "WARNING, More than one input shape object found in input db",inputDB,"folder",ShapeFolder
+  printfunc ("WARNING, More than one input shape object found in input db",inputDB,"folder",ShapeFolder)
   pass
 
 f=folderInfo[0]
@@ -79,7 +79,7 @@ key=f[2]
 tag=f[3]
 since=f[4]
 until=f[5]
-print "Working on folder",fn,"IOV:",since,"-",until
+printfunc ("Working on folder",fn,"IOV:",since,"-",until)
 
 tagTokens=tag.split('-')
 tagTokens[0]+="corr"
@@ -100,8 +100,8 @@ svcMgr.EventSelector.RunNumber = peekrun
 if "OutputFile" not in dir():
   OutputFile="LArConditionsRec_"+str(runNoForFileName)+".pool.root"
 
-print outObjects
-print outTags
+printfunc (outObjects)
+printfunc (outTags)
 
 from LArCalibTools.LArCalibToolsConf import LArBlockCorrections
 topSequence+=LArBlockCorrections()

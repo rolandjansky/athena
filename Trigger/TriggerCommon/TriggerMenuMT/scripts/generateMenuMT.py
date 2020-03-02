@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # import flags
-include("TrigUpgradeTest/testHLT_MT.py")  # noqa: F821
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")  # noqa: F821
 
 #################################
 # Configure L1Decoder

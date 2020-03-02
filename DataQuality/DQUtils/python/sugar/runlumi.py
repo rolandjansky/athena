@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import division
 
@@ -13,7 +13,7 @@ RUN_MAX = 2**31-1
 LB_MAX  = 2**32-1
 IOV_MAX = 2**63-1
 
-class IovKey(long):
+class IovKey(int):
     __slots__ = ()
 
 class RunLumiType(IovKey):
@@ -69,10 +69,10 @@ class RunLumiType(IovKey):
             nrun, nlumi = what
             return RunLumiType((self.run + nrun << 32) + (self.lumi + nlumi))
             
-        return RunLumiType(long.__add__(self, what))
+        return RunLumiType(int.__add__(self, what))
     
     def __sub__(self, what):
-        return RunLumiType(long.__sub__(self, what))
+        return RunLumiType(int.__sub__(self, what))
     
     def start_nextrun(self):
         """

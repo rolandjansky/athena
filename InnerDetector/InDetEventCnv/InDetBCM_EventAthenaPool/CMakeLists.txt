@@ -62,7 +62,7 @@ endif()
 find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
-  run_tpcnv_test( InDetBCM_EventAthenaPool_20.1.7.2   ESD-20.1.7.2 )
+  run_tpcnv_legacy_test( InDetBCM_EventAthenaPool_20.1.7.2   ESD-20.1.7.2 )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
 endif()   

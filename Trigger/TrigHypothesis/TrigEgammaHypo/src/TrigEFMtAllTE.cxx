@@ -21,9 +21,7 @@
 
 using namespace std;
 
-struct DescendingEt:std::binary_function<const xAOD::Electron*,
-                                         const xAOD::Electron*,
-					 bool> {
+struct DescendingEt {
   bool operator()(const xAOD::Electron* l, const xAOD::Electron* r)  const {
     return l->p4().Et() > r->p4().Et();
   }

@@ -63,16 +63,19 @@ echo "generateL1MenuMT: Building menu: ${menu} for ${release}"
 
 logfiletopo=topo_${menu}.log
 logfilelvl1=lvl1_${menu}.log
+logfilel1r3=l1R3_${menu}.log
 
 cd $rundir
 
 generateLVL1MenuMT.py   $menu 2>&1 >> $logfilelvl1 
 generateL1TopoMenuMT.py $menu 2>&1 >> $logfiletopo 
+generateL1MenuRun3.py $menu 2>&1 >> $logfilel1r3 
 
-cp L1Topoconfig_*.xml ${dest}
-cp LVL1config_*.xml ${dest}
+cp -v L*.xml ${dest}
+find . -maxdepth 1 -name 'L*.json' -exec cp -v {} ${dest} \;
 cp $logfilelvl1 ${dest}
 cp $logfiletopo ${dest}
+cp $logfilel1r3 ${dest}
 
 if [[ -e outputLVL1config.xml ]]; then
     cp outputLVL1config.xml ${dest}/LVL1config_${menu}_${release}.xml

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloClusterMatchLinkAlg.h 
@@ -19,7 +19,7 @@
 
 #include "AsgTools/ToolHandle.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-class ICaloClusterMatchingTool;
+#include "CaloClusterMatching/ICaloClusterMatchingTool.h"
 
 namespace ClusterMatching {
   class CaloClusterMatchLinkAlg
@@ -30,55 +30,25 @@ namespace ClusterMatching {
     // Public methods: 
     /////////////////////////////////////////////////////////////////// 
   public: 
-
-    // Copy constructor: 
-
-    /// Constructor with parameters: 
-    CaloClusterMatchLinkAlg( const std::string& name, ISvcLocator* pSvcLocator );
+    /// Delegate constructor to base-class
+    using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
     /// Destructor: 
     virtual ~CaloClusterMatchLinkAlg(); 
-
-    // Assignment operator: 
-    //CaloClusterMatchLinkAlg &operator=(const CaloClusterMatchLinkAlg &alg); 
 
     // Athena algorithm's Hooks
     virtual StatusCode  initialize();
     virtual StatusCode  execute(const EventContext& ctx) const;
     virtual StatusCode  finalize();
 
-    /////////////////////////////////////////////////////////////////// 
-    // Const methods: 
-    ///////////////////////////////////////////////////////////////////
-
-    /////////////////////////////////////////////////////////////////// 
-    // Non-const methods: 
-    /////////////////////////////////////////////////////////////////// 
-
-    /////////////////////////////////////////////////////////////////// 
-    // Private data: 
-    /////////////////////////////////////////////////////////////////// 
   private: 
 
-    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterKey{this,"ClustersToDecorate","","The input CaloClusterContainer to match to CaloCalTopoClusters"};
-    bool m_useLeadCellEtaPhi;
-    int m_clusterSortMethod;
-    ToolHandle<ICaloClusterMatchingTool> m_clusterMatch;
-
-    /// Default constructor: 
-    CaloClusterMatchLinkAlg();
-
-    /// Containers
-  
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterKey{this,"ClustersToDecorate","","The input CaloClusterContainer to match to CaloCalTopoClusters"}; 
+    Gaudi::Property<bool> m_useLeadCellEtaPhi{this,"UseLeadCellEtaPhi",false};
+    Gaudi::Property<int> m_clusterSortMethod{this,"ClusterSortMethod",(int)MatchedE};
+    ToolHandle<ICaloClusterMatchingTool> m_clusterMatch{this,"ClusterMatchTool","ClusterMatching::CaloClusterMatchingTool/CaloClusterMatch","Tool for the acutal matching"};
 
   }; 
-
-  // I/O operators
-  //////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Inline methods: 
-  /////////////////////////////////////////////////////////////////// 
 }
 
 #endif //> !CALOCLUSTERMATCHING_CALOCLUSTERMATCHLINKALG_H

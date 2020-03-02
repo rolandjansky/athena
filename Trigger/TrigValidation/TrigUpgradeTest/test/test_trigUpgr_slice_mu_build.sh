@@ -8,7 +8,7 @@
 export EVENTS=20
 export THREADS=1
 export SLOTS=1
-export JOBOPTION="TrigUpgradeTest/full_menu.py"
+export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
 export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
 export EXTRA="doEmptyMenu=True;doMuonSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"
 

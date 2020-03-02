@@ -22,7 +22,7 @@
 class TRT_ID;
 
 
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ICondSvc.h"
 #include "StoreGate/DataHandle.h"

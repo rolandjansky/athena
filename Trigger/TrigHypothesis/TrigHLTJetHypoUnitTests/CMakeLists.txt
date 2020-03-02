@@ -13,6 +13,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Physics )
+find_package( GMock )
 
 atlas_add_library( TrigHLTJetHypoUnitTestsLib
                    src/*.cxx
@@ -47,18 +48,14 @@ atlas_add_test( TrigHLTJetHypoUnitTests
    tests/MaximumBipartiteGroupsMatcherTest.cxx
    tests/MaximumBipartiteGroupsMatcherMTTest.cxx
    tests/MaximumBipartiteGroupsMatcherMTTest_Multijet.cxx
-   tests/UnifiedFlowNetworkMatcherTest.cxx
-   tests/MultiJetMatcherTest.cxx
    tests/PartitionsGenTest.cxx
    tests/PartitionsGroupsMatcherMTTest.cxx
-   tests/OrderedCollectionsMatcherTest.cxx
-   tests/SelectedJetsMatcherTest.cxx
    tests/TLorentzVectorFactoryTest.cxx
    tests/TightCleanerTest.cxx
    tests/xAODJetCollectorTest.cxx
    tests/PartitionsGrouperTest.cxx
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools ${GMOCK_LIBRARIES}
    TrigHLTJetHypoLib
    TrigHLTJetHypoUnitTestsLib)
    

@@ -9,7 +9,6 @@
 class TrigPassBits;
 #include <fstream>
 
-#include "AsgTools/AsgToolsConf.h"
 #include "TrigDecisionTool/EventPtrDef.h"
 
 namespace Trig{

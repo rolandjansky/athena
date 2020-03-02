@@ -15,8 +15,6 @@
 #include "DataQualityTools/DQTDataFlowMonAlg.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
-using xAOD::EventInfo;
-
 DQTDataFlowMonAlg::DQTDataFlowMonAlg( const std::string& name,
                                       ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name, pSvcLocator)
@@ -47,19 +45,19 @@ DQTDataFlowMonAlg::fillHistograms( const EventContext& ctx ) const
         fill(group, weight, lb);
       }
 
-      std::vector<int> detstatevec(EventInfo::nDets+1);
-      std::vector<int> detstatevec_idx(EventInfo::nDets+1);
+      std::vector<int> detstatevec(xAOD::EventInfo::nDets+1);
+      std::vector<int> detstatevec_idx(xAOD::EventInfo::nDets+1);
       std::iota(detstatevec_idx.begin(), detstatevec_idx.end(), 0);
 
       auto detstates = Collection("detstates", detstatevec);
       auto detstates_idx = Collection("detstates_idx", detstatevec_idx);
-      EventInfo::EventFlagErrorState worststate = EventInfo::NotSet;
-      for (int i = 0; i < EventInfo::nDets; i++) {
-        EventInfo::EventFlagErrorState detstate = evtinfo->errorState((EventInfo::EventFlagSubDet) i);
+      xAOD::EventInfo::EventFlagErrorState worststate = xAOD::EventInfo::NotSet;
+      for (int i = 0; i < xAOD::EventInfo::nDets; i++) {
+        xAOD::EventInfo::EventFlagErrorState detstate = evtinfo->errorState((xAOD::EventInfo::EventFlagSubDet) i);
         detstatevec[i] = detstate;
         if (detstate > worststate) worststate = detstate;
       }
-      detstatevec[EventInfo::nDets] = worststate;
+      detstatevec[xAOD::EventInfo::nDets] = worststate;
       fill(group, detstates, detstates_idx);
     }
   }

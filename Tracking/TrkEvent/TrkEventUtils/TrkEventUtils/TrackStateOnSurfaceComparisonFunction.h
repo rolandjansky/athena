@@ -32,13 +32,10 @@
 
 namespace Trk {
 
-  /** Class inheriting from std::binary_function to provide a
-   *     comparison function, or relational definition, for
+  /** Class providing comparison function, or relational definition, for
    *     sorting MeasurementBase objects
    */
-  class TrackStateOnSurfaceComparisonFunction 
-    : public std::binary_function<const Trk::MeasurementBase*,
-                                  const Trk::MeasurementBase*, bool> {
+  class TrackStateOnSurfaceComparisonFunction {
   public:
 
     /** Default Constructor, default will be sorting towards radius of 0 */

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // GenEventCnv_p1.h 
@@ -18,6 +18,10 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // HepMC includes
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wkeyword-macro"
+#endif
 #define private public
 #define protected public
 #include "HepMC/GenEvent.h"
@@ -25,6 +29,9 @@
 #include "HepMC/GenParticle.h"
 #undef private
 #undef protected
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 // GeneratorObjectsTPCnv includes
 #include "GeneratorObjectsTPCnv/GenEvent_p1.h"

@@ -52,7 +52,7 @@
 #include "CaloEvent/CaloCellLink.h"
 #include "CaloEvent/CaloCluster.h"
 
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 //
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/PixelCluster.h"
@@ -61,7 +61,7 @@
 #include "InDetPrepRawData/TRT_DriftCircleCollection.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 //
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"

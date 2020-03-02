@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -115,7 +115,10 @@ void TrigEgammaAnalysisBaseTool::updateTP(Property& /*p*/){
 }
 
 void TrigEgammaAnalysisBaseTool::updateEmulation(Property& /*p*/){
-    plot()->setEmulation(m_doEmulation);
+    // This may not be set yet if we're in the middle of initialization.
+    if (!m_plot.typeAndName().empty()) {
+      plot()->setEmulation(m_doEmulation);
+    }
     for( auto& tool : m_tools) {
         tool->setEmulation(m_doEmulation);
         ATH_MSG_INFO("updateEmulation() property for tool with name: " << tool->name());
@@ -186,6 +189,8 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
     }
 
     // propagate the emulation tool for all tools
+    BooleanProperty proptmp (m_doEmulation);
+    updateEmulation (proptmp);
     if( m_doEmulation ){
       for( auto& tool : m_tools) {
         ATH_MSG_INFO("Propagate emulation tool handler to: " << tool->name() );

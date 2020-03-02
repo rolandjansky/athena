@@ -89,8 +89,8 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
     decision->setObjectLink( initialRecRoIString(), ElementLink<DataVector<LVL1::RecMuonRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     
     for ( auto th: m_muonThresholds ) {
-      if ( th->thresholdNumber() <= thresholdNumber )  { // TODO verify if here should be <= or <
-	// this code suggests <= https://gitlab.cern.ch/atlas/athena/blob/master/Trigger/TrigSteer/TrigSteering/src/Lvl1ResultAccessTool.cxx#L654
+      if ( th->thresholdNumber() < thresholdNumber )  { 
+	//th->thresholdNumber() is defined to be [0,5] and thresholdNumber [0,6]
 	ATH_MSG_DEBUG( "Threshold passed: " << th->name() );
 	addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
 	ATH_MSG_DEBUG( "Labeled object with chains: " << [&](){ 

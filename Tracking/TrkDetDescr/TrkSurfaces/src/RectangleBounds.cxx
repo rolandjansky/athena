@@ -34,7 +34,7 @@ Trk::RectangleBounds::RectangleBounds(const RectangleBounds& recbo)
 {}
 
 // destructor
-Trk::RectangleBounds::~RectangleBounds() {}
+Trk::RectangleBounds::~RectangleBounds() = default;
 
 Trk::RectangleBounds&
 Trk::RectangleBounds::operator=(const RectangleBounds& recbo)

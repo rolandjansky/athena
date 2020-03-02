@@ -10,7 +10,7 @@
  * @package: TrigT2BeamSpot
  * @class  : T2TrackClusterer
  *
- * @brief Auxiliary class that clusters tracks in an TrigInDetTrackCollection
+ * @brief Auxiliary class that clusters tracks in a TrackCollection
  *        in Z around a seed track
  *
  * @author Rainer Bartoldus, SLAC, <bartoldu@slac.stanford.edu>
@@ -22,8 +22,6 @@
 #define TRIGT2BEAMSPOT_T2TRACKCLUSTERER_H
 
 /// Externals
-#include "TrigInDetEvent/TrigInDetTrack.h"
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "AthContainers/ConstDataVector.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
@@ -56,16 +54,12 @@ namespace PESA
     double     seedZ0() const { return m_seedZ0    ; }
     double totalZ0Err() const { return m_totalZ0Err; }
 
-    const TrigInDetTrackCollection&      cluster_TIDT() const { return *m_cluster_TIDT.asDataVector();      }
     const TrackCollection&               cluster() const { return *m_cluster.asDataVector();      }
-    const TrigInDetTrackCollection& unusedTracks_TIDT() const { return *m_unusedTracks_TIDT.asDataVector(); }
     const TrackCollection&          unusedTracks() const { return *m_unusedTracks.asDataVector(); }
 
     // Methods
-    double trackWeight( const TrigInDetTrack& track ) const;
     double trackWeight( const Trk::Track& track ) const;
 
-    const TrigInDetTrackCollection& cluster( const TrigInDetTrackCollection& tracks );
     const TrackCollection& cluster( const TrackCollection& tracks );
 
   private:
@@ -78,9 +72,7 @@ namespace PESA
     double m_seedZ0;
     double m_totalZ0Err;
 
-    ConstDataVector<TrigInDetTrackCollection> m_cluster_TIDT;
     ConstDataVector<TrackCollection> m_cluster;
-    ConstDataVector<TrigInDetTrackCollection> m_unusedTracks_TIDT;
     ConstDataVector<TrackCollection> m_unusedTracks;
   };
 

@@ -1,0 +1,31 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+//
+// includes
+//
+
+#include <RootCoreUtils/ThrowMsg.h>
+
+//
+// method implementations
+//
+
+namespace EL
+{
+  template<typename T> T *UnitTestFixture ::
+  getHist (const std::string& sampleName,
+	   const std::string& objectName,
+	   bool isMandatory)
+  {
+    T *hist = dynamic_cast<T*>
+      (getTObject (sampleName, objectName, isMandatory));
+    if (isMandatory && hist == nullptr)
+      RCU_THROW_MSG ("object " + objectName + " in sample " + sampleName + " not of right type");
+    return hist;
+  }
+}

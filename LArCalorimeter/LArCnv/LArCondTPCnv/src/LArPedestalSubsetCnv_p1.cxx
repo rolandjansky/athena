@@ -1,13 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "LArRawConditions/LArConditionsSubset.h"
-#undef private
-#undef protected
-
 #include "LArCondTPCnv/LArPedestalSubsetCnv_p1.h"
 
 void
@@ -15,26 +10,22 @@ LArPedestalSubsetCnv_p1::persToTrans(const LArPedestalPersType* persObj,
                                   LArPedestalTransType* transObj, 
                                   MsgStream & log)
 {
+    transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
+
     // Copy conditions
-    unsigned int ncorrs           = persObj->m_subset.m_corrChannels.size();
     unsigned int nfebids          = persObj->m_subset.m_febIds.size();
     unsigned int nPedestals       = persObj->m_vPedestalSize;
     unsigned int nPedestalRMSs    = persObj->m_vPedestalRMSSize;
     unsigned int pedestalIndex    = 0;
     unsigned int pedestalrmsIndex = 0;
     
-    // resize subset to with then number of febids
-    transObj->m_subset.resize(nfebids);
-
     // Loop over febs
-    unsigned int febid        = 0;
     unsigned int ifebWithData = 0; // counter for febs with data
 
-    for (unsigned int i = 0; i < nfebids; ++i){
+    auto subsetIt = transObj->subsetBegin();
+    for (unsigned int i = 0; i < nfebids; ++i, ++subsetIt){
         // Set febid
-        febid = transObj->m_subset[i].first = persObj->m_subset.m_febIds[i];
-        // Fill channels with empty pedestal vectors
-        transObj->m_subset[i].second.resize(NCHANNELPERFEB);
+        unsigned int febid = subsetIt->first;
         bool hasSparseData       = false;
         unsigned int chansSet    = 0;
         unsigned int chansOffset = 0;
@@ -80,14 +71,14 @@ LArPedestalSubsetCnv_p1::persToTrans(const LArPedestalPersType* persObj,
                 }
 
                 // This channel has pedestals, resize vectors
-                //transObj->m_subset[i].second[j].m_vPedestal.resize(nPedestals);
-                //transObj->m_subset[i].second[j].m_vPedestalRMS.resize(nPedestalRMSs);
+                //subsetIt->second[j].m_vPedestal.resize(nPedestals);
+                //subsetIt->second[j].m_vPedestalRMS.resize(nPedestalRMSs);
 		if (nPedestals)
-		  transObj->m_subset[i].second[j].m_Pedestal = persObj->m_vPedestal[pedestalIndex];
+		  subsetIt->second[j].m_Pedestal = persObj->m_vPedestal[pedestalIndex];
 		pedestalIndex+=nPedestals;
 
 		if (nPedestalRMSs)
-		  transObj->m_subset[i].second[j].m_PedestalRMS = persObj->m_vPedestalRMS[pedestalrmsIndex];
+		  subsetIt->second[j].m_PedestalRMS = persObj->m_vPedestalRMS[pedestalrmsIndex];
 		pedestalrmsIndex+=nPedestalRMSs;
 	    }//end if copychannel
 
@@ -95,9 +86,11 @@ LArPedestalSubsetCnv_p1::persToTrans(const LArPedestalPersType* persObj,
     }// end loop over febs
     
     // Copy corrections
-    
+
+    unsigned int ncorrs           = persObj->m_subset.m_corrChannels.size();
+    LArPedestalTransType::CorrectionVec corrs;
+    corrs.resize (ncorrs);
     if (ncorrs) {
-      transObj->m_correctionVec.resize(ncorrs);
       // Loop over corrections
       for (unsigned int i = 0; i < ncorrs; ++i){
         // check indexes
@@ -110,26 +103,25 @@ LArPedestalSubsetCnv_p1::persToTrans(const LArPedestalPersType* persObj,
                 << endmsg;
             return;
         }
-        transObj->m_correctionVec[i].first = persObj->m_subset.m_corrChannels[i];
+        corrs[i].first = persObj->m_subset.m_corrChannels[i];
 	
 	if (nPedestals)
-	  transObj->m_correctionVec[i].second.m_Pedestal = persObj->m_vPedestal[pedestalIndex];
+	  corrs[i].second.m_Pedestal = persObj->m_vPedestal[pedestalIndex];
 	pedestalIndex+=nPedestals;
 
 
 	if (nPedestalRMSs)
-	  transObj->m_correctionVec[i].second.m_PedestalRMS = persObj->m_vPedestalRMS[pedestalrmsIndex];
+	  corrs[i].second.m_PedestalRMS = persObj->m_vPedestalRMS[pedestalrmsIndex];
 	pedestalrmsIndex+=nPedestalRMSs;
 
       }// end loop over corrections
 
     }//end if ncorr
+    transObj->insertCorrections (std::move (corrs));
 
-    // Copy the rest
-    transObj->m_gain          = persObj->m_subset.m_gain; 
-    transObj->m_channel       = persObj->m_subset.m_channel;
-    transObj->m_groupingType  = persObj->m_subset.m_groupingType;
-
+  // Copy the rest
+  transObj->setChannel       (persObj->m_subset.m_channel);
+  transObj->setGroupingType  (persObj->m_subset.m_groupingType);
 }
 
 

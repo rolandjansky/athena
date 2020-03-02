@@ -118,10 +118,10 @@ ServiceMgr += atRndmGenSvc
 from G4AtlasApps.atlas_utilities import MemorySnooper
 job += MemorySnooper()
  
-print "###MYOUTPUT###" 
-print ServiceMgr 
-print "###MYOUTPUT###" 
-print job 
+printfunc ("###MYOUTPUT###" )
+printfunc (ServiceMgr )
+printfunc ("###MYOUTPUT###" )
+printfunc (job )
  
 from AthenaCommon.ConfigurationShelve import saveToAscii 
 saveToAscii("config.txt") 

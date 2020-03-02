@@ -54,7 +54,7 @@ if( NOT SIMULATIONBASE )
   if( ATHENAPOOLUTILITIESTEST_FOUND )
     set( XAODTRUTHATHENAPOOL_REFERENCE_TAG
          xAODTruthAthenaPoolReference-01-00-00 )
-    run_tpcnv_test( xAODTruthAthenaPool_21.0.79   AOD-21.0.79-full
+    run_tpcnv_legacy_test( xAODTruthAthenaPool_21.0.79   AOD-21.0.79-full
                      REQUIRED_LIBRARIES xAODTruthAthenaPoolPoolCnv
                      REFERENCE_TAG ${XAODTRUTHATHENAPOOL_REFERENCE_TAG} )
   else()

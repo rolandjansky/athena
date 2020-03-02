@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# This is a very thin wrapper to disable file locking. See more here:
+#
+# https://support.hdfgroup.org/ftp/HDF5/current/src/unpacked/release_docs/RELEASE.txt
+#
+HDF5_USE_FILE_LOCKING=FALSE hdf5-merge "$@"

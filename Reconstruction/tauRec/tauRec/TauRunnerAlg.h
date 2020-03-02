@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAURUNNERALG_H
@@ -7,10 +7,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "tauRecTools/ITauToolExecBase.h"
 #include "tauRecTools/ITauToolBase.h"
-
-#include "tauRecTools/TauEventData.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -44,9 +41,9 @@ class TauRunnerAlg: public AthAlgorithm
         //-----------------------------------------------------------------
         // Gaudi algorithm hooks
         //-----------------------------------------------------------------
-        virtual StatusCode initialize();
-        virtual StatusCode execute();
-        virtual StatusCode finalize();
+        virtual StatusCode initialize() override;
+        virtual StatusCode execute() override;
+        virtual StatusCode finalize() override;
 
 	// template for deep copy function
 	template<class T, class U, class V> StatusCode deepCopy(T*& containerOut, U*& containerStoreOut, const V* dummyContainerType,
@@ -54,8 +51,6 @@ class TauRunnerAlg: public AthAlgorithm
  private:
        
 	ToolHandleArray<ITauToolBase>  m_tools{this, "TauRunnerTools", {}, "Tools building taus"};
-
-	TauEventData m_data;
 
 	SG::ReadHandleKey<xAOD::TauJetContainer> m_tauInputContainer{this,"Key_tauInputContainer","tmp_TauJets","input temp tau key"};
 	SG::ReadHandleKey<xAOD::CaloClusterContainer> m_pi0ClusterInputContainer{this,"Key_Pi0ClusterInputContainer", "TauPi0SubtractedClusters", "input pi0 cluster"};

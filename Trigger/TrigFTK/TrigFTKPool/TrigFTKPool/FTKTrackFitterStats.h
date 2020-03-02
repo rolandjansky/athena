@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FTKTRACKFITTERSTATS_H
@@ -64,7 +64,7 @@ public:
   unsigned int getNFitsBadMajority() const { return m_nfits_badmaj; }
   unsigned int getNFitsHWRejectedMajority() const { return m_nfits_rejmaj; }
   unsigned int getNConn() const { return m_nconn;}
-  unsigned int getNExtrapolatedTracks() {return m_nextrapolatedTracks;}
+  unsigned int getNExtrapolatedTracks() const {return m_nextrapolatedTracks;}
 };
 
 #include "AthenaKernel/CLASS_DEF.h"

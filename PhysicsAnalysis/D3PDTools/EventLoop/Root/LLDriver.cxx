@@ -1,15 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//           Morten Dam Joergensen 2012.
-//          
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
+/// @author Morten Dam Joergensen 2012.
+/// @author Nils Krumnack
 
 
 //
@@ -18,7 +12,10 @@
 
 #include <EventLoop/LLDriver.h>
 
+#include <AsgTools/StatusCode.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/ManagerData.h>
+#include <EventLoop/MessageCheck.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TSystem.h>
 #include <sstream>
@@ -55,54 +52,55 @@ namespace EL
 
 
 
-  std::string LLDriver ::
-  batchName () const
+  ::StatusCode LLDriver ::
+  doManagerStep (Detail::ManagerData& data) const
   {
     RCU_READ_INVARIANT (this);
-    return "run{JOBID}.cmd";
-  }
-
-
-
-  std::string LLDriver ::
-  batchInit () const
-  {
-    RCU_READ_INVARIANT (this);
-    std::ostringstream result;
-    result << "#\n";
-    result << "# @ job_name       = EventLoopAnalysis{JOBID}\n";
-    result << "# @ job_type       = serial\n";
-    result << "# @ error          = $(Cluster).err\n";
-    result << "# @ output         = $(Cluster).out\n";
-    result << "# @ class          = " << queue << "\n";
-    result << "# @ resources = ConsumableCpus(1) ConsumableMemory(4gb)\n";
-    result << "# @ wall_clock_limit = 00:20:00\n";
-    result << "# @ queue\n";
-    return result.str();
-  }
-
-
-
-  void LLDriver ::
-  batchSubmit (const std::string& location, const SH::MetaObject& options,
-	       std::size_t njob) const
-  {
-    RCU_READ_INVARIANT (this);
-
-    // Submit n jobs with loadleveler
-    for (unsigned iter = 0, end = njob; iter != end; ++ iter) {
-        
-      // Submit!
-
+    using namespace msgEventLoop;
+    ANA_CHECK (BatchDriver::doManagerStep (data));
+    switch (data.step)
+    {
+    case Detail::ManagerStep::batchScriptVar:
       {
-	std::ostringstream cmd;
-	cmd << "cd " << location << "/submit && llsubmit "
-	    << options.castString (Job::optSubmitFlags)
-	    << " run"<<iter<<".cmd";
-
-	if (gSystem->Exec (cmd.str().c_str()) != 0)
-	  RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+        data.batchName = "run{JOBID}.cmd";
+        data.batchInit =
+          "#\n"
+          "# @ job_name       = EventLoopAnalysis{JOBID}\n"
+          "# @ job_type       = serial\n"
+          "# @ error          = $(Cluster).err\n"
+          "# @ output         = $(Cluster).out\n"
+          "# @ class          = " + queue + "\n"
+          "# @ resources = ConsumableCpus(1) ConsumableMemory(4gb)\n"
+          "# @ wall_clock_limit = 00:20:00\n"
+          "# @ queue\n";
       }
-    }    
+      break;
+
+    case Detail::ManagerStep::submitJob:
+    case Detail::ManagerStep::doResubmit:
+      {
+        // safely ignoring: resubmit
+
+        // Submit n jobs with loadleveler
+        for (std::size_t iter : data.batchJobIndices)
+        {
+          // Submit!
+
+          std::ostringstream cmd;
+          cmd << "cd " << data.submitDir << "/submit && llsubmit "
+              << data.options.castString (Job::optSubmitFlags)
+              << " run"<<iter<<".cmd";
+
+          if (gSystem->Exec (cmd.str().c_str()) != 0)
+            RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+        }    
+        data.submitted = true;
+      }
+      break;
+
+    default:
+      break;
+    }
+    return ::StatusCode::SUCCESS;
   }
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ANTIMUONMC15_H_
@@ -9,7 +9,7 @@
 #include "TopObjectSelectionTools/IsolationTools.h"
 
 #include "AsgTools/ToolHandle.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 namespace top {
 

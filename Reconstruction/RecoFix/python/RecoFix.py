@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """@package RecoFix 
 
@@ -24,8 +24,8 @@ from AthenaCommon.Logging import logging
 
 logRecoFix = logging.getLogger( 'RecoFix' )
 
-from RecoFix_base import RecoFix_base
-from RecoFix_r210 import RecoFix_r210
+from .RecoFix_base import RecoFix_base
+from .RecoFix_r210 import RecoFix_r210
 
 _recoFixInstance = RecoFix_base(False)
 

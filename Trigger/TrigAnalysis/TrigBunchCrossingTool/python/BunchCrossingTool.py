@@ -126,12 +126,12 @@ def TrigConfBunchCrossingTool():
     # Check for a TrigConfigSvc:
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     if not hasattr( svcMgr, "TrigConfigSvc" ):
-        __logger.info( "Job has no TrigConfigSvc, falling back to xAODConfigTool")
-        from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
-        from AthenaCommon.AppMgr import ToolSvc
-        cfgtool = TrigConf__xAODConfigTool('xAODConfigTool')
-        ToolSvc += cfgtool
-        __tool.ConfigTool = cfgtool
+        __logger.info( "Job has no TrigConfigSvc, falling back to xAODConfigSvc")
+        from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
+        from AthenaCommon.AppMgr import ServiceMgr
+        cfgsvc = TrigConf__xAODConfigSvc('xAODConfigSvc')
+        ServiceMgr += cfgsvc
+        __tool.ConfigSvc = cfgsvc
     else: 
         # We do have a TrigConfigSvc. Now make sure that DSConfigSvc has access to the BG COOL folders:
         from IOVDbSvc.CondDB import conddb

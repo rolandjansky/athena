@@ -9,10 +9,12 @@
 # Author: Cenk YILDIZ, UCI
 # e-mail: cenk.yildiz@cern.ch
 #
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #######################################################
 
 #!/usr/bin/python
+
+from __future__ import print_function
 
 import sys
 import os
@@ -255,7 +257,7 @@ class TrigHltRates(object):
                     continue
                 try:
                     matched = bool(re.match(pattern,chain))
-                except Exception,e:
+                except Exception as e:
                     msg.error("Regex matching error: {0}".format(e))
                     matched = False
                 if matched:
@@ -275,7 +277,7 @@ class TrigHltRates(object):
         coolchannel = 0 #Folders are single channel
 
         # Check if it's already cached
-        if self.__sor_eor.has_key(runno):
+        if runno in self.__sor_eor:
             return self.__sor_eor[runno]
 
         dbSvc=cool.DatabaseSvcFactory.databaseService()
@@ -286,10 +288,10 @@ class TrigHltRates(object):
             db=dbSvc.openDatabase(dbconnect,readonly)
             cfolder_sor=db.getFolder(sor_foldername)
             cfolder_eor=db.getFolder(eor_foldername)
-        except Exception,e:
+        except Exception as e:
             msg.error("Can't open DB or get SOR/EOR folders: {0}".format(dbconnect))
             msg.error("Exception: {0}".format(e))
-            print  "Info : --- : ", sys.exc_info()
+            print ( "Info : --- : ", sys.exc_info())
             raise e
 
         # Find object at lb=2 of the run
@@ -298,7 +300,7 @@ class TrigHltRates(object):
 
         try:
             obj = cfolder_sor.findObject(runlb, coolchannel)
-        except Exception,e:
+        except Exception as e:
             msg.error("Can't get object from folder: {0}".format(sor_foldername))
             msg.error("Exception: {0}".format(e))
             raise e
@@ -312,7 +314,7 @@ class TrigHltRates(object):
             payload = obj.payload()
             eor_time = payload["EORTime"]/1000000000
             #print("End of Run reached, run is stopped! EOR: {0}".format(eor_time))
-        except Exception,e:
+        except Exception as e:
             eor_time = cool.ValidityKeyMax
             msg.info("End of Run NOT reached, run ongoing")
 
@@ -323,7 +325,7 @@ class TrigHltRates(object):
 
     def __getChains(self,runno):
         """ Private method to get all chain names for a run number """
-        if self.__chains.has_key(runno):
+        if runno in self.__chains:
             return self.__chains[runno]
 
         dbSvc=cool.DatabaseSvcFactory.databaseService()
@@ -333,7 +335,7 @@ class TrigHltRates(object):
         try:
             db=dbSvc.openDatabase(dbconnect,readonly)
             chainfolder=db.getFolder(chain_foldername)
-        except Exception,e:
+        except Exception as e:
             msg.error("Can't open DB or get chain folder")
             msg.error("Exception: {0}".format(e))
             raise CantAccessDB
@@ -344,7 +346,7 @@ class TrigHltRates(object):
 
         try:
             chainobj = chainfolder.findObject(runlb, coolchannel, self.__chaintag);
-        except Exception,e:
+        except Exception as e:
             msg.error("Can't get chains object from chain folder, Exception: {0}".format(e))
             raise NoChainData
 
@@ -399,8 +401,8 @@ class TrigHltRates(object):
                 iov_start = iov_start*1000000000
                 iov_end = iov_end*1000000000
 
-            rateobjs = ratefolder.browseObjects(long(iov_start), long(iov_end),cool.ChannelSelection(int(coolchannel)),self.__ratetag)
-        except Exception,e:
+            rateobjs = ratefolder.browseObjects(int(iov_start), int(iov_end),cool.ChannelSelection(int(coolchannel)),self.__ratetag)
+        except Exception as e:
             msg.error("Can't open DB or get folders, Exception: {0}".format(e))
             raise CantAccessDB
 

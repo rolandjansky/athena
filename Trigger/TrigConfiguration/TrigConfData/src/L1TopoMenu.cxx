@@ -17,22 +17,22 @@ TrigConf::L1TopoMenu::L1TopoMenu(const boost::property_tree::ptree & data)
 TrigConf::L1TopoMenu::~L1TopoMenu()
 {}
 
-std::string
+const std::string &
 TrigConf::L1TopoMenu::name() const
 {
-   return m_data.get_child("name").data();
+   return getAttribute("name");
 }
 
 unsigned int 
 TrigConf::L1TopoMenu::version() const
 {
-   return m_data.get_child("version").get_value<unsigned int>();
+   return getAttribute<unsigned int>("version");
 }
 
-std::size_t 
+std::size_t
 TrigConf::L1TopoMenu::size() const
 {
-   return m_data.get_child("outputs").size();
+   return data().get_child("outputs").size();
 }
 
 vector<TrigConf::L1TopoAlgorithm>
@@ -40,7 +40,7 @@ TrigConf::L1TopoMenu::sortingAlgorithms() const
 {
 
    std::vector<TrigConf::L1TopoAlgorithm> algorithmList;
-   const auto & sortingAlgorithms = m_data.get_child("sortingAlgorithms");
+   const auto & sortingAlgorithms = data().get_child("sortingAlgorithms");
    algorithmList.reserve(sortingAlgorithms.size());
 
    for( auto & alg : sortingAlgorithms )
@@ -54,7 +54,7 @@ TrigConf::L1TopoMenu::decisionAlgorithms() const
 {
 
    std::vector<TrigConf::L1TopoAlgorithm> algorithmList;
-   const auto & decisionAlgorithms = m_data.get_child("decisionAlgorithms");
+   const auto & decisionAlgorithms = data().get_child("decisionAlgorithms");
    algorithmList.reserve(decisionAlgorithms.size());
 
    for( auto & alg : decisionAlgorithms )
@@ -66,12 +66,12 @@ TrigConf::L1TopoMenu::decisionAlgorithms() const
 TrigConf::L1TopoMenu::const_iterator
 TrigConf::L1TopoMenu::begin() const
 {
-   return {m_data.get_child("outputs"), 0,  [](auto x){return L1TopoOutput(x.second);}};
+   return {data().get_child("outputs"), 0,  [](auto & x){return L1TopoOutput(x.second);}};
 }
 
 TrigConf::L1TopoMenu::const_iterator
 TrigConf::L1TopoMenu::end() const
 {
-   const auto & outputs = m_data.get_child("outputs");
-   return {outputs, outputs.size(), [](auto x){return L1TopoOutput(x.second);}};
+   const auto & outputs = data().get_child("outputs");
+   return {outputs, outputs.size(), [](auto & x){return L1TopoOutput(x.second);}};
 }

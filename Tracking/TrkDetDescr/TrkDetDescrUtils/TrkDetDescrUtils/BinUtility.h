@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ public:
     float step = (max - min) / bins;
     for (size_t ib = 0; ib <= bins; ++ib)
       bValues.push_back(min + ib * step);
-    m_binningData.push_back(Trk::BinningData(Trk::equidistant, opt, value, bins, min, max, step, sStep, bValues));
+    m_binningData.emplace_back(Trk::equidistant, opt, value, bins, min, max, step, sStep, bValues);
   }
 
   /** Constructor for bi-equidistant */
@@ -71,8 +71,7 @@ public:
       bValues.push_back(min + isb * step);
     }
     bValues.push_back(max);
-    m_binningData.push_back(
-      Trk::BinningData(Trk::biequidistant, opt, value, 2 * subbins + 1, min, max, step, substep, bValues));
+    m_binningData.emplace_back(Trk::biequidistant, opt, value, 2 * subbins + 1, min, max, step, substep, bValues);
   }
 
   /** Constructor for arbitrary */
@@ -82,7 +81,7 @@ public:
     m_binningData.reserve(3);
     size_t nBins = opt == 0 ? bValues.size() - 1 : bValues.size();
 
-    m_binningData.push_back(Trk::BinningData(Trk::arbitrary,
+    m_binningData.emplace_back(Trk::arbitrary,
                                              opt,
                                              value,
                                              nBins,
@@ -90,7 +89,7 @@ public:
                                              bValues.back(),
                                              (bValues.back() - bValues[0]) / (nBins),
                                              0.,
-                                             bValues));
+                                             bValues);
   }
 
   /** Constructor for binH */
@@ -98,7 +97,7 @@ public:
     : m_binningData()
   {
     m_binningData.reserve(3);
-    m_binningData.push_back(Trk::BinningData(Trk::open, phiRef, bValues));
+    m_binningData.emplace_back(Trk::open, phiRef, bValues);
   }
 
   /** Copy constructor */

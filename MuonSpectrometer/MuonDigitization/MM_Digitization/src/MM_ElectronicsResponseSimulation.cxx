@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -7,13 +7,11 @@
 *  MC for micromegas athena integration
 *
 **/
-//~
-/// PROJECTS
-#include "GaudiKernel/MsgStream.h"
+
 #include "MM_Digitization/MM_ElectronicsResponseSimulation.h"
 
-// #include <random>
-#include "TF1.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 std::vector<float> shaperInputTime;
 std::vector<float> shaperInputCharge;
@@ -54,7 +52,6 @@ void MM_ElectronicsResponseSimulation::initialize()
 		peakTimeMultiplier = sqrt(m_peakTime / 50.);
 		m_alpha = 2.5 * peakTimeMultiplier;
 
-		m_electronicsThreshold = (m_stripResponseQThreshold * ( TMath::Power(m_alpha,m_alpha)*TMath::Exp(-m_alpha)) ) ;
 		m_h_intFn = new TF1("intFn", shaperResponseFunction, m_timeWindowLowerOffset, m_timeWindowUpperOffset, 2 );
 		m_h_intFn->SetParameter( 0, 2.5 * peakTimeMultiplier ); // previously split into the alpha parameter
 		m_h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
@@ -64,7 +61,6 @@ void MM_ElectronicsResponseSimulation::initialize()
 		peakTimeMultiplier = (m_peakTime / 50.);
 		m_alpha = 2.5;
 
-		m_electronicsThreshold = (m_stripResponseQThreshold * ( TMath::Power(m_alpha,m_alpha)*TMath::Exp(-m_alpha)) ) ;
 		m_h_intFn = new TF1("intFn", shaperResponseFunction, m_timeWindowLowerOffset, m_timeWindowUpperOffset, 2 );
 		m_h_intFn->SetParameter( 0, m_alpha ); // previously split into the alpha parameter
 		m_h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
@@ -87,7 +83,6 @@ MM_DigitToolOutput MM_ElectronicsResponseSimulation::getPeakResponseFrom(const M
 	vmmPeakResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
 
 	/// ToDo: include loop for calculating Trigger study vars
-	// MM_DigitToolOutput(bool hitWasEff, std::vector <int> strpos, std::vector<float> time, std::vector<int> charge, int strTrig, float strTimeTrig ):
 	MM_DigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
 
 	return tmp;
@@ -291,7 +286,10 @@ int MM_ElectronicsResponseSimulation::getIdTheFastestSignalInVMM(
 			}
 		}
 	}
-	if(theFastestSignal==-1) std::cout << "There is something wrong in getIdTheFastestSignalInVMM" << std::endl;
+    if(theFastestSignal==-1) {
+        MsgStream log(Athena::getMessageSvc(),"MM_ElectronicsResponseSimulation");
+        log << MSG::WARNING << "There is something wrong in getIdTheFastestSignalInVMM" << endmsg;
+    }
 
 	return theFastestSignal;
 }
@@ -342,7 +340,6 @@ MM_DigitToolOutput MM_ElectronicsResponseSimulation::applyDeadTimeStrip(const MM
 			electronicsAppliedDeadtimeStripTime.push_back(electronicsStripTime[i]);
 			electronicsAppliedDeadtimeStripCharge.push_back(electronicsStripCharge[i]);
 		}
-	//    else std::cout <<  "Killed due to the strip dead time" << std::endl;
 	}
 
 	MM_DigitToolOutput ElectronicsTriggerOutputAppliedDeadTime(

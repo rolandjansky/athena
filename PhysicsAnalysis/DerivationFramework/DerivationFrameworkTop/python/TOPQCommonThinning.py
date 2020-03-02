@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used for TOPQ thinning
@@ -45,7 +45,7 @@ def TOPQTriggerChains(TriggerFilter='allTriggers'):
 #============================
 # MAIN SETUP FUNCTION
 #============================
-def setup(TOPQname, TOPQThinningSvc, ToolSvc):
+def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
   thinningTools=[]
 
   #========================
@@ -56,10 +56,9 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
   TOPQTPThinningTool = DerivationFramework__TrackParticleThinning(  
                          name                    = TOPQname + "TPThinningTool",
-                         ThinningService         = TOPQThinningSvc,
+                         StreamName              = streamName,
                          SelectionString         = thinning_expression,
-                         InDetTrackParticlesKey  = "InDetTrackParticles",
-                         ApplyAnd                = False)
+                         InDetTrackParticlesKey  = "InDetTrackParticles")
 
   #ToolSvc += TOPQTPThinningTool
   #thinningTools.append(TOPQTPThinningTool)
@@ -72,11 +71,10 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
   TOPQJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(
                             name                    = TOPQname + "JetTPThinningTool",
-                            ThinningService         = TOPQThinningSvc,
+                            StreamName              = streamName,
                             JetKey                  = "AntiKt4EMTopoJets",
                             InDetTrackParticlesKey  = "InDetTrackParticles",      
-                            SelectionString         = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20*GeV)",
-                            ApplyAnd                = False)
+                            SelectionString         = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20*GeV)")
 
   ToolSvc += TOPQJetTPThinningTool
   thinningTools.append(TOPQJetTPThinningTool)
@@ -97,11 +95,10 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
 
   TOPQLargeJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(
                             name                    = TOPQname + "LargeJetTPThinningTool",
-                            ThinningService         = TOPQThinningSvc,
+                            StreamName              = streamName,
                             JetKey                  = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                             InDetTrackParticlesKey  = "InDetTrackParticles",
-                            SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt>25*GeV",
-                            ApplyAnd                = False)
+                            SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt>25*GeV")
 
   ToolSvc += TOPQLargeJetTPThinningTool
   thinningTools.append(TOPQLargeJetTPThinningTool)
@@ -110,7 +107,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
   TOPQAK4CCThinningTool = DerivationFramework__JetCaloClusterThinning(
               name                    = TOPQname + "AK4CCThinningTool",
-              ThinningService         = TOPQThinningSvc,
+              StreamName              = streamName,
               SGKey                   = "AntiKt4EMTopoJets",
               TopoClCollectionSGKey   = "CaloCalTopoClusters",
               SelectionString         = "AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 7*GeV",
@@ -124,7 +121,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
   TOPQLargeJetCCThinningTool = DerivationFramework__JetCaloClusterThinning(
               name                    = TOPQname + "LargeJetCCThinningTool",
-              ThinningService         = TOPQThinningSvc,
+              StreamName              = streamName,
               SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
               TopoClCollectionSGKey   = "CaloCalTopoClusters",
               SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 7*GeV",
@@ -142,10 +139,9 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
   TOPQElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(
                                  name                    = TOPQname + "ElectronTPThinningTool",
-                                 ThinningService         = TOPQThinningSvc,
+                                 StreamName              = streamName,
                                  SGKey                   = "Electrons",
-                                 InDetTrackParticlesKey  = "InDetTrackParticles",
-                                 ApplyAnd                = False)
+                                 InDetTrackParticlesKey  = "InDetTrackParticles")
 
   ToolSvc += TOPQElectronTPThinningTool
   thinningTools.append(TOPQElectronTPThinningTool)
@@ -158,12 +154,11 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
   TOPQElectronCCThinningTool = DerivationFramework__CaloClusterThinning(
                                  name                    = TOPQname + "ElectronCCThinningTool",
-                                 ThinningService         = TOPQThinningSvc,
+                                 StreamName              = streamName,
                                  SGKey                   = "Electrons",
                                  CaloClCollectionSGKey   = "egammaClusters",
                                  SelectionString         = "(Electrons.Loose || Electrons.DFCommonElectronsLHLoose)",
-                                 ConeSize                = 0.4,
-                                 ApplyAnd                = False)
+                                 ConeSize                = 0.4)
 
   ToolSvc += TOPQElectronCCThinningTool
   thinningTools.append(TOPQElectronCCThinningTool)
@@ -175,7 +170,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
   TOPQPhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(
     name                    = TOPQname + "PhotonTPThinningTool",
-    ThinningService         = TOPQThinningSvc,
+    StreamName              = streamName,
     SGKey                   = "Photons",
     InDetTrackParticlesKey  = "InDetTrackParticles"
   )
@@ -191,12 +186,11 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
   TOPQPhotonCCThinningTool = DerivationFramework__CaloClusterThinning(
                                  name                    = TOPQname + "PhotonCCThinningTool",
-                                 ThinningService         = TOPQThinningSvc,
+                                 StreamName              = streamName,
                                  SGKey                   = "Photons",
                                  CaloClCollectionSGKey   = "egammaClusters",
                                  SelectionString         = "(Photons.Loose || Photons.DFCommonPhotonsIsEMLoose)",
-                                 ConeSize                = 0.4,
-                                 ApplyAnd                = False)
+                                 ConeSize                = 0.4)
 
   ToolSvc += TOPQPhotonCCThinningTool
   thinningTools.append(TOPQPhotonCCThinningTool)
@@ -209,10 +203,9 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
   TOPQMuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(
                              name                    = TOPQname + "MuonTPThinningTool",
-                             ThinningService         = TOPQThinningSvc,
+                             StreamName              = streamName,
                              MuonKey                 = "Muons",
-                             InDetTrackParticlesKey  = "InDetTrackParticles",
-                             ApplyAnd                = False)
+                             InDetTrackParticlesKey  = "InDetTrackParticles")
 
   ToolSvc += TOPQMuonTPThinningTool
   thinningTools.append(TOPQMuonTPThinningTool)
@@ -225,10 +218,9 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
   TOPQTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(
                             name                    = TOPQname + "TauTPThinningTool",
-                            ThinningService         = TOPQThinningSvc,
+                            StreamName              = streamName,
                             TauKey                  = "TauJets",
-                            InDetTrackParticlesKey  = "InDetTrackParticles",
-                            ApplyAnd                = False)
+                            InDetTrackParticlesKey  = "InDetTrackParticles")
 
   ToolSvc += TOPQTauTPThinningTool
   thinningTools.append(TOPQTauTPThinningTool)
@@ -327,7 +319,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     TOPQPhotonThinning = DerivationFramework__GenericTruthThinning(
                            name                    = TOPQname + "PhotonThinning",
-                           ThinningService         = TOPQThinningSvc,
+                           StreamName              = streamName,
                            ParticlesKey            = "TruthPhotons", 
                            ParticleSelectionString = "(TruthPhotons.classifierParticleOrigin != 42) || (TruthPhotons.pt > 20.0*GeV)")
 
@@ -342,7 +334,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
     #from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     #TOPQGluonThinning = DerivationFramework__GenericTruthThinning(
     #                      name                    = TOPQname + "GluonThinning",
-    #                      ThinningService         = TOPQThinningSvc,
+    #                      StreamName              = streamName,
     #                      ParticlesKey            = "TruthParticles", 
     #                      ParticleSelectionString = "(TruthParticles.pdgId  != 21)")
 

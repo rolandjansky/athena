@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,18 +37,10 @@
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 
-#include <TH1F.h>
 #include <TH2F.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TF1.h>
-#include <TMath.h>
 #include <inttypes.h> 
 
 #include <sstream>
-
-using namespace std;
-
 
 ///////////////////////////////////////////////////////////////////////////
 // bookCoincidenceWindowHisto
@@ -106,8 +98,8 @@ TgcLv1RawDataValAlg::bookHistogramsCoincidenceWindow(){
 ///////////////////////////////////////////////////////////////////////////
 void
 TgcLv1RawDataValAlg::fillCoincidenceWindow(int ms,
-                                           vector<float>* mu_pt, vector<float>* mu_eta,
-                                           vector<float>* mu_phi,vector<float>* mu_q){
+                                           std::vector<float>* mu_pt, std::vector<float>* mu_eta,
+                                           std::vector<float>* mu_phi,std::vector<float>* mu_q){
   // Set delta cut used to associate Offline muon with SL trigger
   const float deltarcut = 0.25;
   // Get number of Offline Muons 

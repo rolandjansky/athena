@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 test_strings = [
     'simple([(38et, 0eta320)])',
     'simple([(38et, 0eta320)(40et, 0eta320)])',
+    'simple([(38et, 0eta320, 011jvt)])',
     'or([] simple([(10et)]) simple([(20et)(40et)]))',
     'and([] simple([(10et)]) simple([(20et)]))',
     'not([] simple([(10et)]))',

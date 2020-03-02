@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -102,7 +102,7 @@ Trk::GsfBetheHeitlerEffects::readParameters()
 
   std::string resolvedFileName = PathResolver::find_file(m_parameterisationFileName, "DATAPATH");
 
-  if (resolvedFileName != "")
+  if (!resolvedFileName.empty())
     ATH_MSG_INFO("Parameterisation file found: " << resolvedFileName);
   else {
     msg(MSG::ERROR) << "Parameterisation file not found" << endmsg;
@@ -152,7 +152,7 @@ Trk::GsfBetheHeitlerEffects::readParameters()
 
   if (m_useHighX0) {
     resolvedFileName = PathResolver::find_file(m_parameterisationFileNameHighX0, "DATAPATH");
-    if (resolvedFileName != "")
+    if (!resolvedFileName.empty())
       ATH_MSG_INFO("Parameterisation file found: " << resolvedFileName);
     else {
       msg(MSG::ERROR) << "Parameterisation file not found" << endmsg;
@@ -250,8 +250,8 @@ Trk::GsfBetheHeitlerEffects::compute(Cache& cache,
   // Produce a multi-component State
   if (pathlengthInX0 > m_singleGaussianRange) {
 
-    // If the amount of material is between 0.0001 and 0.01 return the gaussian approximation to the Bethe-Heitler
-    // distribution
+    // If the amount of material is between 0.0001 and 0.01 return the gaussian approximation to the
+    // Bethe-Heitler distribution
     if (pathlengthInX0 < m_lowerRange) {
 
       ATH_MSG_DEBUG("Amount of material less than" << m_lowerRange << "... Parameterising Bethe-Heitler as Gaussian");
@@ -305,7 +305,8 @@ Trk::GsfBetheHeitlerEffects::compute(Cache& cache,
     if (m_correctionFlag == 2) {
       mixture[0].mean = correctedFirstMean(pathlengthInX0, mixture);
       mixture[0].variance = correctedFirstVariance(pathlengthInX0, mixture);
-      // msg(MSG::VERBOSE) << "Corrected mean/variance: " << mixture[0].mean << " / " << mixture[0].variance << endmsg;
+      // msg(MSG::VERBOSE) << "Corrected mean/variance: " << mixture[0].mean << " / " <<
+      // mixture[0].variance << endmsg;
     }
 
     int componentIndex = 0;

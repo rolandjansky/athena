@@ -31,7 +31,7 @@ namespace Trig{
 
   class DecisionUnpackerEventInfo : public IDecisionUnpacker, public Logger {
   public:
-    DecisionUnpackerEventInfo(StoreGateSvc* sg, const std::string& key);
+    DecisionUnpackerEventInfo(SG::ReadHandleKey<EventInfo>* oldEventInfoKey);
     virtual ~DecisionUnpackerEventInfo();
     virtual StatusCode unpackDecision(std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>&,
 				      std::map<CTPID, LVL1CTP::Lvl1Item*>&,

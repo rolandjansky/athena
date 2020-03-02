@@ -98,7 +98,7 @@ for _alg in AODSelectFlags.preFilterSequence():
         pass
     except AttributeError as err:
         logAODSelect_setupOptions.warning("Could NOT add %s (which is of type %s) to AODSelectSeq sequence" % (_alg, type(_alg)) )
-        print err
+        printfunc (err)
         pass
     pass
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # LumiDeadtimeHandler
 #
@@ -12,10 +12,10 @@
 #
 
 # Get our global DB handler object
-from CoolLumiUtilities.LumiDBHandler import LumiDBHandler
+from __future__ import print_function
 from CoolLumiUtilities.CoolDataReader import CoolDataReader
 
-from CoolLumiUtilities.LumiBlobConversion import unpackLiveFraction, unpackBunchGroup
+from CoolLumiUtilities.LumiBlobConversion import unpackLiveFraction
 
 class LumiDeadtimeHandler:
 
@@ -51,28 +51,28 @@ class LumiDeadtimeHandler:
         self.loadTrigCounts(run)
         
     def loadVetoData(self, run):
-        if self.verbose: print 'Loading trigger veto data'
+        if self.verbose: print('Loading trigger veto data')
 
         # Instantiate new COOL data reader if not already done
-        if self.vetoReader == None:
+        if self.vetoReader is None:
             self.vetoReader = CoolDataReader('COOLONL_TRIGGER/COMP200', '/TRIGGER/LUMI/PerBcidDeadtime')
 
         self.vetoReader.setIOVRangeFromRun(run)
         self.vetoReader.readData()
 
         if self.verbose:
-            print 'Read %d Trig veto records' % len(self.vetoReader.data)
+            print('Read %d Trig veto records' % len(self.vetoReader.data))
 
     # Read trigger channel mappings
     # Fills self.trigChan based on values in self.trigList
     def loadTrigChannels(self, run):
-        if self.verbose: print 'Loading trigger channel data'
+        if self.verbose: print('Loading trigger channel data')
         
         self.trigChan = dict()
         for trig in self.trigList:
             self.trigChan[trig] = -1
 
-        if self.menuReader == None:
+        if self.menuReader is None:
             self.menuReader = CoolDataReader('COOLONL_TRIGGER/COMP200', '/TRIGGER/LVL1/Menu')
             
         self.menuReader.setIOVRangeFromRun(run)
@@ -85,10 +85,10 @@ class LumiDeadtimeHandler:
                     
         for trig in self.trigList:
             if self.trigChan[trig] == -1:
-                print "Couldn't find", trig, "in run", run
+                print("Couldn't find", trig, "in run", run)
 
             if self.verbose:
-                print 'Found', trig, 'in channel', self.trigChan[trig] 
+                print('Found', trig, 'in channel', self.trigChan[trig]) 
 
 
     # Load all trigger counts for the given run
@@ -96,11 +96,11 @@ class LumiDeadtimeHandler:
     def loadTrigCounts(self, run):
 
         if self.verbose:
-            print 'loading Trigger Counts data'
+            print('loading Trigger Counts data')
 
         self.liveFracTrig = dict()
         
-        if self.countsReader == None:    
+        if self.countsReader is None:
             self.countsReader = CoolDataReader('COOLONL_TRIGGER/COMP200', '/TRIGGER/LUMI/LVL1COUNTERS')
 
         self.countsReader.setIOVRangeFromRun(run)
@@ -127,7 +127,7 @@ class LumiDeadtimeHandler:
             # use the string as the dictionary key
             ss = obj.since()
 
-            if not ss in self.liveFracTrig:
+            if ss not in self.liveFracTrig:
                 self.liveFracTrig[ss] = dict()
                 
             for (trig, chan) in self.trigChan.iteritems():
@@ -140,10 +140,10 @@ class LumiDeadtimeHandler:
                 self.liveFracTrig[ss][trig] = ratio    
 
                 if self.verbose:
-                    print obj.since()>>32, '/', obj.since()&0xFFFFFFFF, trig, ratio
+                    print(obj.since()>>32, '/', obj.since()&0xFFFFFFFF, trig, ratio)
                     
     def findBCIDDeadtime(self):
-        if self.verbose: print 'Calculating per-BCID deadtime'
+        if self.verbose: print('Calculating per-BCID deadtime')
 
         # First dictionary index is lumiblock IOV
         self.liveFracBCID = dict()
@@ -153,12 +153,11 @@ class LumiDeadtimeHandler:
 
             key = obj.since()
 
-            run = key >> 32
-            lb = key & 0xFFFFFFFF
-            bloblength = obj.payload()['HighPriority'].size()
-
-            #if self.verbose:
-            #    print '%d %d Found trigger counter blob of length %d' % (run, lb, bloblength)
+            if self.verbose:
+                run = key >> 32
+                lb = key & 0xFFFFFFFF
+                bloblength = obj.payload()['HighPriority'].size()
+                print('%d %d Found trigger counter blob of length %d' % (run, lb, bloblength))
 
             # Unpack High Priority blob here
             liveVec = unpackLiveFraction(obj.payload())
@@ -168,7 +167,7 @@ class LumiDeadtimeHandler:
             #if self.verbose:
             #
             #    for i in range(10):
-            #        print 'BICD: %d Live: %f' % (i+1, liveVec[i])
+            #        print('BICD: %d Live: %f' % (i+1, liveVec[i]))
                         
     
 if __name__ == '__main__':

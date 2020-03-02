@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- //////////////////////////////////////////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header file for class ICutFlowSvc                                                                  //
@@ -15,7 +15,6 @@
 #include <string>
 #include <map>
 #include <stdint.h> // for uint32_t
-
 
 //<<<<<< FORWARD DECLARATIONS                                           >>>>>>
 class INamedInterface;
@@ -40,9 +39,6 @@ public:
 
   virtual ~ICutFlowSvc();
 
-  ///////////////////////////////////////////////////////////////////
-  // Non-const methods:
-  ///////////////////////////////////////////////////////////////////
 
 public:
 
@@ -52,13 +48,6 @@ public:
   virtual CutIdentifier registerFilter( const std::string& name,
                                         const std::string& description ) = 0;
 
-  /// Register cut as child of a filter in the CutFlowSvc and returns the CutID
-  /// of the corresponding EventBookkeeper. This method should be used by
-  /// filters to register their internal cuts that are not the Algs themselves.
-  virtual CutIdentifier registerCut( const std::string& name,
-                                     const std::string& description,
-                                     CutIdentifier parentCutID ) = 0;
-
   /// Tells CutFlowSvc that a filter is used directly by an outputStream with
   /// a given logical context. The only foreseen client should the DecisionSvc,
   /// with its Accept/Require/Veto.
@@ -67,22 +56,16 @@ public:
                                            unsigned int logic,
                                            const std::string& outputStream ) = 0;
 
-  /// Tells CutFlowSvc that a filter should not be treated as as being used by
-  /// another filter. This should be used by filters that use other filter Algs
-  /// internally, e.g., like the LogicalFilterCombiner
-  virtual CutIdentifier declareUsedOtherFilter( const std::string& name,
-                                                CutIdentifier originCutID ) = 0;
-
   /// Set the description of an existing EventBookkeeper
   virtual void setFilterDescription( CutIdentifier cutID,
                                      const std::string& descr ) = 0;
 
   /// Tells CutFlowSvc to update the weighted event counter of a CutIdentifier cutID,
-  /// using CutIdentifier returned by selfRegisterFilter or registerCut
+  /// using CutIdentifier returned by selfRegisterFilter
   virtual void addEvent( CutIdentifier cutID, double weight) = 0;
 
-  /// Tell consumers the name of the storegate container being used
-  virtual const std::string SGKey() = 0;
+  /// Get number of accepted events for a cut
+  virtual uint64_t getNAcceptedEvents( const CutIdentifier cutID ) const = 0;
 
   /// Gaudi boilerplate
   static const InterfaceID& interfaceID();

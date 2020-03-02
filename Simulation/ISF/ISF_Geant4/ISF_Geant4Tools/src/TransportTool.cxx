@@ -368,8 +368,8 @@ StatusCode iGeant4::G4TransportTool::setupEvent()
 
   // Set the RNG to use for this event. We need to reset it for MT jobs
   // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, Gaudi::Hive::currentContext() );
   G4Random::setTheEngine(*rngWrapper);
 
   ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
@@ -447,17 +447,6 @@ StatusCode iGeant4::G4TransportTool::releaseEvent()
   ATH_CHECK(m_fastSimTool->EndOfAthenaEvent());
 
   return StatusCode::SUCCESS;
-}
-
-//________________________________________________________________________
-// Act as particle broker for G4 secondaries
-void iGeant4::G4TransportTool::push( ISF::ISFParticle *particle, const ISF::ISFParticle *parent )
-{
-  ATH_MSG_VERBOSE( "Caught secondary particle push() from Geant4" );
-
-  Slot& slot = *m_slots;
-  Slot::lock_t lock (slot.m_mutex);
-  slot.m_secondariesMap[ parent ].push_back( particle );
 }
 
 //________________________________________________________________________

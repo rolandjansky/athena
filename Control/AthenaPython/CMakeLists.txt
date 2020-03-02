@@ -23,20 +23,20 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread PyROOT )
 atlas_add_library( AthenaPython
                    src/*.cxx
                    PUBLIC_HEADERS AthenaPython
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Python_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} CxxUtils DataModelRoot )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Python_LIBRARIES} CxxUtils DataModelRoot )
 
 atlas_add_component( AthenaPythonComps
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Python_INCLUDE_DIRS}
                      LINK_LIBRARIES AthenaPython )
 
 atlas_add_dictionary( AthenaPythonDict
                       AthenaPython/AthenaPythonDict.h
                       AthenaPython/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel CxxUtils DataModelRoot AthenaPython )
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Python_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Python_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel CxxUtils DataModelRoot AthenaPython )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/tests

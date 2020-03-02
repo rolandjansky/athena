@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCreatorAlg.h"
@@ -9,6 +9,7 @@
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegmentAuxContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonSegment/MuonSegment.h"
 #include "xAODMuon/SlowMuonContainer.h"
@@ -37,13 +38,22 @@ StatusCode MuonCreatorAlg::initialize()
   ATH_CHECK(m_muonCandidateCollectionName.initialize(!m_buildSlowMuon));
   //Can't use a flag in intialize for an array of keys
   if(!m_doSA) ATH_CHECK(m_tagMaps.initialize());
+  m_segTrkContainerName = "Trk"+m_segContainerName.key();
+  m_segContainerName = "xaod"+m_segContainerName.key();
   ATH_CHECK(m_segContainerName.initialize());
+  ATH_CHECK(m_segTrkContainerName.initialize());
+  m_combinedTrkCollectionName = m_combinedCollectionName.key()+"Tracks";
   m_combinedCollectionName = m_combinedCollectionName.key()+"TrackParticles";
   ATH_CHECK(m_combinedCollectionName.initialize());
+  ATH_CHECK(m_combinedTrkCollectionName.initialize());
+  m_extrapolatedTrkCollectionName = m_extrapolatedCollectionName.key()+"Tracks";
   m_extrapolatedCollectionName = m_extrapolatedCollectionName.key()+"TrackParticles";
   ATH_CHECK(m_extrapolatedCollectionName.initialize());
+  ATH_CHECK(m_extrapolatedTrkCollectionName.initialize());
   m_msOnlyExtrapolatedCollectionName = m_msOnlyExtrapolatedCollectionName.key()+"TrackParticles";
+  m_msOnlyExtrapolatedTrkCollectionName = m_msOnlyExtrapolatedCollectionName.key()+"Tracks";
   ATH_CHECK(m_msOnlyExtrapolatedCollectionName.initialize());
+  ATH_CHECK(m_msOnlyExtrapolatedTrkCollectionName.initialize());
   ATH_CHECK(m_clusterContainerName.initialize(m_makeClusters));
   m_clusterContainerLinkName = m_clusterContainerName.key()+"_links";
   ATH_CHECK(m_clusterContainerLinkName.initialize(m_makeClusters));
@@ -82,23 +92,35 @@ StatusCode MuonCreatorAlg::execute()
   // Create and record track particles:
   //combined tracks
   SG::WriteHandle<xAOD::TrackParticleContainer> wh_combtp(m_combinedCollectionName);
+  SG::WriteHandle<TrackCollection> wh_combtrk(m_combinedTrkCollectionName);
   ATH_CHECK(wh_combtp.record(std::make_unique<xAOD::TrackParticleContainer>(), std::make_unique<xAOD::TrackParticleAuxContainer>()));
+  ATH_CHECK(wh_combtrk.record(std::make_unique<TrackCollection>()));
   output.combinedTrackParticleContainer = wh_combtp.ptr();
+  output.combinedTrackCollection = wh_combtrk.ptr();
 
   //extrapolated tracks
   SG::WriteHandle<xAOD::TrackParticleContainer> wh_extrtp(m_extrapolatedCollectionName);
+  SG::WriteHandle<TrackCollection> wh_extrtrk(m_extrapolatedTrkCollectionName);
   ATH_CHECK(wh_extrtp.record(std::make_unique<xAOD::TrackParticleContainer>(), std::make_unique<xAOD::TrackParticleAuxContainer>()));
+  ATH_CHECK(wh_extrtrk.record(std::make_unique<TrackCollection>()));
   output.extrapolatedTrackParticleContainer = wh_extrtp.ptr();
+  output.extrapolatedTrackCollection = wh_extrtrk.ptr();
 
   //msonly tracks
   SG::WriteHandle<xAOD::TrackParticleContainer> wh_msextrtp(m_msOnlyExtrapolatedCollectionName);
+  SG::WriteHandle<TrackCollection> wh_msextrtrk(m_msOnlyExtrapolatedTrkCollectionName);
   ATH_CHECK(wh_msextrtp.record(std::make_unique<xAOD::TrackParticleContainer>(), std::make_unique<xAOD::TrackParticleAuxContainer>()));
+  ATH_CHECK(wh_msextrtrk.record(std::make_unique<TrackCollection>()));
   output.msOnlyExtrapolatedTrackParticleContainer = wh_msextrtp.ptr();
+  output.msOnlyExtrapolatedTrackCollection = wh_msextrtrk.ptr();
 
   //segments
   SG::WriteHandle<xAOD::MuonSegmentContainer> wh_segment(m_segContainerName);
   ATH_CHECK(wh_segment.record(std::make_unique<xAOD::MuonSegmentContainer>(),std::make_unique<xAOD::MuonSegmentAuxContainer>()));
   output.xaodSegmentContainer=wh_segment.ptr();
+  SG::WriteHandle<Trk::SegmentCollection> wh_segmentTrk(m_segTrkContainerName);
+  ATH_CHECK(wh_segmentTrk.record(std::make_unique<Trk::SegmentCollection>()));
+  output.muonSegmentCollection=wh_segmentTrk.ptr();
 
   // calo clusters
   SG::WriteHandle<xAOD::CaloClusterContainer> wh_clusters;
@@ -165,7 +187,17 @@ StatusCode MuonCreatorAlg::execute()
     auto cbtrks_eta = Monitored::Collection("cbtrks_eta", *(wh_combtp.ptr()), &xAOD::TrackParticle_v1::eta);
     auto cbtrks_phi = Monitored::Collection("cbtrks_phi", *(wh_combtp.ptr()), &xAOD::TrackParticle_v1::phi);
 
-    auto monitorIt = Monitored::Group(m_monTool, muon_n, muon_pt, muon_eta, muon_phi, satrks_n, satrks_pt, satrks_eta, satrks_phi, cbtrks_n, cbtrks_pt, cbtrks_eta, cbtrks_phi);
+    if (!m_doSA) {
+      auto idtrks_n   = Monitored::Scalar<int>("idtrks_n", indetCandidateCollection->size());
+      auto idtrks_pt  = Monitored::Collection("idtrks_pt", *indetCandidateCollection, [](auto const& idtrk) {return idtrk->indetTrackParticle().pt()/1000.0;});
+      auto idtrks_eta = Monitored::Collection("idtrks_eta", *indetCandidateCollection, [](auto const& idtrk) {return idtrk->indetTrackParticle().eta();});
+      auto idtrks_phi = Monitored::Collection("idtrks_phi", *indetCandidateCollection, [](auto const& idtrk) {return idtrk->indetTrackParticle().phi();});
+      auto monitorIt = Monitored::Group(m_monTool, muon_n, muon_pt, muon_eta, muon_phi, satrks_n, satrks_pt, satrks_eta, satrks_phi, cbtrks_n, cbtrks_pt,
+					cbtrks_eta, cbtrks_phi, idtrks_n, idtrks_pt, idtrks_eta, idtrks_phi);
+    }
+    else
+      auto monitorIt = Monitored::Group(m_monTool, muon_n, muon_pt, muon_eta, muon_phi, satrks_n, satrks_pt, satrks_eta, satrks_phi, cbtrks_n, cbtrks_pt,
+                                      cbtrks_eta, cbtrks_phi);
   }
 
   return StatusCode::SUCCESS;

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    checkSG.py
 # @purpose: read a POOL file and dump the DataHeader's content
@@ -14,6 +14,8 @@
 # checkSG somedir/*/*.pool
 # @endcode
 #
+
+from __future__ import print_function
 
 __version__ = "$Revision: 1.1 $"
 __author__  = "Sebastien Binet <binet@cern.ch>"
@@ -57,26 +59,23 @@ if __name__ == "__main__":
     for fileName in fileNames:
         try:
             from AthenaCommon.KeyStore import loadKeyStoreFromPoolFile
-            print "## checking [%s]..."%fileName
+            print ("## checking [%s]..."%fileName)
             ks = loadKeyStoreFromPoolFile(keyStore=os.path.basename(fileName),
                                           pool_file=fileName,
                                           label='inputFile')
-            print "="*80
-            print "%40s%s%-40s" % ("Container type", " | ","StoreGate keys")
-            print "%40s%s%-40s" % ("-"*40, "-+-", "-"*(40-3))
+            print ("="*80)
+            print ("%40s%s%-40s" % ("Container type", " | ","StoreGate keys"))
+            print ("%40s%s%-40s" % ("-"*40, "-+-", "-"*(40-3)))
             for name,sgkeys in ks.inputFile.dict().items():
-                print "%40s%s%-40s" % (name, " | ", ', '.join(sgkeys))
-            print "="*80
+                print ("%40s%s%-40s" % (name, " | ", ', '.join(sgkeys)))
+            print ("="*80)
             if options.outFileName:
                 osp = os.path
                 outFileName = options.outFileName
                 outFileName = osp.expanduser(outFileName)
                 outFileName = osp.expandvars(outFileName)
-                print "## saving checkSG report into [%s]..." % outFileName
+                print ("## saving checkSG report into [%s]..." % outFileName)
                 if os.path.splitext(outFileName)[1] in ('.pkl', '.dat'):
-                    # we explicitely import 'bsddb' to try to always
-                    # get that particular backend for the shelve...
-                    import bsddb
                     import shelve
                     if os.path.exists(outFileName):
                         os.remove(outFileName)
@@ -85,23 +84,23 @@ if __name__ == "__main__":
                     db.close()
                 else:
                     ks.write(outFileName, label='inputFile')
-        except Exception, e:
-            print "## Caught exception [%s] !!" % str(e.__class__)
-            print "## What:",e
-            print sys.exc_info()[0]
-            print sys.exc_info()[1]
+        except Exception as e:
+            print ("## Caught exception [%s] !!" % str(e.__class__))
+            print ("## What:",e)
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
             sc = 1
             pass
 
         except :
-            print "## Caught something !! (don't know what)"
-            print sys.exc_info()[0]
-            print sys.exc_info()[1]
+            print ("## Caught something !! (don't know what)")
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
             sc = 10
             pass
         if len(fileNames) > 1:
-            print ""
+            print ("")
         pass # loop over fileNames
     
-    print "## Bye."
+    print ("## Bye.")
     sys.exit(sc)

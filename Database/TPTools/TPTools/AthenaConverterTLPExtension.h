@@ -57,7 +57,7 @@ public:
       @param key [in] StoreGet object key (in APR used to determine storage container placement)
       Retursn Token for the written object
   */
-  virtual const Token*	writeObject( const std::string& /*key*/ ) { return 0; }
+  virtual const Token*	writeObject( const std::string& /*key*/, const std::string& /*output*/ ) { return 0; }
 
   /** Read the extending object
       @param token [IN] Token of the object to read

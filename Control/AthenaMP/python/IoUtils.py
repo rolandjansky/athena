@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file AthenaMP.IoUtils
 # @purpose I/O utils 
@@ -10,6 +10,7 @@ __author__  = "Mous Tatarkhanov <tmmous@berkeley.edu>"
 
 from AthenaCommon.Logging import log as msg     #logging handle
 from GaudiMP.IoRegistry import IoRegistry
+import six
 _debug = msg.debug
 _info = msg.info
 
@@ -50,10 +51,10 @@ def update_io_registry(wkdir, mpid, iocomp_types=None):
     
     pfc = PoolFileCatalog()
 
-    ioreg_items = IoRegistry.instances.iteritems()
+    ioreg_items = six.iteritems (IoRegistry.instances)
     for iocomp,iodata in ioreg_items:
         #print "--iocomp,len(iodata)",iocomp, len(iodata)
-        io_items = iodata.iteritems()
+        io_items = six.iteritems(iodata)
         for ioname,ioval in io_items:
             # handle logical filenames...
             #ioname=pfc(ioname)
@@ -76,7 +77,7 @@ def update_io_registry(wkdir, mpid, iocomp_types=None):
                     os.symlink(src, dst)
                     msg.debug( "update_io_registry:<input> created symlink %s for" % dst)
             else:
-                raise ValueError, "unexpected iomode value: %r"%iomode
+                raise ValueError ("unexpected iomode value: %r"%iomode)
             ioreg[iocomp][ioname][1] = newname
             pass
         pass
@@ -86,6 +87,7 @@ def update_io_registry(wkdir, mpid, iocomp_types=None):
 def redirect_log(wkdir):
     """redirect stdout and stderr of forked worker to tmp wkdir"""
     import os, sys
+    import multiprocess as mp
     # define stdout and stderr names
     
     stdout = os.path.join(wkdir, 'stdout')
@@ -124,7 +126,7 @@ def reopen_fds(wkdir=""):
     _fds = IoRegistry.fds_dict
     _fds.create_symlinks(wkdir)
 
-    for k, v in _fds.iteritems():
+    for k, v in six.iteritems(_fds):
         fd = k; 
         (real_name, iomode, flags) = v
         if not os.path.isfile (real_name):
@@ -139,7 +141,7 @@ def reopen_fds(wkdir=""):
             try:
                 new_fd = os.open (_join(wkdir, os.path.basename(real_name)), flags)
                 os.lseek(new_fd, pos, os.SEEK_SET)
-            except Exception, err:         
+            except Exception as err:         
                 msg.warning("Exception caught handling OUTPUT file %s: %s" %  (real_name, err) )
                 msg.warning(" ...ignoring file FIXME!")
                 continue

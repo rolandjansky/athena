@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,11 +17,9 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -30,7 +28,7 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
@@ -49,13 +47,8 @@
 
 #include "StoreGate/ReadHandleKey.h"
 
-#include <TError.h>
 #include <TH1F.h>
-#include <TH2F.h>
-#include <TH1.h>
 #include <TH2.h>
-#include <TMath.h>
-#include <TF1.h>
 #include <inttypes.h> 
 #include <sstream>
 #include <string.h>
@@ -64,7 +57,6 @@
 
 #include "TROOT.h"
  
-class TFile;
 template <class ConcreteAlgorithm> class AlgFactory;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -152,9 +144,7 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
       "MuonDetectorManager", 
       "Key of input MuonDetectorManager condition data"};    
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-  
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   
   //Declare Properties  
   SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc{this,"RpcPrepDataContainer","RPC_Measurements","RPC PRDs"};

@@ -43,6 +43,7 @@
 #include "TH1I.h"
 #include "TH1F.h"
 #include "TH1D.h"
+#include "TEfficiency.h"
 #include "TH2S.h"
 #include "TProfile.h"
 

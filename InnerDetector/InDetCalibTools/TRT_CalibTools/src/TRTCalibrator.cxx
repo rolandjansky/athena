@@ -33,7 +33,7 @@ PURPOSE: Tool for calibrating the TRT
 #include "TRT_ConditionsData/DinesRtRelation.h"
 #include "TRT_ConditionsData/BinnedRtRelation.h"
 #include "CommissionEvent/ComTime.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include <TNtuple.h>
 #include <TFile.h>

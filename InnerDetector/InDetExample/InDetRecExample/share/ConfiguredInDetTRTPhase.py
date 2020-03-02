@@ -55,7 +55,7 @@ class ConfiguredInDetTRTPhase:
                                                                            
             ToolSvc += InDetCosmicsEventPhaseTool
             if(InDetFlags.doPrintConfigurables()):
-                print InDetCosmicsEventPhaseTool
+                printfunc (InDetCosmicsEventPhaseTool)
             
             from InDetCosmicsEventPhase.InDetCosmicsEventPhaseConf import InDet__InDetFixedWindowTrackTimeTool
             InDetFixedWindowTrackTimeTool = InDet__InDetFixedWindowTrackTimeTool(name              = "InDetFixedWindowTrackTimeTool",
@@ -68,7 +68,7 @@ class ConfiguredInDetTRTPhase:
                                                                            
             ToolSvc += InDetFixedWindowTrackTimeTool
             if(InDetFlags.doPrintConfigurables()):
-                print InDetFixedWindowTrackTimeTool
+                printfunc (InDetFixedWindowTrackTimeTool)
             
             
             from InDetCosmicsEventPhase.InDetCosmicsEventPhaseConf import InDet__InDetSlidingWindowTrackTimeTool
@@ -82,7 +82,7 @@ class ConfiguredInDetTRTPhase:
                                                                            
             ToolSvc += InDetSlidingWindowTrackTimeTool
             if(InDetFlags.doPrintConfigurables()):
-                print InDetSlidingWindowTrackTimeTool
+                printfunc (InDetSlidingWindowTrackTimeTool)
 
             #
             # --- load algorithm
@@ -99,5 +99,5 @@ class ConfiguredInDetTRTPhase:
                 InDetCosmicsEventPhase.EventPhaseTool=InDetCosmicsEventPhaseTool
                 topSequence += InDetCosmicsEventPhase  # indented here: do not calculate the phase in collisions 
             if (InDetFlags.doPrintConfigurables()):
-                print InDetCosmicsEventPhase
+                printfunc (InDetCosmicsEventPhase)
     

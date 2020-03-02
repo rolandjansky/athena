@@ -1,0 +1,12 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace InDetDD {
+	
+inline const HepGeom::Transform3D & TRT_BaseElement::defTransform() const
+{
+  return getMaterialGeom()->getDefAbsoluteTransform();
+}
+
+}

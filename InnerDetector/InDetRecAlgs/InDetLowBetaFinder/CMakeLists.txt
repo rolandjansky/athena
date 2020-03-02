@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRecEvent/InDetLowBetaInfo
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-                          InnerDetector/InDetRecTools/TRT_ToT_Tools
+                          InnerDetector/InDetRecTools/TRT_ElectronPidTools
                           Tracking/TrkEvent/TrkParameters
                           Event/xAOD/xAODTracking
                           Tracking/TrkEvent/TrkRIO_OnTrack

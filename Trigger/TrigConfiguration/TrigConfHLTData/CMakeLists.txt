@@ -8,7 +8,8 @@ atlas_subdir( TrigConfHLTData )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-   Trigger/TrigConfiguration/TrigConfL1Data )
+   Trigger/TrigConfiguration/TrigConfL1Data
+   Trigger/TrigSteer/TrigCompositeUtils )
 
 # External dependencies:
 find_package( Boost COMPONENTS system thread )
@@ -18,10 +19,6 @@ atlas_add_library( TrigConfHLTData
    TrigConfHLTData/*.h Root/*.cxx
    PUBLIC_HEADERS TrigConfHLTData
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfL1Data )
-
-atlas_add_executable( trigconf_string2hash
-   util/trigconf_string2hash.cxx
-   LINK_LIBRARIES TrigConfHLTData )
+   LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfL1Data TrigCompositeUtilsLib )
 
 atlas_install_python_modules( python/*.py )

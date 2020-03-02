@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
    */
 
 /********************************************************************
@@ -41,6 +41,7 @@ and eventually conversions.
 
 #include "egammaUtils/egammaDuplicateRemoval.h"
 
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
@@ -61,7 +62,7 @@ and eventually conversions.
 egammaBuilder::egammaBuilder(const std::string& name, 
         ISvcLocator* pSvcLocator): 
     AthAlgorithm(name, pSvcLocator),
-    m_timingProfile(0)
+    m_timingProfile(nullptr)
 {
 }
 
@@ -101,6 +102,9 @@ StatusCode egammaBuilder::initialize()
     // retrieve ambiguity tool
     ATH_CHECK( m_ambiguityTool.retrieve() );
 
+    //retrieve shower builder
+    ATH_CHECK( m_ShowerTool.retrieve() );
+    
     ATH_MSG_INFO("Retrieving " << m_egammaTools.size() << " tools for egamma objects");
     ATH_CHECK( m_egammaTools.retrieve() );
 
@@ -185,7 +189,7 @@ StatusCode egammaBuilder::execute(){
     ATH_MSG_DEBUG("Executing egammaBuilder");
 
     // This we can drop once the Alg becomes re-entrant
-    const EventContext ctx = Gaudi::Hive::currentContext();
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
     // Chrono name for each Tool
     std::string chronoName;
@@ -311,11 +315,28 @@ StatusCode egammaBuilder::execute(){
     if (m_doTopoSeededPhotons) {
         CHECK( addTopoSeededPhotons(photonContainer.ptr(), clusters.ptr()) );
     }
-
+ 
+    const CaloDetDescrManager* calodetdescrmgr = nullptr;                                                                 
+    ATH_CHECK( detStore()->retrieve(calodetdescrmgr,"CaloMgr") );   
     // Call tools
+
+    /*
+     * Shower Shapes
+     */
+    if (electronContainer.ptr()) {
+      for (xAOD::Electron* electron : *electronContainer) {
+        ATH_CHECK(m_ShowerTool->execute(ctx, *calodetdescrmgr, electron));
+      }
+    }
+    if (photonContainer.ptr()) {
+      for (xAOD::Photon* photon : *photonContainer) {
+        ATH_CHECK(m_ShowerTool->execute(ctx, *calodetdescrmgr, photon));
+      }
+    }
+
     // First the final cluster/calibration
     ATH_MSG_DEBUG("Executing : " << m_clusterTool);  
-    if ( m_clusterTool->contExecute(ctx, electronContainer.ptr(), photonContainer.ptr()).isFailure() ){
+    if ( m_clusterTool->contExecute(ctx, *calodetdescrmgr ,electronContainer.ptr(), photonContainer.ptr()).isFailure() ){
         ATH_MSG_ERROR("Problem executing the " << m_clusterTool<<" tool");
         return StatusCode::FAILURE;
     }
@@ -328,12 +349,12 @@ StatusCode egammaBuilder::execute(){
 
     for (auto& tool : m_electronTools)
     {
-        CHECK( CallTool(ctx, tool, electronContainer.ptr(), 0) );
+        CHECK( CallTool(ctx, tool, electronContainer.ptr(), nullptr) );
     }
 
     for (auto& tool : m_photonTools)
     {
-        CHECK( CallTool(ctx, tool, 0, photonContainer.ptr()) );
+        CHECK( CallTool(ctx, tool, nullptr, photonContainer.ptr()) );
     }
     ATH_MSG_DEBUG("execute completed successfully");
 
@@ -456,7 +477,8 @@ bool egammaBuilder::getPhoton(const egammaRec* egRec,
     photon->setVertexLinks( vertexLinks );
 
     // Transfer deltaEta/Phi info
-    float deltaEta = egRec->deltaEtaVtx(), deltaPhi = egRec->deltaPhiVtx();
+    float deltaEta = egRec->deltaEtaVtx();
+    float deltaPhi = egRec->deltaPhiVtx();
     if (!photon->setVertexCaloMatchValue( deltaEta,
                 xAOD::EgammaParameters::convMatchDeltaEta1) )
     {
@@ -532,12 +554,11 @@ bool egammaBuilder::clustersOverlap(const xAOD::CaloCluster *refCluster,
         const xAOD::CaloClusterContainer *clusters)
 {
     if (!refCluster || !clusters) return false;
-    CaloPhiRange phiHelper;
 
     for (const auto cluster: *clusters)
     {
         if (fabs(refCluster->eta() - cluster->eta()) < m_minDeltaEta &&
-                fabs(phiHelper.diff(refCluster->phi(), cluster->phi())) < m_minDeltaPhi)
+                fabs(CaloPhiRange::diff(refCluster->phi(), cluster->phi())) < m_minDeltaPhi)
             return true;
     }
     return false;

@@ -6,7 +6,7 @@ from ..Base.L1MenuFlags import L1MenuFlags
 from ..Base.MenuConfObj import TopoMenuDef
 
 
-def defineMenu():
+def defineInputsMenu():
     
     ctpinBoards = odict() # Ctpin/Slot9 (CTPCAL, NIM1, NIM2)
     topoBoards = odict()  # Topo1, Topo2, Topo3
@@ -16,9 +16,9 @@ def defineMenu():
     #-----------------------------------
     # SLOT 9 / CON 1 (CTPCal, NIM1,NIM2)
     #-----------------------------------
-    ctpinBoards["Ctpin"] = odict()
-    ctpinBoards["Ctpin"]["inputConnectors"] = []
-    ctpinBoards["Ctpin"]["inputConnectors"] += [
+    ctpinBoards["Ctpin9"] = odict()
+    ctpinBoards["Ctpin9"]["connectors"] = []
+    ctpinBoards["Ctpin9"]["connectors"] += [
         {
             "name" : "CTPCAL",
             "format" : "multiplicity",
@@ -263,11 +263,14 @@ def defineMenu():
     muctpiBoard["MuCTPi"]["connectors"].append({
         "name" : "MuCTPiOpt0",
         "format" : "multiplicity",
-        "nbitsDefault" : 2,
+        "nbitsDefault" : 3,
         "type" : "optical",
         "legacy" : False,
         "thresholds" : [
-            'MU4', 'MU6', 'MU6M', 'MU10', 'MU11', 'MU15', 'MU20', 'MU21', 'MU20BA', 'MU20NF', 'MU22', 'MU24', 'MU26', 
+            # we are still reflecting the old muon system, until the muon simulation is implemented.
+            # the old one starts at bit 1 and has those 6 thresholds
+            (None,1),
+            'MU4', 'MU6', 'MU10', 'MU11', 'MU15', 'MU20',
         ]
 
     })

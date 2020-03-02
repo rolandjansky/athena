@@ -6,7 +6,7 @@
 
 // DD
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
 // Athena
 #include "GeneratorObjects/HepMcParticleLink.h"

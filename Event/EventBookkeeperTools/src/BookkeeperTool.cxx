@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for class BookkeeperTool
@@ -18,6 +18,8 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 
+#include "CutFlowSvc.h"
+
 
 BookkeeperTool::BookkeeperTool(const std::string& name)
   : asg::AsgMetadataTool(name),
@@ -27,11 +29,10 @@ BookkeeperTool::BookkeeperTool(const std::string& name)
     "The default name of the xAOD::CutBookkeeperContainer for output files");
   declareProperty("InputCollName", m_inputCollName = "CutBookkeepers",
     "The default name of the xAOD::CutBookkeeperContainer for input files");
-  declareProperty("CutFlowCollName", m_cutflowCollName = "CutBookkeepersFile",
-    "The default name of the xAOD::CutBookkeeperContainer for CutFlowSvc");
-#ifdef ASGTOOL_ATHENA
+
+#ifndef XAOD_STANDALONE
   declareInterface< ::IMetaDataTool >( this );
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
 }
 
 
@@ -49,7 +50,10 @@ BookkeeperTool::initialize()
 
   ATH_MSG_DEBUG("InputCollName = " << m_inputCollName);
   ATH_MSG_DEBUG("OutputCollName = " << m_outputCollName);
-  ATH_MSG_DEBUG("CutFlowCollName = " << m_cutflowCollName);
+
+  ATH_CHECK(m_cutFlowSvc.retrieve());
+  // Access "private" CutFlowSvc methods
+  m_cutFlowSvcPrivate = dynamic_cast<CutFlowSvc *>(&*(m_cutFlowSvc));
 
   return StatusCode::SUCCESS;
 }
@@ -224,18 +228,12 @@ StatusCode BookkeeperTool::addCutFlow()
   }
 
   // Get the bookkeeper from the current processing
-  const xAOD::CutBookkeeperContainer* fileCompleteBook(NULL);
-  if( outputMetaStore()->contains<xAOD::CutBookkeeperContainer>(m_cutflowCollName) ) {
-    if( !(outputMetaStore()->retrieve( fileCompleteBook, m_cutflowCollName) ).isSuccess() ) {
-      ATH_MSG_WARNING( "Could not get CutFlowSvc CutBookkeepers from output MetaDataStore" );
-    }
-    else {
-      // update the complete output with the complete input
-      ATH_CHECK(this->updateContainer(completeBook,fileCompleteBook));
-    }
-  }
-  else {
-    ATH_MSG_INFO("No cutflow container " << m_cutflowCollName);
+  const xAOD::CutBookkeeperContainer* cbkCont = m_cutFlowSvcPrivate->getCutBookkeepers();
+  if (cbkCont != nullptr) {
+    ATH_CHECK(this->updateContainer(completeBook, cbkCont));
+  } else {
+    ATH_MSG_ERROR("No cutflow container in the CutFlowSvc");
+    return StatusCode::FAILURE;
   }
 
   return StatusCode::SUCCESS;
@@ -282,11 +280,6 @@ resolveLink (const xAOD::CutBookkeeper* old,
 
 } // anonymous namespace
 
-//
-// (Merge) method required by base clase GenericMetdataTool
-//   Note that the implementation of the IMetaDataTool interface 
-//   is done in GenericMetadataTool and configured by properties 
-//   of that class
 StatusCode
 BookkeeperTool::updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
                              const xAOD::CutBookkeeperContainer* otherCont ) 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##===================================================================================================
 ## Name:        inputFilePeeker.py
@@ -58,7 +58,7 @@ def _setup():
             continue
 
         ## Making sure that stream_names is always defined
-        if not inputFileSummary.has_key('stream_names'):
+        if 'stream_names' not in inputFileSummary:
             msg.warning("AthFile didn't find key 'stream_names'. Recovering it but that's unexpected.")
             inputFileSummary['stream_names']=[]
         

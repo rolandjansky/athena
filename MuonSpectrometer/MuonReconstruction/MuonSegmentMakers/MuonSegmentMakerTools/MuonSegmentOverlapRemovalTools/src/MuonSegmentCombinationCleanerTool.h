@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSEGMENTCOMBINATIONCLEANERTOOL_H
 #define MUONSEGMENTCOMBINATIONCLEANERTOOL_H
-
 
 #include <string>
 #include <map>
@@ -19,13 +18,13 @@
 #include "MuonSegmentMakerUtils/MuonSegmentCombiSummary.h"
 #include "MuonSegmentMakerUtils/MuonSegmentCombiOverlapSummary.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 
 namespace Muon {
 
   class MuonSegment;
-  class MuonEDMPrinterTool;
-  class MuonIdHelperTool;
-  class IMuonSegmentOverlapRemovalTool;
 
   class MuonSegmentCombinationCleanerTool : virtual public IMuonSegmentCombinationCleanerTool, public AthAlgTool
   {
@@ -35,13 +34,10 @@ namespace Muon {
     MuonSegmentCombinationCleanerTool(const std::string&, const std::string&, const IInterface*);
 
     /** destructor */
-    virtual ~MuonSegmentCombinationCleanerTool();
+    virtual ~MuonSegmentCombinationCleanerTool() {};
 
     /** initializes private members */
     virtual StatusCode initialize();
-
-    /** deletes private members */
-    virtual StatusCode finalize();
 
     /** clean segment combination collections */
     std::unique_ptr<MuonSegmentCombinationCollection> clean( const MuonSegmentCombinationCollection& combiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap );
@@ -71,12 +67,11 @@ namespace Muon {
     std::string print( MuonSegmentCombiSummary& summary ) const;
     std::string print( MuonSegmentCombiOverlapSummary& summary ) const;
 
-    /** ToolHandle for EDM printing of segments */
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
     ServiceHandle<Muon::IMuonEDMHelperSvc>  m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
-    ToolHandle<Muon::MuonIdHelperTool>   m_idHelperTool;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<IMuonSegmentOverlapRemovalTool> m_overlapRemovalTool;    
 
     /** If set to true, all combinaties will be merged into one big one */ 

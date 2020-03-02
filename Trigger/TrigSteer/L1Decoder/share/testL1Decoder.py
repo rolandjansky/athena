@@ -1,4 +1,8 @@
-include("TrigUpgradeTest/testHLT_MT.py")
+from __future__ import print_function
+
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -8,7 +12,7 @@ topSequence = AlgSequence()
 topSequence.L1Decoder.ctpUnpacker.OutputLevel=DEBUG
 for unpack in topSequence.L1Decoder.roiUnpackers:
     unpack.OutputLevel=DEBUG
-    print unpack
+    print (unpack)
     
 
 # from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
@@ -23,7 +27,7 @@ for unpack in topSequence.L1Decoder.roiUnpackers:
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
 
-print topSequence.L1Decoder
+print (topSequence.L1Decoder)
 
 #from TrigUpgradeTest.jetDefs import jetRecoSequence
 #(recoSequence, sequenceOut) = jetRecoSequence("FSRoI") 

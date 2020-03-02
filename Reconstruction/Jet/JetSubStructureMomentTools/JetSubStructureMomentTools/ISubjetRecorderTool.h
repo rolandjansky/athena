@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef jetsubstructuremomenttools_isubjetrecordertool_header
 #define jetsubstructuremomenttools_isubjetrecordertool_header
 
 #include "AsgTools/AsgTool.h"
-#include <vector>
 #include "xAODJet/Jet.h"
 
 namespace fastjet {

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################
 ##  AugmentedStreams & MultipleStreamManager classes  ##
@@ -415,7 +415,8 @@ class AugmentedRootStream( AugmentedStreamBase ):
                 pass
             except ImportError:
                 print(self.Name,": INFO didn't find AnalysisTools.AnalysisToolsConf in release.")
-                pass
+                import traceback
+                print(traceback.format_exc())
             pass
         
         # Make sure that THistSvc exists.

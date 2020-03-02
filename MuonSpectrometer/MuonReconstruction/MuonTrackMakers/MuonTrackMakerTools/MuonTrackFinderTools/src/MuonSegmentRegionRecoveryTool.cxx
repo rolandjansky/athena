@@ -61,8 +61,8 @@
 
 namespace Muon {
 
-MuonSegmentRegionRecoveryTool::MuonSegmentRegionRecoveryTool(const std::string& ty, const std::string& na, const IInterface* pa)
-  : AthAlgTool(ty, na, pa)
+MuonSegmentRegionRecoveryTool::MuonSegmentRegionRecoveryTool(const std::string& ty, const std::string& na, const IInterface* pa):
+  AthAlgTool(ty, na, pa)
 {
   declareInterface<IMuonHoleRecoveryTool>(this);
 }
@@ -89,6 +89,7 @@ StatusCode MuonSegmentRegionRecoveryTool::initialize()
   ATH_CHECK( m_idHelperTool.retrieve() );
   ATH_CHECK( m_hitSummaryTool.retrieve() );
   ATH_CHECK( m_regionSelector.retrieve() );
+  ATH_CHECK( m_trackSummaryTool.retrieve() );
 
   if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
 
@@ -788,6 +789,10 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
 
     trackStateOnSurfaces->insert(trackStateOnSurfaces->begin(), toBeSorted.begin(), toBeSorted.end());
     Trk::Track* trackWithHoles = new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : 0 );
+    // generate a track summary for this track
+    if (m_trackSummaryTool.isEnabled()) {
+      m_trackSummaryTool->computeAndReplaceTrackSummary(*trackWithHoles, nullptr, false);
+    }
     ATH_MSG_DEBUG("Track with holes " << m_printer->print(*trackWithHoles) << std::endl << m_printer->printStations(*trackWithHoles) );
     return trackWithHoles;
   }

@@ -35,8 +35,8 @@
 
 #include "GeoModelKernel/GeoDefinitions.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_ForwardModuleSideDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiCommonItems.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"

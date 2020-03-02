@@ -51,8 +51,8 @@ namespace Trk {
         bool inside(const Amg::Vector3D& gp, double tol=0.) const;
 
         /** Acces the subtracted volume */
-        Volume* volume() const;
-
+        const Volume* volume() const;
+        Volume* volume();
         /** Output Method for MsgStream, to be overloaded by child classes */
         MsgStream& dump(MsgStream& sl) const ;
         
@@ -67,8 +67,12 @@ namespace Trk {
    inline bool VolumeExcluder::inside(const Amg::Vector3D& gp, double tol) const
     {  return( m_vol->inside(gp,tol) ); }
 
-   inline Volume* VolumeExcluder::volume() const
+   inline const Volume* VolumeExcluder::volume() const
     {  return( m_vol ); }
+
+   inline Volume* VolumeExcluder::volume()
+    {  return( m_vol ); }
+
 
 } // end of namespace Trk
 

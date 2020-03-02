@@ -27,11 +27,11 @@ from CaloRec.CaloRecFlags import jobproperties
 #
 pdr.flag_domain('CaloExtensionBuilder')
 if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   or rec.readESD()
-    try:
-        include( "TrackToCalo/CaloExtensionBuilderAlg_jobOptions.py" )
-        CaloExtensionBuilder("TightPrimary", 500.) #Arguments are cutLevel and minPt for track selection
+    try:        
+        from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
+        CaloExtensionBuilder("NoCut", 500.) #Arguments are cutLevel and minPt for track selection
     except Exception:
-        pass
+        treatException("Cannot include CaloExtensionBuilder !")
 
 #
 # functionality : electron photon identification
@@ -57,7 +57,7 @@ if rec.doMuonCombined() and DetFlags.Muon_on() and DetFlags.ID_on():
 #
 #  functionality : add cells crossed by high pt ID tracks 
 #
-if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on():
+if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on() and DetFlags.Muon_on() and DetFlags.Calo_on():
     from AthenaCommon.CfgGetter import getPublicTool
     getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool")
     from TrkExTools.AtlasExtrapolator import AtlasExtrapolator

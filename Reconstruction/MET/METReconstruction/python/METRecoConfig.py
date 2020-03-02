@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 from AthenaCommon import CfgMgr
+import six
 
 #################################################################################
 # Define some default values
@@ -196,24 +198,24 @@ class METConfig:
         return 'METMap_'+self.suffix
     #
     def setupBuilders(self,buildconfigs):
-        print prefix, 'Setting up builders for MET config '+self.suffix
+        print (prefix, 'Setting up builders for MET config '+self.suffix)
         for config in buildconfigs:
             if config.objType in self.builders:
-                print prefix, 'Config '+self.suffix+' already contains a builder of type '+config.objType
+                print (prefix, 'Config '+self.suffix+' already contains a builder of type '+config.objType)
                 raise LookupError
             else:
                 builder = getBuilder(config,self.suffix,self.doTracks,self.doCells,
                                      self.doTriggerMET,self.doOriginCorrClus)
                 self.builders[config.objType] = builder
                 self.buildlist.append(builder)
-                print prefix, '  Added '+config.objType+' tool named '+builder.name()
+                print (prefix, '  Added '+config.objType+' tool named '+builder.name())
     #
     def setupRefiners(self,refconfigs):
-        print prefix, 'Setting up refiners for MET config '+self.suffix
+        print (prefix, 'Setting up refiners for MET config '+self.suffix)
         for config in refconfigs:
             # need to enforce this?
             if config.type in self.refiners:
-                print 'Config '+self.suffix+' already contains a refiner of type '+config.type
+                print ('Config '+self.suffix+' already contains a refiner of type '+config.type)
                 raise LookupError
             else:
                 refiner = getRefiner(config=config,suffix=self.suffix,
@@ -221,25 +223,25 @@ class METConfig:
                                      trkisotool=self.trkisotool,caloisotool=self.caloisotool)
                 self.refiners[config.type] = refiner
                 self.reflist.append(refiner)
-                print prefix, '  Added '+config.type+' tool named '+refiner.name()
+                print (prefix, '  Added '+config.type+' tool named '+refiner.name())
     #
     def setupRegions(self,buildconfigs):
-        print prefix, 'Setting up regions for MET config '+self.suffix
+        print (prefix, 'Setting up regions for MET config '+self.suffix)
         for config in buildconfigs:
             if config.objType in self.regions:
-                print prefix, 'Config '+self.suffix+' already contains a region tool of type '+config.objType
+                print (prefix, 'Config '+self.suffix+' already contains a region tool of type '+config.objType)
                 raise LookupError
             else:
                 regions = getRegions(config,self.suffix)
                 self.regions[config.objType] = regions
                 self.reglist.append(regions)
-                print prefix, '  Added '+config.objType+' region tool named '+regions.name()
+                print (prefix, '  Added '+config.objType+' region tool named '+regions.name())
     #
     def __init__(self,suffix,buildconfigs=[],refconfigs=[],
                  doTracks=False,doSum=False,doRegions=False,
                  doCells=False,doTriggerMET=True,duplicateWarning=True,
                  doOriginCorrClus=False):
-        print prefix, 'Creating MET config \''+suffix+'\''
+        print (prefix, 'Creating MET config \''+suffix+'\'')
         self.suffix = suffix
         self.doSum = doSum
         self.doTracks = doTracks
@@ -325,11 +327,11 @@ def getMETRecoAlg(algName='METReconstruction',configs={},tools=[]):
 
     from METReconstruction.METRecoFlags import metFlags
     if configs=={} and tools==[]:
-        print prefix, 'Taking configurations from METRecoFlags'
+        print (prefix, 'Taking configurations from METRecoFlags')
         configs = metFlags.METConfigs()
 
-    for key,conf in configs.iteritems():
-        print prefix, 'Generate METRecoTool for MET_'+key
+    for key,conf in six.iteritems(configs):
+        print (prefix, 'Generate METRecoTool for MET_'+key)
         recotool = getMETRecoTool(conf)
         recoTools.append(recotool)
         metFlags.METRecoTools()[key] = recotool
@@ -339,7 +341,7 @@ def getMETRecoAlg(algName='METReconstruction',configs={},tools=[]):
 
     from AthenaCommon.AppMgr import ToolSvc
     for tool in recoTools:
-        print prefix, 'Added METRecoTool \''+tool.name()+'\' to alg '+algName
+        print (prefix, 'Added METRecoTool \''+tool.name()+'\' to alg '+algName)
 
     recoAlg = CfgMgr.met__METRecoAlg(name=algName,
                                      RecoTools=recoTools)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONALIGNMENTDATA_CSCLINEPARCONTAINER_H
@@ -13,15 +13,12 @@ class CscInternalAlignmentParContainer : public DataVector<CscInternalAlignmentP
 {
  public:
   CscInternalAlignmentParContainer();
-  ~CscInternalAlignmentParContainer();
+  ~CscInternalAlignmentParContainer()=default;
 
 };
 
 inline CscInternalAlignmentParContainer::CscInternalAlignmentParContainer():
   DataVector<CscInternalAlignmentPar>()
-{ } 
-
-inline CscInternalAlignmentParContainer::~CscInternalAlignmentParContainer()
 { } 
 
 CLASS_DEF(CscInternalAlignmentParContainer, 1324994858, 1)

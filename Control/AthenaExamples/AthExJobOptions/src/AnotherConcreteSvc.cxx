@@ -15,7 +15,7 @@
 #include "GaudiKernel/Property.h"
 
 // AthExJobOptions includes
-#include "AthExJobOptions/AnotherConcreteSvc.h"
+#include "AnotherConcreteSvc.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 

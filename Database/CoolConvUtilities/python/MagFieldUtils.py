@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # MagFieldUtils.py
 # Routines to read magnetic field information from COOL
 # Richard Hawkings 25/9/08
@@ -138,7 +138,7 @@ def getTimeForLB(run,LB,readOracle=False):
     "Return the time a specific run/LB, given the folder, or 0 for bad/no data"
     runiov=(run << 32)+LB
 
-    if _timeForLB.has_key(runiov):
+    if runiov in _timeForLB:
         print ("getTimeForLB: Returning cached time for run %i, LumiBlock %i " % (run,LB))
         return _timeForLB[runiov]
 

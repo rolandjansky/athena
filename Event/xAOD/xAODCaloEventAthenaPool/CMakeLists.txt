@@ -38,10 +38,10 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( XAODCALOEVENTATHENAPOOL_REFERENCE_TAG
        xAODCaloEventAthenaPoolReference-01-00-00 )
-  run_tpcnv_test( xAODCaloEventAthenaPool_20.1.7.2   AOD-20.1.7.2-full
+  run_tpcnv_legacy_test( xAODCaloEventAthenaPool_20.1.7.2   AOD-20.1.7.2-full
                    REQUIRED_LIBRARIES xAODCaloEventAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODCALOEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_test( xAODCaloEventAthenaPool_21.0.79   AOD-21.0.79-full
+  run_tpcnv_legacy_test( xAODCaloEventAthenaPool_21.0.79   AOD-21.0.79-full
                    REQUIRED_LIBRARIES xAODCaloEventAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODCALOEVENTATHENAPOOL_REFERENCE_TAG} )
 else()

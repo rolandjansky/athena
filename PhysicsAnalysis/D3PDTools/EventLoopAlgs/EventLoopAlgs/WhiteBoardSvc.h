@@ -33,7 +33,7 @@ namespace EL
   /// requires: worker != 0
   /// requires: !outputStream.empty()
   /// postcondition: result != 0
-  WhiteBoardSvc *getWhiteBoardSvc (Worker *worker);
+  WhiteBoardSvc *getWhiteBoardSvc (IWorker *worker);
 
 
 

@@ -10,7 +10,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 ex = ExecStep.ExecStep()
 ex.type = 'athena'
-ex.job_options = 'TrigUpgradeTest/full_menu.py'
+ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.args = '-c "isOnline=True;doWriteBS=False;doWriteRDOTrigger=True;"'
 

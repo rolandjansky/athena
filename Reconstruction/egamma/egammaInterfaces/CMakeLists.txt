@@ -11,20 +11,22 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEgamma
                           Event/xAOD/xAODTracking
                           GaudiKernel
-			  Tracking/TrkEvent/TrkTrack
-		      	  Tracking/TrkEvent/TrkEventPrimitives
+			              Tracking/TrkEvent/TrkTrack
+		      	          Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkNeutralParameters
                           Tracking/TrkEvent/TrkParameters 
-			  Tracking/TrkEvent/TrkCaloExtension
-			  Reconstruction/egamma/egammaRecEvent)
+			              Tracking/TrkEvent/TrkCaloExtension
+			              Reconstruction/egamma/egammaRecEvent)
+
+# Component(s) in the package:
+atlas_add_library( egammaInterfacesLib
+                   egammaInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS egammaInterfaces
+                   LINK_LIBRARIES GaudiKernel TrkCaloExtension TrkEventPrimitives TrkNeutralParameters TrkParameters
+                   TrkTrack egammaRecEvent xAODCaloEvent xAODEgamma xAODTracking)
 
 atlas_add_dictionary( egammaInterfacesDict
                       egammaInterfaces/egammaInterfacesDict.h
                       egammaInterfaces/selection.xml
-                      INCLUDE_DIRS 
-		      LINK_LIBRARIES  xAODCaloEvent xAODEgamma xAODTracking GaudiKernel TrkTrack 
-		      TrkEventPrimitives TrkNeutralParameters TrkParameters TrkCaloExtension egammaRecEvent)
-
-# Install files from the package:
-atlas_install_headers( egammaInterfaces )
-
+                      LINK_LIBRARIES egammaInterfacesLib )

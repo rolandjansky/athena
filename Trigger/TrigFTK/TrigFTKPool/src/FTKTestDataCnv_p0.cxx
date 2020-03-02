@@ -1,24 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigFTKPool/FTKTestData.h"
-#undef private
-#undef protected
-
 #include "FTKTestDataCnv_p0.h"
 
 void FTKTestDataCnv_p0::persToTrans(const FTKTestData_p0 *persObj, 
-				    FTKTestData *transObj, MsgStream&)
+				    FTKTestData *transObj, MsgStream&) const
 {
-  transObj->m_ival = persObj->m_ival;
+  transObj->setValue (persObj->m_ival);
 }
 
 
 void FTKTestDataCnv_p0::transToPers(const FTKTestData *transObj,
-				    FTKTestData_p0 *persObj, MsgStream&)
+				    FTKTestData_p0 *persObj, MsgStream&) const
 {
-   persObj->m_ival = transObj->m_ival;
+  persObj->m_ival = transObj->getValue();
 }

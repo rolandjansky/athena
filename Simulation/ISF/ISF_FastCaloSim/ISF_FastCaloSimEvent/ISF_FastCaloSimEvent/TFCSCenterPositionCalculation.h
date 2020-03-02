@@ -23,8 +23,4 @@ private:
   ClassDefOverride(TFCSCenterPositionCalculation,1)  //TFCSCenterPositionCalculation
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSCenterPositionCalculation+;
-#endif
-
 #endif

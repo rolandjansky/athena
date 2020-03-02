@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -31,10 +31,10 @@
 //=============================================================================
 // Standard constructor
 //=============================================================================
-AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
+AsgElectronIsEMSelector::AsgElectronIsEMSelector(const std::string& myname) :
   AsgTool(myname),
   m_configFile(""),
-  m_rootTool(0)
+  m_rootTool(nullptr)
 {
 
   m_rootTool = new Root::TElectronIsEMSelector(myname.c_str());
@@ -190,7 +190,7 @@ StatusCode AsgElectronIsEMSelector::initialize()
   if(!m_configFile.empty()) {    
     //find the file and read it in
     std::string filename = PathResolverFindCalibFile( m_configFile);
-    if(filename=="")
+    if(filename.empty())
       { 
 	ATH_MSG_ERROR("Could not locate " << m_configFile );
 	sc = StatusCode::FAILURE;
@@ -362,7 +362,7 @@ StatusCode AsgElectronIsEMSelector::execute(const EventContext& ctx, const xAOD:
   // initialisation
   isEM = 0; 
   // protection against null pointer
-  if (eg==0) {
+  if (eg==nullptr) {
     // if object is bad then use the bit for "bad eta"
     ATH_MSG_ERROR("exiting because el is NULL");
     isEM = (0x1 << egammaPID::ClusterEtaRange_Electron); 
@@ -370,7 +370,7 @@ StatusCode AsgElectronIsEMSelector::execute(const EventContext& ctx, const xAOD:
   }
   // retrieve associated cluster
   const xAOD::CaloCluster* cluster  = eg->caloCluster(); 
-  if ( cluster == 0 ) {
+  if ( cluster == nullptr ) {
     // if object is bad then use the bit for "bad eta"
     ATH_MSG_ERROR("exiting because cluster is NULL");
     isEM = (0x1 << egammaPID::ClusterEtaRange_Electron); 
@@ -385,7 +385,7 @@ StatusCode AsgElectronIsEMSelector::execute(const EventContext& ctx, const xAOD:
   double et = ( cosh(eta2) != 0.) ? energy/cosh(eta2) : 0.; ;
 
   //see if we have an electron, with track, for eta 
-  const xAOD::Electron* el =0;
+  const xAOD::Electron* el =nullptr;
   if(eg->type()==xAOD::Type::Electron) {
     el =static_cast<const xAOD::Electron*> (eg);
   }
@@ -419,8 +419,20 @@ unsigned int AsgElectronIsEMSelector::calocuts_electrons(const xAOD::Egamma* eg,
   // iflag: the starting isEM
   //
 
-  float Reta(0), Rphi(0), Rhad1(0), Rhad(0), e277(0), weta1c(0), weta2c(0), 
-    f1(0), emax2(0), Eratio(0), DeltaE(0), wtot(0), fracm(0), f3(0);
+  float Reta(0);
+  float Rphi(0);
+  float Rhad1(0);
+  float Rhad(0);
+  float e277(0);
+  float weta1c(0);
+  float weta2c(0);
+  float f1(0);
+  float emax2(0);
+  float Eratio(0);
+  float DeltaE(0);
+  float wtot(0);
+  float fracm(0);
+  float f3(0);
 
   bool allFound = true;
   // Reta
@@ -502,7 +514,7 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 
   //ATH_MSG_DEBUG("CaloCutsOnly is false");
   // protection against bad pointers
-  if ( t == 0 ) {
+  if ( t == nullptr ) {
     ATH_MSG_ERROR("Something is bad with the variables as passed");
     // if object is bad then use the bit for "bad eta"
     iflag = (0x1 << egammaPID::ClusterEtaRange_Electron); 
@@ -534,7 +546,8 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   const float trackd0 = fabsf(t->d0());
   
   // Delta eta,phi matching
-  float deltaeta, deltaphi;
+  float deltaeta;
+  float deltaphi;
 
   allFound = allFound && eg->trackCaloMatchValue(deltaeta, xAOD::EgammaParameters::deltaEta1);
   allFound = allFound && eg->trackCaloMatchValue(deltaphi, xAOD::EgammaParameters::deltaPhi2);

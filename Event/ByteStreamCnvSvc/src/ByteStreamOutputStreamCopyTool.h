@@ -67,10 +67,10 @@ public:
 		bool extendProvenenceRecord = false);
 
    /// No object written for this tool
-   virtual StatusCode streamObjects(const TypeKeyPairs& typeKeys);
+   virtual StatusCode streamObjects(const TypeKeyPairs& typeKeys, const std::string& outputName = "");
 
    /// no stream of vector of objects either.
-   virtual StatusCode streamObjects(const DataObjectVec& dataObjects);
+   virtual StatusCode streamObjects(const DataObjectVec& dataObjects, const std::string& outputName = "");
 
    /// no refs for this tool.
    virtual StatusCode fillObjectRefs(const DataObjectVec& dataObjects);

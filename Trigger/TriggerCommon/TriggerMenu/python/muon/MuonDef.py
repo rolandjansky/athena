@@ -382,27 +382,6 @@ class L2EFChain_mu(L2EFChainDef):
                                'L2_mu_hypo2']]
       EFinputTE = 'L2_mu_hypo2'
 
-      # Run also FTK tracking
-    if "FTK" in self.chainPart['L2IDAlg']:
-      from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-      
-      [ftktrkfast, ftktrkprec] = TrigInDetFTKSequence("Muon","muonIso",sequenceFlavour=["PT"]).getSequence()    
-      
-      self.L2sequenceList += [[['L2_mu_hypo2'],
-                               ftktrkfast+ftktrkprec,
-                               'L2_mu_step3']]
-      from TrigMuonHypo.TrigMuonHypoConfig import MuisoHypoConfig
-      
-      theMuonFTKIsolationAlgo = TrigMuonEFTrackIsolationVarConfig("TrigMuonFTKTrackIsolationVar")
-      
-      theMuonFTKIsolationHypo = MuisoHypoConfig("TrigMuonFTKIsolationHypo")
-      
-      self.L2sequenceList += [[['L2_mu_step3'],
-                               [theMuonFTKIsolationAlgo],
-                               'L2_mu_step4']]
-      self.L2sequenceList += [[['L2_mu_step4'],
-                               [theMuonFTKIsolationHypo],
-                               'L2_mu_hypo3']]
 
     self.EFsequenceList += [[[EFinputTE],
                              trkprec,
@@ -532,10 +511,6 @@ class L2EFChain_mu(L2EFChainDef):
       self.L2signatureList += [ [['L2_mu_step2']*self.mult] ]
       self.L2signatureList += [ [['L2_mu_hypo2']*self.mult] ]
      
-    if "FTK" in self.chainPart['L2IDAlg']:
-      self.L2signatureList += [ [['L2_mu_step3']*self.mult] ]
-      self.L2signatureList += [ [['L2_mu_step4']*self.mult] ] 
-      self.L2signatureList += [ [['L2_mu_hypo3']*self.mult] ] 
 
     self.EFsignatureList += [ [['EF_mu_step1']*self.mult] ]
     self.EFsignatureList += [ [['EF_mu_step2']*self.mult] ]

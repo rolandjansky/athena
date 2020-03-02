@@ -55,7 +55,8 @@ namespace xAOD {
             continue;
          }
          if( ( *ti != typeid( std::string ) ) &&
-             ( *ti != typeid( float ) ) ) {
+             ( *ti != typeid( float ) ) &&
+             ( *ti != typeid( char ) ) ) {
             // We just ignore every other type. Still, this is strange, let's
             // warn the user about it.
             std::cerr << "xAOD::FileMetaData::operator==  WARNING  Unsupported "
@@ -86,6 +87,16 @@ namespace xAOD {
             const float& value2 = rhs.auxdata< float >( name );
             // And (not so simply) compare them:
             if( std::abs( value1 - value2 ) > 0.001 ) {
+               return false;
+            }
+
+         } else if( *ti == typeid( char ) ) {
+
+            // Retrieve the values:
+            const char& value1 = this->auxdata< char >( name );
+            const char& value2 = rhs.auxdata< char >( name );
+            // And (not so simply) compare them:
+            if( value1 != value2 ) {
                return false;
             }
 
@@ -286,6 +297,71 @@ namespace xAOD {
       return true;
    }
 
+   bool FileMetaData_v1::value( MetaDataType type, bool& val ) const {
+
+      // Get the accessor for this type:
+      const Accessor< char >* acc = metaDataTypeCharAccessorV1( type );
+      if( ! acc ) {
+         return false;
+      }
+
+      // Check if the variable is available:
+      if( ! acc->isAvailable( *this ) ) {
+         return false;
+      }
+
+      // Read the value:
+      val = ( *acc )( *this );
+
+      // We were successful:
+      return true;
+   }
+
+   bool FileMetaData_v1::value( const std::string& type,
+                                bool& val ) const {
+
+      // Create an accessor object:
+      const Accessor< char > acc( type );
+
+      // Check if this variable is available:
+      if( ! acc.isAvailable( *this ) ) {
+         return false;
+      }
+
+      // Read the value:
+      val = acc( *this );
+
+      // We were successful:
+      return true;
+   }
+
+   bool FileMetaData_v1::setValue( MetaDataType type, bool val ) {
+
+      // Get the accessor for this type:
+      const Accessor< char >* acc = metaDataTypeCharAccessorV1( type );
+      if( ! acc ) {
+         return false;
+      }
+
+      // Set the value:
+      ( *acc )( *this ) = val;
+
+      // We were successful:
+      return true;
+   }
+
+   bool FileMetaData_v1::setValue( const std::string& type, bool val ) {
+
+      // Create the accessor object:
+      const Accessor< char > acc( type );
+
+      // Set the value:
+      acc( *this ) = val;
+
+      // We were successful:
+      return true;
+   }
+
 } // namespace xAOD
 
 /// Helper macro used to print MetaDataType values
@@ -307,6 +383,7 @@ std::ostream& operator<< ( std::ostream& out,
    switch( type ) {
 
       PRINT_TYPE( productionRelease );
+      PRINT_TYPE( amiTag );
       PRINT_TYPE( AODFixVersion );
       PRINT_TYPE( AODCalibVersion );
       PRINT_TYPE( dataType );
@@ -314,6 +391,9 @@ std::ostream& operator<< ( std::ostream& out,
       PRINT_TYPE( conditionsTag );
       PRINT_TYPE( beamEnergy );
       PRINT_TYPE( beamType );
+      PRINT_TYPE( mcProcID );
+      PRINT_TYPE( simFlavour );
+      PRINT_TYPE( isDataOverlay );
 
    default:
       out << "UNKNOWN (" << static_cast< int >( type ) << ")";

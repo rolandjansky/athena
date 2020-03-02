@@ -1,6 +1,12 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
+/**
+ * @file SiPropertiesTool/PixelSiPropertiesCondAlg.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date November, 2019
+ * @brief Return pixel property.
+ */
 
 #ifndef PIXELSIPROPERTIESCONDALG
 #define PIXELSIPROPERTIESCONDALG
@@ -9,7 +15,8 @@
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "PixelConditionsData/PixelModuleData.h"
+#include "PixelConditionsData/PixelDCSHVData.h"
+#include "PixelConditionsData/PixelDCSTempData.h"
 #include "GaudiKernel/ICondSvc.h"
 
 #include "SiPropertiesTool/SiliconPropertiesVector.h"
@@ -29,11 +36,17 @@ class PixelSiPropertiesCondAlg : public AthAlgorithm {
     
     ServiceHandle<ICondSvc> m_condSvc;
 
-    SG::ReadCondHandleKey<PixelModuleData> m_readKeyTemp      {this, "ReadKeyeTemp", "PixelDCSTempCondData",         "Key of input sensor temperature conditions folder"};
-    SG::ReadCondHandleKey<PixelModuleData> m_readKeyHV        {this, "ReadKeyHV",    "PixelDCSHVCondData",           "Key of input bias voltage conditions folder"};
-    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
-    SG::WriteCondHandleKey<InDet::SiliconPropertiesVector> m_writeKey{this, "WriteKey",     "PixelSiliconPropertiesVector", "Key of output silicon properties conditions folder"};
+    SG::ReadCondHandleKey<PixelDCSTempData> m_readKeyTemp
+    {this, "ReadKeyeTemp", "PixelDCSTempCondData", "Key of input sensor temperature conditions folder"};
 
+    SG::ReadCondHandleKey<PixelDCSHVData> m_readKeyHV
+    {this, "ReadKeyHV", "PixelDCSHVCondData", "Key of input bias voltage conditions folder"};
+
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey
+    {this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
+
+    SG::WriteCondHandleKey<InDet::SiliconPropertiesVector> m_writeKey
+    {this, "WriteKey", "PixelSiliconPropertiesVector", "Key of output silicon properties conditions folder"};
 };
     
-#endif // PIXELSIPROPERTIESCONDALG
+#endif

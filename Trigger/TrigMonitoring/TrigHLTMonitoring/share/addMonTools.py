@@ -42,6 +42,8 @@ if HLTMonFlags.doGeneral:
         HLTMonManager.AthenaMonTools += HLTGeneralTool()
     except:
          log.info("Problems with the general HLTMonTool, tool not enabled")
+         import traceback
+         log.info (traceback.format_exc())
 
 if HLTMonFlags.doMonTier0:
     # HLTEgammaMonTool - Calculates basic efficiencies
@@ -52,6 +54,8 @@ if HLTMonFlags.doMonTier0:
         HLTMonManager.AthenaMonTools += TrigEgammaMonitoringTool()
       except:
         log.info("Problems with HLTEgammaTool, tool not enabled")
+        import traceback
+        log.info (traceback.format_exc())
 
     # HLTCaloTool - Makes basic comparisons between online/offline
     if HLTMonFlags.doCalo:
@@ -61,6 +65,8 @@ if HLTMonFlags.doMonTier0:
         HLTMonManager.AthenaMonTools+=HLTCaloMonitoringTool()
       except:
         log.info("Problems with HLTCaloTool, tool not enabled")
+        import traceback
+        log.info (traceback.format_exc())
 
     # HLTMuonMonTool - Multiple Muon algorithms EDM Dumper
     if HLTMonFlags.doMuon:
@@ -69,6 +75,8 @@ if HLTMonFlags.doMonTier0:
         HLTMonManager.AthenaMonTools += TrigMuonMonitoringTool()
       except:
         log.info("Problems with HLTMuonTool, tool not enabled")
+        import traceback
+        log.info (traceback.format_exc())
 
     # IDtrk HLTMonTool
     if HLTMonFlags.doIDtrk:
@@ -77,6 +85,9 @@ if HLTMonFlags.doMonTier0:
         HLTMonManager.AthenaMonTools += TrigIDtrkMonitoringTool()
       except:
         log.info("Problems with HLTIDtrkTool, tool not enabled")
+        import traceback
+        log.info (traceback.format_exc())
+
 
     # MET HLTMonTool
     if HLTMonFlags.doMET:
@@ -85,6 +96,8 @@ if HLTMonFlags.doMonTier0:
         HLTMonManager.AthenaMonTools += HLTMETMonitoringTool()
       except:
         log.info("Problems with HLTMETTool, tool not enabled")
+        import traceback
+        log.info (traceback.format_exc())
 
     # Tau HLTMonTool
     if HLTMonFlags.doTau:
@@ -93,6 +106,8 @@ if HLTMonFlags.doMonTier0:
         HLTMonManager.AthenaMonTools += TrigTauMonitoringTool()
       except:
         log.info("Problems with HLTTauTool, tool not enabled")
+        import traceback
+        log.info (traceback.format_exc())
 
     # Jet HLTMonTool
     if HLTMonFlags.doJet:
@@ -101,6 +116,8 @@ if HLTMonFlags.doMonTier0:
         HLTMonManager.AthenaMonTools += TrigJetMonitoringTool()
       except:
         log.info("Problems with HLTJetTool, tool not enabled")
+        import traceback
+        log.info (traceback.format_exc())
 
     # b-jet HLTMonTool
     if HLTMonFlags.doBjet and rec.doInDet:
@@ -109,6 +126,8 @@ if HLTMonFlags.doMonTier0:
         HLTMonManager.AthenaMonTools += TrigBjetMonitoringConfig()
       except:
         log.info("Problems with HLTBjetTool, tool not enabled")
+        import traceback
+        log.info (traceback.format_exc())
 
     # B-phys HLTMonTool
     if HLTMonFlags.doBphys:
@@ -117,6 +136,8 @@ if HLTMonFlags.doMonTier0:
         HLTMonManager.AthenaMonTools += TrigBphysMonitoringTool()
       except:
         log.info("Problems with HLTBphysTool, tool not enabled")
+        import traceback
+        log.info (traceback.format_exc())
 
     # MinBias HLTMonTool
     if HLTMonFlags.doMinBias:
@@ -125,6 +146,8 @@ if HLTMonFlags.doMonTier0:
         HLTMonManager.AthenaMonTools += TrigMinBiasMonitoringTool()
       except:
         log.info("Problems with HLTMinBiasDumpTool, tool not enabled")
+        import traceback
+        log.info (traceback.format_exc())
 
 ################ Dump Tools ################
 
@@ -137,6 +160,8 @@ if HLTMonFlags.doDump:
         HLTMonManager.AthenaMonTools += HLTEgammaMonitoringDumpTool()
       except:
         log.info("Problems with HLTEgammaDumpTool, tool not enabled")
+        import traceback
+        log.info (traceback.format_exc())
 
 
     #Make the custom tau TTP ntuples.
@@ -149,6 +174,8 @@ if HLTMonFlags.doDump:
       topSequence += ttpalgo
      except:
       log.info("Problems with OfflineTauTTP, tool not enabled")
+      import traceback
+      log.info (traceback.format_exc())
 
 ########## Menu-aware Monitoring ###########
 
@@ -159,7 +186,7 @@ if HLTMonFlags.doMaM == True:
 
 HLTMonManager.FileKey = "GLOBAL"
 
-print HLTMonManager;
+printfunc (HLTMonManager)
 
 #---------------------------------------------------
 #----   End

@@ -71,7 +71,7 @@ Trk::JacobianPhiThetaLocalAngles::JacobianPhiThetaLocalAngles(const double phi, 
     J1(0,2) = cx*sx*zinv;
     J1(1,2) = cy*sy*zinv;
 
-    AmgMatrix(3,3) Rot = rot;
+    const AmgMatrix(3,3)& Rot = rot;
     AmgMatrix(2,2) J = AmgMatrix(2,2)::Zero();
 //
 //  Jacobian: lefthand local righthand global

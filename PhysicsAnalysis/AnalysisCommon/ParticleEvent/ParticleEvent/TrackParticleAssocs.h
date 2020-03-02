@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackParticleAssocs.h 
@@ -15,7 +15,8 @@
  
 #include "AthLinks/AssociationMap.h"
 #include "AthLinks/DataLink.h"
-  
+#include "AthContainers/ConstDataVector.h"  
+
 // TrackParticleIncludes
 #include "Particle/TrackParticleContainer.h"
 #include "Particle/TrackParticle.h"
@@ -53,7 +54,7 @@ public:
     *  to the given \param object
     */
   bool assocs( const Rec::TrackParticle* object,
-	       Rec::TrackParticleContainer& assocs ) const;
+               ConstDataVector<Rec::TrackParticleContainer>& associatedElems ) const;
  
   /** Reimplement the method from the base class to not shaddow it */
   bool getAssociations(const AssociationMap< Rec::TrackParticleContainer,

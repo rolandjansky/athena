@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUPI0CREATEROI_H
@@ -30,23 +30,11 @@ public:
     ASG_TOOL_CLASS2(TauPi0CreateROI, TauRecToolBase, ITauToolBase);
     virtual ~TauPi0CreateROI();
 
-    virtual StatusCode initialize();
-    virtual StatusCode eventInitialize();
-    virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& Pi0CellContainer);
-    virtual StatusCode eventFinalize();
-    virtual StatusCode finalize();
-
-    virtual void cleanup(xAOD::TauJet* ) { }
-    virtual void print() const { }
+    virtual StatusCode initialize() override;
+    virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& Pi0CellContainer, std::vector<CaloCell*>& map) override;
+    virtual StatusCode finalize() override;
 
 private:
-
-    /** @brief store cell in output container */ 
-    void storeCell(const CaloCell* /* cell*/, CaloCellContainer& cellContainer);
-
-    /** @brief hash map in order to keep track, which cells have been added to output cell container*/
-    std::vector<CaloCell*> m_addedCellsMap;
-
     SG::ReadHandleKey<CaloCellContainer> m_caloCellInputContainer{this,"Key_caloCellInputContainer", "AllCalo", "input vertex container key"};
 
 };

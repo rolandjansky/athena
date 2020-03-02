@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -30,8 +30,8 @@ def JetParticleAssociationAlgCfg(ConfigFlags, JetCollection="", ParticleCollecti
     # setup the associator
     options['JetCollectionName'] = jetcol + 'Jets'
     options['TrackParticleCollectionName'] = partcol
-    options['TrackToJetAssociatorName'] = AssociationName
-    options['TrackToJetAssociator'] = acc.popToolsAndMerge(BTagTrackToJetAssociatorCfg(ConfigFlags, AssociationName.split('.')[1], options = optionAssoc))
+    options['TrackToJetAssociatorName'] = jetcol + 'Jets.' + AssociationName
+    options['TrackToJetAssociator'] = acc.popToolsAndMerge(BTagTrackToJetAssociatorCfg(ConfigFlags, AssociationName, options = optionAssoc))
     options['Associator'] = acc.popToolsAndMerge(JetParticleAssociationCfg(ConfigFlags))
     options['name'] = (jetcol + '_assoc'+release).lower()
     

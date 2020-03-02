@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRACKMONITORING_RECOMUONSEGMENTPLOTS_H
@@ -14,8 +14,6 @@
 #include "xAODMuon/MuonSegment.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
-//#include "AthenaMonitoring/ManagedMonitorToolBase.h"
-
 
 namespace Muon {
   class IMuonSegmentTrackBuilder;

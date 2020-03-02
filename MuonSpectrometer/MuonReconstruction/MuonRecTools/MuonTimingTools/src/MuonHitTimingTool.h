@@ -1,13 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONHITTIMINGTOOL_H
 #define MUON_MUONHITTIMINGTOOL_H
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonRecToolInterfaces/IMuonHitTimingTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 /** @class MuonHitTimingTool
     
@@ -21,14 +23,13 @@
 namespace Muon{
 
   class MuonClusterOnTrack;
-  class MuonIdHelperTool;
   
   class MuonHitTimingTool : virtual public Muon::IMuonHitTimingTool, public AthAlgTool{
   public:
     MuonHitTimingTool(const std::string&, const std::string&, const IInterface*);
 
     /** default destructor **/
-    virtual ~MuonHitTimingTool();
+    virtual ~MuonHitTimingTool() {};
 
     /** standard initialization method **/
     virtual StatusCode initialize();
@@ -43,7 +44,7 @@ namespace Muon{
     std::set<MuonStationIndex::TechnologyIndex> acceptedTechnologies() const { return m_acceptedTechnologies; }
 
   private:
-    ToolHandle<MuonIdHelperTool>                 m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     std::vector<ToolHandle<IMuonHitTimingTool> > m_hitTimingTools;
     std::set<MuonStationIndex::TechnologyIndex>  m_acceptedTechnologies;
   };

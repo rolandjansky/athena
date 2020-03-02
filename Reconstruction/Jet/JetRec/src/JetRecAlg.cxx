@@ -53,27 +53,27 @@ StatusCode JetRecAlg::finalize() {
 
 StatusCode JetRecAlg::execute() {  
 
-  // Build JetContainer by running fastjet, grooming or copying existing jets...
-  std::unique_ptr<xAOD::JetContainer>  jets( m_jetprovider->build() );
+  // Get JetContainer by running fastjet, grooming or copying existing jets...
+  std::unique_ptr<xAOD::JetContainer> jets( m_jetprovider->getJets() );
   if(jets==nullptr){
     ATH_MSG_ERROR("Builder tool "<< m_jetprovider->name() << "  returned a null pointer");
     return StatusCode::FAILURE;
   }
   std::unique_ptr<xAOD::JetAuxContainer>  auxCont( dynamic_cast<xAOD::JetAuxContainer *>(jets->getStore() ) );  
 
-  
-  // Calculate moments, calibrate, sort, filter...  -----------
-  for(const ToolHandle<IJetModifier> t : m_modifiers){
-    ATH_CHECK(t->modify(*jets));
-  }
+  ATH_MSG_DEBUG("Created jet container of size "<< jets->size() << "  | writing to "<< m_output.key() );
 
-
-  ATH_MSG_DEBUG("Done jet finding "<< jets->size() << "  | writing to "<< m_output.key() );
-  
   // Write out JetContainer and JetAuxContainer
   SG::WriteHandle<xAOD::JetContainer> jetContHandle(m_output);
   ATH_CHECK( jetContHandle.record(std::move(jets), std::move(auxCont) ) );
-  
+
+  ATH_MSG_DEBUG("Applying jet modifiers to " << m_output.key());
+
+  // Calculate moments, calibrate, sort, filter...  -----------
+  for(const ToolHandle<IJetModifier> t : m_modifiers){
+    ATH_CHECK(t->modify(*jetContHandle));
+  }
+
   return StatusCode::SUCCESS;
 
 }

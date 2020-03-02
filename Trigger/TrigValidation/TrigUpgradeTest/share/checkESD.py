@@ -7,18 +7,19 @@ svcMgr.EventSelector.InputCollections   = [ "myESD.pool.root" ]
 
 from AthenaCommon.AppMgr import topSequence
 from AthenaCommon.AppMgr import ToolSvc
-from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
 from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
 from TrigEDMConfig.TriggerEDM import EDMLibraries
 
-cfgtool = TrigConf__xAODConfigTool('xAODConfigTool')
-ToolSvc += cfgtool
+cvgsvc = TrigConf__xAODConfigSvc('xAODConfigSvc')
+svcMgr += cvgsvc
 
 tdt = Trig__TrigDecisionTool('TrigDecisionTool')
-tdt.ConfigTool = cfgtool
+tdt.TrigConfigSvc = cvgsvc
 tdt.NavigationFormat = "TrigComposite"
 tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
-ToolSvc += cfgtool
+ToolSvc += tdt
 
 from TrigValAlgs.TrigValAlgsConf import TrigEDMChecker
 MessageSvc.defaultLimit = 9999999

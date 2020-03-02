@@ -22,15 +22,15 @@ find_package( ROOT COMPONENTS PyROOT Core Tree MathCore Hist RIO pthread )
 atlas_add_library( StoreGateBindings
                    src/*.cxx
                    PUBLIC_HEADERS StoreGateBindings
-                   PRIVATE_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${Python_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES StoreGateLib SGtests RootUtils
-                   PRIVATE_LINK_LIBRARIES ${PYTHON_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel DataModelRoot SGTools GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${Python_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel DataModelRoot SGTools GaudiKernel )
 
 atlas_add_dictionary( StoreGateBindingsDict
                       src/StoreGateBindingsDict.h
                       StoreGateBindings/selection.xml
-                      INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${PYTHON_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel DataModelRoot SGTools StoreGateLib SGtests GaudiKernel StoreGateBindings )
+                      INCLUDE_DIRS ${Python_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${Python_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel DataModelRoot SGTools StoreGateLib SGtests GaudiKernel StoreGateBindings )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py

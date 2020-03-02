@@ -17,13 +17,13 @@
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "InDetIdentifier/TRT_ID.h"
 
-#include "InDetReadoutGeometry/TRT_DetElementCollection.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementCollection.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include "TRT_ConditionsData/FloatArrayStore.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
 // Amg

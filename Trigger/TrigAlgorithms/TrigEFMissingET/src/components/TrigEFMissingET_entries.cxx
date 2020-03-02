@@ -17,6 +17,7 @@
 #include "../MHTFex.h"
 #include "../TCFex.h"
 #include "../TCPufitFex.h"
+#include "../PFSumFex.h"
 
 DECLARE_COMPONENT( EFMissingET )
 DECLARE_COMPONENT( EFMissingETBaseTool )
@@ -36,3 +37,4 @@ DECLARE_COMPONENT( HLT::MET::CellFex )
 DECLARE_COMPONENT( HLT::MET::MHTFex )
 DECLARE_COMPONENT( HLT::MET::TCFex )
 DECLARE_COMPONENT( HLT::MET::TCPufitFex )
+DECLARE_COMPONENT( HLT::MET::PFSumFex )

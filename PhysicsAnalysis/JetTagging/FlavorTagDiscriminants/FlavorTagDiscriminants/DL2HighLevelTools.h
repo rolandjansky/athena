@@ -29,7 +29,8 @@ namespace FlavorTagDiscriminants {
   std::vector<DL2InputConfig> get_input_config(
     const std::vector<std::string>& variable_names,
     const TypeRegexes& type_regexes,
-    const StringRegexes& default_flag_regexes);
+    const StringRegexes& default_flag_regexes,
+    std::map<std::string,std::string>& replaced_vars);
   std::vector<DL2TrackSequenceConfig> get_track_input_config(
     const std::vector<std::pair<std::string, std::vector<std::string>>>& names,
     const TypeRegexes& type_regexes,

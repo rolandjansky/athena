@@ -11,6 +11,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    DetectorDescription/GeoPrimitives
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
+   InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
    InnerDetector/InDetRecEvent/InDetPrepRawData
    MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
    Tracking/TrkEvent/TrkPrepRawData
@@ -49,7 +50,7 @@ atlas_add_library( VP1PRDSystems VP1PRDSystems/*.h src/*.cxx
    PUBLIC_HEADERS VP1PRDSystems
    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    ${CMAKE_CURRENT_BINARY_DIR}
-   LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} GeoPrimitives InDetReadoutGeometry
+   LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} GeoPrimitives InDetReadoutGeometry TRT_ReadoutGeometry
    InDetPrepRawData MuonPrepRawData TrkPrepRawData TrkSpacePoint VP1Base
    VP1Utils MuonIdHelpersLib Qt5::Core Qt5::Gui
    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers

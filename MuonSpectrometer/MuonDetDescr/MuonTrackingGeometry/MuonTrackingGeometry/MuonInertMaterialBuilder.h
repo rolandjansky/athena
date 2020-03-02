@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -73,19 +73,19 @@ namespace Muon {
       StatusCode finalize();
 
       /** Method returning cloned and positioned material objects */
-      const std::vector<const Trk::DetachedTrackingVolume*>* buildDetachedTrackingVolumes(bool blend=false) const; 
+      const std::vector<const Trk::DetachedTrackingVolume*>* buildDetachedTrackingVolumes(bool blend=false); 
 
     private:
 
       /** Method creating material object prototypes */
-      const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::Transform3D> > >* buildDetachedTrackingVolumeTypes(bool blend) const; 
+      const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::Transform3D> > >* buildDetachedTrackingVolumeTypes(bool blend); 
       /** Method extracting material objects from GeoModel tree */
       void getObjsForTranslation(const GeoVPhysVol* pv,Amg::Transform3D , std::vector<std::pair<const GeoLogVol*,std::vector<Amg::Transform3D> > >& vols ) const;
       /** Dump from GeoModel tree  */
       void printInfo(const GeoVPhysVol* pv) const;
       void printChildren(const GeoVPhysVol* pv) const;
       /** Simplification of GeoModel object + envelope */
-      const Trk::TrackingVolume* simplifyShape(const Trk::TrackingVolume* tr, bool blend) const;
+      const Trk::TrackingVolume* simplifyShape(const Trk::TrackingVolume* tr, bool blend);
       /** Envelope creation & material fraction calculation */
       const Trk::Volume* createEnvelope(const Amg::Transform3D transf, std::vector<std::pair<const Trk::Volume*,std::pair<float,float> > > ) const;
       /** Simplification of objects, material fraction calculation */
@@ -110,12 +110,12 @@ namespace Muon {
       Gaudi::Property<double>             m_blendLimit{this,"BlendLimit",3e+09};                 // volume limit for blending (except shields) 
       Trk::Material                       m_muonMaterial;               //!< the material
 //mw
-      Trk::GeoMaterialConverter*          m_materialConverter;          //!< material converter
-      Trk::GeoShapeConverter*             m_geoShapeConverter;          //!< shape converter
+      std::unique_ptr<Trk::GeoMaterialConverter>          m_materialConverter;          //!< material converter
+      std::unique_ptr<Trk::GeoShapeConverter>             m_geoShapeConverter;          //!< shape converter
       ServiceHandle<IRndmGenSvc>          m_rndmGenSvc{this,"randomGen","RndmGenSvc"};                 //!< Random number generator
-      Rndm::Numbers*                      m_flatDist;
+      std::unique_ptr<Rndm::Numbers>                      m_flatDist;
       
-      std::shared_ptr<std::vector<std::vector<std::pair<const Trk::Volume*,float> >* >>  m_constituents;
+      std::vector<std::vector<std::pair<const Trk::Volume*,float> > >  m_constituents;
 
       Gaudi::Property<bool>               m_extraMaterial{this,"AddMaterial",false};
       Gaudi::Property<float>              m_extraX0{this,"AMradLength",0.3};

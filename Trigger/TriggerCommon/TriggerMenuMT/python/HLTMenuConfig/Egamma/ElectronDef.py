@@ -82,11 +82,6 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         myChain = self.buildChain(chainSteps)
         return myChain
 
-
-
-        myChain = self.buildChain(chainSteps)
-        return myChain
-
     # --------------------
     # Configuration of electron steps
     # --------------------

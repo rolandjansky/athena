@@ -101,7 +101,7 @@ def generateMenu( flags ):
 
     # # generate JOSON representation of the config
     from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON_newJO    
-    generateJSON_newJO( allChainDicts, menuChains )
+    generateJSON_newJO( allChainDicts, menuChains, menuAcc.getSequence("HLTAllSteps") )
 
     return menuAcc
 

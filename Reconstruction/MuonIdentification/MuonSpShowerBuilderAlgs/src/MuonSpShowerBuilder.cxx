@@ -1,21 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/*****************************************************************************
-Name    : MuonSpShowerBuilder.cxx
-Package : offline/PhysicsAnalysis/EventViewBuilder/EventViewBuilderAlgs
-Author  : Frank Paige, Stephane Willocq
-Created : August 2006
-
-DESCRIPTION:
-
-See MuonSpShowerBuilder.h. 
-
-
-*****************************************************************************/
-
-// Include files
 
 #include "MuonSpShowerBuilderAlgs/MuonSpShowerBuilder.h"
 #include "muonEvent/MuonSpShower.h"
@@ -28,18 +13,12 @@ See MuonSpShowerBuilder.h.
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "MuonIdHelpers/MuonIdHelper.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODJet/JetContainer.h"
 
 #include <math.h>
-
-/////////////////////////////////////////////////////////////////
-// Constructor
-/////////////////////////////////////////////////////////////////
 
 MuonSpShowerBuilder::MuonSpShowerBuilder(const std::string& name, 
   ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator),
@@ -55,9 +34,7 @@ MuonSpShowerBuilder::MuonSpShowerBuilder(const std::string& name,
   m_triggerHitCut(0),				// minimum hits
   m_mdtHitCut(0),				// minimum hits
   m_muonSegmentCut(0),				// minimum segments
-  m_MuonSpShowerKey("MuonSpShowers"),		// Storegate key
-  m_MuonMgr(0),
-  m_muonHelper(0)
+  m_MuonSpShowerKey("MuonSpShowers")		// Storegate key
 {
   declareProperty("JetCollectionKey", m_JetCollectionKey);
   declareProperty("jetPtCut", m_jetPtCut);
@@ -74,42 +51,13 @@ MuonSpShowerBuilder::MuonSpShowerBuilder(const std::string& name,
 
 }
 
-/////////////////////////////////////////////////////////////////
-// Destructor
-/////////////////////////////////////////////////////////////////
-
-MuonSpShowerBuilder::~MuonSpShowerBuilder() {}
-
-/////////////////////////////////////////////////////////////////
-// Initialize
-/////////////////////////////////////////////////////////////////
-
 StatusCode MuonSpShowerBuilder::initialize() {
-
   ATH_MSG_INFO("Initializing MuonSpShowerBuilder");
 
-  StatusCode sc = detStore()->retrieve( m_MuonMgr );
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
-  } else {
-    m_muonHelper = m_MuonMgr->mdtIdHelper();
-  }
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   return StatusCode::SUCCESS;
-
 }
-
-/////////////////////////////////////////////////////////////////
-// Finalize
-/////////////////////////////////////////////////////////////////
-
-StatusCode MuonSpShowerBuilder::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-/////////////////////////////////////////////////////////////////
-// Execute
-/////////////////////////////////////////////////////////////////
 
 StatusCode MuonSpShowerBuilder::execute() {
 
@@ -238,7 +186,7 @@ StatusCode MuonSpShowerBuilder::execute() {
         if( fabs(etah-etaj)>m_etaCut || dphihj>m_phiCut ) continue; 
         // 0 = inner, 1 = EE, 2 = middle, 3 = outer
         // We combine 1 and 2
-        int layer = m_muonHelper->stationRegion( (*mdtItr)->identify() );
+        int layer = m_idHelperSvc->mdtIdHelper().stationRegion( (*mdtItr)->identify() );
         if( layer > 1 ) --layer;
         ++nHit[layer];
       }

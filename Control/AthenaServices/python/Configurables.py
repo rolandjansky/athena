@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: Configurables.py
 # @purpose: customized Configurable classes for AthenaServices
@@ -13,6 +13,8 @@ from AthenaServices.AthenaServicesConf import EvtIdModifierSvc as _EvtIdModifier
 
 ## import configurables module facade
 from AthenaCommon import CfgMgr
+
+import six
 
 class ThinningSvc( _ThinningSvc ):
 
@@ -117,7 +119,7 @@ class ThinningSvc( _ThinningSvc ):
                     proxies[clid].append(sg_key)
             d = proxies
             proxies = []
-            for clid,sg_keys in d.iteritems():
+            for clid,sg_keys in six.iteritems (d):
                 sg_keys = list(set(sg_keys))
                 proxies.extend([[str(clid),sg_key] for sg_key in sg_keys])
             return proxies

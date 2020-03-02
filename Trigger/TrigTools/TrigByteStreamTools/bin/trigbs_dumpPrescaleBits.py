@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """\
 Dumping HLT chains PS bit vs the chain counter and vs the L1 event number
@@ -69,7 +69,7 @@ def my_dump(bsfile):
 
     events[ev] = chains
     
-  output = file(opt.pickle, "w")
+  output = open(opt.pickle, "wb")
   cPickle.dump(events, output)
   output.close()
     
@@ -77,8 +77,8 @@ def my_dump(bsfile):
 def my_comp(f1, f2):
   import pprint
 
-  one = cPickle.load(file(f1))
-  two = cPickle.load(file(f2))
+  one = cPickle.load(open(f1, "rb"))
+  two = cPickle.load(open(f2, "rb"))
   print('.. eventdumps read in correctly %s %s' % (f1, f2))
 
   if one == two:

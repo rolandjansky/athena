@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -21,10 +21,9 @@ decription           : Class for merging components of a multi-state based on
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
+#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/SortingClasses.h"
-
 
 namespace Trk {
 
@@ -58,19 +57,8 @@ private:
                                                              12,
                                                              "Maximum number of components" };
 
-  ToolHandle<Trk::IMultiComponentStateCombiner> m_stateCombiner{
-    this,
-    "CombinerTool",
-    "Trk::MultiComponentStateCombiner/CloseComponentsCombiner",
-    " Combonent combiner"
-  };
-
-  ServiceHandle<IChronoStatSvc> m_chronoSvc; //!< Timing: The Gaudi time auditing service
-
   std::unique_ptr<MultiComponentState> mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
-                                                          Trk::MultiComponentState& ) const;
-
-
+                                                          Trk::MultiComponentState&) const;
 };
 
 }

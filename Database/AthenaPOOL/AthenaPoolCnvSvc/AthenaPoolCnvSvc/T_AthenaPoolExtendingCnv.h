@@ -50,7 +50,7 @@ protected:
   
   /// Write the persistent object to POOL
   /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
-  virtual const Token*	writeObject(const std::string& key);
+  virtual const Token*	writeObject(const std::string& key, const std::string& output);
 
   /// return the original AthenaPool converter this one was cloned from
   /// if not cloned this returns self

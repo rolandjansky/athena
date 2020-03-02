@@ -107,7 +107,6 @@ void PFRecoverSplitShowersTool::getClustersToConsider() {
         thisEflowCaloObject->efRecCluster(i)->clearTrackMatches();
         m_clustersToConsider.push_back(thisEflowCaloObject->efRecCluster(i));
         thisEflowCaloObject->clearClusters();
-        thisEflowCaloObject->clearLinks();
     }
   }
 
@@ -124,8 +123,8 @@ void PFRecoverSplitShowersTool::getTracksToRecover() {
       unsigned int nTrk = thisEflowCaloObject->nTracks();
       // But make sure we get eflowObjects from them
       for (unsigned int iTrk = 0; iTrk < nTrk; ++iTrk) {
-	eflowRecTrack* thisEfRecTrack = thisEflowCaloObject->efRecTrack(iTrk);
-	if (!thisEfRecTrack->isSubtracted()) thisEfRecTrack->setSubtracted();
+	      eflowRecTrack* thisEfRecTrack = thisEflowCaloObject->efRecTrack(iTrk);
+      	if (!thisEfRecTrack->isSubtracted()) thisEfRecTrack->setSubtracted();
       }
       continue;
     }

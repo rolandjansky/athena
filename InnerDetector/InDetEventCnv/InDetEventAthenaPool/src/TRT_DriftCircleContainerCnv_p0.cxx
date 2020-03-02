@@ -3,7 +3,7 @@
 */
 
 #include "TRT_DriftCircleContainerCnv_p0.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "MsgUtil.h"
 #include "AthenaKernel/errorcheck.h"

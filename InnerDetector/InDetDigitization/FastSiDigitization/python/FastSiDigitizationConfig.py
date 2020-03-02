@@ -39,7 +39,7 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
         condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                      UseDeadMap=False,
+                                      UseDeadmapConditions=False,
                                       ReadDeadMapKey="/PIXEL/PixMapOverlay",
                                       UseCalibConditions=True)
 

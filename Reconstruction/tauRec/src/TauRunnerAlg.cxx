@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ListItem.h"
@@ -28,8 +28,7 @@
 TauRunnerAlg::TauRunnerAlg(const std::string &name,
     ISvcLocator * pSvcLocator) :
 AthAlgorithm(name, pSvcLocator),
-m_tools(this), //make tools private
-m_data()
+m_tools(this) //make tools private
 {
   declareProperty("Tools", m_tools);
 }
@@ -44,9 +43,6 @@ TauRunnerAlg::~TauRunnerAlg() {
 // Initializer
 //-----------------------------------------------------------------------------
 StatusCode TauRunnerAlg::initialize() {
-
-
-    //ATH_MSG_INFO("FF::TauRunnerAlg :: initialize()");
 
     //-------------------------------------------------------------------------
     // No tools allocated!
@@ -81,7 +77,6 @@ StatusCode TauRunnerAlg::initialize() {
     for (; itT != itTE; ++itT) {
       ++tool_count;
       ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());
-      (*itT)->setTauEventData(&m_data);
     }
     ATH_MSG_INFO(" ");
     ATH_MSG_INFO("------------------------------------");
@@ -90,7 +85,6 @@ StatusCode TauRunnerAlg::initialize() {
         ATH_MSG_ERROR("could not allocate any tool!");
         return StatusCode::FAILURE;
     }
-    ///////////////////////////////////////////////////////////////////////////
 
     return StatusCode::SUCCESS;
 }
@@ -115,10 +109,8 @@ StatusCode TauRunnerAlg::finalize() {
   }
 
   if (sc.isSuccess()) {
-    ATH_MSG_VERBOSE("The tau candidate container has been modified");
-  } else if (!sc.isSuccess()) {
-  } else  {
-  }
+    ATH_MSG_VERBOSE("All the invoded tools are finilized successfully.");
+  } 
 
   return StatusCode::SUCCESS;
 
@@ -129,8 +121,6 @@ StatusCode TauRunnerAlg::finalize() {
 //-----------------------------------------------------------------------------
 StatusCode TauRunnerAlg::execute() {
   
-  StatusCode sc;
-
     // write neutral PFO container
     xAOD::PFOContainer* neutralPFOContainer = new xAOD::PFOContainer();
     xAOD::PFOAuxContainer* neutralPFOAuxStore = new xAOD::PFOAuxContainer();
@@ -179,17 +169,6 @@ StatusCode TauRunnerAlg::execute() {
     ATH_MSG_DEBUG("  write: " << pi0Handle.key() << " = " << "..." );
     ATH_CHECK(pi0Handle.record(std::unique_ptr<xAOD::ParticleContainer>{pi0Container}, std::unique_ptr<xAOD::ParticleAuxContainer>{pi0AuxStore}));
   
-    //-------------------------------------------------------------------------
-    // Initialize tools for this event
-    //-------------------------------------------------------------------------                                                      
-    ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
-    ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
-    for (; itT != itTE; ++itT) {
-      sc = (*itT)->eventInitialize();
-      if (sc != StatusCode::SUCCESS)
-	return StatusCode::FAILURE;
-    }
-
     // Declare container
     const xAOD::TauJetContainer * pTauContainer = 0;
 
@@ -226,11 +205,12 @@ StatusCode TauRunnerAlg::execute() {
     xAOD::TauJetContainer::iterator itTau = newTauCon->begin();
     xAOD::TauJetContainer::iterator itTauE = newTauCon->end();
     for (; itTau != itTauE; ++itTau) {
-
       xAOD::TauJet* pTau = (*itTau);
       //-----------------------------------------------------------------
       // Loop stops when Failure indicated by one of the tools
       //-----------------------------------------------------------------
+      StatusCode sc;
+    
       ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
       ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
       for (; itT != itTE; ++itT) {
@@ -259,23 +239,12 @@ StatusCode TauRunnerAlg::execute() {
 	if (sc.isFailure())
 	  break;
       }
-
+      if (sc.isSuccess()) {
+        ATH_MSG_VERBOSE("The tau candidate has been modified successfully by all the invoked tools.");
+      }
     } // end iterator over shallow copy
 
-    itT = m_tools.begin();
-    itTE = m_tools.end();
-    for (; itT != itTE; ++itT) {
-      sc = (*itT)->eventFinalize();
-      if (sc != StatusCode::SUCCESS)
-	return StatusCode::FAILURE;
-    }
+  ATH_MSG_VERBOSE("The tau candidate container has been modified");
 
-
-  if (sc.isSuccess()) {
-    ATH_MSG_VERBOSE("The tau candidate container has been modified");
-  } else if (!sc.isSuccess()) {
-  } else  {
-  }
-  
   return StatusCode::SUCCESS;
 }

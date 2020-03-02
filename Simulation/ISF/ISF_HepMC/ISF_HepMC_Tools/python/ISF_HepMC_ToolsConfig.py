@@ -210,3 +210,29 @@ def getLLPTruthStrategy(name="ISF_LLPTruthStrategy", **kwargs):
     kwargs.setdefault('PassProcessCategory',      9   ) # ==
     kwargs.setdefault('Regions', [1,2,3,4])
     return CfgMgr.ISF__LLPTruthStrategy(name, **kwargs);
+
+def getKeepLLPDecayChildrenStrategy(name="ISF_KeepLLPDecayChildrenStrategy", **kwargs):
+    # ProcessCategory==9 corresponds to the 'fUserDefined' G4ProcessType:
+    #   http://www-geant4.kek.jp/lxr/source//processes/management/include/G4ProcessType.hh
+    kwargs.setdefault('PassProcessCategory' , 9  ) # ==
+    kwargs.setdefault('VertexTypeRangeLow'  , 200) # All kinds of decay processes
+    kwargs.setdefault('VertexTypeRangeHigh' , 299) # ...
+    kwargs.setdefault('BSMParent'           , True)
+    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs);
+
+def getKeepLLPHadronicInteractionChildrenStrategy(name="ISF_KeepLLPHadronicInteractionChildrenStrategy", **kwargs):
+    kwargs.setdefault('VertexTypes'          , [ 111, 121, 131, 141, 151, 161, 210 ])
+    kwargs.setdefault('BSMParent'            , True)
+    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs);
+
+def getKeepAllDecayChildrenStrategy(name="ISF_KeepAllDecayChildrenStrategy", **kwargs):
+    # ProcessCategory==9 corresponds to the 'fUserDefined' G4ProcessType:
+    #   http://www-geant4.kek.jp/lxr/source//processes/management/include/G4ProcessType.hh
+    kwargs.setdefault('PassProcessCategory' , 9  ) # ==
+    kwargs.setdefault('VertexTypeRangeLow'  , 200) # All kinds of decay processes
+    kwargs.setdefault('VertexTypeRangeHigh' , 299) # ...
+    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs);
+
+def getKeepHadronicInteractionChildrenStrategy(name="ISF_KeepHadronicInteractionChildrenStrategy", **kwargs):
+    kwargs.setdefault('VertexTypes'          , [ 111, 121, 131, 141, 151, 161, 210 ])
+    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs);

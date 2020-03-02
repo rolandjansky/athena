@@ -1,21 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// EnergyDepositionTool.h
-//   Header file for class EnergyDepositionTool
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-// Author: Qi Zeng
-// 2015-02-14 (Happy Valentines Day!)
-// Description:
-//   A general tool to implement Bichsel simultion.
-//   Bichsel model can be used to simulate how a single particle deposits energy inside silicon material
-//   Instead of a Landau distribution, the simulation is done on collision-by-collision level (i.e. single collision between particle and atom)
-//   This model can better describe how deposited charges distribute along incident path
-///////////////////////////////////////////////////////////////////
-
+/**
+ * @file PixelDigitization/EnergyDepositionTool.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date January, 2020
+ * @brief Provides energy deposition in sensor. Default:Bichsel model
+ */
 
 #ifndef PIXELDIGITIZATION_EnergyDepositionTool_H
 #define PIXELDIGITIZATION_EnergyDepositionTool_H
@@ -29,7 +20,7 @@
 #include "HitManagement/TimedHitPtr.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 #include "InDetIdentifier/PixelID.h"
 #include "PixelConditionsData/PixelDistortionData.h"
@@ -64,32 +55,50 @@ class EnergyDepositionTool : public AthAlgTool {
     std::vector<std::pair<double,double> > ClusterHits(std::vector<std::pair<double,double> >& rawHitRecord, int n_pieces) const;         // cluster hits into n steps (there could be thousands of hit)
     int trfPDG(int pdgId) const;                                                             // convert pdgId to ParticleType. If it is unsupported particle, -1 is returned.
 
-    virtual StatusCode depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine);
+    virtual StatusCode depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, 
+        std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine);
 
     // Variables
   private:
     EnergyDepositionTool();
 
-    // internal private members //
-    double                   m_DeltaRayCut;      // Threshold to identify a delta ray. unit in keV
+    const PixelID* m_pixelID{nullptr};
+
     std::vector<BichselData> m_BichselData;      // vector to store Bichsel Data. Each entry is for one particle type
-    int                      m_nCols;            // number of collisions to simulate each time. This is mainly to save CPU time if necessary
-    int                      m_LoopLimit;        // upper limit on number of loops. The default value is optimized for current configuration. People can tune this number in case of ITK upgrade (very forward barrel) or other new situation.
-    int    m_numberOfSteps;
-    int    m_numberOfCharges;  
-    bool   m_disableDistortions;
 
-    bool   m_doBichsel;                                  // re-do charge deposition following Bichsel model ?
-    double m_doBichselBetaGammaCut;                      // replace momentum cut
-    bool   m_doDeltaRay;                                 // implement Bichsel Model into delta-ray, which does not have truth particle link. 
-    bool   m_doPU;                                       // Whether we apply Bichsel model on non-HS particles
+    Gaudi::Property<int> m_numberOfSteps
+    {this, "numberOfSteps", 50, "Geant4:number of steps for PixelPlanar"};
 
-    const PixelID* m_pixelID;
+    Gaudi::Property<int> m_numberOfCharges
+    {this, "numberOfCharges", 10, "Geant4:number of charges for PixelPlanar"};
+
+    Gaudi::Property<bool> m_disableDistortions
+    {this, "DisableDistortions", false, "Disable simulation of module distortions"};
+
+    Gaudi::Property<bool> m_doBichsel
+    {this, "doBichsel", true, "re-do charge deposition following Bichsel model"};
+
+    Gaudi::Property<double> m_doBichselBetaGammaCut
+    {this, "doBichselBetaGammaCut", 0.1, "minimum beta-gamma for particle to be re-simulated through Bichsel Model"};
+
+    Gaudi::Property<bool> m_doDeltaRay
+    {this, "doDeltaRay", false, "whether we simulate delta-ray using Bichsel model"};
+
+    Gaudi::Property<double> m_DeltaRayCut
+    {this, "DeltaRayCut", 117.0, "Cut of delta ray [keV]"};
+
+    Gaudi::Property<bool> m_doPU
+    {this, "doPU", true, "Whether we apply Bichsel model on PU"};
+
+    Gaudi::Property<int> m_nCols
+    {this, "nCols", 1, "Number of collision for each sampling"};
+
+    Gaudi::Property<int> m_LoopLimit
+    {this, "LoopLimit", 100000, "Limit assuming 1 collision per sampling"};
 
     SG::ReadCondHandleKey<PixelDistortionData> m_distortionKey
     {this, "PixelDistortionData", "PixelDistortionData", "Output readout distortion data"};
 
-    // Functions
   private:
     void simulateBow(const InDetDD::SiDetectorElement * element,double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const;
     std::pair<int,int> FastSearch(std::vector<double> vec, double item) const;               // A quick implementation of binary search in 2D table

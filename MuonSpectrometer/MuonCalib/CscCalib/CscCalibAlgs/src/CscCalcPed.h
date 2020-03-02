@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCALCPED_H
@@ -24,12 +24,13 @@ an RDO
 #include "TH1.h"
 #include "TH2.h"
 #include "TH2F.h"
-#include "MuonCondInterface/CscICoolStrSvc.h"
+#include "MuonCondData/CscCondDbData.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class cscIdHelper;
 class TFile;
 class IdentifierHash;
+class CscCondDbData;
 //class ICscCalibTool;
 
 namespace Muon {
@@ -105,9 +106,9 @@ namespace MuonCalib{
     //      ICscCalibTool * m_cscCalibTool;
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       IChronoStatSvc* m_chronoSvc;
-      ServiceHandle<CscICoolStrSvc> m_cscCoolStrSvc;
       ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;
-    
+      SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
+ 
 
     /**Parameters input through joboptions*/
       std::string m_outputFileName;

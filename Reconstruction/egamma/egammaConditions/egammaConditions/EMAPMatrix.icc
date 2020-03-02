@@ -27,8 +27,7 @@ inline int EMAPMatrixAxis::getBinIndex(double x) const
 
 inline bool EMAPMatrixAxis::isInRange(double x) const
 {
-  if ((x<m_vecBins[0]) || (m_vecBins[m_vecBins.size()-1]<x)) return false;
-  return true;
+  return !((x<m_vecBins[0]) || (m_vecBins[m_vecBins.size()-1]<x));
 }
 
 // double EMAPMatrixAxis::getMeanOfBin(unsigned int i) const
@@ -61,7 +60,7 @@ EMAPMatrix<T>::EMAPMatrix()
 
 
 template <class T>
-EMAPMatrix<T>::EMAPMatrix(std::vector<EMAPMatrixAxis> axes,  std::string textDescription)
+EMAPMatrix<T>::EMAPMatrix(const std::vector<EMAPMatrixAxis>& axes,  const std::string& textDescription)
 {
   //	m_emptyObject = 0;
   StatusCode sc = setupMatrix(axes);
@@ -271,7 +270,7 @@ const T* EMAPMatrix<T>::getBinContent(double x) const
 {
   if (m_dimensions!=1)
     {
-      return 0;
+      return nullptr;
     }
   std::vector<double> vec;
   vec.push_back(x);
@@ -283,7 +282,7 @@ const T* EMAPMatrix<T>::getBinContent(double x, double y) const
 {
   if (m_dimensions!=2)
     {
-      return 0;
+      return nullptr;
     }
   std::vector<double> vec;
   vec.push_back(x);
@@ -363,7 +362,7 @@ const T* EMAPMatrix<T>::getBinContent(std::vector<double> x) const
 	  return &(m_matrix.at(Index(id)));
 	}
     }
-  return 0;
+  return nullptr;
 }
 
 
@@ -432,7 +431,7 @@ bool EMAPMatrix<T>::isInRange(std::vector<double> x) const
 }
 
 template <class T>
-void EMAPMatrix<T>::setTextDescription(std::string text)
+void EMAPMatrix<T>::setTextDescription(const std::string& text)
 {
   m_textDescription = text;
 }

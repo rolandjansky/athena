@@ -30,7 +30,8 @@ from six import print_
 def format_num(num):
     """Format a number according to given places.
     Adds commas, etc."""
-    if isinstance(num, (int, long)):
+    from builtins import int
+    if isinstance(num, int):
         return splitThousands(num)
         
     return str(num)

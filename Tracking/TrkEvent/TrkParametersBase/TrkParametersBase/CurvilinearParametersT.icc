@@ -202,7 +202,7 @@ namespace Trk
 
   // Surface return (with on demand construction)
   template <int DIM,class T,class S>
-  const Amg::RotationMatrix3D CurvilinearParametersT<DIM,T,S>::measurementFrame() const
+  Amg::RotationMatrix3D CurvilinearParametersT<DIM,T,S>::measurementFrame() const
   {
     Amg::RotationMatrix3D mFrame;
     // the columnes
@@ -216,7 +216,7 @@ namespace Trk
   }
 
   template<int DIM,class T,class S>
-  const CurvilinearUVT CurvilinearParametersT<DIM,T,S>::curvilinearFrame() const
+  CurvilinearUVT CurvilinearParametersT<DIM,T,S>::curvilinearFrame() const
   {
     CurvilinearUVT curvilinFrame(this->momentum().unit());
     return curvilinFrame;

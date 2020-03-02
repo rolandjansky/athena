@@ -6,11 +6,11 @@
 #include "TRTDetectorFactory_Full.h"
 #include "TRT_DetDescrDB_ParameterInterface.h"
 
-#include "InDetReadoutGeometry/TRT_Numerology.h"
-#include "InDetReadoutGeometry/TRT_BarrelDescriptor.h"
-#include "InDetReadoutGeometry/TRT_BarrelElement.h"
-#include "InDetReadoutGeometry/TRT_EndcapDescriptor.h"
-#include "InDetReadoutGeometry/TRT_EndcapElement.h"
+#include "TRT_ReadoutGeometry/TRT_Numerology.h"
+#include "TRT_ReadoutGeometry/TRT_BarrelDescriptor.h"
+#include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
+#include "TRT_ReadoutGeometry/TRT_EndcapDescriptor.h"
+#include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/Version.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 

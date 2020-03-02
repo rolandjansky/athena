@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -29,16 +29,11 @@ public:
     //-------------------------------------------------------------
     ~TauGenericPi0Cone();
 
-    virtual StatusCode initialize();
-    virtual StatusCode execute(xAOD::TauJet& pTau);
-    virtual StatusCode finalize();
-    virtual StatusCode eventInitialize() { return StatusCode::SUCCESS; }
-    virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
-
-    virtual void print() const { }
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode finalize() override;
 
 private:
-    std::string m_configPath;
 
 };
 

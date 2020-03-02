@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Algorithm producing truth info for PrepRawData, keeping all MC particles contributed to a PRD.
@@ -7,7 +7,6 @@
 
 #include "MuonTruthAlgs/MuonDetailedTrackTruthMaker.h"
 #include <iterator>
-#include <map>
 
 //================================================================
 MuonDetailedTrackTruthMaker::MuonDetailedTrackTruthMaker(const std::string &name, ISvcLocator *pSvcLocator) :
@@ -39,17 +38,10 @@ StatusCode MuonDetailedTrackTruthMaker::initialize()
     else m_PRD_TruthNames={"sTGC_TruthMap","MM_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"};
   }
 
-  if(m_detailedTrackTruthNames.empty()){
-    m_detailedTrackTruthNames.reserve ( m_trackCollectionNames.size());
-    for(unsigned int i=0;i<m_trackCollectionNames.size();i++){
-      m_detailedTrackTruthNames.emplace_back(m_trackCollectionNames.at(i).key()+"DetailedTruth");
-      ATH_MSG_INFO("process "<<m_trackCollectionNames.at(i).key()<<" for detailed truth collection "<<m_detailedTrackTruthNames.at(i).key());
-    }
-  }
-  else{
-    for(unsigned int i=0;i<m_detailedTrackTruthNames.size();i++){
-      m_detailedTrackTruthNames.at(i)=m_detailedTrackTruthNames.at(i).key()+"DetailedTruth";
-    }
+  m_detailedTrackTruthNames.reserve ( m_trackCollectionNames.size());
+  for(unsigned int i=0;i<m_trackCollectionNames.size();i++){
+    m_detailedTrackTruthNames.emplace_back(m_trackCollectionNames.at(i).key()+"DetailedTruth");
+    ATH_MSG_INFO("process "<<m_trackCollectionNames.at(i).key()<<" for detailed truth collection "<<m_detailedTrackTruthNames.at(i).key());
   }
 
   ATH_CHECK(m_trackCollectionNames.initialize());
@@ -86,20 +78,6 @@ StatusCode MuonDetailedTrackTruthMaker::execute() {
   //----------------------------------------------------------------
   // Retrieve track collections
 
-  std::map<std::string,DetailedTrackTruthCollection*> dttcMap;
-  for(SG::WriteHandle<DetailedTrackTruthCollection>& h_dttc : m_detailedTrackTruthNames.makeHandles()){
-    ATH_CHECK(h_dttc.record(std::make_unique<DetailedTrackTruthCollection>()));
-    if(h_dttc.key().find("MSOnlyExtrapolated")!=std::string::npos) dttcMap.insert(std::pair<std::string,DetailedTrackTruthCollection*>("MSOnlyExtrapolated",h_dttc.ptr()));
-    else if(h_dttc.key().find("ExtrapolatedMuonTracks")!=std::string::npos) dttcMap.insert(std::pair<std::string,DetailedTrackTruthCollection*>("METracks",h_dttc.ptr()));
-    else if(h_dttc.key().find("CombinedMuonTracks")!=std::string::npos) dttcMap.insert(std::pair<std::string,DetailedTrackTruthCollection*>("CombinedTracks",h_dttc.ptr()));
-    else{
-      std::string cname=h_dttc.key();
-      int pos=cname.find("DetailedTruth");
-      cname.erase(pos,cname.length()-pos);
-      dttcMap.insert(std::pair<std::string,DetailedTrackTruthCollection*>(cname,h_dttc.ptr()));
-    }
-  }
-
   int i=0;
   for(SG::ReadHandle<TrackCollection>& tcol : m_trackCollectionNames.makeHandles()){
     if(!tcol.isValid()){
@@ -111,19 +89,10 @@ StatusCode MuonDetailedTrackTruthMaker::execute() {
     //----------------------------------------------------------------
     // Produce and store the output.
 
-    DetailedTrackTruthCollection* dttc=0;
-    for(auto entry : dttcMap){
-      if(tcol.key().find(entry.first)!=std::string::npos){
-	dttc=entry.second;
-	break;
-      }
-    }
-    if(!dttc){
-      ATH_MSG_WARNING("no detailed track collection found for "<<tcol.key()<<"!");
-      continue;
-    }
-    if(!dttc->trackCollectionLink().isValid()) dttc->setTrackCollection(tcol.cptr());
-    m_truthTool->buildDetailedTrackTruth(dttc, *(tcol.cptr()), prdCollectionVector);
+    SG::WriteHandle<DetailedTrackTruthCollection> dttc(m_detailedTrackTruthNames.at(i));
+    ATH_CHECK(dttc.record(std::make_unique<DetailedTrackTruthCollection>()));
+    dttc->setTrackCollection(tcol.cptr());
+    m_truthTool->buildDetailedTrackTruth(dttc.ptr(), *(tcol.cptr()), prdCollectionVector);
     i++;
   }
   return StatusCode::SUCCESS;

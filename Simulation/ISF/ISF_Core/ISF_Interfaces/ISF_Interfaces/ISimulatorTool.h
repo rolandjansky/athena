@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_ISIMULATORTOOL_H
@@ -45,9 +45,6 @@ public:
 
   /** return the simulation flavor */
   virtual ISF::SimulationFlavor simFlavor() const = 0;
-
-  /** Migration path, allowing simulatortool to act as a particle broker, does not need to be implemented **/
-  virtual void push( ISF::ISFParticle*, const ISF::ISFParticle* ) { return; };
 
 };
 

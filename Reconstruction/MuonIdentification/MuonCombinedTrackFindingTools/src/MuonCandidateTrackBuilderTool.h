@@ -1,29 +1,27 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONCANDIDATETRACKBUILDER_H
 #define MUON_MUONCANDIDATETRACKBUILDER_H
 
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "MuonCombinedToolInterfaces/IMuonCandidateTrackBuilderTool.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecToolInterfaces/IMuonSegmentTrackBuilder.h"
+#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 
 #include <vector>
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-
-namespace Rec {
-  class ICombinedMuonTrackBuilder;
-}
 
 namespace Muon {
 
-  class IMuonSegmentTrackBuilder;
-  class MuonEDMPrinterTool;
   struct MuonCandidate;
 
   class SortMeas{
@@ -35,32 +33,32 @@ namespace Muon {
       else {
 	Identifier id1=m_edmHelperSvc->getIdentifier(*mst1);
 	Identifier id2=m_edmHelperSvc->getIdentifier(*mst2);
-	if(m_idHelper->isMdt(id1) && m_idHelper->isMdt(id2)) return mst1->globalPosition().perp() < mst2->globalPosition().perp();
-	else if(m_idHelper->isRpc(id1) && m_idHelper->isMdt(id2)){
-	  if(m_idHelper->rpcIdHelper().doubletR(id1)==1){
-	    if(m_idHelper->stationIndex(id2)==MuonStationIndex::StIndex::BM || m_idHelper->isSmallChamber(id2)) return true;
+	if(m_idHelperSvc->isMdt(id1) && m_idHelperSvc->isMdt(id2)) return mst1->globalPosition().perp() < mst2->globalPosition().perp();
+	else if(m_idHelperSvc->isRpc(id1) && m_idHelperSvc->isMdt(id2)){
+	  if(m_idHelperSvc->rpcIdHelper().doubletR(id1)==1){
+	    if(m_idHelperSvc->stationIndex(id2)==MuonStationIndex::StIndex::BM || m_idHelperSvc->isSmallChamber(id2)) return true;
 	    else return false;
 	  }
 	  else return false;
-	}else if(m_idHelper->isRpc(id2) && m_idHelper->isMdt(id1)){
-	  if(m_idHelper->rpcIdHelper().doubletR(id2)==1){
-	    if(m_idHelper->stationIndex(id1)==MuonStationIndex::StIndex::BM || m_idHelper->isSmallChamber(id1)) return false;
+	}else if(m_idHelperSvc->isRpc(id2) && m_idHelperSvc->isMdt(id1)){
+	  if(m_idHelperSvc->rpcIdHelper().doubletR(id2)==1){
+	    if(m_idHelperSvc->stationIndex(id1)==MuonStationIndex::StIndex::BM || m_idHelperSvc->isSmallChamber(id1)) return false;
 	    else return true;
 	  }
 	  else return true;
 	}
 	else{
-	  if(m_idHelper->rpcIdHelper().doubletR(id1)!=m_idHelper->rpcIdHelper().doubletR(id2)){
-	    return m_idHelper->rpcIdHelper().doubletR(id1)<m_idHelper->rpcIdHelper().doubletR(id2);
+	  if(m_idHelperSvc->rpcIdHelper().doubletR(id1)!=m_idHelperSvc->rpcIdHelper().doubletR(id2)){
+	    return m_idHelperSvc->rpcIdHelper().doubletR(id1)<m_idHelperSvc->rpcIdHelper().doubletR(id2);
 	  }
 	  else return mst1->globalPosition().perp() < mst2->globalPosition().perp();
 	}
       }
     }
-  SortMeas(const IMuonEDMHelperSvc* h, const MuonIdHelperTool* idh, bool end ) : m_edmHelperSvc(h),m_idHelper(idh),isEndcap(end) {}
+  SortMeas(const IMuonEDMHelperSvc* h, const IMuonIdHelperSvc* idh, bool end ) : m_edmHelperSvc(h),m_idHelperSvc(idh),isEndcap(end) {}
 
     const IMuonEDMHelperSvc* m_edmHelperSvc;
-    const MuonIdHelperTool*  m_idHelper;
+    const IMuonIdHelperSvc*  m_idHelperSvc;
     bool isEndcap;
   };
       
@@ -69,9 +67,8 @@ namespace Muon {
 
     /** Default AlgTool functions */
     MuonCandidateTrackBuilderTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonCandidateTrackBuilderTool();
+    virtual ~MuonCandidateTrackBuilderTool() {};
     StatusCode initialize();
-    StatusCode finalize();
 
     /**IMuonCandidateTrackBuilderTool interface: buildCombinedTrack */   
     Trk::Track* buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const;
@@ -80,7 +77,7 @@ namespace Muon {
 
     ToolHandle<IMuonSegmentTrackBuilder>       m_muonTrackBuilder; 
     ToolHandle<MuonEDMPrinterTool>             m_printer;
-    ToolHandle<MuonIdHelperTool>               m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };

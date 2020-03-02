@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -12,17 +12,17 @@ decription           : Implementation code for GsfMeasurementUpdator class
 *********************************************************************************/
 
 #include "TrkGaussianSumFilter/GsfMeasurementUpdator.h"
-#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "GaudiKernel/Chrono.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
+#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 
 #include "TrkGaussianSumFilter/PosteriorWeightsCalculator.h"
 
-Trk::GsfMeasurementUpdator::GsfMeasurementUpdator(const std::string type,
-                                                  const std::string name,
+Trk::GsfMeasurementUpdator::GsfMeasurementUpdator(const std::string& type,
+                                                  const std::string& name,
                                                   const IInterface* parent)
   : AthAlgTool(type, name, parent)
 {
@@ -54,14 +54,14 @@ Trk::GsfMeasurementUpdator::update(Trk::MultiComponentState&& stateBeforeUpdate,
                                    const Trk::MeasurementBase& measurement) const
 {
   std::unique_ptr<MultiComponentState> updatedState = nullptr;
-  // Point to the correct member function of the linear fitter measurement updator for fitting in the direction of
-  // momentum
+  // Point to the correct member function of the linear fitter measurement updator for fitting in
+  // the direction of momentum
   Updator updator = &Trk::IUpdator::addToState;
   // Check all components have associated error matricies
   Trk::MultiComponentState::iterator component = stateBeforeUpdate.begin();
   bool rebuildStateWithErrors = false;
-  // Perform initial check of state awaiting update. If all states have associated error matricies then no need to
-  // perform the rebuild
+  // Perform initial check of state awaiting update. If all states have associated error matricies
+  // then no need to perform the rebuild
   for (; component != stateBeforeUpdate.end(); ++component) {
     rebuildStateWithErrors = rebuildStateWithErrors || invalidComponent(component->first.get());
   }
@@ -105,7 +105,8 @@ Trk::GsfMeasurementUpdator::fitQuality(const MultiComponentState& updatedState,
                                        const MeasurementBase& measurement) const
 {
 
-  // Fit quality assumes that a state that has been updated by the measurement updator has been supplied to it
+  // Fit quality assumes that a state that has been updated by the measurement updator has been
+  // supplied to it
 
   if (updatedState.empty()) {
     ATH_MSG_WARNING("Attempting to calculate chi2 of a hit with respect to an empty multiple-component state");
@@ -119,9 +120,9 @@ Trk::GsfMeasurementUpdator::fitQuality(const MultiComponentState& updatedState,
   for (; component != updatedState.end(); ++component) {
     const Trk::TrackParameters* trackParameters = component->first.get();
 
-    // IUpdator interface change (27/09/2005) to allow for fit quality calculations depending on if the track parameters
-    // incorporate the information contained in the measurement. I ALWAYS do this - hence the fullStateFitQuality method
-    // is used
+    // IUpdator interface change (27/09/2005) to allow for fit quality calculations depending on if
+    // the track parameters incorporate the information contained in the measurement. I ALWAYS do
+    // this - hence the fullStateFitQuality method is used
     const Trk::FitQualityOnSurface* componentFitQuality =
       m_updator->fullStateFitQuality(*trackParameters, measurement.localParameters(), measurement.localCovariance());
 
@@ -138,7 +139,7 @@ Trk::GsfMeasurementUpdator::fitQuality(const MultiComponentState& updatedState,
 
   if (std::isnan(chi2) || chi2 <= 0.) {
 
-    return 0;
+    return nullptr;
   }
 
   const Trk::FitQualityOnSurface* fitQualityOnSurface = new FitQualityOnSurface(chi2, degreesOfFreedom);
@@ -173,8 +174,8 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(Trk::MultiComponentState&& state
   Trk::MultiComponentState::const_iterator component = stateWithNewWeights->begin();
 
   for (; component != stateWithNewWeights->end(); ++component) {
-    
-    Trk::FitQualityOnSurface* fitQuality = 0;
+
+    Trk::FitQualityOnSurface* fitQuality = nullptr;
 
     // Track updates using a pointer to the member function
     std::unique_ptr<Trk::TrackParameters> updatedTrackParameters(((&(*m_updator))->*updator)(
@@ -229,8 +230,8 @@ Trk::GsfMeasurementUpdator::update(Trk::MultiComponentState&& stateBeforeUpdate,
 
   bool rebuildStateWithErrors = false;
 
-  // Perform initial check of state awaiting update. If all states have associated error matricies then no need to
-  // perform the rebuild
+  // Perform initial check of state awaiting update. If all states have associated error matricies
+  // then no need to perform the rebuild
   for (; component != stateBeforeUpdate.end(); ++component) {
     rebuildStateWithErrors = rebuildStateWithErrors || invalidComponent(component->first.get());
   }
@@ -292,7 +293,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(Trk::MultiComponentState&& state
       ATH_MSG_DEBUG("About to update component with p<30MeV...skipping component! (2)");
       continue;
     }
-    Trk::FitQualityOnSurface* componentFitQuality = 0;
+    Trk::FitQualityOnSurface* componentFitQuality = nullptr;
     // Track update alternates between update and getUnbiasedTrackParams
     std::unique_ptr<Trk::TrackParameters> updatedTrackParameters(m_updator->addToState(
       *(*component).first, measurement.localParameters(), measurement.localCovariance(), componentFitQuality));
@@ -382,7 +383,7 @@ Trk::GsfMeasurementUpdator::rebuildState(Trk::MultiComponentState&& stateBeforeU
   for (; component != stateBeforeUpdate.end(); ++component) {
 
     const Trk::TrackParameters* trackParameters = component->first.get();
-    double  weight = component->second;
+    double weight = component->second;
     bool rebuildCov = invalidComponent(trackParameters);
     if (rebuildCov) {
       AmgSymMatrix(5)* bigNewCovarianceMatrix = new AmgSymMatrix(5);

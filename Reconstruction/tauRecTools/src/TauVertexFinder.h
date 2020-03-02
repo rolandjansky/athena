@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUVERTEXFINDER_H
@@ -39,20 +39,17 @@ public:
   //-------------------------------------------------------------
   //! Algorithm functions
   //-------------------------------------------------------------
-  virtual StatusCode initialize();
-  virtual StatusCode eventInitialize();
-  virtual StatusCode execute(xAOD::TauJet& pTau);
-  virtual StatusCode eventFinalize();
-  virtual StatusCode finalize();
-
-  virtual void cleanup(xAOD::TauJet* ) { }
-  virtual void print() const { }
-
+  virtual StatusCode initialize() override;
+  virtual StatusCode executeVertexFinder(xAOD::TauJet& pTau, 
+                                         const xAOD::VertexContainer* vertexContainer = nullptr, 
+                                         const xAOD::TrackParticleContainer* trackContainer = nullptr) override;
+  virtual StatusCode finalize() override;
 
 private:
   ElementLink<xAOD::VertexContainer>
   getPV_TJVA(const xAOD::TauJet& tauJet,
              const xAOD::VertexContainer& vertices,
+             const xAOD::TrackParticleContainer* trackContainer,
              float& maxJVF);
 
   float getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const;

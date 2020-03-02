@@ -1,5 +1,5 @@
 # 
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration 
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 # 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
@@ -102,8 +102,8 @@ def muCombAlgSequence(ConfigFlags):
     l2muCombViewsMaker = EventViewCreatorAlgorithm("IMl2muComb")
     l2muCombViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view
     l2muCombViewsMaker.RoIsLink = "roi" # setting to RoI updated L2MuonSA
-    l2muCombViewsMaker.InViewRoIs = "EMIDRoIs" #name of the RoIS inside of the view, because in principle we can have more than one RoI/view
-    l2muCombViewsMaker.Views = "EMCombViewRoIs" #output of the views maker (key in "storegate")
+    l2muCombViewsMaker.InViewRoIs = "MUIDRoIs" #name of the RoIS inside of the view, because in principle we can have more than one RoI/view
+    l2muCombViewsMaker.Views = "MUCombViewRoIs" #output of the views maker (key in "storegate")
     l2muCombViewsMaker.RequireParentView = True
 
     ### get ID tracking and muComb reco sequences ###    

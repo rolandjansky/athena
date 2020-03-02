@@ -116,10 +116,10 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
 	    // parameters for RoI to record
 	    reta = lateRoI->eta();
 	    retap = lateRoI->etaPlus();
-	    retap = lateRoI->etaMinus();
+	    retam = lateRoI->etaMinus();
 	    rphi = lateRoI->phi();
 	    rphip = lateRoI->phiPlus();
-	    rphip = lateRoI->phiMinus();
+	    rphim = lateRoI->phiMinus();
 	  }
 	  else{
 	    // Retrieve muons ...
@@ -133,10 +133,10 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
 	    // parameters for RoI around muon
 	    reta = muon->eta();
 	    retap = muon->eta()+m_roiEtaWidth;
-	    retap = muon->eta()-m_roiEtaWidth;
+	    retam = muon->eta()-m_roiEtaWidth;
 	    rphi = muon->phi();
 	    rphip = muon->phi()+m_roiPhiWidth;
-	    rphip = muon->phi()-m_roiPhiWidth;
+	    rphim = muon->phi()-m_roiPhiWidth;
 	  }
 	  auto roi = new TrigRoiDescriptor(reta, retam, retap, rphi, rphim, rphip);
 	  roisWriteHandle->push_back( roi );

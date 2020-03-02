@@ -17,7 +17,7 @@
 #include "VP1Utils/VP1DetInfo.h"
 #include "VP1Utils/VP1LinAlgUtils.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetRawData/PixelRDORawData.h"
 #include "InDetIdentifier/PixelID.h"

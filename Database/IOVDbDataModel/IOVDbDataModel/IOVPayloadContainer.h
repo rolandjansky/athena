@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVDBDATAMODEL_IOVPAYLOADCONTAINER_H
@@ -18,18 +18,13 @@
  * $Id: IOVPayloadContainer.h,v 1.7 2009-04-30 14:15:30 schaffer Exp $
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include <vector>
 
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-/** @class IOVPayloadContainer
+/**
+ * @class IOVPayloadContainer
  *
  * @brief This class is a container for the payload of conditions
  * data. It is intended to be used to store conditions data from COOL
@@ -48,6 +43,8 @@ public:
     //@{
     IOVPayloadContainer();
     ~IOVPayloadContainer();
+    IOVPayloadContainer(const IOVPayloadContainer& cont);
+    IOVPayloadContainer& operator=(const IOVPayloadContainer& cont);
     //@}
 
     /// \name Payload accessors
@@ -151,13 +148,6 @@ IOVPayloadContainer::find(const IOVTime& time) const
     // At end return:
     if ( result == m_payloadVec.end() )  return (result) ;
 
-//     const CondAttrListCollection* coll  = (*(m_payloadVec.begin()));
-//     const CondAttrListCollection* collr = (*result);
-//     std::cout << "pos " << result - m_payloadVec.begin() << " size "
-//               << m_payloadVec.size() << " range " 
-//               << (*(coll->iov_begin())).second << " " << (*(collr->iov_begin())).second
-//               << std::endl;
-    
     // Check that time is in interval
     if ( (*result)->minRange().start() <= time)  return (result);
 

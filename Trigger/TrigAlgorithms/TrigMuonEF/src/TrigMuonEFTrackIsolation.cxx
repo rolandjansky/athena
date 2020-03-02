@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfHLTData/HLTTriggerElement.h"
@@ -11,11 +11,6 @@
 #include "FourMomUtils/P4Helpers.h"
 
 // edm includes
-#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
-#include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
-#include "TrigMuonEvent/TrigMuonEFCbTrack.h"
-#include "TrigMuonEvent/TrigMuonEFIsolationContainer.h"
-#include "TrigMuonEvent/TrigMuonEFIsolation.h"
 #include "Particle/TrackParticleContainer.h"
 #include "xAODMuon/MuonContainer.h"
 
@@ -32,7 +27,6 @@ using std::endl;
  */
 TrigMuonEFTrackIsolation::TrigMuonEFTrackIsolation(const std::string& name, ISvcLocator* pSvcLocator) :
   FexAlgo(name, pSvcLocator),
-  m_isoType(1),
   m_requireCombined(false),
   m_useVarIso(false),
   m_muonContName("MuonEFInfo"),
@@ -56,10 +50,8 @@ TrigMuonEFTrackIsolation::TrigMuonEFTrackIsolation(const std::string& name, ISvc
 
 
   declareProperty("IsolationTool", m_efIsoTool);
-  declareProperty("IsoType", m_isoType);  
   declareProperty("MuonContName", m_muonContName);
   declareProperty("IdTrackParticles", m_idTrackParticlesName);
-  declareProperty("FTKTrackParticles", m_FTKTrackParticlesName);
   declareProperty("doMyTiming", m_doMyTiming);
   declareProperty("requireCombinedMuon", m_requireCombined);
   declareProperty("useVarIso", m_useVarIso);
@@ -108,15 +100,11 @@ HLT::ErrorCode TrigMuonEFTrackIsolation::hltInitialize() {
     msg() << MSG::DEBUG
 	  << "IdTrackParticles:              " << m_idTrackParticlesName << endmsg;
     msg() << MSG::DEBUG
-	  << "FTKTrackParticles:             " << m_FTKTrackParticlesName << endmsg;
-    msg() << MSG::DEBUG
 	  << "requireCombinedMuon:           " << m_requireCombined << endmsg;
     msg() << MSG::DEBUG
 	  << "doMyTiming                     " << m_doMyTiming << endmsg;
     msg() << MSG::DEBUG
 	  << "useVarIso                      " << m_useVarIso << endmsg;
-    msg() << MSG::DEBUG
-	  << "IsoType =                      " << m_isoType << endmsg;
 
   }//debug
 
@@ -163,267 +151,147 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
   // Get ID Track & EF Muons
   const xAOD::TrackParticleContainer* idTrackParticles = 0;
   const xAOD::MuonContainer* EFmuonContainer(0);
-  if (m_isoType==1) { // isoType==1 -> ID+EF
-    // ID Tracks
-    HLT::ErrorCode hltStatus = getFeature(inputTE, idTrackParticles, m_idTrackParticlesName);
-    if (hltStatus != HLT::OK) {
-      msg() << MSG::WARNING << "Failed to retrieve inner detector track particles" << endmsg;
-      return hltStatus;
-    }
-    if(!idTrackParticles) {
-      std::string label;
-      std::string inlabel;
-      TrigConf::HLTTriggerElement::getLabel (TEout->getId(), label );
-      TrigConf::HLTTriggerElement::getLabel (inputTE->getId(), inlabel );
-      msg() << MSG::WARNING << "Pointer to xAOD::TrackParticleContainer[" << m_idTrackParticlesName << "] for id tracks = 0, stopping processing of ROI" << endmsg;
-      msg() << MSG::WARNING << "Input TE = " << inlabel << ", Output TE = " << label << endmsg;
-      return HLT::MISSING_FEATURE;
-    }  else {
-      if(m_debug) msg() << MSG::DEBUG << "Inner detector track particles retrieved with size: " << idTrackParticles->size() << endmsg;
-    } // Get ID tracks
 
-    // EF Muons
-    if(HLT::OK != getFeature(inputTE, EFmuonContainer)) {
-      ATH_MSG_WARNING("Could not get xAOD::MuonContainer from the trigger element");
-      return HLT::MISSING_FEATURE;
-    } else {
-      if(!EFmuonContainer) {
-	ATH_MSG_WARNING("muonContainer is 0 pointer");
-	return HLT::MISSING_FEATURE;
-      }
-      ATH_MSG_DEBUG("EF MuonContainer extracted with size = " << EFmuonContainer->size());
-  
-    } // Get EF Muons
-  }  else {
-    if (m_debug) msg() << MSG::DEBUG << "No IDTrk / EF Muon isolation requested" << endmsg;
-  }// ID + EF Retrieval
-
-  // Get FTK Tracks and L2 Muons
-  const xAOD::TrackParticleContainer* FTKTrackParticles = 0;
-  const xAOD::L2CombinedMuonContainer* L2muonContainer(0);
-  if (m_isoType==2) { // isoType==2 -> FTK+L2
-
-    // FTK tracks
-    HLT::ErrorCode hltFTKStatus = getFeature(inputTE, FTKTrackParticles, m_FTKTrackParticlesName);
-    if (hltFTKStatus != HLT::OK) {
-      msg() << MSG::WARNING << "Failed to retrieve FTK track particles" << endmsg;
-      return hltFTKStatus;
-    }
-    if(!FTKTrackParticles) {
-      std::string label;
-      std::string inlabel;
-      TrigConf::HLTTriggerElement::getLabel (TEout->getId(), label );
-      TrigConf::HLTTriggerElement::getLabel (inputTE->getId(), inlabel );
-      msg() << MSG::WARNING << "Pointer to xAOD::TrackParticleContainer[" << m_FTKTrackParticlesName << "] for FTK tracks = 0, stopping processing of ROI" << endmsg;
-      msg() << MSG::WARNING << "Input TE = " << inlabel << ", Output TE = " << label << endmsg;
-       return HLT::MISSING_FEATURE;
-    }  else {
-      if(m_debug) msg() << MSG::DEBUG << "FTK track particles retrieved with size: " << FTKTrackParticles->size() << endmsg;
-    }// Get FTK tracks
-
-    // extract L2 Muons
-    HLT::ErrorCode status = getFeature(inputTE, L2muonContainer);
-    if (status != HLT::OK || ! L2muonContainer) {
-      msg() << MSG::ERROR << " L2CombinedMuonContainer not found --> ABORT" << endmsg;
-      return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
-    }else{
-      ATH_MSG_DEBUG("L2 MuonContainer extracted with size = " << L2muonContainer->size());
-    }
-  } else {
-    if (m_debug) msg() << MSG::DEBUG << "No FTK / L2 Muon isolation requested" << endmsg;
+  // ID Tracks
+  HLT::ErrorCode hltStatus = getFeature(inputTE, idTrackParticles, m_idTrackParticlesName);
+  if (hltStatus != HLT::OK) {
+    msg() << MSG::WARNING << "Failed to retrieve inner detector track particles" << endmsg;
+    return hltStatus;
   }
-      
+  if(!idTrackParticles) {
+    std::string label;
+    std::string inlabel;
+    TrigConf::HLTTriggerElement::getLabel (TEout->getId(), label );
+    TrigConf::HLTTriggerElement::getLabel (inputTE->getId(), inlabel );
+    msg() << MSG::WARNING << "Pointer to xAOD::TrackParticleContainer[" << m_idTrackParticlesName << "] for id tracks = 0, stopping processing of ROI" << endmsg;
+    msg() << MSG::WARNING << "Input TE = " << inlabel << ", Output TE = " << label << endmsg;
+    return HLT::MISSING_FEATURE;
+  }  else {
+    if(m_debug) msg() << MSG::DEBUG << "Inner detector track particles retrieved with size: " << idTrackParticles->size() << endmsg;
+  } // Get ID tracks
+  
+    // EF Muons
+  if(HLT::OK != getFeature(inputTE, EFmuonContainer)) {
+    ATH_MSG_WARNING("Could not get xAOD::MuonContainer from the trigger element");
+    return HLT::MISSING_FEATURE;
+  } else {
+    if(!EFmuonContainer) {
+      ATH_MSG_WARNING("muonContainer is 0 pointer");
+      return HLT::MISSING_FEATURE;
+    }
+    ATH_MSG_DEBUG("EF MuonContainer extracted with size = " << EFmuonContainer->size());
+    
+  } // Get EF Muons
+   
+
+   
   if(m_doMyTiming){
     if (m_dataPrepTime) m_dataPrepTime->stop();
     if (m_calcTime) m_calcTime->start();
   }
 
-  if (m_isoType==1) {
-    // loop on EF muons
-    for(auto muon : *EFmuonContainer) {
+  // loop on EF muons
+  for(auto muon : *EFmuonContainer) {
+    if(m_debug) {
+      msg() << MSG::DEBUG << "Processing next EF muon w/ ID Track Isolation " << muon << endmsg;
+    }
+    const xAOD::Muon::MuonType muontype = muon->muonType();
+    if( muontype == xAOD::Muon::MuonType::Combined || muontype == xAOD::Muon::MuonType::SegmentTagged ) {
       if(m_debug) {
-	msg() << MSG::DEBUG << "Processing next EF muon w/ ID Track Isolation " << muon << endmsg;
+	msg() << MSG::DEBUG << "EF muon has combined or segment tagged muon" << endmsg;
       }
-      const xAOD::Muon::MuonType muontype = muon->muonType();
-      if( muontype == xAOD::Muon::MuonType::Combined || muontype == xAOD::Muon::MuonType::SegmentTagged ) {
+    } else {
+      if(m_requireCombined) {
 	if(m_debug) {
-	  msg() << MSG::DEBUG << "EF muon has combined or segment tagged muon" << endmsg;
+	  msg() << MSG::DEBUG << "Not a combined or segment tagged muon & requireCombined=true, so ignore this muon" << endmsg;
 	}
-      } else {
-	if(m_requireCombined) {
+	continue;
+      }//requireCombined
+      else{
+	if( muontype == xAOD::Muon::MuonType::MuonStandAlone ){
 	  if(m_debug) {
-	    msg() << MSG::DEBUG << "Not a combined or segment tagged muon & requireCombined=true, so ignore this muon" << endmsg;
+	    msg() << MSG::DEBUG << "EF muon has standalone muon" << endmsg;
+	  }
+	}
+	else{
+	  if(m_debug) {
+	    msg() << MSG::DEBUG << "EF muon has neither combined, segment tagged, nor standalone muon" << endmsg;
 	  }
 	  continue;
-	}//requireCombined
-	else{
-	  if( muontype == xAOD::Muon::MuonType::MuonStandAlone ){
-	    if(m_debug) {
-	      msg() << MSG::DEBUG << "EF muon has standalone muon" << endmsg;
-	    }
-	  }
-	  else{
-	    if(m_debug) {
-	      msg() << MSG::DEBUG << "EF muon has neither combined, segment tagged, nor standalone muon" << endmsg;
-	    }
-	    continue;
-	  }
 	}
-      }//no combined muon
+      }
+    }//no combined muon
     
-      std::vector<double> isoResults;
-      std::vector<double> dzvals; // for monitoring
-      std::vector<double> drvals; // for monitoring
-      std::vector<double> selfremoval;
+    std::vector<double> isoResults;
+    std::vector<double> dzvals; // for monitoring
+    std::vector<double> drvals; // for monitoring
+    std::vector<double> selfremoval;
 
-      // use the tool to calculate the isolation
-      // ID tracks
-      if (m_debug)
-	msg() << MSG::DEBUG << "Running ID Tracks now" << endmsg;
-      StatusCode result = m_efIsoTool->calcTrackIsolation( muon, idTrackParticles, m_coneSizes,  isoResults, &dzvals, &drvals, false, &selfremoval);
+    // use the tool to calculate the isolation
+    // ID tracks
+    if (m_debug)
+      msg() << MSG::DEBUG << "Running ID Tracks now" << endmsg;
+    StatusCode result = m_efIsoTool->calcTrackIsolation( muon, idTrackParticles, m_coneSizes,  isoResults, &dzvals, &drvals, &selfremoval);
 
-      m_trkdz.insert(m_trkdz.begin(), dzvals.begin(), dzvals.end());
-      m_trkdr.insert(m_trkdr.begin(), drvals.begin(), drvals.end());
+    m_trkdz.insert(m_trkdz.begin(), dzvals.begin(), dzvals.end());
+    m_trkdr.insert(m_trkdr.begin(), drvals.begin(), drvals.end());
      
-      if (selfremoval.size() == 3)
-	{
-	  m_muon_selfpt.push_back(selfremoval[0] * 1e-3);
-	  m_muon_combinedpt.push_back(selfremoval[1] * 1e-3);
-	  m_muon_removedpt.push_back(selfremoval[2] * 1e-3);
-	}
-      else
-	msg() << MSG::DEBUG << "Muon pT not stored correctly - histograms have not been filled for this muon" << endmsg;
+    if (selfremoval.size() == 2)
+      {
+	m_muon_selfpt.push_back(selfremoval[0] * 1e-3);
+	m_muon_combinedpt.push_back(selfremoval[1] * 1e-3);
+      }
+    else
+      msg() << MSG::DEBUG << "Muon pT not stored correctly - histograms have not been filled for this muon" << endmsg;
 
-      if(result.isFailure() || isoResults.size() != 2) {	
-	if(result.isFailure()) {
-	  msg() << MSG::WARNING << "Isolation tool failed for this muon - isolation will not be set for this muon" << endmsg;
-	} else {
-	  if(isoResults.size() != 2) {
-	    msg() << MSG::WARNING << "Wrong number of isolation results - isolation will not be set for this muon." << endmsg;
-	  }
+    if(result.isFailure() || isoResults.size() != 2) {	
+      if(result.isFailure()) {
+	msg() << MSG::WARNING << "Isolation tool failed for this muon - isolation will not be set for this muon" << endmsg;
+      } else {
+	if(isoResults.size() != 2) {
+	  msg() << MSG::WARNING << "Wrong number of isolation results - isolation will not be set for this muon." << endmsg;
 	}
-      } else { //isolation tool was ok - store results
+      }
+    } else { //isolation tool was ok - store results
       
-	const float ptcone20 = isoResults[0]; 
-	const float ptcone30 = isoResults[1]; 
+      const float ptcone20 = isoResults[0]; 
+      const float ptcone30 = isoResults[1]; 
 
-	m_trkptiso_cone2.push_back(ptcone20 * 1e-3); // convert to GeV 
-	m_trkptiso_cone3.push_back(ptcone30 * 1e-3); // convert to GeV
+      m_trkptiso_cone2.push_back(ptcone20 * 1e-3); // convert to GeV 
+      m_trkptiso_cone3.push_back(ptcone30 * 1e-3); // convert to GeV
 
-	// deep copy muon (since otherwise we risk overwriting isolation results from other algos)
-	muonContainer->push_back( new xAOD::Muon(*muon) );
-	xAOD::Muon* outputmuon = muonContainer->back();
+      // deep copy muon (since otherwise we risk overwriting isolation results from other algos)
+      muonContainer->push_back( new xAOD::Muon(*muon) );
+      xAOD::Muon* outputmuon = muonContainer->back();
 	    
-	if (m_useVarIso){
-	  outputmuon->setIsolation( ptcone20, xAOD::Iso::ptvarcone20 );
-	  outputmuon->setIsolation( ptcone30, xAOD::Iso::ptvarcone30 );
-	} else { 
-	  outputmuon->setIsolation( ptcone20, xAOD::Iso::ptcone20 );
-	  outputmuon->setIsolation( ptcone30, xAOD::Iso::ptcone30 );
-	}
-      }// isolation tool ok for ID
-    }// EF Muon Loop
+      if (m_useVarIso){
+	outputmuon->setIsolation( ptcone20, xAOD::Iso::ptvarcone20 );
+	outputmuon->setIsolation( ptcone30, xAOD::Iso::ptvarcone30 );
+      } else { 
+	outputmuon->setIsolation( ptcone20, xAOD::Iso::ptcone20 );
+	outputmuon->setIsolation( ptcone30, xAOD::Iso::ptcone30 );
+      }
+    }// isolation tool ok for ID
+  }// EF Muon Loop
 
-    const size_t noutputMuons = muonContainer->size();
-    HLT::ErrorCode hltStatus = attachFeature(TEout, muonContainer.release() , m_muonContName);
-    if(hltStatus!=HLT::OK) {
-      msg() << MSG::WARNING << "Attaching xAOD::MuonContainer to TEout: unsuccessful" << endmsg;
-      return hltStatus;
-    } else {
-      ATH_MSG_DEBUG( "Successfully attached to TEout the muon container with size " << noutputMuons );
-    } 
+  const size_t noutputMuons = muonContainer->size();
+  hltStatus = attachFeature(TEout, muonContainer.release() , m_muonContName);
+  if(hltStatus!=HLT::OK) {
+    msg() << MSG::WARNING << "Attaching xAOD::MuonContainer to TEout: unsuccessful" << endmsg;
+    return hltStatus;
+  } else {
+    ATH_MSG_DEBUG( "Successfully attached to TEout the muon container with size " << noutputMuons );
+  } 
     
-  } // If EFID loop to run
 
   
-  // Container to store the L2 isomuon
-  xAOD::L2IsoMuonContainer *L2muonIsoContainer = 0;
-  xAOD::L2IsoMuonAuxContainer caux;
-
-  if (m_isoType==2) {
-    L2muonIsoContainer = new xAOD::L2IsoMuonContainer();
-    L2muonIsoContainer->setStore(&caux);
-    
-    // loop on L2 muons  
-    for(auto muon : *L2muonContainer) {
-    
-      if (m_debug)
-	msg() << MSG::DEBUG << "Running L2 Muons and FTK Tracks now" << endmsg;
-
-      std::vector<double> isoResultsFTK;
-      std::vector<double> dzvalsFTK; // for monitoring
-      std::vector<double> drvalsFTK; // for monitoring
-      std::vector<double> selfremovalFTK;
-
-      // FTK tracks
-      StatusCode resultFTK = m_efIsoTool->calcTrackIsolation( muon, FTKTrackParticles, m_coneSizes,  isoResultsFTK, &dzvalsFTK, &drvalsFTK, true, &selfremovalFTK);
-      
-      m_trkdz.insert(m_trkdz.begin(), dzvalsFTK.begin(), dzvalsFTK.end());
-      m_trkdr.insert(m_trkdr.begin(), drvalsFTK.begin(), drvalsFTK.end());
-
-      if (selfremovalFTK.size() == 3)
-	{
-	  m_muon_selfpt.push_back(selfremovalFTK[0] * 1e-3);
-	  m_muon_combinedpt.push_back(selfremovalFTK[1] * 1e-3);
-	  m_muon_removedpt.push_back(selfremovalFTK[2] * 1e-3);
-	}
-      else
-	msg() << MSG::DEBUG << "Muon pT not stored correctly - histograms have not been filled for this muon" << endmsg;
-
-    
-      if(resultFTK.isFailure() || isoResultsFTK.size() != 2) {	
-	if(resultFTK.isFailure()) {
-	  msg() << MSG::WARNING << "Isolation tool failed for this muon (FTK) - isolation will not be set for this muon" << endmsg;
-	} else {
-	  if(isoResultsFTK.size() != 2) {
-	    msg() << MSG::WARNING << "Wrong number of FTK isolation results - isolation will not be set for this muon." << endmsg;
-	  }
-	}
-      } else { //isolation tool was ok - store results
-
-	const float ptcone20FTK = isoResultsFTK[0]; 
-	const float ptcone30FTK = isoResultsFTK[1]; 
-       
-	m_trkptiso_cone2.push_back(ptcone20FTK * 1e-3); // convert to GeV 
-	m_trkptiso_cone3.push_back(ptcone30FTK * 1e-3); // convert to GeV
-
-	// Set the iso on the L2 muon
-	xAOD::L2IsoMuon* muonIso = new xAOD::L2IsoMuon();
-	L2muonIsoContainer->push_back(muonIso);
-	muonIso->setPt(muon->pt());
-	muonIso->setEta(muon->eta());
-	muonIso->setPhi(muon->phi());
-	muonIso->setCharge(muon->charge());
-	muonIso->setSumPt02(ptcone20FTK);
-	muonIso->setSumPt03(ptcone30FTK);
-      
-      }// isolation tool ok for FTK
-    }// Loop on L2 muons / FTK tracks
-  } // if running L2FTK loop  
   
   if(m_doMyTiming){
     if(m_calcTime) m_calcTime->stop();
     if(m_dataOutputTime) m_dataOutputTime->start();
   }
 
-  if (m_isoType == 1)
-    m_n_trks.push_back(idTrackParticles->size());
-  if (m_isoType == 2){
-    m_n_trks.push_back(FTKTrackParticles->size());
-    
-    // Record the L2 muon
-    std::string muonIsoKey = "MuonL2ISInfo";
-    HLT::ErrorCode L2IsoStatus = attachFeature(TEout, L2muonIsoContainer, muonIsoKey);
-    if (L2IsoStatus != HLT::OK){
-      TEout->setActiveState(false);
-      delete L2muonIsoContainer;
-      msg() << MSG::ERROR << " Record of xAOD::L2IsoMuonContainer in TriggerElement failed" << endmsg;
-      return L2IsoStatus;
-    }else{
-      if (m_debug)
-	msg() << MSG::DEBUG << " xAOD::L2IsoMuonContainer attached to the trigger element" << endmsg;
-    }
-  }
+  m_n_trks.push_back(idTrackParticles->size());
 
   //validate sequence
   TEout->setActiveState(true);

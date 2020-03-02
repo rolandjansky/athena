@@ -280,16 +280,6 @@ namespace MuonCombined {
       }
     };
 
-    // map to store truth counters for a given pdgID (uses abs(pdg))
-    mutable std::map<int,TruthMatchingCounters> m_truthMatchingCounters;
-    
-    TruthMatchingCounters* getTruthMatchingCounters( const TruthInfo* truthInfo ) const {
-      if( !truthInfo ) return nullptr;
-      auto pos = m_truthMatchingCounters.find(std::abs(truthInfo->pdgId));
-      if( pos == m_truthMatchingCounters.end() ) return nullptr;
-      return &pos->second;
-    }
-
     bool m_doSummary; // enable summary output
     bool m_useTruthMatching; // enable usage of truth info for reconstruction
     bool m_doTruth; // enable truth matching

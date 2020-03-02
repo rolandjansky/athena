@@ -129,12 +129,6 @@ def all_DataFlow_to_dot(name, step_list):
                 cfseq_algs = []
                 cfseq_algs.append(cfseq.filter)
 
-                for menuseq in cfseq.step.sequences:
-                    if  cfseq.step.isCombo:
-                        menuseq.reuse=True # do not draw combo reco sequence
-                    else:
-                        menuseq.reuse=False
-
                 if len(cfseq.step.sequences)==0:
                     last_step_hypoNodes.append(cfseq.filter)
 
@@ -191,12 +185,6 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
             cfseq_algs = []
             cfseq_algs.append(cfseq.filter)
 
-            ## for menuseq in cfseq.step.sequences:
-                ## if  cfseq.step.isCombo:
-                ##     menuseq.reuse=True # do not draw combo reco sequence
-                ## else:
-                ##     menuseq.reuse=False
-                    
             for menuseq in cfseq.step.sequences:
                     cfseq_algs, all_hypos, _ = menuseq.buildCFDot(cfseq_algs,
                                                                   all_hypos,

@@ -71,10 +71,10 @@ namespace xAODMaker {
       virtual StatusCode metaDataStop();
 
       /// Function collecting the metadata from a new input file
-      virtual StatusCode beginInputFile(const SG::SourceID&) {return StatusCode::SUCCESS;}
+      virtual StatusCode beginInputFile(const SG::SourceID&) {return beginInputFile();}
 
       /// Function collecting the metadata from a new input file
-      virtual StatusCode endInputFile(const SG::SourceID&) {return StatusCode::SUCCESS;}
+      virtual StatusCode endInputFile(const SG::SourceID&) {return endInputFile();}
 
       /// @}
 

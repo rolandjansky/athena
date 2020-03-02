@@ -409,7 +409,7 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
 
    AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_addrCrtr.operator->());
    if (cnvSvc) {
-      if (!cnvSvc->disconnectOutput().isSuccess()) {
+      if (!cnvSvc->disconnectOutput("").isSuccess()) {
          ATH_MSG_WARNING("Cannot get disconnect Output Files");
       }
    }

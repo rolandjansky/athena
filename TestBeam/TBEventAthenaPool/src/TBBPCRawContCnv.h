@@ -24,9 +24,6 @@ class TBBPCRawContCnv : public TBBPCRawContCnvBase
   virtual StatusCode     PoolToDataObject(DataObject*& pObj,
                                           const Token* token,
                                           const std::string& key) override;
-
-  /// Extend base-class conversion method for writing
-  virtual StatusCode     DataObjectToPool(DataObject*  pObj,const std::string &tname) override;
  };
 
 #endif

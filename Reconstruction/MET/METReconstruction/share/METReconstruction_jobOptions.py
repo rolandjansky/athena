@@ -1,3 +1,5 @@
+import six
+
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
@@ -7,7 +9,7 @@ from RecExConfig.RecFlags import rec
 if jobproperties.Beam.beamType == 'cosmics' or jobproperties.Beam.beamType == 'singlebeam' or not rec.doInDet():
     metFlags.UseTracks.set_Value(False)
     metFlags.DoPFlow.set_Value(False)
-    print "METReconstruction_jobOptions: detected cosmics/single-beam configuration -- switch off track-based MET reco"
+    printfunc ("METReconstruction_jobOptions: detected cosmics/single-beam configuration -- switch off track-based MET reco")
 
 import METReconstruction.METConfig_Calo
 import METReconstruction.METConfig_Track
@@ -30,8 +32,12 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence += assocAlg
 
+# Make sure we add these in a well-defined order.
 from METUtilities.METMakerConfig import getMETMakerAlg
-for key,conf in metFlags.METAssocConfigs().iteritems():
+metConfigs = list(metFlags.METAssocConfigs().keys())
+metConfigs.sort()
+for key in metConfigs:
+    conf = metFlags.METAssocConfigs()[key]
     if not conf.doTruth:
         makerAlg = getMETMakerAlg(conf.suffix)
         topSequence += makerAlg

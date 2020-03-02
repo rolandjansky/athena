@@ -9,6 +9,7 @@
 #include "BTagging/StandAloneJetBTaggerAlg.h"
 #include "BTagging/JetParticleAssociationAlg.h"
 #include "BTagging/JetSecVertexingAlg.h"
+#include "BTagging/JetSecVtxFindingAlg.h"
 #include "BTagging/BTagTrackAugmenterAlg.h"
 
 using namespace Analysis ;
@@ -18,6 +19,7 @@ DECLARE_COMPONENT( BTagTrackAssociation )
 DECLARE_COMPONENT( BTagSecVertexing )
 DECLARE_COMPONENT( BTagLightSecVertexing )
 DECLARE_COMPONENT( JetSecVertexingAlg )
+DECLARE_COMPONENT( JetSecVtxFindingAlg )
 DECLARE_COMPONENT( BTagJetPtScaling )
 DECLARE_COMPONENT( BTagTool )
 DECLARE_COMPONENT( JetBTaggerTool )

@@ -69,7 +69,6 @@
 #include <iostream>
 
 using namespace std;
-using xAOD::EventInfo;
 
 int nlarcell=0;
 int n_noisy_cell_part[8] = {0,0,0,0,0,0,0,0};
@@ -773,7 +772,7 @@ StatusCode LArNoiseBursts::doEventProperties(){
 
   //////////////////////////////// EventInfo variables /////////////////////////////////////////////////
   // Retrieve event info
-  const EventInfo* eventInfo = nullptr;
+  const xAOD::EventInfo* eventInfo = nullptr;
   ATH_CHECK( evtStore()->retrieve(eventInfo) );
 
   int run = eventInfo->runNumber();
@@ -831,11 +830,11 @@ StatusCode LArNoiseBursts::doEventProperties(){
   ATH_MSG_DEBUG("CosmicCalo stream value: "<<m_CosmicCaloStream);
 
   // Retrieve output of LArNoisyRO
-  bool larnoisyro = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::BADFEBS);
-  bool larnoisyro_opt =eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::BADFEBS_W);
-  bool larnoisyro_satTwo = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ);
-  bool larmnbnoisy = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTLOOSE);
-  bool larmnbnoisy_sat = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT);
+  bool larnoisyro = eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::BADFEBS);
+  bool larnoisyro_opt =eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::BADFEBS_W);
+  bool larnoisyro_satTwo = eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ);
+  bool larmnbnoisy = eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::MININOISEBURSTLOOSE);
+  bool larmnbnoisy_sat = eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT);
   m_nt_larnoisyro        = larnoisyro ? 1 : 0;
   m_nt_larnoisyro_opt    = larnoisyro_opt ? 1 : 0;
   m_nt_larnoisyro_satTwo = larnoisyro_satTwo ? 1 : 0;
@@ -843,52 +842,52 @@ StatusCode LArNoiseBursts::doEventProperties(){
   m_nt_larmnbnoisy_sat   = larmnbnoisy_sat ? 1 : 0;
   
  // Retrieve output of EventInfo veto - COMMENTED NOW TO MAKE IT COMPLIANT WITH xAOD::EventInfo
-//  mLog << MSG::DEBUG <<"Background: MBTSBeamVeto "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSBeamVeto)<<endmsg;
-//  mLog << MSG::DEBUG <<"Background: PixSPNonEmpty "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::PixSPNonEmpty)<<endmsg;
-//  mLog << MSG::DEBUG <<"Background: SCTSPNonEmpty "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTSPNonEmpty)<<endmsg;
-//  mLog << MSG::DEBUG <<"Background: BCMBeamVeto "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMBeamVeto)<<endmsg;
-//  mLog << MSG::DEBUG <<"Background: LUCIDBeamVeto "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LUCIDBeamVeto)<<endmsg;
-//  mLog << MSG::DEBUG <<"Background: MBTSTimeDiffHalo "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffHalo)<<endmsg; 
-//  mLog << MSG::DEBUG <<"Background: MBTSTimeDiffCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffCol)<<endmsg;
-//  mLog << MSG::DEBUG <<"Background: LArECTimeDiffHalo "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffHalo)<<endmsg;
-//  mLog << MSG::DEBUG <<"Background: LArECTimeDiffCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffCol)<<endmsg;  
-//  mLog << MSG::DEBUG <<"Background: CSCTimeDiffHalo "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffHalo)<<endmsg;
-//  mLog << MSG::DEBUG <<"Background: CSCTimeDiffCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffCol)<<endmsg;
-//  mLog << MSG::DEBUG <<"Background: BCMTimeDiffHalo "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffHalo)<<endmsg;
-//  mLog << MSG::DEBUG <<"Background: BCMTimeDiffCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffCol)<<endmsg;
-//  mLog << MSG::DEBUG <<"Background: MuonTimmingCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCol)<<endmsg;
-//  mLog << MSG::DEBUG <<"Background: MuonTimmingCosmic "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCosmic)<<endmsg;
+//  mLog << MSG::DEBUG <<"Background: MBTSBeamVeto "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::MBTSBeamVeto)<<endmsg;
+//  mLog << MSG::DEBUG <<"Background: PixSPNonEmpty "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::PixSPNonEmpty)<<endmsg;
+//  mLog << MSG::DEBUG <<"Background: SCTSPNonEmpty "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::SCTSPNonEmpty)<<endmsg;
+//  mLog << MSG::DEBUG <<"Background: BCMBeamVeto "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::BCMBeamVeto)<<endmsg;
+//  mLog << MSG::DEBUG <<"Background: LUCIDBeamVeto "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::LUCIDBeamVeto)<<endmsg;
+//  mLog << MSG::DEBUG <<"Background: MBTSTimeDiffHalo "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::MBTSTimeDiffHalo)<<endmsg; 
+//  mLog << MSG::DEBUG <<"Background: MBTSTimeDiffCol "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::MBTSTimeDiffCol)<<endmsg;
+//  mLog << MSG::DEBUG <<"Background: LArECTimeDiffHalo "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::LArECTimeDiffHalo)<<endmsg;
+//  mLog << MSG::DEBUG <<"Background: LArECTimeDiffCol "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::LArECTimeDiffCol)<<endmsg;  
+//  mLog << MSG::DEBUG <<"Background: CSCTimeDiffHalo "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::CSCTimeDiffHalo)<<endmsg;
+//  mLog << MSG::DEBUG <<"Background: CSCTimeDiffCol "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::CSCTimeDiffCol)<<endmsg;
+//  mLog << MSG::DEBUG <<"Background: BCMTimeDiffHalo "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::BCMTimeDiffHalo)<<endmsg;
+//  mLog << MSG::DEBUG <<"Background: BCMTimeDiffCol "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::BCMTimeDiffCol)<<endmsg;
+//  mLog << MSG::DEBUG <<"Background: MuonTimmingCol "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::MuonTimingCol)<<endmsg;
+//  mLog << MSG::DEBUG <<"Background: MuonTimmingCosmic "<<eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::MuonTimingCosmic)<<endmsg;
 //
-//  m_nt_veto_mbts      = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSBeamVeto);
-//  m_nt_veto_pixel     = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::PixSPNonEmpty);
-//  m_nt_veto_sct       = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTSPNonEmpty);
-//  m_nt_veto_bcm       = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMBeamVeto);
-//  m_nt_veto_lucid     = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LUCIDBeamVeto);
+//  m_nt_veto_mbts      = eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::MBTSBeamVeto);
+//  m_nt_veto_pixel     = eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::PixSPNonEmpty);
+//  m_nt_veto_sct       = eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::SCTSPNonEmpty);
+//  m_nt_veto_bcm       = eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::BCMBeamVeto);
+//  m_nt_veto_lucid     = eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::LUCIDBeamVeto);
 //
 //  //more variables
-//  m_nt_veto_mbtstdHalo = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffHalo); 
-//  m_nt_veto_mbtstdCol  = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffCol);
-//  m_nt_veto_lartdHalo  = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffHalo);
-//  m_nt_veto_lartdCol   = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffCol);  
-//  m_nt_veto_csctdHalo  = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffHalo);
-//  m_nt_veto_csctdCol   = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffCol);
-//  m_nt_veto_bcmtHalo   = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffHalo);
-//  m_nt_veto_bcmtCol    = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffCol);
-//  m_nt_veto_muontCol   = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCol);
-//  m_nt_veto_muontCosmic= eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCosmic);
+//  m_nt_veto_mbtstdHalo = eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::MBTSTimeDiffHalo); 
+//  m_nt_veto_mbtstdCol  = eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::MBTSTimeDiffCol);
+//  m_nt_veto_lartdHalo  = eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::LArECTimeDiffHalo);
+//  m_nt_veto_lartdCol   = eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::LArECTimeDiffCol);  
+//  m_nt_veto_csctdHalo  = eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::CSCTimeDiffHalo);
+//  m_nt_veto_csctdCol   = eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::CSCTimeDiffCol);
+//  m_nt_veto_bcmtHalo   = eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::BCMTimeDiffHalo);
+//  m_nt_veto_bcmtCol    = eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::BCMTimeDiffCol);
+//  m_nt_veto_muontCol   = eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::MuonTimingCol);
+//  m_nt_veto_muontCosmic= eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::MuonTimingCosmic);
  
    // LArEventInfo
 
-  ATH_MSG_DEBUG ("NOISEBURSTVETO bit " << eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO) );
-  ATH_MSG_DEBUG ("BADFEBS bit " << eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::BADFEBS));
-  ATH_MSG_DEBUG ("TIGHTSATURATEDQ bit " << eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ));
+  ATH_MSG_DEBUG ("NOISEBURSTVETO bit " << eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO) );
+  ATH_MSG_DEBUG ("BADFEBS bit " << eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::BADFEBS));
+  ATH_MSG_DEBUG ("TIGHTSATURATEDQ bit " << eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ));
 
-  m_nt_larflag_badFEBs = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::BADFEBS);
-  m_nt_larflag_mediumSaturatedDQ = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::MEDIUMSATURATEDQ);
-  m_nt_larflag_tightSaturatedDQ = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ);
-  m_nt_larflag_noiseBurstVeto = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO);
-  m_nt_larflag_dataCorrupted = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::DATACORRUPTED);
-  m_nt_larflag_dataCorruptedVeto = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO);
+  m_nt_larflag_badFEBs = eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::BADFEBS);
+  m_nt_larflag_mediumSaturatedDQ = eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::MEDIUMSATURATEDQ);
+  m_nt_larflag_tightSaturatedDQ = eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ);
+  m_nt_larflag_noiseBurstVeto = eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO);
+  m_nt_larflag_dataCorrupted = eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTED);
+  m_nt_larflag_dataCorruptedVeto = eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO);
 
   ///////////////////////////////////////end EventInfo variables/////////////////////////////////////////////////////////////////////////
 
@@ -915,11 +914,11 @@ StatusCode LArNoiseBursts::doEventProperties(){
   
   // 29/11/10 : Debug messages removed by BT 
   //   mLog << MSG::INFO << "Event LAr flags " << std::hex
-  //      << eventInfo->errorState(EventInfo::LAr) << " "
-  //      << std::hex << eventInfo->eventFlags(EventInfo::LAr)
-  //      << ", bit 0: " << eventInfo->isEventFlagBitSet(EventInfo::LAr,0)
-  //      << ", bit 1: " << eventInfo->isEventFlagBitSet(EventInfo::LAr,1)
-  //      << ", bit 2: " << eventInfo->isEventFlagBitSet(EventInfo::LAr,2)
+  //      << eventInfo->errorState(xAOD::EventInfo::LAr) << " "
+  //      << std::hex << eventInfo->eventFlags(xAOD::EventInfo::LAr)
+  //      << ", bit 0: " << eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,0)
+  //      << ", bit 1: " << eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,1)
+  //      << ", bit 2: " << eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,2)
   //      << endmsg;
 
   // Retrieve LArCollision Timing information

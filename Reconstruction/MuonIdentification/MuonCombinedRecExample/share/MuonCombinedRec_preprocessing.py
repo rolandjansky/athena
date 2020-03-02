@@ -52,7 +52,7 @@ if rec.doMuonCombined() and jobproperties.Beam.beamType()=='cosmics' and DetFlag
         xAODTrackParticleCnvAlg.AddTruthLink = True
         xAODTrackParticleCnvAlg.TrackTruthContainerName = InputTrackTruthCollection
     elif (InDetFlags.doTruth() and InputTrackTruthCollection == ''):
-        print "WARNING: ConfiguredxAODTrackParticleCreation - doTruth = True, but no input Truth collection specified!"
+        printfunc ("WARNING: ConfiguredxAODTrackParticleCreation - doTruth = True, but no input Truth collection specified!")
     else:
         xAODTrackParticleCnvAlg.AddTruthLink = False
 

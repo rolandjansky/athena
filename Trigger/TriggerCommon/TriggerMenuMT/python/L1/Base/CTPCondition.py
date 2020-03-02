@@ -3,37 +3,46 @@
 from AthenaCommon.Logging import logging
 log = logging.getLogger("Menu.L1.Base.CTPCondition") 
 
-from .Logic import Logic
+from .Logic import Logic, LogicType
 
-class Condition(Logic):
-    def __init__(self):
-        super(Condition, self).__init__(condition = self)
-
-
-class ThrCondition(Condition):
+class ThrCondition(Logic):
     def __init__(self, threshold, multiplicity=1):
-        super(ThrCondition, self).__init__()
-        self.threshold = threshold
-        self.multiplicity = multiplicity
-
-    def __str__(self):
-        return str(self.threshold) + '[x' + str(self.multiplicity)+']'
+        super(ThrCondition, self).__init__( logicType = LogicType.THRESHOLD, 
+                                            content = { "threshold" : threshold,
+                                                        "multiplicity" : multiplicity } )
 
     def x(self, multiplicity):
-        return ThrCondition(self.threshold, multiplicity) # provide a copy
+        return ThrCondition(self.threshold(), multiplicity) # provide a copy
+
+    def __str__(self):
+        return str(self.threshold()) + '[x' + str(self.multiplicity())+']'
+
+    def threshold(self):
+        return self.content["threshold"]
+
+    def multiplicity(self):
+        return self.content["multiplicity"]        
 
     def name(self):
-        return "%s_x%i" % (self.threshold.name, self.multiplicity)
+        return "%s_x%i" % (self.threshold().name, self.multiplicity())
+
+    def thresholdNames(self, include_bgrp=False):
+        return [ self.threshold().name ]
 
 
-
-class InternalTrigger(Condition):
+class InternalTrigger(Logic):
     def __init__(self, name):
-        super(InternalTrigger, self).__init__()
-        self._name = name
+        super(InternalTrigger, self).__init__( logicType = LogicType.INTERNAL, content = name )
         
     def __str__(self):
-        return str(self._name)
+        return self.name()
 
     def name(self):
-        return self._name
+        return str(self.content)
+
+    def thresholdNames(self, include_bgrp=False):
+        if include_bgrp:
+            return [ self.name() ]
+        else:
+            return []
+

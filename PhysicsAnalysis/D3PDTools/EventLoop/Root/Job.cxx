@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          
@@ -18,18 +18,16 @@
 #include <EventLoop/Job.h>
 
 #include <memory>
+#include <EventLoop/MessageCheck.h>
+#include <EventLoop/AnaAlgorithmWrapper.h>
 #include <EventLoop/Algorithm.h>
-#include <EventLoop/D3PDReaderSvc.h>
 #include <EventLoop/OutputStream.h>
-#include <EventLoop/TEventSvc.h>
-#include <RootCore/Packages.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/CheckRootVersion.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <SampleHandler/MetaFields.h>
 #include <SampleHandler/MetaNames.h>
-
-#include <iostream>
+#include <sstream>
 
 //
 // method implementations
@@ -38,6 +36,8 @@
 namespace EL
 {
   const std::string Job::optRemoveSubmitDir = "nc_EventLoop_RemoveSubmitDir";
+  const std::string Job::optSubmitDirMode = "nc_EventLoop_SubmitDirMode";
+  const std::string Job::optUniqueDateFormat = "nc_EventLoop_UniqueDateFormat";
   const std::string Job::optMaxEvents = "nc_EventLoop_MaxEvents";
   const std::string Job::optSkipEvents = "nc_EventLoop_SkipEvents";
   const std::string Job::optFilesPerWorker = "nc_EventLoop_FilesPerWorker";
@@ -54,6 +54,7 @@ namespace EL
   const std::string Job::optD3PDCacheMinByte = "nc_EventLoop_D3PDCacheMinByte";
   const std::string Job::optD3PDCacheMinByteFraction = "nc_EventLoop_D3PDCacheMinByteFraction";
   const std::string Job::optPerfTree = "nc_EventLoop_PerfTree";
+  const std::string Job::optXAODInput = "nc_EventLoop_XAODInput";
   const std::string Job::optXaodAccessMode = "nc_EventLoop_XaodAccessMode";
   const std::string Job::optXaodAccessMode_branch = "branch";
   const std::string Job::optXaodAccessMode_class = "class";
@@ -64,6 +65,7 @@ namespace EL
   const std::string Job::optResetShell = "nc_reset_shell";
   const std::string Job::optLocalNoUnsetup = "nc_local_no_unsetup";
   const std::string Job::optBackgroundProcess = "nc_background_process";
+  const std::string Job::optOutputSampleName = "nc_outputSampleName";
   const std::string Job::optGridDestSE = "nc_destSE";
   const std::string Job::optGridSite = "nc_site";
   const std::string Job::optGridCloud = "nc_cloud";
@@ -80,7 +82,20 @@ namespace EL
   const std::string Job::optGridExpress = "nc_express";
   const std::string Job::optGridNoSubmit = "nc_noSubmit";
   const std::string Job::optGridMergeOutput = "nc_mergeOutput";
+  const std::string Job::optGridUseContElementBoundary = "nc_useContElementBoundary";
+  const std::string Job::optGridAddNthFieldOfInDSToLFN = "nc_addNthFieldOfInDSToLFN";
+  const std::string Job::optGridWorkingGroup = "nc_workingGroup";
+  const std::string Job::optGridShowCmd = "nc_showCmd";
+  const std::string Job::optGridCpuTimePerEvent = "nc_cpuTimePerEvent";
+  const std::string Job::optGridMaxWalltime = "nc_maxWalltime";
   const std::string Job::optBatchSharedFileSystem = "nc_sharedFileSystem";
+  const std::string Job::optBatchSlurmExtraConfigLines = "nc_SlurmExtraConfig";
+  const std::string Job::optBatchSlurmWrapperExec = "nc_SlurmWrapperExec";
+  const std::string Job::optBatchSetupCommand = "nc_BatchSetupCommand";
+  const std::string Job::optDockerImage = "nc_DockerImage";
+  const std::string Job::optDockerOptions = "nc_DockerOptions";
+  const std::string Job::optBatchConfigFile = "nc_BatchConfigFile";
+  const std::string Job::optBatchSetupFile = "nc_BatchSetupFile";
   const std::string Job::optTmpDir = "nc_tmpDir";
   const std::string Job::optRootVer = "nc_rootVer";
   const std::string Job::optCmtConfig = "nc_cmtConfig";
@@ -96,12 +111,22 @@ namespace EL
   const std::string Job::optRetries = SH::MetaNames::openRetries();
   const std::string Job::optRetriesWait = SH::MetaNames::openRetriesWait();
 
+  const std::string Job::optMemResidentPerEventIncreaseLimit =
+     "nc_resMemPerEventIncrease";
+  const std::string Job::optMemVirtualPerEventIncreaseLimit =
+     "nc_virtMemPerEventIncrease";
+  const std::string Job::optMemResidentIncreaseLimit = "nc_resMemAbsIncrease";
+  const std::string Job::optMemVirtualIncreaseLimit = "nc_virtMemAbsIncrease";
+  const std::string Job::optMemFailOnLeak = "nc_failOnMemLeak";
+
+
+  const std::string Job::histogramStreamName = "HISTOGRAM";
 
 
   void swap (Job& a, Job& b)
   {
     swap (a.m_sampleHandler, b.m_sampleHandler);
-    swap (a.m_algs, b.m_algs);
+    a.m_jobConfig.swap (b.m_jobConfig);
     swap (a.m_output, b.m_output);
   }
 
@@ -111,8 +136,6 @@ namespace EL
   testInvariant () const
   {
     RCU_INVARIANT (this);
-    for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
-      RCU_INVARIANT (m_algs[iter] != 0);
   }
 
 
@@ -132,17 +155,10 @@ namespace EL
     : m_sampleHandler ((RCU_READ_INVARIANT (&that),
 			that.m_sampleHandler)),
       m_output (that.m_output),
-      m_options (that.m_options)
+      m_options (that.m_options),
+      m_jobConfig (that.m_jobConfig)
   {
     RCU_NEW_INVARIANT (this);
-
-    m_algs.reserve (that.m_algs.size());
-    for (algsIter alg = that.m_algs.begin(), end = that.m_algs.end();
-	 alg != end; ++ alg)
-    {
-      m_algs.push_back (dynamic_cast<Algorithm*>((*alg)->Clone()));
-      RCU_ASSERT (m_algs.back() != 0);
-    }
   }
 
 
@@ -151,9 +167,6 @@ namespace EL
   ~Job ()
   {
     RCU_DESTROY_INVARIANT (this);
-
-    for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
-      delete m_algs[iter];
   }
 
 
@@ -187,20 +200,43 @@ namespace EL
 
 
 
-  Job::algsIter Job ::
-  algsBegin () const
+  void Job ::
+  algsAdd (std::unique_ptr<Algorithm> val_algorithm)
   {
-    RCU_READ_INVARIANT (this);
-    return m_algs.begin();
-  }
+    using namespace msgEventLoop;
+
+    RCU_CHANGE_INVARIANT (this);
+    RCU_REQUIRE_SOFT (val_algorithm != nullptr);
 
 
+    std::string myname = val_algorithm->GetName();
+    if (myname.empty() || algsHas (myname))
+    {
+      if (myname.empty())
+        myname = "UnnamedAlgorithm";
+      bool unique = false;
+      for (unsigned iter = 1; !unique; ++ iter)
+      {
+        std::ostringstream str;
+        str << myname << iter;
+        if (!algsHas (str.str()))
+        {
+          myname = str.str();
+          unique = true;
+        }
+      }
+      if (strlen (val_algorithm->GetName()) > 0)
+        ANA_MSG_WARNING ("renaming algorithm " << val_algorithm->GetName() << " to " << myname << " to make the name unique");
+      val_algorithm->SetName (myname.c_str());
+      if (val_algorithm->GetName() != myname)
+      {
+        std::ostringstream message;
+        message << "failed to rename algorithm " << val_algorithm->GetName() << " to " << myname;
+        RCU_THROW_MSG (message.str());
+      }
+    }
 
-  Job::algsIter Job ::
-  algsEnd () const
-  {
-    RCU_READ_INVARIANT (this);
-    return m_algs.end();
+    ANA_CHECK_THROW (m_jobConfig.addAlgorithm (std::move (val_algorithm)));
   }
 
 
@@ -208,14 +244,51 @@ namespace EL
   void Job ::
   algsAdd (Algorithm *alg_swallow)
   {
-    std::auto_ptr<Algorithm> alg (alg_swallow);    
+    using namespace msgEventLoop;
+
+    std::unique_ptr<Algorithm> alg (alg_swallow);
 
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE_SOFT (alg_swallow != 0);
 
+    std::string myname = alg_swallow->GetName();
+    if (myname.empty() || algsHas (myname))
+    {
+      if (myname.empty())
+        myname = "UnnamedAlgorithm";
+      bool unique = false;
+      for (unsigned iter = 1; !unique; ++ iter)
+      {
+        std::ostringstream str;
+        str << myname << iter;
+        if (!algsHas (str.str()))
+        {
+          myname = str.str();
+          unique = true;
+        }
+      }
+      if (strlen (alg_swallow->GetName()) > 0)
+        ANA_MSG_WARNING ("renaming algorithm " << alg_swallow->GetName() << " to " << myname << " to make the name unique");
+      alg_swallow->SetName (myname.c_str());
+      if (alg_swallow->GetName() != myname)
+      {
+        std::ostringstream message;
+        message << "failed to rename algorithm " << alg_swallow->GetName() << " to " << myname;
+        RCU_THROW_MSG (message.str());
+      }
+    }
+
     alg->sysSetupJob (*this);
-    m_algs.push_back (alg.get());
-    alg.release();
+    ANA_CHECK_THROW (m_jobConfig.addAlgorithm (std::move (alg)));
+  }
+
+
+
+  void Job ::
+  algsAdd (const AnaAlgorithmConfig& config)
+  {
+    // no invariant used
+    algsAdd (new AnaAlgorithmWrapper (config));
   }
 
 
@@ -233,13 +306,7 @@ namespace EL
   algsHas (const std::string& name) const
   {
     RCU_READ_INVARIANT (this);
-    for (algsIter alg = algsBegin(), end = algsEnd();
-	 alg != end; ++ alg)
-    {
-      if ((*alg)->GetName() == name)
-	return true;
-    }
-    return false;
+    return m_jobConfig.getAlgorithm (name) != nullptr;
   }
 
 
@@ -248,7 +315,7 @@ namespace EL
   outputBegin ()
   {
     RCU_READ_INVARIANT (this);
-    return &m_output[0];
+    return ( m_output.size() ? &m_output[0] : nullptr );
   }
 
 
@@ -257,7 +324,7 @@ namespace EL
   outputBegin () const
   {
     RCU_READ_INVARIANT (this);
-    return &m_output[0];
+    return ( m_output.size() ? &m_output[0] : nullptr );
   }
 
 
@@ -266,7 +333,7 @@ namespace EL
   outputEnd ()
   {
     RCU_READ_INVARIANT (this);
-    return &m_output[m_output.size()];
+    return ( m_output.size() ? &m_output[m_output.size()] : nullptr );
   }
 
 
@@ -275,7 +342,7 @@ namespace EL
   outputEnd () const
   {
     RCU_READ_INVARIANT (this);
-    return &m_output[m_output.size()];
+    return ( m_output.size() ? &m_output[m_output.size()] : nullptr );
   }
 
 
@@ -306,31 +373,11 @@ namespace EL
 
 
   void Job ::
-  useD3PDReader ()
-  {
-    RCU_CHANGE_INVARIANT (this);
-
-#ifdef ROOTCORE_PACKAGE_D3PDReader
-    if (!algsHas (D3PDReaderSvc::name))
-      algsAdd (new D3PDReaderSvc);
-#else
-    RCU_THROW_MSG ("D3PDReaderSvc not configured");
-#endif
-  }
-
-
-
-  void Job ::
   useXAOD ()
   {
     RCU_CHANGE_INVARIANT (this);
 
-#ifdef ROOTCORE_PACKAGE_xAODRootAccess
-    if (!algsHas (TEventSvc::name))
-      algsAdd (new TEventSvc);
-#else
-    RCU_THROW_MSG ("TEventSvc not configured");
-#endif
+    options()->setBool (Job::optXAODInput, true);
   }
 
 
@@ -349,5 +396,14 @@ namespace EL
   {
     RCU_READ_INVARIANT (this);
     return &m_options;
+  }
+
+
+
+  const JobConfig& Job ::
+  jobConfig () const noexcept
+  {
+    RCU_READ_INVARIANT (this);
+    return m_jobConfig;
   }
 }

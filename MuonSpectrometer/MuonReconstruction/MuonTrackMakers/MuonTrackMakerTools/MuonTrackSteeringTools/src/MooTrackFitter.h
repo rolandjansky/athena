@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MOOTRACKFITTER_H
@@ -10,9 +10,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 // Misc
-#include "Identifier/Identifier.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 
 // Tracking EDM
 #include "TrkParameters/TrackParameters.h"
@@ -29,12 +27,11 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentInOverlapResolvingTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 #include "TrkDriftCircleMath/SegmentFinder.h"
 #include "TrkDriftCircleMath/DCSLFitter.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 // Local
 #include "MuPatCandidateBase.h"
@@ -43,40 +40,19 @@
 
 #include <set>
 
-class MsgStream;
-
-class RpcIdHelper;
-class MdtIdHelper;
-class CscIdHelper;
-class TgcIdHelper;
-class Identifier;
-
 namespace MuonGM {
   class MuonDetectorManager;
 }
 
 namespace Trk {
-  class RIO_OnTrack;
   class PrepRawData;
-  class IPropagator;
   class Track;
   class MeasurementBase;
-  // class PseudoMeasurementOnTrack;
   class Layer;
-  // class ITrackSummaryHelperTool;
 }
 
 namespace Muon {
   class MuonSegment;
-//   class MuonEDMPrinterTool;
-//   class MuonIdHelperTool;
-//   class IMuonTrackCleaner;
-//   class MuPatHitTool;
-//   class IMuonSegmentMomentumEstimator;
-//   class IMuonTrackToSegmentTool;
-//   class IMdtDriftCircleOnTrackCreator;
-//   class IMuonSegmentInOverlapResolvingTool;
-//   class IMuonHitSelector;
   class MuPatCandidateBase;
   class MuPatTrack;
 }
@@ -317,7 +293,7 @@ namespace Muon {
     Trk::ParticleHypothesis                         m_ParticleHypothesis  ; //!< nomen est omen 
     Trk::TrackInfo::TrackPatternRecoInfo m_patRecInfo {Trk::TrackInfo::Moore};
     Trk::MagneticFieldProperties                    m_magFieldProperties  {Trk::FullField}; //!< magnetic field properties
-    ToolHandle<MuonIdHelperTool>                    m_idHelperTool        {this, "IdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};       //!< id helper tool
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<IMuonEDMHelperSvc>                m_edmHelperSvc        {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" }; //!< multi purpose helper tool

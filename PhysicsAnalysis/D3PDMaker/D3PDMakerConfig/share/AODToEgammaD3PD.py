@@ -67,7 +67,6 @@ blocked_folders = [
     '/LAR/Identifier/OnOffIdAtlas',
     '/MDT/DCS/DROPPEDCH',
     '/MDT/DCS/PSLVCHSTATE',
-    '/PIXEL/PixdEdx',
     '/TILE/OFL02/NOISE/AUTOCR',
     '/TILE/OFL02/PULSESHAPE/PHY',
     '/TILE/ONL01/FILTER/OF2/PHY',
@@ -79,7 +78,6 @@ blocked_folders = [
     '/TRT/Calib/PIDver_New',
     '/TRT/Calib/ToTCalib',
     '/CALO/H1Weights/H1WeightsKt4Topo',
-    '/Indet/PixelDist',
     ]
 from IOVDbSvc.CondDB import conddb
 for f in blocked_folders:
@@ -87,3 +85,4 @@ for f in blocked_folders:
 
 
 include( "RecExCommon/RecExCommon_topOptions.py" )
+

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -78,7 +78,11 @@ SCT_ConditionsSummaryTool::isGood(const IdentifierHash& elementHash) const {
   if (not m_noReports) {
     const EventContext& ctx{Gaudi::Hive::currentContext()};
     for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
-      if (tool->canReportAbout(InDetConditions::SCT_SIDE) and (not tool->isGood(elementHash, ctx))) return false;
+      if ((tool->canReportAbout(InDetConditions::SCT_SIDE) or
+           tool->canReportAbout(InDetConditions::SCT_MODULE)) and
+          (not tool->isGood(elementHash, ctx))) {
+        return false;
+      }
     }    
   }
   return true;

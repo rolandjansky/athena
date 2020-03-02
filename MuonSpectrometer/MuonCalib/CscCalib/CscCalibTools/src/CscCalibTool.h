@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCALIBTOOLBASE_H
@@ -19,19 +19,18 @@
 *******************************************************************************/
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "MuonCondData/CscCondDataContainer.h"
-#include "MuonCondInterface/CscICoolStrSvc.h"
+#include "MuonCondData/CscCondDbData.h"
 #include "CscCalibTools/ICscCalibTool.h"
 #include "CxxUtils/checker_macros.h"
 
-#include "TMath.h"
 #include "TF1.h"
-#include "TH1.h"
 
 #include <atomic>
 #include <inttypes.h>
 #include <mutex>
 #include <vector>
+
+class CscCondDbData;
 
 class CscCalibTool : public extends<AthAlgTool, ICscCalibTool> {
 
@@ -144,7 +143,7 @@ private:
 
 protected:
 
-  ServiceHandle<MuonCalib::CscICoolStrSvc> m_cscCoolStrSvc;
+  SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
 
   bool  m_readFromDatabase;
   bool  m_slopeFromDatabase;

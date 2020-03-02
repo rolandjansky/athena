@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # This script sets up the build enironment for an AnalysisBase
 # build, on top of a built set of externals.
 #
@@ -37,14 +39,14 @@ env_setup() {
         BUILDDIR=${AnalysisBaseSrcDir}/../../../build
     fi
 
+    # Get the version of AnalysisBase for the build.
+    version=`cat ${AnalysisBaseSrcDir}/version.txt`
+
     # Set up the environment for the build:
-    export NICOS_PROJECT_VERSION=`cat ${AnalysisBaseSrcDir}/version.txt`
-    export NICOS_ATLAS_RELEASE=${NICOS_PROJECT_VERSION}
-    export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
-    export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AnalysisBase
+    export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/Athena
 
     # Set up the AnalysisBaseExternals project:
-    extDir=${BUILDDIR}/install/AnalysisBaseExternals/${NICOS_PROJECT_VERSION}/InstallArea
+    extDir=${BUILDDIR}/install/AnalysisBaseExternals/${version}/InstallArea
     if [ ! -d ${extDir} ]; then
         echo "Didn't find the AnalysisBaseExternals project under ${extDir}"
     fi

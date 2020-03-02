@@ -7,10 +7,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "tauRecTools/ITauToolExecBase.h"
 #include "tauRecTools/ITauToolBase.h"
-
-#include "tauRecTools/TauEventData.h"
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -29,6 +26,7 @@
  */
 
 class ICaloCellMakerTool;
+class CaloCell_ID;
 
 class TauProcessorAlg: public AthAlgorithm
 {
@@ -56,8 +54,7 @@ class TauProcessorAlg: public AthAlgorithm
 	double m_maxEta; //!< only build taus with eta_seed < m_maxeta
 	double m_minPt;  //!< only build taus with pt_seed > m_minpt
 
-	TauEventData m_data;
-
+        const CaloCell_ID* m_cellID;
 	/** @brief tool handles */
 	ToolHandle<ICaloCellMakerTool> m_cellMakerTool;
 

@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRecHelperTools/MuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -22,36 +21,13 @@
 
 namespace Muon {
 
-  MuonEDMHelperSvc::MuonEDMHelperSvc(const std::string& name, ISvcLocator* svc) 
-    : base_class(name, svc),
-      m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
-  {
-    declareProperty( "MuonIdHelperTool",    m_idHelper);
-  }
-    
-  MuonEDMHelperSvc::~MuonEDMHelperSvc() {
-    
-  }
+  MuonEDMHelperSvc::MuonEDMHelperSvc(const std::string& name, ISvcLocator* svc) : base_class(name, svc) {}
     
   StatusCode MuonEDMHelperSvc::initialize() {
-
-    if( AthService::initialize().isFailure() ) return StatusCode::FAILURE;
-    
-    if( !m_idHelper.empty() && m_idHelper.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_idHelper);
-      return StatusCode::FAILURE;
-    }
-
+    ATH_CHECK(AthService::initialize());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     return StatusCode::SUCCESS;
   }
-
-  StatusCode MuonEDMHelperSvc::finalize() {
-
-    if (AthService::finalize().isFailure()) return StatusCode::RECOVERABLE;
-
-    return StatusCode::SUCCESS;
-  }
-
 
   Identifier MuonEDMHelperSvc::getIdentifier( const Trk::MeasurementBase& meas ) const {
     const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(&meas);
@@ -84,10 +60,10 @@ namespace Muon {
       if( !id.is_valid() ) continue;
 
       // create chamber ID
-      chid = m_idHelper->chamberId(id);
+      chid = m_idHelperSvc->chamberId(id);
       
       // stop at first none trigger hit
-      if( !m_idHelper->isTrigger(id) ) break;
+      if( !m_idHelperSvc->isTrigger(id) ) break;
     }
     
     if( !chid.is_valid() ){
@@ -111,10 +87,10 @@ namespace Muon {
       if( !id.is_valid() ) continue;
 
       // create chamber ID
-      chid = m_idHelper->chamberId(id);
+      chid = m_idHelperSvc->chamberId(id);
       
       // stop at first none trigger hit
-      if( !m_idHelper->isTrigger(id) ){
+      if( !m_idHelperSvc->isTrigger(id) ){
 	chIds.insert(chid);
       }else{
 	chidTrig = chid;
@@ -128,7 +104,7 @@ namespace Muon {
   }
 
   bool MuonEDMHelperSvc::isEndcap( const MuonSegment& seg ) const {
-    return m_idHelper->isEndcap( chamberId(seg) );
+    return m_idHelperSvc->isEndcap( chamberId(seg) );
   }
 
   bool MuonEDMHelperSvc::isEndcap( const Trk::Track& track ) const {
@@ -143,7 +119,7 @@ namespace Muon {
       Identifier id = getIdentifier(**rit);
       if( !id.is_valid() ) continue;
       
-      if( m_idHelper->isEndcap(id) ) return true;
+      if( m_idHelperSvc->isEndcap(id) ) return true;
     }
     return false;
   }

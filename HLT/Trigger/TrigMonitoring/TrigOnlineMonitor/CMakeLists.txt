@@ -5,30 +5,6 @@
 # Declare the package name:
 atlas_subdir( TrigOnlineMonitor )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Event/ByteStreamData
-                          GaudiKernel
-                          Trigger/TrigConfiguration/TrigConfInterfaces
-                          PRIVATE
-                          Control/AthenaInterprocess
-                          Control/AthenaKernel
-                          Control/AthenaMonitoring
-                          Event/ByteStreamCnvSvcBase
-                          Event/EventInfo
-                          MagneticField/MagFieldInterfaces
-                          Trigger/TrigConfiguration/TrigConfL1Data
-                          Trigger/TrigDataAccess/TrigROBDataProviderSvc
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigMonitoring/TrigMonitorBase
-                          Trigger/TrigSteer/TrigSteering
-                          Trigger/TrigT1/L1Topo/L1TopoConfig
-                          Trigger/TrigT1/L1Topo/L1TopoRDO
-                          Trigger/TrigT1/TrigT1Interfaces
-                          Trigger/TrigT1/TrigT1Result
-                          Trigger/TrigT1/TrigT1ResultByteStream )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( tdaq-common )
@@ -39,7 +15,7 @@ atlas_add_component( TrigOnlineMonitor
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamData ByteStreamData_test GaudiKernel AthenaInterprocess AthenaKernel ByteStreamCnvSvcBaseLib EventInfo MagFieldInterfaces TrigConfL1Data TrigROBDataProviderSvcLib TrigSteeringEvent TrigMonitorBaseLib TrigSteeringLib L1TopoConfig L1TopoRDO TrigT1Interfaces TrigT1Result TrigT1ResultByteStreamLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamData ByteStreamData_test GaudiKernel AthenaInterprocess AthenaKernel ByteStreamCnvSvcBaseLib EventInfo MagFieldInterfaces TrigConfL1Data TrigROBDataProviderSvcLib TrigSteeringEvent TrigMonitorBaseLib TrigSteeringLib L1TopoConfig L1TopoRDO TrigT1Interfaces TrigT1Result TrigT1ResultByteStreamLib TrigConfData)
 
 # Install files from the package:
 atlas_install_headers( TrigOnlineMonitor )

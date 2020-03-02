@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONPREPRAWDATACOLLECTIONPROVIDERTOOL_H
@@ -9,22 +9,19 @@
 #include <typeinfo>
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
-
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonLayerHashProviderTool.h"
 
 #include "MuonLayerEvent/MuonLayerPrepRawData.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
-
 static const InterfaceID IID_MuonPrepRawDataCollectionProviderTool("Muon::MuonPrepRawDataCollectionProviderTool",1,0);
 
 namespace Muon {
 
-  class MuonIdHelperTool;
   class MuonLayerHashProviderTool;
 
   class MuonPrepRawDataCollectionProviderTool :  public AthAlgTool {
@@ -32,9 +29,8 @@ namespace Muon {
 
     /** Default AlgTool functions */
     MuonPrepRawDataCollectionProviderTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonPrepRawDataCollectionProviderTool();
+    virtual ~MuonPrepRawDataCollectionProviderTool() {};
     StatusCode initialize();
-    StatusCode finalize();
 
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MuonPrepRawDataCollectionProviderTool; }
@@ -75,11 +71,9 @@ namespace Muon {
         // skip if not found
         typename ContainerType::const_iterator colIt = container->indexFind(*it);
         if( colIt == container->end() ) {
-          //ATH_MSG_WARNING("Cannot find hash " << *it << " in container at " << location);
           continue;
         }
-        ATH_MSG_VERBOSE("  adding " << m_idHelper->toStringChamber((*colIt)->identify()) << " size " << (*colIt)->size());
-        // else add
+        ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber((*colIt)->identify()) << " size " << (*colIt)->size());
         output.push_back(*colIt);
       }
       return true;
@@ -87,8 +81,7 @@ namespace Muon {
 
   private:
     
-    /** tool handles */
-    ToolHandle<MuonIdHelperTool> m_idHelper; 
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<MuonLayerHashProviderTool> m_layerHashProvider; 
     
     /** storegate keys of PRDs*/

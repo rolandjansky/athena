@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    McParticleTests/python/Lib.py
 # @purpose: <put some purpose here>
@@ -8,7 +8,6 @@ __doc__     = 'some documentation here'
 __version__ = '$Revision: 1.1 $'
 __author__  = 'Sebastien Binet <binet@cern.ch>'
 
-import AthenaCommon.SystemOfUnits as Units
 import AthenaPython.PyAthena as PyAthena
 from AthenaPython.PyAthena import StatusCode
 
@@ -68,7 +67,7 @@ class PyMcAodSymLinkTests (PyAthena.Alg):
 
         eps = 2.22045e-16
         allgood = True
-        for i in xrange(len(mcparts[0])):
+        for i in range(len(mcparts[0])):
             in_ene = mcparts[0][i].e()
             ip_ene = mcparts[1][i].e()
             tp_ene = mcparts[2][i].e()

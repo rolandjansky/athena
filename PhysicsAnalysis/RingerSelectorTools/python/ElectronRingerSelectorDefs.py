@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 mlog = logging.getLogger( 'ElectronRingerSelectorDefs.py' )
@@ -10,7 +10,7 @@ import cppyy
 
 try :
   cppyy.loadDictionary('RingerSelectorToolsEnumsDict')
-except RuntimeError, e:
+except RuntimeError as e:
   mlog.error("Could not load RingerSelectorEnumsTools dictionary from cppyy.")
   raise RuntimeError(e)
 
@@ -22,7 +22,7 @@ from CaloRingerAlgs.CaloRingerKeys import outputElectronRingSetsConfKey
 # Import from CutID utilities:
 try :
   cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
-except RuntimeError, e:
+except RuntimeError as e:
   mlog.error("Could not load ElectronPhotonSelectorTools dictionary from cppyy.")
   raise RuntimeError(e)
 from ROOT import egammaPID

@@ -1,15 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ITOOLBASE_TAU_H
 #define ITOOLBASE_TAU_H
 
 #include "AsgTools/IAsgTool.h"
-#include "tauRecTools/TauEventData.h"
 #include "xAODParticleEvent/Particle.h"
 #include "xAODParticleEvent/ParticleContainer.h"
 #include "xAODParticleEvent/ParticleAuxContainer.h"
+
+#include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauJetAuxContainer.h"
 
 /**
  * @brief The base class for all tau tools.
@@ -41,8 +43,12 @@ class ITauToolBase : virtual public asg::IAsgTool
   //! Execute - called for each tau candidate
   //-----------------------------------------------------------------
   virtual StatusCode execute(xAOD::TauJet& pTau) = 0;
+  virtual StatusCode executeVertexFinder(xAOD::TauJet& pTau, 
+                                         const xAOD::VertexContainer* vertexContainer = nullptr, 
+                                         const xAOD::TrackParticleContainer* trackContainer = nullptr) = 0;
+  virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, const xAOD::TrackParticleContainer* trackContainer = nullptr) = 0;  
   virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& shotClusterContainer, xAOD::PFOContainer& PFOContainer ) = 0;
-  virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer ) = 0;
+  virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer, std::vector<CaloCell*>& map ) = 0;
   virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
 					      xAOD::PFOContainer& hadronicPFOContainer, 
 					      xAOD::CaloClusterContainer& caloClusterContainer, 
@@ -61,8 +67,6 @@ class ITauToolBase : virtual public asg::IAsgTool
   //! Finalizer
   //-----------------------------------------------------------------
   virtual StatusCode finalize() = 0;
-
-  virtual void setTauEventData(TauEventData* data) = 0;
 
   //make pure
   virtual StatusCode readConfig() = 0;

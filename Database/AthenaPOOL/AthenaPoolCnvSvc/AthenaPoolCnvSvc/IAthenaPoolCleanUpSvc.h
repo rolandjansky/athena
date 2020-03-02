@@ -26,7 +26,7 @@ public:
    virtual ~IAthenaPoolCleanUpSvc() {};
 
    virtual StatusCode registerCleanUp(IAthenaPoolCleanUp* cnv) = 0;
-   virtual StatusCode cleanUp() = 0;
+   virtual StatusCode cleanUp(const std::string& connection) = 0;
 
 protected:
    /// Standard Constructor
