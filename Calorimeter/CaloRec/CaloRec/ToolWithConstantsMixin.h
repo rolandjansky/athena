@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ToolWithConstantsMixin.h,v 1.10 2009-04-18 02:56:16 ssnyder Exp $
 /**
  * @file  ToolWithConstantsMixin.h
  * @author scott snyder <snyder@bnl.gov>
@@ -196,9 +195,9 @@ public:
    * be an instance of one of the @c Array<N> classes.
    */
   template <class T>
-  StatusCode declareConstant (const std::string& name,
-                              T& c,
-                              bool deflt = false);
+  void declareConstant (const std::string& name,
+                        T& c,
+                        bool deflt = false);
 
 
   /**
@@ -461,7 +460,7 @@ private:
    * @brief Add a new constant to our store.
    * @param pi The @c Propinfo instance describing this constant.
    */
-  StatusCode add_constant (Propinfo_Base* pi);
+  void add_constant (Propinfo_Base* pi);
 
 
   /**
