@@ -411,7 +411,7 @@ int main(int argc, char** argv) {
       }
     }
     for (unsigned int mmi = 0; mmi < FakesMMConfigIFF.size(); ++mmi) {
-      topfakesMMWeightsIFF.emplace_back(std::make_unique<CP::AsymptMatrixTool>("AsymptMatrixTool_" + mmi));
+      topfakesMMWeightsIFF.emplace_back(std::make_unique<CP::AsymptMatrixTool>("AsymptMatrixTool_" + std::to_string (mmi)));
       top::check(topfakesMMWeightsIFF.back()->setProperty("InputFiles",
                                                           std::vector<std::string>{FakesMMConfigIFF[mmi][0]}),
                  "Failed To setProperty InputFiles of AsymptMatrixTool");

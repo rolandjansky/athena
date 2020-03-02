@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
@@ -30,7 +30,7 @@ namespace CP {
                 m_efficiency_decoration_name_data(),
                 m_efficiency_decoration_name_mc(),
                 m_sf_decoration_name(),
-                m_calibration_version("191111_Winter_PrecisionZ"),
+                m_calibration_version("200202_Precision_r21"),
                 m_lowpt_threshold(15.e3),
                 m_affectingSys(),
                 m_filtered_sys_sets(),
@@ -49,6 +49,9 @@ namespace CP {
         declareProperty("CustomFileHighEta", m_custom_file_HighEta);
         declareProperty("CustomFileLowPt", m_custom_file_LowPt);
         declareProperty("CustomFileLowPtCalo", m_custom_file_LowPtCalo);
+        
+        // Apply additional systematics to account for negelected pt dependency
+        // in the maps themselves or for non-closure
         declareProperty("ApplyKinematicSystematic", m_applyKineDepSys);
 
         // Set specific names for the decorations of the scale-factors to the muon
@@ -57,6 +60,8 @@ namespace CP {
         declareProperty("ScaleFactorDecorationName", m_sf_decoration_name);
       
         declareProperty("CalibrationRelease", m_calibration_version);
+        // Set this property to -1 if you do not want to use the JPsi
+        // reconstruction scale-factors
         declareProperty("LowPtThreshold", m_lowpt_threshold);
         declareProperty("UncorrelateSystematics", m_seperateSystBins);
         declareProperty("BreakDownSystematics", m_breakDownSyst);
@@ -456,8 +461,10 @@ namespace CP {
             for (int i =0; syst_tree->GetEntry(i); ++i){
                 insert_bit( *syst_name, get_bit(look_up));
                 if (is_symmetric) insert_bit(*syst_name, EffiCollection::Symmetric);
-                if (m_applyKineDepSys && has_pt_sys)   insert_bit(*syst_name, EffiCollection::PtDependent);
-                if (m_seperateSystBins && uncorrelated) insert_bit(*syst_name, EffiCollection::UnCorrelated);                
+                
+                if (m_applyKineDepSys && has_pt_sys)   {
+                    insert_bit(*syst_name, EffiCollection::PtDependent);
+                }if (m_seperateSystBins && uncorrelated) insert_bit(*syst_name, EffiCollection::UnCorrelated);                
             }
         }
         return syst_map;

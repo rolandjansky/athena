@@ -41,6 +41,7 @@ namespace CP {
                        CP::IMuonSelectionTool )
 
    public:
+
       /// Constructor for standalone usage
       MuonSelectionTool( const std::string& name = "MuonSelection");
 
@@ -114,6 +115,9 @@ namespace CP {
 
       /// Returns true if the muon passed the tight working point cuts    
       bool passTight(const xAOD::Muon& mu, float rho, float oneOverPSig) const;
+
+      /// Returns an integer corresponding to categorization of muons with different resolutions
+      int getResolutionCategory(const xAOD::Muon&) const;
       /// @}
 
 
@@ -168,6 +172,11 @@ namespace CP {
      //argument needOnlyCorrectYear=true, in which case the random run number decoration
      //from the pile-up reweighting tool is not needed.
      unsigned int getRunNumber(bool needOnlyCorrectYear = false) const;
+
+     //Check if muon eta/phi falls in BIS7/8, BEE, or BMG chambers
+     bool isBIS78(const float eta, const float phi) const;
+     bool isBEE(const float eta, const float phi) const;
+     bool isBMG(const float eta, const float phi) const;
 
      //TMVA readers for low-pT working point
      TMVA::Reader* readerE_MUID;

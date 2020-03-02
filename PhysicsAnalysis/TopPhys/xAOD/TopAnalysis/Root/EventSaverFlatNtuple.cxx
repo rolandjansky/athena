@@ -741,8 +741,8 @@ namespace top {
       ///-- weights for matrix-method fakes estimate by IFF --///
       if (!m_config->isMC() && systematicTree->name() == nominalLooseTTreeName && m_config->doFakesMMWeightsIFF()) {
         std::vector<CP::AsymptMatrixTool*> fakesMMWeightCalcIFF;
-        while (asg::ToolStore::contains<CP::AsymptMatrixTool>("AsymptMatrixTool_" + m_ASMsize)) {
-          fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_" + m_ASMsize));
+        while (asg::ToolStore::contains<CP::AsymptMatrixTool>("AsymptMatrixTool_" + std::to_string (m_ASMsize))) {
+          fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_" + std::to_string (m_ASMsize)));
           ++m_ASMsize;
         }
         std::string ASMweights_branch_name = "ASM_weight";
@@ -2006,7 +2006,7 @@ namespace top {
     if (event.m_hashValue == m_config->nominalHashValue() && !m_config->isMC() && m_config->doFakesMMWeightsIFF()) {
       std::vector<CP::AsymptMatrixTool*> fakesMMWeightCalcIFF;
       for (int mmi = 0; mmi < m_ASMsize; ++mmi) {
-        fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_" + mmi));
+        fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_" + std::to_string (mmi)));
       }
       std::string ASMweights_branch_name = "ASMWeight";
       std::string decorName = "ASMWeight";

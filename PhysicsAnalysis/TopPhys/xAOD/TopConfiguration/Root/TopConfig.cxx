@@ -3418,81 +3418,81 @@ namespace top {
     m_trigGlobalConfiguration.isConfigured = true;
     return;
   }
-}
 
 
 
-std::ostream& operator << (std::ostream& os, const top::TopConfig& config) {
-  typedef std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > map_t;
-  typedef std::unordered_map<std::size_t, CP::SystematicSet>::const_iterator Itr;
+  std::ostream& operator << (std::ostream& os, const TopConfig& config) {
+    typedef std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > map_t;
+    typedef std::unordered_map<std::size_t, CP::SystematicSet>::const_iterator Itr;
 
-  if (config.useJetGhostTrack()) {
-    for (const auto& item : config.systematicsJetGhostTrack()) {
-      os << " Jet Ghost Track Systematic\t\t :: " << item << " \n";
+    if (config.useJetGhostTrack()) {
+      for (const auto& item : config.systematicsJetGhostTrack()) {
+        os << " Jet Ghost Track Systematic\t\t :: " << item << " \n";
+      }
     }
-  }
 
-  os << "\n";
-  os << "top::TopConfig has identified the following analysis release series : " << config.getReleaseSeries() << "\n";
-  os << "top::TopConfig will evaluate the following systematics (saved as TTrees in your ntuple) \n";
-  os << "A blank systematic means \"Nominal\" in xAOD. All Nominal calibrations go into the Nominal TTree. \n";
-  os << "\n";
-  if (config.usePhotons()) {
-    map_t syst = config.systMapPhotons();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Photon systematic\t :: " << (*i).second.name() << " \n";
+    os << "\n";
+    os << "top::TopConfig has identified the following analysis release series : " << config.getReleaseSeries() << "\n";
+    os << "top::TopConfig will evaluate the following systematics (saved as TTrees in your ntuple) \n";
+    os << "A blank systematic means \"Nominal\" in xAOD. All Nominal calibrations go into the Nominal TTree. \n";
+    os << "\n";
+    if (config.usePhotons()) {
+      map_t syst = config.systMapPhotons();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Photon systematic\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  if (config.useElectrons()) {
-    map_t syst = config.systMapElectrons();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Electron systematic\t :: " << (*i).second.name() << " \n";
+    if (config.useElectrons()) {
+      map_t syst = config.systMapElectrons();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Electron systematic\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  if (config.useFwdElectrons()) {
-    map_t syst = config.systMapFwdElectrons();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Fwd Electron systematic\t :: " << (*i).second.name() << " \n";
+    if (config.useFwdElectrons()) {
+      map_t syst = config.systMapFwdElectrons();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Fwd Electron systematic\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  if (config.useMuons()) {
-    map_t syst = config.systMapMuons();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Muon systematic\t :: " << (*i).second.name() << " \n";
+    if (config.useMuons()) {
+      map_t syst = config.systMapMuons();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Muon systematic\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  if (config.useSoftMuons()) {
-    map_t syst = config.systMapSoftMuons();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Soft Muon systematic\t :: " << (*i).second.name() << " \n";
+    if (config.useSoftMuons()) {
+      map_t syst = config.systMapSoftMuons();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Soft Muon systematic\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  if (config.useTaus()) {
-    map_t syst = config.systMapTaus();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Tau systematic\t :: " << (*i).second.name() << " \n";
+    if (config.useTaus()) {
+      map_t syst = config.systMapTaus();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Tau systematic\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  if (config.useJets()) {
-    map_t syst = config.systMapJets();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Jet systematic\t\t :: " << (*i).second.name() << " \n";
+    if (config.useJets()) {
+      map_t syst = config.systMapJets();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Jet systematic\t\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  if (config.useLargeRJets()) {
-    map_t syst = config.systMapLargeRJets();
-    for (Itr i = syst->begin(); i != syst->end(); ++i) {
-      os << " Large-R Jet systematic\t\t :: " << (*i).second.name() << " \n";
+    if (config.useLargeRJets()) {
+      map_t syst = config.systMapLargeRJets();
+      for (Itr i = syst->begin(); i != syst->end(); ++i) {
+        os << " Large-R Jet systematic\t\t :: " << (*i).second.name() << " \n";
+      }
     }
-  }
 
-  os << "\n";
-  return os;
+    os << "\n";
+    return os;
+  }
 }

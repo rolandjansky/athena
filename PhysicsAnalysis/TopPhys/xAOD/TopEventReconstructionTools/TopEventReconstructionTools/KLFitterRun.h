@@ -20,7 +20,7 @@ namespace top {
     virtual ~KLFitterRun() {}
 
     virtual bool apply(const top::Event&) const override;
-    std::string name() const;
+    std::string name() const override;
   private:
     std::string m_name;
 

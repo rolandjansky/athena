@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // Local include(s):
@@ -8,7 +8,7 @@
 #include <cmath>
 
 #include "xAODMuon/MuonContainer.h"
-#include "xAODMuon/MuonAuxContainer.h"
+#include "xAODJet/JetContainer.h"
 
 namespace CP {
 
@@ -18,8 +18,8 @@ namespace CP {
                 m_histSvc("THistSvc/THistSvc", name),
                 m_effi_SF_tools(),
                 m_comparison_tools(),
-                m_prw_Tool("CP::PileupReweighting/PileupReweightingTool", this),
-                m_sel_tool("CP::MuonSelectionTool/SelectionTool",this),
+                m_prw_Tool("CP::PileupReweighting/PileupReweightingTool"),
+                m_sel_tool("CP::MuonSelectionTool/SelectionTool"),
                 m_test_helper(),
                 m_comparison_helper(),
                 m_first_release_name("First"),
@@ -86,13 +86,15 @@ namespace CP {
     }
 
     StatusCode MuonEfficiencyCorrections_TestAlg::execute() {
-
         // Retrieve the muons:
-        const xAOD::MuonContainer* muons = 0;
+        const xAOD::MuonContainer* muons = nullptr;
         ATH_CHECK(evtStore()->retrieve(muons, m_sgKey));
         // Retrieve the EventInfo:
-        const xAOD::EventInfo* ei = 0;
+        const xAOD::EventInfo* ei = nullptr;
         ATH_CHECK(evtStore()->retrieve(ei, "EventInfo"));
+       
+        ATH_MSG_DEBUG("Start to run over event "<<ei->eventNumber()<<" in run" <<ei->runNumber());
+       
         //Apply the prwTool first before calling the efficiency correction methods
         ATH_CHECK(m_prw_Tool->apply(*ei));
         m_evNumber = ei->eventNumber();
@@ -100,13 +102,14 @@ namespace CP {
         for (const auto& mu : *muons) {
             if (mu->pt() < m_pt_cut || (m_eta_cut > 0 && std::fabs(mu->eta()) >= m_eta_cut)) continue;
             // reject all loose muons
-            if (m_sel_tool->getQuality(*mu) > m_muon_quality) continue;
+            if (m_sel_tool->getQuality(*mu) > m_muon_quality) continue;          
             if (m_test_helper->fill(mu) != CP::CorrectionCode::Ok || (m_comparison_helper && m_comparison_helper->fill(mu) != CP::CorrectionCode::Ok)) {
                 ATH_MSG_FATAL("Failed to fill muon with pt: "<<mu->pt()/1.e3<<" GeV eta: "<<mu->eta()<<" phi: "<<mu->phi());
                 return StatusCode::FAILURE;
-            }
+            }           
             m_test_helper->fillTree();
         }
+        ATH_MSG_DEBUG("Done with processing the event");
         // Return gracefully:
         return StatusCode::SUCCESS;
     }
