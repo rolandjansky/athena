@@ -414,7 +414,6 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
     menuwriter = TrigConf__xAODMenuWriterMT()
     menuwriter.IsHLTJSONConfig = True
     menuwriter.IsL1JSONConfig = True
-    from .TriggerFlags import TriggerFlags
     acc.addEventAlgo( menuwriter )
 
     return acc
