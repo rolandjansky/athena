@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -42,7 +42,7 @@ class HltItem {
       
       if(not Utils::toolStoreContains<IHltTauSelectionTool>(name)){
         // pull up ToolsRegistry and attempt to make it
-        asg::ToolStore::get<ToolsRegistry>("ToolsRegistry")->initializeTool(name);
+        asg::ToolStore::get<ToolsRegistry>("ToolsRegistry")->initializeTool(name).ignore();
       }
 
       if(Utils::toolStoreContains<IHltTauSelectionTool>(name)){
@@ -56,12 +56,12 @@ class HltItem {
       
     }
 
-    StatusCode setSeed(const std::string& seed_name) {
+    void setSeed(const std::string& seed_name) {
       m_l1_seed = seed_name;
 
       if(not Utils::toolStoreContains<ILevel1SelectionTool>(seed_name)){
         // pull up ToolsRegistry and attempt to make it
-        asg::ToolStore::get<ToolsRegistry>("ToolsRegistry")->initializeTool(seed_name);
+        asg::ToolStore::get<ToolsRegistry>("ToolsRegistry")->initializeTool(seed_name).ignore();
       }
 
       if(Utils::toolStoreContains<ILevel1SelectionTool>(seed_name)){
@@ -72,8 +72,6 @@ class HltItem {
         e << "No Level1SelectionTool " << seed_name << " found";
         throw std::invalid_argument(e.str());
       }
-
-      return StatusCode::SUCCESS;
     }
 
     const std::string& name() const { return m_name; }
