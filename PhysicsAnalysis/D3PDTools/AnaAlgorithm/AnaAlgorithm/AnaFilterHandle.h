@@ -76,14 +76,14 @@ namespace EL
     /// \par Guarantee
     ///   no-fail
   public:
-    void beginExecute () noexcept;
+    StatusCode beginExecute () noexcept;
 
 
     /// \brief report the filter decision
     /// \par Guarantee
     ///   no-fail
   public:
-    void setPassed (bool val_passed) noexcept;
+    StatusCode setPassed (bool val_passed) noexcept;
 
 
 
