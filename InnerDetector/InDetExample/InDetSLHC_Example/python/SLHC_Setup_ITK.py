@@ -49,6 +49,7 @@ class SLHC_Setup :
                 "PIXELDISCSUPPORT":"DiskSupport",
                 "MATERIAL":"Material",
                 "PIXELROUTINGSERVICE":"PixelRoutingService",
+                "BCMPRIME":"BCMPrime"
                 }
 
 
@@ -110,6 +111,13 @@ class SLHC_Setup :
         geoEndcapTool.GeoPixelEndcapLayerTool = geoECLayerTool
         geoEndcapTool.PixelServicesTool = serviceTool
         toolSvc+=geoEndcapTool
+
+        print "******************************************************************************************"
+        print "PixelGeoModel - import GeoBCMPrimeTool"
+
+        from BCMPrime.BCMPrimeConf import GeoBCMPrimeTool
+        geoBCMPrimeTool = GeoBCMPrimeTool(name="GeoBCMPrimeTool")
+        toolSvc += geoBCMPrimeTool
 
         print "******************************************************************************************"
         print "PixelGeoModel - import GeoPixelEnvelopeInclRefTool"
