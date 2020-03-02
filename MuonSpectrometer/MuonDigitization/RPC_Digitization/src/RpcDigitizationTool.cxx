@@ -131,7 +131,9 @@ StatusCode RpcDigitizationTool::initialize() {
   ATH_CHECK(detStore()->retrieve( m_GMmgr,"Muon" ));
   ATH_MSG_DEBUG ( "Retrieved GeoModel from DetectorStore." );
 
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
 
   m_idHelper = m_GMmgr->rpcIdHelper();
   if(!m_idHelper) {
