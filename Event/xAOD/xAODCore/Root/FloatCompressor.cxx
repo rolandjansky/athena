@@ -81,7 +81,12 @@ namespace xAOD {
       m_mantissaBitmask = ~m_mantissaBitmask;
 
       // Set the Magic numbers
-      m_rounding = 0x1 << ( 32 - (1 + 8 + m_mantissaBits) - 1 );
+      if (m_mantissaBits == NMANTISSA) {
+        m_rounding = 0;
+      }
+      else {
+        m_rounding = 0x1 << ( 32 - (1 + 8 + m_mantissaBits) - 1 );
+      }
       // The part below is taken from AthenaPoolCnvSvc/Compressor
       // and would work the same as long as the user doesn't
       // compress lower than 3 mantissa bits, which is not allowed
