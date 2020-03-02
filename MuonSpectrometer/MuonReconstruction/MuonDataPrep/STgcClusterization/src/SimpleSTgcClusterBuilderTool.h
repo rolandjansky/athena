@@ -49,7 +49,7 @@ namespace Muon
   private: 
 
     double m_chargeCut;
-    bool m_maxHoleSize;
+    unsigned int m_maxHoleSize;
 
     /// Muon detector manager and helper
     const MuonGM::MuonDetectorManager* m_muonMgr;
