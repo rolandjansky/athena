@@ -64,7 +64,7 @@
 + PhysicsAnalysis/SUSYPhys/SUSYTools
 + PhysicsAnalysis/TauID/DiTauMassTools
 + PhysicsAnalysis/TauID/TauAnalysisTools
-+ PhysicsAnalysis/TopPhys/QuickAna
+- PhysicsAnalysis/TopPhys/QuickAna
 + PhysicsAnalysis/TrackingID/.*
 + Reconstruction/EventShapes/EventShapeInterface
 - Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM
