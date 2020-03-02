@@ -456,6 +456,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::getParameterInformationFr
         else
         {
             ATH_MSG_ERROR("In " << name()  << ": Could not retrieve pt binning.");
+            return StatusCode::FAILURE;
         }
     if ( getEtaBins || getPtBins)
     {
