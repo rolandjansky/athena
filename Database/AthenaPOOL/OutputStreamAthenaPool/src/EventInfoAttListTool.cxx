@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -89,6 +89,24 @@ const AthenaAttributeList EventInfoAttListTool::getAttributeList(const EventInfo
 
   return eventTag;
 }
+
+/* Build attribute list from EventInfo object */
+std::unique_ptr<AthenaAttributeList>
+EventInfoAttListTool::getAttributeListPtr(const xAOD::EventInfo& eventInfo)
+{
+  // Create attributeList with appropriate attributes
+  auto eventTag = std::make_unique<AthenaAttributeList> ( *m_attribListSpec );
+
+  StatusCode sc = this->eventTag (*eventTag, eventInfo);
+  if (sc.isFailure()) {
+    ATH_MSG_WARNING("Unable to build Tag Fragments for the Event");
+  }
+
+  ATH_MSG_DEBUG("EventInfoAttListTool - getAttributeList() return success");
+
+  return eventTag;
+}
+
 
 /** build the tag associate to the event information */
 StatusCode EventInfoAttListTool::eventTag(AthenaAttributeList& eventTag, 

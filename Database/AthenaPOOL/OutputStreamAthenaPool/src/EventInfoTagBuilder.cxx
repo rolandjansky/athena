@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventInfoTagBuilder.h"
@@ -41,8 +41,8 @@ StatusCode EventInfoTagBuilder::execute() {
 
   /** create a EventInfo Tag and ask the tool to fill it */ 
   if (h_evt.isValid()) {
-    auto attribList = std::make_unique<AthenaAttributeList>
-      ( m_tool->getAttributeList( *h_evt ) );
+    std::unique_ptr<AthenaAttributeList> attribList =
+      m_tool->getAttributeListPtr( *h_evt );
 
     // Check whether to propagate
     if (m_propInput) {
