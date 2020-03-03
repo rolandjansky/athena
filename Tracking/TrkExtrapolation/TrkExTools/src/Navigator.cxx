@@ -605,16 +605,13 @@ Trk::Navigator::trackingGeometry() const {
   return m_trackingGeometry;
 }
 
-StatusCode
+void
 Trk::Navigator::updateTrackingGeometry() const {
   // -------------------- public TrackingGeometry (from DetectorStore) ----------------------------
 
-  StatusCode s = StatusCode::SUCCESS;
-  s = detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName);
-  if (s.isFailure()) {
+  if (detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName).isFailure()) {
     ATH_MSG_FATAL("Could not retrieve TrackingGeometry '" << m_trackingGeometryName << "' from DetectorStore.");
     ATH_MSG_FATAL("  - probably the chosen layout is not supported / no cool tag exists. ");
     throw Trk::NavigatorException();
   }
-  return s;
 }
