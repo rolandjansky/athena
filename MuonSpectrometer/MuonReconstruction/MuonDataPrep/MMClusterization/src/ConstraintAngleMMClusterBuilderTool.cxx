@@ -99,7 +99,7 @@ StatusCode Muon::ConstraintAngleMMClusterBuilderTool::initialize(){
 
 
 StatusCode Muon::ConstraintAngleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepData>& MMprds,
-                                                     std::vector<Muon::MMPrepData*>& clustersVec)
+                                                     std::vector<Muon::MMPrepData*>& clustersVec) const
 {
     ATH_MSG_DEBUG("Running constraint angle MM cluster builder with: "<< MMprds.size() <<" MMprds");
     std::vector<std::vector<Muon::MMPrepData>> prdsPerLayer(8,std::vector<Muon::MMPrepData>(0));
