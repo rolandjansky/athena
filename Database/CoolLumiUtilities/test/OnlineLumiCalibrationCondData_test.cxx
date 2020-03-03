@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CoolLumiUtilities/test/OnlineLumiCalibrationCondData_test.cxx
@@ -10,6 +10,11 @@
 
 
 #undef NDEBUG
+
+// Disable checking due to use of AttributeList.
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "CoolLumiUtilities/OnlineLumiCalibrationCondData.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
