@@ -110,7 +110,7 @@ if is_MC:
 
     augmentationTools.append(MUON5BkgElectronClassificationTool)
 
-    print "BkgElectronClassificationTool: ", MUON5BkgElectronClassificationTool
+    printfunc ("BkgElectronClassificationTool: ", MUON5BkgElectronClassificationTool)
 
 #====================================================================
 # THINNING TOOLS
