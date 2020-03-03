@@ -74,14 +74,11 @@ def mergeParallel(chainDefList, offset):
 
 def serial_zip(allSteps):
     n_chains = len(allSteps)
-    if n_chains < 2:
-        log.error("serial zipping needs multiple chains to zip. I've only got %i",n_chains)
-    else:
-        for chain_index, chainsteps in enumerate(allSteps):
-            for sequence in chainsteps:
-                step = [EmptyMenuSequence() for _x in range(n_chains)]
-                step[chain_index] = sequence
-                yield step
+    for chain_index, chainsteps in enumerate(allSteps):
+        for sequence in chainsteps:
+            step = [EmptyMenuSequence() for _x in range(n_chains)]
+            step[chain_index] = sequence
+            yield step
 
 def mergeSerial(chainDefList):
     allSteps = []
