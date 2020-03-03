@@ -39,7 +39,7 @@ namespace CP {
     declareProperty("Year", m_year = "Data16" );
     declareProperty("Algo", m_algo = "muons" );
     declareProperty("SmearingType", m_type = "q_pT" );
-    declareProperty("Release", m_release = "Recs2020_02_27" );
+    declareProperty("Release", m_release = "Recs2020_03_03" );
     declareProperty("ToroidOff", m_toroidOff = false );
     declareProperty("AddExtraDecorations", m_extra_decorations = false );
     declareProperty("doExtraSmearing", m_extra_highpt_smearing = false );
@@ -168,7 +168,7 @@ namespace CP {
     declareProperty( "Year", m_year = "Data16" );
     declareProperty( "Algo", m_algo = "muons" );
     declareProperty( "SmearingType", m_type = "q_pT" );
-    declareProperty( "Release", m_release = "Recs2020_02_27" );
+    declareProperty( "Release", m_release = "Recs2020_03_03" );
     declareProperty( "ToroidOff", m_toroidOff = false );
     declareProperty("AddExtraDecorations", m_extra_decorations = false );
     declareProperty("doExtraSmearing", m_extra_highpt_smearing = false );
@@ -1014,7 +1014,7 @@ namespace CP {
         }
       }
     }
-    if( m_Trel >= MCAST::Release::Recs2020_02_27 ) {
+    if( m_Trel >= MCAST::Release::Recs2020_03_03 ) {
       muonInfo.sel_category = m_MuonSelectionTool->getResolutionCategory(mu);
       ATH_MSG_VERBOSE("[Direct CB Smearing] Resolution Category: " << muonInfo.sel_category);
       if(m_extra_decorations) {
@@ -1160,7 +1160,7 @@ namespace CP {
     bool extra_smearing = (m_extra_highpt_smearing and (muonInfo.sel_category >= 0) and not (muonInfo.sel_category & IMuonSelectionTool::CategoryFour)); // Extra smearing, if selected, gets anyway only applied to non-3-station muons!
     bool highpt_smearing = (m_2stations_highpt_smearing and (muonInfo.sel_category & IMuonSelectionTool::CategoryThree)); // Special highpt smearing, if selected, gets anyway only applied to missing-inner, 2-station muons only!
 
-    if((extra_smearing || highpt_smearing) && (m_Trel >= MCAST::Release::Recs2020_02_27) && (mu.pt()>300*perThousand)) {
+    if((extra_smearing || highpt_smearing) && (m_Trel >= MCAST::Release::Recs2020_03_03) && (mu.pt()>300*perThousand)) {
       
       double original_combined_pt = mu.pt()/perThousand;
       double smeared_combined_pt = 1. / (1./original_combined_pt*(1. + muonInfo.extra_g*muonInfo.smearDeltaCBOnly));
@@ -1672,12 +1672,12 @@ namespace CP {
     else if (rel == "Recs2019_10_12") {
       m_Trel = MCAST::Release::Recs2019_10_12;
     }
-    else if (rel == "Recs2020_02_27") {
-      m_Trel = MCAST::Release::Recs2020_02_27;
+    else if (rel == "Recs2020_03_03") {
+      m_Trel = MCAST::Release::Recs2020_03_03;
     }
     else {
-      m_Trel = MCAST::Release::Recs2020_02_27;
-      ATH_MSG_DEBUG( "Unrecognized value for SetRelease, using Recs2020_02_27" );
+      m_Trel = MCAST::Release::Recs2020_03_03;
+      ATH_MSG_DEBUG( "Unrecognized value for SetRelease, using Recs2020_03_03" );
       //return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;
@@ -1832,7 +1832,7 @@ namespace CP {
     std::string scale_val;
     // Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
     if ( m_FilesPath == "" ) {
-      if (m_Trel >= MCAST::Release::Recs2020_02_27) {
+      if (m_Trel >= MCAST::Release::Recs2020_03_03) {
         scale_val = PathResolverFindCalibFile( "MuonMomentumCorrections/" + m_release + "/Scale_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
       }
       else if( m_Trel >= MCAST::Release::PreRec ) {
@@ -1846,7 +1846,7 @@ namespace CP {
       }
     }
     else {
-      if (m_Trel >= MCAST::Release::Recs2020_02_27) {
+      if (m_Trel >= MCAST::Release::Recs2020_03_03) {
         scale_val = m_FilesPath + m_release + "/Scale_" + m_algo + "_" + m_year + "_" + m_release + ".dat";
       }
       else {
@@ -1916,7 +1916,7 @@ namespace CP {
     std::string data_val;
     // Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
     if ( m_FilesPath == "" ) {
-      if (m_Trel >= MCAST::Release::Recs2020_02_27) {
+      if (m_Trel >= MCAST::Release::Recs2020_03_03) {
         data_val = PathResolverFindCalibFile( "MuonMomentumCorrections/" + m_release + "/Smearing_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
       }
       else if( m_Trel >= MCAST::Release::PreRec ) {
@@ -1927,7 +1927,7 @@ namespace CP {
       }
     }
     else {
-      if (m_Trel >= MCAST::Release::Recs2020_02_27) {
+      if (m_Trel >= MCAST::Release::Recs2020_03_03) {
         data_val = m_FilesPath + m_release + "/Smearing_" + m_algo + "_" + m_year + "_" + m_release + ".dat";
       }
       else {
@@ -2029,7 +2029,7 @@ namespace CP {
     std::string mc_val;
     // Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
     if ( m_FilesPath == "" ) {
-      if (m_Trel >= MCAST::Release::Recs2020_02_27) {
+      if (m_Trel >= MCAST::Release::Recs2020_03_03) {
         mc_val = PathResolverFindCalibFile( "MuonMomentumCorrections/" + m_release + "/MC_values_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
       }
       else if ( m_Trel >= MCAST::Release::PreRec ) {
@@ -2043,7 +2043,7 @@ namespace CP {
       }
     }
     else {
-      if (m_Trel >= MCAST::Release::Recs2020_02_27) {
+      if (m_Trel >= MCAST::Release::Recs2020_03_03) {
         mc_val = m_FilesPath + m_release + "/MC_values_" + m_algo + "_" + m_year + "_" + m_release + ".dat"; 
       }
       else {
@@ -2082,7 +2082,7 @@ namespace CP {
     InValues.clear();
 
     // Retrieving values for extra-smearing
-    if (m_Trel >= MCAST::Release::Recs2020_02_27) {
+    if (m_Trel >= MCAST::Release::Recs2020_03_03) {
       // Important categories to remember: 
       // 3 --> high-pt, 2-station muons
       // 4 --> high-pt, 3-station muons

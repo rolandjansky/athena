@@ -203,7 +203,7 @@ namespace CP {
         m_sagittaRelease1516("sagittaBiasDataAll_03_02_19_Data16"),
         m_sagittaRelease17("sagittaBiasDataAll_03_02_19_Data17"),
         m_sagittaRelease18("sagittaBiasDataAll_03_02_19_Data18"),
-        m_release("Recs2020_02_27"),
+        m_release("Recs2020_03_03"),
         m_calib_mode(CalibMode::additionalMCsys),
         m_StatComb1516(false),
         m_SagittaCorr1516(true),
