@@ -520,7 +520,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "TrigEFRpcRdoToPrepDataTool")
         if not rec.doRDOTrigger and rec.doESD:
             MdtRdoToMdtPrepDataTool.OutputCollection = "TrigMDT_DriftCircles"
-            CscRdoToCscPrepDataTool.OutputCollection = "TrigCSC_Clusters"
+            CscRdoToCscPrepDataTool.OutputCollection = "TrigCSC_Measurements"
             TgcRdoToTgcPrepDataTool.OutputCollection = "TrigTGC_Measurements"
             TgcRdoToTgcPrepDataTool.OutputCoinCollection = "TrigerT1CoinDataCollection"
             RpcRdoToRpcPrepDataTool.TriggerOutputCollection="TrigRPC_Measurements"
@@ -528,7 +528,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
             RpcRdoToRpcPrepDataTool.InputCollection="TrigRPC_triggerHits"
         else:
             MdtRdoToMdtPrepDataTool.OutputCollection = "MDT_DriftCircles"
-            CscRdoToCscPrepDataTool.OutputCollection = "CSC_Clusters"
+            CscRdoToCscPrepDataTool.OutputCollection = "CSC_Measurements"
             TgcRdoToTgcPrepDataTool.OutputCollection = "TGC_Measurements"
             TgcRdoToTgcPrepDataTool.OutputCoinCollection = "TrigT1CoinDataCollection"
             RpcRdoToRpcPrepDataTool.TriggerOutputCollection="RPC_Measurements"
@@ -540,7 +540,8 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         #CSC
         ToolSvc += CscRdoToCscPrepDataTool
         self.CscPrepDataProvider=CscRdoToCscPrepDataTool
-        self.CscPrepDataContainer=CscRdoToCscPrepDataTool.OutputCollection
+        #We use the clusters not the PRD hits directly for CSCs
+        self.CscPrepDataContainer="CSC_Clusters"
         #TGC
         ToolSvc += TgcRdoToTgcPrepDataTool
         self.TgcPrepDataProvider=TgcRdoToTgcPrepDataTool
