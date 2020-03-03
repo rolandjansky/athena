@@ -50,6 +50,7 @@
 
 # Database package(s):
 + Database/APR/.*
+- Database/AthenaPOOL/AthenaPoolExample/.*
 + Database/AthenaPOOL/.*
 + Database/AtlasSealCLHEP
 + Database/ConnectionManagement/.*
