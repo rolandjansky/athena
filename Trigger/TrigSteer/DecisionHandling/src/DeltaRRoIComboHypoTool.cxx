@@ -76,6 +76,8 @@ StatusCode DeltaRRoIComboHypoTool::decide( const std::vector<TrigCompositeUtils:
     
 
   // do the actual algorithm:
+  // to add: protection when the two decisions are the same object
+  
   std::vector< std::pair<uint32_t,uint16_t> > newcomb; //better a set?
   for (auto paircomb: tocombine){
     std::vector<ElementLink<TrigRoiDescriptorCollection>> selected_rois;
