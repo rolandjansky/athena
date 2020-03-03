@@ -48,7 +48,7 @@ def mergeParallel(chainDefList, offset):
         from itertools import zip_longest
     else:
         from itertools import izip_longest as zip_longest
-    orderedSteps = list(zip_longest(*allSteps,fillvalue=EmptyMenuSequence()))
+    orderedSteps = list(zip_longest(*allSteps))
     myOrderedSteps = deepcopy(orderedSteps)
 
     combChainSteps =[]
@@ -72,13 +72,16 @@ def mergeParallel(chainDefList, offset):
 
     return combinedChainDef
 
-def serial_zip(*allSteps):
+def serial_zip(allSteps):
     n_chains = len(allSteps)
-    for chain_index, chainsteps in enumerate(allSteps):
-        for sequence in chainsteps:
-            step = [EmptyMenuSequence() for _x in range(n_chains)]
-            step[chain_index] = sequence
-            yield step
+    if n_chains < 2:
+        log.error("serial zipping needs multiple chains to zip. I've only got %i",n_chains)
+    else:
+        for chain_index, chainsteps in enumerate(allSteps):
+            for sequence in chainsteps:
+                step = [EmptyMenuSequence() for _x in range(n_chains)]
+                step[chain_index] = sequence
+                yield step
 
 def mergeSerial(chainDefList):
     allSteps = []
@@ -99,7 +102,8 @@ def mergeSerial(chainDefList):
 
     serialSteps = serial_zip(allSteps)
     mySerialSteps = deepcopy(serialSteps)
-
+    for step in serialSteps:
+        log.error("hey listen! %i, of %i",len(step),len(serialSteps))
     combChainSteps =[]
     for steps in mySerialSteps:
         mySteps = list(steps)
