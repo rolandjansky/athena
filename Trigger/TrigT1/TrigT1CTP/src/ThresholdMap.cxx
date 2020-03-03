@@ -10,8 +10,8 @@
 LVL1CTP::ThresholdMap::ThresholdMap( const TrigConf::L1Menu * l1menu )
 {
    //unsigned int start = 0;
-   for ( const TrigConf::L1Threshold & thr : l1menu->thresholds() ) {
-      CTPTriggerThreshold * ctpThr = new CTPTriggerThreshold(thr.name());
+   for ( auto & thr : l1menu->thresholds() ) {
+      CTPTriggerThreshold * ctpThr = new CTPTriggerThreshold(thr->name());
       /*
         defining the start and stop bit is much more complex now, as
         the CTP has many more inputs and the precise mapping of the

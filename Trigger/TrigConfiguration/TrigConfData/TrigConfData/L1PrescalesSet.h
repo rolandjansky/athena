@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_L1PRESCALESSET_H
@@ -39,9 +39,6 @@ namespace TrigConf {
 
       /** Destructor */
       virtual ~L1PrescalesSet();
-
-      /** name of the prescale set */
-      std::string name() const;
 
       /** number of L1 prescales */
       std::size_t size() const;

@@ -298,7 +298,7 @@ class TauMultiplicityAlgo(MultiplicityAlgo):
         super(TauMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
                                                   algoId=algoId, 
                                                   threshold = threshold, 
-                                                  input=None, output="%sMult" % threshold,
+                                                  input=None, output="%s" % threshold,
                                                   nbits=nbits)
 
 class JetMultiplicityAlgo(MultiplicityAlgo):
@@ -306,7 +306,7 @@ class JetMultiplicityAlgo(MultiplicityAlgo):
         super(JetMultiplicityAlgo, self).__init__(classtype=classtype, name=name, 
                                                   algoId=algoId, 
                                                   threshold = threshold, 
-                                                  input=None, output="%sMult" % threshold,
+                                                  input=None, output="%s" % threshold,
                                                   nbits=nbits)
 
 class XEMultiplicityAlgo(MultiplicityAlgo):
@@ -314,7 +314,7 @@ class XEMultiplicityAlgo(MultiplicityAlgo):
         super(XEMultiplicityAlgo, self).__init__( classtype = classtype, name=name, 
                                                   algoId = algoId, 
                                                   threshold = threshold, 
-                                                  input=None, output="%sMult" % threshold,
+                                                  input=None, output="%s" % threshold,
                                                   nbits=nbits)
 
 

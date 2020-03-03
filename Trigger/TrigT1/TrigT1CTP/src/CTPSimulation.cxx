@@ -4,7 +4,6 @@
 
 #include "./CTPSimulation.h"
 
-#include "TrigConfData/L1Menu.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfL1Data/ClusterThresholdValue.h"
@@ -159,12 +158,12 @@ LVL1CTP::CTPSimulation::createMultiplicityHist(const ConfigSource & cfgSrc, cons
       };
       std::vector<TrigConf::L1Threshold> thrV;
       for( const std::string & t : typeMapping[type] ) {
-         const std::vector<TrigConf::L1Threshold> & thrV = l1menu->thresholds(t);
+         auto & thrV = l1menu->thresholds(t);
          size_t xsize = thrV.empty() ? 1 : thrV.size();
          TH2* hist = new TH2I( Form("%sMult", t.c_str()),
                                Form("%s threshold multiplicity", t.c_str()), xsize, 0, xsize, maxMult, 0, maxMult);
-         for(const TrigConf::L1Threshold & thr: thrV) {
-            hist->GetXaxis()->SetBinLabel(thr.mapping()+1, thr.name().c_str() );
+         for(auto thr : thrV) {
+            hist->GetXaxis()->SetBinLabel(thr->mapping()+1, thr->name().c_str() );
          }
          sc = hbook( "/multi/" + type, std::unique_ptr<TH2>(hist));
       }
@@ -550,12 +549,11 @@ LVL1CTP::CTPSimulation::extractMultiplicities(std::map<std::string, unsigned int
    thrMultiMap.clear();
 
    if( l1menu ) {
-      const auto & thrV = l1menu->thresholds();
-      for ( const TrigConf::L1Threshold & thr : thrV ) {
+      for ( auto & thr : l1menu->thresholds() ) {
          // get the multiplicity for each threshold
-         unsigned int multiplicity = calculateMultiplicity( thr, l1menu, context );
+         unsigned int multiplicity = calculateMultiplicity( *thr, l1menu, context );
          // and record in threshold--> multiplicity map (to be used for item decision)
-         thrMultiMap[thr.name()] = multiplicity;
+         thrMultiMap[thr->name()] = multiplicity;
       }
    } else {
       for ( const TrigConf::TriggerThreshold * thr : m_configSvc->ctpConfig()->menu().thresholdVector() ) {
@@ -735,8 +733,8 @@ LVL1CTP::CTPSimulation::calculateEMMultiplicity( const TrigConf::L1Threshold & c
       for ( const auto & cl : *eFexCluster ) {
          float eta = cl->eta();
          int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
-         TrigConf::DataStructure thrV = confThr.thresholdValue( ieta );
-         bool clusterPasses = ( ((unsigned int) cl->et()) > thrV.getAttribute<unsigned int>("et")*scale ); // need to add cut on isolation and other variables, once available
+         unsigned int thrV = confThr.thrValue( ieta );
+         bool clusterPasses = ( ((unsigned int) cl->et()) > (thrV * scale) ); // need to add cut on isolation and other variables, once available
          multiplicity +=  clusterPasses ? 1 : 0;
       }
    } else {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_HLTMENU_H
@@ -32,9 +32,6 @@ namespace TrigConf {
       /** Destructor */
       ~HLTMenu();
 
-      /** Accessor to the menu name */
-      std::string name() const;
-
       /** Accessor to the number of HLT chains */
       std::size_t size() const;
 
@@ -55,6 +52,9 @@ namespace TrigConf {
 
       /** print overview of L1 Menu */
       void printMenu(bool full = false) const;
+
+   private:
+      void update() override;
    };
 }
 

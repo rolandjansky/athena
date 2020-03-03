@@ -11,14 +11,19 @@ TrigConf::L1Connector::L1Connector()
 {}
 
 TrigConf::L1Connector::L1Connector(const std::string & connName, const boost::property_tree::ptree & data) 
-   : DataStructure(data),
-     m_name(connName)
+   : DataStructure(data)
 {
+   m_name = connName;
    update();
 }
 
 TrigConf::L1Connector::~L1Connector()
 {}
+
+std::string
+TrigConf::L1Connector::className() const {
+   return "L1Connector";
+}
 
 void
 TrigConf::L1Connector::update()
@@ -62,11 +67,6 @@ TrigConf::L1Connector::update()
    }   
 }
 
-const std::string &
-TrigConf::L1Connector::name() const
-{
-   return m_name;
-}
 
 TrigConf::L1Connector::ConnectorType
 TrigConf::L1Connector::type() const 
