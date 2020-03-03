@@ -310,8 +310,19 @@ class EmptyMenuSequence(object):
     
     def __init__(self):
         Maker = CompFactory.HLTTest__TestInputMaker("Empty", RoIsLink="initialRoI", LinkName="initialRoI")
-        self.name = "Empty"
+        self._name = "Empty"
         self._maker       = InputMakerNode( Alg = Maker )
+        self._seed=''
+        self.multiplicity = 0
+
+
+    @property
+    def seed(self):
+        return self._seed
+
+    @property
+    def name(self):
+        return self._name
 
     @property
     def __maker(self):
@@ -340,9 +351,13 @@ class EmptyMenuSequence(object):
         # No tools for empty sequences - needs to return empty list?
         log.debug("No tools for empty menu sequences")
 
+    def setSeed( self, seed ):
+        self._seed = seed
+
     def __repr__(self):
         return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s \n HypoTool::%s\n"\
             %("Empty", "Empty", "Empty", "Empty", None)
+
 
 
 class MenuSequence(object):
@@ -780,7 +795,7 @@ class CFSequence(object):
 
 
 class StepComp(object):
-    """ Class to build hte ChainStep, for including empty sequences"""
+    """ Class to build the ChainStep, for including empty sequences"""
     def __init__(self, sequence, multiplicity,empty):
         self.sequence=sequence
         self.multiplicity=multiplicity
