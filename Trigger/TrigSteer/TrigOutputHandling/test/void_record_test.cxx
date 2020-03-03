@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 #include "TestTools/expect.h"
@@ -79,7 +79,7 @@ int main() {
   log << MSG::INFO << "objects in store, trying to read them back via retrieve" << endmsg;
 
   const xAOD::TrigCompositeContainer* containerBack = 0;
-  pStore->retrieve( containerBack, "test" );
+  VALUE( pStore->retrieve( containerBack, "test" ).isSuccess() ) EXPECTED ( true );
   
   log << MSG::INFO << "Check retrieve" << endmsg;
   VALUE ( containerBack ) NOT_EXPECTED ( nullptr );
