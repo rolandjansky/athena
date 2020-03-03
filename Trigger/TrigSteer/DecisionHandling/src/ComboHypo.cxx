@@ -138,7 +138,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
   
   DecisionIDContainer passing;
   // this map is filled with the count of positive decisions from each input
-  CombinationMap dmap;
+  LegDecisionsMap dmap;
 
   ATH_CHECK( fillDecisionsMap( dmap, context ) );
 
@@ -153,7 +153,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
     allDecisionIds.insert(requiredDecisionID);
 
     bool overallDecision = true;
-    DecisionIDContainer uniqueDecisions;
+    std::set<uint32_t> uniqueDecisionFeatures;
 
     // Check multiplicity of each leg 
     for ( size_t legIndex = 0; legIndex <  multiplicityPerLeg.size(); ++legIndex ) {
@@ -171,7 +171,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
       const DecisionID requiredDecisionIDLeg = legId.numeric();
       ATH_MSG_DEBUG("Container " << legIndex << ", looking at leg : " << legId );
      
-      CombinationMap::const_iterator it = dmap.find(requiredDecisionIDLeg);
+      LegDecisionsMap::const_iterator it = dmap.find(requiredDecisionIDLeg);
       if ( it == dmap.end() ) {
         overallDecision = false;
         break;
@@ -179,7 +179,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
 
       //check this leg of the chain passes with required multiplicity
 
-      const size_t observedMultiplicity = it->second.getCombinations().size();
+      const size_t observedMultiplicity = it->second.size();
       ATH_MSG_DEBUG( "Required multiplicity " << requiredMultiplicity  << " for leg " << legId 
         << ": observed multiplicity " << observedMultiplicity << " in leg " << legIndex  );
 
@@ -189,22 +189,26 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
       }
 
       //keep track of the number of unique features
-
-      for (const auto& entry : it->second.getFeatures()){
-        if (entry.first == 0) {
+      for (const ElementLink<DecisionContainer>& dEL : it->second){
+        uint32_t featureKey = 0, roiKey = 0;
+        uint16_t featureIndex = 0, roiIndex = 0;
+        // NOTE: roiKey, roiIndex not currently used in this discrimination
+        ATH_CHECK( extractFeatureAndRoI(dEL, featureKey, featureIndex, roiKey, roiIndex) );
+        const uint32_t featureHash = (featureKey + featureIndex); 
+        if (featureHash == 0) {
           ATH_MSG_WARNING("Disregarding feature hash of zero");
           continue;
         }
-        uniqueDecisions.insert( entry.first );
-        // TODO - do something with entry.second (the ROI)
+        uniqueDecisionFeatures.insert( featureHash );
+        // TODO - do something with the ROI
       }
 
       allDecisionIds.insert(requiredDecisionIDLeg);
     }
 
     //check that the multiplicity of unique features is high enough
-    ATH_MSG_DEBUG("Number of unique decisions: " << uniqueDecisions.size() << ", number of required unique decisions: " << nRequiredUnique);
-    if ( uniqueDecisions.size() < nRequiredUnique ) {
+    ATH_MSG_DEBUG("Number of unique features: " << uniqueDecisionFeatures.size() << ", number of required unique decisions: " << nRequiredUnique);
+    if ( uniqueDecisionFeatures.size() < nRequiredUnique ) {
       overallDecision = false;
     }
 
@@ -223,30 +227,29 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ComboHypo::extractFeatureAndRoI(const Decision* d, const std::string& input,
+StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>& dEL,
   uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex) const 
 {
   uint32_t featureClid = 0; // Note: Unused. We don't care what the type of the feature is here
-  const bool result = d->typelessGetObjectLink(featureString(), featureKey, featureClid, featureIndex);
+  const bool result = (*dEL)->typelessGetObjectLink(featureString(), featureKey, featureClid, featureIndex);
   if (!result) {
-    ATH_MSG_ERROR("Did not find the feature for Input:" << input << " Element:" << d->index());
+    ATH_MSG_ERROR("Did not find the feature for " << dEL.dataID() << " index " << dEL.index());
   }
   // Try and get seeding ROI data too. Don't need to be type-less here
   if (m_requireUniqueROI) {
-    LinkInfo<TrigRoiDescriptorCollection> roiSeedLI = findLink<TrigRoiDescriptorCollection>(d, initialRoIString());
+    LinkInfo<TrigRoiDescriptorCollection> roiSeedLI = findLink<TrigRoiDescriptorCollection>((*dEL), initialRoIString());
     if (roiSeedLI.isValid()) {
       roiKey = roiSeedLI.link.key();
       roiIndex = roiSeedLI.link.index();
     }
     else {
-      ATH_MSG_ERROR("Did not find a seeding ROI for Input:" << input << " Element:" << d->index());
+      ATH_MSG_ERROR("Did not find a seeding ROI for " << dEL.dataID() << " index " << dEL.index());
     }
   }
   return StatusCode::SUCCESS;
 }
 
-StatusCode ComboHypo::fillDecisionsMap( CombinationMap &  dmap, const EventContext& context) const {
-
+StatusCode ComboHypo::fillDecisionsMap( LegDecisionsMap &  dmap, const EventContext& context) const {
   for ( size_t inputContainerIndex = 0; inputContainerIndex < m_inputs.size(); ++inputContainerIndex ) {   
     auto inputHandle = SG::makeHandle( m_inputs.at(inputContainerIndex), context );
     if ( !inputHandle.isValid() ) {
@@ -266,14 +269,7 @@ StatusCode ComboHypo::fillDecisionsMap( CombinationMap &  dmap, const EventConte
           }
           ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
 
-          // Obtain unique but type-less key & index identifiers for this Decision node's "Feature" 
-          // and (if m_requireUniqueROI) its initialRoI.
-          // Allows us to check object uniqueness and prevent multiple objects from the same RoI satisfying one leg.
-          uint32_t featureKey = 0, roiKey = 0;
-          uint16_t featureIndex = 0, roiIndex = 0;
-          ATH_CHECK( extractFeatureAndRoI(decision, inputHandle.key(), featureKey, featureIndex, roiKey, roiIndex) );
-
-          dmap[id].add(inputContainerIndex, decision->index(), featureKey, featureIndex, roiKey, roiIndex);
+          dmap[id].push_back( TrigCompositeUtils::decisionToElementLink(decision, context) );
         }
       }
     }
@@ -284,15 +280,10 @@ StatusCode ComboHypo::fillDecisionsMap( CombinationMap &  dmap, const EventConte
     size_t legCount = 0;
     for (const auto& entry: dmap){
       ATH_MSG_DEBUG("leg ["<<legCount<<"]: ");
-      const std::vector<std::pair<uint32_t,uint16_t>>& combinations = entry.second.getCombinations();
-      ATH_MSG_DEBUG(" +++ " << HLT::Identifier( entry.first ) <<" mult: "<< combinations.size());
-      for (const auto& comb : combinations){
-        ATH_MSG_DEBUG("     Comb: (ContainerIndex:"<<comb.first<<", DecisionElementIndex:"<<comb.second<<")");
-      }
-      const std::vector<std::pair<uint32_t,uint32_t>>& featureMap = entry.second.getFeatures();
-      ATH_MSG_DEBUG("FeatureMap: found " << featureMap.size() << " entries");
-      for (const auto& feat : featureMap) {
-        ATH_MSG_DEBUG("    Unique Feature Identifier:" << feat.first << ", From ROI Identifier: " << feat.second);
+      const ElementLinkVector<DecisionContainer>& decisions = entry.second;
+      ATH_MSG_DEBUG(" +++ " << HLT::Identifier( entry.first ) <<" Number Decisions: "<< decisions.size());
+      for (const ElementLink<DecisionContainer>& d : decisions){
+        ATH_MSG_DEBUG("     Decision: (ContainerKey:"<<d.key()<<", DecisionElementIndex:"<<d.index()<<")");
       }
       legCount++;
     }

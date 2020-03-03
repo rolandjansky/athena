@@ -8,8 +8,6 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
-#include "ComboHypoCombination.h"
-
 // STL includes
 #include <string>
 #include <utility>  
@@ -55,21 +53,20 @@ private:
    * @brief For a given Decision node from a HypoAlg, extracts type-less identification data on the node's Feature and seeding ROI.
    * @param[in] d The Decision node from the HypoAlg, expected to have a "feature" link attached to it.
    *   Expected to be able to locate a "initialRoI" in its history if RequireUniqueROI=True.
-   * @param[in] input Name of the collection the Decision comes from, used for error printing only.
    * @param[out] featureKey Type-less SG Key hash of the collection hosting the Decision node's feature .
    * @param[out] featureIndex Index inside the featureKey collection. 
    * @param[out] roiKey Type-less SG Key hash of the collection hosting the Decision node's initial ROI collection. 
    * @param[out] roiIndex Index inside the roiKey collection. 
    **/
-  StatusCode extractFeatureAndRoI(const TrigCompositeUtils::Decision* d, const std::string& input,
+  StatusCode extractFeatureAndRoI(const ElementLink<TrigCompositeUtils::DecisionContainer>& EL,
     uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex) const; 
 
 
   /**
-   * @brief iterates over all inputs filling the multiplicity map for each input collection
+   * @brief iterates over all inputs, associating inputs to legs
    **/
-  typedef std::map<TrigCompositeUtils::DecisionID, ComboHypoCombination> CombinationMap;
-  StatusCode fillDecisionsMap( CombinationMap& dmap, const EventContext& context) const;
+  typedef std::map<TrigCompositeUtils::DecisionID, ElementLinkVector<TrigCompositeUtils::DecisionContainer>> LegDecisionsMap;
+  StatusCode fillDecisionsMap( LegDecisionsMap& dmap, const EventContext& context) const;
 
 };
 
