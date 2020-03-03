@@ -4,6 +4,13 @@
 
 def LArNoisyROMonConfig(inputFlags, inKey="", NoisyFEBDefStr="(>30 chan with Q>4000)"):
 
+    # first configure known bad FEBs
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    cfg=ComponentAccumulator()
+    from LArBadChannelTool.LArBadFebsConfig import LArKnownBadFebCfg, LArKnownMNBFebCfg
+    cfg.merge(LArKnownBadFebCfg(inputFlags))
+    cfg.merge(LArKnownMNBFebCfg(inputFlags))
+
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArNoisyROMonCfg')
 
@@ -73,7 +80,8 @@ def LArNoisyROMonConfig(inputFlags, inKey="", NoisyFEBDefStr="(>30 chan with Q>4
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
     pass
 
-    return helper.result()
+    cfg.merge(helper.result())
+    return cfg
     
 
 if __name__=='__main__':
