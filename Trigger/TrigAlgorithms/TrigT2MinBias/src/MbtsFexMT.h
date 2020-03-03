@@ -13,11 +13,9 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "xAODTrigMinBias/TrigT2MbtsBits.h"
 #include "xAODTrigMinBias/TrigT2MbtsBitsAuxContainer.h"
 #include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
-#include "xAODTrigMinBias/TrigT2MbtsBitsAuxContainer.h"
 #include "TileIdentifier/TileTBID.h"
 #include "TrigT2CaloCommon/ITrigDataAccess.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -56,7 +54,6 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "IRegionSelector/IRegSelSvc.h"
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
-#include "StoreGate/ReadHandleKey.h"
 #include "CaloIdentifier/TileID.h"
 #include "TileEvent/TileCell.h"
 
@@ -75,11 +72,17 @@ public:
 
 private:
 
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_MbtsKey{this,"MbtsKey","Undefined",""};
+ SG::WriteHandleKey<xAOD::TrigT2MbtsBits> m_MbtsKey{this,"mbtsHandle","Undefined",""};
+  SG::WriteHandleKey<xAOD::TrigT2MbtsBitsContainer> m_t2MbtsBits{this,"MbtsKey","Undefined",""};
   SG::ReadHandleKey<TileTBID> m_TileHelperKey{this,"TileHelperKey", "DetectorStore+TileTBID"," "};
+
   ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc;
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-  SG::ReadHandleKey<CaloCellContainer> m_calocellcollectionKey ;
+
+  TrigTimer *m_timerLoadColl;
+  TrigTimer *m_timerAlg;
+  TrigTimer *m_timerSave;
+
 
 };
 #endif
