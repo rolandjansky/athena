@@ -131,46 +131,56 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
 
   else if (m_inputSource==2) {
 
-    //To be confirmed
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey, ctx};
 
-    SG::ReadCondHandle<DetCondCFloat> readHandle{m_readKey, ctx};
-    const DetCondCFloat* readCdo{*readHandle};
+    const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0,                       0,                       EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
+    const EventIDBase stop {EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
+    EventIDRange rangeW{start, stop};
+
+    // To be used in master
+
+    /*const CondAttrListCollection* readCdo{*readHandle};
+
+    // Get the validitiy range
+    if (not readHandle.range(rangeW)) {
+       ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
+       return StatusCode::FAILURE;
+    }*/
+
+    // Temporary workaround in 21.9
+
+    const CondAttrListCollection* readCdo;
+    if(m_detStore->retrieve(readCdo,readHandle.key()).isFailure()) {
+      ATH_MSG_FATAL("Could not retrieve CondAttrListCollection " << readHandle.key() << " from StoreGate");
+      return StatusCode::FAILURE;
+    }
+
     if (readCdo==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
       return StatusCode::FAILURE;
     }
-    // Get the validitiy range
-    EventIDRange rangeW;
-    if (not readHandle.range(rangeW)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_DEBUG("Size of DetCondCFloat " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+
     ATH_MSG_DEBUG("Range of input is " << rangeW);
 
     std::vector<float> constants;
-    for (int i=0; i<readCdo->size(); i++) { constants.push_back(readCdo->get(Identifier(1),i)); }
 
-    if (constants.size()>0) {
-      ATH_MSG_DEBUG("Found constants with new-style Identifier key");
-      writeCdo->setConstants(constants);
+    for(CondAttrListCollection::const_iterator attrList = readCdo->begin(); attrList != readCdo->end(); ++attrList){
+
+      std::ostringstream attrStr;
+      (*attrList).second.toOutputStream(attrStr);
+      ATH_MSG_DEBUG( "ChanNum " << (*attrList).first << " Attribute list " << attrStr.str() );
+
+      constants.emplace_back( (*attrList).second["pixelID"].data<long long>() );
+      constants.emplace_back( (*attrList).second["delta_x"].data<float>() );
+      constants.emplace_back( (*attrList).second["delta_error_x"].data<float>() );
+      constants.emplace_back( (*attrList).second["delta_y"].data<float>() );
+      constants.emplace_back( (*attrList).second["delta_error_y"].data<float>() );
+
     }
-    else {
-      Identifier key;
-      key.set_literal(1);
 
-      std::vector<float> const2;
-      for (int i=0; i<readCdo->size(); i++) { const2.push_back(readCdo->get(key.set_literal(i+1),i)); }
+    writeCdo->setConstants(constants);
 
-      if (const2.size()>0) {
-        ATH_MSG_DEBUG("Found constants with old-style Identifier key");
-        writeCdo->setConstants(const2);
-      }
-      else {
-        ATH_MSG_ERROR("Could not get the constants!");
-        return StatusCode::FAILURE;
-      }
-    }
+
     if (writeHandle.record(rangeW, writeCdo).isFailure()) {
       ATH_MSG_FATAL("Could not record PixelCalib::PixelITkOfflineCalibData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
       return StatusCode::FAILURE;

@@ -25,7 +25,6 @@ atlas_depends_on_subdirs(
    DetectorDescription/GeoModel/GeoModelInterfaces
    DetectorDescription/GeoModel/GeoModelUtilities
    DetectorDescription/Identifier
-   DetectorDescription/DetDescrCond/DetDescrConditions
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetDetDescr/PixelCabling
@@ -38,7 +37,7 @@ atlas_add_library( PixelConditionsAlgorithmsLib
    PixelConditionsAlgorithms/*.h
    INTERFACE
    NO_PUBLIC_HEADERS
-   LINK_LIBRARIES GaudiKernel AthenaKernel AthenaBaseComps PixelConditionsData DetDescrConditions
+   LINK_LIBRARIES GaudiKernel AthenaKernel AthenaBaseComps PixelConditionsData
    AthenaPoolUtilities PathResolver TrkGeometry)
 
 

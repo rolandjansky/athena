@@ -22,5 +22,5 @@ condSeq = AthSequencer("AthAlgSeq") #should be changed to AthCondSeq in master
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 if geoFlags.isSLHC() and not hasattr(condSeq, 'PixelITkOfflineCalibCondAlg'):
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelITkOfflineCalibCondAlg
-    condSeq += PixelITkOfflineCalibCondAlg(name="PixelITkOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
+    condSeq += PixelITkOfflineCalibCondAlg(name="PixelITkOfflineCalibCondAlg", ReadKey="/PIXEL/PixelITkClusterErrorData")
     PixelITkOfflineCalibCondAlg.InputSource = 2

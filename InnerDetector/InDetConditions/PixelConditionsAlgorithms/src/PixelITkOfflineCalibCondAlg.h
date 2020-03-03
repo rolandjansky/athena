@@ -9,7 +9,7 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
-#include "DetDescrConditions/DetCondCFloat.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
 #include "PixelConditionsData/PixelITkOfflineCalibData.h"
@@ -34,7 +34,7 @@ class PixelITkOfflineCalibCondAlg : public AthReentrantAlgorithm {
     std::string m_textFileName;
     int m_dump;
 
-    SG::ReadCondHandleKey<DetCondCFloat> m_readKey{this, "ReadKey", "/PIXEL/PixReco", "Input key of pixreco conditions folder"};
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/PIXEL/PixReco", "Input key of pixreco conditions folder"};
     SG::WriteCondHandleKey<PixelCalib::PixelITkOfflineCalibData> m_writeKey{this, "WriteKey", "PixelITkOfflineCalibData", "Output key of pixel module data"};
 
     ServiceHandle<ICondSvc> m_condSvc;
