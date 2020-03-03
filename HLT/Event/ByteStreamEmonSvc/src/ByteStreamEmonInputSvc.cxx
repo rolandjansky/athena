@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //===================================================================
@@ -78,7 +78,7 @@ ByteStreamEmonInputSvc::ByteStreamEmonInputSvc(const std::string& name, ISvcLoca
 // Open the first input file and read the first event.
 StatusCode ByteStreamEmonInputSvc::initialize()
 {
-    setProperty("State", "Init");
+    setProperty("State", "Init").ignore();
 
     ATH_CHECK( ByteStreamInputSvc::initialize() );
 
@@ -132,7 +132,7 @@ StatusCode ByteStreamEmonInputSvc::initialize()
 
 bool ByteStreamEmonInputSvc::getIterator()
 {
-    setProperty("State", "Init");
+    setProperty("State", "Init").ignore();
 
     if(!IPCCore::isInitialised()) {
         char* argv[2] = { 0 };
@@ -250,7 +250,7 @@ bool ByteStreamEmonInputSvc::getIterator()
             if(m_readDetectorMask) {
                 get_runparams();
             }
-            setProperty("State", "Connected");
+            setProperty("State", "Connected").ignore();
 	    return true;
 	} catch(ers::Issue& ex) {
 	    ATH_MSG_INFO("Cannot connect to sampler (will wait 20s): " << m_key << "/" << m_value
@@ -310,7 +310,7 @@ const RawEvent* ByteStreamEmonInputSvc::nextEvent()
             continue;
         }
 
-        setProperty("State", "Processing");
+        setProperty("State", "Processing").ignore();
        
         OFFLINE_FRAGMENTS_NAMESPACE::DataType* buf = new OFFLINE_FRAGMENTS_NAMESPACE::DataType[event.size()];
         memcpy(buf, event.data(), event.size() * sizeof(OFFLINE_FRAGMENTS_NAMESPACE::DataType));
@@ -511,14 +511,14 @@ void ByteStreamEmonInputSvc::updateHandler(Property& /* p */)
     if(! m_connect) {
         m_connect = true;
         sleep(2);
-        setProperty("State","Reconnect");
+        setProperty("State","Reconnect").ignore();
     }
 }
 
 
 StatusCode ByteStreamEmonInputSvc::finalize() 
 {
-    setProperty("State","Shutdown");
+    setProperty("State","Shutdown").ignore();
     m_inputMetaDataStore.release().ignore();
     m_robProvider.release().ignore();
     m_sgSvc.release().ignore();

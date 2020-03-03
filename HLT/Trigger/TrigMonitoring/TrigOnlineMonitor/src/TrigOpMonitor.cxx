@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigOpMonitor.h"
@@ -287,7 +287,7 @@ void TrigOpMonitor::fillIOVDbChangeHist(const EventContext& ctx)
               ("Bytes read for " + info.folderName + ";Data [bytes];Entries").c_str(), 100, 0, 1000);
 
           for (TH1* h : {fh->second.h_time, fh->second.h_bytes}) {
-            m_histSvc->regHist(h->GetName(), h);
+            m_histSvc->regHist(h->GetName(), h).ignore();
           }
         }
 

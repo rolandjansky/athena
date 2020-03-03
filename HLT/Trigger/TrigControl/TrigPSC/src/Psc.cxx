@@ -330,7 +330,7 @@ bool psc::Psc::configure(const ptree& config)
   ServiceHandle<IJobOptionsSvc> p_jobOptionSvc("JobOptionsSvc","psc::Psc");
   SmartIF<IProperty> jos_propif{&(*p_jobOptionSvc)};
   if(m_config->didUserSetLogLevel())
-    jos_propif->setProperty("OutputLevel", m_config->getLogLevelAsNumStr());
+    jos_propif->setProperty("OutputLevel", m_config->getLogLevelAsNumStr()).ignore();
 
   // Write Data Flow parameters in JobOptions catalogue
 
