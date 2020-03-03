@@ -149,11 +149,11 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
         )
         larCollTimeMonAlg.InTrain_CollTimeGroupName=collTimeGroupName_intrain #pass the group name to the algorithm, this way you let the algorithm now that this group has been defined (won't be filled otherwise)
         
-        intrain_tit=" inside the train"
+        intrain_title=" inside the train"
         intrain_name="_intrain"
         
         collTimeGroup_intrain.defineHistogram('ecTimeDiff;LArCollTime'+intrain_name, 
-                                              title='LArCollisionTime - difference of avg time from ECC and ECA'+intrain_tit+';<t_{C}> - <t_{A}> ('+timeUnitName+(');Number of events (weighted by energy/GeV) per %.2f ' % (lArDQGlobals.colTime_BinWidth/timeUnit))+timeUnitName,
+                                              title='LArCollisionTime - difference of avg time from ECC and ECA'+intrain_title+';<t_{C}> - <t_{A}> ('+timeUnitName+(');Number of events (weighted by energy/GeV) per %.2f ' % (lArDQGlobals.colTime_BinWidth/timeUnit))+timeUnitName,
                                               type='Th1F',
                                               path=larColTime_hist_path,
                                               weight='weight',
@@ -161,7 +161,7 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
         
         
         collTimeGroup_intrain.defineHistogram('ecTimeAvg;LArCollAvgTime'+intrain_name, 
-                                              title='LArCollisionAverageTime - avg time of ECC and ECA'+intrain_tit+';(<t_{C}> + <t_{A}>) / 2 ('+timeUnitName+(');Number of events (weighted by energy/GeV) per %.2f ' % (lArDQGlobals.avgColTime_BinWidth/timeUnit))+timeUnitName,
+                                              title='LArCollisionAverageTime - avg time of ECC and ECA'+intrain_title+';(<t_{C}> + <t_{A}>) / 2 ('+timeUnitName+(');Number of events (weighted by energy/GeV) per %.2f ' % (lArDQGlobals.avgColTime_BinWidth/timeUnit))+timeUnitName,
                                               type='Th1F',
                                               path=larColTime_hist_path,
                                               weight='weight',
@@ -169,7 +169,7 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
         
         
         collTimeGroup_intrain.defineHistogram('ecTimeDiff;LArCollTimeLumiBlock'+intrain_name, 
-                                              title='LArCollisionTime - difference of avg time from ECC and ECA;<t_{C}> - <t_{A}> ('+timeUnitName+')'+intrain_tit+(';Number of events (weighted by energy/GeV) per %.2f ' % (lArDQGlobals.colTime_BinWidth/timeUnit))+timeUnitName,
+                                              title='LArCollisionTime - difference of avg time from ECC and ECA;<t_{C}> - <t_{A}> ('+timeUnitName+')'+intrain_title+(';Number of events (weighted by energy/GeV) per %.2f ' % (lArDQGlobals.colTime_BinWidth/timeUnit))+timeUnitName,
                                               type='Th1F',
                                               path=larColTime_hist_path,
                                               weight='weight',
@@ -179,14 +179,14 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
         
         
         collTimeGroup_intrain.defineHistogram('(lumi_block_timeWindow);LArCollTimeLumiBlockTimeCut'+intrain_name,
-                                              title='Events with abs(<t_{C}> - <t_{A}>) < 10ns as a function of LB'+intrain_tit+';Luminosity Block Number;Number of events per LB',
+                                              title='Events with abs(<t_{C}> - <t_{A}>) < 10ns as a function of LB'+intrain_title+';Luminosity Block Number;Number of events per LB',
                                               path=larColTime_hist_path,
                                               weight='weight',
                                               xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
         
         
         collTimeGroup_intrain.defineHistogram('(lumi_block_singleBeam_timeWindow);LArCollTimeLumiBlockSingleBeamTimeCut'+intrain_name,
-                                              title='Events with 20 ns < abs(<t_{C}> - <t_{A}>) < 30ns as a function of LB'+intrain_tit+';Luminosity Block Number;Number of events per LB',
+                                              title='Events with 20 ns < abs(<t_{C}> - <t_{A}>) < 30ns as a function of LB'+intrain_title+';Luminosity Block Number;Number of events per LB',
                                               type='Th1F',
                                               path=larColTime_hist_path,
                                               weight='weight',
@@ -194,7 +194,7 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
         
         
         collTimeGroup_intrain.defineHistogram('lumi_block,ecTimeDiff;LArCollTime_vs_LB'+intrain_name,
-                                              title='LArCollisionTime Vs Luminosity Block - difference of avg time of ECC and ECA as a function of luminosity block;Luminosity Block Number'+intrain_tit+';<t_{C}> - <t_{A}> ('+timeUnitName+');Number of events (weighted by energy/GeV)',
+                                              title='LArCollisionTime Vs Luminosity Block - difference of avg time of ECC and ECA as a function of luminosity block;Luminosity Block Number'+intrain_title+';<t_{C}> - <t_{A}> ('+timeUnitName+');Number of events (weighted by energy/GeV)',
                                               type='TH2F',
                                               path=larColTime_hist_path,
                                               weight='weight',
@@ -203,7 +203,7 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
         
         
         collTimeGroup_intrain.defineHistogram('bunch_crossing_id,ecTimeDiff;LArCollTime_vs_BCID'+intrain_name,
-                                              title='LArCollisionTime Vs BCID - difference of avg time of ECC and ECA as a function of BCID'+intrain_tit+';Bunch Crossing Number;<t_{C}> - <t_{A}> ('+timeUnitName+');Number of events (weighted by energy/GeV)',
+                                              title='LArCollisionTime Vs BCID - difference of avg time of ECC and ECA as a function of BCID'+intrain_title+';Bunch Crossing Number;<t_{C}> - <t_{A}> ('+timeUnitName+');Number of events (weighted by energy/GeV)',
                                               type='TH2F',
                                               path=larColTime_hist_path,
                                               weight='weight',
@@ -211,7 +211,7 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
                                               ybins=lArDQGlobals.colTime_Bins,ymin=lArDQGlobals.colTime_Min/timeUnit,ymax=lArDQGlobals.colTime_Max/timeUnit)
         
         collTimeGroup_intrain.defineHistogram('lumi_block,ecTimeAvg;LArCollAvgTime_vs_LB'+intrain_name,
-                                              title='LArCollisionAvgTime Vs Luminosity Block - avg time of ECC and ECA as a function of luminosity block'+intrain_tit+';Luminosity Block Number;(<t_{C}> + <t_{A}>) / 2 ('+timeUnitName+');Number of events (weighted by energy/GeV)',
+                                              title='LArCollisionAvgTime Vs Luminosity Block - avg time of ECC and ECA as a function of luminosity block'+intrain_title+';Luminosity Block Number;(<t_{C}> + <t_{A}>) / 2 ('+timeUnitName+');Number of events (weighted by energy/GeV)',
                                               type='TH2F',
                                               path=larColTime_hist_path,
                                               weight='weight',
@@ -219,7 +219,7 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
                                               ybins=lArDQGlobals.avgColTime_Bins,ymin=lArDQGlobals.avgColTime_Min/timeUnit,ymax=lArDQGlobals.avgColTime_Max/timeUnit)
         
         collTimeGroup_intrain.defineHistogram('bunch_crossing_id,ecTimeAvg;LArCollAvgTime_vs_BCID'+intrain_name,
-                                              title='LArCollisionAvgTime Vs BCID - avg time of ECC and ECA as a function of BCID'+intrain_tit+';Bunch Crossing Number;(<t_{C}> + <t_{A}>) / 2 ('+timeUnitName+');Number of events (weighted by energy/GeV)',
+                                              title='LArCollisionAvgTime Vs BCID - avg time of ECC and ECA as a function of BCID'+intrain_title+';Bunch Crossing Number;(<t_{C}> + <t_{A}>) / 2 ('+timeUnitName+');Number of events (weighted by energy/GeV)',
                                               type='TH2F',
                                               path=larColTime_hist_path,
                                               weight='weight',
