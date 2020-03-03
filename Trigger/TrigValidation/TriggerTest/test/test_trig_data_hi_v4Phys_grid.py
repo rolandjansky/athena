@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # art-description: Legacy trigger test on data with Physics_HI_v4 menu
-# art-type: build
+# art-type: grid
 # art-include: master/Athena
 # art-output: *.txt
 # art-output: *.log
