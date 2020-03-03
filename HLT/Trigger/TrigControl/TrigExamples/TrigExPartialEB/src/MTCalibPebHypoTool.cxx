@@ -281,7 +281,13 @@ StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) co
 }
 
 // =============================================================================
-MTCalibPebHypoTool::ROBRequestInstruction::ROBRequestInstruction(std::string_view str) {
+MTCalibPebHypoTool::ROBRequestInstruction::ROBRequestInstruction(std::string_view strv) {
+  // Work around a bug in clang 9.
+#if __clang_major__ == 9
+  std::string str (strv.begin(), strv.end());
+#else
+  const std::string_view& str = strv;
+#endif
   if (str.find(":ADD:")!=std::string_view::npos) type = ROBRequestInstruction::ADD;
   else if (str.find(":GET:")!=std::string_view::npos) type = ROBRequestInstruction::GET;
   else if (str.find(":COL:")!=std::string_view::npos) type = ROBRequestInstruction::COL;
