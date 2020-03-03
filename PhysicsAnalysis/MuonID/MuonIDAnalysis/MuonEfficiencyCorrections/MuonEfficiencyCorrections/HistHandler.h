@@ -247,7 +247,7 @@ namespace CP {
                 static const SG::AuxElement::ConstAccessor<float> dRJet("dRJet");
                 value = dRJet.isAvailable(mu) ? dRJet(mu) : -2;
 		// We want these warnings to be printed few times per job, so that they're visible, then stop before log file's size blows up 
-                static unsigned int warned = 0;
+                static std::atomic<unsigned int> warned = 0;
                 if (warned<5 && !dRJet.isAvailable(mu)){
                     using namespace msgMuonEfficiency;
                     ANA_MSG_WARNING("The dRJet decoration has not been found for the Muon. Isolation scale-factors are now also binned in #Delta R(jet,#mu)");
