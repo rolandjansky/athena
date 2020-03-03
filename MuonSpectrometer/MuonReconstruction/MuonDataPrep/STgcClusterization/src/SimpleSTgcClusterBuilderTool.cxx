@@ -215,13 +215,14 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(const Muon::sTgcPrepData& stri
 
       unsigned int firstStrip = *(clusterStripNum.begin());
       unsigned int lastStrip  = *(--clusterStripNum.end());
-
       ATH_MSG_DEBUG("First strip and last strip are: " << firstStrip << " " << lastStrip);
-      if ( std::abs(stripNum-lastStrip)<=m_maxHoleSize + 1 && std::abs(stripNum-firstStrip)<=m_maxHoleSize + 1) {
 
+      unsigned int diffFirst = (stripNum-firstStrip) > 0 ? stripNum - firstStrip : firstStrip-stripNum ;
+      unsigned int diffLast  = (stripNum-lastStrip)  > 0 ? stripNum - lastStrip  : lastStrip-stripNum ;
+      if ( diffFirst<=m_maxHoleSize + 1 || diffLast<=m_maxHoleSize + 1) {
         ATH_MSG_DEBUG(">> inserting a new strip");
-	clustersStripNum[multilayer][gasGap].at(i).insert(stripNum);
-	clusters[multilayer][gasGap].at(i).push_back(strip);
+        clustersStripNum[multilayer][gasGap].at(i).insert(stripNum);
+        clusters[multilayer][gasGap].at(i).push_back(strip);
 
         ATH_MSG_DEBUG("size after inserting is: " << clustersStripNum[multilayer][gasGap].at(i).size());
         ATH_MSG_DEBUG("and the first and last strip are: " 
