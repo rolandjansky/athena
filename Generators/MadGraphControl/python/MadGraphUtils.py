@@ -18,7 +18,6 @@ MADGRAPH_RUN_NAME='run_01'
 # PDF setting (global setting)
 MADGRAPH_PDFSETTING=None
 from MadGraphUtilsHelpers import *
-import MadGraphSystematicsUtils
 
 def setup_path_protection():
     # Addition for models directory
@@ -1874,3 +1873,6 @@ def check_reset_proc_number(opts):
 def ls_dir(directory):
     mglog.info('For your information, ls of '+directory+':')
     mglog.info( sorted( os.listdir( directory ) ) )
+
+# Final import of some code used in these functions
+import MadGraphSystematicsUtils

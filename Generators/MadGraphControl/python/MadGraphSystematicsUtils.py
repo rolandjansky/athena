@@ -4,8 +4,8 @@
 
 # use some helper functions from MadGraphUtils
 import ast
-from MadGraphControl.MadGraphUtils import *
 from MadGraphControl.MadGraphUtilsHelpers import *
+from MadGraphControl.MadGraphUtils import get_lhapdf_id_and_name
 
 from AthenaCommon import Logging
 mgsyslog = Logging.logging.getLogger('MadGraphSysUtils')
@@ -105,10 +105,10 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
         runcard_settings['sys_pdf']=''
         if basefragment_settings['pdf_variations']!=None:
             for v in basefragment_settings['pdf_variations']:
-                sys_pdfs.append(MadGraphUtils.get_lhapdf_id_and_name(v)[1])
+                sys_pdfs.append(get_lhapdf_id_and_name(v)[1])
         if basefragment_settings['alternative_pdfs']!=None:
             for a in basefragment_settings['alternative_pdfs']:
-                sys_pdfs.append(MadGraphUtils.get_lhapdf_id_and_name(a)[1]+' 1')        
+                sys_pdfs.append(get_lhapdf_id_and_name(a)[1]+' 1')
         runcard_settings['sys_pdf']+=' '.join(sys_pdfs)
 
 
