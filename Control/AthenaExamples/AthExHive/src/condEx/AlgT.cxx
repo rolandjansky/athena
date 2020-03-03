@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AlgT.h"
@@ -88,9 +88,9 @@ StatusCode AlgT::execute() {
   ATH_MSG_INFO("  write: " << wh1.key() << " = " << wh1->val() );
 
 
-  m_tool1->doSomething();
-  m_tool2->doSomething();
-  m_tool3->doSomething();
+  ATH_CHECK(m_tool1->doSomething());
+  ATH_CHECK(m_tool2->doSomething());
+  ATH_CHECK(m_tool3->doSomething());
   
 
   return StatusCode::SUCCESS;
