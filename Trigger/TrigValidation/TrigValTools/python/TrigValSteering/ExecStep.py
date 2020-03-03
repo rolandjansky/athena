@@ -199,7 +199,7 @@ class ExecStep(Step):
         if self.max_events is None:
             if test.art_type == 'build':
                 if test.package_name == 'TrigP1Test':
-                    self.max_events = 50
+                    self.max_events = 100
                 else:
                     self.max_events = 20
             else:
@@ -207,7 +207,7 @@ class ExecStep(Step):
 
         # Set prmon interval based on max events
         if self.prmon:
-            if self.max_events < 100:
+            if self.max_events <= 100:
                 self.prmon_interval = 5
             else:
                 self.prmon_interval = 10
