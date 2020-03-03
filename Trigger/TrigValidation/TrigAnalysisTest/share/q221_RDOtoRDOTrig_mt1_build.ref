@@ -26,12 +26,16 @@ TrigSignatureMoniMT                                INFO HLT_2mu4_bJpsimumu_L12MU
 TrigSignatureMoniMT                                INFO HLT_2mu4_bJpsimumu_L12MU4 decisions                    16        5         6         4         1
 TrigSignatureMoniMT                                INFO HLT_2mu4_bUpsimumu_L12MU4     4         4         4         2         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_2mu4_bUpsimumu_L12MU4 decisions                    16        2         0         0         0
+TrigSignatureMoniMT                                INFO HLT_2mu4_muonqual_L12MU4      4         4         4         4         4         4         0         4
+TrigSignatureMoniMT                                INFO HLT_2mu4_muonqual_L12MU4 decisions                    16        16        24        20        0
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6           4         4         4         3         0         0         0         3
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6 decisions                     16        12        0         0         0
 TrigSignatureMoniMT                                INFO HLT_2mu6_10invm70_L1MU6       10        10        4         3         3         3         2         0
 TrigSignatureMoniMT                                INFO HLT_2mu6_10invm70_L1MU6 decisions                    16        12        18        16        2
 TrigSignatureMoniMT                                INFO HLT_2mu6_L12MU6               4         4         4         3         3         3         0         3
 TrigSignatureMoniMT                                INFO HLT_2mu6_L12MU6 decisions                         16        12        18        16        0
+TrigSignatureMoniMT                                INFO HLT_2mu6_muonqual_L12MU6      4         4         4         3         3         3         0         3
+TrigSignatureMoniMT                                INFO HLT_2mu6_muonqual_L12MU6 decisions                    16        12        18        16        0
 TrigSignatureMoniMT                                INFO HLT_3j200_L1J100              3         3         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_3j200_L1J100 decisions                        0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_3j200_L1J20               19        19        0         0         0         0         0         0
