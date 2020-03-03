@@ -123,7 +123,7 @@ TrackMVABDT::TrackMVABDT(const std::string& sName)
   , m_iSignalType(xAOD::TauJetParameters::classifiedCharged)
   , m_iBackgroundType(xAOD::TauJetParameters::classifiedFake)
   , m_iExpectedFlag(xAOD::TauJetParameters::unclassified)
-  , m_rReader(0)
+  , m_rReader(nullptr)
   , m_mAvailableVars({})
 {
   declareProperty( "InputWeightsPath", m_sInputWeightsPath );
@@ -136,14 +136,11 @@ TrackMVABDT::TrackMVABDT(const std::string& sName)
 //______________________________________________________________________________
 TrackMVABDT::~TrackMVABDT()
 {
-  delete m_rReader;
 }
 
 //______________________________________________________________________________
 StatusCode TrackMVABDT::finalize()
 {
-  delete m_rReader;
-  m_rReader = nullptr;
   for( std::pair<TString, float*> p : m_mAvailableVars ) delete p.second;
   m_mAvailableVars.clear();
   return StatusCode::SUCCESS;
@@ -247,7 +244,7 @@ StatusCode TrackMVABDT::addWeightsFile()
   ATH_MSG_DEBUG("InputWeightsPath: " << m_sInputWeightsPath);
   
   m_rReader = tauRecTools::configureMVABDT( m_mAvailableVars, m_sInputWeightsPath.c_str() );
-  if(m_rReader==0) {
+  if(m_rReader==nullptr) {
     ATH_MSG_FATAL("Couldn't configure MVA");
     return StatusCode::FAILURE;
   }

@@ -6,7 +6,7 @@
 
 TauJetBDTEvaluator::TauJetBDTEvaluator(const std::string& name)
   : TauRecToolBase(name)
-  , m_myBdt(0)
+  , m_myBdt(nullptr)
 {
   declareProperty("weightsFile", m_weightsFile="");
   declareProperty("minNTracks", m_minNTracks=0);
@@ -29,8 +29,8 @@ StatusCode TauJetBDTEvaluator::initialize(){
 
   //configure m_myBdt object if weights exists
   std::string full_path=find_file(m_weightsFile);
-  m_myBdt = new tauRecTools::TRTBDT(full_path.c_str());
-  if(m_myBdt->bdt==0) {
+  m_myBdt = std::make_unique<tauRecTools::TRTBDT>(full_path.c_str());
+  if(m_myBdt->bdt==nullptr) {
     ATH_MSG_FATAL("Couldn't configure BDT");
     return StatusCode::FAILURE;
   }
@@ -44,7 +44,7 @@ StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau){
   //init output variable accessor
   SG::AuxElement::Accessor<float> outputVar(m_outputVarName);
 
-  if(m_myBdt==0) {
+  if(m_myBdt==nullptr) {
     (outputVar)(xTau) = m_dummyValue;
     return StatusCode::SUCCESS;
   }
