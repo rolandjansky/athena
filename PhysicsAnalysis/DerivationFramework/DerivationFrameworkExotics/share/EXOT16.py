@@ -148,8 +148,6 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT16Stream )
 EXOT16Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT16Stream.AcceptAlgs(["EXOT16Kernel"])
 
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools 
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 
@@ -283,7 +281,7 @@ thinningTools.append(EXOT16Ak10CCThinningTool)
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT16MCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT16MCThinningTool",
-                                                             ThinningService = "EXOT16ThinningSvc",
+                                                             StreamName                 = streamName,
 	                                                     WritePartons               = False,
 	                                                     WriteHadrons               = True,
 	                                                     WriteBHadrons              = True,

@@ -47,12 +47,8 @@ IDTIDE1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 #addTrackSumMoments("AntiKt4EMTopo")
 #addDefaultTrimmedJets(idtideSeq,"IDTIDE1")
 
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="IDTIDE1ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # CP GROUP TOOLS
@@ -271,7 +267,7 @@ thinningTools.append(IDTIDE1ThinningTool)
 if IsMonteCarlo:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   IDTIDE1TruthThinningTool = DerivationFramework__MenuTruthThinning(name = "IDTIDE1TruthThinningTool",
-      ThinningService            = "IDTIDE1ThinningSvc",
+      StreamName                 = streamName,
       WritePartons               = True,
       WriteHadrons               = True,
       WriteBHadrons              = True, 
