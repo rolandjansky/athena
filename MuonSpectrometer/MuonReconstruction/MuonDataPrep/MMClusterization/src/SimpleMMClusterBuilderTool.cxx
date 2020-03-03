@@ -37,7 +37,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::finalize()
 }
 
 StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-							 std::vector<Muon::MMPrepData*>& clustersVect)
+							 std::vector<Muon::MMPrepData*>& clustersVect) const 
 
 {
   ATH_MSG_DEBUG("Size of the input vector: " << MMprds.size()); 
