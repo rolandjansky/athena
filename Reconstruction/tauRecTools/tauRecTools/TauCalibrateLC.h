@@ -40,10 +40,10 @@ private:
 
     static const int s_nProngBins = 2;
 
-    const TF1 * m_calibFunc[s_nProngBins][10]; //maximum 10 eta bins; might not be used on the whole 
-    const TH1 * m_slopeNPVHist[s_nProngBins]={0};
-    const TH1 * m_etaBinHist=0;
-    const TH1 * m_etaCorrectionHist=0;
+    std::vector<std::vector<std::unique_ptr<TF1>>> m_calibFunc;
+    std::vector<std::unique_ptr<TH1>> m_slopeNPVHist; 
+    std::unique_ptr<TH1> m_etaBinHist=nullptr; 
+    std::unique_ptr<TH1> m_etaCorrectionHist=nullptr; 
 
     ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
 

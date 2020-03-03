@@ -70,15 +70,18 @@ class CombinedP4FromRecoTaus
   StatusCode execute(xAOD::TauJet& xTau) override; 
 
  private:
-  std::vector< std::vector<TGraph*> >  m_resTGraph_tauRec;
-  std::vector< std::vector<TGraph*> >  m_resTGraph_CellBased2PanTau;
-  std::vector< std::vector<TGraph*> >  m_meanTGraph_CellBased2PanTau;
-  std::vector< std::vector<TGraph*> >  m_meanTGraph_tauRec;
+  const std::vector<TString> m_modeNames = {"1p0n","1p1n","1pXn","3p0n","3pXn"};
+  const std::vector<TString> m_etaBinNames = {"0", "1", "2", "3", "4"};//("<0.3"), ("<0.8"), ("<1.3"), ("<1.6"), ("<2.5")
+  
+  /// row: size of m_etaBinNames, column: size of m_modeNames
+  std::vector<std::vector<std::unique_ptr<TGraph>>> m_meanTGraph_CellBased2PanTau; 
+  std::vector<std::vector<std::unique_ptr<TGraph>>> m_resTGraph_CellBased2PanTau;
+  
+  std::vector<std::vector<std::unique_ptr<TGraph>>> m_meanTGraph_tauRec;
+  std::vector<std::vector<std::unique_ptr<TGraph>>> m_resTGraph_tauRec;
 
-  std::vector<TH1F*> m_correlationHists;
-
-  std::vector<TString> m_modeNames = {"1p0n","1p1n","1pXn","3p0n","3pXn"};
-  std::vector<TString> m_etaBinNames = {"0", "1", "2", "3", "4"};//("<0.3"), ("<0.8"), ("<1.3"), ("<1.6"), ("<2.5")
+  /// size of m_modeNames
+  std::vector<std::unique_ptr<TH1F>> m_correlationHists;
 
   std::string m_calibFilePath;
 
