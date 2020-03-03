@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -134,7 +134,7 @@ StatusCode TrackSelectionAlg::execute()
   }
 
   SG::WriteHandle<TrackCollection> outputTrackCol{m_outputTrackCol};
-  outputTrackCol.record(std::move(selectedTracks));
+  ATH_CHECK(outputTrackCol.record(std::move(selectedTracks)));
 
   return StatusCode::SUCCESS;
 }
