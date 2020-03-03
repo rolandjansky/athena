@@ -1,34 +1,49 @@
 # Readme
 
-This is a tool for the application of isolation and shower shape corrections to variables in the
-derivation of DxAODs: `ElectronPhotonVariableCorrectionTool`.
+This is a tool for the application of MC corrections to photon and electron auxiliary variables in the derivation of DxAODs:
+`ElectronPhotonVariableCorrectionTool`, together with a tool wrapper `ElectronPhotonVariableCorrectionToolWrapper`
+allowing to correct multiple variables of one photon or electron simultaneously.
 
 It lives in `/head/athena/PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerShapeFudgeTool/`.
 
-## How to use the tool (blackbox use)
+This README first explains
+[how to use the `ElectronPhotonVariableCorrectionTool`](#single-variable-correction---electronphotonvariablecorrectiontool)
+before explaining the
+[functionality of the `ElectronPhotonVariableCorrectionToolWrapper`](#multi-variable-correction---electronphotonvariablecorrectiontoolwrapper).
+Note that if you want to correct multiple variables of a photon or electron, you should only create an instance of
+`ElectronPhotonVariableCorrectionToolWrapper` - this instance will then handle the `ElectronPhotonVariableCorrectionTool`
+for you. You will however need to provide configuration files for the `ElectronPhotonVariableCorrectionTool`, which is
+explained in [this section](#constructing-a-configuration-file).
+
+If you have any questions or requests, please contact [Nils Gillwald](mailto:nils.gillwald@desy.de).
+
+## Single variable correction - ElectronPhotonVariableCorrectionTool
+
+### How to use the tool (blackbox use)
 
 The tool is designed to be used embedded in a code which provides it with the objects which should be corrected. It is
 not able to open root files or retrieve trees or apply object selection itself, but only focuses on the correction of
 objects passed to it. The tool is designed to be as steerable as possible from the configuration file, so that it can
 be used for correcting a broad range of variables in a relatively simple way.
 
-### Instantiate the tool using AnaToolHandle
+#### Instantiate the tool using AnaToolHandle
 
 The tool must be integrated in code which provides it with the objects which should be corrected. To include the tool,
-you need to include its interface via `#include "EgammaAnalysisInterfaces/IElectronPhotonVariableCorrectionTool.h"`. Also,
+you need to include its interface via `#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"`. Also,
 you need to includ the according tool handler, for example `#include "AsgTools/AnaToolHandle.h"`. All the other includes
 needed depend on the wrapping code which provides the objects to the tool.
 
 To declare the tool via the tool handler, you need to do something like this:
 
 ```C++
-asg::AnaToolHandle<IElectronPhotonVariableCorrectionTool> MyTool("ElectronPhotonVariableCorrectionTool");
+asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> MyTool("ElectronPhotonVariableCorrectionTool/myToolName");
 ```
 
-The syntax of this command depends on your tool handler. Note that the string provided to the constructor defines which
-tool from the interface is constructed by the tool handler - it is **NOT** the name of the tool!
+The syntax of this command depends on your tool handler. Note that the part of the string provided to the constructor
+before the forward slash defines which tool from the interface is constructed by the tool handler, and the part after
+the slash defines the name of the tool!
 
-### Instantiate the tool without using a Tool Handler
+#### Instantiate the tool without using a Tool Handler
 
 As before, the tool must be integrated in code which provides it with the objects which should be corrected. To include
 the tool, you need to `#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"`. All the
@@ -41,7 +56,7 @@ this:
 ElectronPhotonVariableCorrectionTool MyTool("MyTool");
 ```
 
-### Initialization of the tool
+#### Initialization of the tool
 
 To initialize the tool, first the configuration file must be provided to the tool using
 `MyTool.setProperty("ConfigFile",/path/)`.
@@ -54,7 +69,7 @@ ANA_CHECK(MyTool.setProperty("ConfigFile",configFilePath));
 ANA_CHECK(MyTool.initialize());
 ```
 
-### Usage of the tool for the correction of EGamma objects
+#### Usage of the tool for the correction of EGamma objects
 
 To correct an object, the object must be passed to the tool.
 **The tool will overwrite the original properties of the object** -- it will however keep the original value, stored as
@@ -90,7 +105,7 @@ Example code using the tool for correcting photons and electrons can be found in
 - `testElectronPhotonVariableCorrectionTool.cxx`
 - `testIsoCorrection.cxx`
 
-### Constructing a configuration file
+#### Constructing a configuration file
 
 For each corrected variable, a different configuration file is needed. Also, for each systematic variation of a
 correction, a separate configuration file is needed. This means that `1 + 2 * #systematic uncertainties` configuration
@@ -173,15 +188,17 @@ Parameter2Values: 1.; 0.9; 0.7; 0.45; 0.6; 1.1
 For the **event density**, no further information must be given to the tool. The tool will extract the event density
 from the event and use it as the respective parameter.
 
-The tool supports the option to correct **unconverted and converted photons** differently. For this, the flags
-`ConvertedPhotonsOnly` and `UnconvertedPhotonsOnly` can be set to `YES`, for example like this:
+In order to check whether the passed object in e.g. `applyCorrection` is intended to be corrected by the current tool
+instance, the flag `ApplyTo` must be set. There are five different options for this flag:
 
-```bash
-ConvertedPhotonsOnly: YES
-```
+- unconvertedPhotons,
+- convertedPhotons,
+- allPhotons,
+- allElectrons,
+- allEGammaObjects.
 
-The tool will then check if the passed object is an (un-)converted photon, and fail with a `StatusCode::FAILURE` if the
-object type is not as expected. If a separation in unconverted and converted photons is not needed, simply omit these flags.
+The tool will then check if the passed object is compatible with the `ApplyTo` flag provided, and will fail with a
+`StatusCode::FAILURE` if the object type is not as expected.
 
 An **example configuration file** containing examples for all possible flags can be found in
 `./data/ElectronPhotonVariableCorrectionTool_ExampleConf.conf`. The complete list of example configuration files is
@@ -196,11 +213,11 @@ An **example configuration file** containing examples for all possible flags can
 The .root file currently used for testing is
 `/pnfs/desy.de/atlas/dq2/atlaslocalgroupdisk/rucio/mc16_13TeV/da/80/DAOD_HIGG1D2.18400890._000001.pool.root.1`.
 
-If you have any further questions or requests, please contact [Nils Gillwald](mailto:nils.gillwald@desy.de).
+[(back to the top)](#readme)
 
-## How to change and adapt the tool (non-blackbox use)
+### How to change and adapt the tool (non-blackbox use)
 
-### Checkout
+#### Checkout
 
 First, you need to set up your area:
 
@@ -217,7 +234,7 @@ cd source
 git clone ssh://git@gitlab.cern.ch:7999/nigillwa/fftoolapply.git
 ```
 
-### Setup and Compile
+#### Setup and Compile
 
 The tool is developed using release 21.2.97. To compile, do in the `source` directory
 
@@ -238,7 +255,7 @@ This will search for the executables produced during compilation and make them a
 
 The corresponding code the compiler sees is in `/cvmfs/atlas.cern.ch/repo/sw/software/21.2/AnalysisBase/21.2.97/InstallArea/x86_64-centos7-gcc8-opt/src/PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerShapeFudgeTool`, as seen by the first path `echo`ed from `$CMAKE_PREFIX_PATH`
 
-### Add a new parameter type for the correction function
+#### Add a new parameter type for the correction function
 
 If possible, use the provided parameter types which are already implemented and tested. However, if you need to add a new parameter type which needs to have access to some variable which is not currently retreived, here is how to do it.
 
@@ -252,3 +269,127 @@ If there is a style which all the other types use to implement their functionali
 4. Test the functionality of your new parameter type.
 5. Add an example of how to use your new parameter type to the example conf file in `./util/`.
 6. Submit a merge request to officially add your new parameter type to the tool.
+
+## Multi variable correction - ElectronPhotonVariableCorrectionToolWrapper
+
+### How to use the tool
+
+As for the `ElectronPhotonVariableCorrectionTool`, the `ElectronPhotonVariableCorrectionToolWrapper` (from now on referred
+to as the `wrapper`), the `wrapper` tool is designed to be used embedded in a code which provides it with the objects
+which should be corrected. It is not able to open root files or retrieve trees or apply object selection itself, but only
+focuses on the correction of objects passed to it.
+
+#### Instantiate the tool using AnaToolHandle
+
+The tool must be integrated in code which provides it with the objects which should be corrected. To include the tool,
+you need to include its interface via `#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"`. Also,
+you need to includ the according tool handler, for example `#include "AsgTools/AnaToolHandle.h"`. All the other includes
+needed depend on the wrapping code which provides the objects to the tool.
+
+To declare the tool via the tool handler, you need to do something like this:
+
+```C++
+asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> MyTool("ElectronPhotonVariableCorrectionToolWrapper/myToolName");
+```
+
+The syntax of this command depends on your tool handler. Note that the part of the string provided to the constructor
+before the forward slash defines which tool from the interface is constructed by the tool handler, and the part after
+the slash defines the name of the tool!
+
+#### Instantiate the tool without using a Tool Handler
+
+As before, the tool must be integrated in code which provides it with the objects which should be corrected. To include
+the tool, you need to `#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionToolWrapper.h"`. All the
+other includes needed depend on the wrapping code which provides the objects to the tool.
+
+In order to declare the tool, it needs to be named in the constructor, so it can be distinguished. This could look like
+this:
+
+```C++
+ElectronPhotonVariableCorrectionToolWrapper MyTool("MyTool");
+```
+
+#### Initialization of the tool
+
+To initialize the tool, first the configuration file must be provided to the tool using
+`MyTool.setProperty("ConfigFile",/path/)`.
+Then, the initialize function must be called on the tool, so it can read out the configuration file and set itself up.
+This could look like this:
+
+```C++
+std::string configFilePath = "ElectronPhotonShowerShapeFudgeTool/MyConfFile.conf";
+ANA_CHECK(MyTool.setProperty("ConfigFile",configFilePath));
+ANA_CHECK(MyTool.initialize());
+```
+
+#### Usage of the tool for the correction of EGamma objects
+
+To correct an object, the object must be passed to the tool.
+**The tool will overwrite the original properties of the object** -- it will however keep the original value, stored as
+`variableName_original`. This means that the tool cannot be run on const containers -- a shallow or deep copy must be
+used. Please refer to the official documentation / tutorials on how to shallow / deep copy a container. Note that you
+do not have to pass all photons in an event to the tool, just the ones you want to be corrected.
+
+Assuming a writeable object is used, the code for correcting it using the tool looks for example like this:
+
+```C++
+ANA_CHECK(MyTool.applyCorrection(*photon));
+```
+
+If electrons should be corrected, of course an electron should be passed to the tool instead.
+
+As mentioned before, the tool overwrites the original variable value but also stores the original values as
+`variableName_original`.
+The variables can be accessed in the following way:
+
+```C++
+std::string correctionVariable = "nameOfTheVariableYouCorrected";
+// construct AUX element accessors
+SG::AuxElement::Accessor<float> VariableToCorrect(correctionVariable + "_original");
+SG::AuxElement::Accessor<float> CorrectedVariable(correctionVariable);
+// get uncorrected and corrected variable value for this photon
+float variable_original = VariableToCorrect(*photon);
+float variable_corrected = CorrectedVariable(*photon);
+```
+
+There is no finalize function which needs to be run.
+Example code using the tool for correcting photons and electrons can be found in `./util`:
+
+- `testElectronPhotonVariableCorrectionToolWrapper.cxx`
+
+#### Constructing a configuration file
+
+In order to be able to correct multiple variables at once, the `wrapper` needs to be provided with a list of configuration
+files for the `ElectronPhotonVariableCorrectionTool`. These configuration files each need to be constructed as described
+[here](#constructing-a-configuration-file).
+
+The `wrapper` distinguishes the following types of objects:
+
+- Electrons,
+- Converted Photons,
+- Unconverted Photons.
+
+Each configuration file path must be associated with one of these object types. Thus, there are three different possible
+flags to pass a configuration file path:
+
+- ElectronConfigs,
+- ConvertedPhotonConfigs,
+- UnconvertedPhotonConfigs.
+
+Each flag is associated with a respective tool holder in the `wrapper`. Please make sure that the `ApplyTo` flag in the
+respective configuration file is compatible with the associated tool holder, else, the initialization will return a
+`StatusCode::FAILURE`.
+
+You can add multiple configuration files per object type using `+` in front of the flag, e.g. like this:
+
+```C++
+ElectronConfigs: /path/to/first.conf;
++ElectronConfigs: /path/to/second.conf;
++ElectronConfigs: /path/to/third.conf
+```
+
+Note that there should be a semicolon after every line but the last one.
+If you want to use the same configuration file for correcting a variable on different object types (i.e. (un)converted photons
+and electrons), you must provide it twice or three times to the tool - once using each flag.
+
+[(back to the top)](#readme)
