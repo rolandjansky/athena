@@ -3,10 +3,10 @@
 */
 
 /// Hashing functions have moved here
-#include "TrigCompositeUtils/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
-#ifndef TrigConf_HLTUtils
-#define TrigConf_HLTUtils
+#ifndef TrigConfHLTData_HLTUtils
+#define TrigConfHLTData_HLTUtils
 
 #include <string>
 #include <inttypes.h>
@@ -24,7 +24,7 @@ namespace TrigConf {
    class HLTFrame;
      
   /**
-   * @brief HLTUtils is renamed in r22 toHLTTEUtils. The hashing functionality remains in HLTUtils, which moves to the TrigCompositeUtils package
+   * @brief HLTUtils is renamed in r22 to HLTTEUtils. The hashing functionality remains in HLTUtils, which moves to the standalone HLTUtils package
    */ 
    class HLTTEUtils {
 

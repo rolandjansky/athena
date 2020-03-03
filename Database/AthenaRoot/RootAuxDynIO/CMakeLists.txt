@@ -8,6 +8,7 @@ atlas_subdir( RootAuxDynIO )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
                           AtlasTest/TestTools
+                          Control/RootUtils
                           Control/AthContainers
                           Control/AthContainersRoot
                           Control/AthContainersInterfaces

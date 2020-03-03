@@ -785,10 +785,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
     if ( m_newtrt ) m_newtrt->getHashList(roi, *IDList); 
     break;
   }
-  case FTK: {
-    if ( m_ftklut ) m_ftklut->getModules(roi, *IDList); 
-    break;
-  }
   case RPC: { // RPC (obviously)
     if ( m_newrpc ) m_newrpc->getHashList(roi, *IDList); 
     break;

@@ -26,7 +26,6 @@ namespace Monitored {
    *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx timerFilling
    *
    * @see Monitored::ScopedTimer
-   * @ingroup MonAPI
    */
   template< typename unit=std::chrono::microseconds>
   class Timer : public IMonitoredVariable {
@@ -91,7 +90,6 @@ namespace Monitored {
    *       // code to be timed
    *    }
    * \endcode
-   * @ingroup MonAPI
    */
   template<typename T>
   class ScopedTimer {

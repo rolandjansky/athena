@@ -13,7 +13,7 @@ def dimuL2Sequence(name = 'Dimu'):
     DimuHypo = config.ConfigurationHypo(
         trigSequenceName = name,
         trigLevel = 'L2',
-        trackCollection='HLT_xAODTracks_Muon')
+        trackCollection='HLT_IDTrack_Muon_FTF')
 
     return MenuSequence(
         Sequence = l2muCombSequence,

@@ -50,7 +50,6 @@ namespace Monitored {
    *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillWithWeight_collection
    *
    * @see GenericMonitoringTool.defineHistogram
-   * @ingroup MonAPI
    **/
   class Group {
   public:
@@ -62,7 +61,6 @@ namespace Monitored {
      *
      * @param tool            a handle to a monitoring tool, if invalid nothing is done
      * @param monitoredGroup  list of variables to be monitored
-     * @ingroup MonAPI
      **/
     template <typename... T>
     Group(const ToolHandle<GenericMonitoringTool>& tool, T&&... monitoredGroup) 

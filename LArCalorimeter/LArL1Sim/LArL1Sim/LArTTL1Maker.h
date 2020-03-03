@@ -30,7 +30,7 @@
 
 #include "LArSimEvent/LArHitContainer.h"
 #include "LArRawEvent/LArTTL1Container.h"
-class PileUpMergeSvc;
+
 class ITriggerTime;
 class CaloTriggerTowerService;
 class CaloLVL1_ID;
@@ -107,7 +107,6 @@ class LArTTL1Maker : public AthAlgorithm,
 //
 
   IChronoStatSvc*              m_chronSvc;
-  PileUpMergeSvc*              m_mergeSvc;
   ServiceHandle<IAthRNGSvc> m_RandomSvc{this, "RndmSvc", "AthRNGSvc", ""};
 
   /** Alorithm property: use trigger time or not*/

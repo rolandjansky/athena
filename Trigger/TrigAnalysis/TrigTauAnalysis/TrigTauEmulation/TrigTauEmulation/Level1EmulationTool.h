@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // author Quentin Buat <quentin.buat@no.spam.cern.ch>
@@ -71,7 +71,7 @@ namespace TrigTauEmul {
 				   const xAOD::MuonRoIContainer* l1muons,
 				   const xAOD::EnergySumRoI* l1xe);
 
-    virtual StatusCode PrintCounters();
+    virtual void PrintCounters();
 
     virtual std::vector<std::string> GetL1Chains() { return m_l1_chains_vec; }
     virtual StatusCode removeUnusedTools(const std::set<std::string>& usedTools);

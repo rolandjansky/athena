@@ -185,7 +185,7 @@ def LArDigitizationCfg(flags, **kwargs):
     return acc
 
 
-def LArOverlayDigitizationBasicCfg(flags, name="LArOverlayDigitization", **kwargs):
+def LArOverlayDigitizationBasicCfg(flags, name="digitmaker1", **kwargs):
     """Return ComponentAccumulator with LAr Overlay digitization configuration"""
     acc = ComponentAccumulator()
 

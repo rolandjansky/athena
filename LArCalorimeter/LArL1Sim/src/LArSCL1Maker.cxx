@@ -60,8 +60,6 @@
 #include "LArElecCalib/ILArAutoCorrNoiseTool.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
 
-// Pile up
-#include "PileUpTools/PileUpMergeSvc.h"
 // trigger time
 #include "AthenaKernel/ITriggerTime.h"
 
@@ -101,7 +99,6 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
 //
 
   m_chronSvc              = 0;
-  m_mergeSvc              = 0;
   m_useTriggerTime        = false;
   //m_triggerTimeToolName   = "CosmicTriggerTimeTool";
 
@@ -191,22 +188,8 @@ StatusCode LArSCL1Maker::initialize()
 // ......... print the trigger time flag
 //
   if (m_useTriggerTime) { ATH_MSG_INFO("use Trigger Time service " <<  p_triggerTimeTool.name()); }
-  else { ATH_MSG_INFO("no Trigger Time used"); }
+  else { ATH_MSG_INFO("no Trigger Time used"); } 
 
-
-
-//
-// locate the PileUpMergeSvc and initialize our local ptr
-//
-  if (m_PileUp) {
-    if (!(service("PileUpMergeSvc", m_mergeSvc)).isSuccess() ||	0 == m_mergeSvc) {
-      ATH_MSG_ERROR( "Could not find PileUpMergeSvc" );
-      return StatusCode::FAILURE;
-    } else {
-	ATH_MSG_DEBUG("PileUpMergeSvc successfully initialized");
-    }
-  }     
-  
 //
 // .........retrieve tool computing trigger time if requested
 //

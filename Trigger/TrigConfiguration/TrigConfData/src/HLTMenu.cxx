@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/HLTMenu.h"
@@ -12,10 +12,23 @@ TrigConf::HLTMenu::HLTMenu()
 
 TrigConf::HLTMenu::HLTMenu(const boost::property_tree::ptree & data) 
    : DataStructure(data)
-{}
+{
+   update();
+}
 
 TrigConf::HLTMenu::~HLTMenu()
 {}
+
+
+void
+TrigConf::HLTMenu::update()
+{
+   if(! isInitialized() || empty() ) {
+      return;
+   }
+   m_name = getAttribute("name");
+}
+
 
 std::size_t 
 TrigConf::HLTMenu::size() const
@@ -23,11 +36,6 @@ TrigConf::HLTMenu::size() const
    return data().get_child("chains").size();
 }
 
-std::string
-TrigConf::HLTMenu::name() const
-{
-   return getAttribute("name");
-}
 
 TrigConf::HLTMenu::const_iterator
 TrigConf::HLTMenu::begin() const

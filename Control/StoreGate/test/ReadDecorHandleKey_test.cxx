@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 
 // $Id$
@@ -39,7 +39,7 @@ void test1()
   k1 = "bbb.foo";
   assert (k1.key() == "bbb.foo");
 
-  k1.assign ("ccc.fee");
+  assert (k1.assign ("ccc.fee").isSuccess());
   assert (k1.key() == "ccc.fee");
 
 

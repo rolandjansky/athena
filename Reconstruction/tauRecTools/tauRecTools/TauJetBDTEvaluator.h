@@ -36,7 +36,7 @@ class TauJetBDTEvaluator
   std::string m_weightsFile;
   std::string m_outputVarName;
 
-  tauRecTools::TRTBDT* m_myBdt=0;
+  std::unique_ptr<tauRecTools::TRTBDT> m_myBdt;
   int m_minNTracks;
   int m_maxNTracks;
   float m_minAbsTrackEta;

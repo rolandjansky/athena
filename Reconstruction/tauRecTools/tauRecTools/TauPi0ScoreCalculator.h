@@ -32,7 +32,7 @@ public:
     virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) override;
 
 private:
-    MVAUtils::BDT* m_mvaBDT;
+    std::unique_ptr<MVAUtils::BDT> m_mvaBDT;
 
     std::string m_weightfile;
 
@@ -64,10 +64,6 @@ private:
 
     /** @brief function used to calculate BDT score */
     float calculateScore(const xAOD::PFO* neutralPFO);
-
-    /* /\** @brief Book TMVA methods. *\/ */
-    /* StatusCode bookMethod(TMVA::Reader *reader, const std::string &methodName) const; */
-
 };
 
 #endif	/* TAUPI0SCORECALCULATOR_H */

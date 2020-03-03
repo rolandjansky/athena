@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -589,17 +589,11 @@ class ATLAS_NOT_THREAD_SAFE CaloCluster :  public CaloCompositeKineBase,
  protected:
 
   /*! \brief Sets signal state */
-  virtual bool setSignalState(signalstate_t s) const;
-  /*! \brief Sets signal state */
   virtual bool setSignalState(signalstate_t s);
 
   /*! \brief reset the signal state */
-  virtual void resetSignalState() const;
-  /*! \brief reset the signal state */
   virtual void resetSignalState();
   
-  /*! \brief Sets default signal state */
-  bool setDefaultSignalState(signalstate_t s) const;
   /*! \brief Sets default signal state */
   bool setDefaultSignalState(signalstate_t s);
 
@@ -794,12 +788,6 @@ inline CaloCluster::signalstate_t CaloCluster::signalState() const
 { return m_signalState; }
 inline CaloCluster::signalstate_t CaloCluster::defaultSignalState() const
 { return m_defSigState; }
-
-inline bool CaloCluster::setDefaultSignalState(signalstate_t s) const
-{ 
-  m_defSigState = s; 
-  return this->setSignalState(s); 
-}
 
 inline bool CaloCluster::setDefaultSignalState(signalstate_t s) 
 {

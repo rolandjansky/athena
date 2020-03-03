@@ -1,4 +1,5 @@
-# $Id$
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #
 # @file LArRecUtils/share/LArFCalTowerBuilderTool_test.py
 # @author scott snyder <snyder@bnl.gov>
@@ -12,8 +13,6 @@ DetFlags.detdescr.LAr_setOn()
 DetFlags.detdescr.Tile_setOn()
 
 
-import sys
-import string
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 from AtlasGeoModel import SetupRecoGeometry

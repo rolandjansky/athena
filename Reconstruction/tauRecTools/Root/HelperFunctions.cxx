@@ -60,17 +60,17 @@ std::vector<TString> tauRecTools::parseStringMVAUtilsBDT(const TString& str, con
 }
 
 //________________________________________________________________________________
-MVAUtils::BDT* tauRecTools::configureMVABDT( std::map<TString, float*> &availableVars, const TString& weightFile){
-  TFile* fBDT = TFile::Open( weightFile );
+std::unique_ptr<MVAUtils::BDT> tauRecTools::configureMVABDT( std::map<TString, float*> &availableVars, const TString& weightFile){
+  std::unique_ptr<TFile> fBDT(TFile::Open(weightFile));
   if(!fBDT){
     std::cerr << "ERROR Cannot find tau input BDT file: " << weightFile << std::endl;
-    return 0;
+    return nullptr;
   }
+  
   TTree* tBDT = dynamic_cast<TTree*> (fBDT->Get("BDT"));
   if(!tBDT){
-    delete fBDT;
     std::cerr << "ERROR Cannot find tau input BDT tree" << std::endl;
-    return 0;
+    return nullptr;
   }    
 
   std::cout << "tauRecTools::configureMVABDT opened file: " << weightFile << std::endl;
@@ -81,47 +81,44 @@ MVAUtils::BDT* tauRecTools::configureMVABDT( std::map<TString, float*> &availabl
   TNamed* n_varList = dynamic_cast<TNamed*> (fBDT->Get("varList"));
   if(!n_varList) {
     std::cerr << "ERROR no Variable List in file : " << weightFile << std::endl;
-    delete fBDT;
-    return 0;
+    return nullptr;
   }
   std::vector<TString> varList_ar = tauRecTools::parseStringMVAUtilsBDT(n_varList->GetTitle());
+  delete n_varList;
+
   for(const TString& str : varList_ar){
     if(str.Length()==0) continue;
     std::map<TString, float*>::iterator itr = availableVars.find(str);
     if(itr==availableVars.end()){
       std::cerr << "ERROR Variable : " << str << " is not available" << std::endl;
-      delete fBDT;
-      delete n_varList;
-      return 0;
+      return nullptr;
     }
     vars.push_back( itr->second );
   }
   
-  MVAUtils::BDT* reader = new MVAUtils::BDT(tBDT);
+  auto reader = std::make_unique<MVAUtils::BDT>(tBDT);
   reader->SetPointers( vars );
 
-  delete n_varList;
-  delete fBDT;
+  fBDT->Close();
   return reader;
-
 }
 
 //________________________________________________________________________________
 tauRecTools::TRTBDT::TRTBDT(const char* weightFile){
-  this->bdt = 0;
+  this->bdt = nullptr;
   init(weightFile);
 }
 
 //________________________________________________________________________________
 bool tauRecTools::TRTBDT::init(const char* weightFile){
-  TFile* fBDT = TFile::Open( weightFile );
+  std::unique_ptr<TFile> fBDT(TFile::Open(weightFile));
   if(!fBDT){
     std::cerr << "ERROR Cannot find tau input BDT file: " << weightFile << std::endl;
     return 0;
   }
+  
   TTree* tBDT = dynamic_cast<TTree*> (fBDT->Get("BDT"));
   if(!tBDT){
-    delete fBDT;
     std::cerr << "ERROR Cannot find tau input BDT tree" << std::endl;
     return 0;
   }    
@@ -133,11 +130,12 @@ bool tauRecTools::TRTBDT::init(const char* weightFile){
   TNamed* n_varList = dynamic_cast<TNamed*> (fBDT->Get("varList"));
   if(!n_varList) {
     std::cerr << "ERROR no Variable List in file : " << weightFile << std::endl;
-    delete fBDT;
     return 0;
   }
 
   std::vector<TString> varList_ar = tauRecTools::parseStringMVAUtilsBDT(n_varList->GetTitle());
+  delete n_varList;
+  
   for(TString str : varList_ar){
     if(str.Length()==0) continue;
     
@@ -152,11 +150,11 @@ bool tauRecTools::TRTBDT::init(const char* weightFile){
     vars.push_back(fval);
   }
 
-  this->bdt = new MVAUtils::BDT(tBDT);
+  this->bdt = std::make_unique<MVAUtils::BDT>(tBDT);
   this->bdt->SetPointers( vars );
+  
+  fBDT->Close();
 
-  delete n_varList;
-  delete fBDT;
   return true;
 }
 

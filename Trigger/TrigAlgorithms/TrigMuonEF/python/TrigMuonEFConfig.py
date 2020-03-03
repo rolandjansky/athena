@@ -502,31 +502,50 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         self.RpcRawDataProvider = "TMEF_RpcRawDataProviderTool"
         self.TgcRawDataProvider = "TMEF_TgcRawDataProviderTool"
 
-        #Need to run non-MT version of decoding tools
-        #Need different PRD container names to run offline and trigger in same jobs
+        #Need to run non-MT version of decoding tools in the trigger since the caching is not available in MT versions
+        #Need different PRD container names to run offline and trigger in same jobs, but there are many tools that depend on these containers...
+        #Since this is legacy code only used for validation comparisons against the Run 3 triggers, will do the not-particularly-nice solution of
+        #creating containers with unique names only if we are running offline and trigger in the same jobs, and otherwise just use the default names.
+        #This means that the trigger output when running the trigger as part of RAWtoESD is not 100% correct (the pattern finding uses the correct containers,
+        #so it's a small effect overall anyway), but that's an use case not currently needed for trigger validation purposes
         from AthenaCommon.AppMgr import ToolSvc
         #MDT
         from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
-        MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigMdtRdoToPrepDataTool", OutputCollection = "TrigMDT_DriftCircles")
-        self.MdtPrepDataContainer=MdtRdoToMdtPrepDataTool.OutputCollection
+        from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
+        from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
+        from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
+        MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigEFMdtRdoToPrepDataTool")
+        CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name = "TrigEFCscRdoToPrepDataTool")
+        TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name = "TrigEFTgcRdoToPrepDataTool")
+        RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "TrigEFRpcRdoToPrepDataTool")
+        if not rec.doRDOTrigger and rec.doESD:
+            MdtRdoToMdtPrepDataTool.OutputCollection = "TrigMDT_DriftCircles"
+            CscRdoToCscPrepDataTool.OutputCollection = "TrigCSC_Clusters"
+            TgcRdoToTgcPrepDataTool.OutputCollection = "TrigTGC_Measurements"
+            TgcRdoToTgcPrepDataTool.OutputCoinCollection = "TrigerT1CoinDataCollection"
+            RpcRdoToRpcPrepDataTool.TriggerOutputCollection="TrigRPC_Measurements"
+            #InputCollection is really the output RPC coin collection...
+            RpcRdoToRpcPrepDataTool.InputCollection="TrigRPC_triggerHits"
+        else:
+            MdtRdoToMdtPrepDataTool.OutputCollection = "MDT_DriftCircles"
+            CscRdoToCscPrepDataTool.OutputCollection = "CSC_Clusters"
+            TgcRdoToTgcPrepDataTool.OutputCollection = "TGC_Measurements"
+            TgcRdoToTgcPrepDataTool.OutputCoinCollection = "TrigT1CoinDataCollection"
+            RpcRdoToRpcPrepDataTool.TriggerOutputCollection="RPC_Measurements"
+            RpcRdoToRpcPrepDataTool.InputCollection="RPC_triggerHits"
+
         ToolSvc += MdtRdoToMdtPrepDataTool
+        self.MdtPrepDataContainer =  MdtRdoToMdtPrepDataTool.OutputCollection
         self.MdtPrepDataProvider=MdtRdoToMdtPrepDataTool
         #CSC
-        from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
-        CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name = "TrigCscRdoToPrepDataTool", OutputCollection="TrigCSC_Measurements")
         ToolSvc += CscRdoToCscPrepDataTool
         self.CscPrepDataProvider=CscRdoToCscPrepDataTool
         self.CscPrepDataContainer=CscRdoToCscPrepDataTool.OutputCollection
         #TGC
-        from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
-        TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name = "TrigTgcRdoToPrepDataTool", OutputCollection="TrigTGC_Measurements",OutputCoinCollection="TrigerT1CoinDataCollection")
         ToolSvc += TgcRdoToTgcPrepDataTool
         self.TgcPrepDataProvider=TgcRdoToTgcPrepDataTool
         self.TgcPrepDataContainer=TgcRdoToTgcPrepDataTool.OutputCollection
         #RPC
-        from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
-        #InputCollection is really the output RPC coin collection...
-        RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "TrigRpcRdoToPrepDataTool", TriggerOutputCollection="TrigRPC_Measurements", InputCollection="TrigRPC_triggerHits")
         ToolSvc += RpcRdoToRpcPrepDataTool
         self.RpcPrepDataProvider=RpcRdoToRpcPrepDataTool
         self.RpcPrepDataContainer=RpcRdoToRpcPrepDataTool.TriggerOutputCollection
@@ -567,7 +586,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         self.maxRpcHits      = 0
         self.maxMdtHits      = 0
         self.doCache = True
-        self.IgnoreMisalginedCSCs = True
+        self.IgnoreMisalginedCSCs = False
 
         self.TrackBuilderTool  = "TMEF_TrackBuilderTool"
         self.TrkSummaryTool = "TMEF_TrackSummaryTool"

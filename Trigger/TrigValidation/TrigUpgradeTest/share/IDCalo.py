@@ -47,7 +47,7 @@ if TriggerFlags.doID:
   #Adding vertexing
   from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
   #TODO need to change the name of the output vertex collection to something recordable
-  vtxAlgs = makeVertices( "egamma", "HLT_xAODTracks_FS", "HLT_xPrimVx"  )
+  vtxAlgs = makeVertices( "egamma", "HLT_IDTrack_FS_FTF", "HLT_xPrimVx"  )
   allViewAlgorithms += vtxAlgs
 
 

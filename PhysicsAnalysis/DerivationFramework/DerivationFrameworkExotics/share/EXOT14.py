@@ -19,11 +19,8 @@ streamName = derivationFlags.WriteDAOD_EXOT14Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT14Stream )
 EXOT14Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT14Stream.AcceptAlgs(["EXOT14Kernel"])
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT14ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # THINNING TOOLS
@@ -90,7 +87,7 @@ if globalflags.DataSource() == 'geant4':
 
     EXOT14MCThinningTool = DerivationFramework__MenuTruthThinning(
         name                       = 'EXOT14MCThinningTool',
-        ThinningService            = 'EXOT14ThinningSvc',
+        StreamName                 = streamName,
         WriteEverything            = False,
         WritePartons               = False,
         PartonPtThresh             = -1.0,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -294,7 +294,7 @@ namespace Athena_test
       cout << "foo Foo not yet registered. Caught exception -"
  	   << e.what()<< "- as expected" << endl;
     }	
-    rSG.record(new Foo(), "foo");
+    assert(rSG.record(new Foo(), "foo").isSuccess());
     //try again transition toAccessible
     const Foo& r4Foo = *lFoo;
     dummyToRemoveWarning(r4Foo);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include <algorithm>
 #include "GaudiKernel/IIncidentSvc.h"
@@ -100,21 +100,21 @@ StatusCode TrigSignatureMoniMT::start() {
 
   if ( x > 0 ){
     m_rateHistogram.init(outputRateName, "Rate of positive decisions;chain;step",
-      x, yr, m_bookingPath + "/" + name() + '/' + outputRateName.c_str(), m_histSvc);
+                         x, yr, m_bookingPath + "/" + name() + '/' + outputRateName.c_str(), m_histSvc).ignore();
     ATH_CHECK( initHist( m_rateHistogram.getHistogram(), hltMenuHandle, false ) );
     ATH_CHECK( initHist( m_rateHistogram.getBuffer(), hltMenuHandle, false ) );
   }
 
   if (xc > 0){
     m_sequenceHistogram.init(outputSequenceName, "Rate of sequences execution;sequence;rate",
-      xc, yc, m_bookingPath + "/" + name() + '/' + outputSequenceName.c_str(), m_histSvc);
+                             xc, yc, m_bookingPath + "/" + name() + '/' + outputSequenceName.c_str(), m_histSvc).ignore();
     ATH_CHECK( initSeqHist( m_sequenceHistogram.getHistogram(), sequencesSet ) );
     ATH_CHECK( initSeqHist( m_sequenceHistogram.getBuffer(), sequencesSet ) );
   }
 
   if ( ybc > 0 ){
     m_bcidHistogram.init(outputBCIDName, "Number of positive decisions per BCID per chain;BCID;chain",
-      xbc, ybc, m_bookingPath + "/" + name() + '/' + outputBCIDName.c_str(), m_histSvc);
+                         xbc, ybc, m_bookingPath + "/" + name() + '/' + outputBCIDName.c_str(), m_histSvc).ignore();
     ATH_CHECK( initBCIDhist( m_bcidHistogram.getHistogram(), bcidChainNames ) );
     ATH_CHECK( initBCIDhist( m_bcidHistogram.getBuffer(), bcidChainNames ) );
   }

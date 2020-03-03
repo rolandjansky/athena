@@ -52,9 +52,11 @@ class GenericMonitoringTool(_GenericMonitoringTool):
 class GenericMonitoringArray:
     '''Array of configurables of GenericMonitoringTool objects'''
     def __init__(self, name, dimensions, **kwargs):
-        self.Tools = {}
-        for postfix in GenericMonitoringArray._postfixes(dimensions):
+        self.Tools, self.Accessors = {}, {}
+        self.Postfixes = GenericMonitoringArray._postfixes(dimensions)
+        for postfix in self.Postfixes:
             self.Tools[postfix] = GenericMonitoringTool(name+postfix,**kwargs)
+            self.Accessors[postfix] = postfix.split('_')[1:]
 
     def __getitem__(self,index):
         '''Forward operator[] on class to the list of tools'''
@@ -73,13 +75,29 @@ class GenericMonitoringArray:
         for tool in self.toolList():
             setattr(tool,member,value)
 
-    def defineHistogram(self, varname, **kwargs):
+    def defineHistogram(self, varname, title=None, path=None, **kwargs):
         '''Propogate defineHistogram to each tool, adding a unique tag.'''
         unAliased = varname.split(';')[0]
-        aliasBase = varname.split(';')[1] if ';' in varname else varname.replace(',','')
-        for postfix,tool in self.Tools.items():
+        _, aliasBase = _alias(varname)
+        if aliasBase is None:
+            return
+        for postfix, tool in self.Tools.items():
             aliased = unAliased+';'+aliasBase+postfix
-            tool.defineHistogram(aliased,**kwargs)
+
+            try:
+                accessors = tuple(self.Accessors[postfix])
+                if title is not None:
+                    kwargs['title'] = title.format(*accessors)
+                if path is not None:
+                    kwargs['path'] = path.format(*accessors)
+            except IndexError as e:
+                log.error('In title or path template of histogram {0}, too many positional '\
+                    'arguments were requested. Title and path templates were "{1}" and "{2}", '\
+                    'while only {3} fillers were given: {4}.'.format(aliased, title,\
+                    path, len(accessors), accessors))
+                raise e
+
+            tool.defineHistogram(aliased, **kwargs)
 
     @staticmethod
     def _postfixes(dimensions, previous=''):
@@ -89,7 +107,8 @@ class GenericMonitoringArray:
         dimensions -- List containing the lengths of each side of the array off tools
         previous -- Strings appended from the other dimensions of the array
         '''
-        assert isinstance(dimensions,list) and len(dimensions)>0
+        assert isinstance(dimensions,list) and len(dimensions)>0, \
+            'GenericMonitoringArray must have list of dimensions.'
         if dimensions==[1]:
             return ['']
         postList = []
@@ -104,6 +123,25 @@ class GenericMonitoringArray:
             else:
                 postList.extend(GenericMonitoringArray._postfixes(dimensions[1:],previous+'_'+str(i)))
         return postList
+
+## Generate an alias for a set of variables
+#
+#  A helper function is useful for this operation, since it is used both by the module
+#  function defineHistogram, as well as by the GenericMonitoringArray defineHistogram
+#  member function.
+#  @param varname unparsed
+#  @return varList, alias
+def _alias(varname):
+    variableAliasSplit = varname.split(';')
+    varList = [v.strip() for v in variableAliasSplit[0].split(',')]
+    if len(variableAliasSplit)==1:
+        return varList, '_vs_'.join(reversed(varList))
+    elif len(variableAliasSplit)==2:
+        return varList, variableAliasSplit[1]
+    else:
+        message = 'Invalid variable or alias for {}. Histogram(s) not defined.'
+        log.warning(message.format(varname))
+        return None, None
 
 ## Generate dictionary entries for opt strings
 #  @param opt string or dictionary specifying type
@@ -164,7 +202,6 @@ def _options(opt):
 #  @param zlabels  List of x bin labels.
 #  @param merge    Merge method to use for object, if not default. Possible algorithms for offline DQM
 #                  are given in https://twiki.cern.ch/twiki/bin/view/Atlas/DQMergeAlgs
-#  @ingroup MonAPI
 def defineHistogram(varname, type='TH1F', path=None,
                     title=None, weight=None, alias=None,
                     xbins=100, xmin=0, xmax=1, xlabels=None,
@@ -187,14 +224,8 @@ def defineHistogram(varname, type='TH1F', path=None,
     settings.update(dict((key, []) for key in arraySettingsKeys))
 
     # Alias
-    variableAliasSplit = varname.split(';')
-    varList = [v.strip() for v in variableAliasSplit[0].split(',')]
-    if len(variableAliasSplit)==1:
-        alias = '_vs_'.join(reversed(varList))
-    elif len(variableAliasSplit)==2:
-        alias = variableAliasSplit[1]
-    else:
-        log.warning('Invalid variable or alias specification in defineHistogram.')
+    varList, alias = _alias(varname)
+    if alias is None:
         return ''
     settings['alias'] = alias
 

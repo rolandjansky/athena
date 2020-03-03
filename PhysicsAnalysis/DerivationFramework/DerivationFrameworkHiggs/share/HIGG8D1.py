@@ -168,7 +168,7 @@ HIGG8D1TruthTool2 = DerivationFramework__GenericTruthThinning(name              
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 HIGG8D1TruthTool3 = DerivationFramework__MenuTruthThinning(name                      = "HIGG8D1TruthTool3",
-                                                           ThinningService            = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                           StreamName                 = streamName,
                                                            #WritePartons               = True,
                                                            WritePartons               = False,
                                                            WriteHadrons               = False,

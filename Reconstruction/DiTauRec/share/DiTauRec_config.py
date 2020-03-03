@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 ##
 #@file DiTauRec_config.py
@@ -10,8 +11,8 @@
 #
 ################################################################################
 from RecExConfig.RecFlags import rec 
-from DiTauRec.DiTauRecFlags import jobproperties
-from JetRec.JetRecFlags import jobproperties
+import DiTauRec.DiTauRecFlags
+import JetRec.JetRecFlags
 from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.DetFlags import DetFlags
 

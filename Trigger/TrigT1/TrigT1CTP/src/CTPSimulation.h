@@ -38,6 +38,9 @@
 #include "TrigT1Result/CTP_RDO.h"
 #include "TrigT1Interfaces/CTPSLink.h"
 
+// new configuration data
+#include "TrigConfData/L1Menu.h"
+
 
 // internal
 #include "./ItemMap.h"

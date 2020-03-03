@@ -89,7 +89,6 @@ public:
 private:
 
   // --- job options
-  const Trk::TrackingGeometry* m_trackingGeometry;
   Gaudi::Property<std::string>  m_trackingGeometryName{this,"TrackingGeometryName","AtlasTrackingGeometry"};
   Gaudi::Property<std::string> m_ExtrapolatorName{this,"ExtrapolatorName"," "};      //!< Name of the Extrapolator Instance 
     

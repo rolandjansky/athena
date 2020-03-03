@@ -89,8 +89,7 @@ private:
   int m_iBackgroundType;
   int m_iExpectedFlag;
   
-private:
-  MVAUtils::BDT* m_rReader; //!
+  std::unique_ptr<MVAUtils::BDT> m_rReader; //!
   
   //  std::map<int, std::string> m_mParsedVarsBDT; //!
   std::map<TString, float*> m_mAvailableVars; //!

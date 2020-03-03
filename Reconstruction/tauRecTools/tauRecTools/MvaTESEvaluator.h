@@ -29,7 +29,7 @@ class MvaTESEvaluator
   // Configurable properties
   std::string m_sWeightFileName;
 
-  MVAUtils::BDT *m_reader; //!
+  std::unique_ptr<MVAUtils::BDT> m_reader; //!
 
   std::map<TString, float*> m_availableVars; //!< addresses of the floats below
   

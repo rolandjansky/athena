@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -8,7 +8,6 @@
  ATLAS Collaboration
  ***************************************************************************/
 
-// $Id: StoreGateSvcClient_test.cxx,v 1.8 2008-07-09 20:47:31 calaf Exp $
 
 #undef NDEBUG
 
@@ -267,7 +266,7 @@ void test_lock (StoreGateSvc& sg)
   assert (sg.setConst (l).isSuccess());
   assert (l->m_locked == true);
 
-  sg.clearStore();
+  assert (sg.clearStore().isSuccess());
   Lockable* l2 = new Lockable;
   assert (sg.record (l2, "lockable1").isSuccess());
 }

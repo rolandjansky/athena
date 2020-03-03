@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL
@@ -23,11 +23,6 @@
 #include "TrigT1TGC/TGCNumbering.hh"
 #include "TrigT1TGC/TGCCoincidence.hh"
 #include "TrigT1TGC/TGCTMDBOut.h"
-
-// Tile-Muon
-#include "TileEvent/TileMuContainer.h"
-#include "TileEvent/TileMuonReceiverObj.h"
-
 
 // Athena/Gaudi
 #include "GaudiKernel/MsgStream.h"
@@ -115,7 +110,7 @@ namespace LVL1TGCTrigger {
     m_tgcArgs.set_TILE_MU( m_TILEMU.value() && m_tgcArgs.USE_INNER() );
     m_tgcArgs.set_USE_CONDDB( true );
     m_tgcArgs.set_useRun3Config( m_useRun3Config.value() );
-    
+
     // TrigConfigSvc
     StatusCode sc = m_configSvc.retrieve();
     if (sc.isFailure()) {
@@ -144,6 +139,8 @@ namespace LVL1TGCTrigger {
       ATH_MSG_DEBUG("TGCcablingServerSvc not yet configured; postone TGCcabling initialization at first event.");
     }
 
+    ATH_CHECK(m_keyTgcDigit.initialize());
+    ATH_CHECK(m_keyTileMu.initialize());
     ATH_CHECK(m_muctpiPhase1Key.initialize(tgcArgs()->useRun3Config()));
     ATH_CHECK(m_muctpiKey.initialize(!tgcArgs()->useRun3Config()));
     
@@ -224,12 +221,12 @@ namespace LVL1TGCTrigger {
       }
     }
     
-    const DataHandle<TgcDigitContainer> tgc_container;
-    sc = evtStore()->retrieve(tgc_container, m_keyTgcDigit);
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL("Cannot retrieve TGC Digit Container");
-      return sc;
+    SG::ReadHandle<TgcDigitContainer> readTgcDigitContainer( m_keyTgcDigit );
+    if(!readTgcDigitContainer.isValid()){
+      ATH_MSG_ERROR("Cannot retrieve TgcDigitContainer");
+      return StatusCode::FAILURE;
     }
+    const TgcDigitContainer* tgc_container = readTgcDigitContainer.cptr();
     
     LVL1MUONIF::Lvl1MuCTPIInputPhase1* muctpiinputPhase1 = nullptr;
     LVL1MUONIF::Lvl1MuCTPIInput* muctpiinput = nullptr;
@@ -269,7 +266,7 @@ namespace LVL1TGCTrigger {
     return sc;
   }
   
-  StatusCode LVL1TGCTrigger::processOneBunch(const DataHandle<TgcDigitContainer>& tgc_container,
+  StatusCode LVL1TGCTrigger::processOneBunch(const TgcDigitContainer* tgc_container,
                                              LVL1MUONIF::Lvl1MuCTPIInput* muctpiinput,
                                              LVL1MUONIF::Lvl1MuCTPIInputPhase1* muctpiinputPhase1)
   {
@@ -405,7 +402,7 @@ namespace LVL1TGCTrigger {
   
   
   ////////////////////////////////////////////////////////
-  void LVL1TGCTrigger::doMaskOperation(const DataHandle<TgcDigitContainer>& tgc_container,
+  void LVL1TGCTrigger::doMaskOperation(const TgcDigitContainer* tgc_container,
                                        std::map<Identifier, int>& TgcDigitIDs)
   {
     std::map<Identifier, int>::iterator itCh;
@@ -1323,14 +1320,12 @@ namespace LVL1TGCTrigger {
     // clear TMDB
     tmdb->eraseOutput();
     
-    // retrive TileMuonReceiverContainer
-    const DataHandle<TileMuonReceiverContainer> tileMuRecCont;
-    sc = evtStore()->retrieve(tileMuRecCont, m_keyTileMu);
-
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING("Cannot retrieve Tile Muon Receiver Container.");
-      return sc;
+    SG::ReadHandle<TileMuonReceiverContainer> readTileMuonReceiverContainer(m_keyTileMu);
+    if(!readTileMuonReceiverContainer.isValid()){
+      ATH_MSG_ERROR("Cannot retrieve Tile Muon Receiver Container.");
+      return StatusCode::FAILURE;
     }
+    const TileMuonReceiverContainer* tileMuRecCont = readTileMuonReceiverContainer.cptr();
 
     // loop over all TileMuonReceiverObj in container
     TileMuonReceiverContainer::const_iterator tmItr = tileMuRecCont->begin();

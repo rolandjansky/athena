@@ -243,15 +243,20 @@ class TriggerConfigGetter(Configured):
         EDMDecodingVersion()  # In most use cases this needs to be called much earlier than in HLTTriggerResultGetter
 
         if TriggerFlags.EDMDecodingVersion() >= 3:
-            # Run-3 Trigger Configuration Services
-            from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getHLTConfigSvc
-            svcMgr += getL1ConfigSvc()
-            svcMgr += getHLTConfigSvc()
+            if self.hasxAODMeta:
+                if not hasattr(svcMgr, 'xAODConfigSvc'):
+                    from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
+                    svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
+            else: # Does not have xAODMeta
+                # Run-3 Trigger Configuration Services
+                from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getHLTConfigSvc
+                svcMgr += getL1ConfigSvc()
+                svcMgr += getHLTConfigSvc()
 
-            # Needed for TrigConf::xAODMenuWriterMT
-            from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
-            svcMgr += TrigConfigSvc("TrigConfigSvc")
-            svcMgr.TrigConfigSvc.PriorityList = ["none", "ds", "xml"]
+                # Needed for TrigConf::xAODMenuWriterMT
+                from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
+                svcMgr += TrigConfigSvc("TrigConfigSvc")
+                svcMgr.TrigConfigSvc.PriorityList = ["none", "ds", "xml"]
 
         else:
             # non-MT (Run-2) Trigger Configuration
@@ -450,10 +455,6 @@ class TriggerConfigGetter(Configured):
                 menuwriter = TrigConf__xAODMenuWriterMT()
                 menuwriter.IsHLTJSONConfig = True
                 menuwriter.IsL1JSONConfig = True
-
-                if TriggerFlags.triggerMenuSetup != 'LS2_v1':
-                  menuwriter.IsL1JSONConfig = False
-                  log.warn("Menu other than LS2_v1 (%s), will continue to take the L1 menu from XML rather than JSON. See ATR-20873", TriggerFlags.triggerMenuSetup)
                 topAlgs += menuwriter
 
             # The metadata objects to add to the output:

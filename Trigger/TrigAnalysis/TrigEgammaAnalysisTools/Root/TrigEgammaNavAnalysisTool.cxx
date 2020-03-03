@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaAnalysisTools/TrigEgammaNavAnalysisTool.h"
@@ -14,7 +14,7 @@ TrigEgammaNavAnalysisTool::TrigEgammaNavAnalysisTool( const std::string& myname 
 StatusCode TrigEgammaNavAnalysisTool::childInitialize()
 {
     ATH_MSG_INFO("TrigEgammaNavAnalysisTool: child Initialize");
-    TrigEgammaNavBaseTool::childInitialize();
+    ATH_CHECK(TrigEgammaNavBaseTool::childInitialize());
    
     ATH_MSG_DEBUG("Now configuring chains for analysis");
 
@@ -86,7 +86,7 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute( const EventContext& ctx ) co
 StatusCode TrigEgammaNavAnalysisTool::childFinalize(){
 
     ATH_MSG_DEBUG("TrigEgammaNavAnalysisTool: child Finalize");
-    TrigEgammaNavBaseTool::childFinalize();
+    ATH_CHECK(TrigEgammaNavBaseTool::childFinalize());
     return StatusCode::SUCCESS;
 }
 

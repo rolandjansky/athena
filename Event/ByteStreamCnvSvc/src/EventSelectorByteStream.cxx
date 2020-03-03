@@ -754,24 +754,24 @@ StatusCode EventSelectorByteStream::recordAttributeList() const
 
 StatusCode EventSelectorByteStream::fillAttributeList(coral::AttributeList *attrList, const std::string &suffix, bool /* copySource */) const
 {
-   attrList->extend("RunNumber"   + suffix, "long");
-   attrList->extend("EventNumber" + suffix, "long");
-   attrList->extend("Lumiblock"   + suffix, "int");
-   attrList->extend("BunchID"     + suffix,  "int");
-   attrList->extend("CrossingTimeSec"  + suffix, "unsigned int");
-   attrList->extend("CrossingTimeNSec" + suffix, "unsigned int");
+   attrList->extend("RunNumber"   + suffix, "unsigned int");
+   attrList->extend("EventNumber" + suffix, "unsigned long long");
+   attrList->extend("LumiBlockN"  + suffix, "unsigned int");
+   attrList->extend("BunchId"     + suffix, "unsigned int");
+   attrList->extend("EventTime"        + suffix, "unsigned int");
+   attrList->extend("EventTimeNanoSec" + suffix, "unsigned int");
 
    // fill attribute list
    const RawEvent* event = m_eventSource->currentEvent();
 
-   (*attrList)["RunNumber" + suffix].data<long>() = event->run_no();
+   (*attrList)["RunNumber" + suffix].data<unsigned int>() = event->run_no();
    if (event->version() < 0x03010000) {
-      (*attrList)["EventNumber" + suffix].data<long>() = event->lvl1_id();
+      (*attrList)["EventNumber" + suffix].data<unsigned long long>() = event->lvl1_id();
    } else {
-      (*attrList)["EventNumber" + suffix].data<long>() = event->global_id();
+      (*attrList)["EventNumber" + suffix].data<unsigned long long>() = event->global_id();
    }
-   (*attrList)["Lumiblock" + suffix].data<int>() = event->lumi_block();
-   (*attrList)["BunchID" + suffix].data<int>() = event->bc_id();
+   (*attrList)["LumiBlockN" + suffix].data<unsigned int>() = event->lumi_block();
+   (*attrList)["BunchId" + suffix].data<unsigned int>() = event->bc_id();
 
    unsigned int bc_time_sec = event->bc_time_seconds();
    unsigned int bc_time_ns  = event->bc_time_nanoseconds();
@@ -781,8 +781,8 @@ StatusCode EventSelectorByteStream::fillAttributeList(coral::AttributeList *attr
       ATH_MSG_WARNING(" bc_time nanosecond number larger than 1e9, it is " << bc_time_ns << ", reset it to 1 sec");
       bc_time_ns = 1000000000;
    }
-   (*attrList)["CrossingTimeSec" + suffix].data<unsigned int>() = bc_time_sec;
-   (*attrList)["CrossingTimeNSec" + suffix].data<unsigned int>() = bc_time_ns;
+   (*attrList)["EventTime" + suffix].data<unsigned int>() = bc_time_sec;
+   (*attrList)["EventTimeNanoSec" + suffix].data<unsigned int>() = bc_time_ns;
 
    const OFFLINE_FRAGMENTS_NAMESPACE::DataType* buffer;
 

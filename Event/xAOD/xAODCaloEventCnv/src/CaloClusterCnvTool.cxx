@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloClusterCnvTool.cxx 785752 2016-11-22 15:06:34Z ssnyder $
@@ -119,7 +119,7 @@ namespace xAODMaker {
       xaod->setTime( aod->getTime() );
 
       {
-        SignalStateHelper sstate (aod);
+        SignalStateConstHelper sstate (aod);
         sstate.setSignalState( P4SignalState::CALIBRATED );
         xaod->setCalE( aod->e() );
         xaod->setCalEta( aod->eta() );

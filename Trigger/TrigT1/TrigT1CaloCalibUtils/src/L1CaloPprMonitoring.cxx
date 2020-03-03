@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibUtils/L1CaloPprMonitoring.h"
@@ -175,23 +175,23 @@ StatusCode L1CaloPprMonitoring::finalize()
 {
     if (m_doFineTimePlots)
     {
-        m_fineTimePlotManager->MakeSummary();
-	delete m_fineTimePlotManager;
+      m_fineTimePlotManager->MakeSummary().ignore();
+      delete m_fineTimePlotManager;
     }
     if (m_doPedestalPlots)
     {
-        m_pedestalPlotManager->MakeSummary();
-	delete m_pedestalPlotManager;
+      m_pedestalPlotManager->MakeSummary().ignore();
+      delete m_pedestalPlotManager;
     }
     if (m_doPedestalCorrectionPlots)
     {
-      m_pedestalCorrectionPlotManager->MakeSummary();
+      m_pedestalCorrectionPlotManager->MakeSummary().ignore();
       delete m_pedestalCorrectionPlotManager;
     }
     if (m_doEtCorrelationPlots)
     {
-        m_etCorrelationPlotManager->MakeSummary();
-	delete m_etCorrelationPlotManager;
+      m_etCorrelationPlotManager->MakeSummary().ignore();
+      delete m_etCorrelationPlotManager;
     }    
     return StatusCode::SUCCESS;
 }

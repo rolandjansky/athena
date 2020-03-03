@@ -37,7 +37,6 @@
 - PhysicsAnalysis/SUSYPhys/SUSYTools
 - PhysicsAnalysis/TauID/DiTauMassTools
 #- PhysicsAnalysis/TauID/TauCorrUncert  #no CMakeLists.txt file
-- PhysicsAnalysis/TopPhys/QuickAna
 - PhysicsAnalysis/TopPhys/TopPhysUtils/.*
 - PhysicsAnalysis/TopPhys/xAOD/.*
 - PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
@@ -45,7 +44,6 @@
 - Reconstruction/Jet/JetJvtEfficiency
 - Reconstruction/Jet/JetReclustering
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
-- Trigger/TrigFTK/FTKStandaloneMonitoring
 
 # Data quality packages that would generally go to AthDataQuality, but should be built in Athena
 # until we have Run 3 Tier-0 ops

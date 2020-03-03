@@ -33,6 +33,7 @@ class ExecStep(Step):
         self.skip_events = None
         self.imf = True
         self.perfmon = True
+        self.prmon = True
         self.auto_report_result = True
         self.required = True
         self.depends_on_previous = True
@@ -162,6 +163,10 @@ class ExecStep(Step):
             if self.perfmon:
                 athenaopts += ' --perfmon'
 
+        # Disable prmon for Reco_tf because it is already started inside the transform
+        if self.type == 'Reco_tf':
+            self.prmon = False
+
         # Default threads/concurrent_events/forks
         if test.package_name == 'TrigUpgradeTest':
             if self.threads is None:
@@ -194,11 +199,18 @@ class ExecStep(Step):
         if self.max_events is None:
             if test.art_type == 'build':
                 if test.package_name == 'TrigP1Test':
-                    self.max_events = 50
+                    self.max_events = 100
                 else:
                     self.max_events = 20
             else:
                 self.max_events = 1000
+
+        # Set prmon interval based on max events
+        if self.prmon:
+            if self.max_events <= 100:
+                self.prmon_interval = 5
+            else:
+                self.prmon_interval = 10
 
         # Append max/skip events
         if self.type == 'athena':

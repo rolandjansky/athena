@@ -17,7 +17,12 @@
    The core framework consists of the following classes:
    - Monitored::Scalar to monitor scalar (double or string) values,
    - Monitored::Collection to monitor collection of objects,
-   - Monitored::Timer to monitor time differences,
+   - Monitored::Timer and Monitored::ScopedTimer to monitor time differences,
    - Monitored::Group to perform the histogram filling,
    - GenericMonitoringTool to configure the available histograms via GenericMonitoringTool.defineHistogram.
+*/
+
+/**
+   @namespace Monitored
+   Namespace for the @ref MonAPI
 */
