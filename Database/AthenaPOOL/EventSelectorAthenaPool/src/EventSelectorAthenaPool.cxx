@@ -1000,9 +1000,14 @@ StatusCode EventSelectorAthenaPool::fillAttributeList(coral::AttributeList *attr
       (*attrList)[iter.tokenName() + suffix].data<std::string>() = iter->toString();
       ATH_MSG_DEBUG("record AthenaAttribute, name = " << iter.tokenName() + suffix << " = " << iter->toString() << ".");
    }
-   attrList->extend("eventRef" + suffix, "string");
-   (*attrList)["eventRef" + suffix].data<std::string>() = m_headerIterator->eventRef().toString();
-   ATH_MSG_DEBUG("record AthenaAttribute, name = eventRef" + suffix + " = " <<  m_headerIterator->eventRef().toString() << ".");
+
+   std::string eventRef = "eventRef";
+   if (m_isSecondary.value()) {
+      eventRef.append(suffix);
+   }
+   attrList->extend(eventRef, "string");
+   (*attrList)[eventRef].data<std::string>() = m_headerIterator->eventRef().toString();
+   ATH_MSG_DEBUG("record AthenaAttribute, name = " + eventRef + " = " <<  m_headerIterator->eventRef().toString() << ".");
 
    if (copySource) {
       const coral::AttributeList& sourceAttrList = m_headerIterator->currentRow().attributeList();

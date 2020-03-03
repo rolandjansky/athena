@@ -38,7 +38,7 @@ StatusCode EvenEventsSelectorTool::postNext() const {
         ++it;
       }
       // take only even events
-      if ((*attrList)["EventNumber"].data<long>()%2==0) {
+      if ((*attrList)["EventNumber"].data<unsigned long long>()%2==0) {
         retc = StatusCode::RECOVERABLE;
         ATH_MSG_INFO("Rejecting event");
       }
