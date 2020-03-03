@@ -519,7 +519,7 @@ namespace Trk {
         Amg::MatrixX covMatrix(1, 1);
         covMatrix(0, 0) = 100;
         
-        PseudoMeasurementOnTrack *newpseudo = new PseudoMeasurementOnTrack(
+        std::unique_ptr<const PseudoMeasurementOnTrack> newpseudo = std::make_unique<const PseudoMeasurementOnTrack>(
           LocalParameters(
             DefinedParameter(updpar->parameters()[Trk::locY], Trk::locY)
           ),
@@ -528,7 +528,7 @@ namespace Trk {
         );
         
         delete updpar;
-        pseudostate->setMeasurement(newpseudo);
+        pseudostate->setMeasurement(std::move(newpseudo));
         double errors[5];
         errors[0] = errors[2] = errors[3] = errors[4] = -1;
         errors[1] = 10;
@@ -1208,9 +1208,9 @@ namespace Trk {
 
     elossmeff->setSigmaDeltaE(calomeots[1].energyLoss()->sigmaDeltaE());
 
-    trajectory.addMaterialState(new GXFTrackState(firstscatmeff, firstscatpar), -1, true);
-    trajectory.addMaterialState(new GXFTrackState(elossmeff, elosspar.release()), -1, true);
-    trajectory.addMaterialState(new GXFTrackState(secondscatmeff, lastscatpar), -1, true);
+    trajectory.addMaterialState(new GXFTrackState(firstscatmeff, firstscatpar), -1);
+    trajectory.addMaterialState(new GXFTrackState(elossmeff, elosspar.release()), -1);
+    trajectory.addMaterialState(new GXFTrackState(secondscatmeff, lastscatpar), -1);
 
     if (!firstismuon) {
       for (auto & i : tmp_matvec) {
@@ -1285,18 +1285,17 @@ namespace Trk {
         tpar->position().perp() > 9000 && 
         std::abs(tpar->position().z()) < 13000
       ) {
-        const TrackParameters *pseudopar = tpar->clone();
+        std::unique_ptr<const TrackParameters> pseudopar(tpar->clone());
         Amg::MatrixX covMatrix(1, 1);
         covMatrix(0, 0) = 100;
         
-        PseudoMeasurementOnTrack *newpseudo = new PseudoMeasurementOnTrack(
+        std::unique_ptr<const PseudoMeasurementOnTrack> newpseudo = std::make_unique<const PseudoMeasurementOnTrack>(
           LocalParameters(DefinedParameter(pseudopar->parameters()[Trk::locY], Trk::locY)),
           covMatrix, 
           pseudopar->associatedSurface()
         );
         
-        GXFTrackState *pseudostate = new GXFTrackState(newpseudo, pseudopar, true);
-        pseudostate->setTrackParameters(pseudopar);
+        GXFTrackState *pseudostate = new GXFTrackState(std::move(newpseudo), std::move(pseudopar));
         pseudostate->setMeasurementType(TrackState::Pseudo);
         
         double errors[5];
@@ -1584,9 +1583,9 @@ namespace Trk {
     dp = 1000 * (lastscatpar->parameters()[Trk::qOverP] - firstscatpar->parameters()[Trk::qOverP]);
     elossmeff->setdelta_p(dp);
     
-    trajectory.addMaterialState(new GXFTrackState(firstscatmeff.release(), firstscatpar.release()), -1, true);
-    trajectory.addMaterialState(new GXFTrackState(elossmeff.release(), elosspar.release()), -1, true);
-    trajectory.addMaterialState(new GXFTrackState(secondscatmeff.release(), lastscatpar.release()), -1, true);
+    trajectory.addMaterialState(new GXFTrackState(firstscatmeff.release(), firstscatpar.release()), -1);
+    trajectory.addMaterialState(new GXFTrackState(elossmeff.release(), elosspar.release()), -1);
+    trajectory.addMaterialState(new GXFTrackState(secondscatmeff.release(), lastscatpar.release()), -1);
     
     GXFTrackState *secondscatstate = trajectory.trackStates().back();
     const Surface *triggersurf1 = nullptr;
@@ -1741,17 +1740,24 @@ namespace Trk {
           std::abs((*itStates2)->measurementOnTrack()->globalPosition().z()) < 10000
         )
       ) {
-        const TrackParameters* par2 =
-          (((*itStates2)->trackParameters() != nullptr) && nphi > 99)
-            ? (*itStates2)->trackParameters()->clone()
-            : m_propagator->propagateParameters(
-                ctx,
-                *secondscatstate->trackParameters(),
-                (*itStates2)->measurementOnTrack()->associatedSurface(),
-                alongMomentum,
-                false,
-                *trajectory.m_fieldprop,
-                Trk::nonInteracting);
+        std::unique_ptr<const TrackParameters> par2;
+        
+        if (((*itStates2)->trackParameters() != nullptr) && nphi > 99) {
+          par2.reset((*itStates2)->trackParameters()->clone());
+        } else {
+          par2.reset(
+            m_propagator->propagateParameters(
+              ctx,
+              *secondscatstate->trackParameters(),
+              (*itStates2)->measurementOnTrack()->associatedSurface(),
+              alongMomentum, 
+              false,
+              *trajectory.m_fieldprop,
+              Trk::nonInteracting
+            )
+          );
+        }
+
         if (par2 == nullptr) {
           continue;
         }
@@ -1765,8 +1771,7 @@ namespace Trk {
           par2->associatedSurface()
         );
         
-        firstpseudostate = new GXFTrackState(newpseudo, par2, true);
-        firstpseudostate->setTrackParameters(par2);
+        firstpseudostate = new GXFTrackState(std::unique_ptr<const MeasurementBase>(newpseudo), std::move(par2));
         firstpseudostate->setMeasurementType(TrackState::Pseudo);
         
         double errors[5];
@@ -1804,11 +1809,11 @@ namespace Trk {
           Amg::MatrixX covMatrix(1, 1);
           covMatrix(0, 0) = 100;
 
-          PseudoMeasurementOnTrack *newpseudo = new PseudoMeasurementOnTrack(
+          std::unique_ptr<const PseudoMeasurementOnTrack> newpseudo = std::make_unique<const PseudoMeasurementOnTrack>(
             LocalParameters(DefinedParameter(0, Trk::locY)), covMatrix, slsurf
           );
           
-          pseudostate1 = new GXFTrackState(newpseudo, nullptr, true);
+          pseudostate1 = new GXFTrackState(std::move(newpseudo), nullptr);
           pseudostate1->setMeasurementType(TrackState::Pseudo);
           
           double errors[5];
@@ -1832,11 +1837,11 @@ namespace Trk {
           Amg::MatrixX covMatrix(1, 1);
           covMatrix(0, 0) = 100;
 
-          PseudoMeasurementOnTrack *newpseudo = new PseudoMeasurementOnTrack(
+          std::unique_ptr<const PseudoMeasurementOnTrack> newpseudo = std::make_unique<const PseudoMeasurementOnTrack>(
             LocalParameters(DefinedParameter(0, Trk::locY)), covMatrix, slsurf
           );
           
-          pseudostate2 = new GXFTrackState(newpseudo, nullptr, true);
+          pseudostate2 = new GXFTrackState(std::move(newpseudo), nullptr);
           pseudostate2->setMeasurementType(TrackState::Pseudo);
           
           double errors[5];
@@ -1895,12 +1900,12 @@ namespace Trk {
         Amg::MatrixX covMatrix(1, 1);
         covMatrix(0, 0) = 100;
 
-        PseudoMeasurementOnTrack *newpseudo = new PseudoMeasurementOnTrack(
+        std::unique_ptr<const PseudoMeasurementOnTrack> newpseudo = std::make_unique<const PseudoMeasurementOnTrack>(
           LocalParameters(DefinedParameter(par2->parameters()[Trk::locY], Trk::locY)), 
           covMatrix, 
           par2->associatedSurface()
         );
-        firstpseudostate->setMeasurement(newpseudo);
+        firstpseudostate->setMeasurement(std::move(newpseudo));
         firstpseudostate->setRecalibrated(false);
       }
 
@@ -2310,14 +2315,14 @@ namespace Trk {
         Amg::MatrixX covMatrix(1, 1);
         covMatrix(0, 0) = 100;
         
-        PseudoMeasurementOnTrack *newpseudo = new PseudoMeasurementOnTrack(
+        std::unique_ptr<const PseudoMeasurementOnTrack> newpseudo = std::make_unique<const PseudoMeasurementOnTrack>(
           LocalParameters(DefinedParameter(updpar->parameters()[Trk::locY], Trk::locY)),
           covMatrix, 
           pseudopar->associatedSurface()
         );
         
         delete updpar;
-        pseudostate->setMeasurement(newpseudo);
+        pseudostate->setMeasurement(std::move(newpseudo));
         double errors[5];
         errors[0] = errors[2] = errors[3] = errors[4] = -1;
         errors[1] = 10;
@@ -2691,26 +2696,26 @@ namespace Trk {
         Amg::MatrixX covMatrix(1, 1);
         covMatrix(0, 0) = 100;
 
-        PseudoMeasurementOnTrack *newpseudo = new PseudoMeasurementOnTrack(
+        std::unique_ptr<const PseudoMeasurementOnTrack> newpseudo = std::make_unique<const PseudoMeasurementOnTrack>(
           LocalParameters(DefinedParameter(firstpar->parameters()[Trk::locY], Trk::locY)),
           covMatrix, 
           firstpar->associatedSurface()
         );
         
-        trajectory.trackStates().front()->setMeasurement(newpseudo);
+        trajectory.trackStates().front()->setMeasurement(std::move(newpseudo));
       }
       
       if (trajectory.trackStates().back()->measurementType() == TrackState::Pseudo) {
         Amg::MatrixX covMatrix(1, 1);
         covMatrix(0, 0) = 100;
 
-        PseudoMeasurementOnTrack *newpseudo = new PseudoMeasurementOnTrack(
+        std::unique_ptr<const PseudoMeasurementOnTrack> newpseudo = std::make_unique<const PseudoMeasurementOnTrack>(
           LocalParameters(DefinedParameter(lastpar->parameters()[Trk::locY], Trk::locY)),
           covMatrix, 
           lastpar->associatedSurface()
         );
         
-        trajectory.trackStates().back()->setMeasurement(newpseudo);
+        trajectory.trackStates().back()->setMeasurement(std::move(newpseudo));
       }
       
       if (!trajectory.m_straightline) {
@@ -2747,13 +2752,13 @@ namespace Trk {
         Amg::MatrixX covMatrix(1, 1);
         covMatrix(0, 0) = 100;
 
-        PseudoMeasurementOnTrack *newpseudo = new PseudoMeasurementOnTrack(
+        std::unique_ptr<const PseudoMeasurementOnTrack> newpseudo = std::make_unique<const PseudoMeasurementOnTrack>(
           LocalParameters(DefinedParameter(firstpar->parameters()[Trk::locY], Trk::locY)),
           covMatrix, 
           firstpar->associatedSurface()
         );
         
-        trajectory.trackStates().front()->setMeasurement(newpseudo);
+        trajectory.trackStates().front()->setMeasurement(std::move(newpseudo));
         double errors[5];
         errors[0] = errors[2] = errors[3] = errors[4] = -1;
         errors[1] = 10;
@@ -2766,13 +2771,13 @@ namespace Trk {
         Amg::MatrixX covMatrix(1, 1);
         covMatrix(0, 0) = 100;
 
-        PseudoMeasurementOnTrack *newpseudo = new PseudoMeasurementOnTrack(
+        std::unique_ptr<const PseudoMeasurementOnTrack> newpseudo = std::make_unique<const PseudoMeasurementOnTrack>(
           LocalParameters(DefinedParameter(lastpar->parameters()[Trk::locY], Trk::locY)),
           covMatrix, 
           lastpar->associatedSurface()
         );
         
-        trajectory.trackStates().back()->setMeasurement(newpseudo);
+        trajectory.trackStates().back()->setMeasurement(std::move(newpseudo));
         double errors[5];
         errors[0] = errors[2] = errors[3] = errors[4] = -1;
         errors[1] = 10;
@@ -2889,8 +2894,7 @@ namespace Trk {
           newmeff,
           copytp ? tsos->trackParameters()->clone() : tsos->trackParameters()
         ),
-        index, 
-        copytp
+        index
       );
     }
     
@@ -2938,7 +2942,10 @@ namespace Trk {
     for (int i = 0; i < imax; i++) {
       const MeasurementBase *measbase2 = ((seg != nullptr) && m_decomposesegments) ? seg->measurement(i) : measbase;
       const TrackParameters *newtrackpar = ((seg != nullptr) && m_decomposesegments) ? nullptr : trackpar;
-      GXFTrackState *ptsos = new GXFTrackState(measbase2, newtrackpar);
+      GXFTrackState *ptsos = new GXFTrackState(
+        std::unique_ptr<const MeasurementBase>(measbase2->clone()), 
+        std::unique_ptr<const TrackParameters>(newtrackpar != nullptr ? newtrackpar->clone() : nullptr)
+      );
       const Amg::MatrixX & covmat = measbase2->localCovariance();
       double sinstereo = 0;
       double errors[5];
@@ -3661,8 +3668,7 @@ namespace Trk {
          * Create a new track state in the internal representation and load it
          * with any and all information we might have.
          */
-
-        GXFTrackState *matstate = new GXFTrackState(meff);
+        GXFTrackState *matstate = new GXFTrackState(meff, nullptr);
         matstate->setPosition(intersect);
         trajectory.addMaterialState(matstate);
         
@@ -3966,18 +3972,19 @@ namespace Trk {
       ) {
         if (firstsistate == nullptr) {
           if (oldstates[i]->trackParameters() == nullptr) {
-            const TrackParameters* tmppar = m_propagator->propagateParameters(
+            std::unique_ptr<const TrackParameters> tmppar(m_propagator->propagateParameters(
               ctx,
-              *refpar,
-              *oldstates[i]->surface(),
-              alongMomentum,
-              false,
-              *trajectory.m_fieldprop,
-              Trk::nonInteracting);
-
+              *refpar, 
+              *oldstates[i]->surface(), 
+              alongMomentum, 
+              false, 
+              *trajectory.m_fieldprop, 
+              Trk::nonInteracting
+            ));
+            
             if (tmppar == nullptr) return;
             
-            oldstates[i]->setTrackParameters(tmppar);
+            oldstates[i]->setTrackParameters(std::move(tmppar));
           }
           firstsistate = oldstates[i];
         }
@@ -4000,17 +4007,17 @@ namespace Trk {
      * enough.
      */
     if (lastsistate->trackParameters() == nullptr) {
-      const TrackParameters *tmppar = m_propagator->propagateParameters(
+      std::unique_ptr<const TrackParameters> tmppar(m_propagator->propagateParameters(
         *refpar,
         *lastsistate->surface(),
         alongMomentum, false,
         *trajectory.m_fieldprop,
         Trk::nonInteracting
-      );
+      ));
       
       if (tmppar == nullptr) return;
       
-      lastsistate->setTrackParameters(tmppar);
+      lastsistate->setTrackParameters(std::move(tmppar));
     }
 
     /*
@@ -4120,7 +4127,7 @@ namespace Trk {
                 return;
               }
 
-              state->setTrackParameters(tp);
+              state->setTrackParameters(std::unique_ptr<const TrackParameters>(tp));
             }
             // When acceleration is enabled, material collection starts from first hit
             refpar2 = tp;
@@ -5592,14 +5599,14 @@ namespace Trk {
           Amg::MatrixX covMatrix(1, 1);
           covMatrix(0, 0) = 100;
 
-          PseudoMeasurementOnTrack *newpseudo = new PseudoMeasurementOnTrack(
+          std::unique_ptr<const PseudoMeasurementOnTrack> newpseudo = std::make_unique<const PseudoMeasurementOnTrack>(
             LocalParameters(DefinedParameter(currenttrackpar->parameters()[Trk::locY], Trk::locY)),
             covMatrix,
             currenttrackpar->associatedSurface()
           );
           
-          state->setMeasurement(newpseudo);
-          measbase = newpseudo;
+          state->setMeasurement(std::move(newpseudo));
+          measbase = state->measurement();
         }
         
         double *errors = state->measurementErrors();
@@ -6492,15 +6499,13 @@ namespace Trk {
               double dcerror = sqrt(oldrot->prepRawData()->localCovariance()(Trk::driftRadius, Trk::driftRadius));
               double trackradius = state->trackParameters()->parameters()[Trk::driftRadius];
 
-              const Trk::RIO_OnTrack * newrot = nullptr;
+              std::unique_ptr<const Trk::RIO_OnTrack> newrot = nullptr;
               double distance = std::abs(std::abs(trackradius) - dcradius);
               
               if (distance < scalefactor * dcerror && (olderror > 1. || trackradius * oldradius < 0)) {
-                newrot = m_ROTcreator->correct(*oldrot->prepRawData(), *state->trackParameters());
-              }
-              
-              if (distance > scalefactor * dcerror && olderror < 1.) {
-                newrot = m_broadROTcreator->correct(*oldrot->prepRawData(), *state->trackParameters());
+                newrot.reset(m_ROTcreator->correct(*oldrot->prepRawData(), *state->trackParameters()));
+              } else if (distance > scalefactor * dcerror && olderror < 1.) {
+                newrot.reset(m_broadROTcreator->correct(*oldrot->prepRawData(), *state->trackParameters()));
               }
               
               if (newrot != nullptr) {
@@ -6518,7 +6523,7 @@ namespace Trk {
                 double oldres = res[measno];
                 double newres = newradius - state->trackParameters()->parameters()[Trk::driftRadius];
                 errors[0] = newerror;
-                state->setMeasurement(newrot);
+                state->setMeasurement(std::move(newrot));
 
                 for (int i = 0; i < nfitpars; i++) {
                   if (weightderiv(measno, i) == 0) {
@@ -6634,9 +6639,9 @@ namespace Trk {
         if (statetype == TrackState::Fittable) {
           TrackState::MeasurementType hittype = state->measurementType();
 
-          if ((hittype == TrackState::Pixel || hittype == TrackState::SCT) && (state->trackCovariance() != nullptr)) {
+          if ((hittype == TrackState::Pixel || hittype == TrackState::SCT) && state->hasTrackCovariance()) {
             double *errors = state->measurementErrors();
-            AmgSymMatrix(5) & trackcov = *state->trackCovariance();
+            AmgSymMatrix(5) & trackcov = state->trackCovariance();
             const Amg::MatrixX & hitcov = state->measurement()->localCovariance();
             double sinstereo = state->sinStereo();
             double cosstereo = (sinstereo == 0) ? 1 : sqrt(1 - sinstereo * sinstereo);
@@ -6719,7 +6724,7 @@ namespace Trk {
             parameterVector[Trk::phi],
             parameterVector[Trk::theta],
             parameterVector[Trk::qOverP],
-            new AmgSymMatrix(5)(*state_maxsipull->trackCovariance())
+            state_maxsipull->hasTrackCovariance() ? new AmgSymMatrix(5)(state_maxsipull->trackCovariance()) : nullptr
           )
         );
         
@@ -6865,7 +6870,7 @@ namespace Trk {
             olderror[1] << " newerror_1=" << newerror[1]
           );
 
-          state_maxsipull->setMeasurement(broadrot.release());
+          state_maxsipull->setMeasurement(std::move(broadrot));
           state_maxsipull->setSinStereo(newsinstereo);
           state_maxsipull->setMeasurementErrors(newerror);
         } else if (
@@ -7069,15 +7074,16 @@ namespace Trk {
                                                   ParticleHypothesis
                                                   matEffects) const {
     // Convert internal track state into "official" TrackStateOnSurface
-    const TrackParameters *trackpar = state->trackParameters(true);
-    const MeasurementBase *measurement = state->measurement(true);
-    const FitQualityOnSurface *fitQual = state->fitQuality(true);
+    const TrackParameters *trackpar = state->trackParameters() != nullptr ? state->takeTrackParameters()->clone() : nullptr;   
+    const MeasurementBase *measurement = state->measurement() != nullptr ? state->takeMeasurement()->clone() : nullptr;
+    const FitQualityOnSurface *fitQual = state->fitQuality() != nullptr ? state->takeFitQuality()->clone() : nullptr;
+
     GXFMaterialEffects *gxfmeff = state->materialEffects();
     const MaterialEffectsBase *mateff = nullptr;
     TrackState::TrackStateType tstype = state->trackStateType();
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
 
-    if (state->trackCovariance() != nullptr) {
+    if (state->hasTrackCovariance()) {
       state->setTrackCovariance(nullptr);
     }
     
@@ -7274,8 +7280,9 @@ namespace Trk {
         }
         if (startfactor > 0.5) {
           const TrackParameters *updatedpar = m_matupdator->update(firstmeasstate->trackParameters(), *startlayer, oppositeMomentum, matEffects);
+
           if ((updatedpar != nullptr) && updatedpar != firstmeasstate->trackParameters()) {
-            firstmeasstate->setTrackParameters(updatedpar);
+            firstmeasstate->setTrackParameters(std::unique_ptr<const TrackParameters>(updatedpar->clone()));
           }
         }
       }
@@ -7296,8 +7303,9 @@ namespace Trk {
         
         if (endfactor > 0.5) {
           const TrackParameters *updatedpar = m_matupdator->update(lastmeasstate->trackParameters(), *endlayer, alongMomentum, matEffects);
+
           if ((updatedpar != nullptr) && updatedpar != lastmeasstate->trackParameters()) {
-            lastmeasstate->setTrackParameters(updatedpar);
+            lastmeasstate->setTrackParameters(std::unique_ptr<const TrackParameters>(updatedpar->clone()));
           }
         }
       }
@@ -7377,7 +7385,7 @@ namespace Trk {
         hit->measurementType() == TrackState::Pseudo &&
         hit->trackStateType() == TrackState::GeneralOutlier
       ) {
-        if (hit->trackCovariance() != nullptr) {
+        if (hit->hasTrackCovariance()) {
           hit->setTrackCovariance(nullptr);
         }
         continue;
@@ -7568,7 +7576,7 @@ namespace Trk {
         delete prevtrackpar;
       }
       
-      states[hitno]->setTrackParameters(currenttrackpar);
+      states[hitno]->setTrackParameters(std::unique_ptr<const TrackParameters>(currenttrackpar));
       surf = states[hitno]->surface();
 
       if (calcderiv && (jac == nullptr)) {
@@ -7587,7 +7595,8 @@ namespace Trk {
           }
         }
         
-        states[hitno]->setJacobian(jac);
+        states[hitno]->setJacobian(*jac);
+        delete jac;
       }
       
       GXFMaterialEffects *meff = states[hitno]->materialEffects();
@@ -7757,7 +7766,8 @@ namespace Trk {
           }
         }
         
-        states[hitno]->setJacobian(jac);
+        states[hitno]->setJacobian(*jac);
+        delete jac;
       }
 
       if (calcderiv && (jac == nullptr)) {
@@ -7818,7 +7828,7 @@ namespace Trk {
         delete oldpar;
       }
       
-      states[hitno]->setTrackParameters(currenttrackpar);
+      states[hitno]->setTrackParameters(std::unique_ptr<const TrackParameters>(currenttrackpar));
       prevtrackpar = currenttrackpar;
     }
     
@@ -8058,19 +8068,17 @@ namespace Trk {
         continue;
       }
 
-      if (state->trackCovariance() == nullptr) {
-        AmgMatrix(5, 5) * newcov = new AmgMatrix(5, 5);
-        newcov->setZero();
-        state->setTrackCovariance(newcov);
+      if (!state->hasTrackCovariance()) {
+        state->zeroTrackCovariance();
       }
-      AmgMatrix(5, 5) & trackerrmat = *state->trackCovariance();
+      AmgMatrix(5, 5) & trackerrmat = state->trackCovariance();
 
       if ((prevstate != nullptr) &&
           (prevstate->trackStateType() == TrackState::Fittable ||
            prevstate->trackStateType() == TrackState::GeneralOutlier)
           && !onlylocal) {
         Eigen::Matrix<double, 5, 5> & jac = state->jacobian();
-        AmgMatrix(5, 5) & prevcov = *states[indices[stateno - 1]]->trackCovariance();
+        AmgMatrix(5, 5) & prevcov = states[indices[stateno - 1]]->trackCovariance();
       
         trackerrmat = jac * prevcov * jac.transpose();
       } else {
@@ -8120,34 +8128,40 @@ namespace Trk {
           trackerrmat(4, 4) = 1e-20;
         }
 
-        const TrackParameters *trackpar = nullptr;
         const TrackParameters *tmptrackpar =
           state->trackParameters();
 
-        AmgMatrix(5, 5) * trkerrmat = state->trackCovariance(true);
+        AmgMatrix(5, 5) * trkerrmat;
+        
+        if (state->hasTrackCovariance()) {
+          trkerrmat = new AmgSymMatrix(5)(state->trackCovariance());
+        } else {
+          trkerrmat = nullptr;
+        }
+
         const AmgVector(5) & tpars = tmptrackpar->parameters();
-        trackpar =
+        std::unique_ptr<const TrackParameters> trackpar(
           tmptrackpar->associatedSurface().createTrackParameters(tpars[0],
                                                                  tpars[1],
                                                                  tpars[2],
                                                                  tpars[3],
                                                                  tpars[4],
-                                                                 trkerrmat);
-        state->setTrackParameters(trackpar);
-        const FitQualityOnSurface *fitQual = nullptr;
+                                                                 trkerrmat)
+        );
+        state->setTrackParameters(std::move(trackpar));
+        std::unique_ptr<const FitQualityOnSurface> fitQual = nullptr;
         if (state->trackStateType() == TrackState::Fittable) {
           if (errorok && trajectory.nDOF() > 0) {
-            fitQual = m_updator->fullStateFitQuality(*trackpar,
-                                                     measurement->
-                                                     localParameters(),
-                                                     measurement->
-                                                     localCovariance());
+            fitQual.reset(m_updator->fullStateFitQuality(
+              *state->trackParameters(),
+              measurement->localParameters(),
+              measurement->localCovariance()
+            ));
           } else {
-            fitQual =
-              new FitQualityOnSurface(0, state->numberOfMeasuredParameters());
+            fitQual = std::make_unique<const FitQualityOnSurface>(0, state->numberOfMeasuredParameters());
           }
         }
-        state->setFitQuality(fitQual);
+        state->setFitQuality(std::move(fitQual));
       }
       prevstate = state;
       hitno++;

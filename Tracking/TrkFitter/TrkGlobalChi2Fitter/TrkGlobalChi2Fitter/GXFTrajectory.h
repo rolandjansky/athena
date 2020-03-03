@@ -30,8 +30,7 @@ namespace Trk {
     GXFTrajectory & operator=(GXFTrajectory & rhs);
 
     bool addMeasurementState(GXFTrackState *, int index = -1);
-    void addHoleState(const TrackParameters *);
-    void addMaterialState(GXFTrackState *, int index = -1, bool owntp = false);
+    void addMaterialState(GXFTrackState *, int index = -1);
 
     void setReferenceParameters(const TrackParameters *);
     void setScatteringAngles(std::vector < std::pair < double, double > >&);
@@ -73,9 +72,9 @@ namespace Trk {
     bool converged();
     int prefit();
     void resetReferenceParameters();
-    double chi2();
+    double chi2() const;
     double prevchi2();
-    int nDOF();
+    int nDOF() const;
   
     Amg::VectorX & residuals();
     Amg::VectorX & errors();
@@ -89,6 +88,9 @@ namespace Trk {
 
     std::vector < std::pair < const Layer *,
     const Layer *>>&upstreamMaterialLayers();
+
+    void resetCovariances(void);
+    std::unique_ptr<const FitQuality> quality(void) const;
 
     bool m_straightline;
     MagneticFieldProperties *m_fieldprop;
