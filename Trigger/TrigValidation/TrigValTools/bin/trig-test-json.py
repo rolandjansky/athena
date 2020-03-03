@@ -174,7 +174,7 @@ def analyse_prmon(filename):
     data['vmem'] = "{0:.3f}".format(convert_to_megabytes(max(vmem_v), 'kB'))
     data['rss'] = "{0:.3f}".format(convert_to_megabytes(max(rss_v), 'kB'))
     data['pss'] = "{0:.3f}".format(convert_to_megabytes(max(pss_v), 'kB'))
-    if len(time_v) < 10:
+    if len(time_v) < 80:
         logging.info('Not enough prmon data points, skipping memory slope fitting')
         return data
     d_pss = find_dmem_prmon(time_v, pss_v, 'pss', filename)
