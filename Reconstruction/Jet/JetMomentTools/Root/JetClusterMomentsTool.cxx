@@ -40,15 +40,15 @@ StatusCode JetClusterMomentsTool::initialize(){
 StatusCode JetClusterMomentsTool::decorate(const xAOD::JetContainer& jets) const {
 
   // Use pointers here so we can create only the ones we're configured for
-  SG::WriteDecorHandle<xAOD::JetContainer, float>* handlePt(nullptr);
-  SG::WriteDecorHandle<xAOD::JetContainer, float>* handleSecondLambda(nullptr);
-  SG::WriteDecorHandle<xAOD::JetContainer, float>* handleCenterLambda(nullptr);
-  SG::WriteDecorHandle<xAOD::JetContainer, float>* handleSecondR(nullptr);
+  std::unique_ptr<SG::WriteDecorHandle<xAOD::JetContainer, float> > handlePt;
+  std::unique_ptr<SG::WriteDecorHandle<xAOD::JetContainer, float> > handleSecondLambda;
+  std::unique_ptr<SG::WriteDecorHandle<xAOD::JetContainer, float> > handleCenterLambda;
+  std::unique_ptr<SG::WriteDecorHandle<xAOD::JetContainer, float> > handleSecondR;
 
-  if(!m_clsPtKey.empty())           handlePt           = new SG::WriteDecorHandle<xAOD::JetContainer, float>(m_clsPtKey);
-  if(!m_clsSecondLambdaKey.empty()) handleSecondLambda = new SG::WriteDecorHandle<xAOD::JetContainer, float>(m_clsSecondLambdaKey);
-  if(!m_clsCenterLambdaKey.empty()) handleCenterLambda = new SG::WriteDecorHandle<xAOD::JetContainer, float>(m_clsCenterLambdaKey);
-  if(!m_clsSecondRKey.empty())      handleSecondR      = new SG::WriteDecorHandle<xAOD::JetContainer, float>(m_clsSecondRKey);
+  if(!m_clsPtKey.empty())           handlePt           = std::make_unique<SG::WriteDecorHandle<xAOD::JetContainer, float> >(m_clsPtKey);
+  if(!m_clsSecondLambdaKey.empty()) handleSecondLambda = std::make_unique<SG::WriteDecorHandle<xAOD::JetContainer, float> >(m_clsSecondLambdaKey);
+  if(!m_clsCenterLambdaKey.empty()) handleCenterLambda = std::make_unique<SG::WriteDecorHandle<xAOD::JetContainer, float> >(m_clsCenterLambdaKey);
+  if(!m_clsSecondRKey.empty())      handleSecondR      = std::make_unique<SG::WriteDecorHandle<xAOD::JetContainer, float> >(m_clsSecondRKey);
 
   for(const xAOD::Jet* jet : jets){
     // Find leading constituent cluster
@@ -56,22 +56,14 @@ StatusCode JetClusterMomentsTool::decorate(const xAOD::JetContainer& jets) const
     ATH_MSG_DEBUG("Leading cluster retrieving finished.");
     if(!leadingCluster){
       ATH_MSG_WARNING("Jet has no CaloCluster constituents, leading cluster not found");
-      if(handlePt)           delete handlePt;
-      if(handleSecondLambda) delete handleSecondLambda;
-      if(handleCenterLambda) delete handleCenterLambda;
-      if(handleSecondR)      delete handleSecondR;
       return StatusCode::FAILURE;
     }
     // Set info
-    if(handlePt)           (*handlePt)(*jet)           = leadingCluster->pt();
-    if(handleSecondLambda) (*handleSecondLambda)(*jet) = getMoment(leadingCluster, xAOD::CaloCluster::SECOND_LAMBDA);
-    if(handleCenterLambda) (*handleCenterLambda)(*jet) = getMoment(leadingCluster, xAOD::CaloCluster::CENTER_LAMBDA);
-    if(handleSecondR)      (*handleSecondR)(*jet)      = getMoment(leadingCluster, xAOD::CaloCluster::SECOND_R);
+    if(handlePt.get()           != nullptr) (*handlePt)(*jet)           = leadingCluster->pt();
+    if(handleSecondLambda.get() != nullptr) (*handleSecondLambda)(*jet) = getMoment(leadingCluster, xAOD::CaloCluster::SECOND_LAMBDA);
+    if(handleCenterLambda.get() != nullptr) (*handleCenterLambda)(*jet) = getMoment(leadingCluster, xAOD::CaloCluster::CENTER_LAMBDA);
+    if(handleSecondR.get()      != nullptr) (*handleSecondR)(*jet)      = getMoment(leadingCluster, xAOD::CaloCluster::SECOND_R);
   }
-  if(handlePt)           delete handlePt;
-  if(handleSecondLambda) delete handleSecondLambda;
-  if(handleCenterLambda) delete handleCenterLambda;
-  if(handleSecondR)      delete handleSecondR;
   return StatusCode::SUCCESS;
 }
 
