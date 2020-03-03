@@ -143,8 +143,18 @@ TrigConf::DataStructure::getList(const std::string & pathToChild, bool ignoreIfM
    }
 
    // check if the pathToChild points to a list
+
+   // this check is not complete, because boost::ptree can not
+   // distinguish between and empty list and an empty string. In both cases
+   // the value is empty and there are no children
+
    if ( list.get().empty() ) {
-      throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' is not a list [] but a simple attribute, it needs to be accessed via [\"" + pathToChild + "\"] -> string");
+      if ( list.get().get_value<std::string>() != "" ) {
+         // if the value is not empty, then it is for sure an attribute ("key" : "value")
+         throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' is not a list [] but a simple attribute, it needs to be accessed via [\"" + pathToChild + "\"] -> string");
+      }
+      // else: if the value is empty, we can not say for sure and will not
+      // give this debugging hint (an empty list will be returned
    } else if ( ! list.get().front().first.empty() ) {
       throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' is not a list [] but an object {}, it needs to be accessed via getObject(\"" + pathToChild + "\") -> DataStructure");
    }
