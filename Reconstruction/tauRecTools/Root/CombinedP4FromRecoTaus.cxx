@@ -35,64 +35,82 @@ CombinedP4FromRecoTaus::CombinedP4FromRecoTaus(const std::string& name) :
 
 //_____________________________________________________________________________
 StatusCode CombinedP4FromRecoTaus::initialize() {
+  
+  m_correlationHists.resize(m_modeNames.size());
+  
+  m_meanTGraph_CellBased2PanTau.resize(m_etaBinNames.size());
+  m_resTGraph_CellBased2PanTau.resize(m_etaBinNames.size());
+  m_meanTGraph_tauRec.resize(m_etaBinNames.size());
+  m_resTGraph_tauRec.resize(m_etaBinNames.size());
 
-  m_resTGraph_tauRec = std::vector< std::vector<TGraph*> >(m_etaBinNames.size(), std::vector<TGraph*>(0) );
-  m_resTGraph_CellBased2PanTau = std::vector< std::vector<TGraph*> >(m_etaBinNames.size(), std::vector<TGraph*>(0) );   
-  m_meanTGraph_CellBased2PanTau = std::vector< std::vector<TGraph*> >(m_etaBinNames.size(), std::vector<TGraph*>(0) );
-  m_meanTGraph_tauRec = std::vector< std::vector<TGraph*> >(m_etaBinNames.size(), std::vector<TGraph*>(0) );
+  for (size_t i=0; i<m_etaBinNames.size(); ++i) {
+    m_meanTGraph_CellBased2PanTau[i].resize(m_modeNames.size());
+    m_resTGraph_CellBased2PanTau[i].resize(m_modeNames.size());
+    m_meanTGraph_tauRec[i].resize(m_modeNames.size());
+    m_resTGraph_tauRec[i].resize(m_modeNames.size());
+  }
 
-  m_correlationHists = std::vector<TH1F*>(0);
-
-    std::string calibFilePath = find_file(m_sWeightFileName);
-  TFile * file = TFile::Open(calibFilePath.c_str(), "READ");
+  std::string calibFilePath = find_file(m_sWeightFileName);
+  std::unique_ptr<TFile> file(TFile::Open(calibFilePath.c_str(), "READ"));
 
   m_Nsigma_compatibility=std::make_unique<TF1>("Nsigma_compatibility", "pol1", 0, 500000); // needs to go beyond ~420 where it crosses y=0
   m_Nsigma_compatibility->SetParameter(0, 3.809); // derived from fit
   m_Nsigma_compatibility->SetParameter(1, -9.58/1000000.); // derived from fit
 
-  TH1F* histogram(0);
+  //retrieve correlation histgram
+  TH1F* histogram(nullptr);
   std::string histname="";
-  TGraph* Graph(0);
-  std::string Graphname="";
-
+  
   //loop over decay modes
-  for(size_t imode=0;imode < m_modeNames.size();imode++){
+  for(size_t imode=0; imode < m_modeNames.size(); ++imode){
     
     ATH_MSG_DEBUG("mode = " << imode);
 
     histname="CorrelationCoeff_tauRec_" + m_modeNames[imode];
     histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
     if(histogram){
-      m_correlationHists.push_back(histogram);
+      histogram->SetDirectory(0);
+      m_correlationHists[imode] = std::unique_ptr<TH1F>(histogram);
       ATH_MSG_DEBUG("Adding corr hist: "); 
+    }
+    else {
+      ATH_MSG_FATAL("Failed to get an object with name " << histname);
+      return StatusCode::FAILURE;
     }
   }
 
+  //retrieve mean and resolution graph
+  TGraph* Graph(nullptr);
+  std::string Graphname="";
 
   //loop over eta bins
-  for(size_t ietaBin=0;ietaBin < m_etaBinNames.size(); ietaBin++){
+  for(size_t ietaBin=0; ietaBin < m_etaBinNames.size(); ++ietaBin){
   
     //loop over decay modes
-    for(size_t imode=0;imode < m_modeNames.size();imode++){
+    for(size_t imode=0; imode < m_modeNames.size(); ++imode){
 
       ATH_MSG_DEBUG("eta bin = " << ietaBin << " / mode = " << imode );
       
+      // retrieve resolution graph 
       Graphname = "tauRec/Graph_from_ResolutionEt_tauRec_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
       Graph = dynamic_cast<TGraph*> (file->Get(Graphname.c_str()));
       if(Graph){
-	m_resTGraph_tauRec[ietaBin].push_back(Graph);
-	ATH_MSG_DEBUG("Adding graph: ");
-      } else {
+        m_resTGraph_tauRec[ietaBin][imode] = std::unique_ptr<TGraph>(Graph);
+        ATH_MSG_DEBUG("Adding graph: ");
+      } 
+      else {
        	ATH_MSG_FATAL("Failed to get an object with name " << Graphname);
-	return StatusCode::FAILURE;
+        return StatusCode::FAILURE;
       }
 
+      // retrieve mean graph
       Graphname = "tauRec/Graph_from_MeanEt_tauRec_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
       Graph = dynamic_cast<TGraph*> (file->Get(Graphname.c_str()));
       if(Graph) {
-	m_meanTGraph_tauRec[ietaBin].push_back(Graph);
-	ATH_MSG_DEBUG("Adding graph: ");
-      } else {
+        m_meanTGraph_tauRec[ietaBin][imode] = std::unique_ptr<TGraph>(Graph);
+        ATH_MSG_DEBUG("Adding graph: ");
+      } 
+      else {
        	ATH_MSG_FATAL("Failed to get an object with name " << Graphname);
        	return StatusCode::FAILURE;
       }
@@ -100,26 +118,27 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
       Graphname = "ConstituentEt/Graph_from_ResolutionEt_ConstituentEt_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
       Graph = dynamic_cast<TGraph*> (file->Get(Graphname.c_str()));
       if(Graph){
-	m_resTGraph_CellBased2PanTau[ietaBin].push_back(Graph);
-	ATH_MSG_DEBUG("Adding graph: ");
-      } else {
-	ATH_MSG_FATAL("Failed to get an object with name " << Graphname);
+        m_resTGraph_CellBased2PanTau[ietaBin][imode] = std::unique_ptr<TGraph>(Graph);
+        ATH_MSG_DEBUG("Adding graph: ");
+      } 
+      else {
+        ATH_MSG_FATAL("Failed to get an object with name " << Graphname);
        	return StatusCode::FAILURE;
       }
       
       Graphname = "ConstituentEt/Graph_from_MeanEt_ConstituentEt_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
       Graph = dynamic_cast<TGraph*> (file->Get(Graphname.c_str()));
       if(Graph){
-	m_meanTGraph_CellBased2PanTau[ietaBin].push_back(Graph);
-	ATH_MSG_DEBUG("Adding graph: ");
-      } else {
+        m_meanTGraph_CellBased2PanTau[ietaBin][imode] = std::unique_ptr<TGraph>(Graph);
+        ATH_MSG_DEBUG("Adding graph: ");
+      } 
+      else {
        	ATH_MSG_FATAL("Failed to get an object with name " << Graphname);
        	return StatusCode::FAILURE;
       }
-      
     }
-    
   }
+  file->Close();
 
   return StatusCode::SUCCESS;
 

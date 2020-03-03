@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 #
 # Params for EventInfo classes
@@ -25,7 +27,7 @@ class EventInfoParams:
     
         def Print (cls):
             for attr in dir(cls)[:]:
-                print attr
+                print (attr)
 
         def is_simulation_bit (self):
             return self.is_simulation

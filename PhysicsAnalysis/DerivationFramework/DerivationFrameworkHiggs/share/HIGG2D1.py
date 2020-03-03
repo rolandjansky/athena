@@ -115,7 +115,7 @@ if useGenericTruthThinning:
 else:
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
     HIGG2D1TruthThinningTool = DerivationFramework__MenuTruthThinning(name                         = "HIGG2D1TruthThinningTool",
-                                                                      ThinningService              = "HIGG2D1ThinningSvc",
+                                                                      StreamName                   = streamName,
                                                                       WritePartons                 = False,
                                                                       WriteHadrons                 = False,
                                                                       WriteBHadrons                = True,

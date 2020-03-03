@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 
@@ -79,7 +79,7 @@ int main() {
   VALUE( ser == nullptr ) EXPECTED ( false );
 
   TriggerEDMDeserialiserAlg deser ("deserialiser", pSvcLoc);  deser.addRef();
-  deser.sysInitialize();
+  VALUE( deser.sysInitialize() ) EXPECTED ( StatusCode::SUCCESS );
 
   IProxyDict* xdict = &*deser.evtStore();
   xdict = deser.evtStore()->hiveProxyDict();

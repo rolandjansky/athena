@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # art-description: Legacy trigger test on MC with v7 primaries menu
-# art-type: build
+# art-type: grid
 # art-include: master/Athena
 # art-output: *.txt
 # art-output: *.log

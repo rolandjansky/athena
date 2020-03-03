@@ -38,7 +38,7 @@ atlas_add_library( TrigConfIOSA
 
 atlas_add_executable( TestTriggerMenuAccess utils/TestTriggerMenuAccess.cxx 
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-  LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfData TrigConfIO
+  LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfDataSA TrigConfIOSA
   )
 
 atlas_add_executable( TriggerMenuRW utils/TriggerMenuRW.cxx 

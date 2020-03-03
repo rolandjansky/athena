@@ -27,7 +27,7 @@ using std::string;
 
 TauPi0ScoreCalculator::TauPi0ScoreCalculator( const string& name ) :
   TauRecToolBase(name),
-  m_mvaBDT(0),
+  m_mvaBDT(nullptr),
   m_Abs_FIRST_ETA(0),
   m_SECOND_R(0),
   m_SECOND_LAMBDA(0),
@@ -86,7 +86,7 @@ StatusCode TauPi0ScoreCalculator::initialize()
   std::string weightFile = find_file(m_weightfile);
 
   m_mvaBDT = tauRecTools::configureMVABDT(m_availableVars, weightFile);
-  if(m_mvaBDT==0) {
+  if(m_mvaBDT==nullptr) {
     ATH_MSG_FATAL("Couldn't configure MVA");
     return StatusCode::FAILURE;
   }

@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -148,7 +148,7 @@ StatusCode  HLTEDMCreator::viewsMerge( ViewContainer const& views, const SG::Rea
   StoreGateSvc* sg = evtStore().operator->(); // why the get() method is returing a null ptr is a puzzle, we have to use this ugly call to operator instead of it
   CHECK( sg != nullptr );
   ViewHelper::ViewMerger merger( sg, msg() );
-  merger.mergeViewCollection<type_in_container>( views, inViewKey, context, output );
+  CHECK( merger.mergeViewCollection<type_in_container>( views, inViewKey, context, output ) );
 
   return StatusCode::SUCCESS;
 }

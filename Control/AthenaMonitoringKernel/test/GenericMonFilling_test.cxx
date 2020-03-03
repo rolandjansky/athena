@@ -37,14 +37,14 @@
 
 const TH1* getHist( ITHistSvc* histSvc, const std::string& histName ) {
   TH1* h( nullptr );
-  histSvc->getHist( histName, h );
+  assert( histSvc->getHist( histName, h ).isSuccess() );
   VALUE( h ) NOT_EXPECTED( ( TH1* )nullptr );
   return h;
 }
 
 TTree* getTree( ITHistSvc* histSvc, const std::string& treeName ) {
   TTree* t( nullptr );
-  histSvc->getTree( treeName, t );
+  assert( histSvc->getTree( treeName, t ).isSuccess() );
   VALUE( t ) NOT_EXPECTED( ( TTree* )nullptr );
   return t;
 }
@@ -74,7 +74,7 @@ double contentInBin1DHist( ITHistSvc* histSvc, const std::string& histName, int 
 
 double contentInBin2DHist( ITHistSvc* histSvc, const std::string& histName, int bin1, int bin2 ) {
   TH2* h( nullptr );
-  histSvc->getHist( histName, h );
+  assert( histSvc->getHist( histName, h ).isSuccess() );
   // this are in fact securing basic correctness of the tests
   VALUE( h ) NOT_EXPECTED( nullptr );
   VALUE( bin1 >= 1 ) EXPECTED( true );

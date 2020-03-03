@@ -699,7 +699,7 @@ StatusCode AthenaMtesEventLoopMgr::stop()
   // So make sure that all stores have been cleared at this point.
   size_t nslot = m_whiteboard->getNumberOfStores();
   for (size_t islot = 0; islot < nslot; islot++) {
-    clearWBSlot (islot);
+    sc &= clearWBSlot (islot);
   }
 
   Gaudi::Hive::setCurrentContext( EventContext() );

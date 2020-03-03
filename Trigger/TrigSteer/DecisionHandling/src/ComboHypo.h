@@ -11,6 +11,7 @@
 // STL includes
 #include <string>
 #include <utility>  
+#include "IComboHypoTool.h"
 
 /**
  * @class ComboHypo for combined hypotheses required only counting (multiplicity requirements)
@@ -22,6 +23,8 @@
  * the multiplicity specification like this:
  * "HLT_4e10_2mu7_j100" : [ 4, 2, 1 ] will apply respectively requirement of 4, 2, 1 positive decisions in electron, muon and jet inputs
  **/
+
+
 class ComboHypo : public ::AthReentrantAlgorithm {
 public:
   ComboHypo(const std::string& name, ISvcLocator* pSvcLocator);
@@ -47,7 +50,9 @@ private:
   * @brief iterates over the inputs and for every object (no filtering) crates output object linked to input moving 
   * the decisions that are mentioned in the passing set
   **/
-  StatusCode copyDecisions( const TrigCompositeUtils::DecisionIDContainer& passing, const EventContext& context ) const;
+  
+  StatusCode copyDecisions( LegDecisionsMap & passingComb, const EventContext& context ) const;
+
 
   /**
    * @brief For a given Decision node from a HypoAlg, extracts type-less identification data on the node's Feature and seeding ROI.
@@ -65,8 +70,10 @@ private:
   /**
    * @brief iterates over all inputs, associating inputs to legs
    **/
-  typedef std::map<TrigCompositeUtils::DecisionID, ElementLinkVector<TrigCompositeUtils::DecisionContainer>> LegDecisionsMap;
+
   StatusCode fillDecisionsMap( LegDecisionsMap& dmap, const EventContext& context) const;
+
+  ToolHandleArray< IComboHypoTool > m_hypoTools {this, "ComboHypoTools", {}, "Tools to perform selection"};
 
 };
 

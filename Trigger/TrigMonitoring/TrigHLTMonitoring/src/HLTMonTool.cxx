@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTMonTool.cxx
@@ -139,7 +139,7 @@ StatusCode HLTMonTool::fill()
       if(sc.isFailure()) ATH_MSG_WARNING("Filling Result and Consistency histograms failed for HLT");
     }
 
-  fillLvl1Histograms();
+  sc = fillLvl1Histograms();
   if(sc.isFailure()) ATH_MSG_WARNING("Filling Level 1 histograms failed");
   
   std::vector<std::string> myChains; 

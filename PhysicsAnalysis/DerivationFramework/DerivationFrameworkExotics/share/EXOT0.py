@@ -20,11 +20,8 @@ streamName = derivationFlags.WriteDAOD_EXOT0Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT0Stream )
 EXOT0Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT0Stream.AcceptAlgs(["EXOT0Kernel"])
-# Thinning 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT0ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # THINNING TOOLS
@@ -55,7 +52,7 @@ thinningTools.append(EXOT0ElectronTPThinningTool)
 # truth thinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT0TruthTool = DerivationFramework__MenuTruthThinning(name                  = "EXOT0TruthTool",
-                                                        ThinningService       = "EXOT0ThinningSvc",
+                                                        StreamName            = streamName,
                                                         WritePartons          = False,
                                                         WriteHadrons          = False,
                                                         WriteBHadrons         = False,

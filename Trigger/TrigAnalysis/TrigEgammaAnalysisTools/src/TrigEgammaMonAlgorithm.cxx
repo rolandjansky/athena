@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaMonAlgorithm.h"
@@ -32,7 +32,7 @@ StatusCode TrigEgammaMonAlgorithm::initialize() {
 
 
 
-    m_asgtools.retrieve();
+    ATH_CHECK(m_asgtools.retrieve());
 
 
     for ( ToolHandleArray<ITrigEgammaAnalysisBaseTool>::const_iterator itoo=m_asgtools.begin(); itoo!=m_asgtools.end(); ++itoo ) 

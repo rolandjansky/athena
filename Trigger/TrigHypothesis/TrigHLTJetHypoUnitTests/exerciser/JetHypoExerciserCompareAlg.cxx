@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTJetHypoUnitTests/JetHypoExerciserCompareAlg.h"
@@ -141,7 +141,7 @@ StatusCode JetHypoExerciserCompareAlg::execute() {
   bool pass0{false};
 
   timer.start();
-  execute_(m_helper0, jv, collectorName, logname, pass0);
+  ATH_CHECK(execute_(m_helper0, jv, collectorName, logname, pass0));
   timer.stop();
   
   if(!m_visitDebug){
@@ -158,7 +158,7 @@ StatusCode JetHypoExerciserCompareAlg::execute() {
   logname = m_logname + "_ev_" + std::to_string(m_ncall) + "tool1";
   bool pass1;
   timer.start();
-  execute_(m_helper1, jv, collectorName, logname, pass1);
+  ATH_CHECK(execute_(m_helper1, jv, collectorName, logname, pass1));
   timer.stop();
 
   if(!m_visitDebug){

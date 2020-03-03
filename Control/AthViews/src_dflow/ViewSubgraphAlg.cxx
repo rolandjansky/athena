@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ViewSubgraphAlg.h"
@@ -95,7 +95,7 @@ StatusCode ViewSubgraphAlg::execute()
 
   //Store the collection of views
   SG::WriteHandle< ViewContainer > outputViewHandle( m_w_views, ctx );
-  outputViewHandle.record( std::move( viewVector ) );
+  CHECK( outputViewHandle.record( std::move( viewVector ) ) );
 
   return StatusCode::SUCCESS;
 }

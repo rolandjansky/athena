@@ -31,11 +31,8 @@ fileName     = buildFileName( derivationFlags.WriteDAOD_EXOT12Stream )
 EXOT12Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT12Stream.AcceptAlgs(["EXOT12Kernel"])
 
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr   += createThinningSvc( svcName="EXOT12ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # THINNING TOOLS
@@ -82,7 +79,7 @@ thinningTools.append(EXOT12AKt10JetTPThinningTool)
 #Truth Thinning (!!! NOT WORKING FOR athena 19)
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT12MenuHadThinningTool = DerivationFramework__MenuTruthThinning( name = "EXOT12MenuHadThinningTool",
-                                                                 ThinningService = "EXOT12ThinningSvc",
+                                                                 StreamName                 = streamName,
                                                                  WritePartons               = False,#?
                                                                  WriteHadrons               = True,
                                                                  WriteBHadrons              = True,
@@ -102,7 +99,7 @@ EXOT12MenuHadThinningTool = DerivationFramework__MenuTruthThinning( name = "EXOT
                                                                  PreserveDescendants        = False)
 
 EXOT12MenuThinningTool = DerivationFramework__MenuTruthThinning( name = "EXOT12MenuThinningTool",
-                                                                 ThinningService = "EXOT12ThinningSvc",
+                                                                 StreamName                 = streamName,
                                                                  WritePartons               = False,#?
                                                                  WriteHadrons               = False,
                                                                  WriteBHadrons              = False,
@@ -122,7 +119,7 @@ EXOT12MenuThinningTool = DerivationFramework__MenuTruthThinning( name = "EXOT12M
                                                                  PreserveDescendants        = True)
 
 EXOT12MenuStatus3ThinningTool = DerivationFramework__MenuTruthThinning( name = "EXOT12MenuStatus3ThinningTool",
-                                                                 ThinningService = "EXOT12ThinningSvc",
+                                                                 StreamName                 = streamName,
                                                                  WritePartons               = False,#?
                                                                  WriteHadrons               = False,
                                                                  WriteBHadrons              = False,

@@ -281,7 +281,7 @@ def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
     TOPQTruthThinningTool = DerivationFramework__MenuTruthThinning(
                               name                       = TOPQname + "TruthThinningTool",
-                              ThinningService            = TOPQThinningSvc,
+                              StreamName                 = streamName,
                               ParticlesKey               = "TruthParticles",
                               VerticesKey                = "TruthVertices",
                               EventsKey                  = "TruthEvents",
