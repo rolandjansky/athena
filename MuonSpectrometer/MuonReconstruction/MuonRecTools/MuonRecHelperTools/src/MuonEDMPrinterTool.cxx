@@ -55,6 +55,9 @@ namespace Muon {
     ATH_CHECK(m_summaryHelper.retrieve());
 
     ATH_CHECK(m_DetectorManagerKey.initialize());
+    ATH_CHECK(m_mdtKey.initialize());
+    ATH_CHECK(m_rpcKey.initialize());
+    ATH_CHECK(m_tgcKey.initialize());
   
     return StatusCode::SUCCESS;
   }
@@ -718,11 +721,12 @@ namespace Muon {
 
 
     if( isMdt ){
+      SG::ReadHandle<MdtPrepDataContainer> rh_mdt(m_mdtKey);
       const MdtPrepDataContainer* mdtPrdContainer = 0;
-      std::string key = "MDT_DriftCircles";
-      if(evtStore()->retrieve(mdtPrdContainer,key).isFailure()) {
-        ATH_MSG_DEBUG("Cannot retrieve " << key);
+      if(!rh_mdt.isValid()) {
+        ATH_MSG_DEBUG("Cannot retrieve " << m_mdtKey.key());
       }else{
+	mdtPrdContainer = rh_mdt.cptr();
         IdentifierHash hash_id;
         m_idHelperSvc->mdtIdHelper().get_module_hash(chId,hash_id );
         MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(hash_id);
@@ -730,11 +734,12 @@ namespace Muon {
         else 	  ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
       }
     }else if( m_idHelperSvc->isRpc(chId) ){
+      SG::ReadHandle<RpcPrepDataContainer> rh_rpc(m_rpcKey);
       const RpcPrepDataContainer* rpcPrdContainer = 0;
-      std::string key = "RPC_Measurements";
-      if(evtStore()->retrieve(rpcPrdContainer,key).isFailure()) {
-        ATH_MSG_DEBUG("Cannot retrieve " << key);
+      if(!rh_rpc.isValid()) {
+        ATH_MSG_DEBUG("Cannot retrieve " << m_rpcKey.key());
       }else{
+	rpcPrdContainer = rh_rpc.cptr();
         IdentifierHash hash_id;
         m_idHelperSvc->rpcIdHelper().get_module_hash(chId,hash_id );
         RpcPrepDataContainer::const_iterator colIt = rpcPrdContainer->indexFind(hash_id);
@@ -748,11 +753,12 @@ namespace Muon {
         }else ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
       }
     }else if( m_idHelperSvc->isTgc(chId) ){
+      SG::ReadHandle<TgcPrepDataContainer> rh_tgc(m_tgcKey);
       const TgcPrepDataContainer* tgcPrdContainer = 0;
-      std::string key = "TGC_Measurements";
-      if(evtStore()->retrieve(tgcPrdContainer,key).isFailure()) {
-        ATH_MSG_DEBUG("Cannot retrieve " << key);
+      if(!rh_tgc.isValid()) {
+        ATH_MSG_DEBUG("Cannot retrieve " << m_tgcKey.key());
       }else{
+	tgcPrdContainer = rh_tgc.cptr();
         IdentifierHash hash_id;
         m_idHelperSvc->tgcIdHelper().get_module_hash(chId,hash_id );
         TgcPrepDataContainer::const_iterator colIt = tgcPrdContainer->indexFind(hash_id);
