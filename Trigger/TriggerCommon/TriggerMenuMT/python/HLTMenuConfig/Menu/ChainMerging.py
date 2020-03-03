@@ -48,7 +48,7 @@ def mergeParallel(chainDefList, offset):
         from itertools import zip_longest
     else:
         from itertools import izip_longest as zip_longest
-    orderedSteps = list(zip_longest(*allSteps))
+    orderedSteps = list(zip_longest(*allSteps,fillvalue=EmptyMenuSequence()))
     myOrderedSteps = deepcopy(orderedSteps)
 
     combChainSteps =[]
