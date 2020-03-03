@@ -134,7 +134,7 @@ namespace Trk {
          (void)trackPar;
       } 
     
-      StatusCode                               updateTrackingGeometry() const; 
+      void updateTrackingGeometry() const;
       
       
       bool                                               m_validationMode; //!<This becomes a dummy option for now    
