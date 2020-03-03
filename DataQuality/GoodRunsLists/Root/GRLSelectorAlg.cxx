@@ -4,6 +4,7 @@
 
 // GoodRunsLists includes
 #include <GoodRunsLists/GRLSelectorAlg.h>
+#include <AnaAlgorithm/AnaFilterHandleGuard.h>
 #include <AsgTools/MessageCheck.h>
 #include "xAODEventInfo/EventInfo.h"
 
@@ -37,7 +38,7 @@ StatusCode GRLSelectorAlg::finalize() {
 }
 
 StatusCode GRLSelectorAlg::execute() {  
-  ANA_CHECK (m_filterHandle.beginExecute ());
+  EL::AnaFilterHandleGuard filter (m_filterHandle, false);
 
   m_total++;
   const xAOD::EventInfo* evtInfo = 0;
@@ -45,7 +46,7 @@ StatusCode GRLSelectorAlg::execute() {
   if(!m_grlTool->passRunLB(*evtInfo)) return StatusCode::SUCCESS;
 
   m_passed++;
-  ANA_CHECK (m_filterHandle.setPassed (true));
+  filter.setPassed (true);
 
   return StatusCode::SUCCESS;
 }
