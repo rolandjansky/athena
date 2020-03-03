@@ -72,24 +72,14 @@ namespace EL
     StatusCode initialize ();
 
 
-    /// \brief perform any action necessary at the beginning of execute
-    /// \par Guarantee
-    ///   no-fail
-  public:
-    StatusCode beginExecute () noexcept;
-
-
-    /// \brief report the filter decision
-    /// \par Guarantee
-    ///   no-fail
-  public:
-    StatusCode setPassed (bool val_passed) noexcept;
-
-
 
     //
     // private interface
     //
+
+    // this class does most of the actual work, and needs our
+    // internals for that.
+    friend class AnaFilterHandleGuard;
 
     /// \brief the function to call setFilterPassed() on the algorithm
     ///

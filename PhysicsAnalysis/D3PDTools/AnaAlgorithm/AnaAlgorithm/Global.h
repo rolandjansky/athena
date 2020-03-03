@@ -12,6 +12,8 @@
 namespace EL
 {
   class AnaAlgorithm;
+  class AnaFilterHandle;
+  class AnaFilterHandleGuard;
 
 #ifdef ROOTCORE
   class AnaAlgorithmConfig;
