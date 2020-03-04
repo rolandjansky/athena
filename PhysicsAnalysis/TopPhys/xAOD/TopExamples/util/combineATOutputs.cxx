@@ -40,6 +40,7 @@ void CopyDirToNewDir(std::shared_ptr<TDirectory> source, std::shared_ptr<TDirect
             std::shared_ptr<TDirectory> adir{outFile->mkdir(name)};
             outFile->cd();
             CopyDirToNewDir(subdir,adir); // no prefix for sub-directories
+	    adir->Write();
             outFile->cd();
         } else if (cl->InheritsFrom(TTree::Class())) {
             std::unique_ptr<TTree> T{(TTree*)source->Get(key->GetName())};
