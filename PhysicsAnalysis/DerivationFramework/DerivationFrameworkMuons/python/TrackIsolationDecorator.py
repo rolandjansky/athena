@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Add a track isolation updater tool
+
+from __future__ import print_function
 
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -36,7 +38,7 @@ CaloIsoTool.addCaloExtensionDecoration = False
 # if hasattr(CaloIsoTool, 'addCaloExtensionDecoration'): ### somehow does not work
 #     CaloIsoTool.addCaloExtensionDecoration = False
 # CaloIsoTool.OutputLevel = 2
-print CaloIsoTool
+print (CaloIsoTool)
 ToolSvc += CaloIsoTool
 
 
