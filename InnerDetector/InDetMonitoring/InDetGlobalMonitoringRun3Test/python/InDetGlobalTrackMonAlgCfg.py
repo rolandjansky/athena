@@ -1,9 +1,10 @@
 """
 @file InDetGlobalTrackMonAlgCfg.py
 @author Leonid Serkin
-@date November 2019
+@date March 2020
 @brief Configuration for Run 3 based on InDetGlobalTrackMonTool.cxx
 """
+from math import pi
 
 def InDetGlobalTrackMonAlgCfg(helper, alg, **kwargs):
 
@@ -18,7 +19,7 @@ def InDetGlobalTrackMonAlgCfg(helper, alg, **kwargs):
     m_c_etaRangeTRT = 2.0
     m_c_range_LB = 3000
     m_trackMax = 75
-    M_PI = 3.141592
+    M_PI = math.pi
 
     # this creates a "trackGroup" called "alg" which will put its histograms into the subdirectory "Track"
     trackGroup = helper.addGroup(alg, 'Track')
