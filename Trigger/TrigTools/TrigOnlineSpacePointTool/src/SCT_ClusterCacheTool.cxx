@@ -221,10 +221,10 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 	    << " is found in StoreGate");
     }
 
-  InDetBSErrContainer* bsErrCont{nullptr};
+  IDCInDetBSErrContainer* bsErrCont{nullptr};
   if (m_useOfflineDecoder) {
     if (!evtStore()->transientContains<InDetBSErrContainer>(m_bsErrContainerName)) {
-      bsErrCont = new InDetBSErrContainer();
+      bsErrCont = new IDCInDetBSErrContainer(m_sct_id->wafer_hash_max(), std::numeric_limits<int>::min());
       if (evtStore()->record(bsErrCont, m_bsErrContainerName, true, true).isFailure()) {
         ATH_MSG_FATAL("Unable to record " << m_bsErrContainerName);
         return StatusCode::FAILURE;
@@ -341,10 +341,10 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 
 	      StatusCode scRod = StatusCode::SUCCESS;
 	      if(!isFullScan) {
-		scRod=m_offlineDecoder->fillCollection(*robFrag,*m_rdoContainer,bsErrCont,&reducedList);
+		scRod=m_offlineDecoder->fillCollection(*robFrag,*m_rdoContainer,*bsErrCont,&reducedList);
 	      }
 	      else {
-		scRod=m_offlineDecoder->fillCollection(*robFrag,*m_rdoContainer,bsErrCont,NULL);
+		scRod=m_offlineDecoder->fillCollection(*robFrag,*m_rdoContainer,*bsErrCont,NULL);
 	      }
 	      if(scRod.isRecoverable())
 		{
