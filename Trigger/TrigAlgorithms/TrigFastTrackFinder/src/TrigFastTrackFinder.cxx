@@ -559,13 +559,12 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   auto mnt_roi_nSPsSCT = Monitored::Scalar<int>("roi_nSPsSCT", 0);
   auto monSP = Monitored::Group(m_monTool, mnt_roi_nSPsPIX, mnt_roi_nSPsSCT);
 
-  auto mnt_timer_SpacePointConversion  = Monitored::Timer("TIME_SpacePointConversion");
-  auto mnt_timer_ZFinder               = Monitored::Timer("TIME_ZFinder");
-  auto mnt_timer_PatternReco           = Monitored::Timer("TIME_PattReco");
-  auto mnt_timer_TripletMaking         = Monitored::Timer("TIME_Triplets");
-  auto mnt_timer_CombTracking          = Monitored::Timer("TIME_CmbTrack");
-  auto mnt_timer_TrackFitter           = Monitored::Timer("TIME_TrackFitter");
-  auto monTime = Monitored::Group(m_monTool, mnt_roi_nTracks, mnt_roi_nSPs, mnt_timer_SpacePointConversion, mnt_timer_ZFinder,
+  auto mnt_timer_SpacePointConversion  = Monitored::Timer<std::chrono::milliseconds>("TIME_SpacePointConversion");
+  auto mnt_timer_PatternReco           = Monitored::Timer<std::chrono::milliseconds>("TIME_PattReco");
+  auto mnt_timer_TripletMaking         = Monitored::Timer<std::chrono::milliseconds>("TIME_Triplets");
+  auto mnt_timer_CombTracking          = Monitored::Timer<std::chrono::milliseconds>("TIME_CmbTrack");
+  auto mnt_timer_TrackFitter           = Monitored::Timer<std::chrono::milliseconds>("TIME_TrackFitter");
+  auto monTime = Monitored::Group(m_monTool, mnt_roi_nTracks, mnt_roi_nSPs, mnt_timer_SpacePointConversion,
 				  mnt_timer_PatternReco, mnt_timer_TripletMaking, mnt_timer_CombTracking, mnt_timer_TrackFitter);
 
   auto mnt_roi_lastStageExecuted = Monitored::Scalar<int>("roi_lastStageExecuted", 0);
@@ -616,8 +615,11 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   if (m_doZFinder) {
 
     if ( timerSvc() ) m_ZFinderTimer->start();
-
-    mnt_timer_ZFinder.start(); // Run3 monitoring
+    // Run3 monitoring ---------->
+    auto mnt_timer_ZFinder = Monitored::Timer<std::chrono::milliseconds>("TIME_ZFinder");
+    auto monTimeZFinder    = Monitored::Group(m_monTool, mnt_timer_ZFinder);
+    mnt_timer_ZFinder.start();
+    // <---------- Run3 monitoring
     m_tcs.m_vZv.clear();
 
     /// create a new internal superRoi - should really record this
