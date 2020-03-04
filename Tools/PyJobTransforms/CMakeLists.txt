@@ -12,7 +12,6 @@ find_package( cx_Oracle )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( scripts/*.py )
-atlas_install_runtime( test/PyJobTransforms_TestConfiguration.xml )
 atlas_install_generic( share/*.db
                        DESTINATION share
                        EXECUTABLE )
