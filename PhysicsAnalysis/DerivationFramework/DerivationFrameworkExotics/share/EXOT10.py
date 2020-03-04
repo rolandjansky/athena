@@ -125,7 +125,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 EXOT10SkimmingTool = DerivationFramework__xAODStringSkimmingTool(	name = "EXOT10SkimmingTool1",
 																	expression = expression)
 ToolSvc += EXOT10SkimmingTool
-print EXOT10SkimmingTool
+printfunc (EXOT10SkimmingTool)
 
 #====================================================================
 # Max Cell sum decoration tool
