@@ -313,8 +313,6 @@ class EmptyMenuSequence(object):
         self._name = "Empty"
         self._maker       = InputMakerNode( Alg = Maker )
         self._seed=''
-        self.multiplicity = 0
-
 
     @property
     def seed(self):
