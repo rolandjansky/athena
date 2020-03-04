@@ -4,10 +4,9 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "MbtsFexMT.h"
 
 MbtsFexMT::MbtsFexMT(const std::string& name, ISvcLocator* pSvcLocator):
-AthReentrantAlgorithm(name, pSvcLocator),
-m_dataAccessSvc( "TrigCaloDataAccessSvc/TrigCaloDataAccessSvc", name )
+AthReentrantAlgorithm(name, pSvcLocator)
 {
-  declareProperty("TrigDataAccessMT",m_dataAccessSvc,"Data Access for LVL2 Calo Algorithms in MT");
+
 }
 
 MbtsFexMT::~MbtsFexMT()

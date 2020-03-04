@@ -39,10 +39,9 @@ public:
   virtual StatusCode execute(const EventContext& context) const override;
 
 private:
-  SG::WriteHandleKey<xAOD::TrigT2MbtsBitsContainer> m_t2MbtsBitsKey{this,"t2MbtsBitsKey","Undefined",""};
-  SG::ReadHandleKey<TileTBID> m_TileHelperKey{this,"m_TileHelperKey", "DetectorStore+TileTBID"," "};
-
-  ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc;
+  SG::WriteHandleKey<xAOD::TrigT2MbtsBitsContainer> m_t2MbtsBitsKey{this,"t2MbtsBitsKey","MbtsBitsContainer"," "};
+  SG::ReadHandleKey<TileTBID> m_TileHelperKey{this,"TileHelperKey", "DetectorStore+TileTBID"," "};
+  ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc{ this, "TrigDataAccessMT", "TrigCaloDataAccessSvc/TrigCaloDataAccessSvc", "Data Access for LVL2 Calo Algorithms in MT" };
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
 
