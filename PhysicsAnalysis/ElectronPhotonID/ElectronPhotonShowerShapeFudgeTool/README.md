@@ -279,6 +279,8 @@ to as the `wrapper`), the `wrapper` tool is designed to be used embedded in a co
 which should be corrected. It is not able to open root files or retrieve trees or apply object selection itself, but only
 focuses on the correction of objects passed to it.
 
+You can use one instance of the `wrapper` to correct electrons, converted photons and unconverted photons at the same time.
+
 #### Instantiate the tool using AnaToolHandle
 
 The tool must be integrated in code which provides it with the objects which should be corrected. To include the tool,
@@ -388,8 +390,9 @@ ElectronConfigs: /path/to/first.conf;
 +ElectronConfigs: /path/to/third.conf
 ```
 
-Note that there should be a semicolon after every line but the last one.
-If you want to use the same configuration file for correcting a variable on different object types (i.e. (un)converted photons
-and electrons), you must provide it twice or three times to the tool - once using each flag.
+Note that there should be a semicolon after every line but the last one. Also note that you can use one instance of the tool
+to correct electrons, converted photons and unconverted photons at the same time - just pass it all the respective configuration
+files using the according flags. If you want to use the same configuration file for correcting a variable on different object
+types (i.e. (un)converted photons and electrons), you must provide it twice or three times to the tool - once using each flag.
 
 [(back to the top)](#readme)
