@@ -251,7 +251,7 @@ SCT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   }
 
   // init base object
-  if (AtlasDetectorID::initialize_from_dictionary(dict_mgr)) return(1);
+  if (AtlasDetectorID::initialize_from_dictionary(dict_mgr)) return(2);
 
   // Register version of InnerDetector dictionary
   if (register_dict_tag(dict_mgr, "InnerDetector")) return(1);
