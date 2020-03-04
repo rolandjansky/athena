@@ -4,7 +4,7 @@ from __future__ import print_function
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from IOVDbSvcConfig import addFoldersSplitOnline, addFolders
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
 
 def InDetTrackSummaryHelperToolCfg(flags, name='InDetTrackSummaryHelperTool', **kwargs):
   result = InDetTrackHoleSearchToolCfg(flags)
@@ -193,13 +193,7 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
   
   if not flags.Input.isMC :
       print ("Conditions db instance is ", flags.IOVDb.DatabaseInstance)
-      # Load Tdaq enabled tools for data only and add some to summary tool for data only
-      tdaqFolder = '/TDAQ/EnabledResources/ATLAS/SCT/Robins'
-      if ( flags.IOVDb.DatabaseInstance == "CONDBR2"):
-          tdaqFolder = '/TDAQ/Resources/ATLAS/SCT/Robins'
-      # Load TdaqEnabled tool
-      TdaqCondAlg_kwargs={"tdaqFolder":tdaqFolder} # FIXME Not sure if this is correct? Just fixed typo. EJWM.
-      TdaqToolAcc = SCT_TdaqEnabledToolCfg(flags, TdaqCondAlg_kwargs=TdaqCondAlg_kwargs)
+      TdaqToolAcc = SCT_TdaqEnabledToolCfg(flags)
       SCT_TdaqEnabledTool = TdaqToolAcc.popPrivateTools()
       acc.merge(TdaqToolAcc)
       if (flags.InDet.doPrintConfigurables):
@@ -289,6 +283,41 @@ def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsT
 
   return acc
 
+def getSCTDAQConfigFolder(flags) :
+  if flags.InDetFlags.ForceCoolVectorPayload and flags.InDetFlags.ForceCoraCool :
+        raise Exception('SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected')  
+  return '/SCT/DAQ/Config/' if (    flags.InDetFlags.ForceCoolVectorPayload
+                                      or (flags.conddb.dbdata != "COMP200"
+                                          and not flags.InDetFlags.ForceCoraCool)) else '/SCT/DAQ/Configuration/'
+
+
+def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ReadCalibDataTool", **kwargs):
+  acc = ComponentAccumulator()
+  config_folder_prefix = getSCTDAQConfigFolder(flags)
+  kwargs.setdefault("ReadKeyChannel", config_folder_prefix+"Chip")
+  kwargs.setdefault("ReadKeyModule", config_folder_prefix+"Module")
+  kwargs.setdefault("ReadKeyMur", config_folder_prefix+"MUR")
+
+  acc.merge(addFoldersSplitOnline(flags,
+                                           detDb="SCT",
+                                           online_folders=config_folder_prefix+"Chip",
+                                           offline_folders=config_folder_prefix+"Chip",
+                                           className='CondAttrListVec',
+                                           splitMC=True))
+  acc.merge(addFoldersSplitOnline(flags,
+                                           detDb="SCT",
+                                           online_folders=config_folder_prefix+"Module",
+                                           offline_folders=config_folder_prefix+"Module",
+                                           className='CondAttrListVec',
+                                           splitMC=True))
+  acc.merge(addFoldersSplitOnline(flags,
+                                           detDb="SCT",
+                                           online_folders=config_folder_prefix+"MUR",
+                                           offline_folders=config_folder_prefix+"MUR",
+                                           className='CondAttrListVec',
+                                           splitMC=True))
+  acc.addCondAlgo(CompFactory.SCT_ConfigurationCondAlg(flags, **kwargs))
+  return acc
 
 def SCT_ReadCalibDataToolCfg(flags, name="SCT_ReadCalibDataTool", cond_kwargs={}, **kwargs):
   acc = ComponentAccumulator()
@@ -310,7 +339,7 @@ def SCT_ReadCalibDataToolCfg(flags, name="SCT_ReadCalibDataTool", cond_kwargs={}
                                            className='CondAttrListVec',
                                            splitMC=True))
 
-  acc.merge(SCT_ReadCalibDataCondAlgCfg(flags,
+  acc.merge(CompFactory.SCT_ReadCalibDataCondAlg(flags,
                                         name = cond_kwargs["ReadCalibDataCondAlgName"],
                                         ReadKeyGain = cond_kwargs["GainFolder"],
                                         ReadKeyNoise = cond_kwargs["NoiseFolder"]))
@@ -339,11 +368,11 @@ def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", *
   acc = ComponentAccumulator()
 
   #FIXME: this makes FolderDB always take precedence over Folder, do we want that?!
-  if not "FolderDb" in kwargs:
+  if  "FolderDb" not in kwargs:
     kwargs["FolderDb"] = kwargs["Folder"]
   acc.merge(addFolders(kwargs["dbInstance"], kwargs["FolderDb"], className="CondAttrListCollection"))
 
-  acc.merge( SCT_MonitorCondAlgCfg(flags, cond_kwargs, name=kwargs["MonitorCondAlgName"]) )
+  acc.merge( CompFactory.SCT_MonitorCondAlg(flags, cond_kwargs, name=kwargs["MonitorCondAlgName"]) )
 
   tool = CompFactory.SCT_MonitorConditionsTool(name, **kwargs)
   acc.setPrivateTools(tool)
@@ -351,14 +380,34 @@ def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", *
   return acc
 
 
-def SCT_ByteStreamErrorsToolCfg(flags):
-  acc = ComponentAccumulator()
-  # acc.setPrivateTools(tool)
+def SCT_ByteStreamErrorsToolCfg(flags, **kwargs):
+  acc = SCT_ConfigurationConditionsToolCfg(flags)
+  kwargs.setdefault("ConfigTool", acc.popPrivateTools())
+  tool = CompFactory.SCT_ByteStreamErrorsTool(**kwargs)
+  acc.setPrivateTools(tool)
   return acc
 
-# def SCT_TdaqEnabledToolCfg(flags):
-#   acc.setPrivateTools(tool)
-#   return acc
+def SCT_TdaqEnabledToolCfg(flags):
+  # Copied from https://gitlab.cern.ch/atlas/athena/blob/master/InnerDetector/InDetConditions/SCT_ConditionsTools/python/SCT_TdaqEnabledToolSetup.py
+  acc = SCT_TdaqEnabledCondAlg(flags)
+  tool = CompFactory.SCT_CablingTool()
+  acc.setPrivateTools(tool)
+  return acc
+
+def SCT_TdaqEnabledCondAlg(flags):
+  if flags.Input.isMC:
+    print("Warning: should not setup SCT_TdaqEnabledCond for MC")
+    return
+  acc = ComponentAccumulator()
+
+  #FIXME - is there a better way to do this? What about run3?
+  folder = '/TDAQ/Resources/ATLAS/SCT/Robins' if (flags.IOVDb.DatabaseInstance == "CONDBR2") else '/TDAQ/EnabledResources/ATLAS/SCT/Robins'
+
+  acc.merge( addFolders(flags, [folder], detDb="TDAQ", className="CondAttrListCollection") )
+
+  # Think there's no need to configure the SCT_CablingTool - the default is fine. 
+  acc.addCondAlgo( CompFactory.SCT_TdaqEnabledCondAlg() )
+  return acc
 
 def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs):
   the_name = makeName( name, kwargs)
