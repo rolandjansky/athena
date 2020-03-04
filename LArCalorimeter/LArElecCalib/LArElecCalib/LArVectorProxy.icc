@@ -105,6 +105,7 @@ std::vector<LArVectorProxy::value_type> LArVectorProxy::asVector() const
 /**
  * @brief Return a pointer to the start of the data.
  */
+inline
 const LArVectorProxy::value_type* LArVectorProxy::data() const
 {
   return m_beg;
