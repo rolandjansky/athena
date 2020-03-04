@@ -24,9 +24,9 @@ private:
     std::vector<int> m_abGroups1;
     std::vector<std::vector<int>> m_abGroups2;
     std::map<std::string,int> m_cGroups1;
-    std::map<std::string,std::map<std::string,int>> m_cGroups2;
+    std::map<std::string,std::map<std::string,std::map<std::string,int>>> m_HitmapGroups;
     SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
-
+//      m_HitmapGroups = buildToolMap<std::string,std::map<std::string,int>>
 protected:
   static const int s_cNearStationIndex;
   static const int s_cFarStationIndex;

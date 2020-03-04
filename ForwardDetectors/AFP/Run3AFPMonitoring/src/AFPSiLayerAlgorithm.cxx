@@ -35,20 +35,17 @@ AFPSiLayerAlgorithm::~AFPSiLayerAlgorithm() {}
 
 StatusCode AFPSiLayerAlgorithm::initialize() {
     using namespace Monitored;
-    
-m_abGroups1 = buildToolMap<int>(m_tools,"AFPSiLayer",2);
-    m_abGroups2 = buildToolMap<std::vector<int>>(m_tools,"AFPSiLayer",4,2);
-    /*
-    std::vector<std::string> layers = {"layer1","layer2"};
-    std::vector<std::string> clusters = {"clusterX","clusterB"};
-    m_cGroups1 = buildToolMap<int>(m_tools,"AFPSiLayer",layers);
-    m_cGroups2 = buildToolMap<std::map<std::string,int>>(m_tools,"AFPSiLayer",layers,clusters);
-    return AthMonitorAlgorithm::initialize();
-    */
-    // We must declare to the framework in initialize what SG objects we are going to use
-    //SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey("AFPSiHits");
+ 
+    std::vector<std::string> layers = { "P0","P1", "P2", "P3"};
+    std::vector<std::string> stations = { "FarStation","NearStation"};
+    std::vector<std::string> sides = { "Aside","Cside"};
 
-    ATH_CHECK(m_afpHitContainerKey.initialize());
+    m_HitmapGroups = buildToolMap<std::map<std::string,std::map<std::string,int>>>(m_tools,"AFPSiLayerTool",sides,stations,layers);
+
+//  std::map<std::string,std::map<std::string,int>> <std::map<std::string,int>> 
+     // We must declare to the framework in initialize what SG objects we are going to use
+    //SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey("AFPSiHits");
+    //    ATH_CHECK(m_afpHitContainerKey.initialize());
     // ...
     return AthMonitorAlgorithm::initialize();
 }
@@ -59,8 +56,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
     // Declare the quantities which should be monitored
     // My histograms:
-    auto h_hitMultiplicity = Monitored::Scalar<int>("h_hitMultiplicity", 0);
-    auto h_timeOverThreshold = Monitored::Scalar<int>("h_timeOverThreshold", 0);
+ //   auto h_hitMultiplicity = Monitored::Scalar<int>("h_hitMultiplicity", 0);
+ //   auto h_timeOverThreshold = Monitored::Scalar<int>("h_timeOverThreshold", 0);
     //auto h_hitMap = Monitored::Scalar<int>("h_hitMap", 0);
     // End
 /*	
@@ -76,8 +73,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto pT_passed = Monitored::Scalar<bool>("pT_passed",false);
 */
     // Set the values of the monitored variables for the event
-    h_timeOverThreshold = lbAverageInteractionsPerCrossing(ctx);
-    h_hitMultiplicity = lbAverageInteractionsPerCrossing(ctx);
+  //  h_timeOverThreshold = lbAverageInteractionsPerCrossing(ctx);
+  //  h_hitMultiplicity = lbAverageInteractionsPerCrossing(ctx);
     //    h_hitMap = lbAverageInteractionsPerCrossing(ctx);
 /*
     lumiPerBCID = lbAverageInteractionsPerCrossing(ctx);
@@ -145,7 +142,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
     //ATH_CHECK( afpHitContainerKey.initialize() );
  //for (const auto& muonItr : *muons) {
-    for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
+  /*  for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
     {
        std::cout << hitsItr->stationID() << std::endl;
 
@@ -162,7 +159,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	}
 
     }
-
+*/
 	//m_cNearStation.eventEnd();
 	//m_cFarStation.eventEnd();
 
