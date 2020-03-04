@@ -736,7 +736,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   long int trackIndex=0;
 
-  if(m_checkSeedRedundancy) m_siClusterMap.clear();
+  std::map<Identifier, std::vector<long int> > siClusterMap;
 
   bool PIX = true;
   bool SCT = true;
@@ -756,7 +756,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
       extractClusterIds(osp1, clusterIds);
       extractClusterIds(osp2, clusterIds);
       extractClusterIds(osp3, clusterIds);
-      if(usedByAnyTrack(clusterIds, m_siClusterMap)) {
+      if(usedByAnyTrack(clusterIds, siClusterMap)) {
         continue;
       }
     }
@@ -779,7 +779,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
         }
         if(m_checkSeedRedundancy) {
           //update clusterMap 
-          updateClusterMap(trackIndex++, (*t), m_siClusterMap);
+          updateClusterMap(trackIndex++, (*t), siClusterMap);
         }
         if(m_doCloneRemoval) {
           qualityTracks.push_back(std::make_tuple(true, -trackQuality((*t)), (*t)));
