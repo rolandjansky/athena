@@ -3,16 +3,16 @@
 */
 
 /**
- * @file   AFPSiHit_v1.h
+ * @file   AFPSiHit_v2.h
  * @author Grzegorz Gach <grzegorz.gach@cern.ch>
- * @date   2016-07-13
+ * @date   2017-04-26
  * 
- * @brief  Header file for AFPSiHit_v1 class representing a hit in AFP track detector.
+ * @brief  Header file for AFPSiHit_v2 class representing a hit in AFP track detector.
  * 
  */
 
-#ifndef XAODFORWARD_VERSIONS_AFPSIHIT_V1_H
-#define XAODFORWARD_VERSIONS_AFPSIHIT_V1_H
+#ifndef XAODFORWARD_VERSIONS_AFPSIHIT_V2_H
+#define XAODFORWARD_VERSIONS_AFPSIHIT_V2_H
 
 // EDM include(s):
 #include "AthContainers/AuxElement.h"
@@ -24,26 +24,17 @@
 
 namespace xAOD {
 
-  // forward declaration
-  class AFPTrack_v1;
-  typedef DataVector< AFPTrack_v1 > AFPTrackContainer_v1;
-
   /**
    * @brief Class representing a hit in silicon detector.
    * 
    * This class provides information about a single hit in AFP silicon
    * detector.
    */
-  class AFPSiHit_v1 : public SG::AuxElement
-  //  class AFPSiHit_v1 : public  SG::AuxElement
+  class AFPSiHit_v2 : public SG::AuxElement
   {
   public:
-    /// Type of a link to the track
-    typedef ElementLink< AFPTrackContainer_v1 > AFPTrackLink_t;
-
-    
     // needed by athenaRoot 
-    AFPSiHit_v1();
+    AFPSiHit_v2();
 
     /** 
      * @brief Charge deposited in the pixel.
@@ -54,8 +45,6 @@ namespace xAOD {
      * there may be small deviations.
      * 
      * @return charge deposited in the pixel
-     *
-     * @ingroup getters
      */
     float depositedCharge() const;
 
@@ -63,10 +52,8 @@ namespace xAOD {
      * @brief Method setting value of the charge deposited in the pixel.
      * 
      * @param charge value of the charge deposited in the pixel
-     *
-     * @ingroup setters
      */
-    void setDepositedCharge(float charge);                      // amplitude of the signal for given pixel
+    void setDepositedCharge(float charge);
 
     /** 
      * @brief Time over threshold of signal for a pixel.
@@ -78,8 +65,6 @@ namespace xAOD {
      * pixel.
      * 
      * @return time over threshold of the signal
-     *
-     * @ingroup getters
      */
     float timeOverThreshold() const;
 
@@ -87,72 +72,37 @@ namespace xAOD {
      * @brief Method setting value of time over threshold.
      * 
      * @param timeOverThreshold value of the time over threshold for a pixel
-     *
-     * @ingroup setters
      */
-    void setTimeOverThreshold(float timeOverThreshold);                      // amplitude of the signal for given pixel
-
-    
-    // float discriminator() const;                      // Constant fraction discriminator time for given pixel
-    // void setDiscriminator(float discriminator);                      // Constant fraction discriminator time for given pixel
-
+    void setTimeOverThreshold(float timeOverThreshold);
 
     /**
      * @brief Index of the station with pixel hit 
      * 
-     * Stations indexing follows the scheme
+     * It is advised to use class xAOD::AFPStationID instead of
+     * integers to process this information. In this class the
+     * numbering scheme is explained.
      *
-     * | Station ID | Station Name        | Station Position |
-     * | :--------: | ------------------- | ---------------- |
-     * |    0       | far station A side  | z = 217 m        |
-     * |    1       | near station A side | z = 205 m        |
-     * |    2       | near station C side | z = -205 m       |
-     * |    3       | far station C side  | z = -217 m       |
-     * 
-     * @return index of the station
-     *
-     * @ingroup getters
+     * @return index of the station (see class xAOD::AFPStationID )
      */
     int stationID() const;
 
     /**
      * @brief Set index of the station with pixel hit 
      * 
-     * @copydetails xAOD::AFPSiHit_v1::stationID()
+     * @copydetails xAOD::AFPSiHit_v2::stationID()
      *
      * @param stationID index of the station with the hit
-     *
-     * @ingroup setters
      */
     void setStationID(int stationID);
 
     /** 
      * @brief Index of the layer of pixels, i.e. the silicon detector, with hit.
      * 
-     * Index of the pixel layer where the hit was recorded. The layer
-     * closest to the interaction point has index 0, the layer furthest
-     * away from the interaction point has index 3.
+     * It is advised to use class xAOD::AFPPixelLayerID instead of
+     * integers to process this information. In this class the
+     * numbering scheme is explained.
      *
-     * <table>
-     * <tr>
-     *  <th colspan="4">Far Station A Side (ID = 0) </th>
-     *  <td align="center"> </td>
-     *  <th colspan="4">Near Station A Side (ID = 1) </th>
-     *  <td align="center"> </td>
-     *  <th colspan="4">Near Station C Side (ID = 2) </th>
-     *  <td align="center"> </td>
-     *  <th colspan="4">Far Station C Side (ID = 3) </th>
-     * </tr>
-     * <tr>
-     *  <td align="center">3</td><td align="center">2</td><td align="center">1</td><td align="center">0</td> <th> </th>  <td align="center">3</td><td align="center">2</td><td align="center">1</td><td align="center">0</td>
-     *  <th>INTERACTION POINT </th>
-     *  <td align="center">0</td><td align="center">1</td><td align="center">2</td><td align="center">3</td> <th> </th>  <td align="center">0</td><td align="center">1</td><td align="center">2</td><td align="center">3</td>
-     * </tr>
-     * </table>
-     *
-     * @return index of the pixels layer with hit
-     *
-     * @ingroup getters
+     * @return index of the pixels layer with hit (see class xAOD::AFPPixelLayerID )
      */    
     int pixelLayerID() const;
 
@@ -162,8 +112,6 @@ namespace xAOD {
      * The index of the layer should be set according to the convention  in pixelLayerID()
      * 
      * @param layerID index of the pixel layer with hit
-     *
-     * @ingroup setters
      */
     void setPixelLayerID(int layerID);
     
@@ -178,8 +126,6 @@ namespace xAOD {
      * because the chips are mounted rotated by 90 degrees.
      * 
      * @return index of the pixel row which is in vertical direction
-     *
-     * @ingroup getters
      */
     int pixelRowIDChip() const;
 
@@ -194,8 +140,6 @@ namespace xAOD {
      * because the chips are mounted rotated by 90 degrees.
      * 
      * @param rowID index of pixel row in chip coordinate system to be assigned to the hit
-     *
-     * @ingroup setters
      */
     void setPixelRowIDChip(int rowID);
 
@@ -211,8 +155,6 @@ namespace xAOD {
      * because the chips are mounted rotated by 90 degrees.
      * 
      * @return index of the pixel column which is in horizontal direction
-     *
-     * @ingroup getters
      */
     int pixelColIDChip() const;
 
@@ -227,8 +169,6 @@ namespace xAOD {
      * because the chips are mounted rotated by 90 degrees.
      * 
      * @param colID index of pixel column in chip coordinate system to be assigned to the hit
-     *
-     * @ingroup setters
      */
     void setPixelColIDChip(int colID);
 
@@ -245,8 +185,6 @@ namespace xAOD {
      * the LHC coordinate system.
      * 
      * @return index of the pixel along X axis in LHC coordinate system
-     *
-     * @ingroup getters
      */
     int pixelHorizID() const;
 
@@ -262,8 +200,6 @@ namespace xAOD {
      * the chip coordinate system and saves it.
      *
      * @param horizontalID index of pixel along X axis in the LHC coordinate system
-     *
-     * @ingroup setters
      */
     void setPixelHorizID(const int horizontalID);
 
@@ -279,8 +215,6 @@ namespace xAOD {
      * the LHC coordinate system.
      * 
      * @return index of the pixel along Y axis in LHC coordinate system
-     *
-     * @ingroup getters
      */
     int pixelVertID() const;
 
@@ -295,44 +229,8 @@ namespace xAOD {
      * the chip coordinate system and saves it.
      *
      * @param verticalID index of pixel along Y axis in the LHC coordinate system
-     *
-     * @ingroup setters
      */
     void setPixelVertID(const int verticalID);
-
-    /** 
-     * @brief Vector of links to tracks for which reconstruction this hit was used.
-     * 
-     * This method provides access to the tracks that use this
-     * hit. The access is via ElementLink object.
-     *
-     * @note 
-     * * It can be checked if the link is active using method ElementLink::isValid()
-     * * A pointer to the xAOD::AFPTrack object can be retrieved using asterisk operator e.g.
-     *   @code{.cpp}
-     *   xAOD::AFPTrack* track = *(tracks().at(0));
-     *   @endcode
-     * 
-     * @return 
-     */
-    const std::vector<AFPTrackLink_t>& tracksLinks() const;
-
-    /** 
-     * @brief Set vector of links to tracks that use this hit.
-     * 
-     * @param tracksVector vector of links to tracks
-     */
-    void setTracksLinks( const std::vector<AFPTrackLink_t>& tracksVector );
-
-    /** 
-     * @brief Add a link to a track that uses this hit in reconstruction.
-     *
-     * A new link to the track is added to the existing vector of links
-     * to the tracks which use this hit in reconstruction.
-     * 
-     * @param newTrack link to the track
-     */
-    void addTrackLink( const AFPTrackLink_t& newTrack);
 
     /// Function making sure that the object is ready for persistification i.e. saving
     void toPersistent();
@@ -343,7 +241,7 @@ namespace xAOD {
 
 // Declare the inheritance of the type to StoreGate:
 #include "xAODCore/BaseInfo.h"
-SG_BASE( xAOD::AFPSiHit_v1, SG::AuxElement );
+SG_BASE( xAOD::AFPSiHit_v2, SG::AuxElement );
 
-#endif // XAODFORWARD_VERSIONS_AFPSIHIT_V1_H
+#endif // XAODFORWARD_VERSIONS_AFPSIHIT_V2_H
 

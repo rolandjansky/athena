@@ -3,17 +3,17 @@
 */
 
 /**
- * @file   AFPTrack_v1.h
+ * @file   AFPTrack_v2.h
  * @author Grzegorz Gach <grzegorz.gach@cern.ch>
- * @date   2016-07-14
+ * @date   2017-04-26
  * 
  * @brief  Header file for the AFPTrack class
  * 
  */
 
 
-#ifndef XAODFORWARD_VERSIONS_AFPTRACK_V1_H
-#define XAODFORWARD_VERSIONS_AFPTRACK_V1_H
+#ifndef XAODFORWARD_VERSIONS_AFPTRACK_V2_H
+#define XAODFORWARD_VERSIONS_AFPTRACK_V2_H
 
 // general includes
 #include<vector>
@@ -22,13 +22,10 @@
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 
-// needed for forward declaration
-#include "AthContainers/DataVector.h"
+#include "xAODForward/versions/AFPSiHitsCluster_v1.h"
+#include "xAODForward/versions/AFPSiHitsClusterContainer_v1.h"
 
 namespace xAOD {
-  // forward declaration
-  class AFPSiHit_v1;
-  typedef DataVector< AFPSiHit_v1 > AFPSiHitContainer_v1;
 
   /**
    * @brief Class representing a track reconstructed in AFP.
@@ -36,27 +33,25 @@ namespace xAOD {
    * This class provides access to the information about tracks that
    * were reconstructed using AFP information.
    */
-  class AFPTrack_v1 : public SG::AuxElement
+  class AFPTrack_v2 : public SG::AuxElement
   {
   public:
-    /// Type of a link to the hit
-    typedef ElementLink< AFPSiHitContainer_v1 > AFPHitLink_t;
+    /// Type of a link to the cluster
+    typedef ElementLink< AFPSiHitsClusterContainer_v1 > AFPClusterLink_t;
 
     /** 
      * @brief Index of the station where track was reconstructed.
      *
-     * @copydetails xAOD::AFPSiHit_v1::stationID()
+     * @copydetails xAOD::AFPSiHit_v2::stationID()
      */  
     int stationID() const;
 
     /**
      * @brief Set index of the station where track was reconstructed.
      * 
-     * @copydetails xAOD::AFPSiHit_v1::stationID()
+     * @copydetails xAOD::AFPSiHit_v2::stationID()
      *
      * @param stationID index of the station where track was reconstructed
-     *
-     * @ingroup setters
      */
     void setStationID (int stationID);
 
@@ -71,7 +66,7 @@ namespace xAOD {
     /** 
      * @brief Set track position along X axis in station local coordinate system.
      *
-     * @copydetails xAPD::AFPTrack_v1::xLocal()
+     * @copydetails xAPD::AFPTrack_v2::xLocal()
      * 
      * @param newXLocal track coordinate along X axis in station local coordinate system
      */
@@ -80,14 +75,14 @@ namespace xAOD {
     /** 
      * @brief Track position along Y axis in station local coordinate system.
      *
-     * @copydetail xAOD::AFPTrack_v1::xLocal()
+     * @copydetail xAOD::AFPTrack_v2::xLocal()
      */
     float yLocal() const;
 
     /** 
      * @brief Set track coordinate along Y axis in station local coordinate system.
      *
-     * @copydetails xAOD::AFPTrack_v1::yLocal()
+     * @copydetails xAOD::AFPTrack_v2::yLocal()
      * 
      * @param newYLocal track position along Y axis in station local coordinate system
      */
@@ -96,14 +91,14 @@ namespace xAOD {
     /** 
      * @brief Track position along Z axis in station local coordinate system.
      *
-     * @copydetails xAOD::AFPTrack_v1::xLocal()
+     * @copydetails xAOD::AFPTrack_v2::xLocal()
      */
     float zLocal() const;
 
     /** 
      * @brief Set track coordinate along Z axis in station local coordinate system.
      *
-     * @copydetails xAOD::AFPTrack_v1::zLocal()
+     * @copydetails xAOD::AFPTrack_v2::zLocal()
      * 
      * @param newYLocal track coordinate along Z axis in station local coordinate system
      */
@@ -112,7 +107,7 @@ namespace xAOD {
     /** 
      * @brief Slope of the reconstructed track along X axis in local coordinate system.
      * 
-     * Difference between X position of the first and last hit used to
+     * Difference between X position of the first and last cluster used to
      * reconstruct track divided by their distance in Z direction.
      * @f[
      *   \textrm{xSlope} = \frac{x_{\textrm{end}} - x_{\textrm{begin}}}
@@ -124,7 +119,7 @@ namespace xAOD {
     /** 
      * @brief Set slope of the reconstructed track along X axis in local coordinate system.
      * 
-     * @copydetails xAOD::AFPTrack_v1::xSlope()
+     * @copydetails xAOD::AFPTrack_v2::xSlope()
      * 
      * @param newXSlope slope of the track along X axis in local coordinate system
      */
@@ -134,7 +129,7 @@ namespace xAOD {
     /** 
      * @brief Slope of the reconstructed track along Y axis in local coordinate system.
      * 
-     * Difference between Y position of the first and last hit used to
+     * Difference between Y position of the first and last cluster used to
      * reconstruct track divided by their distance in Z direction.
      * @f[
      *   \textrm{ySlope} = \frac{y_{\textrm{end}} - y_{\textrm{begin}}}
@@ -146,118 +141,111 @@ namespace xAOD {
     /** 
      * @brief Set slope of the reconstructed track along Y axis in local coordinate system.
      * 
-     * @copydetails xAOD::AFPTrack_v1::ySlope()
+     * @copydetails xAOD::AFPTrack_v2::ySlope()
      * 
      * @param newYSlope slope of the track along Y axis in local coordinate system
      */
     void setYSlope (float newYSlope);
   
-    // float zSlope() const;
-    // void setZSlope (float newZSlope);
-
     /** 
-     * @brief Number of empty pixels that the track passes through.
+     * @brief Number of empty layers that the track passes through.
      * 
-     * Number of pixels that are expected to be hit, because track
+     * Number of layers that are expected to be hit, because track
      * goes through them, but which are considered to be not fired.
      *
      * @return Number of empty pixels that the track passes through
      */
     int nHoles() const;
 
-
     /** 
      * @brief Set number of empty pixels that the track passes through.
      * 
-     * @copydetails xAOD::AFPTrack_v1::nHoles()
+     * @copydetails xAOD::AFPTrack_v2::nHoles()
      *
      * @param nHoles number of empty pixels that the track passes through
      */
     void setNHoles (int nHoles);
 
-
     /** 
-     * @brief Number of pixels used to reconstruct the track.
+     * @brief Number of clusters used to reconstruct the track.
      * 
-     * @return number of pixels used to reconstruct the track.
+     * @return number of clusters used to reconstruct the track.
      */
-    int nHits() const;
+    int nClusters() const;
 
     /** 
-     * @brief Set number of pixels used to reconstruct the track.
+     * @brief Set number of clusters used to reconstruct the track.
      * 
-     * @param nHits number of pixels used to reconstruct the track
+     * @param nClusters number of clusters used to reconstruct the track
      */
-    void setNHits (int nHits);
+    void setNClusters (int nClusters);
 
     /** 
-     * @brief Vector of links to pixels that were used to reconstruct the track.
+     * @brief Vector of links to clusters that were used to reconstruct the track.
      * 
-     * This method provides access to the pixels that were used to
+     * This method provides access to the clusters that were used to
      * reconstruct the track via ElementLink object.
      *
      * @note 
      * * It can be checked if the link is active using method ElementLink::isValid()
-     * * A pointer to the xAOD::AFPSiHit object can be retrieved using asterisk operator e.g.
+     * * A pointer to the xAOD::AFPSiHitsCluster object can be retrieved using asterisk operator e.g.
      *   @code{.cpp}
-     *   xAOD::AFPSiHit* hit = *(hits().at(0));
+     *   xAOD::AFPSiHitsCluster* cluster = *(clusters().at(0));
      *   @endcode
      * 
      * @return 
      */
-    const std::vector<AFPHitLink_t>& hits() const;
+    const std::vector<AFPClusterLink_t>& clusters() const;
 
     /** 
-     * @brief Set vector of links to pixels used for track reconstruction.
+     * @brief Set vector of links to clusters used for track reconstruction.
      * 
-     * @param newHitsVector vector of links to pixels used for track reconstruction
+     * @param newClustersVector vector of links to clusters used for track reconstruction
      */
-    void setHits( const std::vector<AFPHitLink_t>& newHitsVector );
+    void setClusters( const std::vector<AFPClusterLink_t>& newClustersVector );
 
     /** 
-     * @brief Add a link to a pixel used to reconstruct the track.
+     * @brief Add a link to a cluster used to reconstruct the track.
      *
-     * A new link to the hit is added to the existing vector of links
-     * to the pixels used to reconstruct the track.
+     * A new link to the cluster is added to the existing vector of links
+     * to the clusters used to reconstruct the track.
      * 
-     * @param newHit link to the pixel used to reconstruct the track
+     * @param newCluster link to the cluster used to reconstruct the track
      */
-    void addHit( const AFPHitLink_t& newHit);
+    void addCluster( const AFPClusterLink_t& newCluster);
 
     /** 
-     * @brief @f$\chi^2@f$ value of the track fit to the selected pixels.
+     * @brief @f$\chi^2@f$ value of the track fit to the selected clusters.
      *
      * This value gives information about how well the fitted track
-     * lays on the selected pixels.
+     * lays on the selected clusters.
      * 
-     * @return @f$\chi^2@f$ value of the track fit to the selected pixels
+     * @return @f$\chi^2@f$ value of the track fit to the selected clusters
      */    
     float chi2() const;
 
     /** 
-     * @brief Set @f$\chi^2@f$ value of the track fit to the selected pixels.
+     * @brief Set @f$\chi^2@f$ value of the track fit to the selected clusters.
      * 
-     * @param newFChi2 @f$\chi^2@f$ value of the track fit to the selected pixels
+     * @param newFChi2 @f$\chi^2@f$ value of the track fit to the selected clusters
      */
     void setChi2 (float newFChi2);	
 
     /** 
      * @brief Identification number of the algorithm used to reconstruct the track.
      * 
-     * The following coding is used.
-     *
-     * | ID  | Algorithm              | Comments |
-     * | :-: | ---------------------- | -------- |
-     * | 0   | Basic Kalman algorithm |          |
+     * It is advised to use class xAOD::AFPTrackRecoAlgID instead of
+     * integers to process this information. In this class the
+     * numbering scheme is explained.
      * 
-     * @return identification number of the algorithm used to reconstruct the track
+     * @return identification number of the algorithm used to reconstruct the track (see xAOD::AFPTrackRecoAlgID )
      */
     int algID() const;
 
     /** 
      * @brief Set reconstruction algorithm identification number.
      *
-     * @copydetails xAOD::AFPTrack_v1::algID()
+     * @copydetails xAOD::AFPTrack_v2::algID()
      * 
      * @param newIAlgID identification number of the algorithm used to reconstruct the track
      */
@@ -271,7 +259,7 @@ namespace xAOD {
 
 // Declare the inheritance of the type to StoreGate:
 #include "xAODCore/BaseInfo.h"
-SG_BASE( xAOD::AFPTrack_v1, SG::AuxElement );
+SG_BASE( xAOD::AFPTrack_v2, SG::AuxElement );
 
      
 #endif
