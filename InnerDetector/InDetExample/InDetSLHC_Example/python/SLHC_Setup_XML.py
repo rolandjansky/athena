@@ -138,7 +138,7 @@ class SLHC_Setup_XMLReader :
             XMLReaderFlags.isRingLayout = True
             XMLReaderFlags.splitBarrelLayers = True
             XMLReaderFlags.InnerLayerIndices = [0, 1]
-            XMLReaderFlags.InnerDiskIndices = [0,29]
+            XMLReaderFlags.InnerDiskIndices = []
         XMLReaderFlags.dump() #
         print "******************************************************"
 
