@@ -104,7 +104,7 @@ class ItemDef:
         MenuItem('L1_EM15_BGRP7').setLogic( d.EM15       & bgrp7cond).setTriggerType( TT.calo )
         if not isV8:
             MenuItem('L1_EM15I'     ).setLogic( d.EM15 & d.EM8I      & physcond).setTriggerType( TT.calo )
-        if not isV6 and not isHI:
+        if not isHI:
             MenuItem('L1_eEM3'   ).setLogic( d.eEM3      & physcond).setTriggerType( TT.calo )
             MenuItem('L1_eEM8'   ).setLogic( d.eEM8      & physcond).setTriggerType( TT.calo )
             MenuItem('L1_eEM10'   ).setLogic( d.eEM10      & physcond).setTriggerType( TT.calo )
@@ -126,12 +126,11 @@ class ItemDef:
         MenuItem('L1_EM10VH'    ).setLogic( d.EM10VH     & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM20A'     ).setLogic( d.EM20A      & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM20C'     ).setLogic( d.EM20C      & physcond).setTriggerType( TT.calo )
-        if isV6 or isHI:
+        if isHI:
             MenuItem('L1_EM13VH'    ).setLogic( d.EM13VH     & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM15VH'    ).setLogic( d.EM15VH     & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM18'      ).setLogic( d.EM18       & physcond).setTriggerType( TT.calo )
-        if not isV6 and not isHI:
-            MenuItem('L1_EM18VHI'    ).setLogic( d.EM18VHI     & physcond).setTriggerType( TT.calo )
+        MenuItem('L1_EM18VHI'    ).setLogic( d.EM18VHI     & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM20'      ).setLogic( d.EM20       & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM20VH'    ).setLogic( d.EM20VH     & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM20VHI'   ).setLogic( d.EM20VHI    & physcond).setTriggerType( TT.calo )  # isolation not yet defined
@@ -139,8 +138,6 @@ class ItemDef:
         MenuItem('L1_EM22VHI'   ).setLogic( d.EM22VHI    & physcond).setTriggerType( TT.calo )  # isolation not yet defined
         MenuItem('L1_EM30VHI'   ).setLogic( d.EM30VHI    & physcond).setTriggerType( TT.calo )  # isolation not yet defined
         MenuItem('L1_EM50V'     ).setLogic( d.EM50V      & physcond).setTriggerType( TT.calo )
-
-
 
         # 2xEM, 3xEM
         MenuItem('L1_2EM3'           ).setLogic( d.EM3.x(2)             & physcond).setTriggerType( TT.calo )
@@ -203,7 +200,6 @@ class ItemDef:
         # EM and jet
         MenuItem('L1_eEM18VHI_3jJ20'         ).setLogic( d.eEM18VHI & d.jJ20.x(3)    & physcond).setTriggerType( TT.calo )
 
-#        MenuItem('L1_JJ15.23ETA49' ).setLogic( d.JJ1523ETA49 & physcond).setTriggerType(TT.calo)
         MenuItem('L1_J15.23ETA49' ).setLogic( d.J1523ETA49 & physcond).setTriggerType(TT.calo)
         MenuItem('L1_J15.24ETA49' ).setLogic( d.J1524ETA49 & physcond).setTriggerType(TT.calo)
         MenuItem('L1_J15.31ETA49' ).setLogic( d.J1531ETA49 & physcond).setTriggerType(TT.calo)
@@ -737,10 +733,6 @@ class ItemDef:
         MenuItem('L1_3J15.0ETA25_XE40').setLogic( d.J150ETA25.x(3) & d.XE40 & physcond).setTriggerType(TT.calo)
 
         # combined em - jet
-        #if isV7 or isPhaseII:
-        #MenuItem('L1_EM15VH_JJ15.23ETA49' ).setLogic( d.EM15VH  & d.JJ1523ETA49  & physcond).setTriggerType(TT.calo)
-#        MenuItem('L1_EM18VHI_JJ15.23ETA49' ).setLogic( d.EM18VHI  & d.JJ1523ETA49  & physcond).setTriggerType(TT.calo)
-#        MenuItem('L1_EM20VHI_JJ15.23ETA49' ).setLogic( d.EM20VHI  & d.JJ1523ETA49  & physcond).setTriggerType(TT.calo)
         if not isV6 and not isHI:
             MenuItem('L1_EM18VHI_3J20' ).setLogic( d.EM18VHI  & d.J20.x(3)  & physcond).setTriggerType(TT.calo)
             MenuItem('L1_EM20VH_3J20' ).setLogic( d.EM20VH  & d.J20.x(3)  & physcond).setTriggerType(TT.calo)
@@ -862,60 +854,33 @@ class ItemDef:
         MenuItem('L1_TE12000').setLogic( d.TE12000 & physcond).setTriggerType(TT.calo)
         MenuItem('L1_TE14000').setLogic( d.TE14000 & physcond).setTriggerType(TT.calo)
 
-        if  isV8 or isV7 or isHIV5 or isPhaseII:
-            MenuItem('L1_TE0.24ETA49').setLogic( d.TE024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE3.24ETA49').setLogic( d.TE324ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE5.24ETA49').setLogic( d.TE524ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE10.24ETA49').setLogic( d.TE1024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE15.24ETA49').setLogic( d.TE1524ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE20.24ETA49').setLogic( d.TE2024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE25.24ETA49').setLogic( d.TE2524ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE30.24ETA49').setLogic( d.TE3024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE35.24ETA49').setLogic( d.TE3524ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE40.24ETA49').setLogic( d.TE4024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE45.24ETA49').setLogic( d.TE4524ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE50.24ETA49').setLogic( d.TE5024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE55.24ETA49').setLogic( d.TE5524ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE60.24ETA49').setLogic( d.TE6024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE65.24ETA49').setLogic( d.TE6524ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE70.24ETA49').setLogic( d.TE7024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE80.24ETA49').setLogic( d.TE8024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE110.24ETA49').setLogic( d.TE11024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE150.24ETA49').setLogic( d.TE15024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE180.24ETA49').setLogic( d.TE18024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE2000.24ETA49').setLogic( d.TE200024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE5000.24ETA49').setLogic( d.TE200024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE6500.24ETA49').setLogic( d.TE200024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE8000.24ETA49').setLogic( d.TE200024ETA49 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE9000.24ETA49').setLogic( d.TE200024ETA49 & physcond).setTriggerType(TT.calo)
-        else:
-            MenuItem('L1_TE0.0ETA24').setLogic( d.TE00ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE3.0ETA24').setLogic( d.TE30ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE5.0ETA24').setLogic( d.TE50ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE10.0ETA24').setLogic( d.TE100ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE15.0ETA24').setLogic( d.TE150ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE20.0ETA24').setLogic( d.TE200ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE25.0ETA24').setLogic( d.TE250ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE30.0ETA24').setLogic( d.TE300ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE35.0ETA24').setLogic( d.TE350ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE40.0ETA24').setLogic( d.TE400ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE45.0ETA24').setLogic( d.TE450ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE50.0ETA24').setLogic( d.TE500ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE55.0ETA24').setLogic( d.TE550ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE60.0ETA24').setLogic( d.TE600ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE65.0ETA24').setLogic( d.TE650ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE70.0ETA24').setLogic( d.TE700ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE80.0ETA24').setLogic( d.TE800ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE110.0ETA24').setLogic( d.TE1100ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE150.0ETA24').setLogic( d.TE1500ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE180.0ETA24').setLogic( d.TE1800ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE2000.0ETA24').setLogic( d.TE20000ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE5000.0ETA24').setLogic( d.TE20000ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE6500.0ETA24').setLogic( d.TE20000ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE8000.0ETA24').setLogic( d.TE20000ETA24 & physcond).setTriggerType(TT.calo)
-            MenuItem('L1_TE9000.0ETA24').setLogic( d.TE20000ETA24 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE0.24ETA49').setLogic( d.TE024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE3.24ETA49').setLogic( d.TE324ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE5.24ETA49').setLogic( d.TE524ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE10.24ETA49').setLogic( d.TE1024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE15.24ETA49').setLogic( d.TE1524ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE20.24ETA49').setLogic( d.TE2024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE25.24ETA49').setLogic( d.TE2524ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE30.24ETA49').setLogic( d.TE3024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE35.24ETA49').setLogic( d.TE3524ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE40.24ETA49').setLogic( d.TE4024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE45.24ETA49').setLogic( d.TE4524ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE50.24ETA49').setLogic( d.TE5024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE55.24ETA49').setLogic( d.TE5524ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE60.24ETA49').setLogic( d.TE6024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE65.24ETA49').setLogic( d.TE6524ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE70.24ETA49').setLogic( d.TE7024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE80.24ETA49').setLogic( d.TE8024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE110.24ETA49').setLogic( d.TE11024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE150.24ETA49').setLogic( d.TE15024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE180.24ETA49').setLogic( d.TE18024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE2000.24ETA49').setLogic( d.TE200024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE5000.24ETA49').setLogic( d.TE200024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE6500.24ETA49').setLogic( d.TE200024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE8000.24ETA49').setLogic( d.TE200024ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE9000.24ETA49').setLogic( d.TE200024ETA49 & physcond).setTriggerType(TT.calo)
 
-  # HI items
+        # HI items
         MenuItem('L1_TE3.0ETA49').setLogic( d.TE30ETA49 & physcond).setTriggerType(TT.calo)
         MenuItem('L1_TE7.0ETA49').setLogic( d.TE70ETA49 & physcond).setTriggerType(TT.calo)
         MenuItem('L1_TE500.0ETA49').setLogic( d.TE5000ETA49 & physcond).setTriggerType(TT.calo)
@@ -1362,100 +1327,61 @@ class ItemDef:
 
         MBTS_INNER = (d.MBTS_A0 | d.MBTS_A1 |  d.MBTS_A2 | d.MBTS_A3 | d.MBTS_A4 | d.MBTS_A5 | d.MBTS_A6 | d.MBTS_A7 | d.MBTS_C0 | d.MBTS_C1 | d.MBTS_C2 | d.MBTS_C3 | d.MBTS_C4 | d.MBTS_C5 | d.MBTS_C6 | d.MBTS_C7)
 
-        ## AFP and ALFA
-        #AFP_C =  ((AFP_FSC | AFP_NSC) |  (AFP_FSC & AFP_NSC ))
-        #MenuItem('L1_AFP_C_MBTS_A').setLogic( AFP_C & d.MBTS_A & physcond )
-        #MenuItem('L1_AFP_C_ZDC_C').setLogic( AFP_C & d.ZDC_C & physcond )
-        #MenuItem('L1_AFP_C_J12').setLogic( AFP_C & d.J12 & physcond )# available lowest J threshold in the current v6 menu: J12
-        #MenuItem('L1_AFP_C_EM3').setLogic( AFP_C & d.EM3 & physcond )
-        #MenuItem('L1_AFP_C_TE5').setLogic( AFP_C & d.TE5 & physcond )
-        #MenuItem('L1_AFP_C_ALFA_C').setLogic( AFP_C &  ALFA_C & physcond )
-        #MenuItem('L1_AFP_C_ALFA_A').setLogic( AFP_C &  ALFA_A & physcond )
-
         #AFP
-        #new naming convention ATR-15881 AFP_C = AFP_NSC && AFP_FSC_SIT,  AFP_C_SPECTOF = AFP_FSC_TOF
-        if not isV6:
-            AFP_A = (d.AFP_NSA & d.AFP_FSA_SIT)
-            AFP_C = (d.AFP_NSC & d.AFP_FSC_SIT)
-            AFP_A_AND_C_SPECTOF = (d.AFP_FSA_TOF & d.AFP_FSC_TOF)
+        AFP_A = (d.AFP_NSA & d.AFP_FSA_SIT)
+        AFP_C = (d.AFP_NSC & d.AFP_FSC_SIT)
+        AFP_A_AND_C_SPECTOF = (d.AFP_FSA_TOF & d.AFP_FSC_TOF)
 
-            MenuItem('L1_AFP_A_BGRP0').setLogic( AFP_A & d.BGRP0)
-            MenuItem('L1_AFP_A_SPECTOF').setLogic( d.AFP_FSA_TOF & physcond)
-            MenuItem('L1_AFP_A_SPECTOF_BGRP0').setLogic( d.AFP_FSA_TOF & d.BGRP0)
-            MenuItem('L1_AFP_C_BGRP0').setLogic( AFP_C & d.BGRP0)
-            MenuItem('L1_AFP_C_SPECTOF').setLogic( d.AFP_FSC_TOF & physcond)
-            MenuItem('L1_AFP_C_SPECTOF_BGRP0').setLogic( d.AFP_FSC_TOF & d.BGRP0)
-            MenuItem('L1_AFP_NSA_BGRP0').setLogic( d.AFP_NSA & d.BGRP0)
-            MenuItem('L1_AFP_NSC_BGRP0').setLogic( d.AFP_NSC & d.BGRP0)
-            MenuItem('L1_AFP_FSA_SIT_BGRP0').setLogic( d.AFP_FSA_SIT & d.BGRP0)
-            MenuItem('L1_AFP_FSC_SIT_BGRP0').setLogic( d.AFP_FSC_SIT & d.BGRP0)
-
-            MenuItem('L1_AFP_A_OR_C_UNPAIRED_ISO').setLogic( (AFP_A | AFP_C)  & unpaired_isocond )
-            MenuItem('L1_AFP_A_OR_C_UNPAIRED_NONISO').setLogic( (AFP_A | AFP_C)  & unpaired_nonisocond )
-
-            MenuItem('L1_AFP_A_OR_C_EMPTY').setLogic( (AFP_A | AFP_C) & cosmiccond)
-            MenuItem('L1_AFP_A_OR_C_FIRSTEMPTY').setLogic( (AFP_A | AFP_C) & firstempty)
-
-            MenuItem('L1_AFP_A_AND_C_SPECTOF').setLogic( AFP_A_AND_C_SPECTOF & physcond )
-
-            MenuItem('L1_AFP_A_AND_C').setLogic( AFP_A & AFP_C & physcond )
-            MenuItem('L1_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & physcond )
-            MenuItem('L1_AFP_A').setLogic( AFP_A & physcond )
-            MenuItem('L1_AFP_C').setLogic( AFP_C & physcond )
-
-            MenuItem('L1_AFP_A_AND_C_MBTS_2').setLogic( AFP_A & AFP_C & MBTS_2 & physcond )
-            MenuItem('L1_AFP_A_OR_C_MBTS_2').setLogic( (AFP_A | AFP_C) & MBTS_2 & physcond )
-
-            MenuItem('L1_AFP_A_AND_C_J12').setLogic( AFP_A & AFP_C & d.J12 & physcond )
-            MenuItem('L1_AFP_A_OR_C_J12').setLogic( (AFP_A | AFP_C) & d.J12 & physcond )
-            MenuItem('L1_EM3_AFP_A_AND_C').setLogic( AFP_A & AFP_C & d.EM3 & physcond )
-            MenuItem('L1_EM3_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & d.EM3 & physcond )
-            MenuItem('L1_MU4_AFP_A_AND_C').setLogic( AFP_A & AFP_C & d.MU4 & physcond )
-            MenuItem('L1_MU4_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & d.MU4 & physcond )
-            MenuItem('L1_AFP_A_AND_C_TE5').setLogic( AFP_A & AFP_C & d.TE5 & physcond )
-            MenuItem('L1_AFP_A_OR_C_TE5').setLogic( (AFP_A | AFP_C) & d.TE5 & physcond )
-            MenuItem('L1_AFP_A_AND_C_J50').setLogic( AFP_A & AFP_C & d.J50 & physcond )
-            MenuItem('L1_AFP_A_AND_C_SPECTOF_J50').setLogic( AFP_A_AND_C_SPECTOF & d.J50 & physcond )
-            MenuItem('L1_AFP_A_AND_C_J75').setLogic( AFP_A & AFP_C & d.J75 & physcond )
-            MenuItem('L1_AFP_A_AND_C_SPECTOF_J75').setLogic( AFP_A_AND_C_SPECTOF & d.J75 & physcond )
-            MenuItem('L1_AFP_A_AND_C_J100').setLogic( AFP_A & AFP_C & d.J100 & physcond )
-            MenuItem('L1_AFP_A_AND_C_SPECTOF_J100').setLogic( AFP_A_AND_C_SPECTOF & d.J100 & physcond )
-
-            MenuItem('L1_AFP_NSA').setLogic( d.AFP_NSA & physcond )
-            MenuItem('L1_AFP_NSC').setLogic( d.AFP_NSC & physcond )
-            MenuItem('L1_AFP_FSA_SIT').setLogic( d.AFP_FSA_SIT & physcond )
-            MenuItem('L1_AFP_FSC_SIT').setLogic( d.AFP_FSC_SIT & physcond )
-            MenuItem('L1_EM7_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & d.EM7 & physcond )
-            MenuItem('L1_EM7_AFP_A_AND_C').setLogic( AFP_A & AFP_C & d.EM7 & physcond )
-            MenuItem('L1_EM12_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & d.EM12 & physcond )
-            MenuItem('L1_EM12_AFP_A_AND_C').setLogic( AFP_A & AFP_C & d.EM12 & physcond )
-
-        else:
-            MenuItem('L1_AFP_NSC').setLogic( d.AFP_NSC & physcond )
-            MenuItem('L1_AFP_FSC').setLogic( d.AFP_FSC & physcond )
-            MenuItem('L1_AFP_C_ANY').setLogic( ( d.AFP_FSC | d.AFP_NSC) & physcond )
-            MenuItem('L1_AFP_C_ANY_UNPAIRED_ISO').setLogic( ( d.AFP_FSC | d.AFP_NSC) & unpaired_isocond)
-            MenuItem('L1_AFP_C_ANY_UNPAIRED_NONISO').setLogic( ( d.AFP_FSC | d.AFP_NSC) & unpaired_nonisocond)
-            MenuItem('L1_AFP_C_ANY_EMPTY').setLogic( ( d.AFP_FSC | d.AFP_NSC) & cosmiccond)
-            MenuItem('L1_AFP_C_ANY_FIRSTEMPTY').setLogic( ( d.AFP_FSC | d.AFP_NSC) & firstempty)
-            MenuItem('L1_AFP_C_AND').setLogic( ( d.AFP_FSC & d.AFP_NSC) & physcond )
-
-
-
-            AFP_C =  (d.AFP_FSC & d.AFP_NSC)
-
-            MenuItem('L1_AFP_C_MBTS_A').setLogic(d.AFP_C  & d.MBTS_A & physcond )
-            MenuItem('L1_AFP_C_ZDC_C').setLogic(d.AFP_C  & d.ZDC_C & physcond )
-            MenuItem('L1_AFP_C_J12').setLogic(d.AFP_C  & d.J12 & physcond )
-            MenuItem('L1_AFP_C_EM3').setLogic(d.AFP_C  & d.EM3 & physcond )
-            MenuItem('L1_AFP_C_MU4').setLogic(d.AFP_C  & d.MU4 & physcond )
-            MenuItem('L1_AFP_C_TE5').setLogic(d.AFP_C  & d.TE5 & physcond )
-            MenuItem('L1_AFP_C_ALFA_C').setLogic(d.AFP_C  &  ALFA_C & physcond )
-            MenuItem('L1_AFP_C_ALFA_A').setLogic(d.AFP_C  &  ALFA_A & physcond )
-            MenuItem('L1_AFP_C_ANY_MBTS_A').setLogic( (d.AFP_FSC | d.AFP_NSC) & d.MBTS_A & physcond )
-
-
-
+        MenuItem('L1_AFP_A_BGRP0').setLogic( AFP_A & d.BGRP0)
+        MenuItem('L1_AFP_A_SPECTOF').setLogic( d.AFP_FSA_TOF & physcond)
+        MenuItem('L1_AFP_A_SPECTOF_BGRP0').setLogic( d.AFP_FSA_TOF & d.BGRP0)
+        MenuItem('L1_AFP_C_BGRP0').setLogic( AFP_C & d.BGRP0)
+        MenuItem('L1_AFP_C_SPECTOF').setLogic( d.AFP_FSC_TOF & physcond)
+        MenuItem('L1_AFP_C_SPECTOF_BGRP0').setLogic( d.AFP_FSC_TOF & d.BGRP0)
+        MenuItem('L1_AFP_NSA_BGRP0').setLogic( d.AFP_NSA & d.BGRP0)
+        MenuItem('L1_AFP_NSC_BGRP0').setLogic( d.AFP_NSC & d.BGRP0)
+        MenuItem('L1_AFP_FSA_SIT_BGRP0').setLogic( d.AFP_FSA_SIT & d.BGRP0)
+        MenuItem('L1_AFP_FSC_SIT_BGRP0').setLogic( d.AFP_FSC_SIT & d.BGRP0)
+        
+        MenuItem('L1_AFP_A_OR_C_UNPAIRED_ISO').setLogic( (AFP_A | AFP_C)  & unpaired_isocond )
+        MenuItem('L1_AFP_A_OR_C_UNPAIRED_NONISO').setLogic( (AFP_A | AFP_C)  & unpaired_nonisocond )
+        
+        MenuItem('L1_AFP_A_OR_C_EMPTY').setLogic( (AFP_A | AFP_C) & cosmiccond)
+        MenuItem('L1_AFP_A_OR_C_FIRSTEMPTY').setLogic( (AFP_A | AFP_C) & firstempty)
+        
+        MenuItem('L1_AFP_A_AND_C_SPECTOF').setLogic( AFP_A_AND_C_SPECTOF & physcond )
+        
+        MenuItem('L1_AFP_A_AND_C').setLogic( AFP_A & AFP_C & physcond )
+        MenuItem('L1_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & physcond )
+        MenuItem('L1_AFP_A').setLogic( AFP_A & physcond )
+        MenuItem('L1_AFP_C').setLogic( AFP_C & physcond )
+        
+        MenuItem('L1_AFP_A_AND_C_MBTS_2').setLogic( AFP_A & AFP_C & MBTS_2 & physcond )
+        MenuItem('L1_AFP_A_OR_C_MBTS_2').setLogic( (AFP_A | AFP_C) & MBTS_2 & physcond )
+        
+        MenuItem('L1_AFP_A_AND_C_J12').setLogic( AFP_A & AFP_C & d.J12 & physcond )
+        MenuItem('L1_AFP_A_OR_C_J12').setLogic( (AFP_A | AFP_C) & d.J12 & physcond )
+        MenuItem('L1_EM3_AFP_A_AND_C').setLogic( AFP_A & AFP_C & d.EM3 & physcond )
+        MenuItem('L1_EM3_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & d.EM3 & physcond )
+        MenuItem('L1_MU4_AFP_A_AND_C').setLogic( AFP_A & AFP_C & d.MU4 & physcond )
+        MenuItem('L1_MU4_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & d.MU4 & physcond )
+        MenuItem('L1_AFP_A_AND_C_TE5').setLogic( AFP_A & AFP_C & d.TE5 & physcond )
+        MenuItem('L1_AFP_A_OR_C_TE5').setLogic( (AFP_A | AFP_C) & d.TE5 & physcond )
+        MenuItem('L1_AFP_A_AND_C_J50').setLogic( AFP_A & AFP_C & d.J50 & physcond )
+        MenuItem('L1_AFP_A_AND_C_SPECTOF_J50').setLogic( AFP_A_AND_C_SPECTOF & d.J50 & physcond )
+        MenuItem('L1_AFP_A_AND_C_J75').setLogic( AFP_A & AFP_C & d.J75 & physcond )
+        MenuItem('L1_AFP_A_AND_C_SPECTOF_J75').setLogic( AFP_A_AND_C_SPECTOF & d.J75 & physcond )
+        MenuItem('L1_AFP_A_AND_C_J100').setLogic( AFP_A & AFP_C & d.J100 & physcond )
+        MenuItem('L1_AFP_A_AND_C_SPECTOF_J100').setLogic( AFP_A_AND_C_SPECTOF & d.J100 & physcond )
+        
+        MenuItem('L1_AFP_NSA').setLogic( d.AFP_NSA & physcond )
+        MenuItem('L1_AFP_NSC').setLogic( d.AFP_NSC & physcond )
+        MenuItem('L1_AFP_FSA_SIT').setLogic( d.AFP_FSA_SIT & physcond )
+        MenuItem('L1_AFP_FSC_SIT').setLogic( d.AFP_FSC_SIT & physcond )
+        MenuItem('L1_EM7_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & d.EM7 & physcond )
+        MenuItem('L1_EM7_AFP_A_AND_C').setLogic( AFP_A & AFP_C & d.EM7 & physcond )
+        MenuItem('L1_EM12_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & d.EM12 & physcond )
+        MenuItem('L1_EM12_AFP_A_AND_C').setLogic( AFP_A & AFP_C & d.EM12 & physcond )
 
         ## ALFA Single items
         MenuItem('L1_ALFA_B7L1U').setLogic(d.ALFA_B7L1U & d.BGRP0).setTriggerType(TT.alfa)
