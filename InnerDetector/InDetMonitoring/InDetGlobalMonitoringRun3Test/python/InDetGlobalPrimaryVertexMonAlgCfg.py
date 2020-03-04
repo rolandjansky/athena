@@ -1,14 +1,15 @@
 """
 @file InDetGlobalPrimaryVertexMonAlgCfg.py
 @author Leonid Serkin
-@date November 2019
+@date March 2020
 @brief Configuration for Run 3 based on InDetGlobalPrimaryVertexMonTool.cxx
 """
+from math import pi
 
 def InDetGlobalPrimaryVertexMonAlgCfg(helper, alg, **kwargs):
 
     # values	
-    M_PI = 3.141592
+    M_PI = math.pi
 
     # this creates a "pvGroup" called "alg" which will put its histograms into the subdirectory "PrimaryVertex"
     pvGroup = helper.addGroup(alg, 'PrimaryVertex')
