@@ -1217,9 +1217,9 @@ StatusCode TileDigitsMaker::FillDigitCollection(const TileHitCollection* hitColl
   double EneSum = 0.;
   double RChSum = 0.;
 
-  const int nchMax = 48; // number of channels per drawer
-  int ntot_ch[nchMax];
-  double ech_tot[nchMax];
+  constexpr int nchMax = 48; // number of channels per drawer
+  std::array<int, nchMax> ntot_ch; ntot_ch.fill(0);
+  std::array<double, nchMax> ech_tot; ech_tot.fill(0.0);
   //double ech_int[nchMax];
 
   IdContext drawer_context = m_tileHWID->drawer_context();
