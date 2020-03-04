@@ -227,6 +227,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     ParameterSet *m_currentParameters;
 
     double m_StatCombPtThreshold;
+    double m_HighPtSystThreshold;
     bool m_useStatComb;
 
     unsigned int m_sgItersID;

@@ -41,11 +41,11 @@ void TrackInfo::Register(TTree* t) {
 }
 
 void TrackInfo::Fill(const xAOD::TrackParticle* tp) {
-    m_Pt = tp->pt() / Gaudi::Units::perThousand;
+    m_Pt = tp->pt() * Gaudi::Units::perThousand;
     m_Eta = tp->eta();
     m_Phi = tp->phi();
     m_Charge = (int)tp->charge();
-    m_QoverP = tp->qOverP() * Gaudi::Units::perThousand;
+    m_QoverP = tp->qOverP() / Gaudi::Units::perThousand;
     m_Chi2 = tp->chiSquared();
     m_NDoF = (int)tp->numberDoF();
     AmgVector(5) pars = tp->definingParameters();
