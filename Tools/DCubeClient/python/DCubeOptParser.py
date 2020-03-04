@@ -349,7 +349,7 @@ class DCubeOptParser( object ):
     def branch_callback(  self, option, opt_str, value, parser ):
         if ( "*" not in value ):
             found = False
-            for k, v in self.valid.branches().iteritems():
+            for k, v in self.valid.branches().items():
                 if ( v.match( value ) ): 
                     found = True
             if ( not found ):
