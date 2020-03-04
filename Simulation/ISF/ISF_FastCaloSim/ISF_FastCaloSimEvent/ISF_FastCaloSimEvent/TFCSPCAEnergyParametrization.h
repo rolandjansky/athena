@@ -14,6 +14,8 @@
 #include "TVectorF.h"
 #include "TFile.h"
 
+class TH1;
+
 class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
 {
  public:
@@ -40,6 +42,9 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   
   float get_total_energy_normalization() const {return m_total_energy_normalization;};
   void  set_total_energy_normalization(float norm) {m_total_energy_normalization=norm;};
+  
+  void set_totalE_probability_ratio(int Ekin_bin,TH1* hist);
+  TH1* get_totalE_probability_ratio(int Ekin_bin) const;
 
   int                       do_rescale;
   
@@ -53,12 +58,14 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   std::vector<TVectorD*>    m_Gauss_means;
   std::vector<TVectorD*>    m_Gauss_rms;
   std::vector<std::vector<TFCS1DFunction*> > m_cumulative;
+
+  std::vector<TH1*>         m_totalE_probability_ratio;
   
   int m_numberpcabins;
   
   float m_total_energy_normalization{1};
   
-  ClassDefOverride(TFCSPCAEnergyParametrization,2)  //TFCSPCAEnergyParametrization
+  ClassDefOverride(TFCSPCAEnergyParametrization,3)  //TFCSPCAEnergyParametrization
  
 };
 
