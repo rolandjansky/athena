@@ -1,5 +1,3 @@
-from future import standard_library
-standard_library.install_aliases()
 #! /usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
@@ -19,6 +17,9 @@ import os.path
 import pickle as pickle
 import sys
 import unittest
+
+from future import standard_library
+standard_library.install_aliases()
 
 from PyJobTransforms.trfLogger import msg
 from PyJobTransforms.trfReports import pyJobReportToFileDict
