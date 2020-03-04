@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -360,7 +360,7 @@ void testit (const RpcPadContainer& trans1, IRPCcablingSvc* cabling)
 {
   MsgStream log (0, "test");
   RpcPadContainerCnv_p1 cnv;
-  cnv.initialize (log, cabling);
+  assert(cnv.initialize (log, cabling));
   RpcPadContainer_p1 pers;
   cnv.transToPers (&trans1, &pers, log);
   std::unique_ptr<RpcPadContainer> trans2 (cnv.createTransient (&pers, log));
@@ -404,7 +404,7 @@ void test1 (IRPCcablingSvc* cabling)
 
       pad->push_back (std::move (cm));
     }
-    trans1.addCollection (pad.release(), k);
+    assert (trans1.addCollection (pad.release(), k).isSuccess());
   }
 
   testit (trans1, cabling);

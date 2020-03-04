@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************************8
@@ -403,7 +403,7 @@ namespace MuonCalib {
 
       //Precaching. We shouldn't need to do this, but some rare cases it seems the callbacks are not called in time for the begining of the run.
       if(m_preCache)
-        cacheParameter(sgKey);
+        cacheParameter(sgKey).ignore();
 
       //   anySucceed = true;
 
