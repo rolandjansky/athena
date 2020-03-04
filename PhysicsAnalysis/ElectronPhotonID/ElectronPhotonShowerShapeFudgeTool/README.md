@@ -4,7 +4,7 @@ This is a tool for the application of MC corrections to photon and electron auxi
 
 It lives in `/head/athena/PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerShapeFudgeTool/`.
 
-This README first explains [how to use the `ElectronPhotonVariableCorrectionTool`](#single-variable-correction:-electronphotonvariablecorrectiontool) before explaining the [functionality of the `ElectronPhotonVariableCorrectionToolWrapper`](#multi-variable-correction:-electronphotonvariablecorrectiontoolwrapper). Note that if you want to correct multiple variables of a photon or electron, you should only create an instance of `ElectronPhotonVariableCorrectionToolWrapper` - this instance will then handle the `ElectronPhotonVariableCorrectionTool` for you. You will however need to provide configuration files for the `ElectronPhotonVariableCorrectionTool`, which is explained in [this section](#constructing-a-configuration-file).
+This README first explains [how to use the `ElectronPhotonVariableCorrectionTool`](#single-variable-correction-electronphotonvariablecorrectiontool) before explaining the [functionality of the `ElectronPhotonVariableCorrectionToolWrapper`](#multi-variable-correction-electronphotonvariablecorrectiontoolwrapper). Note that if you want to correct multiple variables of a photon or electron, you should only create an instance of `ElectronPhotonVariableCorrectionToolWrapper` - this instance will then handle the `ElectronPhotonVariableCorrectionTool` for you. You will however need to provide configuration files for the `ElectronPhotonVariableCorrectionTool`, which is explained in [this section](#constructing-a-configuration-file).
 
 If you have any questions or requests, please contact [Nils Gillwald](mailto:nils.gillwald@desy.de).
 
