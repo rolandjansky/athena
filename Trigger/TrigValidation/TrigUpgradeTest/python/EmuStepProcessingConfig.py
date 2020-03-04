@@ -4,9 +4,10 @@
 from AthenaCommon.AlgScheduler import AlgScheduler
 from AthenaCommon.CFElements import parOR
 from AthenaCommon.Logging import logging
-from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
+from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder, PrescalingEmulationTool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import EmptyMenuSequence
 log = logging.getLogger('EmuStepProcessingConfig')
+
 
 def thresholdToChains( chains ):
     """
@@ -200,10 +201,10 @@ def generateL1DecoderAndChains():
      
         CombChains =[
 
-            makeChain(name='HLT_mu6_e8_L1MU6_EM5',  L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu_em", [el11, emptySeq], multiplicity=[1,1]),
-                                                                                             ChainStep("Step2_mu_em", [el21, emptySeq], multiplicity=[1,1]),
-                                                                                             ChainStep("Step3_mu_em", [emptySeq, mu11], multiplicity=[1,1]),
-                                                                                             ChainStep("Step4_mu_em", [emptySeq, mu21], multiplicity=[1,1])] ),
+            makeChain(name='HLT_mu6_e8_L1MU6_EM5',  L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_em_empty", [el11, emptySeq], multiplicity=[1,1])] ),
+#                                                                                             ChainStep("Step2_em_empty", [el21, emptySeq], multiplicity=[1,1]),
+#                                                                                             ChainStep("Step3_mu_empty", [emptySeq, mu11], multiplicity=[1,1]),
+#                                                                                             ChainStep("Step4_mu_empty", [emptySeq, mu21], multiplicity=[1,1])] ),
 
             makeChain(name='HLT_mu6Comb_e8_L1MU6_EM5', L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu2_em", [mu12, el11], multiplicity=[1,1]),
                                                                                                 ChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1])] ),
@@ -240,6 +241,8 @@ def generateL1DecoderAndChains():
 
     l1Decoder = L1Decoder( RoIBResult="", L1TriggerResult="" )
     l1Decoder.L1DecoderSummaryKey = "L1DecoderSummary"
+    psEmulation = PrescalingEmulationTool()
+    l1Decoder.prescaler = psEmulation
 
     ctpUnpacker = CTPUnpackingEmulationTool( ForceEnableAllChains=False , InputFilename="ctp.dat" )
     l1Decoder.ctpUnpacker = ctpUnpacker

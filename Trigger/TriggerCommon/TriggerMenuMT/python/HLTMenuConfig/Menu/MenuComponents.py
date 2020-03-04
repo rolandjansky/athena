@@ -299,8 +299,9 @@ def isEmptyAlg(alg):
 
 
 
+
 ##########################################################
-# NOW sequences and chains
+# Now sequences and chains
 ##########################################################
 from AthenaConfiguration.ComponentFactory import CompFactory # for the default maker alg?
 
