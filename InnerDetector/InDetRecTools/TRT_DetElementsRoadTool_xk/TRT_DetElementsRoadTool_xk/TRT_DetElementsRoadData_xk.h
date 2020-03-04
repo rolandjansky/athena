@@ -16,18 +16,18 @@ namespace InDet{
    TRT_DetElementsRoadData_xk()=default;
    ~TRT_DetElementsRoadData_xk()=default;
 
-   inline void setTRTLayerVectors(TRT_DetElementsLayerVectors_xk* layers){m_TRTLayerVectors=layers;}
+   inline void setTRTLayerVectors(const TRT_DetElementsLayerVectors_xk& layers){m_TRTLayerVectors=layers;}
    inline void setBounds(Trk::CylinderBounds cbounds, double rmintrt){m_bounds=cbounds;m_rminTRT=rmintrt;}
 
-   inline const TRT_DetElementsLayerVectors_xk* getLayers() const {return m_TRTLayerVectors;}
+   inline const TRT_DetElementsLayerVectors_xk* getLayers() const {return &m_TRTLayerVectors;}
    inline const Trk::CylinderBounds getBounds() const {return m_bounds;}
    inline double getTRTMinR() const {return m_rminTRT;}
 
    private: 
 
-   const TRT_DetElementsLayerVectors_xk*      m_TRTLayerVectors;
-   double                                     m_rminTRT{};
-   Trk::CylinderBounds                           m_bounds;
+   TRT_DetElementsLayerVectors_xk m_TRTLayerVectors;
+   double                         m_rminTRT{};
+   Trk::CylinderBounds            m_bounds;
  };
 
 }
