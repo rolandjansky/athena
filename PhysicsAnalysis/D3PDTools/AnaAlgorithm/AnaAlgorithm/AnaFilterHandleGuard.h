@@ -13,6 +13,8 @@
 
 #include <AsgMessaging/AsgMessagingForward.h>
 
+class EventContext;
+
 namespace EL
 {
   /// \brief a guard class for use with ref AnaFilterHandle
@@ -48,6 +50,16 @@ namespace EL
     AnaFilterHandleGuard (AnaFilterHandle& val_handle,
                           bool val_passedDefault);
 
+    /// \brief standard re-entrant constructor
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory I
+  public:
+    AnaFilterHandleGuard (const AnaFilterHandle& val_handle,
+                          const EventContext& val_eventContext,
+                          bool val_passedDefault);
+
 
     /// \brief standard destructor
     /// \par Guarantee
@@ -70,7 +82,7 @@ namespace EL
 
     /// \brief the \ref AnaFilterHandle object
   private:
-    AnaFilterHandle& m_handle;
+    const AnaFilterHandle& m_handle;
 
     /// \brief the value of passed we will set
   private:
