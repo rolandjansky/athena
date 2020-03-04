@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************************
@@ -14,7 +14,7 @@
 // InDetAlignmentMonitoring under the name InDetAlignMonBeamSpot.
 //
 // Written in March 2008 by Juerg Beringer (LBNL)
-// Adapted to AthenaMT 2019 by Per Johansson (Sheffield University)
+// Adapted to AthenaMT 2020 by Per Johansson (Sheffield University)
 //
 // ********************************************************************************
 
