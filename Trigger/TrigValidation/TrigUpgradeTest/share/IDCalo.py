@@ -124,16 +124,16 @@ if TriggerFlags.doID:
 
   allViewAlgorithms += InDetTrigMTBeamSpotAlg
 
-from TrigT2MinBias.TrigT2MinBiasConfig import MbtsFexMT
-alg=MbtsFexMT()
-alg.RoIs="EMViewRoIs"
-allViewAlgorithms += alg
+  from TrigT2MinBias.TrigT2MinBiasConf import MbtsFexMT
+  alg=MbtsFexMT()
+  alg.RoIs="HLT_FSRoI"
+  alg.OutputLevel = DEBUG
+  allViewAlgorithms += alg
 
 
-if TriggerFlags.doCalo:
-  from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
-  algo=T2CaloEgamma_ReFastAlgo("testFastAlgo")
-  algo.RoIs="EMViewRoIs"
-  allViewAlgorithms += algo
-
-viewSeq += allViewAlgorithms
+  if TriggerFlags.doCalo:
+    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
+    algo=T2CaloEgamma_ReFastAlgo("testFastAlgo")
+    algo.RoIs="EMViewRoIs"
+    allViewAlgorithms += algo
+    viewSeq += allViewAlgorithms

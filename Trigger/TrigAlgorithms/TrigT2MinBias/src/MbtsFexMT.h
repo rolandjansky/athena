@@ -6,53 +6,22 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #define TRIGT2MINBIAS_T2_MBTS_FEX_MT_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "xAODTrigger/TrigCompositeContainer.h"
-#include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "xAODTrigMinBias/TrigT2MbtsBits.h"
 #include "xAODTrigMinBias/TrigT2MbtsBitsAuxContainer.h"
 #include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
 #include "TileIdentifier/TileTBID.h"
-#include "TrigT2CaloCommon/ITrigDataAccess.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "StoreGate/ReadCondHandleKey.h"
-#include "CaloEvent/CaloBCIDAverage.h"
 #include "CaloEvent/CaloCellContainerVector.h"
-#include "AthContainers/ConstDataVector.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "TileConditions/TileEMScale.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell.h"
-#include "CaloEvent/CaloConstCellContainer.h"
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/IService.h"
-#include "GaudiKernel/StatusCode.h"
-#include "TileByteStream/TileROD_Decoder.h"
-#include <iostream>
-#include <random>
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include <mutex>
-#include "AthenaBaseComps/AthService.h"
-#include "AthenaKernel/SlotSpecificObj.h"
-#include "LArByteStream/LArRodDecoder.h"
-#include "TileByteStream/TileROD_Decoder.h"
-#include "LArRawUtils/LArTT_Selector.h"
+#include "GaudiKernel/StatusCode.h"
 #include "TileByteStream/TileCellCont.h"
-#include "TrigT2CaloCommon/LArCellCont.h"
-#include "LArRecEvent/LArFebEnergyCollection.h"
 #include "TileEvent/TileCellCollection.h"
-#include "TileEvent/TileL2Container.h"
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "IRegionSelector/IRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "CaloIdentifier/TileID.h"
 #include "TileEvent/TileCell.h"
@@ -68,20 +37,13 @@ public:
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& context) const override;
-  virtual StatusCode finalize() override;
 
 private:
-
- SG::WriteHandleKey<xAOD::TrigT2MbtsBits> m_MbtsKey{this,"mbtsHandle","Undefined",""};
-  SG::WriteHandleKey<xAOD::TrigT2MbtsBitsContainer> m_t2MbtsBits{this,"MbtsKey","Undefined",""};
-  SG::ReadHandleKey<TileTBID> m_TileHelperKey{this,"TileHelperKey", "DetectorStore+TileTBID"," "};
+  SG::WriteHandleKey<xAOD::TrigT2MbtsBitsContainer> m_t2MbtsBitsKey{this,"t2MbtsBitsKey","Undefined",""};
+  SG::ReadHandleKey<TileTBID> m_TileHelperKey{this,"m_TileHelperKey", "DetectorStore+TileTBID"," "};
 
   ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc;
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-
-  TrigTimer *m_timerLoadColl;
-  TrigTimer *m_timerAlg;
-  TrigTimer *m_timerSave;
 
 
 };
