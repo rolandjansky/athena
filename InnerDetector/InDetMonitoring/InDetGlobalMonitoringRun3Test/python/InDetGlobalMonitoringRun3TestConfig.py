@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 
@@ -20,10 +20,10 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
 
         ########### here begins InDetGlobalTrackMonAlg ###########
         kwargsInDetGlobalTrackMonAlg = { 
-                              'DoIBL' : True,                       #InDetFlags.doIBL(), #Turn on/off IBL histograms 
-                              'TrackName'  : 'CombinedInDetTracks',  #Until new config ready
-   		              'TrackName2' : 'CombinedInDetTracks',  #Until new config ready
-			      'TrackName3' : 'CombinedInDetTracks',  #Until new config ready
+            'DoIBL' : True,                       #InDetFlags.doIBL(), #Turn on/off IBL histograms 
+            'TrackName'  : 'CombinedInDetTracks',  #Until new config ready
+   		    'TrackName2' : 'CombinedInDetTracks',  #Until new config ready
+			'TrackName3' : 'CombinedInDetTracks',  #Until new config ready
         }
 
         
@@ -56,7 +56,7 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         inDetGlobalTrackMonAlg.TrackSelectionTool.TrackSummaryTool = acc.popToolsAndMerge(TrackSummaryToolWorkaround(flags))
         inDetGlobalTrackMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.TrackSummaryTool = acc.popToolsAndMerge(TrackSummaryToolWorkaround(flags))
-	inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
+	    inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
 
         InDetGlobalTrackMonAlgCfg(helper, inDetGlobalTrackMonAlg, **kwargsInDetGlobalTrackMonAlg)
         ########### here ends InDetGlobalTrackMonAlg ###########
@@ -69,10 +69,10 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         myInDetGlobalPrimaryVertexMonAlg = helper.addAlgorithm(InDetGlobalPrimaryVertexMonAlg, 'InDetGlobalPrimaryVertexMonAlg')
 
         kwargsInDetGlobalPrimaryVertexMonAlg = { 
-                               'vxContainerName'                      : 'PrimaryVertices', #InDetKeys.xAODVertexContainer(),
-                               'vxContainerNameWithOutBeamConstraint' : 'VxPrimaryCandidateWithBeamConstraint', #InDetKeys.PrimaryVerticesWithoutBeamConstraint(),
-                               'vxContainerNameSplit'                 : 'VxPrimaryCandidateSplitStream', #InDetKeys.PrimaryVerticesSplitStream(),
-                               'doEnhancedMonitoring'                 : True # InDetFlags.doMonitoringPrimaryVertexingEnhanced()
+                'vxContainerName'                      : 'PrimaryVertices', #InDetKeys.xAODVertexContainer(),
+                'vxContainerNameWithOutBeamConstraint' : 'VxPrimaryCandidateWithBeamConstraint', #InDetKeys.PrimaryVerticesWithoutBeamConstraint(),
+                'vxContainerNameSplit'                 : 'VxPrimaryCandidateSplitStream', #InDetKeys.PrimaryVerticesSplitStream(),
+                'doEnhancedMonitoring'                 : True # InDetFlags.doMonitoringPrimaryVertexingEnhanced()
                }
 
         for k, v in kwargsInDetGlobalPrimaryVertexMonAlg.items():
@@ -90,11 +90,11 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         myInDetGlobalBeamSpotMonAlg = helper.addAlgorithm(InDetGlobalBeamSpotMonAlg, 'InDetGlobalBeamSpotMonAlg')
 
         kwargsInDetGlobalBeamSpotMonAlg = { 
-                               'BeamSpotKey'                      : 'BeamSpotData', #InDetKeys.BeamSpotData(),
-                               'vxContainerName'                  : 'PrimaryVertices', #InDetKeys.xAODVertexContainer(),
-                               'trackContainerName'               : 'InDetTrackParticles', #InDetKeys.xAODTrackParticleContainer(),
-                               'useBeamspot'                      : True, # InDetFlags.useBeamConstraint()
-                               'vxContainerWithBeamConstraint'    : False # InDetFlags.useBeamConstraint()
+                'BeamSpotKey'                      : 'BeamSpotData', #InDetKeys.BeamSpotData(),
+                'vxContainerName'                  : 'PrimaryVertices', #InDetKeys.xAODVertexContainer(),
+                'trackContainerName'               : 'InDetTrackParticles', #InDetKeys.xAODTrackParticleContainer(),
+                'useBeamspot'                      : True, # InDetFlags.useBeamConstraint()
+                'vxContainerWithBeamConstraint'    : False # InDetFlags.useBeamConstraint()
                }
 
         for k, v in kwargsInDetGlobalBeamSpotMonAlg.items():
@@ -105,4 +105,3 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         ########### here ends InDetGlobalBeamSpotMonAlg ###########
         
     return acc
-    
