@@ -64,11 +64,11 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     # object here is the standard GenericMonitoringTool.
     AFPGroup = helper.addGroup( afpSiLayerAlgorithm,         'AFPSiLayerTool',         'AFP/'     ) 
 
-#    station0_1 = helper.addGroup(afpSiLayerAlgorithm, 'AFPSiLayer','Station0/')
+    #    station0_1 = helper.addGroup(afpSiLayerAlgorithm, 'AFPSiLayer','Station0/')
 
     # Add a GMT for the other example monitor algorithm
-#    anotherGroup = helper.addGroup(anotherExampleMonAlg,'AFPSiLayer')
-
+    #    anotherGroup = helper.addGroup(anotherExampleMonAlg,'AFPSiLayer')
+#    AFPGroup.defineHistogram('totHits', title='Luminosity Block;lb;total number of Hits',  path='Global',xbins=1000,xmin=-0.5,xmax=999.5,weight='nhits') 
 
     ### STEP 5 ###
     # Configure histogramsIf you want to create histograms with variable bin widths, ROOT provides another constructor suited for this purpose. Instead of passing the data interval and the number of bins, you have to pass an array (single or double precision) of bin edges. When the histogram has n bins, then there are n+1 distinct edges, so the array you pass must be of size n+1.
@@ -84,11 +84,9 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
         layerList = ['P0','P1', 'P2', 'P3'] ## TODO XXX adapt to the enum/xAOD namespace names
         stationList = ['FarStation','NearStation'] # TODO XXX
         sideList = ['Aside' , 'Cside' ]
-        array = helper.addArray([sideList,stationList,layerList],alg,'AFPSiLayer')
-        array.defineHistogram(  'h_hitMap', title='Map of hits', type='TH2F', path='AFPSiLayer', 
-				xbins=80,xmin=0.5,xmax=80.5, 
-				ybins=336,ymin=0.5,ymax=336.5)
-
+        array = helper.addArray([sideList,stationList,layerList],alg,'AFPSiLayerTool')
+        array.defineHistogram(  'h_hitMap', title='Map of hits', type='TH2F', path='AFPSiLayer', xbins=80,xmin=0.5,xmax=80.5, ybins=336,ymin=0.5,ymax=336.5)
+        array.defineHistogram('h_hitMap', title='hitmap for {0} {1} Layer {3}', path='Keys/{0}', xmax=3. )
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
@@ -144,4 +142,4 @@ if __name__=='__main__':
     # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
     cfg.printConfig(withDetails=False) # set True for exhaustive info
 
-    cfg.run(10000) #use cfg.run(20) to only run on first 20 events
+    cfg.run(100) #use cfg.run(20) to only run on first 20 events
