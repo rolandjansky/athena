@@ -36,7 +36,7 @@ FFJetSmearingTool::FFJetSmearingTool(const std::string name/*, std::string truth
     , m_InfoWarnings(0)
     {
     declareProperty( "MassDef", m_MassDef = ""                             );
-    declareProperty( "ConfigFile", m_ConfigFile = ""        );//Path to the config file. By default it points to XXX
+    declareProperty( "ConfigFile", m_configFile = ""        );//Path to the config file. By default it points to XXX
     declareProperty("Path",m_path);
 }
 
@@ -96,9 +96,12 @@ StatusCode FFJetSmearingTool::initialize(/*const std::string&*/)
 	//reading the config file as in JetUncertaintiesTool
   TEnv settings;
 
-  TString configFilePath = m_ConfigFile; //In future versions of the tool you can add a CalibrArea and other specifications as in jetuncertaintiestool
+//  TString configFilePath = m_configFile; //In future versions of the tool you can add a CalibrArea and other specifications as in jetuncertaintiestool
 
-//  const TString configFilePath = jet::utils::findFilePath(m_ConfigFile.c_str(),m_path.c_str(),m_calibArea.c_str());
+m_configFile = "rel21/Spring2020/FFJetSmearingTool_TestOnly_JMS_JMR.config";
+
+
+  const TString configFilePath = jet::utils::findFilePath(m_configFile.c_str(),m_path.c_str(),m_calibArea.c_str());
 
   if (settings.ReadFile( configFilePath.Data(),kEnvGlobal))
   {
@@ -108,7 +111,7 @@ StatusCode FFJetSmearingTool::initialize(/*const std::string&*/)
   // We can read it - start printing
   ATH_MSG_INFO(Form("================================================"));
   ATH_MSG_INFO(Form("  Initializing the FFJetSmearingTool named %s",m_name.c_str()));
-  ATH_MSG_INFO(Form("  Configuration file: \"%s\"",m_ConfigFile.c_str()));
+  ATH_MSG_INFO(Form("  Configuration file: \"%s\"",m_configFile.c_str()));
   ATH_MSG_INFO(Form("    Location: %s",configFilePath.Data()));
 
 
@@ -133,19 +136,20 @@ StatusCode FFJetSmearingTool::initialize(/*const std::string&*/)
     ATH_MSG_INFO("  EtaRange : Abs(eta) < " << m_EtaRange);
     // Get the file to read uncertainties in from
     m_histFileName = settings.GetValue("UncertaintyRootFile","");
+    m_HistogramsFilePath = jet::utils::findFilePath(m_histFileName.Data(),m_path.c_str(),m_calibArea.c_str());
     if (m_histFileName == "")
     {
         ATH_MSG_ERROR("Cannot find uncertainty histogram file in the config file");
         return StatusCode::FAILURE;
     }
     ATH_MSG_INFO(Form("  UncertaintyFile: \"%s\"",m_histFileName.Data()));
-    ATH_MSG_INFO(Form("    Location: %s",m_histFileName.Data()));
+    ATH_MSG_INFO(Form("    Location: %s",m_HistogramsFilePath.Data()));
 
 
 
 //Read all the histogram files where the jms jmr variations are saved
       if(!(readFFJetSmearingToolSimplifiedData(settings).isSuccess())){
-          ATH_MSG_WARNING("Error reading " << m_histFileName);
+          ATH_MSG_WARNING("Error reading " << m_HistogramsFilePath);
           return StatusCode::FAILURE;
       }
 
@@ -274,7 +278,7 @@ CP::SystematicCode FFJetSmearingTool::applySystematicVariation
 StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings){
 
 
-        TString data_file_location =  m_histFileName;//m_ConfigFile;
+        TString data_file_location =  m_HistogramsFilePath;//m_ConfigFile;
 
         TFile *data_file  = new TFile(data_file_location,"READ");
                 if(data_file->IsOpen()==false){
@@ -387,7 +391,10 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
 
     //Read the Calo and TA mass weight histograms from the same file that JetUncertainties uses
 
-    TString Calo_TA_weight_file_path = settings.GetValue("JetUncertainties_UncertaintyRootFile","");
+
+    TString Calo_TA_weight_file_name = settings.GetValue("JetUncertainties_UncertaintyRootFile","");
+    const TString Calo_TA_weight_file_path = jet::utils::findFilePath(Calo_TA_weight_file_name.Data(),m_path.c_str(),m_calibArea.c_str());
+
     if (Calo_TA_weight_file_path == "")
     {
         ATH_MSG_ERROR("Cannot find the file with the Calo and TA weights");
