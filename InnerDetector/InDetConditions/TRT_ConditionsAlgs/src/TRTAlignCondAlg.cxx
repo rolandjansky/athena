@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -154,7 +154,6 @@ StatusCode TRTAlignCondAlg::execute()
     return StatusCode::FAILURE;
   }
 
-
   const InDetDD::TRT_DetElementCollection* alignedColl{m_detManager->getDetectorElementCollection()};
   if (alignedColl==nullptr) {
     ATH_MSG_FATAL("Null pointer is returned by getDetectorElementCollection()");
@@ -165,89 +164,56 @@ StatusCode TRTAlignCondAlg::execute()
   std::unique_ptr<InDetDD::TRT_DetElementContainer> writeCdoDetElCont{std::make_unique<InDetDD::TRT_DetElementContainer>()};
   
   // ____________ Update writeCdo using readCdo ____________                                                                                   
-  std::map<const InDetDD::TRT_BaseElement*, const InDetDD::TRT_BaseElement*> oldToNewMap;
-  std::map<const InDetDD::TRT_EndcapElement*, const InDetDD::TRT_EndcapElement*> oldToNewECMap;
-  std::map<const InDetDD::TRT_BarrelElement*, const InDetDD::TRT_BarrelElement*> oldToNewBAMap;
+  std::map<const InDetDD::TRT_EndcapElement*, InDetDD::TRT_EndcapElement*> oldToNewECMap;
+  std::map<const InDetDD::TRT_BarrelElement*, InDetDD::TRT_BarrelElement*> oldToNewBAMap;
 
-
-  oldToNewMap[nullptr] = nullptr;
   oldToNewECMap[nullptr] = nullptr;
   oldToNewBAMap[nullptr] = nullptr;
 
-  std::unique_ptr<InDetDD::TRT_DetElementCollection> newDetElColl{std::make_unique<InDetDD::TRT_DetElementCollection>()};
-
-  newDetElColl->resize(alignedColl->size(), nullptr);
-
-  //Will create a new aligned detector element collection
-  InDetDD::TRT_DetElementCollection::iterator newEl{newDetElColl->begin()};
-  for (const InDetDD::TRT_BaseElement* oldEl: *alignedColl) {
-
+  //Create new aligned detector elements
+  for (const InDetDD::TRT_BaseElement* oldEl : *alignedColl) {
     InDetDD::TRT_BaseElement::Type type = oldEl->type();
 
-    if(type == InDetDD::TRT_BaseElement::ENDCAP)
-      {
-	const InDetDD::TRT_EndcapElement* oldEl_Endcap = static_cast<const InDetDD::TRT_EndcapElement*>(oldEl);
-	//New encap element with new alignment created based on old element
-        *newEl = new InDetDD::TRT_EndcapElement(*oldEl_Endcap,writeCdo.get());
-       	oldToNewMap[oldEl]= *newEl;
-	oldToNewECMap[oldEl_Endcap]= dynamic_cast<const InDetDD::TRT_EndcapElement*>(*newEl);
-
-      }else if(type == InDetDD::TRT_BaseElement::BARREL){
-        const InDetDD::TRT_BarrelElement* oldEl_Barrel = static_cast<const InDetDD::TRT_BarrelElement*>(oldEl);
-        //New barrel element with new alignment created based on old element
-        *newEl = new InDetDD::TRT_BarrelElement(*oldEl_Barrel,writeCdo.get());
-        oldToNewMap[oldEl]= *newEl;
-        oldToNewBAMap[oldEl_Barrel]= dynamic_cast<const InDetDD::TRT_BarrelElement*>(*newEl);
-
-    }else{
+    if(type == InDetDD::TRT_BaseElement::ENDCAP) {
+      const InDetDD::TRT_EndcapElement* oldEl_Endcap = static_cast<const InDetDD::TRT_EndcapElement*>(oldEl);
+      //New encap element with new alignment created based on old element
+      InDetDD::TRT_EndcapElement* newEl = new InDetDD::TRT_EndcapElement(*oldEl_Endcap,writeCdo.get());
+      oldToNewECMap[oldEl_Endcap] = newEl;
+      writeCdoDetElCont->addEndcapElement(newEl);
+    } else if (type == InDetDD::TRT_BaseElement::BARREL) {
+      const InDetDD::TRT_BarrelElement* oldEl_Barrel = static_cast<const InDetDD::TRT_BarrelElement*>(oldEl);
+      //New barrel element with new alignment created based on old element
+      InDetDD::TRT_BarrelElement* newEl = new InDetDD::TRT_BarrelElement(*oldEl_Barrel,writeCdo.get());
+      oldToNewBAMap[oldEl_Barrel] = newEl;
+      writeCdoDetElCont->addBarrelElement(newEl);
+    } else {
       ATH_MSG_FATAL("Unknown TRT detector element found");
       return StatusCode::FAILURE;
     }
-    newEl++;
   }
 
   //Set detector elements links
-  InDetDD::TRT_DetElementCollection::const_iterator oldIt{alignedColl->begin()};
-  for (InDetDD::TRT_BaseElement* newEl: *newDetElColl) {
-    if (oldToNewMap[(*oldIt)]!=newEl) {
-      ATH_MSG_ERROR("Old and new elements are not synchronized!");
-    }
-    InDetDD::TRT_BaseElement::Type type = newEl->type();
-    if(type == InDetDD::TRT_BaseElement::ENDCAP){
-      InDetDD::TRT_EndcapElement* newEl_Endcap = static_cast<InDetDD::TRT_EndcapElement*>(newEl);
-      InDetDD::TRT_EndcapElement* oldEl_Endcap = static_cast<InDetDD::TRT_EndcapElement*>(*oldIt);
-      newEl_Endcap->setNextInZ(oldToNewECMap[oldEl_Endcap->nextInZ()]);
-      newEl_Endcap->setPreviousInZ(oldToNewECMap[oldEl_Endcap->previousInZ()]);
-      newEl = newEl_Endcap;
-    }else if(type == InDetDD::TRT_BaseElement::BARREL){
-      InDetDD::TRT_BarrelElement* newEl_Barrel = static_cast<InDetDD::TRT_BarrelElement*>(newEl);
-      InDetDD::TRT_BarrelElement* oldEl_Barrel = static_cast<InDetDD::TRT_BarrelElement*>(*oldIt);
-      newEl_Barrel->setNextInR(oldToNewBAMap[oldEl_Barrel->nextInR()]);
-      newEl_Barrel->setPreviousInR(oldToNewBAMap[oldEl_Barrel->previousInR()]);
-      newEl_Barrel->setNextInPhi(oldToNewBAMap[oldEl_Barrel->nextInPhi()]);
-      newEl_Barrel->setPreviousInPhi(oldToNewBAMap[oldEl_Barrel->previousInPhi()]);
-      newEl = newEl_Barrel;
-    }
-    oldIt++;
+  for (auto pairOfEl : oldToNewECMap) {
+    if (!pairOfEl.first) continue; // skip nullptr
+    pairOfEl.second->setNextInZ(oldToNewECMap[pairOfEl.first->nextInZ()]);
+    pairOfEl.second->setPreviousInZ(oldToNewECMap[pairOfEl.first->previousInZ()]);
+  }
+  for (auto pairOfEl : oldToNewBAMap) {
+    if (!pairOfEl.first) continue; // skip nullptr
+    pairOfEl.second->setNextInR(oldToNewBAMap[pairOfEl.first->nextInR()]);
+    pairOfEl.second->setPreviousInR(oldToNewBAMap[pairOfEl.first->previousInR()]);
+    pairOfEl.second->setNextInPhi(oldToNewBAMap[pairOfEl.first->nextInPhi()]);
+    pairOfEl.second->setPreviousInPhi(oldToNewBAMap[pairOfEl.first->previousInPhi()]);
   }
 
-  // Update all detector elements caches and add aligned det elements to the corresponding array based on their type
-  for (InDetDD::TRT_BaseElement* newEl: *newDetElColl) {
+  // Update all detector elements caches
+  for (InDetDD::TRT_BaseElement* newEl : *(writeCdoDetElCont->getElements())) {
     newEl->updateAllCaches();
-    InDetDD::TRT_BaseElement::Type type = newEl->type();
-    if(type == InDetDD::TRT_BaseElement::ENDCAP){
-      InDetDD::TRT_EndcapElement* newEl_Endcap = dynamic_cast<InDetDD::TRT_EndcapElement*>(newEl);
-      writeCdoDetElCont->addEndcapElement(newEl_Endcap);
-    }else if(type == InDetDD::TRT_BaseElement::BARREL){
-      InDetDD::TRT_BarrelElement* newEl_Barrel = dynamic_cast<InDetDD::TRT_BarrelElement*>(newEl);
-      writeCdoDetElCont->addBarrelElement(newEl_Barrel);
-    }    
   }
 
-  // Record WriteCondHandle (size is meaningless here?)
-  const std::size_t size{newDetElColl->size()};
+  // Record WriteCondHandle
+  const std::size_t writeHandleDetElContSize{writeCdoDetElCont->getElements()->size()};
 
-  writeCdoDetElCont->setDetElementCollection(newDetElColl.release());
   writeCdoDetElCont->setNumerology(m_detManager->getNumerology());
 
   // Record the resulting CDO
@@ -265,7 +231,7 @@ StatusCode TRTAlignCondAlg::execute()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandleDetElCont.key() << " with range " << rangeW << " with size of " << size << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandleDetElCont.key() << " with range " << rangeW << " with size of " << writeHandleDetElContSize << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

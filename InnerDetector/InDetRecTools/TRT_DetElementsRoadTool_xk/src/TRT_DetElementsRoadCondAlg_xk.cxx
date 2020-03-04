@@ -75,7 +75,7 @@ StatusCode InDet::TRT_DetElementsRoadCondAlg_xk::execute(const EventContext& ctx
     ATH_MSG_FATAL("Pointer to TRT_Numerology not found in condition store" << m_trtDetEleContKey.fullKey());
   }
 
-  InDet::TRT_DetElementsLayerVectors_xk* layerVectors = new InDet::TRT_DetElementsLayerVectors_xk(3);
+  InDet::TRT_DetElementsLayerVectors_xk layerVectors(3);
 
   if (not trtDetEleHandle.range(rangeTrt)) {
     ATH_MSG_FATAL("Failed to retrieve validity range for " << trtDetEleHandle.key());
@@ -148,7 +148,7 @@ StatusCode InDet::TRT_DetElementsRoadCondAlg_xk::execute(const EventContext& ctx
       double z  =(zmax+zmin)*.5;
       double dz =(zmax-zmin)*.5;
       layer.set(r,dr,z,dz,dfm,Wf,Wz);
-      (layerVectors->at(N)).push_back(std::move(layer));
+      (layerVectors.at(N)).push_back(std::move(layer));
 
     }
   }
@@ -213,7 +213,7 @@ StatusCode InDet::TRT_DetElementsRoadCondAlg_xk::execute(const EventContext& ctx
 	  double z  =(zmax+zmin)*.5;
 	  double dz =(zmax-zmin)*.5;
 	  layer.set(r,dr,z,dz,dfm,Wf,Wz);
-	  (layerVectors->at(N)).push_back(std::move(layer));
+	  (layerVectors.at(N)).push_back(std::move(layer));
 	}
       }
     }
