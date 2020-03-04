@@ -83,11 +83,10 @@ def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__SV1TrackThinning
   TOPQSV1ThinningTool = DerivationFramework__SV1TrackThinning(
                             name                    = TOPQname + "SV1TrackThinning",
-                            ThinningService         = TOPQThinningSvc,
+                            StreamName              = streamName,
                             JetKey                  = "AntiKt4EMTopoJets",
                             InDetTrackParticlesKey  = "InDetTrackParticles",      
-                            SelectionString         = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20*GeV)",
-                            ApplyAnd                = False)
+                            SelectionString         = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20*GeV)")
 
   ToolSvc += TOPQSV1ThinningTool
   thinningTools.append(TOPQSV1ThinningTool)

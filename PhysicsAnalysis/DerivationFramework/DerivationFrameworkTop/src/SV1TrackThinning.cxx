@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -7,7 +7,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "DerivationFrameworkTop/SV1TrackThinning.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
@@ -15,6 +14,8 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODBTagging/BTagging.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
 #include <string>
 
@@ -22,22 +23,15 @@
 DerivationFramework::SV1TrackThinning::SV1TrackThinning(const std::string& t,
         const std::string& n,
         const IInterface* p ) :
-    AthAlgTool(t,n,p),
-    m_thinningSvc("ThinningSvc",n),
+    base_class(t,n,p),
     m_ntot(0),
     m_npass(0),
     m_jetSGKey(""),
-    m_inDetSGKey("InDetTrackParticles"),
     m_selectionString(""),
-    m_and(false),
     m_parser(0)
 {
-    declareInterface<DerivationFramework::IThinningTool>(this);
-    declareProperty("ThinningService", m_thinningSvc);
     declareProperty("JetKey", m_jetSGKey);
-    declareProperty("InDetTrackParticlesKey", m_inDetSGKey);
     declareProperty("SelectionString", m_selectionString);
-    declareProperty("ApplyAnd", m_and);
 }
 
 // Destructor
@@ -49,10 +43,8 @@ StatusCode DerivationFramework::SV1TrackThinning::initialize()
 {
     // Decide which collections need to be checked for ID TrackParticles
     ATH_MSG_VERBOSE("initialize() ...");
-    if (m_inDetSGKey=="") {
-        ATH_MSG_FATAL("No inner detector track collection provided for thinning.");
-        return StatusCode::FAILURE;
-    } else {ATH_MSG_INFO("Using " << m_inDetSGKey << "as the source collection for inner detector track particles");}
+    ATH_CHECK( m_inDetSGKey.initialize (m_streamName) );
+    ATH_MSG_INFO("Using " << m_inDetSGKey << "as the source collection for inner detector track particles");
     if (m_jetSGKey=="") {
         ATH_MSG_FATAL("No jet collection provided for thinning.");
         return StatusCode::FAILURE;
@@ -79,13 +71,11 @@ StatusCode DerivationFramework::SV1TrackThinning::finalize()
 // The thinning itself
 StatusCode DerivationFramework::SV1TrackThinning::doThinning() const
 {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
     // Retrieve main TrackParticle collection
-    const xAOD::TrackParticleContainer* importedTrackParticles;
-    if (evtStore()->retrieve(importedTrackParticles,m_inDetSGKey).isFailure()) {
-        ATH_MSG_ERROR("No TrackParticle collection with name " << m_inDetSGKey << " found in StoreGate!");
-        return StatusCode::FAILURE;
-    }
+    SG::ThinningHandle<xAOD::TrackParticleContainer> importedTrackParticles
+      (m_inDetSGKey, ctx);
 
     // Check the event contains tracks
     unsigned int nTracks = importedTrackParticles->size();
@@ -153,18 +143,7 @@ StatusCode DerivationFramework::SV1TrackThinning::doThinning() const
     }
 
     // Execute the thinning service based on the mask. Finish.
-    if (m_and) {
-        if (m_thinningSvc->filter(*importedTrackParticles, mask, IThinningSvc::Operator::And).isFailure()) {
-            ATH_MSG_ERROR("Application of thinning service failed! ");
-            return StatusCode::FAILURE;
-        }
-    }
-    if (!m_and) {
-        if (m_thinningSvc->filter(*importedTrackParticles, mask, IThinningSvc::Operator::Or).isFailure()) {
-            ATH_MSG_ERROR("Application of thinning service failed! ");
-            return StatusCode::FAILURE;
-        }
-    }
+    importedTrackParticles.keep (mask);
 
     return StatusCode::SUCCESS;
 }
