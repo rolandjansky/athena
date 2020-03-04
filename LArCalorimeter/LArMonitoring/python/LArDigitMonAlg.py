@@ -3,7 +3,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 def LArDigitMonConfigOld(inputFlags):
-    from AthenaMonitoring import AthMonitorCfgHelperOld
+    from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
     from LArMonitoring.LArMonitoringConf import LArDigitMonAlg
 
     helper = AthMonitorCfgHelperOld(inputFlags, 'LArDigitMonCfg')

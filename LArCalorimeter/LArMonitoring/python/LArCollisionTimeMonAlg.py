@@ -3,7 +3,7 @@
 #
 
 def LArCollisionTimeMonConfigOld(inputFlags):
-    from AthenaMonitoring import AthMonitorCfgHelperOld
+    from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
     from LArMonitoring.LArMonitoringConf import LArCollisionTimeMonAlg
     #from AthenaCommon.GlobalFlags import globalflags                                                                                                                               
 
@@ -16,7 +16,7 @@ def LArCollisionTimeMonConfig(inputFlags):
 
     # The following class will make a sequence, configure algorithms, and link                                                                                                      
     # them to GenericMonitoringTools                                                                                                                                                
-    from AthenaMonitoring import AthMonitorCfgHelper
+    from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArCollisionTimeMonCfg')
 
     from AthenaConfiguration.ComponentFactory import CompFactory
