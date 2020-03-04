@@ -283,6 +283,7 @@ if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet
         IsolationSelectionTool  = ToolSvc.DQTIsoGradientTool,
         MuonTrigMatchingTool    = ToolSvc.MatchingTool,
         BCTool                  = BunchCrossingTool(), 
+        FillBCIDTrees           = False,
     )
     ToolSvc += MyDQTGlobalWZFinderTool;
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTGlobalWZFinderTool ];
