@@ -22,8 +22,4 @@ typedef struct _triginfo
 // Enums
 enum class TrigEgammaMonLevel {SHIFTER, EXPERT, DETAIL};
 
-// Monte carlo enum
-namespace MonteCarlo{
-  enum class PDGID {Electron, Photon, ZMother, WMother, EnhancedBias, Unknown};
-}
 

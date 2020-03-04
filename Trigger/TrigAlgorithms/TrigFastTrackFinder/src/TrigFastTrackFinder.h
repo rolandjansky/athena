@@ -126,9 +126,16 @@ protected:
 
   bool m_doCloneRemoval;
   bool m_useBeamSpot; 
+
   bool m_vertexSeededMode;
+
   bool m_doZFinder;
+  bool m_doZFinderOnly;
+
+  bool m_storeZFinderVertices;
+
   bool m_doFastZVseeding;
+
   bool m_doResMonitoring;
 
   // Cuts and settings

@@ -1,6 +1,0 @@
-<lcgdict>
-<class name="FTK_RawTrack" id="60581BB5-6510-4837-8572-6316F7676C5F"/>
-<class name="FTK_RawPixelCluster" id="5B916D3D-6371-4649-8B97-29C5F1BC572F"/>
-<class name="FTK_RawSCT_Cluster" id="90C9ED08-3B76-4AFB-A1E6-E69DD06FB1AA"/>
-<class name="FTK_RawTrackContainer" id="193F7fA2-E650-4E0B-9F67-4311D2E72346"/>
-</lcgdict>

@@ -19,7 +19,8 @@ class LArDQGlobals(object):
                    'Evt_Bins','Evt_Min','Evt_Max','Evt_labels',
                    'EvtRej_Bins','EvtRej_Min','EvtRej_Max','EvtRej_labels','EvtRejYield_labels',
                    'L1Trig_Bins','L1Trig_Min','L1Trig_Max','rejBits_Bins',
-                   'defaultStreamNames')
+                   'defaultStreamNames',
+                   'noisyFEB_Bins','noisyFEB_Max','noisyFEB_Min')
 
 lArDQGlobals = LArDQGlobals()
 
@@ -147,3 +148,9 @@ lArDQGlobals.EvtRejYield_labels = [">=1 FEB in error",">=4 FEBs in error","LArEr
 lArDQGlobals.rejBits_Bins=8192
 
 lArDQGlobals.defaultStreamNames = ["express","Main","CosmicCalo","L1Calo","L1Topo","ZeroBias","Standby","LArCells","LArCellsEmpty","Background","others"]
+
+#NoisyRO
+lArDQGlobals.noisyFEB_Bins=51
+lArDQGlobals.noisyFEB_Min=-0.5
+lArDQGlobals.noisyFEB_Max=50.5
+

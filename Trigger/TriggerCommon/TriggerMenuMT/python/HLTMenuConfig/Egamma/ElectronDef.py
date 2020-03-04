@@ -51,6 +51,8 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         etcut1step          = [ self.getFastCalo() ]
         etcut_sequence      = [ self.getFastCalo(), self.getFastElectron(), self.getPrecisionCaloElectron()]
         electron_sequence   = [ self.getFastCalo(), self.getFastElectron(), self.getPrecisionCaloElectron(), self.getPrecisionElectron()]
+        etcut_noringer_sequence      = [ self.getFastCalo(), self.getFastElectron(), self.getPrecisionCaloElectron()]
+        electron_noringer_sequence   = [ self.getFastCalo(), self.getFastElectron(), self.getPrecisionCaloElectron(), self.getPrecisionElectron()]
 
         stepDictionary = {
                 'etcut1step': etcut1step,
@@ -59,6 +61,11 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 'lhvloose'  : electron_sequence,
                 'lhmedium'  : electron_sequence,
                 'lhtight'   : electron_sequence,
+                'etcutnoringer'     : etcut_noringer_sequence,
+                'lhloosenoringer'   : electron_noringer_sequence,
+                'lhvloosenoringer'  : electron_noringer_sequence,
+                'lhmediumnoringer'  : electron_noringer_sequence,
+                'lhtightnoringer'   : electron_noringer_sequence,
                 }
 
 

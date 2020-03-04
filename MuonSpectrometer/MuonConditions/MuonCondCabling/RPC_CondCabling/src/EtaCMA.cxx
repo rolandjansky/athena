@@ -61,6 +61,7 @@ EtaCMA::EtaCMA(int num,int stat,int type,int eta, int phi,
     m_msgSvc = Athena::getMessageSvc();
     MsgStream log(m_msgSvc, name());
     m_debug = log.level() <= MSG::DEBUG;
+    m_verbose = log.level() <= MSG::VERBOSE;
 
     m_pivot_rpc_read  = 1;
     m_lowPt_rpc_read  = 1;
@@ -80,6 +81,7 @@ CMAparameters(static_cast<const CMAparameters&>(cma))
     m_msgSvc = Athena::getMessageSvc();
     MsgStream log(m_msgSvc, name());
     m_debug = log.level() <= MSG::DEBUG;
+    m_verbose = log.level() <= MSG::VERBOSE;
 
     m_pivot_RPCs = cma.pivot_RPCs();
     m_lowPt_RPCs = cma.lowPt_RPCs();

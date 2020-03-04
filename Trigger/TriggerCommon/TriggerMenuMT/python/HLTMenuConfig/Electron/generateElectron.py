@@ -29,14 +29,13 @@ def generateChains( flags,  chainDict ):
 
     l2CaloHypo =  l2CaloHypoCfg( flags, name = 'L2ElectronCaloHypo',
                                  CaloClusters = recordable('HLT_L2CaloEMClusters'))
-    l2CaloHypo.HypoTools=[ TrigL2CaloHypoToolFromDict( chainDict ) ]
 
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 
     fastCaloSequence = CAMenuSequence( Sequence    = l2CaloReco.sequence(),
                                      Maker       = l2CaloReco.inputMaker(),
                                      Hypo        = l2CaloHypo,
-                                     HypoToolGen = None, 
+                                     HypoToolGen = TrigL2CaloHypoToolFromDict, 
                                      CA = accCalo)
 
     accCalo.printConfig()
@@ -65,14 +64,12 @@ def generateChains( flags,  chainDict ):
     def makeFakeHypoTool(name, cfg):
         return HLTTest__TestHypoTool(name)
 
-    fakeHypoAlg.HypoTools = [ makeFakeHypoTool(chainDict['chainName'], None) ]
-
     accTrk.addEventAlgo(fakeHypoAlg, sequenceName=stepView.getName())
 
     fastInDetSequence = CAMenuSequence( Sequence    = fastInDetReco.sequence(),
                                       Maker       = fastInDetReco.inputMaker(),
                                       Hypo        = fakeHypoAlg,
-                                      HypoToolGen = None,
+                                      HypoToolGen = makeFakeHypoTool,
                                       CA = accTrk)
 
     fastInDetStep = ChainStep( secondStepName, [fastInDetSequence] )

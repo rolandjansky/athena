@@ -9,6 +9,7 @@
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
 
 import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
@@ -162,6 +163,7 @@ def setupMenu():
         ChainProp(name="HLT_tau25_looseRNN_tracktwo_L1TAU12IM",groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_mediumRNN_tracktwo_L1TAU12IM",groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_tightRNN_tracktwo_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_medium1_tracktwoEF_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_idperf_track_L1TAU100",groups=SingleTauGroup),
         ChainProp(name="HLT_tau0_perf_ptonly_L1TAU100",groups=SingleTauGroup),
@@ -175,6 +177,8 @@ def setupMenu():
         #ATR 20603
         ChainProp(name='HLT_2mu4_bJpsimumu_L12MU4',     groups=BphysicsGroup),
         ChainProp(name='HLT_2mu4_bUpsimumu_L12MU4',     groups=BphysicsGroup),
+        #ATR-20839
+        ChainProp(name='HLT_2mu4_bDimu_L12MU4',     groups=BphysicsGroup),    
     ]
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
    ]
@@ -194,24 +198,7 @@ def setupMenu():
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + [ ]
 
-    signatureList=[]
-    for prop in dir(TriggerFlags):
-        if prop[-5:]=='Slice':
-            sliceName=prop
-            slice=getattr(TriggerFlags,sliceName)
-            if slice.signatures():
-                signatureList.extend(slice.signatures())
-            else:
-                log.debug('SKIPPING '+str(sliceName))
-    mySigList=[]
-    for allInfo in signatureList:
-        mySigList.append(allInfo[0])
-    mydict={}
-    for chain in mySigList:
-        mydict[chain]=[-1,0,0]
-    mydict.update(Prescales.HLTPrescales_cosmics)
-    from copy import deepcopy
-    Prescales.HLTPrescales_cosmics = deepcopy(mydict)
+    addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
 
 
 Prescales = mc_menu.Prescales

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
+def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
 
   from AthenaCommon.Constants import INFO,ERROR,FALSE,TRUE,DEBUG,VERBOSE
 
@@ -14,7 +14,16 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
 
   if not 'rec' in dir():
     from RecExConfig.RecFlags  import rec
-
+    
+  from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
+  from TriggerJobOpts.TriggerFlags import TriggerFlags
+      
+  EDMDecodingVersion()
+      
+  mt_chains = True
+  if ( TriggerFlags.EDMDecodingVersion < 3 or legacy_monitoring ) :
+    mt_chains = False
+        
   if rec.doInDet:
     from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestPhysValMon
     from AthenaCommon.AppMgr import release_metadata
@@ -22,15 +31,6 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
 
     def makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic = False, useOffline = False, doFS=False ):
 
-      from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
-      from TriggerJobOpts.TriggerFlags import TriggerFlags
-      
-      EDMDecodingVersion()
-      
-      mt_chains = True
-      if ( TriggerFlags.EDMDecodingVersion < 3 or legacy_monitoring ) :
-        mt_chains = False
-        
       Monname = "TestIDPhysValMon" + name
       TestIDPhysValMon = TrigTestPhysValMon(name=Monname)
       TestIDPhysValMon.SliceTag = "HLT/IDMon/" + name
@@ -83,8 +83,8 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
     useHighestPT = True
     if mt_chains:
       chainnames = [
-        "HLT_e.*idperf.*:key=HLT_xAODTracks_Electron",
-        "HLT_e.*etcut.*:key=HLT_xAODTracks_Electron"
+        "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF",
+        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF"
       ]
     else:
       chainnames = [
@@ -100,8 +100,8 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
     useOffline=True
     if mt_chains:
       chainnames = [
-        "HLT_e.*idperf.*:key=HLT_xAODTracks_Electron",
-        "HLT_e.*etcut.*:key=HLT_xAODTracks_Electron"
+        "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF",
+        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF"
       ]
     else:      
       chainnames = [
@@ -118,7 +118,7 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
     useHighestPT = True
     if mt_chains:
       chainnames = [
-        "HLT_mu.*idperf.*:key=HLT_xAODTracks_Muon"
+        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF"
       ]
     else:
       chainnames = [
@@ -136,7 +136,7 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
     useOffline=True
     if mt_chains:
       chainnames = [
-        "HLT_mu.*idperf.*:key=HLT_xAODTracks_Muon"
+        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF"
       ]
     else:
       chainnames = [
@@ -152,9 +152,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
     useHighestPT = True
     if mt_chains:
       chainnames = [
-        "HLT_tau.*tracktwo.*idperf.*:key=HLT_xAODTracks_TauCore",
-        "HLT_tau.*tracktwo.*idperf.*:key=HLT_xAODTracks_TauIso",
-        "HLT_tau.*tracktwo.*idperf.*:key=HLT_xAODTracks_Tau"
+        "HLT_tau.*tracktwo.*idperf.*:key=HLT_IDTrack_TauCore_FTF",
+        "HLT_tau.*tracktwo.*idperf.*:key=HLT_IDTrack_TauIso_FTF",
+        "HLT_tau.*tracktwo.*idperf.*:key=HLT_IDTrack_Tau_FTF"
       ]
     else:
       chainnames = [
@@ -174,9 +174,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
     useOffline=True
     if mt_chains:
       chainnames = [
-        "HLT_tau.*tracktwo.*idperf.*:key=HLT_xAODTracks_TauCore",
-        "HLT_tau.*tracktwo.*idperf.*:key=HLT_xAODTracks_TauIso",
-        "HLT_tau.*tracktwo.*idperf.*:key=HLT_xAODTracks_Tau"
+        "HLT_tau.*tracktwo.*idperf.*:key=HLT_IDTrack_TauCore_FTF",
+        "HLT_tau.*tracktwo.*idperf.*:key=HLT_IDTrack_TauIso_FTF",
+        "HLT_tau.*tracktwo.*idperf.*:key=HLT_IDTrack_Tau_FTF"
       ]
     else:
       chainnames = [
@@ -251,3 +251,4 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=false ):
       outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic=True)]
       
   return outputlist
+

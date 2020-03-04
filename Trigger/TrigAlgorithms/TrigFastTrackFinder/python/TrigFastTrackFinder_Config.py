@@ -772,18 +772,6 @@ class TrigFastTrackFinder_Jet(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_Jet"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_Jet","Jet")
 
-class TrigFastTrackFinder_FTK(TrigFastTrackFinderBase):
-  def __init__(self, name = "TrigFastTrackFinder_FTK"):
-    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTK","FTK")
-
-class TrigFastTrackFinder_FTKRefit(TrigFastTrackFinderBase):
-  def __init__(self, name = "TrigFastTrackFinder_FTKRefit"):
-    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTKRefit","FTKRefit")
-
-class TrigFastTrackFinder_FTKMon(TrigFastTrackFinderBase):
-  def __init__(self, name = "TrigFastTrackFinder_FTKMon"):
-    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTKMon","FTKMon")
-
 class TrigFastTrackFinder_MinBias(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_MinBias"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_MinBias","MinBias")

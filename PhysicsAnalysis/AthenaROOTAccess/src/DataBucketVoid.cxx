@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataBucketVoid.cxx,v 1.12 2009-01-23 16:07:41 ssnyder Exp $
 /**
  * @file  AthenaROOTAccess/src/DataBucketVoid.cxx
  * @author scott snyder
@@ -19,7 +18,7 @@
 #include "TClass.h"
 #include "TBaseClass.h"
 #include "TList.h"
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 
 
 namespace {

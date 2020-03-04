@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # External dependencies
 import ROOT
@@ -7,7 +9,7 @@ import os.path
 
 inFileList = sys.argv[1:]
 if len(inFileList)<2:
-    print "Need more than one input file"
+    print ("Need more than one input file")
     exit(2)
 
 

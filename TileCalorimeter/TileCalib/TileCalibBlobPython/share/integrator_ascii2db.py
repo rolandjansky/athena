@@ -1,15 +1,17 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TileCalibBlobPython_integratorExample
 # Nils Gollub <nils.gollub@cern.ch>, 2008-02-07
 # change Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
+from __future__ import print_function
+
 import sys, re, os.path
 
 #=== get a logger
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("int_ascii2db")
 
 #=== process command line arguments
@@ -22,7 +24,7 @@ comment       = "noComment"
 regFrom = -1
 fileList = []
 if (len(sys.argv)<2) or ("-h" in sys.argv) or ("--help" in sys.argv):
-    print usage
+    print (usage)
     sys.exit(0)
 sys.argv.pop(0)
 while len(sys.argv)>0:
@@ -38,7 +40,7 @@ while len(sys.argv)>0:
         if os.path.exists(arg):
             fileList.append(arg)
         else:
-            log.error("File \"%s\" does not exist, ignoring input!" % arg)
+            log.error("File \"%s\" does not exist, ignoring input!", arg)
         
 
 import cppyy
@@ -69,13 +71,13 @@ defVec.push_back(default) # gain 5
 defVec.push_back(default) # gain 6
 
 #=== define search patterns
-re_file = re.compile("int_gains_(\D{3})(\d{2})")
-re_Res  = re.compile("Res\s*channel:\s*(.*)\s*gain:\s*(.*)\s*" +
-                     "gain:\s*(.*)\s*\+\-\s*(.*)\s*"           +
-                     "chi2/DF:\s*(.*)"                         )
-re_Ped  = re.compile("Ped\s*gain:\s*(.*)\s*dac:\s*(.*)\s*chan:\s*(.*)\s*" +
-                     "pedestal:\s*(.*)\s*\+\-\s*(.*)\s*"                  +
-                     "rms:\s*(.*)\s*\+\-\s*(.*)\s*"                       )
+re_file = re.compile("int_gains_(\\D{3})(\\d{2})")
+re_Res  = re.compile("Res\\s*channel:\\s*(.*)\\s*gain:\\s*(.*)\\s*" +
+                     "gain:\\s*(.*)\\s*\\+\\-\\s*(.*)\\s*"           +
+                     "chi2/DF:\\s*(.*)"                         )
+re_Ped  = re.compile("Ped\\s*gain:\\s*(.*)\\s*dac:\\s*(.*)\\s*chan:\\s*(.*)\\s*" +
+                     "pedestal:\\s*(.*)\\s*\\+\\-\\s*(.*)\\s*"            +
+                     "rms:\\s*(.*)\\s*\\+\\-\\s*(.*)\\s*"                 )
 
 #=== define rosId mapping
 rosId = {'LBA' : 1,
@@ -94,7 +96,7 @@ for fileName in fileList:
     else:
         log.error("Invalid file name \"%s\", skipping file..." , fileName)
 
-    log.info("Processing file %s" % fileName)
+    log.info("Processing file %s", fileName)
 
     #=== get drawer object and initialize
     flt = blobWriter.getDrawer('Flt',rosIdx,modIdx)
@@ -136,9 +138,9 @@ for fileName in fileList:
             flt.setData(pmtIdx,gainIdx,7,rmsErr)
             pedCount += 1 
 
-    log.info("---> %s%s, registered %3i Res and %3i Ped lines" % (result_file.groups()[0],
-                                                                  result_file.groups()[1],
-                                                                  resCount, pedCount))
+    log.info("---> %s%s, registered %3i Res and %3i Ped lines", result_file.groups()[0],
+             result_file.groups()[1],
+             resCount, pedCount)
              
 #=== register all drawers in the database
 blobWriter.setComment(author,comment)

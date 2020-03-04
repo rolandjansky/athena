@@ -7,14 +7,14 @@ def getSecondStageBjetTracking( inputRoI ):
 
     # Second stage of Fast tracking (for precision tracking preparation)
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs = makeInDetAlgs( whichSignature='Jet',separateTrackParticleCreator="_bjet", rois=inputRoI )
+    viewAlgs = makeInDetAlgs( whichSignature='Jet',separateTrackParticleCreator="_Bjet", rois=inputRoI )
 
     algSequence.append( parOR("SecondStageFastTrackingSequence",viewAlgs) )
 
     # Precision Tracking
     from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
 
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjet", inputFTFtracks="TrigFastTrackFinder_Tracks_bjet" )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjet", inputFTFtracks="TrigFastTrackFinder_Tracks_Bjet" )
     algSequence += PTAlgs
 
     return [ algSequence, PTTracks, PTTrackParticles ]

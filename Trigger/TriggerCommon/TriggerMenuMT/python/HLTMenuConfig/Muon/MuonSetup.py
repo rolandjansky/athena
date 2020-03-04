@@ -11,7 +11,7 @@ log = logging.getLogger('MuonSetup')
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
 
-TrackParticlesName = recordable("HLT_xAODTracks_Muon")
+TrackParticlesName = recordable("HLT_IDTrack_Muon_FTF")
 theFTF_name = "FTFTracks_Muons"
 CBTPname = recordable("HLT_CBCombinedMuon_RoITrackParticles")
 CBTPnameFS = recordable("HLT_CBCombinedMuon_FSTrackParticles")
@@ -532,7 +532,7 @@ def muEFCBRecoSequence( RoIs, name ):
 
 
   #Default from FTF
-  #trackParticles = "xAODTracks"
+  #trackParticles = "IDTrack"
   #TODO: change according to what needs to be done here
   #Last key in the list is for the TrackParticles after all PT stages (so far only one :) )
   trackParticles = PTTrackParticles[-1]

@@ -6,7 +6,8 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
-from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIdSequence, tauFTFTrackSequence
+
+from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIdSequence, tauFTFTrackSequence, tauFTFTrackTwoSequence, tauEFSequence
 
 # ====================================================================================================  
 #    Get MenuSequences
@@ -61,8 +62,8 @@ def tauCaloMVAMenuSequence(name):
                           Hypo        = theTauCaloMVAHypo,
                           HypoToolGen = TrigL2TauHypoToolFromDict )
 
-# ===============================================================================================                                         
-#     Fast track (ID trig) + precision tracking + EFMVHypo step                                                                             
+# ===============================================================================================                                
+#     Fast track (ID trig) + precision tracking + EFMVHypo step                                                                  
 # ===============================================================================================
 
 def tauTrackSeq():
@@ -79,6 +80,26 @@ def tauTrackSeq():
                           Maker       = ftfTrackViewsMaker,
                           Hypo        = precisionHypo,
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
+
+# ===============================================================================================                                            
+#     Fast track (ID trig) + precision tracking + EFMVHypo step                                                                               
+# ===============================================================================================                                              
+
+def tauTrackTwoSeq():
+
+    (sequence, ftfTrackTwoViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauFTFTrackTwoSequence,ConfigFlags )
+
+    from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlgMT
+    precisionHypo = TrigEFTauMVHypoAlgMT("EFTauMVHypoTrackTwo")
+    precisionHypo.taujetcontainer = sequenceOut
+
+    from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
+
+    return  MenuSequence( Sequence    = sequence,
+                          Maker       = ftfTrackTwoViewsMaker,
+                          Hypo        = precisionHypo,
+                          HypoToolGen = TrigEFTauMVHypoToolFromDict )
+
 
 # ===============================================================================================
 #     Fast track (ID trig) + precision tracking + EFMVHypo step   
@@ -139,3 +160,20 @@ def tauTwoStepTrackSeqIso():
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
 
 
+# ===============================================================================================                                             #                                                                                                                                             # ===============================================================================================                                                                                 
+
+
+def tauTrackTwoEFSeq():
+
+    (sequence, efViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauEFSequence,ConfigFlags )
+
+    from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlgMT
+    precisionHypo = TrigEFTauMVHypoAlgMT("EFTauMVHypoAlg")
+    precisionHypo.taujetcontainer = sequenceOut
+
+    from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
+
+    return  MenuSequence( Sequence    = sequence,
+                          Maker       = efViewsMaker,
+                          Hypo        = precisionHypo,
+                          HypoToolGen = TrigEFTauMVHypoToolFromDict )

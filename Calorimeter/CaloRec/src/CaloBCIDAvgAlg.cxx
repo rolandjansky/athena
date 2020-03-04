@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloBCIDAvgAlg.h" 
@@ -50,7 +50,9 @@ StatusCode CaloBCIDAvgAlg::execute(const EventContext& ctx) const {
   SG::ReadCondHandle<LArMCSym> mcSymHdl(m_mcSym,ctx);
   const LArMCSym* mcSym=*mcSymHdl;
 
-  std::unordered_map<unsigned,float> avgEshift;
+  std::vector<float> avgEshift;
+  avgEshift.reserve (mcSym->symIds().size());
+
   const int bcid = ei->bcid();
 
   std::vector<float> lumiVec;
@@ -117,7 +119,7 @@ StatusCode CaloBCIDAvgAlg::execute(const EventContext& ctx) const {
       eOFC = eOFC * MinBiasAverage;
    
       //std::cout << " index, eOFC " << index << " " << eOFC << std::endl;
-      avgEshift[hwid.get_identifier32().get_compact()]=eOFC;
+      avgEshift.push_back (eOFC);
     }      // loop over cells
   } else { // I am close to the boundary
 
@@ -162,16 +164,17 @@ StatusCode CaloBCIDAvgAlg::execute(const EventContext& ctx) const {
       }
       //std::cout << std::endl;
       eOFC = eOFC * MinBiasAverage;
-      avgEshift[hwid.get_identifier32().get_compact()]=eOFC;
+      avgEshift.push_back (eOFC);
     }      // loop over cells
   } // end of the check bcid boundary
 
 #ifdef DONTDO // some debug code, please, ignore
   std::cout << "BCIDAlg corrections for BCID : " << bcid << std::endl;
-  for (const HWIdentifier hwid : mcSym->symIds()) {
-    unsigned id32=hwid.get_identifier32().get_compact();
-    float eshift=avgEshift[id32];
+  for (size_t i = 0; i < mcSym->symIds().size(); i++) {
+    const HWIdentifier hwid = mcSym->symIds()[i];
+    float eshift=avgEshift[i];
     if ( fabsf(1e9*(eshift)) > 0.001 ){
+      unsigned id32=hwid.get_identifier32().get_compact();
       std::cout << "Alg BCID " << bcid << ", cell [" << id32 <<"] = " <<(double)eshift << std::endl;
     }
   }

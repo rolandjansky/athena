@@ -139,7 +139,7 @@ class HypoToolConf(object):
     """ Class to group info on hypotools for ChainDict"""
     def __init__(self, hypoToolGen):
         self.hypoToolGen = hypoToolGen
-        self.name=hypoToolGen.__name__ if hypoToolGen else "None"
+        self.name=hypoToolGen.__name__
 
 
     def setConf( self, chainDict):

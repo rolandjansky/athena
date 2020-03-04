@@ -9,19 +9,26 @@ class progressBar:
         self.span = maxValue - minValue
         self.amount = 0       # When amount == max, we are 100% done
         self.nextUpdate = minValue+float(self.span/100.0)
-        if len(prefix): self.prefix=prefix+" ["
-        else: self.prefix="["
-        if len(suffix): self.suffix="] " + suffix
-        else: self.suffix="]"
+        if len(prefix):
+            self.prefix=prefix+" ["
+        else:
+            self.prefix="["
+        if len(suffix):
+            self.suffix="] " + suffix
+        else:
+            self.suffix="]"
         self.width = totalWidth - len(self.prefix) - len(self.suffix)
         self.update(0)  # Build progress bar string
 
     def update(self, newAmount = 0):
-        if newAmount < self.min: newAmount = self.min
-        if newAmount > self.max: newAmount = self.max
+        if newAmount < self.min:
+            newAmount = self.min
+        if newAmount > self.max:
+            newAmount = self.max
 
         #=== only continue if something new to draw
-        if newAmount < self.nextUpdate and newAmount<self.max : return
+        if newAmount < self.nextUpdate and newAmount<self.max :
+            return
         self.nextUpdate = self.nextUpdate+float(self.span/100.0)
         self.amount = newAmount
 
