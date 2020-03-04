@@ -168,7 +168,10 @@ def generateL1DecoderAndChains():
 
     # combined chain
     if doCombo:
-        emptySeq = EmptyMenuSequence()
+        emptySeq1 = EmptyMenuSequence("step1EmptySeqence")
+        emptySeq2 = EmptyMenuSequence("step2EmptySeqence")
+        emptySeq3 = EmptyMenuSequence("step3EmptySeqence")
+        emptySeq4 = EmptyMenuSequence("step4EmptySeqence")
         if not doElectron:
             from TrigUpgradeTest.HLTSignatureConfig import elMenuSequence        
             el11 = elMenuSequence(step="1",reconame="v1", hyponame="v1")    
@@ -201,10 +204,10 @@ def generateL1DecoderAndChains():
      
         CombChains =[
 
-            makeChain(name='HLT_mu6_e8_L1MU6_EM5',  L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_em_empty", [el11, emptySeq], multiplicity=[1,1])] ),
-#                                                                                             ChainStep("Step2_em_empty", [el21, emptySeq], multiplicity=[1,1]),
-#                                                                                             ChainStep("Step3_mu_empty", [emptySeq, mu11], multiplicity=[1,1]),
-#                                                                                             ChainStep("Step4_mu_empty", [emptySeq, mu21], multiplicity=[1,1])] ),
+            makeChain(name='HLT_mu6_e8_L1MU6_EM5',  L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_em_empty", [emptySeq1, el12], multiplicity=[1,1])] ),
+            #                                                                                             ChainStep("Step2_em_empty", [emptySeq2, el22], multiplicity=[1,1]),
+            #                                                                                             ChainStep("Step3_mu_empty", [mu31, emptySeq3], multiplicity=[1,1]),
+            #                                                                                             ChainStep("Step4_mu_empty", [mu21, emptySeq4], multiplicity=[1,1])] ),
 
             makeChain(name='HLT_mu6Comb_e8_L1MU6_EM5', L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu2_em", [mu12, el11], multiplicity=[1,1]),
                                                                                                 ChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1])] ),

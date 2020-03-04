@@ -303,17 +303,22 @@ def isEmptyAlg(alg):
 ##########################################################
 # Now sequences and chains
 ##########################################################
-from AthenaConfiguration.ComponentFactory import CompFactory # for the default maker alg?
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 class EmptyMenuSequence(object):
     """ Class to emulate reco sequences with no Hypo"""
     """ By construction it has no Hypo;"""
     
-    def __init__(self):
-        Maker = CompFactory.HLTTest__TestInputMaker("Empty", RoIsLink="initialRoI", LinkName="initialRoI")
-        self._name = "Empty"
+    def __init__(self, name):
+        Maker = CompFactory.HLTTest__TestInputMaker("IM"+name, RoIsLink="initialRoI", LinkName="initialRoI")
+        self._name = name
         self._maker       = InputMakerNode( Alg = Maker )
         self._seed=''
+        self._sequence     = Node( Alg = seqAND(name, [Maker]))
+
+    @property
+    def sequence(self):
+        return self._sequence
 
     @property
     def seed(self):
@@ -328,7 +333,7 @@ class EmptyMenuSequence(object):
         return self._maker
 
     def getOutputList(self):
-        return self.__maker.readOutputList()[0] # Only one since it's merged
+        return self.__maker.readOutputList() # Only one since it's merged
 
     def connectToFilter(self, outfilter):
         """ Connect filter to the InputMaker"""
@@ -339,7 +344,15 @@ class EmptyMenuSequence(object):
 
     def addToSequencer(self, stepReco, seqAndView, already_connected):
         # menu sequence empty do not add to athena sequencer
-        log.debug("This sequence is empty. Not added to athena sequencer")
+        log.debug("This sequence is empty. Adding Maker node only to athena sequencer")
+        ath_sequence = self.sequence.Alg
+        name = ath_sequence.name()
+        if name in already_connected:
+            log.debug("AthSequencer %s already in the Tree, not added again",name)
+            return stepReco, seqAndView, already_connected
+        else:
+            already_connected.append(name)
+            stepReco += ath_sequence
         return stepReco, seqAndView, already_connected        
 
     def buildCFDot(self, cfseq_algs, all_hypos, isCombo, last_step_hypo_nodes, file):
