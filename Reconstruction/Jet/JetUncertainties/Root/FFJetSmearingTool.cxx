@@ -96,10 +96,6 @@ StatusCode FFJetSmearingTool::initialize(/*const std::string&*/)
 	//reading the config file as in JetUncertaintiesTool
   TEnv settings;
 
-//  TString configFilePath = m_configFile; //In future versions of the tool you can add a CalibrArea and other specifications as in jetuncertaintiestool
-
-m_configFile = "rel21/Spring2020/FFJetSmearingTool_TestOnly_JMS_JMR.config";
-
 
   const TString configFilePath = jet::utils::findFilePath(m_configFile.c_str(),m_path.c_str(),m_calibArea.c_str());
 
