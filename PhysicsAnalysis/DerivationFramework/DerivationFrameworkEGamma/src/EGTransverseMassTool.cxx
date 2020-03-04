@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -120,25 +120,25 @@ namespace DerivationFramework {
     // if not found for MET (particle2), will use default met() and phi()
     std::vector<float>* pt1 = 0; 
     if (m_pt1BranchName!="" && evtStore()->contains<std::vector<float> >(m_pt1BranchName))
-      evtStore()->retrieve((const std::vector<float>*&)pt1,m_pt1BranchName); 
+      ATH_CHECK(evtStore()->retrieve((const std::vector<float>*&)pt1,m_pt1BranchName));
     else
       ATH_MSG_VERBOSE("Pt variable for particle to be used to compute transverse mass not specified or not found in SG - will use default one");  
 
     std::vector<float>* phi1 = 0;
     if (m_phi1BranchName!="" && evtStore()->contains<std::vector<float> >(m_phi1BranchName))
-      evtStore()->retrieve((const std::vector<float>*&)phi1,m_phi1BranchName);
+      ATH_CHECK(evtStore()->retrieve((const std::vector<float>*&)phi1,m_phi1BranchName));
     else
       ATH_MSG_VERBOSE("Phi variable for particle to be used to compute transverse mass not specified or not found in SG - will use default one");  
 
     std::vector<float>* pt2 = 0; 
     if (m_pt2BranchName!="" && evtStore()->contains<std::vector<float> >(m_pt2BranchName))
-      evtStore()->retrieve((const std::vector<float>*&)pt2,m_pt2BranchName); 
+      ATH_CHECK(evtStore()->retrieve((const std::vector<float>*&)pt2,m_pt2BranchName));
     else
       ATH_MSG_VERBOSE("Pt variable for MET to be used to compute transverse mass not specified or not found in SG - will use default one");  
 
     std::vector<float>* phi2 = 0;
     if (m_phi2BranchName!="" && evtStore()->contains<std::vector<float> >(m_phi2BranchName))
-      evtStore()->retrieve((const std::vector<float>*&)phi2,m_phi2BranchName);
+      ATH_CHECK(evtStore()->retrieve((const std::vector<float>*&)phi2,m_phi2BranchName));
     else
       ATH_MSG_VERBOSE("Phi variable for MET to be used to compute transverse mass not specified or not found in SG - will use default one");  
 
