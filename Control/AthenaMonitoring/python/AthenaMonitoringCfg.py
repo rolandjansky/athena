@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -52,6 +52,11 @@ def AthenaMonitoringCfg(flags):
         info('Set up JetTagging monitoring')
         from JetTagMonitoring.JetTagMonitorAlgorithm import JetTagMonitorConfig
         result.merge(JetTagMonitorConfig(flags))
+
+    if flags.DQ.Steering.doEgammaMon:
+        info('Set up Egamma monitoring')
+        from egammaPerformance.egammaMonitoringConfig import egammaMonitoringConfig
+        result.merge(egammaMonitoringConfig(flags))
 
     if flags.DQ.Steering.doJetMon:
         info('Set up Jet monitoring')
