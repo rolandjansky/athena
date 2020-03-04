@@ -650,7 +650,7 @@ const Trk::TrackingVolume* Trk::TrackingVolume::nextVolume(const Amg::Vector3D& 
     Amg::Vector3D cDir = dirScalor*dir;
     double pathLength = 10e10;
     // now loop through the and find the closest 
-    auto bSurfaces = boundarySurfaces();
+    const auto &bSurfaces = boundarySurfaces();
     for (auto& bSurfIter : bSurfaces ){
         // get the intersection soltuion
         Trk::Intersection sfI = (*bSurfIter).surfaceRepresentation().straightLineIntersection(gp, cDir, forceDir, true);
