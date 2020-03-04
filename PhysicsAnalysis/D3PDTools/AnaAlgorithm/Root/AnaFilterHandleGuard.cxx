@@ -33,6 +33,19 @@ namespace EL
 
 
   AnaFilterHandleGuard ::
+  AnaFilterHandleGuard (const AnaFilterHandle& val_handle,
+                        const EventContext& /*val_eventContext*/,
+                        bool val_passedDefault)
+    : AsgMessagingForward (&val_handle)
+    , m_handle (val_handle)
+    , m_passed (val_passedDefault)
+  {
+    assert (m_handle.m_isInitialized);
+  }
+
+
+
+  AnaFilterHandleGuard ::
   ~AnaFilterHandleGuard () noexcept
   {
     ANA_MSG_DEBUG ("setting algorithm-filter-passed flag to " << m_passed);
