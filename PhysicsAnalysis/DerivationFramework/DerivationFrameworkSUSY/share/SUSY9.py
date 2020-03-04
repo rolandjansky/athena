@@ -181,7 +181,7 @@ acceptors.append(METrequirement)
 # combine all
 looseSelection       = ' || '.join(acceptors)
 
-print "Skimming expression:", looseSelection
+printfunc ("Skimming expression:", looseSelection)
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SUSY9SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY9SkimmingTool",
