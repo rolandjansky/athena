@@ -226,9 +226,7 @@ namespace InDet {
       } 
 
       if (m_SCTgapParameter != 0.) {
-        double dm = offset(element1, element2, stripLengthGapTolerance);
-        min -= dm;
-        max += dm;
+        updateRange(element1, element2, stripLengthGapTolerance, min, max);
       }
    
       for (; clusters2Next!=clusters2Finish; ++clusters2Next){
@@ -257,7 +255,7 @@ namespace InDet {
                                                               
     InDet::PixelClusterCollection::const_iterator clusStart = clusters->begin(); 
     InDet::PixelClusterCollection::const_iterator clusFinish = clusters->end(); 
-    
+
     if ((*clusStart)->detectorElement()) {
       IdentifierHash idHash = clusters->identifyHash(); 
       const Amg::Transform3D& T = (*clusStart)->detectorElement()->surface().transform();
@@ -337,9 +335,7 @@ namespace InDet {
         break;
       } 
       if (m_SCTgapParameter != 0.) {
-        double dm = offset(element1, element2, stripLengthGapTolerance);
-        min -= dm;
-        max += dm;
+        updateRange(element1, element2, stripLengthGapTolerance, min, max);
       }
    
       for (; clusters2Next!=clusters2Finish; ++clusters2Next){
@@ -409,9 +405,7 @@ namespace InDet {
         }
  
         if (m_SCTgapParameter != 0.) {
-          double dm = offset(element1, element2, stripLengthGapTolerance);
-          min2 -= dm;
-          max2 += dm;
+          updateRange(element1, element2, stripLengthGapTolerance, min2, max2);
         }
 
         for (; clusters2Next!=clusters2Finish; ++clusters2Next) {
@@ -450,120 +444,301 @@ namespace InDet {
     if (fabs(T1(2,2)) > 0.7) d*=(r/fabs(T1(2,3))); // endcap d = d*R/Z
 
     stripLengthGapTolerance = d; 
+    
     return dm;
   }
-
-  void SiSpacePointMakerTool::offset(double& stripLengthGapTolerance,
-                                     const InDetDD::SiDetectorElement* element1,
-                                     const InDetDD::SiDetectorElement* element2) const {
-    const Amg::Transform3D& T1 = element1->transform();
-    const Amg::Transform3D& T2 = element2->transform();
-    Amg::Vector3D           C  = element1->center()   ;
-
-    double r   = sqrt(C[0]*C[0]+C[1]*C[1])                                                    ;
-    double x12 = T1(0,0)*T2(0,0) + T1(1,0)*T2(1,0) + T1(2,0)*T2(2,0)                              ;
-    double s   = (T1(0,3)-T2(0,3))*T1(0,2) + (T1(1,3)-T2(1,3))*T1(1,2) + (T1(2,3)-T2(2,3))*T1(2,2);
-
-    double dm  = (m_SCTgapParameter*r)*fabs(s*x12);
-
-    double d   = 0.;
-    if (element1->design().shape() == InDetDD::Trapezoid || element1->design().shape() == InDetDD::Annulus) {
-      d = dm*(1./0.04);
-    } else {
-      d = dm/sqrt((1.-x12)*(1.+x12));
-    }
-
-    if (fabs(T1(2,2)) > 0.7) d *= (r/fabs(T1(2,3))); // endcap d = d*R/Z
-    stripLengthGapTolerance = d;
-  }
-
+  
   ///////////////////////////////////////////////////////////////////
-  // Compare SCT strips and space points production
+  // Updating the range used to search for overlaps
   ///////////////////////////////////////////////////////////////////
 
-  void SiSpacePointMakerTool::makeSCT_SpacePoints(const double stripLengthGapTolerance) const {
-    // Find intersection of a line through a cluster on one sct detector and
-    // a line through a cluster on its stereo pair. Return zero if lines
-    // don't intersect.
-
-    // A general point on the line joining point a to point b is
-    // x, where 2*x=(1+m)*a + (1-m)*b. Similarly for 2*y=(1+n)*c + (1-n)*d.
-    // Suppose that v is the vertex, which we take as (0,0,0); this could
-    // an input parameter later, if required. Requiring that the two 'general
-    // points' lie on a straight through v means that the vector x-v is a
-    // multiple of y-v. This condition fixes the parameters m and n.
-    // We then return the 'space-point' x, supposed to be the phi-layer.
-    // We require that -1<m<1, otherwise x lies
-    // outside the segment a to b; and similarly for n.
-
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    std::lock_guard<std::mutex> lock{m_mutex};
-    CacheEntry* ent{m_cache.get(ctx)};
-    if (ent->m_evt!=ctx.evt()) { // New event in this slot
-      ent->clear();
-      ent->m_evt = ctx.evt();
-    } else {
-      if (ent->m_tmpSpacePoints.size()) {
-        for (Trk::SpacePoint* sp : ent->m_tmpSpacePoints) {
-          delete sp;
-        }
-      }
-      ent->m_tmpSpacePoints.clear();
-    }
-
-    std::vector<SCTinformation>::iterator I    = ent->m_SCT0.begin(), IE = ent->m_SCT0.end();
-    std::vector<SCTinformation>::iterator J,JB = ent->m_SCT1.begin(), JE = ent->m_SCT1.end();
-
-    double limit = 1. + m_stripLengthTolerance;
-
-    for (; I!=IE; ++I) {
-      double qm     = (*I).qm();
-      for (J=JB; J!=JE; ++J) {
-        double limitm = limit+(stripLengthGapTolerance*qm);
-
-        double a =-(*I).s().dot((*J).qs());
-        double b = (*I).q().dot((*J).qs());
-        if (fabs(a) > fabs(b)*limitm) continue;
-
-        double qn     = (*J).qm();
-        double limitn = limit+(stripLengthGapTolerance*qn);
-
-        double c =-(*J).s().dot((*I).qs());
-        double d = (*J).q().dot((*I).qs());
-        if (fabs(c) > fabs(d)*limitn) continue;
-
-        double m = a/b;
-        double n = c/d;
-
-        if (m >  limit or n >  limit) {
-
-          double cs  = (*I).q().dot((*J).q())*(qm*qm);
-          double dm  = (m-1.);
-          double dmn = (n-1.)*cs;
-          if (dmn > dm) dm = dmn;
-          m-=dm; n-=(dm/cs);
-
-        } else if (m < -limit or n < -limit) {
-
-          double cs = (*I).q().dot((*J).q())*(qm*qm);
-          double dm  = -(1.+m);
-          double dmn = -(1.+n)*cs;
-          if (dmn > dm) dm = dmn;
-          m+=dm; n+=(dm/cs);
-
-        }
-
-        if (fabs(m) > limit or fabs(n) > limit) continue;
-
-        Amg::Vector3D point((*I).position(m));
-
-        ATH_MSG_VERBOSE("SpacePoint generated at: ( " <<  point.x() << " , " << point.y() << " , " << point.z() << " )   ");
-        const std::pair<IdentifierHash, IdentifierHash> elementIdList(ent->m_element0->identifyHash(), ent->m_element1->identifyHash());
-        const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>*
-          clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>((*I).cluster(), (*J).cluster());
-        ent->m_tmpSpacePoints.push_back(new InDet::SCT_SpacePoint(elementIdList, new Amg::Vector3D(point), clusList));
-      }
-    }
+  void SiSpacePointMakerTool::updateRange(const InDetDD::SiDetectorElement* element1, 
+                                          const InDetDD::SiDetectorElement* element2, 
+                                          double& stripLengthGapTolerance, 
+                                          double& min, double& max) const {
+    double dm = offset(element1, element2, stripLengthGapTolerance);
+    min -= dm;
+    max += dm;   
   }
   
+
+  ///////////////////////////////////////////////////////////////////
+  // New methods for sct space points production
+  ///////////////////////////////////////////////////////////////////
+
+  void SiSpacePointMakerTool::fillSCT_SpacePointCollection (std::array<const InDetDD::SiDetectorElement*, nNeighbours>& elements,
+                                                            std::array<const SCT_ClusterCollection*, nNeighbours>& clusters,
+                                                            std::array<double, 14>& overlapExtents,
+                                                            bool allClusters,
+                                                            const Amg::Vector3D& vertexVec,
+                                                            SpacePointCollection* spacepointCollection,
+                                                            SpacePointOverlapCollection* spacepointoverlapCollection) const 
+  {
+                                                              
+    // This function is called once all the needed quantities are collected.
+    // It is used to build space points checking the compatibility of clusters on pairs of detector elements.
+    // Detector elements and cluster collections are elements and clusters, respectively.
+    // [0] is the trigger element
+    // [1] is the opposite element
+    // [2]-[3] are the elements tested for eta overlaps
+    // [4]-[5] are the elements tested for phi overlaps
+    //
+    // To build space points:
+    // - For the opposite element and the ones tested for eta overlaps, you have to check 
+    //   if clusters are compatible with the local position of the trigger cluster
+    //   requiring that the distance between the two clusters in phi is withing a specified range.
+    //   - overlapExtents[0], overlapExtents[1] are filled for the opposite element
+    //   - overlapExtents[2], overlapExtents[3], overlapExtents[4], overlapExtents[5] are filled for the eta overlapping elements
+    // - For the elements tested for phi overlaps, you have to check 
+    //   if clusters are compatible with the local position of the trigger cluster. 
+    //   This needs that the trigger cluster is at the edge of the trigger module
+    //   and that the other cluster is on the compatible edge of its module
+    //   - overlapExtents[6], overlapExtents[7], overlapExtents[10], overlapExtents[11]
+    //     overlapExtents[8], overlapExtents[9], overlapExtents[12], overlapExtents[13] are filled for the phi overlapping elements
+  
+    constexpr int otherSideIndex{1};
+    constexpr int maxEtaIndex{3};
+    std::array<int, nNeighbours-1> elementIndex{0};
+    int nElements = 0;
+
+    // For the nNeighbours sides, fill elementIndex with the indices of the existing elements.
+    // Same the number of elements in nElements to loop on the later on
+    for(int n=1; n!=nNeighbours; ++n) {
+      if(elements[n]) {
+        elementIndex[nElements++] = n; 
+      }
+    }
+    // return if all detector elements are nullptr
+    if(!nElements) return;
+
+    // trigger element and clusters
+    const InDetDD::SiDetectorElement* element = elements[0];
+    IdentifierHash                         Id = clusters[0]->identifyHash();
+
+    std::vector<SCTinformation> sctInfos; 
+    sctInfos.reserve(clusters[0]->size());
+    
+    // loop on all clusters on the trigger detector element and save the related information
+    for (const auto& cluster : *clusters[0]) {
+      Amg::Vector2D locpos = cluster->localPosition();
+      std::pair<Amg::Vector3D, Amg::Vector3D > ends(element->endsOfStrip(InDetDD::SiLocalPosition(locpos.y(),locpos.x(),0.)));
+      InDet::SCTinformation sct(cluster,ends.first, ends.second, vertexVec,locpos.x()); 
+      sctInfos.push_back(sct);
+    }
+
+    double  limit  = 1. + m_stripLengthTolerance;
+    double slimit  = 0.                         ;
+    std::vector<Trk::SpacePoint*> tmpSpacePoints;
+    tmpSpacePoints.reserve(sctInfos.size());
+
+    if(!allClusters) {
+
+      // Start processing the opposite side and the eta overlapping elements
+      int n = 0;      
+      for(; n < nElements; ++n) {
+        
+        int currentIndex = elementIndex[n];
+        
+        if(currentIndex > maxEtaIndex) break;
+
+        // get the detector element and the IdentifierHash
+        const InDetDD::SiDetectorElement* currentElement  = elements[currentIndex];
+        IdentifierHash                    currentId       = clusters[currentIndex]->identifyHash();
+
+        // retrieve the range 
+        double min = overlapExtents[currentIndex*2-2];
+        double max = overlapExtents[currentIndex*2-1];
+        
+        if (m_SCTgapParameter != 0.) {
+          updateRange(element, currentElement, slimit, min, max);
+        }
+        
+        InDet::SCTinformation sctInfo;
+        
+        for (const auto& cluster : *clusters[currentIndex]) {
+          
+          bool processed = false;        
+          const Amg::Vector2D& locpos = cluster->localPosition();  
+          double lx1 = locpos.x();
+          
+          for(auto& sct : sctInfos) {
+            
+            double diff = lx1-sct.locX();
+            
+            if(diff < min || diff > max) continue;
+            
+            if (not processed) {
+              processed = true;
+              std::pair<Amg::Vector3D, Amg::Vector3D > ends(currentElement->endsOfStrip(InDetDD::SiLocalPosition(locpos.y(),locpos.x(),0.)));
+              sctInfo.set(cluster,ends.first, ends.second, vertexVec,lx1);
+            }
+        
+            Trk::SpacePoint* sp = makeSCT_SpacePoint(sct,sctInfo,Id,currentId,limit,slimit);
+            if(sp) tmpSpacePoints.push_back(sp);
+          }
+        }
+        // If you are processing the opposite element, save the space points into 
+        // the spacepointCollection and clear the temporary collection
+        if( currentIndex==otherSideIndex && !tmpSpacePoints.empty() ) {
+          spacepointCollection->reserve(tmpSpacePoints.size()+spacepointCollection->size());
+          for (Trk::SpacePoint* sp: tmpSpacePoints) {
+            spacepointCollection->push_back(sp);
+          }
+          tmpSpacePoints.clear();
+        }
+      }
+      
+      // process the phi overlapping elements
+      // if possible n starts from 4
+      for(; n < nElements; ++n) {
+        
+        int currentIndex = elementIndex[n];
+        const InDetDD::SiDetectorElement* currentElement = elements[currentIndex];
+        
+        double min = overlapExtents[4*currentIndex-10];
+        double max = overlapExtents[4*currentIndex- 9];
+        
+        if (m_SCTgapParameter != 0.) {
+          updateRange(element, currentElement, slimit, min, max);
+        }
+        
+        std::vector<SCTinformation*> sctPhiInfos; 
+        sctPhiInfos.reserve(sctInfos.size());
+             
+        for(auto& sct : sctInfos) {
+          double lx0 = sct.locX();
+          if (min <= lx0 && lx0 <= max) {
+            sctPhiInfos.push_back(&sct);
+          }
+        }
+        // continue if you have no cluster from the phi overlapping region of the trigger element
+        if(sctPhiInfos.empty()) continue;
+        
+        IdentifierHash currentId = clusters[currentIndex]->identifyHash();
+                
+        min = overlapExtents[4*currentIndex-8];
+        max = overlapExtents[4*currentIndex-7];
+        
+        if (m_SCTgapParameter != 0.) {
+          updateRange(element, currentElement, slimit, min, max);
+        }
+           
+        for (const auto& cluster : *clusters[currentIndex]) {
+            
+          const Amg::Vector2D& locpos = cluster->localPosition();  
+          double lx1 = locpos.x();
+          if(lx1 < min || lx1 > max ) continue;   
+         
+          std::pair<Amg::Vector3D, Amg::Vector3D > ends(currentElement->endsOfStrip(InDetDD::SiLocalPosition(locpos.y(),locpos.x(),0.)));
+          InDet::SCTinformation sctInfo(cluster,ends.first, ends.second, vertexVec,lx1);
+         
+          for(auto& sct : sctPhiInfos) {           
+            Trk::SpacePoint* sp = makeSCT_SpacePoint(*sct,sctInfo,Id,currentId,limit,slimit);
+            if(sp) tmpSpacePoints.push_back(sp);
+          }
+        }
+      }
+      
+      // fill the space point collection for eta/phi overlapping clusters
+      if(!tmpSpacePoints.empty()) {
+        spacepointoverlapCollection->reserve(tmpSpacePoints.size()+spacepointoverlapCollection->size());
+        for (Trk::SpacePoint* sp: tmpSpacePoints) {
+          spacepointoverlapCollection->push_back(sp);
+        }
+      }
+      return;
+    }
+
+    // the following code is used to create spacepoints processing all clusters without limits
+    
+    for(int n=0; n!=nElements; ++n) {
+      
+      int currentIndex = elementIndex[n];
+      const InDetDD::SiDetectorElement* currentElement      = elements[currentIndex];
+      IdentifierHash                    currentId           = clusters[currentIndex]->identifyHash();
+
+      if (m_SCTgapParameter != 0.) {
+        offset(element, currentElement, slimit);
+      }
+     
+      for (const auto& cluster : *clusters[currentIndex]) {
+
+        const Amg::Vector2D& locpos = cluster->localPosition();
+        std::pair<Amg::Vector3D, Amg::Vector3D > ends(currentElement->endsOfStrip(InDetDD::SiLocalPosition(locpos.y(),locpos.x(),0.)));
+        InDet::SCTinformation sctInfo(cluster,ends.first, ends.second,vertexVec,locpos.x()); 
+        
+        for(auto& sct : sctInfos) {          
+          Trk::SpacePoint* sp = makeSCT_SpacePoint(sct,sctInfo,Id,currentId,limit,slimit);
+          if(sp) tmpSpacePoints.push_back(sp);
+        }
+      }
+      // If you are processing the opposite element, save the space points into 
+      // the spacepointCollection and clear the temporary collection        
+      if( currentIndex==otherSideIndex && !tmpSpacePoints.empty() ) {        
+        spacepointCollection->reserve(tmpSpacePoints.size()+spacepointCollection->size());
+        for (Trk::SpacePoint* sp: tmpSpacePoints) {
+          spacepointCollection->push_back(sp);
+        }
+        tmpSpacePoints.clear();
+      }
+    }
+    // fill the space point collection for eta/phi overlapping clusters
+    if(!tmpSpacePoints.empty()) {
+      spacepointoverlapCollection->reserve(tmpSpacePoints.size()+spacepointoverlapCollection->size());
+      for (Trk::SpacePoint* sp: tmpSpacePoints) {
+        spacepointoverlapCollection->push_back(sp);
+      }
+    }
+  }
+
+  //--------------------------------------------------------------------------
+  //
+  Trk::SpacePoint* SiSpacePointMakerTool::makeSCT_SpacePoint
+  (InDet::SCTinformation& In0,InDet::SCTinformation& In1,IdentifierHash ID0,IdentifierHash ID1,double limit,double slimit) const {
+
+
+    double a  =-In0.traj_direction().dot(In1.normal());
+    double b  = In0.strip_direction().dot(In1.normal());
+    double l0 = In0.oneOverStrip()*slimit+limit ;
+
+    if(fabs(a) > (fabs(b)*l0)) return nullptr;
+
+    double c  =-In1.traj_direction().dot(In0.normal());
+    double d  = In1.strip_direction().dot(In0.normal()); 
+    double l1 = In1.oneOverStrip()*slimit+limit ;
+
+    if(fabs(c) > (fabs(d)*l1)) return nullptr;
+
+    double m = a/b;
+
+    if(slimit!=0.) {
+
+      double n = c/d;
+
+      if     (m >  limit || n >  limit) {
+
+        double cs  = In0.strip_direction().dot(In1.strip_direction())*(In0.oneOverStrip()*In0.oneOverStrip());
+        double dm  = (m-1);
+        double dmn = (n-1.)*cs; 
+        if(dmn > dm) dm = dmn;
+        m-=dm; n-=(dm/cs);
+        if(fabs(m) > limit || fabs(n) > limit) return nullptr;
+      } else if(m < -limit || n < -limit) {
+        
+        double cs  = In0.strip_direction().dot(In1.strip_direction())*(In0.oneOverStrip()*In0.oneOverStrip());
+        double dm  = -(1.+m);
+        double dmn = -(1.+n)*cs; 
+        if(dmn > dm) dm = dmn;
+        m+=dm; n+=(dm/cs);
+        if(fabs(m) > limit || fabs(n) > limit) return nullptr;
+      }
+    }
+    Amg::Vector3D point(In0.position(m));
+    
+    const std::pair<IdentifierHash,IdentifierHash> elementIdList(ID0,ID1); 
+    const std::pair<const Trk::PrepRawData*,const Trk::PrepRawData*>* 
+      clusList = new std::pair<const Trk::PrepRawData*,const Trk::PrepRawData*>(In0.cluster(),In1.cluster());
+    return new InDet::SCT_SpacePoint(elementIdList,new Amg::Vector3D(point),clusList);
+  }
+ 
 }
