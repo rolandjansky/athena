@@ -81,8 +81,9 @@ def TileTTL1OutputCfg(flags, TileHitToTTL1):
     mbtsTTL1Container = mbtsTTL1Container.split('+').pop()
     outputItemList += ['TileTTL1Container#' + mbtsTTL1Container]
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc = OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList)
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc = OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList)
 
     return acc
 

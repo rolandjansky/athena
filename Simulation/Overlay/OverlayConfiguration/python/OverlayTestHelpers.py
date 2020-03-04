@@ -87,6 +87,9 @@ def defaultTestFlags(configFlags, args):
     configFlags.LAr.ROD.nSamples = 4
     configFlags.LAr.ROD.NumberOfCollisions = 20
     configFlags.LAr.ROD.UseHighestGainAutoCorr = True
+    configFlags.Tile.BestPhaseFromCOOL = False
+    configFlags.Tile.correctTime = False
+    configFlags.Tile.zeroAmplitudeWithoutDigits = False
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     if args.data:
