@@ -24,7 +24,7 @@ def defineLegacyInputsMenu():
             "nbitsDefault" : 3,
             "type" : "ctpin",
             "legacy" : True,
-            "thresholds" : [ 'EM3', 'EM7', 'EM8VH', 'EM8I', 'EM10VH', 'EM12', 'EM13VH', 'EM15'  ],
+            "thresholds" : [ 'EM3', 'EM7', 'EM8VH', 'EM8I', 'EM10VH', 'EM12', 'EM15', 'EM15VH'  ],
             "zeroBias" : "ZB_EM15"
         },
         {
@@ -33,7 +33,7 @@ def defineLegacyInputsMenu():
             "nbitsDefault" : 3,
             "type" : "ctpin",
             "legacy" : True,
-            "thresholds" : [ 'EM15VH', 'EM15HI', 'EM18VH', 'EM20VH', 'EM20VHI', 'EM22VHI', 'EM24VHI', 'EM26VHI' ]
+            "thresholds" : [ 'EM15VHI', 'EM18VHI', 'EM20VH', 'EM20VHI', 'EM22VH', 'EM22VHI', 'EM24VHI', 'EM24VHIM' ]
         },
         {
             "name" : "TAU1",
@@ -95,7 +95,7 @@ def defineLegacyInputsMenu():
             "type" : "ctpin",
             "legacy" : True,
             "thresholds" : [
-                'TE5', 'TE10', 'TE15', 'TE20', 'TE25', 'TE30', 'TE40', 'TE70', # 8 x TE
+                'TE5', 'TE10', 'TE15', 'TE20', 'TE25', 'TE30', 'TE40', 'TE50', # 8 x TE
                 'XE10', 'XE20', 'XE25', 'XE30', 'XE35', 'XE40', 'XE45', 'XE50', # 8 x XE
                 'XS20', 'XS30', 'XS40', 'XS45', 'XS50', 'XS55', 'XS60', 'XS65',  # 8 x XS
             ]

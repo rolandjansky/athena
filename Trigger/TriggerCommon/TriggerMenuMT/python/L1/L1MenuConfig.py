@@ -499,7 +499,7 @@ class L1MenuConfig(object):
         for itemName in L1MenuFlags.items():
             registeredItem = self.getRegisteredItem(itemName)
             if registeredItem is None:
-                msg = "LVL1 item '%s' has not been defined in LVL1Menu/ItemDef.py" % itemName
+                msg = "L1 item '%s' has not been defined in L1/Config/ItemDef.py" % itemName
                 log.error(msg)
                 raise RuntimeError(msg)
 
