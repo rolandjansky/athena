@@ -252,7 +252,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
     if (m_hypoTools.size()>0){
       for ( auto& tool: m_hypoTools ) {
 	ATH_MSG_DEBUG( "Calling  tool "<<tool->name());
-	ATH_CHECK( tool->decide( goodMultCombMap, passingLegs ) );
+	ATH_CHECK( tool->decide( goodMultCombMap, passingLegs, context ) );
       }
     }
     else  passingLegs=goodMultCombMap;

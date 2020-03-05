@@ -24,7 +24,7 @@ class IComboHypoTool: virtual public ::IAlgTool {
  public: 
   DeclareInterfaceID(IComboHypoTool, 1, 0);
 
-  virtual StatusCode decide( const LegDecisionsMap & IDCombMap, LegDecisionsMap & passingCombinations ) const = 0 ;
+  virtual StatusCode decide( const LegDecisionsMap & IDCombMap, LegDecisionsMap & passingCombinations, const EventContext& ctx ) const = 0 ;
   
  
 }; 

@@ -33,7 +33,7 @@ public:
    @param[in]  Cobminaiton map that lists all the decisions passing the multiplicity map of the ComboHypo
    @param[out] Combination map that lists all the decisions passing the HypoTool algorithm
   **/  
-  virtual StatusCode decide(const LegDecisionsMap & IDCombMap,LegDecisionsMap & passingCombinations ) const override;
+  virtual StatusCode decide(const LegDecisionsMap & IDCombMap,LegDecisionsMap & passingLegs, const EventContext& ctx ) const override;
   
   
   /**
@@ -80,17 +80,28 @@ public:
  /**
   * @brief Retrieves the decisionIds from the passing combinations and produce a new LegDecisionMap
   **/
-  void setDecisionIds(const ElementLinkVector<TrigCompositeUtils::DecisionContainer>& thecomb, LegDecisionsMap & passingCombinations) const;
+  void setDecisionIds(const ElementLinkVector<TrigCompositeUtils::DecisionContainer>& thecomb, LegDecisionsMap & passingLegs) const;
 
 
   /**
   * @brief Print the Tool results stored in the passing combinations
   **/
 
-  StatusCode printExecute(const LegDecisionsMap & passingCombinations) const;
+  StatusCode printDebugInformation(const LegDecisionsMap & passingLegs) const;
 
+  
+ 
+  /**
+  * @brief Fill out the WriteHandle of legs passing
+  **/
+  /*
+  // comment now, because this must be designed properly
+    StatusCode createOutput( LegDecisionsMap & passingLegs, const EventContext& ctx ) const;
 
-// add here WriteHandkles of combinations
+  // add here WriteHandkles of combinations
+  // problem: the size of the array depends on the number of combinations, so cannot use the WriteHandleKeyArray
+    SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_passingLegs { this, "PassingLegs", {}, "Ouput Decisions legs passing the selection" };
+  */
   
 private:
 
