@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetRec/JetCopier.h"
@@ -7,8 +7,6 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODCore/ShallowCopy.h"
-#include "JetEDM/PseudoJetVector.h"
-#include "JetRec/PseudoJetTranslator.h"
 
 using xAOD::JetContainer;
 
@@ -19,7 +17,14 @@ StatusCode JetCopier::initialize() {
 
   ATH_MSG_DEBUG("Initializing...");
 
-  ATH_CHECK(m_inputJets.initialize());
+  if(m_inputJets.empty()){
+    ATH_MSG_ERROR("Jet finding requested with no inputs");
+
+    return StatusCode::FAILURE;
+  }
+  else{
+    ATH_CHECK(m_inputJets.initialize());
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -28,16 +33,24 @@ StatusCode JetCopier::initialize() {
 xAOD::JetContainer* JetCopier::getJets() const {
 
   // retrieve input
-  SG::ReadHandle<JetContainer> pjCopierHandle(m_inputJets);
+  SG::ReadHandle<JetContainer> inputJetsHandle(m_inputJets);
 
-  const JetContainer* pjetsin = 0;
-  pjetsin = pjCopierHandle.cptr();
+
+  if(inputJetsHandle.isValid()) {
+    ATH_MSG_DEBUG("Retrieval of JetContainer was OK");
+  }
+  else{
+    ATH_MSG_ERROR("Retrieval of JetContainer failed");
+    return nullptr;
+  }
+
+  const JetContainer* injets = inputJetsHandle.cptr();
 
   ATH_MSG_DEBUG("Shallow-copying jets");
 
-  xAOD::JetContainer& outjets = *(xAOD::shallowCopyContainer(*pjetsin).first);
+  xAOD::JetContainer& outjets = *(xAOD::shallowCopyContainer(*injets).first);
 
-  xAOD::setOriginalObjectLink(*pjetsin, outjets);
+  xAOD::setOriginalObjectLink(*injets, outjets);
 
   return &outjets;
 }

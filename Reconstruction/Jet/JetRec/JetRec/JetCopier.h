@@ -1,6 +1,6 @@
 // this file is -*- C++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETREC_JETCOPIER_H
@@ -16,12 +16,10 @@
 /// The JetVector key is also a Property of the tool.
 ///
 
-
+#include "AsgTools/AsgTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "JetInterface/IJetProvider.h"
 #include "xAODJet/JetContainer.h"
-#include "JetRec/PseudoJetContainer.h"
-#include "JetRec/JetFromPseudojet.h"
 
 class JetCopier : public asg::AsgTool, virtual public IJetProvider{
   ASG_TOOL_CLASS(JetCopier, IJetProvider)
@@ -33,7 +31,7 @@ class JetCopier : public asg::AsgTool, virtual public IJetProvider{
 
   private:
     // Handle Input JetContainer
-    SG::ReadHandleKey<xAOD::JetContainer> m_inputJets {this, "InputJets", "inputjets", "input jets"};
+    SG::ReadHandleKey<xAOD::JetContainer> m_inputJets {this, "InputJets", "", "Jet collection to be copied"};
 };
 
 #endif
