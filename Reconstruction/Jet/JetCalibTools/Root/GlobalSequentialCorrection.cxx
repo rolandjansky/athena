@@ -57,6 +57,8 @@ GlobalSequentialCorrection::~GlobalSequentialCorrection() {
 
 StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
 
+  ATH_MSG_INFO("Initializing the Global Sequential Calibration tool");
+
   // Set m_PFlow
   if( m_jetAlgo == "AntiKt4EMPFlow" ) m_PFlow = true;
   else{m_PFlow=false;}
@@ -113,8 +115,8 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
   }
 
   // Protection against requesting nTrk or trackWIDTH corrections for HLT trigger jets when m_caloBased is true
-  if ( m_caloBased && (depthString.Contains("nTrk")||depthString.Contains("trackWIDTH"))  ){
-    ATH_MSG_FATAL("depthString flag not properly set, please check your config file. nTrk or trackWIDTH corrections not available for trigger jets");
+  if ( m_caloBased && (depthString.Contains("nTrk")||depthString.Contains("trackWIDTH")||depthString.Contains("ChargedFraction"))){
+    ATH_MSG_FATAL("depthString flag not properly set, please check your config file. nTrk, trackWIDTH and ChargedFraction corrections not available for trigger jets");
     return StatusCode::FAILURE;
   }
 
