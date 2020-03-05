@@ -126,8 +126,6 @@ if TriggerFlags.doID:
 
   from TrigT2MinBias.TrigT2MinBiasConf import MbtsFexMT
   alg=MbtsFexMT()
-  alg.RoIs="HLT_FSRoI"
-  alg.OutputLevel = DEBUG
   allViewAlgorithms += alg
 
 
