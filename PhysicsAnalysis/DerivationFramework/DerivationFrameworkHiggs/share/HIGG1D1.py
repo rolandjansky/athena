@@ -19,13 +19,12 @@ from RecExConfig.RecFlags  import rec
 from egammaRec.Factories import ToolFactory, AlgFactory
 import PhotonVertexSelection.PhotonVertexSelectionConf as PVS 
 
-PhotonPointingTool = ToolFactory(PVS.CP__PhotonPointingTool, isSimulation = rec.doTruth() )
-PhotonVertexSelectionTool = ToolFactory(PVS.CP__PhotonVertexSelectionTool)
+PhotonPointingTool = ToolFactory(PVS.CP__PhotonPointingTool, name = "yyVtxPhotonPointingTool", isSimulation = rec.doTruth() )
+PhotonVertexSelectionTool = ToolFactory(PVS.CP__PhotonVertexSelectionTool, PhotonPointingTool = PhotonPointingTool)
 
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__DiphotonVertexDecorator
-DiphotonVertexDecorator = ToolFactory(DerivationFramework__DiphotonVertexDecorator, PhotonVertexSelectionTool = PhotonVertexSelectionTool,PhotonPointingTool = PhotonPointingTool)()
+DiphotonVertexDecorator = ToolFactory(DerivationFramework__DiphotonVertexDecorator, PhotonVertexSelectionTool = PhotonVertexSelectionTool)()
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("DiphotonVertexKernel", AugmentationTools = [DiphotonVertexDecorator])
-
 
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
