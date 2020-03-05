@@ -36,18 +36,18 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 // xAOD
-#include "xAODTracking/TrackParticle.h" 
+#include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/NeutralParticle.h"
 
 #include <Gaudi/Accumulators.h>
-#include "tbb/concurrent_unordered_map.h"
+#include "ObjContainer.h"
 
 class MsgStream;
 namespace Trk {
 class Track;
 class Surface;
 class Layer;
-class Volume;                  
+class Volume;
 class DetachedTrackingVolume;
 class TrackingGeometry;
 class IPropagator;
@@ -62,6 +62,10 @@ class ExtrapolationCache;
 typedef std::vector<const Trk::TrackParameters*> TrackParametersVector;
 typedef std::pair< const Surface*,BoundaryCheck  > DestSurf;
 
+using TrackParmContainer  = ObjContainer<const Trk::TrackParameters>;
+using TrackParmPtr        = ObjRef<>;
+using ManagedTrackParmPtr = ObjPtr<const Trk::TrackParameters>;
+
 /** @struct ParametersAtBoundarySurface
   has only three member
   - BoundarySurface
@@ -71,22 +75,23 @@ typedef std::pair< const Surface*,BoundaryCheck  > DestSurf;
 struct ParametersNextVolume {
   //!< the members
   const TrackingVolume*    nextVolume;
-  const TrackParameters*   nextParameters;
-  const TrackParameters*   navParameters;
+  ManagedTrackParmPtr      nextParameters;
+  ManagedTrackParmPtr      navParameters;
   BoundarySurfaceFace      exitFace;
 
-  ParametersNextVolume(){
+  ParametersNextVolume(TrackParmContainer &track_parm_container)
+     : nextParameters(track_parm_container),
+       navParameters(track_parm_container)
+  {
     nextVolume              = nullptr;
-    nextParameters          = nullptr;
-    navParameters           = nullptr;
     exitFace                = undefinedFace;
   }
 
   //!< update the boundaryInformation
   void boundaryInformation(const TrackingVolume* tvol,
-                           const TrackParameters* nextPars,
-                           const TrackParameters* navPars,
-                           BoundarySurfaceFace    face=undefinedFace) 
+                           ManagedTrackParmPtr   nextPars,
+                           ManagedTrackParmPtr   navPars,
+                           BoundarySurfaceFace   face=undefinedFace)
   {
     nextVolume       = tvol;
     nextParameters   = nextPars;
@@ -95,10 +100,10 @@ struct ParametersNextVolume {
   }
   //!< reset the boundary information by invalidating it
   void resetBoundaryInformation(){
-    nextVolume        = nullptr;
-    nextParameters    = nullptr;
-    navParameters     = nullptr;
-    exitFace          = undefinedFace;
+    nextVolume       = nullptr;
+    exitFace         = undefinedFace;
+    nextParameters   = ManagedTrackParmPtr();
+    navParameters    = ManagedTrackParmPtr();
   }
 };
 
@@ -125,7 +130,7 @@ VERBOSE : Method call sequence with values
 @author Andreas.Salzburger@cern.ch
 */
 
-class Extrapolator : public AthAlgTool,
+  class Extrapolator : public AthAlgTool,
   virtual public IExtrapolator {
   public:
     /**Constructor */
@@ -141,7 +146,6 @@ class Extrapolator : public AthAlgTool,
     virtual StatusCode initialize() override;
     /** AlgTool finalize method */
     virtual StatusCode finalize() override;
-
 
     /** [xAOD] interface ------------------------------------------------------------------ */
 
@@ -410,12 +414,13 @@ class Extrapolator : public AthAlgTool,
     virtual void validationAction() const override final;
 
   private:
-
+    ServiceHandle<IIncidentSvc> m_incidentSvc{this, "IncidentService", "IncidentSvc"};
     /*
      * Cache to be passed to and between the private methods
      */
     typedef std::vector< std::pair< const Trk::TrackParameters*, int > > identifiedParameters_t;
     struct Cache{
+       static int s_active ATLAS_THREAD_SAFE;
       bool                                                     m_dense=false;                  //!<  internal switch for resolved configuration  
       bool                                                     m_recall=false;                 //!< Flag the recall solution
       bool                                                     m_robustSampling=true; 
@@ -430,7 +435,8 @@ class Extrapolator : public AthAlgTool,
       const Trk::TrackingVolume*                               m_currentDense=nullptr;
       const Trk::TrackingVolume*                               m_highestVolume=nullptr;
       TrackParametersVector*                                   m_parametersOnDetElements=nullptr;  //!< return helper for parameters on detector elements 
-      const Trk::TrackParameters*                              m_lastValidParameters=nullptr;      //!< parameters to be used for final propagation in case of fallback 
+      TrackParmContainer                                       m_trackParmContainer;
+      ManagedTrackParmPtr                                      m_lastValidParameters;              //!< parameters to be used for final propagation in case of fallback 
       const Layer*                                             m_lastMaterialLayer=nullptr;        //!< cache layer with last material update 
       Trk::ExtrapolationCache*                                 m_extrapolationCache=nullptr;       //!< cache for collecting the total X0 ans Eloss 
       const Trk::EnergyLoss*                                   m_cacheEloss=nullptr;               //!< cache pointer for Eloss
@@ -454,15 +460,54 @@ class Extrapolator : public AthAlgTool,
       std::vector<std::pair<const Trk::TrackingVolume*,unsigned int> > m_navigVolsInt;
 
       std::map<const Trk::TrackParameters*, bool>              m_garbageBin;           //!< garbage collection during extrapolation
-      ParametersNextVolume                                     m_parametersAtBoundary; //!< return helper for parameters and boundary  
-      ParametersNextVolume                                     m_parametersAtDetachedBoundary; //!< return helper for parameters and boundary 
-       
-      Cache(){
+      ParametersNextVolume                                     m_parametersAtBoundary; //!< return helper for parameters and boundary
+
+      bool                                                     m_ownParametersOnDetElements = true;
+      TrackParmContainer &trackParmContainer() { return m_trackParmContainer; }
+
+      ManagedTrackParmPtr manage(const Trk::TrackParameters &parm) { return ManagedTrackParmPtr(trackParmContainer(),parm); }
+      ManagedTrackParmPtr manage(const Trk::TrackParameters *parm) { return ManagedTrackParmPtr(trackParmContainer(),parm); }
+      ManagedTrackParmPtr manage(TrackParmPtr parm)                { return ManagedTrackParmPtr(trackParmContainer(),parm); }
+      ManagedTrackParmPtr manage()                                 { return ManagedTrackParmPtr(trackParmContainer()); }
+
+      Cache()
+         : m_trackParmContainer(128), // always reserve some space; still occasionally more slots are needed; above 150 there are very few cases the max in q431 was 257
+           m_lastValidParameters(m_trackParmContainer),
+           m_parametersAtBoundary(m_trackParmContainer)
+      {
         m_navigSurfs.reserve(1000);
         m_navigVols.reserve(50);
         m_navigVolsInt.reserve(50);
       }
-     
+      ~Cache() {
+         s_navigSurfsMax.update(m_navigSurfs.size());
+         s_navigVolsMax.update(m_navigVols.size()) ;
+         s_navigVolsIntMax.update(m_navigVols.size());
+         if (m_ownParametersOnDetElements && m_parametersOnDetElements) {
+            for (const Trk::TrackParameters *parm : *m_parametersOnDetElements) {
+               delete parm;
+            }
+            delete m_parametersOnDetElements;
+         }
+         s_containerSizeMax.update(trackParmContainer().size());
+      }
+
+      class AtomicMax {
+      public:
+         void update(size_t val) {
+            while (val>m_maxVal) {
+               val = m_maxVal.exchange(val);
+            }
+         }
+         size_t val() const { return m_maxVal; }
+         std::atomic<size_t> m_maxVal = 0;
+      };
+      static AtomicMax s_navigSurfsMax    ATLAS_THREAD_SAFE;
+      static AtomicMax s_navigVolsMax     ATLAS_THREAD_SAFE;
+      static AtomicMax s_navigVolsIntMax  ATLAS_THREAD_SAFE;
+      static AtomicMax s_containerSizeMax ATLAS_THREAD_SAFE;
+      static bool      s_reported         ATLAS_THREAD_SAFE;
+
     };
 
     /**
@@ -471,14 +516,14 @@ class Extrapolator : public AthAlgTool,
      * - returns the TrackParameters at the Destination Surface (if extrapolation succeeds),
      *   0 if extrapolation to destination surface does not suceed 
      */
-    const TrackParameters*  extrapolateImpl(Cache& cache,
-                                            const IPropagator& prop,
-                                            const TrackParameters& parm,
-                                            const Surface& sf,
-                                            PropDirection dir=anyDirection,
-                                            const BoundaryCheck&  bcheck = true,
-                                            ParticleHypothesis particle=pion,
-                                            MaterialUpdateMode matupmode=addNoise) const ;
+    ManagedTrackParmPtr  extrapolateImpl(Cache& cache,
+                                  const IPropagator& prop,
+                                  TrackParmPtr parm,
+                                  const Surface& sf,
+                                  PropDirection dir=anyDirection,
+                                  const BoundaryCheck&  bcheck = true,
+                                  ParticleHypothesis particle=pion,
+                                  MaterialUpdateMode matupmode=addNoise) const ;
     /**
      * Actual heavy lifting implementation for 
      * S 8) <b>Strategy Pattern extrapolation method</b>:
@@ -486,38 +531,38 @@ class Extrapolator : public AthAlgTool,
      *   each surface as specified by the corresponding MaterialEffectsOnTrack
      *   -Final boolean only relevant if LandauMode = true for the configured MaterialEffectsUpdator
      */                                                                           
-    const TrackParameters* extrapolateImpl(Cache& cache,
-                                           const IPropagator& prop,
-                                           const TrackParameters& parm,
-                                           const std::vector< MaterialEffectsOnTrack >& sfMeff,
-                                           const TrackingVolume& tvol,
-                                           PropDirection dir,
-                                           ParticleHypothesis particle=pion,
-                                           MaterialUpdateMode matupmode=addNoise) const ;
+    ManagedTrackParmPtr extrapolateImpl(Cache& cache,
+                                 const IPropagator& prop,
+                                 TrackParmPtr parm,
+                                 const std::vector< MaterialEffectsOnTrack >& sfMeff,
+                                 const TrackingVolume& tvol,
+                                 PropDirection dir,
+                                 ParticleHypothesis particle=pion,
+                                 MaterialUpdateMode matupmode=addNoise) const ;
 
 
     /** Actual heavy lifting implementation for  
      * C 1) <b>Configured AlgTool extrapolation method</b> of S 1):
      * */
-    virtual const TrackParameters* extrapolateImpl(Cache& cache,
-                                                   const TrackParameters& parm,
-                                                   const Surface& sf,
-                                                   PropDirection dir=anyDirection,
-                                                   const BoundaryCheck&  bcheck = true,
-                                                   ParticleHypothesis particle=pion,
-                                                   MaterialUpdateMode matupmode=addNoise,
-                                                   Trk::ExtrapolationCache* extrapolationCache = nullptr) const;
+    virtual ManagedTrackParmPtr extrapolateImpl(Cache& cache,
+                                         TrackParmPtr parm,
+                                         const Surface& sf,
+                                         PropDirection dir=anyDirection,
+                                         const BoundaryCheck&  bcheck = true,
+                                         ParticleHypothesis particle=pion,
+                                         MaterialUpdateMode matupmode=addNoise,
+                                         Trk::ExtrapolationCache* extrapolationCache = nullptr) const;
 
 
     /** Actual heavy lifting implementation for  
-     * C 5) <b>Configured AlgTool extrapolation method</b> of S 5):*/                        
-    const TrackParametersVector* extrapolateBlindlyImpl(Cache& cache,
-                                                        const IPropagator &prop, 
-                                                        const TrackParameters& parm,
-                                                        PropDirection dir=anyDirection,
-                                                        const BoundaryCheck&  bcheck = true,
-                                                        ParticleHypothesis particle=pion,
-                                                        const Volume* boundaryVol=nullptr) const;
+     * C 5) <b>Configured AlgTool extrapolation method</b> of S 5):*/
+    const Trk::TrackParametersVector *extrapolateBlindlyImpl(Cache& cache,
+                                                             const IPropagator &prop, 
+                                                             TrackParmPtr parm,
+                                                             PropDirection dir=anyDirection,
+                                                             const BoundaryCheck&  bcheck = true,
+                                                             ParticleHypothesis particle=pion,
+                                                             const Volume* boundaryVol=nullptr) const;
 
 
 
@@ -536,9 +581,9 @@ class Extrapolator : public AthAlgTool,
       - A) insideVolumeStaticLayers() for a TrackingVolume with static layers
       - C) insideVolumeDetachedVolumes() for a TrackingVolume with detached inner Volumes
       */
-    const TrackParameters* extrapolateInsideVolume(Cache& cache,
+    ManagedTrackParmPtr extrapolateInsideVolume(Cache& cache,
                                                    const IPropagator& prop,
-                                                   const TrackParameters& parm,
+                                                   TrackParmPtr parm,
                                                    const Surface& sf,
                                                    const Layer* associatedLayer,
                                                    const TrackingVolume& tvol,
@@ -552,10 +597,10 @@ class Extrapolator : public AthAlgTool,
     /** A) call from extrapolateInsideVolume or toBoundary,
       if it is to boundary, the return parameters are the parameters at the boundary
       */
-    const TrackParameters* insideVolumeStaticLayers(Cache& cache,
+    ManagedTrackParmPtr insideVolumeStaticLayers(Cache& cache,
                                                     bool toBoundary,
                                                     const IPropagator& prop,
-                                                    const TrackParameters& parm,
+                                                    TrackParmPtr parm,
                                                     const Layer* associatedLayer,
                                                     const TrackingVolume& tvol,
                                                     PropDirection dir = anyDirection,
@@ -564,9 +609,9 @@ class Extrapolator : public AthAlgTool,
                                                     MaterialUpdateMode matupmode=addNoise) const;
 
     /** C) call from extrapolateInsideVolume */
-    const TrackParameters* extrapolateWithinDetachedVolumes(Cache& cache,
+    ManagedTrackParmPtr extrapolateWithinDetachedVolumes(Cache& cache,
                                                             const IPropagator& prop,
-                                                            const TrackParameters& parm,
+                                                            TrackParmPtr parm,
                                                             const Surface& sf,
                                                             const TrackingVolume& tvol,
                                                             PropDirection dir = anyDirection,
@@ -574,9 +619,9 @@ class Extrapolator : public AthAlgTool,
                                                             ParticleHypothesis particle=pion,
                                                             MaterialUpdateMode matupmode=addNoise) const;
 
-    const TrackParameters* extrapolateToNextMaterialLayer(Cache& cache,
+    ManagedTrackParmPtr extrapolateToNextMaterialLayer(Cache& cache,
                                                           const IPropagator& prop,
-                                                          const TrackParameters& parm,
+                                                          TrackParmPtr parm,
                                                           const Trk::Surface* destSurf, 
                                                           const Trk::TrackingVolume* vol,
                                                           PropDirection dir,
@@ -584,16 +629,16 @@ class Extrapolator : public AthAlgTool,
                                                           ParticleHypothesis particle=pion,
                                                           MaterialUpdateMode matupmode=addNoise) const;
 
-    const TrackParameters* extrapolateInAlignableTV(Cache& cache,
+    ManagedTrackParmPtr extrapolateInAlignableTV(Cache& cache,
                                                     const IPropagator& prop,
-                                                    const TrackParameters& parm,
+                                                    TrackParmPtr parm,
                                                     const Trk::Surface* destSurf, 
                                                     const Trk::AlignableTrackingVolume* vol,
                                                     PropDirection dir,
                                                     ParticleHypothesis particle=pion) const;
 
-    const Trk::TrackParameters*  extrapolateToVolumeWithPathLimit(Cache& cache,
-                                                                  const Trk::TrackParameters& parm,
+    ManagedTrackParmPtr  extrapolateToVolumeWithPathLimit(Cache& cache,
+                                                                  TrackParmPtr parm,
                                                                   double pathLim,
                                                                   Trk::PropDirection dir,
                                                                   Trk::ParticleHypothesis particle,
@@ -618,7 +663,7 @@ class Extrapolator : public AthAlgTool,
       */
     void extrapolateToVolumeBoundary(Cache& cache,
                                      const IPropagator& prop,
-                                     const TrackParameters& parm,
+                                     TrackParmPtr parm,
                                      const Layer* associatedLayer,
                                      const TrackingVolume& tvol,
                                      PropDirection dir = anyDirection,
@@ -629,13 +674,13 @@ class Extrapolator : public AthAlgTool,
 
     /** Private method to step from one to the last 
       layer and stop at last layer (before 0) or before destination layer */
-    const TrackParameters* extrapolateFromLayerToLayer(Cache& cache,
+    ManagedTrackParmPtr extrapolateFromLayerToLayer(Cache& cache,
                                                        const IPropagator& prop,
-                                                       const TrackParameters& parm,
+                                                       TrackParmPtr parm,
                                                        const TrackingVolume& tvol,
-                                                       const Layer* nextLayer,                                                       
-                                                       const Layer* destinationLayer = nullptr,
-                                                       const TrackParameters* navParameters = nullptr,
+                                                       const Layer* nextLayer,
+                                                       const Layer* destinationLayer,
+                                                       TrackParmPtr navParameters,
                                                        PropDirection dir = anyDirection,
                                                        const BoundaryCheck&  bcheck = true,
                                                        ParticleHypothesis particle=pion,
@@ -644,9 +689,9 @@ class Extrapolator : public AthAlgTool,
 
     /** Private to extrapolate to the destination layer + surface
     */
-    const TrackParameters* extrapolateToDestinationLayer(Cache& cache,
+    ManagedTrackParmPtr extrapolateToDestinationLayer(Cache& cache,
                                                          const IPropagator& prop,
-                                                         const TrackParameters& parm,
+                                                         TrackParmPtr parm,
                                                          const Surface& sf,
                                                          const Layer& lay,
                                                          const TrackingVolume& tvol,
@@ -658,23 +703,26 @@ class Extrapolator : public AthAlgTool,
                                                         ) const;
 
     /** Private to extrapolate to the destination layer + surface, special treatment for exit layer
+     * @return valid track parameters or nullptr, as first element and in case of nullptr as second element
+     *         true to indicate to kill the loop from material update(?)
     */
-    const TrackParameters* extrapolateToIntermediateLayer(Cache& cache,
-                                                          const IPropagator& prop,
-                                                          const TrackParameters& parm,
-                                                          const Layer& lay,
-                                                          const TrackingVolume& tvol,
-                                                          PropDirection dir = anyDirection,
-                                                          const BoundaryCheck&  bcheck = true,
-                                                          ParticleHypothesis particle=pion,
-                                                          MaterialUpdateMode matupmode=addNoise,
-                                                          bool perpendicularCheck = true) const;
+   std::pair<ManagedTrackParmPtr,bool>
+      extrapolateToIntermediateLayer(Cache& cache,
+                                     const IPropagator& prop,
+                                     TrackParmPtr parm,
+                                     const Layer& lay,
+                                     const TrackingVolume& tvol,
+                                     PropDirection dir = anyDirection,
+                                     const BoundaryCheck&  bcheck = true,
+                                     ParticleHypothesis particle=pion,
+                                     MaterialUpdateMode matupmode=addNoise,
+                                     bool perpendicularCheck = true) const;
 
     /** Private to search for overlap surfaces */
     void overlapSearch(Cache& cache,
                        const IPropagator& prop,
-                       const TrackParameters& parm,
-                       const TrackParameters& parsOnLayer,
+                       TrackParmPtr parm,
+                       TrackParmPtr parsOnLayer,
                        const Layer& lay,
                        const TrackingVolume& tvol,
                        PropDirection dir = anyDirection,
@@ -694,11 +742,11 @@ class Extrapolator : public AthAlgTool,
       */
     PropDirection initializeNavigation(Cache& cache,
                                        const Trk::IPropagator&             prop,
-                                       const Trk::TrackParameters&         startPars,
+                                       TrackParmPtr         startPars,
                                        const Trk::Surface&                 destSurface,
                                        Trk::PropDirection                  dir,
                                        ParticleHypothesis                  particle, 
-                                       const Trk::TrackParameters*&        referenceParameters,
+                                       ManagedTrackParmPtr&                referenceParameters,
                                        const Trk::Layer*&                  associatedLayer,
                                        const Trk::TrackingVolume*&         associatedVolume,
                                        const Trk::TrackingVolume*&         destinationVolume) const;
@@ -738,8 +786,8 @@ class Extrapolator : public AthAlgTool,
     void emptyGarbageBin(Cache& cache, const Trk::TrackParameters*) const;
 
     /** Private method to return from extrapolate() main method,
-      cleans up, calls model action or validation action, empties garbage bin and leaves */
-    const Trk::TrackParameters* returnResult(Cache& cache,const Trk::TrackParameters* result, const Trk::TrackParameters* refParameters) const;
+        cleans up, calls model action or validation action, empties garbage bin and leaves */
+    const Trk::TrackParameters *returnResult(Cache& cache,const Trk::TrackParameters* result) const;
 
     /** For the output - layer */
     std::string layerRZoutput(const Trk::Layer& lay) const;
@@ -752,7 +800,7 @@ class Extrapolator : public AthAlgTool,
     /** helper method for MaterialEffectsOnTrack to be added */
     void addMaterialEffectsOnTrack(Cache& cache,
                                    const Trk::IPropagator& prop,
-                                   const Trk::TrackParameters& parm,
+                                   TrackParmPtr parm,
                                    const Trk::Layer& lay,
                                    const Trk::TrackingVolume& vol,
                                    Trk::PropDirection propDir,
@@ -910,15 +958,12 @@ inline void Extrapolator::throwIntoGarbageBin(Cache& cache,
 }
 
 inline const Trk::TrackParameters* Extrapolator::returnResult(Cache& cache,
-                                                              const Trk::TrackParameters* result,
-                                                              const Trk::TrackParameters* refParameters) const
+                                                              const Trk::TrackParameters* result) const
 {
-  delete refParameters;
-  // memory cleanup
-  emptyGarbageBin(cache);
+  (void) cache;
   // call the model action on the material effect updators
   for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot){ 
-    m_subUpdators[imueot]->modelAction();            
+    m_subUpdators[imueot]->modelAction();
   }
   // return the result
   return result;
