@@ -7,10 +7,6 @@
 namespace LVL1TGCTrigger {
   
   TGCArguments::TGCArguments():
-    m_STRICTWD(false),
-    m_STRICTWT(false),
-    m_STRICTSD(false),
-    m_STRICTST(false),
     m_OUTCOINCIDENCE(false),
     m_TGCCOIN(nullptr),
     m_DEBUGLEVEL(false),
@@ -30,10 +26,6 @@ namespace LVL1TGCTrigger {
     if(m_TGCCOIN!=nullptr)delete m_TGCCOIN;
   }
   
-  void TGCArguments::set_STRICTWD(bool v){ m_STRICTWD = v;}
-  void TGCArguments::set_STRICTWT(bool v){ m_STRICTWT = v;}
-  void TGCArguments::set_STRICTSD(bool v){ m_STRICTSD = v;}
-  void TGCArguments::set_STRICTST(bool v){ m_STRICTST = v;}
   void TGCArguments::set_OUTCOINCIDENCE(bool v){ m_OUTCOINCIDENCE = v;}
   void TGCArguments::set_TGCCOIN(TGCCoincidences* v){ m_TGCCOIN = v;}
   void TGCArguments::set_DEBUGLEVEL(bool v){ m_DEBUGLEVEL = v;}
@@ -44,10 +36,6 @@ namespace LVL1TGCTrigger {
   void TGCArguments::set_USE_CONDDB(bool v){ m_USE_CONDDB = v;}
   void TGCArguments::set_useRun3Config(bool v){ m_useRun3Config = v;}
   
-  bool TGCArguments::STRICTWD() const {return m_STRICTWD;}
-  bool TGCArguments::STRICTWT() const {return m_STRICTWT;}
-  bool TGCArguments::STRICTSD() const {return m_STRICTSD;}
-  bool TGCArguments::STRICTST() const {return m_STRICTST;}
   bool TGCArguments::OUTCOINCIDENCE() const {return m_OUTCOINCIDENCE;}
   TGCCoincidences* TGCArguments::TGCCOIN() const {return m_TGCCOIN;}
   bool TGCArguments::DEBUGLEVEL() const {return m_DEBUGLEVEL;}
