@@ -6,18 +6,14 @@
 
 #include "TRT_DetElementsRoadCondAlg_xk.h"
 
-#include "TRT_DetElementsRoadTool_xk/TRT_DetElementsComparison.h"
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsLayer_xk.h"
-
+#include "TRT_DetElementsRoadTool_xk/TRT_DetElementsComparison.h"
 #include "TRT_ReadoutGeometry/TRT_Numerology.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
 #include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
-#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
-
+#include "TrkSurfaces/CylinderBounds.h"
 #include <memory>
-#include <utility>
-#include <ostream>
-#include <fstream>
 
 
 ///////////////////////////////////////////////////////////////////
@@ -61,7 +57,7 @@ StatusCode InDet::TRT_DetElementsRoadCondAlg_xk::execute(const EventContext& ctx
     return StatusCode::SUCCESS;
   }
 
-  std::unique_ptr<InDet::TRT_DetElementsRoadData_xk> writeCdo{std::make_unique<InDet::TRT_DetElementsRoadData_xk>()};
+
   EventIDRange rangeTrt;
 
   SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey, ctx);
@@ -98,7 +94,10 @@ StatusCode InDet::TRT_DetElementsRoadCondAlg_xk::execute(const EventContext& ctx
   
   mrmin[N] = 100000.; mrmax[N] =-100000.;
   mzmin[N] = 100000.; mzmax[N] =-100000.;
-  
+
+  std::vector<const InDetDD::TRT_BaseElement*> pE;
+  pE.reserve(NPhi*2);
+
   for(int ring = 0; ring!=Rings; ++ring) {
     
     int NSlayers = trtNum->getNBarrelLayers(ring);
@@ -110,8 +109,7 @@ StatusCode InDet::TRT_DetElementsRoadCondAlg_xk::execute(const EventContext& ctx
       double zmin = 100000., zmax =-100000.;
       double dfm  = 0.;
       
-      std::vector<const InDetDD::TRT_BaseElement*> pE;
-      pE.reserve(NPhi);
+      pE.clear(); // RESET PE
       for(int f=0; f!=NPhi; ++f) {
         pE.push_back(trtDetEleHandle->getBarrelDetElement(0,ring,f,nsl));
 	pE.push_back(trtDetEleHandle->getBarrelDetElement(1,ring,f,nsl));
@@ -135,8 +133,8 @@ StatusCode InDet::TRT_DetElementsRoadCondAlg_xk::execute(const EventContext& ctx
 	  if( P[11] < zmin ) zmin = P[11]; 
 	  if( P[12] > zmax ) zmax = P[12]; 
 	  
-	  double df1 = fabs(P[13]-P[2]); if(df1>pi) df1 = fabs(df1-pi2); 
-	  double df2 = fabs(P[14]-P[2]); if(df2>pi) df2 = fabs(df2-pi2); 
+	  double df1 = std::abs(P[13]-P[2]); if(df1>pi) df1 = std::abs(df1-pi2); 
+	  double df2 = std::abs(P[14]-P[2]); if(df2>pi) df2 = std::abs(df2-pi2); 
 	  if(df1>dfm) dfm = df1;
 	  if(df2>dfm) dfm = df2;
 	  InDet::TRT_DetElementLink_xk link(pE[j],P);
@@ -174,7 +172,7 @@ StatusCode InDet::TRT_DetElementsRoadCondAlg_xk::execute(const EventContext& ctx
 	  double rmin = 100000., rmax =-100000.;
 	  double zmin = 100000., zmax =-100000.;
 	  double dfm  = 0.;
-	  std::vector<const InDetDD::TRT_BaseElement*> pE;
+	  pE.clear(); //Reset Pe
 	  
 	  for(int f=0; f!=NPhi; ++f) {
 	    pE.push_back(trtDetEleHandle->getEndcapDetElement(side,wh,s,f));
@@ -199,8 +197,8 @@ StatusCode InDet::TRT_DetElementsRoadCondAlg_xk::execute(const EventContext& ctx
 	      if( P[11] < zmin ) zmin = P[11]; 
 	      if( P[12] > zmax ) zmax = P[12]; 
 	      
-	      double df1 = fabs(P[13]-P[2]); if(df1>pi) df1 = fabs(df1-pi2); 
-	      double df2 = fabs(P[14]-P[2]); if(df2>pi) df2 = fabs(df2-pi2); 
+	      double df1 = std::abs(P[13]-P[2]); if(df1>pi) df1 = std::abs(df1-pi2); 
+	      double df2 = std::abs(P[14]-P[2]); if(df2>pi) df2 = std::abs(df2-pi2); 
 	      if(df1>dfm) dfm = df1;
 	      if(df2>dfm) dfm = df2;
 	      
@@ -224,19 +222,19 @@ StatusCode InDet::TRT_DetElementsRoadCondAlg_xk::execute(const EventContext& ctx
   double rma = -100000.;
   double rmi = +100000.;
   for(int i=0; i!=3; ++i) {
-    if(layerVectors[i].size()) {                                                                             
+    if(layerVectors[i].size()) {
       if(mzmin[i]<zmi) zmi=mzmin[i];
       if(mzmax[i]>zma) zma=mzmax[i];
       if(mrmax[i]>rma) rma=mrmax[i];
       if(mrmin[i]<rmi) rmi=mrmin[i];
-    }                                                                                                                                      
+    }
   }
 
-  double hz = fabs(zma); 
-  if(hz<fabs(zmi)) hz = fabs(zmi);
+  double hz = std::abs(zma); 
+  if(hz<std::abs(zmi)) hz = std::abs(zmi);
 
   const Trk::CylinderBounds CB(rma+20.,hz+20.);
-
+  std::unique_ptr<InDet::TRT_DetElementsRoadData_xk> writeCdo{std::make_unique<InDet::TRT_DetElementsRoadData_xk>()};
   writeCdo->setTRTLayerVectors(std::move(layerVectors));
   writeCdo->setBounds(CB,rmi);
 
