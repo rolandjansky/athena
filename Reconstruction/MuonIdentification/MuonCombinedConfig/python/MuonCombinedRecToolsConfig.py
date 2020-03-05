@@ -32,6 +32,7 @@ def MuonCombinedTrackSummaryToolCfg(flags, name="", **kwargs):
                                             TestBLayerTool  = None,
                                             DoSharedHits    = False,
                                             HoleSearch      = indet_hole_search_tool)
+    indet_track_summary_helper_tool = acc.getPrimary()
     # indet_track_summary_helper_tool = CompFactory.InDet__InDetTrackSummaryHelperTool(name            = "CombinedMuonIDSummaryHelper",
     #                                                                                 AssoTool        = None,
     #                                                                                 PixelToTPIDTool = None,
