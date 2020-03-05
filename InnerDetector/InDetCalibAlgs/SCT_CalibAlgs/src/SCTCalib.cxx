@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -483,7 +483,7 @@ StatusCode SCTCalib::finalize() {
 /// doHVPrintXML()
 /// Prints XML file for hv modules
 ///////////////////////////////////////////////////////////////////////////////////
-StatusCode SCTCalib::doHVPrintXML(const std::pair<int, int>& timeInterval, const std::pair<int, int>& lbRange, Identifier waferId) {
+void SCTCalib::doHVPrintXML(const std::pair<int, int>& timeInterval, const std::pair<int, int>& lbRange, Identifier waferId) {
    const IdentifierHash waferHash{m_pSCTHelper->wafer_hash(waferId)};
    const SCT_SerialNumber sn{m_CablingTool->getSerialNumberFromHash(waferHash)};
 
@@ -512,7 +512,6 @@ StatusCode SCTCalib::doHVPrintXML(const std::pair<int, int>& timeInterval, const
       XmlStreamer v{"value", "name", "EndLBN", m_gofile};
       m_gofile << lbRange.second;
    }
-   return StatusCode::SUCCESS;
 }
 
 
@@ -2710,10 +2709,17 @@ SCTCalib::writeModuleListToCool(const std::map<Identifier, std::set<Identifier>>
             } else ATH_MSG_DEBUG("Module " << moduleId  << " is identical to the reference output");
          } else {
             if (m_noisyStripAll) { //--- ALL noisy strips
-               if (!defectStripsAll.empty() || m_noisyWriteAllModules)
-                  m_pCalibWriteTool->createCondObjects(moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsAll);
+               if (!defectStripsAll.empty() || m_noisyWriteAllModules) {
+                 if (m_pCalibWriteTool->createCondObjects(moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsAll).isFailure()) {
+                   ATH_MSG_ERROR("Could not create defect strip entry in the CalibWriteTool.");
+                 }
+              }
             } else { //--- Only NEW noisy strips
-               if (!defectStripsNew.empty()) m_pCalibWriteTool->createCondObjects(moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsNew);
+               if (!defectStripsNew.empty()) {
+                 if (m_pCalibWriteTool->createCondObjects(moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsNew).isFailure()) {
+                   ATH_MSG_ERROR("Could not create defect strip entry in the CalibWriteTool.");
+                 }
+               }
             }
          }
       }
