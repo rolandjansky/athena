@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -566,21 +566,25 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
     // get TileRawChannelBuilderFlatFilter for adder energy calculation
     CHECK( m_adderFilterAlgTool.retrieve() );
 
-    m_adderFilterAlgTool->setProperty("TileRawChannelContainer", "TileAdderFlat");
-    m_adderFilterAlgTool->setProperty("calibrateEnergy", "true");
+    StatusCode sc;
+    sc &= m_adderFilterAlgTool->setProperty("TileRawChannelContainer", "TileAdderFlat");
+    sc &= m_adderFilterAlgTool->setProperty("calibrateEnergy", "true");
 
-    m_adderFilterAlgTool->setProperty("PedStart", "0");
-    m_adderFilterAlgTool->setProperty("PedLength", "1");
-    m_adderFilterAlgTool->setProperty("PedOffset", "0");
-    m_adderFilterAlgTool->setProperty("SignalStart", "1");
-    m_adderFilterAlgTool->setProperty("SignalLength", "15");
-    m_adderFilterAlgTool->setProperty("FilterLength", "5");
-    m_adderFilterAlgTool->setProperty("FrameLength", "16");
-    m_adderFilterAlgTool->setProperty("DeltaCutLo", "9.5");
-    m_adderFilterAlgTool->setProperty("DeltaCutHi", "9.5");
-    m_adderFilterAlgTool->setProperty("RMSCutLo", "1.0");
-    m_adderFilterAlgTool->setProperty("RMSCutHi", "1.0");
-
+    sc &= m_adderFilterAlgTool->setProperty("PedStart", "0");
+    sc &= m_adderFilterAlgTool->setProperty("PedLength", "1");
+    sc &= m_adderFilterAlgTool->setProperty("PedOffset", "0");
+    sc &= m_adderFilterAlgTool->setProperty("SignalStart", "1");
+    sc &= m_adderFilterAlgTool->setProperty("SignalLength", "15");
+    sc &= m_adderFilterAlgTool->setProperty("FilterLength", "5");
+    sc &= m_adderFilterAlgTool->setProperty("FrameLength", "16");
+    sc &= m_adderFilterAlgTool->setProperty("DeltaCutLo", "9.5");
+    sc &= m_adderFilterAlgTool->setProperty("DeltaCutHi", "9.5");
+    sc &= m_adderFilterAlgTool->setProperty("RMSCutLo", "1.0");
+    sc &= m_adderFilterAlgTool->setProperty("RMSCutHi", "1.0");
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("Failure setting properties of " << m_adderFilterAlgTool);
+      return StatusCode::FAILURE;
+    }
   }
 
   if (m_finalUnit < TileRawChannelUnit::ADCcounts
