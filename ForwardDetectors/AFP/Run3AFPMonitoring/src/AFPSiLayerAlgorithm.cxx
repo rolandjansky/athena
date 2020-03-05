@@ -68,7 +68,9 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto random = Monitored::Scalar<float>("random",0.0);
     auto testweight = Monitored::Scalar<float>("testweight",1.0);
 */
-    auto totHits = Monitored::Scalar<int>("totHits", 0); // Nikola
+    auto lb = Monitored::Scalar<int>("lb", 0); // Nikola
+    auto nhits = Monitored::Scalar<float>("nhits", 1.0);
+    
 
 /*    // Two variables (value and passed) needed for TEfficiency
     auto pT = Monitored::Scalar<float>("pT",0.0);
@@ -78,13 +80,15 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
   //  h_timeOverThreshold = lbAverageInteractionsPerCrossing(ctx);
   //  h_hitMultiplicity = lbAverageInteractionsPerCrossing(ctx);
     //    h_hitMap = lbAverageInteractionsPerCrossing(ctx);
-    totHits = GetEventInfo(ctx)->lumiBlock();	// Nikola
+    lb = GetEventInfo(ctx)->lumiBlock();	// Nikola
+    nhits = 1.0;		// This should be changed to: nhits = afpHitContainer.size() ; !!!!!!!!!
 /*
     lumiPerBCID = lbAverageInteractionsPerCrossing(ctx);
     lb = GetEventInfo(ctx)->lumiBlock();
     run = GetEventInfo(ctx)->runNumber();
     testweight = 2.0;
-    
+        
+
     TRandom3 r(ctx.eventID().event_number());
     // Example of using flags
     if (m_doRandom) {
@@ -99,7 +103,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     //fill("AFPSiLayer", h_timeOverThreshold, h_hitMultiplicity,lumiPerBCID,lb,random,pT,pT_passed,testweight);
     //fill("AFPSiLayerAlgorithm",h_hitMultiplicity,lb,random,pT,pT_passed,testweight);
     //////////fill("AFPSiLayer", h_timeOverThreshold, h_hitMultiplicity);
-    //fill("AFPSiLayerTool", totHits);
+   //fill("AFPSiLayerTool", lb);
 
     // Alternative fill method. Get the group yourself, and pass it to the fill function.
     //auto tool = getGroup("AFPSiLayer");
@@ -146,6 +150,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
     ATH_CHECK( afpHitContainer.initialize() );
  //for (const auto& muonItr : *muons) {
+    //nhits = afpHitContainer.size();
     for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
     {
        std::cout << hitsItr->stationID() << std::endl;
@@ -154,10 +159,14 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	{
 	    case 2:
 	        std::cout << hitsItr->pixelColIDChip() << std::endl;
+		std::cout << "Case 2; Test" << std::endl;
+		//fill(*hitsItr);
+		fill("AFPSiLayerTool", lb, nhits);
 		break;
-	    //case s_cFarStationIndex:
+	    case 3:
+		std::cout << "Case 3; Test" << std::endl;		
 		//m_cFarStation.fillHistograms(*hitsItr);
-		//break;
+		break;
 	    default:
 		ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
 	}

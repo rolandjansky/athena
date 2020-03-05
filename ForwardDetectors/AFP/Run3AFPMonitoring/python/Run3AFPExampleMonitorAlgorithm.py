@@ -68,7 +68,7 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
 
     # Add a GMT for the other example monitor algorithm
     #    anotherGroup = helper.addGroup(anotherExampleMonAlg,'AFPSiLayer')
-    AFPGroup.defineHistogram('totHits', title='Luminosity Block;lb;total number of Hits',  path='Global',xbins=1000,xmin=-0.5,xmax=999.5,weight='nhits') 
+    AFPGroup.defineHistogram('lb', title='Luminosity Block;lb;total number of Hits',  path='Global',xbins=1000,xmin=-0.5,xmax=999.5,weight='nhits') 
 
     ### STEP 5 ###
     # Configure histogramsIf you want to create histograms with variable bin widths, ROOT provides another constructor suited for this purpose. Instead of passing the data interval and the number of bins, you have to pass an array (single or double precision) of bin edges. When the histogram has n bins, then there are n+1 distinct edges, so the array you pass must be of size n+1.
@@ -142,4 +142,4 @@ if __name__=='__main__':
     # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
     cfg.printConfig(withDetails=False) # set True for exhaustive info
 
-    cfg.run(100) #use cfg.run(20) to only run on first 20 events
+    cfg.run(1000) #use cfg.run(20) to only run on first 20 events
