@@ -139,21 +139,14 @@ namespace LVL1TGCTrigger {
 
     // Version of Coincidence Window
     StringProperty m_VerCW{this,"VersionCW","00_07_0022"};
-
-    StringProperty    m_MaskFileName{this,"MaskFileName",""};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
+    
     StringProperty    m_MaskFileName12{this,"MaskFileName12",""};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     ShortProperty     m_CurrentBunchTag{this,"CurrentBunchTag",TgcDigit::BC_CURRENT};  //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     BooleanProperty   m_ProcessAllBunches{this,"ProcessAllBunhes",true};
     BooleanProperty   m_OutputTgcRDO{this,"OutputTgcRDO",true};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     
     // expert usage
-    BooleanProperty   m_STRICTWD{this,"STRICTWD",false};
-    BooleanProperty   m_STRICTWT{this,"STRICTWT",false};
-    BooleanProperty   m_STRICTSD{this,"STRICTSD",false};
-    BooleanProperty   m_STRICTST{this,"STRICTST",false};
     BooleanProperty   m_OUTCOINCIDENCE{this,"OUTCOINCIDENCE",false}; //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
-    BooleanProperty   m_SINGLEBEAM{this,"SINGLEBEAM",false}; // for the single beam run
-    BooleanProperty   m_MUHALO{this,"MUHALO",false}; // flag for including MUHALO (i.e. 2-st coin ) in pt=1
     BooleanProperty   m_SHPTORED{this,"SHPTORED",true}; // flag for E1/E2 chamber ORED in Strip HPT
     BooleanProperty   m_USEINNER{this,"USEINNER",true}; // flag for using Inner Station for SL
     BooleanProperty   m_INNERVETO{this,"INNERVETO",true}; // flag for using VETO by Inner Station for SL

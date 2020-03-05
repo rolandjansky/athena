@@ -36,11 +36,6 @@
   - @link LVL1TGCTrigger::LVL1TGCTrigger::LVL1TGCTrigger @endlink
   - @link LVL1TGCTrigger::CBNTAA_TGCMakeCoincidenceOut::CBNTAA_TGCMakeCoincidenceOut @endlink
 
-@section TrigT1TGC_TrigT1TGC Special configuration for cosmic run
-  User can insert dummy hits to satisfy 2-station coincidence for cosmic muon trigger
-  by the endcap muon trigger system. She/he can use CosmicM2.msk to make such a special configuration by
-  LVL1TGCTrigger::LVL1TGCTrigger::MaskFileName="CosmicM2.msk"
-
 @section TrigT1TGC_TrigT1TGC Special configuration for a slow charged particle.
   User can use all hits(i.e. associated to next bunch) by LVL1TGCTrigger::CurrentBunchTag=0   
 
