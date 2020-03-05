@@ -40,6 +40,9 @@ def TileHitToTTL1Cfg(flags, **kwargs):
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault('TileTTL1Container', flags.Overlay.BkgPrefix + 'TileTTL1Cnt')
         kwargs.setdefault('TileMBTSTTL1Container', flags.Overlay.BkgPrefix + 'TileTTL1MBTS')
+    elif flags.Detector.OverlayTile:
+        kwargs.setdefault('TileTTL1Container', flags.Overlay.SigPrefix + 'TileTTL1Cnt')
+        kwargs.setdefault('TileMBTSTTL1Container', flags.Overlay.SigPrefix + 'TileTTL1MBTS')
     else:
         kwargs.setdefault('TileTTL1Container', 'TileTTL1Cnt')
         kwargs.setdefault('TileMBTSTTL1Container', 'TileTTL1MBTS')
