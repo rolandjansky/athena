@@ -400,7 +400,7 @@ class L1MenuConfig(object):
     def _generateTopoMenu(self):
 
         allBoards = (list(L1MenuFlags.boards().items()) + list(L1MenuFlags.legacyBoards().items()))
-        allBoardsWithTopo = filter( lambda n : ('topo' in n[0].lower() or 'muctpi' in n[0].lower()), allBoards )
+        allBoardsWithTopo = list(filter( lambda n : ('topo' in n[0].lower() or 'muctpi' in n[0].lower()), allBoards ))
 
         #
         # Add the topo thresholds to the menu
