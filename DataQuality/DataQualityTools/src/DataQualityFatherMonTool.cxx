@@ -327,7 +327,6 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TGrap
   return StatusCode::SUCCESS;
 }
 
-
 //----------------------------------------------------------------------------------
 StatusCode DataQualityFatherMonTool::registerTree(const std::string& path, TTree* t1, Interval_t interval, MgmtAttr_t histo_mgmt)
 //----------------------------------------------------------------------------------

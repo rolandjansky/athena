@@ -926,6 +926,7 @@ StatusCode DQTGlobalWZFinderTool::procHistograms( )
     ATH_MSG_DEBUG("in finalHists()");
   }
 
+
   //---Filling rate monitoring histograms---//
   if (endOfLumiBlockFlag()) {
          m_JPsiCounterSignal[0] = m_JPsiCounterSBG[0] - m_JPsiCounter2BG[0]/2;
@@ -986,6 +987,8 @@ StatusCode DQTGlobalWZFinderTool::procHistograms( )
        m_ZBosonCounterSBG_Mu[index]=0;
      }
    }
+
+
 
   return StatusCode::SUCCESS;
 }
