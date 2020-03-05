@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -93,11 +93,11 @@ int main() {
 
    //check multi period failure
    CP::IPileupReweightingTool* prw_bad = new CP::PileupReweightingTool("prw_bad");
-   asg::setProperty(prw_bad,"ConfigFiles",configFiles);
-   asg::setProperty(prw_bad,"LumiCalcFiles",lumicalcFiles);
+   asg::setProperty(prw_bad,"ConfigFiles",configFiles).ignore();
+   asg::setProperty(prw_bad,"LumiCalcFiles",lumicalcFiles).ignore();
    
    try {
-    prw_bad->initialize();
+    prw_bad->initialize().ignore();
    } catch(const std::runtime_error& e) {
     std::cout << "correctly caught:" << e.what() << std::endl;
    }
@@ -106,10 +106,10 @@ int main() {
 
    //repeat with action=3 ... 
    CP::IPileupReweightingTool* prw = new CP::PileupReweightingTool("prw");
-   asg::setProperty(prw,"ConfigFiles",configFiles);
-   asg::setProperty(prw,"LumiCalcFiles",lumicalcFiles);
-   asg::setProperty(prw,"UseMultiPeriods",true); //channel 2000 has periods 100 and 101
-   prw->initialize();
+   asg::setProperty(prw,"ConfigFiles",configFiles).ignore();
+   asg::setProperty(prw,"LumiCalcFiles",lumicalcFiles).ignore();
+   asg::setProperty(prw,"UseMultiPeriods",true).ignore(); //channel 2000 has periods 100 and 101
+   prw->initialize().ignore();
 
 
 
@@ -127,10 +127,10 @@ int main() {
    CP::IPileupReweightingTool* prw1 = new CP::PileupReweightingTool("prw1");
    std::vector<std::string> configFiles1 = {"dummy1.prw.root"};
    std::vector<std::string> lumicalcFiles1 = {"dummy.None.lumicalc.root","dummy.TriggerA.lumicalc.root:TriggerA","dummy.TriggerB.lumicalc.root:TriggerB"};
-   asg::setProperty(prw1, "ConfigFiles",configFiles1);
-   asg::setProperty(prw1, "LumiCalcFiles",lumicalcFiles1);
-   asg::setProperty(prw1,"UseMultiPeriods",true); //channel 2000 has periods 100 and 101
-   prw1->initialize();
+   asg::setProperty(prw1, "ConfigFiles",configFiles1).ignore();
+   asg::setProperty(prw1, "LumiCalcFiles",lumicalcFiles1).ignore();
+   asg::setProperty(prw1,"UseMultiPeriods",true).ignore(); //channel 2000 has periods 100 and 101
+   prw1->initialize().ignore();
 
    std::cout << "prw1 Integrated lumi = " << prw1->GetIntegratedLumi() << " (expected=2.7e-5) " << std::endl;  testValue(prw1->GetIntegratedLumi(),2.7e-5);
    std::cout << "prw1 periodWeights : " << prw1->expert()->GetPeriodWeight(100,2002) << " (expected=1.6666) " << prw1->expert()->GetPeriodWeight(101,2002) << " (expected=0.5555)" << std::endl; testValue(prw1->expert()->GetPeriodWeight(100,2002),1.6666);
