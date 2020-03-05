@@ -147,7 +147,6 @@ StatusCode TRTAlignCondAlg::execute()
     }
   }
 
-
   // ____________ Apply alignments to TRT GeoModel ____________
   if(m_detManager->align(readCdoContainer,writeCdo.get()).isFailure()) {
     ATH_MSG_ERROR("Failed to apply alignments to TRT");
