@@ -758,18 +758,23 @@ class ChainStep(object):
         self.name = name
         self.sequences=Sequences
         self.multiplicity = multiplicity
+        self.comboToolConfs=comboToolConfs
         self.isCombo=sum(multiplicity)>1
         self.combo=None
         if self.isCombo:
-            self.makeCombo(Sequences, comboToolConfs )
-        self.decisions = []
+            self.makeCombo()
 
-    def makeCombo(self, Sequences, comboToolConfs=[]):
-        if len(Sequences)==0:
+
+    def addCombHypoTools(self,  tools):
+        self.comboToolConfs=tools
+        self.combo.addComboHypoToolConfs(self.comboToolConfs)
+
+    def makeCombo(self):
+        if len(self.sequences)==0:
             return
         hashableMult = tuple(self.multiplicity)
         self.combo =  RecoFragmentsPool.retrieve(createComboAlg, None, name=CFNaming.comboHypoName(self.name), multiplicity=hashableMult)
-        self.combo.addComboHypoToolConfs(comboToolConfs)
+        self.combo.addComboHypoToolConfs(self.comboToolConfs)
 
     def createComboHypoTools(self, chainName):
         if self.isCombo:
@@ -782,7 +787,7 @@ class ChainStep(object):
 
 
     def __repr__(self):
-        return "--- ChainStep %s ---\n + isCombo = %d, multiplicity = %d \n + MenuSequences = %s"%(self.name, self.isCombo,sum(self.multiplicity), ' '.join(map(str, [seq.name for seq in self.sequences]) ))
+        return "--- ChainStep %s ---\n + isCombo = %d, multiplicity = %d \n + MenuSequences = %s  \n + ComboHypoTools = %s"%(self.name, self.isCombo,sum(self.multiplicity), ' '.join(map(str, [seq.name for seq in self.sequences]) ),  ' '.join(map(str, [tool for tool in self.comboToolConfs]) ))
 
 
 def createComboAlg(dummyFlags, name, multiplicity):

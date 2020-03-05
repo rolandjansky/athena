@@ -9,27 +9,26 @@
 #include "DecisionHandling/HLTIdentifier.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
-#include "IComboHypoTool.h"
+#include "ComboHypoToolBase.h"
 
-class DeltaRRoIComboHypoTool:  virtual public IComboHypoTool, public AthAlgTool {
+class DeltaRRoIComboHypoTool:  public ComboHypoToolBase {
 
  public:
   
   DeltaRRoIComboHypoTool(const std::string& type,
                     const std::string& name,
                     const IInterface* parent);
-  virtual ~DeltaRRoIComboHypoTool();
+  
+  virtual ~DeltaRRoIComboHypoTool() {};
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
-  virtual StatusCode decide( const LegDecisionsMap & IDCombMap, LegDecisionsMap & passingCombinations ) const override;
 
   private:
-  
-  Gaudi::Property<float> m_DRcut{this, "DRcut", 0.1, "DR threshold" };
+
+  bool executeAlg(ElementLinkVector<TrigCompositeUtils::DecisionContainer>& thecomb) const override;
  
   double deltaR(double eta1, double eta2, double phi1, double phi2) const;
 
-
+  Gaudi::Property<float> m_DRcut{this, "DRcut", 0.1, "DR threshold" };
  
 
 

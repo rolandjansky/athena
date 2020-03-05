@@ -11,7 +11,7 @@
 // STL includes
 #include <string>
 #include <utility>  
-#include "IComboHypoTool.h"
+#include "ComboHypoToolBase.h"
 
 /**
  * @class ComboHypo for combined hypotheses required only counting (multiplicity requirements)
@@ -73,7 +73,7 @@ private:
 
   StatusCode fillDecisionsMap( LegDecisionsMap& dmap, const EventContext& context) const;
 
-  ToolHandleArray< IComboHypoTool > m_hypoTools {this, "ComboHypoTools", {}, "Tools to perform selection"};
+  ToolHandleArray< ComboHypoToolBase > m_hypoTools {this, "ComboHypoTools", {}, "Tools to perform selection"};
 
 };
 

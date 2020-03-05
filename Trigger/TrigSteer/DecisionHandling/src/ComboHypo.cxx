@@ -213,6 +213,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
         uint16_t featureIndex = 0, roiIndex = 0;
         // NOTE: roiKey, roiIndex not currently used in this discrimination
         ATH_CHECK( extractFeatureAndRoI(dEL, featureKey, featureIndex, roiKey, roiIndex) );
+	// TODO: move this to InitialRoI for serial merging
         const uint32_t featureHash = (featureKey + featureIndex); 
         if (featureHash == 0) {
           ATH_MSG_WARNING("Disregarding feature hash of zero");
@@ -237,7 +238,6 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
     ATH_MSG_DEBUG( "Chain " << chainId <<  ( overallDecision ? " is accepted" : " is rejected")  <<" after multiplicity requirements" );
     if ( overallDecision == true ) {
       for (auto decID: allDecisionIds) {
-	//        passing.insert( passing.end(), decID );
 	// saving the good combiantions
 	goodMultCombMap.insert (thisChainCombMap.begin(), thisChainCombMap.end());
         ATH_MSG_DEBUG("  Passing " << HLT::Identifier(decID)<<" after multiplicity test");
@@ -245,18 +245,18 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
     }      
   }
 
-  // launching the tools:
-  ///////////////////////
-    LegDecisionsMap  passingLegs;
+  LegDecisionsMap passingLegs;
+  if  (goodMultCombMap.size()!=0){
+    // launching the tools:
+    ///////////////////////
     if (m_hypoTools.size()>0){
       for ( auto& tool: m_hypoTools ) {
 	ATH_MSG_DEBUG( "Calling  tool "<<tool->name());
 	ATH_CHECK( tool->decide( goodMultCombMap, passingLegs ) );
       }
     }
-    else{
-      passingLegs = goodMultCombMap;
-     }
+    else  passingLegs=goodMultCombMap;
+  }
 
     // this is only for debug:
     if (msgLvl(MSG::DEBUG)){
@@ -281,6 +281,7 @@ StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>&
   uint32_t featureClid = 0; // Note: Unused. We don't care what the type of the feature is here
   const bool result = (*dEL)->typelessGetObjectLink(featureString(), featureKey, featureClid, featureIndex);
   if (!result) {
+    // WARNING?
     ATH_MSG_ERROR("Did not find the feature for " << dEL.dataID() << " index " << dEL.index());
   }
   // Try and get seeding ROI data too. Don't need to be type-less here
