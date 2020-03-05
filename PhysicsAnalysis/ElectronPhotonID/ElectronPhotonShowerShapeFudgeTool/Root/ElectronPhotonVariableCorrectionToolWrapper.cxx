@@ -26,14 +26,14 @@ StatusCode ElectronPhotonVariableCorrectionToolWrapper::initialize()
         configFile = PathResolverFindCalibFile(m_configFile);
         if (configFile == "")
         {
-            ATH_MSG_ERROR("In " << name() << ": Could not locate configuration file " << m_configFile);
+            ATH_MSG_ERROR("Could not locate configuration file " << m_configFile);
             return StatusCode::FAILURE;
         }
         ATH_MSG_DEBUG("Use configuration file " << m_configFile);
     }
     else
     {
-        ATH_MSG_ERROR("In " << name() << ": Config file string is empty. Please provide a config file to the tool.");
+        ATH_MSG_ERROR("Config file string is empty. Please provide a config file to the tool.");
         return StatusCode::FAILURE;
     }
 
@@ -99,7 +99,7 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::findAllConfigFiles
         confFiles.at(confFile_itr) = PathResolverFindCalibFile(confFiles.at(confFile_itr));
         if (confFiles.at(confFile_itr) == "")
         {
-            ATH_MSG_ERROR("In " << name()  << ": Could not locate configuration file " << tmp_confFile);
+            ATH_MSG_ERROR("Could not locate configuration file " << tmp_confFile);
             return StatusCode::FAILURE;
         }
     }
@@ -141,7 +141,7 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::applyToFlagMatches
         if (toolHolderType == ElectronPhotonVariableCorrectionTool::EGammaObjects::unconvertedPhotons && toolHolder.at(tool_itr)->applyToUnconvertedPhotons()) continue;
         if (toolHolderType == ElectronPhotonVariableCorrectionTool::EGammaObjects::allElectrons && toolHolder.at(tool_itr)->applyToElectrons()) continue;
         // if this point is reached, something is wrong, so
-        ATH_MSG_ERROR("In " << name() << ": In conf " << confFiles.at(tool_itr) << ": The ApplyTo flag does not match with the wrapper conf file container type.");
+        ATH_MSG_ERROR("In conf " << confFiles.at(tool_itr) << ": The ApplyTo flag does not match with the wrapper conf file container type.");
         return StatusCode::FAILURE;
     }
     //everything worked out, so
@@ -164,7 +164,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionToolWrapper::applyCorre
         {
             if ((m_convertedPhotonTools.at(convertedPhotonTool_itr)->applyCorrection(photon)) != CP::CorrectionCode::Ok)
             {
-                ATH_MSG_ERROR("In " << name() << ": Could not apply correction to converted photon object.");
+                ATH_MSG_ERROR("Could not apply correction to converted photon object.");
                 return CP::CorrectionCode::Error;
             }
         }
@@ -176,7 +176,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionToolWrapper::applyCorre
         {
             if ((m_unconvertedPhotonTools.at(unconvertedPhotonTool_itr)->applyCorrection(photon)) != CP::CorrectionCode::Ok)
             {
-                ATH_MSG_ERROR("In " << name() << ": Could not apply correction to unconverted photon object.");
+                ATH_MSG_ERROR("Could not apply correction to unconverted photon object.");
                 return CP::CorrectionCode::Error;
             }
         }
@@ -192,7 +192,7 @@ const CP::CorrectionCode ElectronPhotonVariableCorrectionToolWrapper::applyCorre
     {
         if ((m_electronTools.at(electronTool_itr)->applyCorrection(electron)) != CP::CorrectionCode::Ok)
         {
-            ATH_MSG_ERROR("In " << name() << ": Could not apply correction to electron object.");
+            ATH_MSG_ERROR("Could not apply correction to electron object.");
             return CP::CorrectionCode::Error;
         }
     }
@@ -234,7 +234,7 @@ const StatusCode ElectronPhotonVariableCorrectionToolWrapper::getCorrectionVaria
     }
     else
     {
-        ATH_MSG_ERROR("In " << name() << ": In conf file " << confFile << ": Correction variable is empty or not in configuration file.");
+        ATH_MSG_ERROR("In conf file " << confFile << ": Correction variable is empty or not in configuration file.");
         return StatusCode::FAILURE;
     }
     //everything worked out, so
