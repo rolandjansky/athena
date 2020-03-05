@@ -23,4 +23,4 @@ LinearityTool = ConfiguredLinearityTool(
     )
 
 ToolSvc += LinearityTool
-print      LinearityTool
+printfunc (     LinearityTool)

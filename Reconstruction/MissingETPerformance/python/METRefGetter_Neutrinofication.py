@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################################################
 #
@@ -15,6 +15,8 @@
 # Calculate MissingET RefFinal after neutrinofication.
 #
 ##############################################################################################
+
+from __future__ import print_function
 
 from AthenaCommon.SystemOfUnits import *  # loads MeV etc...
 from AthenaCommon.Constants import *      # Loads DEBUG INFO etc..
@@ -73,12 +75,12 @@ def getStandardCalibTool(doAtlfastII=False):
     conddb.addFolder("CALO",folder+' <tag>'+tag+'</tag>')						            
 
     # checking....											            
-    # print ' tname is ',tname										            
-    # print ' input is ', input										            
-    # print ' tag is ', tag										            
-    # print ' name is', cellcalibtool.name()								            
-    # print ' key is ', key										            
-    # print ' folder is ', folder 									            
+    # print (' tname is ',tname )
+    # print (' input is ', input )
+    # print (' tag is ', tag )
+    # print (' name is', cellcalibtool.name() )
+    # print (' key is ', key )
+    # print (' folder is ', folder )
 													            
     return cellcalibtool										            
 													            
@@ -103,7 +105,7 @@ class METRefGetter ( Configured ):
                 theMETRefAlg.UseCells = True
         except: 					       
             mlog.error("could not import MissingET.METRefAlg")    
-            print traceback.format_exc()		       
+            mlog.error(traceback.format_exc())
             return False	
 	#------------------------------------------------------------------------------------------------
         # configure the tools: METRefinedEleTool => calibrator Tool for ATLFASTII
@@ -132,7 +134,7 @@ class METRefGetter ( Configured ):
 	   	
             theMETRefinedEleTool.BackNavigationTo	 = "Cell"    # to "Cell"
             theMETRefinedEleTool.MissingETOutKey     	 = "MET_RefEle"
-            print "******************* key = "+theMETRefinedEleTool.MissingETOutKey
+            print ("******************* key = "+theMETRefinedEleTool.MissingETOutKey)
             #-----------------
             from MissingET.MissingETConf import METClusterResolverTool
             theMETEleResolver = METClusterResolverTool("EleResolve")
@@ -166,7 +168,7 @@ class METRefGetter ( Configured ):
 	    	    									     
         except: 							     
             mlog.error("could not get handle to METRefinedEleTool Quit")      
-            print traceback.format_exc()				     
+            mlog.error(traceback.format_exc())
             return False						     
  	
 	# add cellcalibtool				  		   
@@ -213,7 +215,7 @@ class METRefGetter ( Configured ):
 	   	
             theMETRefinedEleNueTool.BackNavigationTo	 = "Cell"    # to "Cell"
             theMETRefinedEleNueTool.MissingETOutKey     	 = "MET_RefEleNue"
-            print "******************* key = "+theMETRefinedEleNueTool.MissingETOutKey
+            print ("******************* key = "+theMETRefinedEleNueTool.MissingETOutKey)
             #-----------------
             from MissingET.MissingETConf import METClusterResolverTool
             theMETEleResolver = METClusterResolverTool("EleResolve")
@@ -223,7 +225,7 @@ class METRefGetter ( Configured ):
 	    #------------------------------------------------------------------------------------						     
         except: 							     
             mlog.error("NEUTRINOFICATION: could not get handle to METRefinedEleTool Quit")      
-            print traceback.format_exc()				     
+            mlog.error(traceback.format_exc())
             return False						     
  	
 	# add cellcalibtool				  		   
@@ -264,7 +266,7 @@ class METRefGetter ( Configured ):
 	    								     
             except:								       
             	mlog.error("could not get handle to METRefinedTauTool Quit")	       
-            	print traceback.format_exc()					       
+            	mlog.error(traceback.format_exc())
             	return False							       
 	
 	    # add cellcalibtool 					    
@@ -307,7 +309,7 @@ class METRefGetter ( Configured ):
 	    							         
         except: 						  		   
             mlog.error("could not get handle to METRefinedJetTool Quit")  	   
-            print traceback.format_exc()			  		   
+            mlog.error(traceback.format_exc())
             return False	
 	    
         # add cellcalibtool				  		   
@@ -357,7 +359,7 @@ class METRefGetter ( Configured ):
         
         except: 						  		   
             mlog.error("could not get handle to METRefinedClusterTool Quit")  	   
-            print traceback.format_exc()			  		   
+            mlog.error(traceback.format_exc())
             return False	
 	    
         # add cellcalibtool				  		   

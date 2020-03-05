@@ -8,4 +8,4 @@ ToolSvc += TrigMissingETTool
 
 TrigMissingETTool.OutputLevel = INFO
 
-print   TrigMissingETTool
+printfunc (  TrigMissingETTool)
