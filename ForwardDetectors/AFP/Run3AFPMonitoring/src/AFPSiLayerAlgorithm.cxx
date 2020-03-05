@@ -81,7 +81,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
   //  h_hitMultiplicity = lbAverageInteractionsPerCrossing(ctx);
     //    h_hitMap = lbAverageInteractionsPerCrossing(ctx);
     lb = GetEventInfo(ctx)->lumiBlock();	// Nikola
-    nhits = 1.0;		// This should be changed to: nhits = afpHitContainer.size() ; !!!!!!!!!
+
 /*
     lumiPerBCID = lbAverageInteractionsPerCrossing(ctx);
     lb = GetEventInfo(ctx)->lumiBlock();
@@ -150,7 +150,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
     ATH_CHECK( afpHitContainer.initialize() );
  //for (const auto& muonItr : *muons) {
-    //nhits = afpHitContainer.size();
+    nhits = afpHitContainer->size();
     for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
     {
        std::cout << hitsItr->stationID() << std::endl;
