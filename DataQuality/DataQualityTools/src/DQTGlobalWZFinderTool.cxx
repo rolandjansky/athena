@@ -112,7 +112,7 @@ DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type,
   declareProperty("UseOwnMuonSelection", m_useOwnMuonSelection);
   declareProperty("MuonMaxEta", m_muonMaxEta);
   declareProperty("BCTool", m_bcTool);
-  declareProperty("FillBCIDTrees", m_do_BCID);
+  declareProperty("FillBCIDTrees", m_do_BCID = false);
 
   m_W_mt_ele = 0;
   m_W_mt_mu = 0;
@@ -160,7 +160,7 @@ StatusCode DQTGlobalWZFinderTool::bookHistogramsRecurrent()
   ATH_MSG_DEBUG("For Z->mm:");
 
   for (auto trig : m_Z_ee_trigger){
-    std::cout << "ZeeTrigger: " << trig << std::endl;
+    ATH_MSG_DEBUG("ZeeTrigger: " + trig);
   }
 
   bool failure(false);
@@ -178,14 +178,14 @@ StatusCode DQTGlobalWZFinderTool::bookHistogramsRecurrent()
   }
 
   if (!m_isSimulation) {
-    failure |= registerHist(fullPathDQTGlobalWZFinder, m_livetime_lb         = new TProfile("m_livetime_lb", "Livetime", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
-    failure |= registerHist(fullPathDQTGlobalWZFinder, m_lblength_lb         = new TProfile("m_lblength_lb", "LB length", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
-    failure |= registerHist(fullPathDQTGlobalWZFinder, m_mu_lb               = new TProfile("m_mu_lb", "#mu", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
-    failure |= registerHist(fullPathDQTGlobalWZFinder, m_Z_ee_trig_ps        = new TProfile("m_Z_ee_trig_ps", "Z->ee trigger PS", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
-    failure |= registerHist(fullPathDQTGlobalWZFinder, m_Z_mm_trig_ps        = new TProfile("m_Z_mm_trig_ps", "Z->#mu#mu trigger PS", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+    failure |= registerHist(fullPathDQTGlobalWZFinder, m_livetime_lb = new TProfile("m_livetime_lb", "Livetime", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+    failure |= registerHist(fullPathDQTGlobalWZFinder, m_lblength_lb = new TProfile("m_lblength_lb", "LB length", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+    failure |= registerHist(fullPathDQTGlobalWZFinder, m_mu_lb = new TProfile("m_mu_lb", "#mu", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+    failure |= registerHist(fullPathDQTGlobalWZFinder, m_Z_ee_trig_ps = new TProfile("m_Z_ee_trig_ps", "Z->ee trigger PS", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+    failure |= registerHist(fullPathDQTGlobalWZFinder, m_Z_mm_trig_ps = new TProfile("m_Z_mm_trig_ps", "Z->#mu#mu trigger PS", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
     failure |= registerHist(fullPathDQTGlobalWZFinder, m_ZBosonCounter_El_os = new TH1F("m_Z_Counter_el_os","Z #rightarrow ee Count per Lumi Block", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
     failure |= registerHist(fullPathDQTGlobalWZFinder, m_ZBosonCounter_El_ss = new TH1F("m_Z_Counter_el_ss","Z #rightarrow ee Count per Lumi Block", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
-    failure |= registerHist(fullPathDQTGlobalWZFinder, m_ZBosonCounter_Mu    = new TH1F("m_Z_Counter_mu","Z #rightarrow #mu#mu Count per Lumi Block", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+    failure |= registerHist(fullPathDQTGlobalWZFinder, m_ZBosonCounter_Mu = new TH1F("m_Z_Counter_mu","Z #rightarrow #mu#mu Count per Lumi Block", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
    
     if (!failure) {
       m_livetime_lb->Fill(m_this_lb, lbAverageLivefraction());
@@ -345,9 +345,7 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
       setBCIDBranches(m_bcid_mu_tight_good, "mass"); 
       setBCIDBranches(m_bcid_mu_tight_bad, "mass"); 
       setBCIDBranches(m_bcid_mu_trigtp, "matched"); 
-
     }
-
 
     if (m_isSimulation) {
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mcmatch = TH1F_LW::create("m_mcatch", "Muon matching to truth in acceptance", 2, -0.5, 1.5), lumiBlock).isFailure();
@@ -366,7 +364,6 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
         failure = failure | registerTree(fullPathDQTGlobalWZFinder, m_electron_trig_tptree = new TTree("electron_trig_tptree","electron_trig_tptree")).isFailure();
         setDQTGlobalWZFinderBranches();
       }
-
     }
 
      
@@ -925,9 +922,9 @@ StatusCode DQTGlobalWZFinderTool::procHistograms( )
 {
   if ( endOfLumiBlockFlag() || endOfRunFlag() ) {
     MsgStream log(msgSvc(), name());
+
     ATH_MSG_DEBUG("in finalHists()");
   }
-
 
   //---Filling rate monitoring histograms---//
   if (endOfLumiBlockFlag()) {
@@ -992,6 +989,8 @@ StatusCode DQTGlobalWZFinderTool::procHistograms( )
 
   return StatusCode::SUCCESS;
 }
+
+
 
 //------ Electron START ------//
 void DQTGlobalWZFinderTool::doEleTriggerTP(const xAOD::Electron* el1, const xAOD::Electron* el2, bool os, bool ss) {
