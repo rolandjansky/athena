@@ -420,7 +420,8 @@ VERBOSE : Method call sequence with values
      */
     typedef std::vector< std::pair< const Trk::TrackParameters*, int > > identifiedParameters_t;
     struct Cache{
-       static int s_active ATLAS_THREAD_SAFE;
+      unsigned int                                             m_methodSequence = 0;
+
       bool                                                     m_dense=false;                  //!<  internal switch for resolved configuration  
       bool                                                     m_recall=false;                 //!< Flag the recall solution
       bool                                                     m_robustSampling=true; 
@@ -878,7 +879,6 @@ VERBOSE : Method call sequence with values
     bool                            m_materialEffectsOnTrackValidation; //!< mat effects on track validation
     //extrapolation counters
 
-    mutable Gaudi::Accumulators::Counter<int>                     m_methodSequence;
     mutable Gaudi::Accumulators::Counter<int>                     m_extrapolateCalls;              //!< number of calls: extrapolate() method
     mutable Gaudi::Accumulators::Counter<int>                     m_extrapolateBlindlyCalls;       //!< number of calls: extrapolateBlindly() method 
     mutable Gaudi::Accumulators::Counter<int>                     m_extrapolateDirectlyCalls;      //!< number of calls: extrapolateDirectly() method
