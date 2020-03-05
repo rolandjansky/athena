@@ -40,12 +40,13 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
     std::vector<std::string> stations = { "FarStation","NearStation"};
     std::vector<std::string> sides = { "Aside","Cside"};
 
+
     m_HitmapGroups = buildToolMap<std::map<std::string,std::map<std::string,int>>>(m_tools,"AFPSiLayerTool",sides,stations,layers);
 
 //  std::map<std::string,std::map<std::string,int>> <std::map<std::string,int>> 
      // We must declare to the framework in initialize what SG objects we are going to use
-    //SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey("AFPSiHits");
-    //    ATH_CHECK(m_afpHitContainerKey.initialize());
+    SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey("AFPSiHits");
+        ATH_CHECK(m_afpHitContainerKey.initialize());
     // ...
     return AthMonitorAlgorithm::initialize();
 }
@@ -67,6 +68,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto random = Monitored::Scalar<float>("random",0.0);
     auto testweight = Monitored::Scalar<float>("testweight",1.0);
 */
+    auto totHits = Monitored::Scalar<int>("totHits", 0); // Nikola
 
 /*    // Two variables (value and passed) needed for TEfficiency
     auto pT = Monitored::Scalar<float>("pT",0.0);
@@ -76,6 +78,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
   //  h_timeOverThreshold = lbAverageInteractionsPerCrossing(ctx);
   //  h_hitMultiplicity = lbAverageInteractionsPerCrossing(ctx);
     //    h_hitMap = lbAverageInteractionsPerCrossing(ctx);
+    totHits = GetEventInfo(ctx)->lumiBlock();	// Nikola
 /*
     lumiPerBCID = lbAverageInteractionsPerCrossing(ctx);
     lb = GetEventInfo(ctx)->lumiBlock();
@@ -96,6 +99,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     //fill("AFPSiLayer", h_timeOverThreshold, h_hitMultiplicity,lumiPerBCID,lb,random,pT,pT_passed,testweight);
     //fill("AFPSiLayerAlgorithm",h_hitMultiplicity,lb,random,pT,pT_passed,testweight);
     //////////fill("AFPSiLayer", h_timeOverThreshold, h_hitMultiplicity);
+    //fill("AFPSiLayerTool", totHits);
 
     // Alternative fill method. Get the group yourself, and pass it to the fill function.
     //auto tool = getGroup("AFPSiLayer");
@@ -140,9 +144,9 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     }
 
 
-    //ATH_CHECK( afpHitContainerKey.initialize() );
+    ATH_CHECK( afpHitContainer.initialize() );
  //for (const auto& muonItr : *muons) {
-  /*  for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
+    for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
     {
        std::cout << hitsItr->stationID() << std::endl;
 
@@ -159,7 +163,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	}
 
     }
-*/
+
 	//m_cNearStation.eventEnd();
 	//m_cFarStation.eventEnd();
 
