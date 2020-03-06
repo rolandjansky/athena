@@ -97,7 +97,7 @@ TrigSignatureMoniMT                                 INFO HLT_g5_medium_L1EM3 dec
 TrigSignatureMoniMT                                 INFO HLT_g5_tight_L1EM3            20        20        9         9         9         1         0         1         
 TrigSignatureMoniMT                                 INFO HLT_g5_tight_L1EM3 decisions                      13        13        30        1         0         
 TrigSignatureMoniMT                                 INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J2020        20        2         0         0         0         0         2         
-TrigSignatureMoniMT                                 INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 decisions                    5         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 decisions                    34        0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_j225_ftf_subjesgscIS_bmv2c1040_split_L1J10020        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_j225_ftf_subjesgscIS_bmv2c1040_split_L1J100 decisions                    0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_j260_320eta490_L1J20      20        20        0         0         0         0         0         0         
@@ -258,6 +258,14 @@ TrigSignatureMoniMT                                 INFO HLT_tau25_verylooseRNN_
 TrigSignatureMoniMT                                 INFO HLT_tau25_verylooseRNN_tracktwo_L1TAU12IM decisions                    4         4         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM20        20        3         3         3         0         0         3         
 TrigSignatureMoniMT                                 INFO HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM decisions                    4         4         4         0         0         
+TrigSignatureMoniMT                                 INFO HLT_xe100_mht_L1XE50          20        20        2         0         0         0         0         2         
+TrigSignatureMoniMT                                 INFO HLT_xe100_mht_L1XE50 decisions                    2         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_xe100_pfsum_L1XE50        20        20        0         0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_xe100_pfsum_L1XE50 decisions                    0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_xe100_tcpufit_L1XE50      20        20        0         0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_xe100_tcpufit_L1XE50 decisions                    0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_xe100_trkmht_L1XE50       20        20        0         0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_xe100_trkmht_L1XE50 decisions                    0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_xe30_cell_L1XE10          20        20        3         0         0         0         0         3         
 TrigSignatureMoniMT                                 INFO HLT_xe30_cell_L1XE10 decisions                    3         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_xe30_cell_xe30_tcpufit_L1XE1020        20        2         0         0         0         0         2         
@@ -272,3 +280,5 @@ TrigSignatureMoniMT                                 INFO HLT_xe30_trkmht_L1XE10 
 TrigSignatureMoniMT                                 INFO HLT_xe30_trkmht_L1XE10 decisions                    8         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_xe65_cell_L1XE50          20        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_xe65_cell_L1XE50 decisions                    0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_xe65_cell_xe110_tcpufit_L1XE5020        20        0         0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_xe65_cell_xe110_tcpufit_L1XE50 decisions                    0         0         0         0         0         

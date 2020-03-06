@@ -98,7 +98,7 @@ skimmingTools.append(EXOT1SkimmingTool)
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
 EXOT1ORSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT1ORSkimmingTool", FilterList = skimmingTools )
 ToolSvc += EXOT1ORSkimmingTool
-print EXOT1SkimmingTool
+printfunc (EXOT1SkimmingTool)
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   

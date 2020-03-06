@@ -43,7 +43,7 @@ def BookHistograms(groupe,reconame,particletype,withTrigger=""):
         groupe.defineHistogram('lb', title='Luminosity Block;lb;Events', path='Shifter',xbins=1000,xmin=-0.5,xmax=999.5)
         groupe.defineHistogram('run',title='Run Number;run;Events', path='Shifter',xbins=1000000,xmin=-0.5,xmax=999999.5)
         
-        groupe.defineHistogram('pt',title='Electron Transerve momentum Distribution ; Events ; Electron Transerve momentum [GeV]', path='Shifter',xbins=40,xmin=0.0,xmax=80.0)
+        groupe.defineHistogram('pt',title='%(p)s Transverse momentum Distribution ; %(p)s Transverse momentum [GeV] ; Events' % {'p': particletype}, path='Shifter',xbins=40,xmin=0.0,xmax=80.0)
 
         # SHIFTER PANEL      
                                                                                                                                           
@@ -190,14 +190,14 @@ def MonitorElectronConfig(inputFlags):
     # Add a generic monitoring tool (a "group" in old language). The returned
     # object here is the standard GenericMonitoringTool.
 
-    GroupElectronLHTight = helper.addGroup(elLHTightMonAlg, 'MonitorElectron', 'LHTightElectrons/')
-    GroupElectronLHTightTriggered = helper.addGroup(elLHTightTrigMonAlg, 'MonitorElectron', 'LHTightElectronsWithTrigger/')
-    GroupElectronLHLoose = helper.addGroup(elLHLooseMonAlg, 'MonitorElectron', 'LHLooseElectrons/')
-    GroupElectronLHLooseTriggered = helper.addGroup(elLHLooseTrigMonAlg, 'MonitorElectron', 'LHLooseElectronsWithTrigger/')
-    GroupElectronCBTight = helper.addGroup(elCBTightMonAlg, 'MonitorElectron', 'CBTightElectrons/')
-    GroupElectronCBTightTriggered = helper.addGroup(elCBTightTrigMonAlg, 'MonitorElectron', 'CBTightTriggeredElectrons/')
-    GroupElectronCBLoose = helper.addGroup(elCBLooseMonAlg, 'MonitorElectron', 'CBLooseElectrons/')
-    GroupElectronCBLooseTriggered = helper.addGroup(elCBLooseTrigMonAlg, 'MonitorElectron', 'CBLooseTriggeredElectrons/')
+    GroupElectronLHTight = helper.addGroup(elLHTightMonAlg, 'MonitorElectron', 'egamma/LHTightElectrons/')
+    GroupElectronLHTightTriggered = helper.addGroup(elLHTightTrigMonAlg, 'MonitorElectron', 'egamma/LHTightElectronsWithTrigger/')
+    GroupElectronLHLoose = helper.addGroup(elLHLooseMonAlg, 'MonitorElectron', 'egamma/LHLooseElectrons/')
+    GroupElectronLHLooseTriggered = helper.addGroup(elLHLooseTrigMonAlg, 'MonitorElectron', 'egamma/LHLooseElectronsWithTrigger/')
+    GroupElectronCBTight = helper.addGroup(elCBTightMonAlg, 'MonitorElectron', 'egamma/CBTightElectrons/')
+    GroupElectronCBTightTriggered = helper.addGroup(elCBTightTrigMonAlg, 'MonitorElectron', 'egamma/CBTightTriggeredElectrons/')
+    GroupElectronCBLoose = helper.addGroup(elCBLooseMonAlg, 'MonitorElectron', 'egamma/CBLooseElectrons/')
+    GroupElectronCBLooseTriggered = helper.addGroup(elCBLooseTrigMonAlg, 'MonitorElectron', 'egamma/CBLooseTriggeredElectrons/')
 
     ### STEP 5 ###
     # Configure histograms
@@ -241,7 +241,7 @@ def MonitorPhotonConfig(inputFlags):
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,'PhotonnAthMonitorCfg')
+    helper = AthMonitorCfgHelper(inputFlags,'PhotonAthMonitorCfg')
 
 
     ### STEP 2 ###
@@ -312,10 +312,10 @@ def MonitorPhotonConfig(inputFlags):
     # Add a generic monitoring tool (a "group" in old language). The returned
     # object here is the standard GenericMonitoringTool.
 
-    GroupPhotonCBTight = helper.addGroup(phCBTightMonAlg, 'MonitorPhoton', 'CBTightPhotons/')
-    GroupPhotonCBTightTriggered = helper.addGroup(phCBTightTrigMonAlg, 'MonitorPhoton', 'CBTightTriggeredPhotons/')
-    GroupPhotonCBLoose = helper.addGroup(phCBLooseMonAlg, 'MonitorPhoton', 'CBLoosePhotons/')
-    GroupPhotonCBLooseTriggered = helper.addGroup(phCBLooseTrigMonAlg, 'MonitorPhoton', 'CBLooseTriggeredPhotons/')
+    GroupPhotonCBTight = helper.addGroup(phCBTightMonAlg, 'MonitorPhoton', 'egamma/CBTightPhotons/')
+    GroupPhotonCBTightTriggered = helper.addGroup(phCBTightTrigMonAlg, 'MonitorPhoton', 'egamma/CBTightTriggeredPhotons/')
+    GroupPhotonCBLoose = helper.addGroup(phCBLooseMonAlg, 'MonitorPhoton', 'egamma/CBLoosePhotons/')
+    GroupPhotonCBLooseTriggered = helper.addGroup(phCBLooseTrigMonAlg, 'MonitorPhoton', 'egamma/CBLooseTriggeredPhotons/')
 
     ### STEP 5 ###
     # Configure histograms

@@ -483,7 +483,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   // update if new static volume
   if (updateStatic) {    // retrieve boundaries
     m_staticBoundaries.clear();
-    const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds =
+    const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > &bounds =
       m_currentStatic->boundarySurfaces();
     for (unsigned int ib = 0; ib < bounds.size(); ib++) {
       const Trk::Surface &surf = (bounds[ib].get())->surfaceRepresentation();
@@ -523,7 +523,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
         // active station ?
         const Trk::Layer *layR = (*iTer)->layerRepresentation();
         bool active = layR && layR->layerType();
-        const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >  detBounds =
+        const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >  &detBounds =
           (*iTer)->trackingVolume()->boundarySurfaces();
         if (active) {
           m_detachedVols.emplace_back(*iTer,
@@ -628,7 +628,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
     if (!active && !confinedDense && !confinedLays) {
       continue;
     }
-    const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = dVol->boundarySurfaces();
+    const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > &bounds = dVol->boundarySurfaces();
     if (!active && !confinedDense && confinedLays->size() <= bounds.size()) {
       continue;
     }
@@ -642,7 +642,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
       if (confinedDense) {
         std::vector<const Trk::TrackingVolume *>::const_iterator vIter = confinedDense->begin();
         for (; vIter != confinedDense->end(); vIter++) {
-          const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds =
+          const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > &bounds =
             (*vIter)->boundarySurfaces();
           m_denseVols.emplace_back(*vIter, bounds.size());
           for (unsigned int ib = 0; ib < bounds.size(); ib++) {
@@ -679,7 +679,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
         vExit = false;
       }
       if (!vExit) {
-        const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = detVol->boundarySurfaces();
+        const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > &bounds = detVol->boundarySurfaces();
         navigVols.emplace_back(detVol, bounds.size());
         for (unsigned int ib = 0; ib < bounds.size(); ib++) {
           const Trk::Surface &surf = (bounds[ib].get())->surfaceRepresentation();
@@ -1545,7 +1545,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
   // distance to static volume boundaries recalculated
   // retrieve boundaries along path
   m_trStaticBounds.clear();
-  const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds =
+  const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > &bounds =
     m_currentStatic->boundarySurfaces();
   for (unsigned int ib = 0; ib < bounds.size(); ib++) {
     const Trk::Surface &surf = (bounds[ib].get())->surfaceRepresentation();
@@ -1690,7 +1690,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
              (*iTer)->trackingVolume()->confinedDenseVolumes()->empty())
             && (!(*iTer)->trackingVolume()->confinedArbitraryLayers() ||
                 (*iTer)->trackingVolume()->confinedArbitraryLayers()->empty())) {
-          const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >  detBounds =
+          const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >  &detBounds =
             (*iTer)->trackingVolume()->boundarySurfaces();
           int newB = 0;
           for (unsigned int ibb = 0; ibb < detBounds.size(); ibb++) {
@@ -1722,7 +1722,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(const Trk::TrackParameter
         if (confinedDense && !confinedDense->empty()) {
           std::vector<const Trk::TrackingVolume *>::const_iterator vIter = confinedDense->begin();
           for (; vIter != confinedDense->end(); vIter++) {
-            const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >  bounds =
+            const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >  &bounds =
               (*vIter)->boundarySurfaces();
             int newB = 0;
             for (unsigned int ibb = 0; ibb < bounds.size(); ibb++) {
@@ -2248,7 +2248,7 @@ Trk::TimedExtrapolator::transportInAlignableTV(const Trk::TrackParameters &parm,
   // resolve exit from the volume
 
   m_trStaticBounds.clear();
-  const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = aliTV->boundarySurfaces();
+  const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > &bounds = aliTV->boundarySurfaces();
   for (unsigned int ib = 0; ib < bounds.size(); ib++) {
     const Trk::Surface &surf = (bounds[ib].get())->surfaceRepresentation();
     Trk::DistanceSolution distSol = surf.straightLineDistanceEstimate(currPar->position(),
@@ -2543,7 +2543,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(const Trk::TrackParameters &par
   // assume new static volume, retrieve boundaries
   m_currentStatic = staticVol;
   m_staticBoundaries.clear();
-  const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = staticVol->boundarySurfaces();
+  const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > &bounds = staticVol->boundarySurfaces();
   for (unsigned int ib = 0; ib < bounds.size(); ib++) {
     const Trk::Surface &surf = (bounds[ib].get())->surfaceRepresentation();
     m_staticBoundaries.emplace_back(&surf, true);

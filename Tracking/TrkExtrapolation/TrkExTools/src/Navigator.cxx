@@ -370,7 +370,7 @@ Trk::Navigator::nextDenseTrackingVolume(
     surfaces->push_back(std::pair<const Trk::Surface *, Trk::BoundaryCheck>(destinationSurface, false));
   }
 
-  const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = vol.boundarySurfaces();
+  const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > &bounds = vol.boundarySurfaces();
   for (unsigned int ib = 0; ib < bounds.size(); ib++) {
     const Trk::Surface *nextSurface = &((bounds[ib].get())->surfaceRepresentation());
     surfaces->push_back(std::pair<const Trk::Surface *, Trk::BoundaryCheck>(nextSurface, true));
@@ -412,7 +412,7 @@ Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters *parms, const Trk::T
   if (!vol) {
     return isAtBoundary;
   }
-  const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = vol->boundarySurfaces();
+  const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > &bounds = vol->boundarySurfaces();
   for (unsigned int ib = 0; ib < bounds.size(); ib++) {
     const Trk::Surface &surf = (bounds[ib].get())->surfaceRepresentation();
     if (surf.isOnSurface(parms->position(), true, tol, tol)) {

@@ -72,7 +72,7 @@ class CollectionMerger_test : public ::testing::Test {
     //
     template<typename... Args>
     void mergeCollections(Args&&... args) const {
-      m_alg->mergeCollections(std::forward<Args>(args)...);
+      ASSERT_TRUE( m_alg->mergeCollections(std::forward<Args>(args)...).isSuccess() );
     }
 
     ISF::CollectionMerger* m_alg;
@@ -100,20 +100,20 @@ TEST_F(CollectionMerger_test, mergeCollections) {
   // create dummy input collections containing dummy data
   auto                                 inputTestDataA = std::make_unique<TestHitCollection_t>();
   SG::WriteHandle<TestHitCollection_t> inputTestDataHandleA{"inputCollectionA"};
-  inputTestDataHandleA.record( std::move(inputTestDataA) );
+  ASSERT_TRUE( inputTestDataHandleA.record( std::move(inputTestDataA) ).isSuccess() );
   inputTestDataHandleA->Emplace(1);
   inputTestDataHandleA->Emplace(20);
   inputTestDataHandleA->Emplace(5);
 
   auto                                 inputTestDataB = std::make_unique<TestHitCollection_t>();
   SG::WriteHandle<TestHitCollection_t> inputTestDataHandleB{"inputCollectionB"};
-  inputTestDataHandleB.record( std::move(inputTestDataB) );
+  ASSERT_TRUE( inputTestDataHandleB.record( std::move(inputTestDataB) ).isSuccess() );
   inputTestDataHandleB->Emplace(50);
   inputTestDataHandleB->Emplace(1);
 
   auto                                 inputTestDataC = std::make_unique<TestHitCollection_t>();
   SG::WriteHandle<TestHitCollection_t> inputTestDataHandleC{"inputCollectionC"};
-  inputTestDataHandleC.record( std::move(inputTestDataC) );
+  ASSERT_TRUE( inputTestDataHandleC.record( std::move(inputTestDataC) ).isSuccess() );
   inputTestDataHandleC->Emplace(20);
   inputTestDataHandleC->Emplace(5);
   inputTestDataHandleC->Emplace(1);
@@ -167,7 +167,7 @@ TEST_F(CollectionMerger_test, integration_with_data) {
   SG::WriteHandleKey<SiHitCollection> inputTestDataHandleKeyA{"inputPixelCollectionIntegrationTestA"};
   ASSERT_TRUE( inputTestDataHandleKeyA.initialize().isSuccess() );
   SG::WriteHandle<SiHitCollection> inputTestDataHandleA{inputTestDataHandleKeyA, ctx};
-  inputTestDataHandleA.record( std::move(inputTestDataA) );
+  ASSERT_TRUE( inputTestDataHandleA.record( std::move(inputTestDataA) ).isSuccess() );
   inputTestDataHandleA->Emplace( pos, pos, 1., 1.,  1, 0 );
   inputTestDataHandleA->Emplace( pos, pos, 1., 1., 20, 0 );
   inputTestDataHandleA->Emplace( pos, pos, 1., 1.,  5, 0 );
@@ -176,7 +176,7 @@ TEST_F(CollectionMerger_test, integration_with_data) {
   SG::WriteHandleKey<SiHitCollection> inputTestDataHandleKeyB{"inputPixelCollectionIntegrationTestB"};
   ASSERT_TRUE( inputTestDataHandleKeyB.initialize().isSuccess() );
   SG::WriteHandle<SiHitCollection> inputTestDataHandleB{inputTestDataHandleKeyB, ctx};
-  inputTestDataHandleB.record( std::move(inputTestDataB) );
+  ASSERT_TRUE( inputTestDataHandleB.record( std::move(inputTestDataB) ).isSuccess() );
   inputTestDataHandleB->Emplace( pos, pos, 1., 1., 50, 0 );
   inputTestDataHandleB->Emplace( pos, pos, 1., 1.,  1, 0 );
 
@@ -184,7 +184,7 @@ TEST_F(CollectionMerger_test, integration_with_data) {
   SG::WriteHandleKey<SiHitCollection> inputTestDataHandleKeyC{"inputPixelCollectionIntegrationTestC"};
   ASSERT_TRUE( inputTestDataHandleKeyC.initialize().isSuccess() );
   SG::WriteHandle<SiHitCollection> inputTestDataHandleC{inputTestDataHandleKeyC, ctx};
-  inputTestDataHandleC.record( std::move(inputTestDataC) );
+  ASSERT_TRUE( inputTestDataHandleC.record( std::move(inputTestDataC) ).isSuccess() );
   inputTestDataHandleC->Emplace( pos, pos, 1., 1., 20, 0 );
   inputTestDataHandleC->Emplace( pos, pos, 1., 1.,  5, 0 );
   inputTestDataHandleC->Emplace( pos, pos, 1., 1.,  1, 0 );
@@ -304,7 +304,7 @@ TEST_F(CollectionMerger_test, mergeCollections_with_pointer_types___expect_merge
   SG::WriteHandleKey<TestPointerHitCollection_t> inputTestDataHandleKeyA{"inputPointerCollectionA"};
   ASSERT_TRUE( inputTestDataHandleKeyA.initialize().isSuccess() );
   SG::WriteHandle<TestPointerHitCollection_t> inputTestDataHandleA{inputTestDataHandleKeyA, ctx};
-  inputTestDataHandleA.record( std::move(inputTestDataA) );
+  ASSERT_TRUE( inputTestDataHandleA.record( std::move(inputTestDataA) ).isSuccess() );
   auto* inputHitA1 = new ISFTesting::TestHit(1);
   inputTestDataHandleA->push_back(inputHitA1);
   auto* inputHitA2 = new ISFTesting::TestHit(20);
@@ -316,7 +316,7 @@ TEST_F(CollectionMerger_test, mergeCollections_with_pointer_types___expect_merge
   SG::WriteHandleKey<TestPointerHitCollection_t> inputTestDataHandleKeyB{"inputPointerCollectionB"};
   ASSERT_TRUE( inputTestDataHandleKeyB.initialize().isSuccess() );
   SG::WriteHandle<TestPointerHitCollection_t> inputTestDataHandleB{inputTestDataHandleKeyB, ctx};
-  inputTestDataHandleB.record( std::move(inputTestDataB) );
+  ASSERT_TRUE( inputTestDataHandleB.record( std::move(inputTestDataB) ).isSuccess() );
   auto* inputHitB1 = new ISFTesting::TestHit(50);
   inputTestDataHandleB->push_back(inputHitB1);
   auto* inputHitB2 = new ISFTesting::TestHit(1);

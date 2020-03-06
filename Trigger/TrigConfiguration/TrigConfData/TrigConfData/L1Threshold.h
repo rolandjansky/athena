@@ -22,7 +22,7 @@ namespace TrigConf {
       uint16_t isolationMask(int eta) const { return m_isolationMask.at(eta); }
       void print(std::ostream & os = std::cout) const override;
    private:
-      virtual void update();
+      virtual void update() override;
       ValueWithEtaDependence<uint16_t> m_isolationMask{""};
    };
 
@@ -32,7 +32,7 @@ namespace TrigConf {
       virtual ~L1Threshold_TAU() = default;
       uint16_t isolationMask() const { return m_isolationMask; }
    private:
-      virtual void update();
+      virtual void update() override;
       uint16_t m_isolationMask;
    };
 
@@ -51,7 +51,7 @@ namespace TrigConf {
       Isolation::WP rhad() const { return m_rhad; }
       Isolation::WP wstot() const { return m_wstot; }      
    private:
-      virtual void update();
+      virtual void update() override;
       // the isolation requirement
       Isolation::WP m_reta { Isolation::WP::NONE };
       Isolation::WP m_rhad { Isolation::WP::NONE };
@@ -80,7 +80,7 @@ namespace TrigConf {
       const std::string & tgcFlag() const { return m_tgcFlag; }
       const std::string & rpcExclROIList() const { return m_rpcExclROIList; }
    private:
-      virtual void update();
+      virtual void update() override;
       unsigned int m_ptBarrel{0};
       unsigned int m_ptEndcap{0};
       unsigned int m_ptForward{0};

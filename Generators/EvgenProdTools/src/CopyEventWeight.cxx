@@ -22,7 +22,7 @@ CopyEventWeight::CopyEventWeight(const string& name, ISvcLocator* svcLoc)
 
 StatusCode CopyEventWeight::execute() {
   // Check that the collection isn't empty
-  /// @todo What is the best thing to do if it is?!
+  /// @odo What is the best thing to do if it is?!
   const size_t nEvents = events_const()->size();
   if (nEvents == 0) {
     ATH_MSG_WARNING("McEventCollection is empty");

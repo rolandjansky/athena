@@ -108,7 +108,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 EXOT9SkimmingTool = DerivationFramework__xAODStringSkimmingTool(	name = "EXOT9SkimmingTool1", 
 									expression = triggerStrategy)
 ToolSvc += EXOT9SkimmingTool
-print EXOT9SkimmingTool
+printfunc (EXOT9SkimmingTool)
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   

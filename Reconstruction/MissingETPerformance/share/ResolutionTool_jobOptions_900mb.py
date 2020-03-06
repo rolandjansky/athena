@@ -32,4 +32,4 @@ ResolutionTool = ConfiguredResolutionTool(
     )
 
 ToolSvc += ResolutionTool
-print      ResolutionTool
+printfunc (     ResolutionTool)

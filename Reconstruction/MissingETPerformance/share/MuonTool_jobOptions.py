@@ -8,4 +8,4 @@ MuonTool = ConfiguredMuonTool(
     )
 
 ToolSvc += MuonTool
-print      MuonTool
+printfunc (     MuonTool)

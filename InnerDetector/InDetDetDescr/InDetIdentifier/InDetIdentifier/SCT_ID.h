@@ -264,19 +264,19 @@ public:
   /// Initialization from the identifier dictionary
   virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr);
 
-  /// Tests of packing
-  void test_wafer_packing(void) const;
   //@}
 private:
-  enum {
-    NOT_VALID_HASH        = 64000
-  };
-
+  static const IdentifierHash m_invalidHash;
   typedef std::vector<Identifier>     id_vec;
   typedef id_vec::const_iterator id_vec_it;
-  typedef std::vector<unsigned short> hash_vec;
+  typedef std::vector<IdentifierHash> hash_vec;
   typedef hash_vec::const_iterator hash_vec_it;
-
+    
+  //this is a bit clumsy, but it reproduces the original messaging behaviour with/without Gaudi
+  //it *SHOULD NOT* be used for messaging in event loop code, as it is expensive!
+  void 
+  localMessage(const std::string & msgTxt, const std::string &func, const MSG::Level & lvl) const;
+  
   void wafer_id_checks(int barrel_ec,
                        int layer_disk,
                        int phi_module,
@@ -749,11 +749,10 @@ SCT_ID::strip(const Identifier& id) const {
 inline IdentifierHash
 SCT_ID::nextInSequence(const IdentifierHash& id, const hash_vec& vectorOfHashes) const {
   unsigned short index = id;
-
   if (index < vectorOfHashes.size()) {
     return vectorOfHashes[index];
   }
-  return NOT_VALID_HASH;
+  return m_invalidHash;
 }
 
 #endif // INDETIDENTIFIER_SCT_ID_H

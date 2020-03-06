@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 682504 2015-07-13 11:53:50Z krasznaa $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
   <class name="xAOD::EventInfo_v1"
@@ -9,18 +9,30 @@
     <field name="m_updateSubEvents" transient="true" />
     <field name="m_evtStore" transient="true" />
   </class>
-  <class name="xAOD::EventAuxInfo_v1"
-         id="2CFD72A2-D3AA-4C18-9B40-E5ACBA20D785">
-    <field name="m_decorFlags" transient="true" />
-  </class>
   <read sourceClass="xAOD::EventInfo_v1" version="[1-]"
         targetClass="xAOD::EventInfo_v1" source="" target="" >
     <![CDATA[
        newObj->toTransient();
      ]]>
   </read>
+
+  <class name="xAOD::EventAuxInfo_v1"
+         id="2CFD72A2-D3AA-4C18-9B40-E5ACBA20D785">
+    <field name="m_decorFlags" transient="true" />
+  </class>
   <read sourceClass="xAOD::EventAuxInfo_v1" version="[1-]"
         targetClass="xAOD::EventAuxInfo_v1" source="" target="" >
+    <![CDATA[
+       newObj->toTransient();
+     ]]>
+  </read>
+
+  <class name="xAOD::EventAuxInfo_v2"
+         id="FA684B06-EC03-4B0B-9FAE-91423B1ED35D">
+    <field name="m_decorFlags" transient="true" />
+  </class>
+  <read sourceClass="xAOD::EventAuxInfo_v2" version="[1-]"
+        targetClass="xAOD::EventAuxInfo_v2" source="" target="" >
     <![CDATA[
        newObj->toTransient();
      ]]>

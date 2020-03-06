@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -214,7 +214,7 @@ StatusCode TBXMLWriter::execute()
     }
 
   // finalize the stream
-  (*(m_writerTools.begin()))->finalize(thisFileStream);
+  ATH_CHECK((*(m_writerTools.begin()))->finalize(thisFileStream));
   thisFileStream.close();
 
   return StatusCode::SUCCESS;

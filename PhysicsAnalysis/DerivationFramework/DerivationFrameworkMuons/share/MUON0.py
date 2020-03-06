@@ -28,7 +28,7 @@ triggerList = ['HLT_.*mu.*', 'L1_.*MU.*','HLT_noalg_L1.*MU.*']
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 MUON0ThinningHelper = ThinningHelper( "MUON0ThinningHelper" )
 MUON0ThinningHelper.TriggerChains = '|'.join(triggerList1)
-print MUON0ThinningHelper.TriggerChains
+printfunc (MUON0ThinningHelper.TriggerChains)
 MUON0ThinningHelper.AppendToStream( MUON0Stream )
 thinningSvc = getattr( svcMgr, "MUON0ThinningSvc" )
 thinningHelperTool = getattr( ToolSvc, "MUON0ThinningHelperSlim" )

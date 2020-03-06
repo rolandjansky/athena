@@ -10,4 +10,4 @@ MissingETCompositionTool = ConfiguredMissingETCompositionTool(
     )
 
 ToolSvc += MissingETCompositionTool
-print      MissingETCompositionTool
+printfunc (     MissingETCompositionTool)

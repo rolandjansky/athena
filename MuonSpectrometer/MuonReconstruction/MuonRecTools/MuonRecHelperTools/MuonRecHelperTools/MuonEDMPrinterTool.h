@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRECHELPERTOOLS_H
@@ -21,6 +21,8 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
+
+#include "MuonPrepRawData/MdtPrepDataContainer.h"
 
 #include <string>
 
@@ -139,6 +141,9 @@ namespace Muon{
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
 	"MuonDetectorManager", 
 	"Key of input MuonDetectorManager condition data"};    
+    SG::ReadHandleKey<MdtPrepDataContainer>          m_mdtKey{this,"MdtPrdCollection","MDT_DriftCircles","MDT PRD Container"};
+    SG::ReadHandleKey<RpcPrepDataContainer>          m_rpcKey{this,"RpcPrdCollection","RPC_Measurements","RPC PRD Container"};
+    SG::ReadHandleKey<TgcPrepDataContainer>          m_tgcKey{this,"TgcPrdCollection","TGC_Measurements","TGC PRD Container"};
 
   };
 

@@ -66,7 +66,12 @@ def setupMenu():
 
     TriggerFlags.METSlice.signatures = [
         ChainProp(name='HLT_xe65_cell_L1XE50', groups=SingleMETGroup + BCIDmonGroup),
+        ChainProp(name='HLT_xe100_mht_L1XE50', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe100_tcpufit_L1XE50', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe100_trkmht_L1XE50', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe100_pfsum_L1XE50', groups=SingleMETGroup),
         # MultiMET Chain
+        ChainProp(name='HLT_xe65_cell_xe110_tcpufit_L1XE50',l1SeedThresholds=['XE50']*2, groups=MultiMETGroup), #must be FS seeded
     ]
 
     TriggerFlags.JetSlice.signatures = [

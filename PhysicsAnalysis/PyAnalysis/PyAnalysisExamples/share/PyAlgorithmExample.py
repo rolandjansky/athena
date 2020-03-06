@@ -1,5 +1,4 @@
 #
-# $Id: PyAlgorithmExample.py,v 1.1 2005-05-25 22:44:00 ssnyder Exp $
 # File: PyAlgorithmExample.py
 # Created: sss, Apr 2005
 # Purpose: Example of a non-trivial python-based analysis.
@@ -338,15 +337,15 @@ def fulldata (p):
 ############################################################################
 #
 # The example algorithm.
-# We derive from AthenaPyAlgorithm, which means that this is a Gaudi
+# We derive from PyAlgorithm, which means that this is a Gaudi
 # algorithm in every sense.
 #
-class PyAlgorithmExample (AthenaPyAlgorithm):
+class PyAlgorithmExample (PyAlgorithm):
     # Initialization.  NAME is the algorithm name.
     # ARGS holds the algorithm parameters.
     def __init__ (self, name, args):
         # Initialze base class.
-        AthenaPyAlgorithm.__init__ (self, name)
+        PyAlgorithm.__init__ (self, name)
 
         # Save the arguments.
         self.args = args

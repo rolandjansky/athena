@@ -219,8 +219,6 @@ protected:
 
   Trk::ParticleHypothesis m_particleHypothesis;//particle hypothesis to attach to each track - usually pion, can be set to other values
 
-  std::map<Identifier, std::vector<long int> > m_siClusterMap;
-
   bool m_useNewLayerNumberScheme;
 
 };

@@ -58,10 +58,12 @@ def setupOverlayTestDetectorFlags(configFlags, detectors):
         configFlags.Detector.OverlaySCT = True
     if not detectors or 'TRT' in detectors or 'ID' in detectors:
         configFlags.Detector.OverlayTRT = True
-    if not detectors or 'LAr' in detectors or 'Calo' in detectors:
+    if not detectors or 'LAr' in detectors or 'Calo' in detectors or 'L1Calo' in detectors:
         configFlags.Detector.OverlayLAr = True
-    if not detectors or 'Tile' in detectors or 'Calo' in detectors:
+    if not detectors or 'Tile' in detectors or 'Calo' in detectors or 'L1Calo' in detectors:
         configFlags.Detector.OverlayTile = True
+    if not detectors or 'L1Calo' in detectors:
+        configFlags.Detector.OverlayL1Calo = not configFlags.Overlay.DataOverlay
     if not detectors or 'CSC' in detectors or 'Muon' in detectors:
         configFlags.Detector.OverlayCSC = True
     if not detectors or 'MDT' in detectors or 'Muon' in detectors:
@@ -87,6 +89,9 @@ def defaultTestFlags(configFlags, args):
     configFlags.LAr.ROD.nSamples = 4
     configFlags.LAr.ROD.NumberOfCollisions = 20
     configFlags.LAr.ROD.UseHighestGainAutoCorr = True
+    configFlags.Tile.BestPhaseFromCOOL = False
+    configFlags.Tile.correctTime = False
+    configFlags.Tile.zeroAmplitudeWithoutDigits = False
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     if args.data:

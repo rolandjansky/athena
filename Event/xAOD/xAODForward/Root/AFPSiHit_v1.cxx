@@ -16,7 +16,7 @@
 #include "xAODCore/AuxStoreAccessorMacros.h"
 
 // Local include(s):
-#include "xAODForward/AFPTrackContainer.h"
+#include "xAODForward/versions/AFPTrackContainer_v1.h"
 #include "xAODForward/versions/AFPSiHit_v1.h"
 
 
@@ -27,7 +27,6 @@ namespace xAOD
 
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (AFPSiHit_v1, float, depositedCharge, setDepositedCharge)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (AFPSiHit_v1, float, timeOverThreshold, setTimeOverThreshold)
-  //  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (AFPSiHit_v1, float, discriminator, setDiscriminator)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (AFPSiHit_v1, int, stationID, setStationID)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (AFPSiHit_v1, int, pixelLayerID, setPixelLayerID)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (AFPSiHit_v1, int, pixelRowIDChip, setPixelRowIDChip)
