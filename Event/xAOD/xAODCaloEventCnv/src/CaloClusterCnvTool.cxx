@@ -10,7 +10,6 @@
 #include "CaloEvent/CaloClusterCellLinkContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "EventKernel/SignalStateHelper.h"
 
 // Local include(s):
 #include "CaloClusterCnvTool.h"
@@ -118,26 +117,20 @@ namespace xAODMaker {
       xaod->setPhi0( ( double ) aod->phi0() );
       xaod->setTime( aod->getTime() );
 
-      {
-        SignalStateConstHelper sstate (aod);
-        sstate.setSignalState( P4SignalState::CALIBRATED );
-        xaod->setCalE( aod->e() );
-        xaod->setCalEta( aod->eta() );
-        xaod->setCalPhi( aod->phi() );
-        xaod->setCalM( aod->m() );
+      xaod->setCalE(   aod->e   (P4SignalState::CALIBRATED) );
+      xaod->setCalEta( aod->eta (P4SignalState::CALIBRATED) );
+      xaod->setCalPhi( aod->phi (P4SignalState::CALIBRATED) );
+      xaod->setCalM(   aod->m   (P4SignalState::CALIBRATED) );
 
-        sstate.setSignalState( P4SignalState::UNCALIBRATED );
-        xaod->setRawE( aod->e() );
-        xaod->setRawEta( aod->eta() );
-        xaod->setRawPhi( aod->phi() );
-        xaod->setRawM( aod->m() );
+      xaod->setRawE(   aod->e   (P4SignalState::UNCALIBRATED) );
+      xaod->setRawEta( aod->eta (P4SignalState::UNCALIBRATED) );
+      xaod->setRawPhi( aod->phi (P4SignalState::UNCALIBRATED) );
+      xaod->setRawM(   aod->m   (P4SignalState::UNCALIBRATED) );
 
-        sstate.setSignalState( P4SignalState::ALTCALIBRATED );
-        xaod->setAltE( aod->e() );
-        xaod->setAltEta( aod->eta() );
-        xaod->setAltPhi( aod->phi() );
-        xaod->setAltM( aod->m() );
-      }
+      xaod->setAltE(   aod->e   (P4SignalState::ALTCALIBRATED) );
+      xaod->setAltEta( aod->eta (P4SignalState::ALTCALIBRATED) );
+      xaod->setAltPhi( aod->phi (P4SignalState::ALTCALIBRATED) );
+      xaod->setAltM(   aod->m   (P4SignalState::ALTCALIBRATED) );
 
       //
       // Copy the energy depositions per sampling:

@@ -314,7 +314,10 @@ class DCubeApp( DCubeObject ):
                         else:
                             objPath = os.path.join(path, objName)
 
-                        objPath = objPath.encode('ascii', 'ignore')
+                        # objPath is type unicode in Python2, which isn't recognised by TFile.Get().
+                        # Not a problem with Python3.
+                        if not isinstance(objPath,str):
+                            objPath = objPath.encode('ascii', 'ignore')
 
                         refObj = self.refTFile.Get(objPath)
                         monObj = self.monTFile.Get(objPath)
@@ -357,7 +360,7 @@ class DCubeApp( DCubeObject ):
     def __dumpOptions( self ):
         self.info("dumping parsed options...")
         i = 1
-        for k, v in self.opts.__dict__.iteritems():
+        for k, v in self.opts.__dict__.items():
             if ( v == "" ): v = "not set"
             self.info("[%02d] %s %s" % ( i, k, v))
             i += 1

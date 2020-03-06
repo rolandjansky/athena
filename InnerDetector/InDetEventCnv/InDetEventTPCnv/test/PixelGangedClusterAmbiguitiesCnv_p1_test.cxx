@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -194,7 +194,7 @@ const InDet::PixelClusterContainer& makeclusts (StoreGateSvc* sg)
       cl->setHashAndIndex (hash, i);
       coll->push_back (std::move (cl));
     }
-    cont->addCollection (coll.release(), hash);
+    assert (cont->addCollection (coll.release(), hash).isSuccess());
   }
 
   const InDet::PixelClusterContainer& ret = *cont;

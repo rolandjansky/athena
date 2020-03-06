@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModelTest/MuonHitRelocation.h"
@@ -243,7 +243,7 @@ StatusCode MuonHitRelocation::execute() {
                                 <<" ml/l/t "<<m_c->mlayer<<"/"<<m_c->layer<<"/"<<m_c->tube );
               }
 
-              ntupleSvc()->writeRecord(m_c->nt);
+              ATH_CHECK(ntupleSvc()->writeRecord(m_c->nt));
           }
       }
   }
@@ -305,7 +305,7 @@ StatusCode MuonHitRelocation::execute() {
                                 <<" layer "<<m_c->layer );
               }
 
-              ntupleSvc()->writeRecord(m_c->nt);
+              ATH_CHECK(ntupleSvc()->writeRecord(m_c->nt));
           }
       }
   }
@@ -365,7 +365,7 @@ StatusCode MuonHitRelocation::execute() {
                                 <<" dbR/dbZ/dbP "<<m_c->dbr<<"/"<<m_c->dbz<<"/"<<m_c->dbphi<<" gg "<<m_c->layer );
               }
 
-              ntupleSvc()->writeRecord(m_c->nt);
+              ATH_CHECK(ntupleSvc()->writeRecord(m_c->nt));
           }
       }
   }
@@ -424,7 +424,7 @@ StatusCode MuonHitRelocation::execute() {
                                 <<" clay/lay "<<m_c->mlayer<<"/"<<m_c->layer );
               }
       
-              ntupleSvc()->writeRecord(m_c->nt);
+              ATH_CHECK(ntupleSvc()->writeRecord(m_c->nt));
           }
       }
   }
@@ -495,7 +495,7 @@ StatusCode MuonHitRelocation::execute() {
                                 <<" layer "<<m_c->layer );
               }
 
-              ntupleSvc()->writeRecord(m_c->nt);
+              ATH_CHECK(ntupleSvc()->writeRecord(m_c->nt));
           }
       }
   }
@@ -569,7 +569,7 @@ StatusCode MuonHitRelocation::execute() {
                                 <<" layer "<<m_c->layer );
               }
 
-              ntupleSvc()->writeRecord(m_c->nt);
+              ATH_CHECK(ntupleSvc()->writeRecord(m_c->nt));
           }
       }
   }

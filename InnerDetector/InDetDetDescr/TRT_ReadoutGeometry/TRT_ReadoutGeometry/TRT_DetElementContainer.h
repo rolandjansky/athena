@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETREADOUTGEOMETRY_TRT_DETELEMENTCONTAINER_H
@@ -25,8 +25,10 @@ class TRT_DetElementContainer{
 
   TRT_DetElementContainer();
   ~TRT_DetElementContainer();
-
-  void setDetElementCollection(TRT_DetElementCollection* mytrtcoll); 
+  // disable implicit copy constructor
+  TRT_DetElementContainer(const TRT_DetElementContainer& other) = delete;
+  // disable implicit assignment operator
+  void operator = (const TRT_DetElementContainer& other) = delete;
 
   void setNumerology(const TRT_Numerology* mynum);
 
@@ -47,9 +49,11 @@ class TRT_DetElementContainer{
 					    unsigned int phiIndex,
 					    unsigned int strawLayerIndex) const;
 
+  void clear();
+
  private:
 
-  TRT_DetElementCollection* m_trtcoll;
+  TRT_DetElementCollection m_trtcoll;
   const TRT_Numerology  *m_trtnum;
 
   enum {NMODMAX=3};

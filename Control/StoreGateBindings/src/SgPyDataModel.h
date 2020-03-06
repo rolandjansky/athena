@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATEBINDINGS_SGPYDATAMODEL_H
@@ -25,7 +25,7 @@ extern CLID PyCLID;
 
 // ROOT includes
 #include "TClass.h"
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 #include "TClassRef.h"
 #include "TROOT.h"
 #include "TMethod.h"

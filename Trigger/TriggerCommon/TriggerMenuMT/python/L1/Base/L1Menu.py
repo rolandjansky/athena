@@ -97,7 +97,7 @@ class L1Menu(object):
                     missing[thrName].append(item.name) 
                 
         for thrName in sorted(missing.keys()):
-            log.info("Threshold %s (used by %s) is not defined in the menu", (thrName,",".join(missing[thrName])))
+            log.warning("Threshold %s (used by %s) is not defined in the menu", thrName,",".join(missing[thrName]))
 
         if len(missing)>0:
             unusedThresholds = allThresholds.difference(allUsedThresholds)

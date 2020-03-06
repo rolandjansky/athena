@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
@@ -482,6 +482,8 @@ def muEFCBRecoSequence( RoIs, name ):
   ViewVerifyMS = CfgMgr.AthViews__ViewDataVerifier("muonCBViewDataVerifier")
   ViewVerifyMS.DataObjects = [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),  
                               ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
+                              ( 'Muon::TgcPrepDataContainer'      , 'StoreGateSvc+TGC_Measurements' ),
+                              ( 'Muon::RpcPrepDataContainer'      , 'StoreGateSvc+RPC_Measurements' ),
                               ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates') ]
   muEFCBRecoSequence += ViewVerifyMS
   if "FS" in name:
@@ -505,8 +507,7 @@ def muEFCBRecoSequence( RoIs, name ):
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName )]
 
     if globalflags.InputFormat.is_bytestream():
-      ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ,
-                                    ( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+      ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                     ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
     muEFCBRecoSequence += ViewVerifyTrk
 

@@ -46,10 +46,10 @@ skimmingTools = []
 SkipTriggerRequirement=(globalflags.DataSource()=='geant4') #apply triggers only to data; include events with 1 jet only in MC
 if SkipTriggerRequirement:
     topology_selection = "( (count (abs(AntiKt4EMTopoJets.eta) < 2.8 && AntiKt4EMTopoJets.pt > 20) > 0) || (count (abs(MSDisplacedVertex.z) >= 0) > 0) )"
-    print "vtx+jet topo selection: ", topology_selection
+    printfunc ("vtx+jet topo selection: ", topology_selection)
 else: 
     topology_selection = "((count (abs(MSDisplacedVertex.z) >= 0) > 0) )"
-    print "vtx topo selection:",  topology_selection
+    printfunc ("vtx topo selection:",  topology_selection)
 
 beamEnergy = jobproperties.Beam.energy()
 expression = ''
@@ -69,9 +69,9 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 if (beamEnergy > 6.0e+06):
     #SkipTriggerRequirement=(globalflags.DataSource()=='geant4') #apply triggers only to data, not to MC
     if  SkipTriggerRequirement:
-        print "trigger disabled"
+        printfunc ("trigger disabled")
     else:
-        print "trigger enabled"
+        printfunc ("trigger enabled")
         EXOT15TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT15TriggerSkimmingTool",
                                                                              TriggerListAND = [],
                                                                              TriggerListOR  = ["HLT_j30_jes_PS_llp_L1TAU30",

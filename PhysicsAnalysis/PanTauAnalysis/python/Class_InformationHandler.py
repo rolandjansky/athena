@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 import string
@@ -35,25 +35,25 @@ class InformationHandler:
         print("PanTau::InformationHandler: Printing stored information")
         
         print("PanTau::InformationHandler: \tIntegers:")
-        for iInfo in sorted(self.m_Infos_Int.iterkeys()):
+        for iInfo in sorted(self.m_Infos_Int.keys()):
             print("\t\t" + string.ljust(iInfo, 50) + ": " + string.rjust(str(self.m_Infos_Int[iInfo]), 10) )
 
         print("PanTau::InformationHandler: \tDoubles:")
-        for iInfo in sorted(self.m_Infos_Double.iterkeys()):
+        for iInfo in sorted(self.m_Infos_Double.keys()):
             print("\t\t" + string.ljust(iInfo, 50) + ": " + string.rjust(str(self.m_Infos_Double[iInfo]), 10) )
 
         print("PanTau::InformationHandler: \tStrings:")
-        for iInfo in sorted(self.m_Infos_String.iterkeys()):
+        for iInfo in sorted(self.m_Infos_String.keys()):
             print("\t\t" + string.ljust(iInfo, 50) + ": " + string.ljust(self.m_Infos_String[iInfo], 80) )
 
         print("PanTau::InformationHandler: \tVecDoubles:")
-        for iInfo in sorted(self.m_Infos_VecDouble.iterkeys()):
+        for iInfo in sorted(self.m_Infos_VecDouble.keys()):
             print("InformationHandler: \t\t" + string.ljust(iInfo, 50) + ":")
             for iVal in self.m_Infos_VecDouble[iInfo]:
                 print("InformationHandler: \t\t\t" + string.rjust(str(iVal), 10) )
 
         print("PanTau::InformationHandler: \tVecStrings:")
-        for iInfo in sorted(self.m_Infos_VecString.iterkeys()):
+        for iInfo in sorted(self.m_Infos_VecString.keys()):
             print("InformationHandler: \t\t" + string.ljust(iInfo, 50) + ":")
             for iVal in self.m_Infos_VecString[iInfo]:
                 print("InformationHandler: \t\t\t" + string.ljust(str(iVal), 80) )

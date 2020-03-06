@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexFitterUtils/KalmanVertexTrackUpdator.h"
@@ -167,13 +167,12 @@ namespace Trk
    //--------------------------------------------------------------------------------------------------------
    //correction to what was forgotten before: making the smoothed chi2 of track
    //this operation invokes removing of the track from the vertex
+   const IVertexUpdator::positionUpdateOutcome & reducedVrt = m_Updator->positionUpdate( vtx, linTrack, trk.weight(), IVertexUpdator::removeTrack );
 
-   xAOD::Vertex reducedVrt = m_Updator->positionUpdate( vtx, linTrack, trk.weight(), -1 );
-
-   const AmgSymMatrix(3) reduced_vrt_weight = reducedVrt.covariancePosition().inverse();
+   const AmgSymMatrix(3) reduced_vrt_weight = reducedVrt.covariancePosition.inverse();
    //  const CLHEP::HepSymMatrix & reduced_vrt_cov = reducedVrt.covariancePosition();
 
-   Amg::Vector3D posDifference = vtx.position() - reducedVrt.position();
+   Amg::Vector3D posDifference = vtx.position() - reducedVrt.position;
 
    //now making the  second part of the chi2 calculation: smoothed parameters
    AmgVector(5) smRes = trkParameters - (theResidual + A*vtx.position() + B*newTrackMomentum);
@@ -233,4 +232,3 @@ namespace Trk
  }//end of update method
 
 }//end of namespace definitions 
-  

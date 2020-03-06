@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -159,7 +159,7 @@ StatusCode TBBPCAlignmentMonTool::fillHists()
   if(thisrun != m_runnumber)
     {
       m_runnumber= thisrun;
-      getnewcalib();
+      ATH_CHECK(getnewcalib());
     }
 
 

@@ -400,7 +400,7 @@ class L1MenuConfig(object):
     def _generateTopoMenu(self):
 
         allBoards = (list(L1MenuFlags.boards().items()) + list(L1MenuFlags.legacyBoards().items()))
-        allBoardsWithTopo = filter( lambda n : ('topo' in n[0].lower() or 'muctpi' in n[0].lower()), allBoards )
+        allBoardsWithTopo = list(filter( lambda n : ('topo' in n[0].lower() or 'muctpi' in n[0].lower()), allBoards ))
 
         #
         # Add the topo thresholds to the menu
@@ -499,7 +499,7 @@ class L1MenuConfig(object):
         for itemName in L1MenuFlags.items():
             registeredItem = self.getRegisteredItem(itemName)
             if registeredItem is None:
-                msg = "LVL1 item '%s' has not been defined in LVL1Menu/ItemDef.py" % itemName
+                msg = "L1 item '%s' has not been defined in L1/Config/ItemDef.py" % itemName
                 log.error(msg)
                 raise RuntimeError(msg)
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimParametrization/ISF_HitAnalysis.h"
@@ -323,19 +323,10 @@ StatusCode ISF_HitAnalysis::initialize()
   if(m_tileID==0)
     throw std::runtime_error("ISF_HitAnalysis: Invalid Tile ID helper");
 
-  sc=m_fSamplKey.initialize(); 
-  if(sc.isFailure())
-    {
-      ATH_MSG_ERROR("Unable to register handle for LArfSampl");
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( m_fSamplKey.initialize() );
 
-  detStore()->retrieve(m_tileInfo,"TileInfo");
-  if(sc.isFailure())
-    {
-      ATH_MSG_ERROR("Unable to retrieve TileInfo from DetectorStore");
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( detStore()->retrieve(m_tileInfo,"TileInfo") );
+
   m_calo_dd_man  = CaloDetDescrManager::instance();
 
   // Retrieve Tools

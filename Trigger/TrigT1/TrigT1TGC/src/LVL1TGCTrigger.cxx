@@ -99,10 +99,6 @@ namespace LVL1TGCTrigger {
     
     ATH_MSG_DEBUG("LVL1TGCTrigger::initialize() called");
     
-    m_tgcArgs.set_STRICTWD( m_STRICTWD.value() );
-    m_tgcArgs.set_STRICTWT( m_STRICTWT.value() );
-    m_tgcArgs.set_STRICTSD( m_STRICTSD.value() );
-    m_tgcArgs.set_STRICTST( m_STRICTST.value() );
     m_tgcArgs.set_OUTCOINCIDENCE( m_OUTCOINCIDENCE.value() );
     m_tgcArgs.set_SHPT_ORED( m_SHPTORED.value() );
     m_tgcArgs.set_USE_INNER( m_USEINNER.value() );

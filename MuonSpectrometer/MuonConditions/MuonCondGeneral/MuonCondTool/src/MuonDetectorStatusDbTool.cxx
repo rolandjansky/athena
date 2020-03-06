@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SGTools/TransientAddress.h"
@@ -90,20 +90,18 @@ StatusCode MuonDetectorStatusDbTool::initialize()
 
 StatusCode MuonDetectorStatusDbTool::loadParameterStatus(IOVSVC_CALLBACK_ARGS_P(I,keys)){
   ATH_MSG_INFO( "LoadParameters has been triggered for the following keys " );
-  
+
+  StatusCode sc;
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
     msg(MSG::INFO) << *itr << " I="<<I<<" ";
      if(*itr==m_tubeFolder) {
-       loadTubeStatus(I,keys);
-       
+       sc &= loadTubeStatus(I,keys);
      }
-
-    
   }
   msg() << endmsg;
   
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 
@@ -124,7 +122,7 @@ StatusCode MuonDetectorStatusDbTool::loadTubeStatus(IOVSVC_CALLBACK_ARGS_P(I,key
    StatusCode sc = detStore()->retrieve( m_chamberStatusData, m_tubeStatusDataLocation );
    if(sc.isSuccess())  {
      ATH_MSG_DEBUG( "ChamberStatus Map found " << m_chamberStatusData );
-     detStore()->remove( m_chamberStatusData );
+     ATH_CHECK( detStore()->remove( m_chamberStatusData ) );
      ATH_MSG_DEBUG( "TubeStatuse Collection at " << m_chamberStatusData << " removed ");
    }
    
@@ -236,13 +234,13 @@ StatusCode MuonDetectorStatusDbTool::loadTubeStatus(IOVSVC_CALLBACK_ARGS_P(I,key
                     << atrc->clID() );
  
    IOVRange range;
-   m_IOVSvc->getRange(1238547719, m_tubeFolder, range);
+   ATH_CHECK(m_IOVSvc->getRange(1238547719, m_tubeFolder, range));
    
    ATH_MSG_DEBUG("CondAttrListCollection IOVRange "<<range);
    
    IOVRange range2;
-   m_IOVSvc->setRange(228145, m_tubeStatusDataLocation, range);
-   m_IOVSvc->getRange(228145, m_tubeStatusDataLocation, range2);
+   ATH_CHECK(m_IOVSvc->setRange(228145, m_tubeStatusDataLocation, range));
+   ATH_CHECK(m_IOVSvc->getRange(228145, m_tubeStatusDataLocation, range2));
    ATH_MSG_DEBUG("TubeStatusContainer new IOVRange "<<range2);
    
 

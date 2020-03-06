@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -88,7 +88,7 @@ protected:
   virtual void SetUp() override {
     // the tested tool
     IAlgTool* tool = nullptr;
-    m_toolSvc->retrieveTool("ISF::GenParticleGenericFilter/TestGenParticleGenericFilter", tool);
+    EXPECT_TRUE( m_toolSvc->retrieveTool("ISF::GenParticleGenericFilter/TestGenParticleGenericFilter", tool).isSuccess() );
     m_filterTool = dynamic_cast<ISF::GenParticleGenericFilter*>(tool);
   }
 

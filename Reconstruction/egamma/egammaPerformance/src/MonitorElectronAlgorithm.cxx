@@ -71,7 +71,7 @@ StatusCode MonitorElectronAlgorithm::fillHistograms( const EventContext& ctx ) c
       else continue;
                            
       // do stuff with electrons
-      pt = e_iter->pt(); // in GeV
+      pt = e_iter->pt()/Gaudi::Units::GeV; // in GeV
       fill("MonitorElectron",pt);
 
     }

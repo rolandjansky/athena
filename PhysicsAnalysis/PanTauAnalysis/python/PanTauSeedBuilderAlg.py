@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: PanTauAnalysis/python/PanTauSeedBuilderAlg.py
 # @purpose: hold a set of customized configurables and factory functions for the seed builder
+
+from __future__ import print_function
 
 __doc__    = "hold a set of customized configurables and factory functions for the seed builder"
 __author__ = "S.Fleischmann"
@@ -92,11 +94,11 @@ class PanTauSeedBuilderAlg( PanTau__TauSeedBuilderAlg ):
         print("__init__ PanTauSeedBuilderAlg successful")
 
     def setDefaults(cls, hdl):
-        #print "*setDefaults before test"
+        #print ("*setDefaults before test")
         #### continue, only if it is our Configurable
         if not isinstance(hdl, PanTauSeedBuilderAlg):
             return
-        #print "*setDefaults"
+        #print ("*setDefaults")
 
         from PanTauAnalysis.PanTauFlags import jobproperties as jp
         from AthenaCommon.AppMgr import ToolSvc
@@ -126,7 +128,7 @@ class PanTauSeedTrackSelector( InDet__InDetDetailedTrackSelectorTool ):
 
     def __init__( self,
                   name = "PanTauSeedTrackSelector" ):
-        #print "init seed track sel"
+        #print ("init seed track sel")
         from PanTauAnalysis.PanTauFlags import jobproperties as jp
         from AthenaCommon.AppMgr import ToolSvc
         # ATLAS extrapolator
@@ -150,7 +152,7 @@ class PanTauSeedTrackSelector( InDet__InDetDetailedTrackSelectorTool ):
                             TrackSummaryTool     = "",
                             Extrapolator         = theAtlasExtrapolator,
                             OutputLevel          = 4)
-        print self
+        print (self)
 
 #class PanTauImpactParameterTrackSelector( InDet__InDetDetailedTrackSelectorTool ):
     #__slots__ = { }
@@ -210,18 +212,18 @@ class PanTauImpactParameterExtractionTool( PanTau__TauImpactParameterExtractionT
                             fitChi2OnNdfMax      = 9999.,
                             TrackSummaryTool     = "",
                             Extrapolator         = theAtlasExtrapolator)
-        print impactParamTrackSel
+        print (impactParamTrackSel)
         ToolSvc += impactParamTrackSel
         # TrackToVertexIPEstimator (needed for impact parameter calculation)
         from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
         trackToVertexIPEstimator = Trk__TrackToVertexIPEstimator(Extrapolator = theAtlasExtrapolator)
-        print trackToVertexIPEstimator
+        print (trackToVertexIPEstimator)
         ToolSvc += trackToVertexIPEstimator
         # call base class constructor:
         PanTau__TauImpactParameterExtractionTool.__init__(self,name,\
                                                           TrackToVertexIPEstimator    = trackToVertexIPEstimator,
                                                           TrackSelectorTool           =  impactParamTrackSel)
-        print self
+        print (self)
 
 
 def createTauSeedBuilder(   jetAlgName = "Cone4",
@@ -237,7 +239,7 @@ def createTauSeedBuilder(   jetAlgName = "Cone4",
     
     if trackSelectorTool is None:
         trackSelectorTool = PanTauSeedTrackSelector()
-        #print trackSelectorTool
+        #print (trackSelectorTool)
         ToolSvc += trackSelectorTool
     
     if tauFeatureExtractionTools is None:
@@ -245,15 +247,15 @@ def createTauSeedBuilder(   jetAlgName = "Cone4",
         if jp.PanTauFlags.GetJetFeatures() :
             from PanTauAlgs.PanTauAlgsConf import PanTau__TauJetFeatureExtractionTool
             tauJetExtr = PanTau__TauJetFeatureExtractionTool()
-            print tauJetExtr
+            print (tauJetExtr)
             ToolSvc += tauJetExtr
             tauFeatureExtractionTools += [tauJetExtr]
         if jp.PanTauFlags.GetImpactParameterFeatures() :
             tauImpactParameterExtr = PanTauImpactParameterExtractionTool()
             ToolSvc += tauImpactParameterExtr
-            #print tauImpactParameterExtr
+            #print (tauImpactParameterExtr)
             tauFeatureExtractionTools += [tauImpactParameterExtr]
-            #print tauImpactParameterExtr
+            #print (tauImpactParameterExtr)
 
     return PanTauSeedBuilderAlg( 'TauSeedBuild'+jetAlgName, jetAlgName,
                             Tools_TauFeatureExtractionTools    = tauFeatureExtractionTools,

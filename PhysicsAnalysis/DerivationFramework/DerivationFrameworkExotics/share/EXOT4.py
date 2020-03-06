@@ -63,13 +63,13 @@ EXOT4StringSkimmingTool_lep = DerivationFramework__xAODStringSkimmingTool(name =
                                                                          expression = expression_lep)
 
 ToolSvc += EXOT4StringSkimmingTool_lep
-print EXOT4StringSkimmingTool_lep
+printfunc (EXOT4StringSkimmingTool_lep)
 
 EXOT4StringSkimmingTool_jet = DerivationFramework__xAODStringSkimmingTool(name = "EXOT4StringSkimmingTool_jet",
                                                                          expression = expression_jet)
 
 ToolSvc += EXOT4StringSkimmingTool_jet
-print EXOT4StringSkimmingTool_jet
+printfunc (EXOT4StringSkimmingTool_jet)
 
 
 # Tracks thinning 
