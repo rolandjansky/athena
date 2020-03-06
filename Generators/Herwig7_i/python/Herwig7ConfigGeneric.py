@@ -1,7 +1,5 @@
 #! /usr/bin/env python
 
-##  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
 ## \file Herwig7ConfigGeneric.py
 ## \brief Python class for reproducing standalone runs inside of athena
 

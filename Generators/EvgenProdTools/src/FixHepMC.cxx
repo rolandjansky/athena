@@ -165,3 +165,4 @@ bool FixHepMC::isLoop(const HepMC::GenParticle* p) {
 //@}
 
 #endif
+
