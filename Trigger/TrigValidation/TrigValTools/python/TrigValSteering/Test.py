@@ -40,6 +40,7 @@ class Test(object):
         for step in self.exec_steps:
             step.configure(self)
         for step in self.check_steps:
+            self.log.debug('Configuring check step %s', step.name)
             step.configure(self)
 
         duplicate_names = self.duplicate_step_names()
