@@ -38,6 +38,7 @@ run_settings = {'event_norm':'sum',
                 'cut_decays':'F',
                 'pdflabel':"'lhapdf'",
                 'lhaid':247000,
+                'pdgs_for_merging_cut': '1, 2, 3, 4, 21', # Terrible default in MG
                 'ickkw':0,
                 'xqcut':0} # use CKKW-L merging (yes, this is a weird setting)
 
