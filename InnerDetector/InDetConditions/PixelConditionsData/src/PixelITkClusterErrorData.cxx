@@ -41,7 +41,7 @@ std::pair<double,double> PixelITkClusterErrorData::getDeltaError(const Identifie
 // SET METHODS
 
 void PixelITkClusterErrorData::setDeltaError(const Identifier* pixelId, double delta_x, double error_x, double delta_y, double error_y){
-  
+
   std::tuple<double,double,double,double> linevalues = std::make_tuple(delta_x,error_x,delta_y,error_y);
   m_constmap[*pixelId] = linevalues;
   return;
@@ -92,8 +92,7 @@ void PixelITkClusterErrorData::load(std::string file){
       infile >> pixelId_str >> delta_x >> delta_error_x >> delta_y >> delta_error_y;
         
       Identifier pixelId;
-      pixelId.set(pixelId_str);      
-
+      pixelId.set(pixelId_str+"0000000000"); // Truncated pixel ID is stored in the file
       setDeltaError(&pixelId,delta_x,delta_error_x,delta_y,delta_error_y);
 
     }

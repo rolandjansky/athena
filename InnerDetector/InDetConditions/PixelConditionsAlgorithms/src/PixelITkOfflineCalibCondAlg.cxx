@@ -170,7 +170,11 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
       (*attrList).second.toOutputStream(attrStr);
       ATH_MSG_DEBUG( "ChanNum " << (*attrList).first << " Attribute list " << attrStr.str() );
 
-      constants.emplace_back( (*attrList).second["pixelID"].data<long long>() );
+      // Truncated pixel ID is stored in the database
+      long long pixelID_trunc = (*attrList).second["pixelID"].data<int>();
+      long long pixelID = pixelID_trunc<<40;
+
+      constants.emplace_back( pixelID );
       constants.emplace_back( (*attrList).second["delta_x"].data<float>() );
       constants.emplace_back( (*attrList).second["delta_error_x"].data<float>() );
       constants.emplace_back( (*attrList).second["delta_y"].data<float>() );
