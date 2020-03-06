@@ -449,6 +449,12 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
   double phaseSpaceWeight = m_pythia.info.weight();
   double mergingWeight    = m_pythia.info.mergingWeight();
+  // include Enhance userhook weight
+  for(const auto &hook: m_userHooksPtrs) {
+    if (hook->canEnhanceEmission()) {
+      mergingWeight *= hook->getEnhancedEventWeight();
+    }
+  }
   double eventWeight = phaseSpaceWeight*mergingWeight;
 
   ATH_MSG_DEBUG("Event weights: phase space weight, merging weight, total weight = "<<phaseSpaceWeight<<", "<<mergingWeight<<", "<<eventWeight);
