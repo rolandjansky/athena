@@ -18,7 +18,6 @@ MADGRAPH_RUN_NAME='run_01'
 # PDF setting (global setting)
 MADGRAPH_PDFSETTING=None
 from MadGraphUtilsHelpers import *
-import MadGraphSystematicsUtils
 
 def setup_path_protection():
     # Addition for models directory
@@ -47,7 +46,7 @@ def config_only_check():
     return False
 
 
-def new_process(process='generate p p > t t~'):
+def new_process(process='generate p p > t t~',keepJpegs=False):
     """ Generate a new process in madgraph.
     Pass a process string.
     Return the name of the process directory.
@@ -62,7 +61,11 @@ def new_process(process='generate p p > t t~'):
     card_loc='proc_card_mg5.dat'
     mglog.info('Writing process card to '+card_loc)
     a_card = open( card_loc , 'w' )
-    a_card.write( process )
+    for l in process.split('\n'):
+        if not 'output' in l: a_card.write(l+'\n')
+        elif '-nojpeg' in l or keepJpegs: a_card.write(l+'\n')
+        elif '#' in l: a_card.write(l.split('#')[0]+' -nojpeg #'+l.split('#')[1]+'\n')
+        else: a_card.write(l+' -nojpeg\n')
     a_card.close()
 
     madpath=os.environ['MADPATH']
@@ -378,7 +381,7 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None)
     else:
         do_madspin=False
 
-    if get_reweight_card(process_dir=process_dir) is not None:
+    if get_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION) is not None:
         check_reweight_card(MADGRAPH_GRIDPACK_LOCATION)
 
     # Modify run card, then print
@@ -838,7 +841,7 @@ decay_events '''+run)
         mglog.info('LHE file zipped by MadGraph automatically. Nothing to do')
 
 
-def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveProcDir=False,runArgs=None,madspin_card=None,fixEventWeightsForBridgeMode=False):
+def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveProcDir=False,runArgs=None,fixEventWeightsForBridgeMode=False):
     if config_only_check(): return
 
     # NLO is not *really* the question here, we need to know if we should look for weighted or
@@ -854,7 +857,7 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
         # check again:
         hasUnweighted = os.access(madspinDirs[-1]+'/unweighted_events.lhe.gz',os.R_OK)
 
-    if madspin_card or hasRunMadSpin:
+    if hasRunMadSpin:
         if len(madspinDirs):
             if hasUnweighted:
                 # so this is a bit of a mess now...
@@ -1159,7 +1162,7 @@ def check_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
     oldcard.close()
 
 
-def helpful_definitions():
+def helpful_SUSY_definitions():
     return """
 # Define multiparticle labels
 define p = g u c d s u~ c~ d~ s~
@@ -1185,140 +1188,26 @@ define susyv = sve svm svt
 define susyv~ = sve~ svm~ svt~
 """
 
-def strong_process_dict( njets = 1 , gentype = 'GG' ):
-    header = "import model MSSM_SLHA2\n"
-    header += helpful_definitions()
-    header += """
-# Specify process(es) to run
 
-"""
-    footer = """
-# Output processes to MadEvent directory
-output -f
-"""
+def get_SUSY_variations( masses , syst_mod , ktdurham = None ):
+    if ktdurham is None:
+        # First check the lightest of the heavy sparticles - all squarks and gluino
+        my_mass = min([masses[x] for x in ['1000001','1000002','1000003','1000004','1000005','1000006','2000001','2000002','2000003','2000004','2000005','2000006','1000021'] if x in masses])
+        # Now check if strong production was not the key mode
+        if my_mass>10000.:
+            # This is a little tricky, but: we want the heaviest non-decoupled mass
+            my_mass = max([masses[x] for x in ['1000023','1000024','1000025','1000011','1000013','1000015','2000011','2000013','2000015','1000012','1000014','1000016'] if x in masses and x<10000.])
+        # Final check for N1N1 with everything else decoupled
+        if my_mass>10000. and '1000022' in masses:
+            my_mass = masses['1000022']
+        if my_mass>10000.:
+            raise RuntimeError('Could not understand which mass to use for matching cut in '+str(masses))
 
-    jetloop = [ '' ]
-    if 0<njets: jetloop += [ 'j' ]
-    if 1<njets: jetloop += [ 'j j' ]
-    if 2<njets: jetloop += [ 'j j j' ]
-    if 3<njets: jetloop += [ 'j j j j' ]
-    if 4<njets: jetloop += [ 'j j j j j' ]
-    if 5<njets: jetloop += [ 'j j j j j j' ]
-    if 6<njets: jetloop += [ 'j j j j j j j' ]
-    if 7<njets: jetloop += [ 'j j j j j j j j' ]
-    if 8<njets:
-        mglog.error('That is just ridiculous.  Do not generate more than eight jets off of your main process in MadGraph.  The world will implode.')
-        return {}
-
-    starter = 'generate'
-    squarks = ['ul','dl','cl','sl','ur','dr','cr','sr']
-    ss_string = ''
-    sg_string = ''
-    ssb_string = ''
-    gg_string = ''
-    n1n1_string = ''
-    n2n3_string = ''
-    c1n2_string = ''
-    cc_string = ''
-    bb_string = ''
-    tt_string = ''
-    Scharm_string = ''
-    first = True
-    for jets in jetloop:
-        bb_string += '%s p p > b1 b1~ %s $ go ul ur dl dr cl cr sl sr t1 t2 b2 ul~ ur~ dl~ dr~ cl~ cr~ sl~ sr~ t1~ t2~ b2~ \n'%(starter,jets)
-        tt_string += '%s p p > t1 t1~ %s $ go ul ur dl dr cl cr sl sr t2 b1 b2 ul~ ur~ dl~ dr~ cl~ cr~ sl~ sr~ b1~ t2~ b2~ \n'%(starter,jets)
-        n1n1_string += '%s p p > n1 n1 %s $ susystrong \n'%(starter,jets)
-        n2n3_string += '%s p p > n2 n3 %s $ susystrong \n'%(starter,jets)
-        gg_string += '%s p p > go go %s $ susysq \n'%(starter,jets)
-        for sign1 in ['+','-']:
-            c1n2_string += '%s p p > x1%s n2 %s $ susystrong \n'%(starter,sign1,jets)
-            for sign2 in ['+','-']:
-                cc_string += '%s p p > x1%s x1%s %s $ susystrong \n'%(starter,sign1,sign2,jets)
-                starter = 'add process'
-        if first: starter = 'generate'
-        for s in ['cl','cr']:
-            for t in ['cl','cr']:
-                Scharm_string += '%s p p > %s %s~ %s $ go \n'%(starter,s,t,jets)
-                starter = 'add process'
-        if first: starter = 'generate'
-        for s in squarks:
-            sg_string += '%s p p > %s go %s \n'%(starter,s,jets)
-            sg_string += '%s p p > %s~ go %s \n'%(starter,s,jets)
-            for t in squarks:
-                if 'phot' in gentype:
-                    ss_string += '%s p p > %s %s~ a %s $ go \n'%(starter,s,t,jets)
-                    starter = 'add process'
-                else:
-                    ss_string += '%s p p > %s %s~ %s $ go \n'%(starter,s,t,jets)
-                    starter = 'add process'
-                ssb_string += '%s p p > %s %s~ %s \n'%(starter,s,t,jets)
-        first = False
-
-    processes = {
-        'SS' : ss_string ,
-        'SSphot' : ss_string,
-        'GG' : gg_string ,
-        'SG' : sg_string ,
-        'GS' : sg_string ,
-        'CC' : cc_string ,
-        'BB' : bb_string ,
-        'Scharm' : Scharm_string,
-        'TT' : tt_string ,
-        'N2N3' : n2n3_string ,
-        'N1N1' : n1n1_string ,
-        'C1N2' : c1n2_string ,
-        'SSB' : ssb_string ,
-        'ALL' : ss_string+'\n'+gg_string+'\n'+ssb_string+'\n'+sg_string
-      }
-
-    if not gentype in processes.keys():
-        mglog.error('No idea how to deal with the simplified models for'+gentype+'.  Sorry!')
-        return ''
-    if processes[gentype] == '':
-        mglog.error('No processes found for the set up you requested: '+str(gentype))
-        return ''
-    mglog.info('Will run MadGraph over the process:')
-    mglog.info(str(processes[gentype]))
-
-    return header+processes[gentype]+footer
-
-
-def get_variations( gentype , masses , syst_mod , xqcut = None ):
-    if xqcut is None:
-        my_mass=2000 # default
-        if 'Scharm'==gentype:
-            my_mass = min([masses[x] for x in ['1000004','2000004'] if x in masses ])
-        elif 'N2N3'==gentype:
-            my_mass = min([masses[x] for x in ['1000023','1000025'] if x in masses ])
-        elif 'N1N1'==gentype:
-            my_mass = min([masses[x] for x in ['1000022'] if x in masses ])
-        elif 'C1N2'==gentype:
-            my_mass = min([masses[x] for x in ['1000023','1000024'] if x in masses ])
-        elif 'Stau'==gentype:
-            my_mass = min([masses[x] for x in ['1000015','2000015'] if x in masses ])
-        elif 'StauStau'==gentype:
-            my_mass = min([masses[x] for x in ['1000015','2000015'] if x in masses ])
-        elif 'SlepSlep'==gentype:
-            my_mass = min([masses[x] for x in ['1000011','1000013','1000015','2000011','2000013','2000015'] if x in masses ])
-        elif 'T2' in gentype:
-            my_mass = min([masses[x] for x in ['2000006'] if x in masses ])
-        else:
-            if 'G' in gentype or 'ALL' in gentype:
-                my_mass = masses['1000021']
-            if 'S' in gentype or 'ALL' in gentype:
-                my_mass = min([masses[x] for x in ['1000001','1000002','1000003','1000004','2000001','2000002','2000003','2000004'] if x in masses])
-            if 'T' in gentype:
-                my_mass = masses['1000006']
-            if 'B' in gentype:
-                my_mass = masses['1000005']
-            if 'C' in gentype:
-                my_mass = masses['1000024']
-            if 'D' in gentype:
-                my_mass = masses['2000001']
-        xqcut = min(my_mass*0.25,500)
-        if syst_mod is not None and 'qup' in syst_mod.lower(): xqcut = xqcut*2.
-        elif syst_mod is not None and 'qdown' in syst_mod.lower(): xqcut = xqcut*0.5
-    mglog.info('For matching, will use xqcut of '+str(xqcut))
+        # Now set the matching scale accordingly
+        ktdurham = min(my_mass*0.25,500)
+        if syst_mod is not None and 'qup' in syst_mod.lower(): ktdurham = ktdurham*2.
+        elif syst_mod is not None and 'qdown' in syst_mod.lower(): ktdurham = ktdurham*0.5
+    mglog.info('For matching, will use ktdurham of '+str(ktdurham))
 
     alpsfact = 1.0
     scalefact = 1.0
@@ -1330,7 +1219,7 @@ def get_variations( gentype , masses , syst_mod , xqcut = None ):
     if syst_mod is not None and 'scalefactup' in syst_mod.lower(): scalefact = 2.0
     elif syst_mod is not None and 'scalefactdown' in syst_mod.lower(): scalefact = 0.5
 
-    return abs(xqcut) , alpsfact , scalefact
+    return abs(ktdurham) , alpsfact , scalefact
 
 
 def SUSY_process(process=''):
@@ -1342,7 +1231,7 @@ def SUSY_process(process=''):
             if 'import model' in l:
                 full_proc += l+'\n'
                 break
-        full_proc+=helpful_definitions()
+        full_proc+=helpful_SUSY_definitions()
         for l in process.split('\n'):
             if 'import model' not in l:
                 full_proc += l+'\n'
@@ -1351,7 +1240,7 @@ def SUSY_process(process=''):
 output -f
 """
     else:
-        full_proc = "import model MSSM_SLHA2\n"+helpful_definitions()+"""
+        full_proc = "import model MSSM_SLHA2\n"+helpful_SUSY_definitions()+"""
 # Specify process(es) to run
 
 """+process+"""
@@ -1361,16 +1250,16 @@ output -f
     return full_proc
 
 
-def SUSY_Generation(runArgs = None, process=None, gentype='SS', njets=1, decaytype='direct',\
-                    nevents=10000, syst_mod=None, xqcut=None, keepOutput=False, param_card=None, writeGridpack=False,\
-                    madspin_card=None, extras={}, params={}, fixEventWeightsForBridgeMode=False):
+def SUSY_Generation(runArgs = None, process=None,\
+                    syst_mod=None, keepOutput=False, param_card=None, writeGridpack=False,\
+                    madspin_card=None, run_settings={}, params={}, fixEventWeightsForBridgeMode=False):
 
-    xqcut , alpsfact , scalefact = get_variations( gentype , params['MASS'] , syst_mod , xqcut=xqcut )
+    ktdurham = run_settings['ktdurham'] if 'ktdurham' in run_settings else None
+    ktdurham , alpsfact , scalefact = get_SUSY_variations( params['MASS'] , syst_mod , ktdurham=ktdurham )
 
     process_dir = MADGRAPH_GRIDPACK_LOCATION
     if not is_gen_from_gridpack():
-        if process is not None: full_proc = SUSY_process(process)
-        else: full_proc = strong_process_dict(njets,gentype)
+        full_proc = SUSY_process(process)
         process_dir = new_process(full_proc)
     mglog.info('Using process directory '+str(process_dir))
 
@@ -1378,12 +1267,13 @@ def SUSY_Generation(runArgs = None, process=None, gentype='SS', njets=1, decayty
     modify_param_card(param_card_input=param_card,process_dir=process_dir,params=params)
 
     # Set up the extras dictionary
-    settings = {'drjj':0.0,'lhe_version':'3.0','cut_decays':'F','pdflabel':"'cteq6l1'",'lhaid':10042,'ktdurham':xqcut,'nevents':nevents}
-    settings.update(extras)
-    settings.update({'scalefact':scalefact,'alpsfact':alpsfact})
+    settings = {'ktdurham':ktdurham,'scalefact':scalefact,'alpsfact':alpsfact}
+    settings.update(run_settings) # This allows explicit settings in the input to override these settings
+
+    # Set up the run card
+    modify_run_card(process_dir=process_dir,runArgs=runArgs,settings=settings)
 
     # Generate events!
-    modify_run_card(process_dir=process_dir,runArgs=runArgs,settings=settings)
     if is_gen_from_gridpack():
         generate_from_gridpack(runArgs=runArgs)
     else:
@@ -1391,10 +1281,10 @@ def SUSY_Generation(runArgs = None, process=None, gentype='SS', njets=1, decayty
         generate(runArgs=runArgs,process_dir=process_dir,grid_pack=writeGridpack)
 
     # Move output files into the appropriate place, with the appropriate name
-    the_spot = arrange_output(process_dir=process_dir,saveProcDir=keepOutput,runArgs=runArgs,fixEventWeightsForBridgeMode=fixEventWeightsForBridgeMode)
+    arrange_output(process_dir=process_dir,saveProcDir=keepOutput,runArgs=runArgs,fixEventWeightsForBridgeMode=fixEventWeightsForBridgeMode)
 
     mglog.info('All done generating events!!')
-    return [xqcut,the_spot]
+    return settings['ktdurham']
 
 
 def update_lhe_file(lhe_file_old,param_card_old=None,lhe_file_new=None,masses={},delete_old_lhe=True):
@@ -1408,19 +1298,17 @@ def update_lhe_file(lhe_file_old,param_card_old=None,lhe_file_new=None,masses={}
     lhe_file_new_tmp = lhe_file_new if lhe_file_new is not None else lhe_file_old+'.tmp'
     # Make sure the LHE file is there
     if not os.access(lhe_file_old,os.R_OK):
-        mglog.error('Could not access old LHE file at '+str(lhe_file_old)+'. Please check the file location.')
-        return -1
+        raise RuntimeError('Could not access old LHE file at '+str(lhe_file_old)+'. Please check the file location.')
     # Grab the old param card
-    paramcard = subprocess.Popen(['get_files','-data',param_card_old])
-    paramcard.wait()
-    if not os.access(param_card_old,os.R_OK):
-        mglog.info('Could not get param card '+param_card_old)
+    if param_card_old is not None:
+        paramcard = subprocess.Popen(['get_files','-data',param_card_old])
+        paramcard.wait()
+        if not os.access(param_card_old,os.R_OK):
+            raise RuntimeError('Could not get param card '+param_card_old)
     # Don't overwrite old param cards
     if os.access(lhe_file_new_tmp,os.R_OK):
-        mglog.error('Old file at'+str(lhe_file_new_tmp)+' in the current directory. Dont want to clobber it. Please move it first.')
-        return -1
+        raise RuntimeError('Old file at'+str(lhe_file_new_tmp)+' in the current directory. Dont want to clobber it. Please move it first.')
 
-    oldparam = open(param_card_old,'r')
     newlhe = open(lhe_file_new_tmp,'w')
     blockName = None
     decayEdit = False
@@ -1537,7 +1425,8 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
     decayEdit = False #only becomes true in a DECAY block when specifying the BR
     blockName = ""
     doneParams = {} #tracks which params have been done
-    for line in oldcard:
+    for linewithcomment in oldcard:
+        line=linewithcomment.split('#')[0]
         if line.strip().upper().startswith('BLOCK') or line.strip().upper().startswith('DECAY')\
                     and len(line.strip().split()) > 1:
             if decayEdit and blockName == 'DECAY': decayEdit = False # Start a new DECAY block
@@ -1551,28 +1440,29 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
         elif blockName == 'DECAY' and len(line.strip().split()) > 1:
             akey = line.strip().split()[1]
         if akey==None:
-           newcard.write(line)
+           newcard.write(linewithcomment)
            continue
 
         #check if we have params for this block
         if not params.has_key(blockName):
-           newcard.write(line)
+           newcard.write(linewithcomment)
            continue
         blockParams = params[blockName]
 
         # look for a string key, which would follow a #
         stringkey = None
-        if '#' in line: #ignores comment lines
-           stringkey = line.strip()[line.strip().find('#')+1:].strip()
+        if '#' in linewithcomment: #ignores comment lines
+           stringkey = linewithcomment[linewithcomment.find('#')+1:].strip()
            if len(stringkey.split()) > 0: stringkey = stringkey.split()[0].upper()
 
         if not akey in blockParams and not (stringkey != None and stringkey in blockParams):
-           newcard.write(line)
+           newcard.write(linewithcomment)
            continue
 
         if akey in blockParams and (stringkey != None and stringkey in blockParams):
            raise RuntimeError('Conflicting use of numeric and string keys %s and %s' % (akey,stringkey))
-        theParam = blockParams.get(akey,blockParams[stringkey])
+
+        theParam = blockParams.get(akey,blockParams[stringkey] if stringkey in blockParams else None)
         if not blockName in doneParams: doneParams[blockName] = {}
         if akey in blockParams: doneParams[blockName][akey]=True
         elif stringkey != None and stringkey in blockParams: doneParams[blockName][stringkey]=True
@@ -1586,8 +1476,8 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
                     mglog.info(newline)
                decayEdit = True
            else: #just updating the total width
-              newcard.write('DECAY   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
-              mglog.info('DECAY   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
+              newcard.write('DECAY   %s    %s  # %s\n'%(akey,str(theParam),linewithcomment[linewithcomment.find('#')+1:].strip() if linewithcomment.find('#')>0 else ""))
+              mglog.info('DECAY   %s    %s  # %s'%(akey,str(theParam),linewithcomment[linewithcomment.find('#')+1:].strip() if linewithcomment.find('#')>0 else ""))
         # second special case of QNUMBERS
         elif blockName=='QNUMBERS':
            #specifying the full QNUMBERS block
@@ -1596,8 +1486,8 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
                 mglog.info(newline)
            decayEdit = True
         else: #just updating the parameter
-           newcard.write('   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
-           mglog.info('   %s    %s  # %s\n'%(akey,str(theParam),line.strip()[line.strip().find('#')+1:] if line.strip().find('#')>0 else ""))
+           newcard.write('   %s    %s  # %s\n'%(akey,str(theParam),linewithcomment[linewithcomment.find('#')+1:].strip() if linewithcomment.find('#')>0 else ""))
+           mglog.info('   %s    %s  # %s'%(akey,str(theParam),linewithcomment[linewithcomment.find('#')+1:].strip() if linewithcomment.find('#')>0 else ""))
         # Done editing the line!
 
     #check that all specified parameters have been updated (helps to catch typos)
@@ -1611,7 +1501,6 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
     # Close up and return
     oldcard.close()
     newcard.close()
-    return param_card_new
 
 
 def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOCATION,runArgs=None,settings={}):
@@ -1984,3 +1873,6 @@ def check_reset_proc_number(opts):
 def ls_dir(directory):
     mglog.info('For your information, ls of '+directory+':')
     mglog.info( sorted( os.listdir( directory ) ) )
+
+# Final import of some code used in these functions
+import MadGraphSystematicsUtils
