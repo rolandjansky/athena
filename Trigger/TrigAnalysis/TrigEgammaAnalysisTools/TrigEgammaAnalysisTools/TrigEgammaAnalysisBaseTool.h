@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigEgammaAnalysisBaseTool_H
@@ -47,10 +47,10 @@ class TrigEgammaAnalysisBaseTool: public asg::AsgTool, virtual public ITrigEgamm
     virtual StatusCode finalize() override;
   
     
-    virtual void setGMTools( ToolHandleArray<GenericMonitoringTool> &tools ) {m_GMTools=tools;};
-    virtual void setTP(bool tp)  {m_tp=tp;}
-    virtual void setDetail(bool detail)  {m_detailedHists=detail;}
-    virtual void setAvgmu(float value)  {m_lbAverageInteractionsPerCrossing=value;};
+    virtual void setGMTools( ToolHandleArray<GenericMonitoringTool> &tools ) override {m_GMTools=tools;}
+    virtual void setTP(bool tp) override  {m_tp=tp;}
+    virtual void setDetail(bool detail) override  {m_detailedHists=detail;}
+    virtual void setAvgmu(float value) override  {m_lbAverageInteractionsPerCrossing=value;};
   
     
     virtual StatusCode toolExecute(const EventContext&, std::string, TrigInfo, 
