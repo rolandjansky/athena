@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // This file is basically a concatenation of all the *.cxx files.
@@ -2095,8 +2095,7 @@ PixelDetectorManager* OraclePixGeoManager::GetPixelDDManager() {
   //
   // retrieve the pointer to the DD manager
   //
-    m_pDetStore->retrieve(m_pDDmgr);  
-    StatusCode sc = m_pDetStore->retrieve(m_pDDmgr);  
+    StatusCode sc = m_pDetStore->retrieve(m_pDDmgr);
     if (sc.isFailure()) {
       std::cout << "Cannot retrieve PixelDetectorManager" << std::endl;
     } 
