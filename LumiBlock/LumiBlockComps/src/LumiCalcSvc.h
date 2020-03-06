@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -10,8 +10,8 @@
 // Author: B.Radics<radbal@cern.ch>
 //         based on Richard Hawkings' LumiCalc.py
 /////////////////////////////////////////////////////////////////// 
-#ifndef LUMICALCSVC_H 
-#define LUMICALCSVC_H 
+#ifndef LUMIBLOCKCOMPS_LUMICALCSVC_H
+#define LUMIBLOCKCOMPS_LUMICALCSVC_H
 
 /**
  * @class LumiCalcSvc
@@ -32,9 +32,8 @@ class TTree;
 class ILumiCalcSvc;
 class StoreGateSvc;
 
-class LumiCalcSvc : virtual public ILumiCalcSvc, virtual public IIncidentListener,
-		    public AthService
-{ 
+class LumiCalcSvc : public extends<AthService, ILumiCalcSvc, IIncidentListener>
+{
 
 public: 
 
@@ -46,29 +45,22 @@ public:
 
   /// Gaudi Service Implementation
   //@{
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode stop() override;
   //@}
 
   /// Incident service handle listening for BeginInputFile and EndInputFile.
-  void handle(const Incident& incident);
-public:
+  virtual void handle(const Incident& incident) override;
 
   // print some values (inst lumi, lumiblock number, time, prescales, etc.) to screen
-  void print();
+  virtual void print() override {};
 
   // main user function
   // By default tries both "LumiBlocks" and "IncompleteLumiBlocks"
-  StatusCode calcLumi();
+  virtual StatusCode calcLumi() override;
 
   // retrieve the details of the calculation as a TTree table
-  TTree * getLumiTree(){ return m_LumiTree; }
-
-  StatusCode stop();
-
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvi );
-
-  static const InterfaceID& interfaceID();
+  virtual TTree * getLumiTree() override { return m_LumiTree; }
 
   /// register trigger
   bool registerLBCollection(const TString& tname, const TString& regexpr, const std::list<TString>& trigpar);
@@ -118,15 +110,6 @@ private:
   // lbc trigger combo registry
   std::map< TString, tvtPair > m_registry;
 }; 
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
-inline const InterfaceID& LumiCalcSvc::interfaceID() 
-{ 
-  return ILumiCalcSvc::interfaceID(); 
-}
 
 
 #endif //> !ATHENAKERNEL_LUMICALCSVC_H

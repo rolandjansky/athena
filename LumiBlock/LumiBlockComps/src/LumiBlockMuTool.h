@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,12 +12,10 @@
 #ifndef LUMIBLOCKCOMPS_LumiBlockMuTool_H
 #define LUMIBLOCKCOMPS_LumiBlockMuTool_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/ReadHandleKey.h"
-
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include <string>
@@ -26,7 +24,7 @@
 // For data which doesn't have this (or to write it there in the first place)
 // this can be configured to read the mu value from COOL instead.
 //
-class LumiBlockMuTool: public AthAlgTool, virtual public ILumiBlockMuTool {
+class LumiBlockMuTool: public extends<AthAlgTool, ILumiBlockMuTool> {
 
  public:
 
@@ -44,7 +42,6 @@ class LumiBlockMuTool: public AthAlgTool, virtual public ILumiBlockMuTool {
 
   // Functions
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
 
  private:
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","RHK for EventInfo"};
