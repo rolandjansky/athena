@@ -46,7 +46,7 @@ TrigConf::L1Menu::update()
          } else {
             for( auto & thr : data().get_child( path + "." + thrType + ".thresholds") ) {
                const std::string thrName = thr.first;
-               v.push_back( std::move(L1Threshold::createThreshold( thrName, thrType, extraInfo, thr.second )) );
+               v.push_back( L1Threshold::createThreshold( thrName, thrType, extraInfo, thr.second ) );
             }
          }
          for( auto & thr : v ) {
