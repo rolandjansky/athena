@@ -13,6 +13,20 @@
 //----------------------------------------------------------------------
 
 #include <getopt.h>
+
+#ifdef XAOD_STANDALONE
+    #include "xAODRootAccess/Init.h"
+    #include "xAODRootAccess/TEvent.h"
+    #include "xAODRootAccess/TStore.h"
+#else
+    #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
+    #include "POOLRootAccess/TEvent.h"
+#endif
+
+#include "AsgTools/AnaToolHandle.h"
+#include "AsgAnalysisInterfaces/IFakeBkgTool.h"
+
+#include "AthContainers/AuxElement.h"
 #include "FakeBkgTools/FakeBkgInternals.h"
 #include "FakeBkgTools/ApplyFakeFactor.h"
 #include "FakeBkgTools/AsymptMatrixTool.h"
@@ -170,6 +184,7 @@ int main(int argc, char *argv[]){
     }
   }
   
+  cout << "verbose  = " << verbose << endl;
   // remove any \ from selection and process strings 
   size_t pos;
   pos = selection.find("\"");
@@ -192,6 +207,7 @@ int main(int argc, char *argv[]){
 void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned maxnbaseline, float realeff_mean, float fakeeff_mean, float eff_spread, std::string selection, std::string process, bool test_save, bool test_merge, string saveFileNameBase, string mergeFileNameBase, bool verbose, bool test_histo, bool test_systematics)
 {
    //Open an output file
+  cout << "verbose = " << verbose << endl;
   if (verbose) cout << "maxnbaseline = " << maxnbaseline << endl;
 
   string outputdirname;
@@ -336,24 +352,51 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
     if (!test_merge) {
 
       cout << "Starting case " << icase << endl;
-      CP::LhoodMM_tools lhmTool("LhoodMM_tools");
+      auto lhmTool = asg::AnaToolHandle<CP::IFakeBkgTool>("CP::LhoodMM_tools/FBT"+to_string(icase));
+
+      //CP::LhoodMM_tools lhmTool("LhoodMM_tools");
       CP::AsymptMatrixTool asmTool("AsymptMatrixTool");
       float asmYield = 0;
       float asmErr = 0;
+
+      //initialize(lhmTool, input, selection, process, verbose); 
+      initialize(asmTool, input, selection, process, verbose);
+
+      lhmTool.setProperty("InputFiles", input);
+      lhmTool.setProperty("EnergyUnit", "GeV");
+      lhmTool.setProperty("Selection", selection);
+      lhmTool.setProperty("Process", process);
+      if (verbose) {
+	lhmTool.setProperty("OutputLevel", MSG::VERBOSE);
+      } else {
+	lhmTool.setProperty("OutputLevel", MSG::INFO);
+      }
+      lhmTool.setProperty("ConvertWhenMissing", true);
+      if(lhmTool.initialize() != StatusCode::SUCCESS)
+	{
+	  cout << "ERROR: unable to initialize tool " << endl;;
+	  exit(1);
+	}
+     
       if (test_histo) {
-	lhmTool.register1DHistogram(h_lep_pt, &lep_pt);
-	lhmTool.register2DHistogram(h_lep_pt_eta, &lep_pt, &lep_eta);
+	lhmTool->register1DHistogram(h_lep_pt, &lep_pt);
+	lhmTool->register2DHistogram(h_lep_pt_eta, &lep_pt, &lep_eta);
+	//lhmTool.register1DHistogram(h_lep_pt, &lep_pt);
+	//lhmTool.register2DHistogram(h_lep_pt_eta, &lep_pt, &lep_eta);	
       }
 
-      initialize(asmTool, input, selection, process, verbose);
-      initialize(lhmTool, input, selection, process, verbose); 
-
       if (test_systematics) {
-	auto sysvars = lhmTool.affectingSystematics();
-	for(auto& sysvar : lhmTool.affectingSystematics())
+	//auto sysvars = lhmTool.affectingSystematics();
+	//for(auto& sysvar : lhmTool.affectingSystematics())
+	//  {
+	//    lhmTool.getSystDescriptor().printUncertaintyDescription(sysvar);
+	//  }
+	auto sysvars = lhmTool->affectingSystematics();
+	for(auto& sysvar : lhmTool->affectingSystematics())
 	  {
-	    lhmTool.getSystDescriptor().printUncertaintyDescription(sysvar);
+	    lhmTool->getSystDescriptor().printUncertaintyDescription(sysvar);
 	  }
+	
       }
 
       Double_t realeff_mean_thiscase = rand.Gaus(realeff_mean, realeff_spread);
@@ -400,8 +443,9 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
 	
 	xAOD::IParticleContainer leptons(SG::VIEW_ELEMENTS);
 	vector<FakeBkgTools::ParticleData> leptons_data;
-	
+
 	vector<bool> lep_real;
+	vector<int> lep_charge;
 	for (int ilep = 0; ilep < nlep_select; ilep++) {
 	  xAOD::Electron* lepton =  new xAOD::Electron;   // for toy MC the lepton flavor doesn't matter
 	  // assign the lepton as real or fake
@@ -415,6 +459,8 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
 	  lep_real.push_back(isReal);
 	  lepton->makePrivateStore();
 	  lepton->setCharge(rand.Uniform() > 0.5 ? 1 : -1 );
+	  //	  lepton->setCharge(1);
+	  lep_charge.push_back(lepton->charge());
 
 	  lep_pt = 100*rand.Uniform();
 	  h_lep_pt->Fill(lep_pt);
@@ -443,15 +489,17 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
 	}
 	
 	asmTool.addEvent(leptons, extraweight);
-	lhmTool.addEvent(leptons, extraweight);
+
+	lhmTool->addEvent(leptons, extraweight);
+	//lhmTool.addEvent(leptons, extraweight);
 
 	// determine the expected number of fake lepton events
 	// start by looping over all possible number of tight leptons
-	vector<int> lep_indices;
+
 	std::bitset<64> tights, reals, charges;
 	for (int ilep = 0; ilep < nlep_select; ilep++) {
-	  lep_indices.push_back(ilep);
 	  if (lep_real[ilep]) reals.set(ilep);
+	  if (lep_charge[ilep]>0) charges.set(ilep);
 	}
 
 	for (long comb = 0; comb < (1<<nlep_select); ++comb) {
@@ -464,6 +512,7 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
 	  }
 	}
 	
+	
 	float wgt;
 	if(asmTool.getEventWeight(wgt, selection, process) != StatusCode::SUCCESS) { cout << "ERROR: AsymptMatrixTool::getEventWeight() failed\n"; exit(2); }
 	asmYield += wgt;
@@ -473,12 +522,14 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
 	  if (ievt > 0 &&  (((10*ievt)%nevents ==0) || ievt == nevents -1) ) {
 	    string saveFileName = saveFileNameBase;
 	    saveFileName+=  "_lhm_"+to_string(ievt)+".root";
-	    std::unique_ptr<TDirectory>saveFile = std::make_unique<TDirectory>(saveFileName.c_str(), "RECREATE");
-	    cout << "testing save/merge" << endl;
-	    lhmTool.saveProgress(saveFile.get());
+	    std::unique_ptr<TFile> saveFile(TFile::Open(saveFileName.c_str(), "RECREATE"));
+	    //std::unique_ptr<TFile>saveFile = std::make_unique<TFile>(saveFileName.c_str(), "RECREATE");
+	    cout << "testing save/merge " << saveFileName << endl;
+	    lhmTool->saveProgress(saveFile->mkdir("fakes"));
+	    //lhmTool.saveProgress(saveFile->mkdir("fakes"));
 	    saveFile->Close();
 	    saveFileName =  saveFileNameBase+"_asm_"+to_string(ievt)+".root";
-	    saveFile = std::make_unique<TDirectory>(saveFileName.c_str(), "RECREATE");
+	    saveFile = std::make_unique<TFile>(saveFileName.c_str(), "RECREATE");
 	    asmTool.saveProgress(saveFile.get());
 	    saveFile->Close();
 	  }
@@ -488,11 +539,13 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
 	  if (*it != nullptr) delete *it;
 	}
 	leptons.clear();
+      
       }
       
       asm_err = sqrt(asmErr);
 
-      if(lhmTool.getTotalYield(lhoodMM_fakes, lhoodMM_poserr, lhoodMM_negerr) != StatusCode::SUCCESS) { cout << "ERROR: LhoodMM_tools::getTotalYield() failed\n"; exit(2); }
+      //if(lhmTool.getTotalYield(lhoodMM_fakes, lhoodMM_poserr, lhoodMM_negerr) != StatusCode::SUCCESS) { cout << "ERROR: LhoodMM_tools::getTotalYield() failed\n"; exit(2); }
+      if(lhmTool->getTotalYield(lhoodMM_fakes, lhoodMM_poserr, lhoodMM_negerr) != StatusCode::SUCCESS) { cout << "ERROR: LhoodMM_tools::getTotalYield() failed\n"; exit(2); }
 
       asm_fakes = asmYield;
       
@@ -506,8 +559,10 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
 	    asmTool.getTotalYield(weight, statUp, statDown);
 	    asmTool.getSystDescriptor().printUncertaintyDescription(sysvar);
 	    cout << "asm weight = " << weight << endl;
-	    lhmTool.applySystematicVariation({sysvar});
-	    lhmTool.getTotalYield(weight, statUp, statDown);
+	    //lhmTool.applySystematicVariation({sysvar});
+	    //lhmTool.getTotalYield(weight, statUp, statDown);
+	    lhmTool->applySystematicVariation({sysvar});
+	    lhmTool->getTotalYield(weight, statUp, statDown);
 	    std::cout << "sysvar = " << sysvar << std::endl;
 	    cout << "lhm weight = " << weight << endl;
 	  }
@@ -526,6 +581,7 @@ void Loop(unsigned nevents, unsigned ncases, unsigned minnbaseline, unsigned max
       CP::LhoodMM_tools lhmTool_merge("LhoodMM_tools_merge");
       std::string mergeFileName =  mergeFileNameBase+"_lhm.root";
       lhmTool_merge.setProperty("ProgressFileName", mergeFileName);
+      lhmTool_merge.setProperty("ProgressFileDirectory", "fakes");
       cout << "verbose = " << verbose << endl;
       initialize(lhmTool_merge, input, selection, process, verbose);
       if (test_histo) {
