@@ -268,7 +268,7 @@ for caloc in correctedClusters:
     JETM8SlimmingHelper.ExtraVariables +=[
         caloc+'.calE.calEta.calM.calPhi']
 
-print JETM8SlimmingHelper.AppendToDictionary
+printfunc (JETM8SlimmingHelper.AppendToDictionary)
 
 # Trigger content
 from DerivationFrameworkCore.JetTriggerContent import JetTriggerContent
