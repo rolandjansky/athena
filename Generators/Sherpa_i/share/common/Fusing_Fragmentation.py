@@ -1,9 +1,11 @@
 # taken from https://gitlab.com/sherpa-team/sherpa/merge_requests/228
+# the PluginCode part will not be needed anymore for Sherpa >=2.2.9
+# as it is included upstream already
 
 genSeq.Sherpa_i.Parameters += [ "USERHOOK=Fusing_Fragmentation",
                                 "CSS_SCALE_SCHEME=2",
-                                "CSS_EVOLUTION_SCHEME=3"
-                                "FUSING_FRAGMENTATION_STORE_AS_WEIGHT=1" ]
+                                "CSS_EVOLUTION_SCHEME=3",
+                                "FUSING_FRAGMENTATION_STORE_AS_WEIGHT=1", ]
 
 genSeq.Sherpa_i.PluginCode += r"""
 #include "SHERPA/Tools/Userhook_Base.H"
