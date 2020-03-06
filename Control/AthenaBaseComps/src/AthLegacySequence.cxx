@@ -1,7 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-// AthenaBaseComps includes
+
+#include "GaudiKernel/GaudiException.h"
+
 #include "AthenaBaseComps/AthLegacySequence.h"
 #include "AthAlgorithmDHUpdate.h"
 
@@ -12,7 +14,11 @@ namespace Athena {
                                          ISvcLocator* pSvcLocator): 
       ::AthCommonDataStore<AthCommonMsg<Gaudi::Sequence>> ( name, pSvcLocator)
     {
-      setProperty("Cardinality", 1);
+      StatusCode sc = setProperty("Cardinality", 1);
+      if ( sc.isFailure() ) {
+        throw GaudiException("Failed to set property Cardinality",
+                             "AthLegacySequenceAdapter", sc);
+      }
       m_updateDataHandles =
         std::make_unique<AthenaBaseComps::AthAlgorithmDHUpdate>
         (m_extendedExtraObjects,
