@@ -593,7 +593,29 @@ namespace top {
     while (std::getline(input, line)) {
       std::string newstring(line);
 
-      if (newstring.find("#") != std::string::npos) newstring = newstring.substr(0, newstring.find("#"));
+      // search for '#' character to discard commented-out part of line
+      // however ignore '\#' -- used to be able to type # in our config
+      // and not be recognized as commenting character
+      size_t commentpos = size_t(-1);
+      while (true) {
+        // find next occurence of '#' -- after the already scanned chars
+        commentpos = newstring.find("#", commentpos+1);
+        if (commentpos == std::string::npos)
+          break;
+        if (commentpos == 0) { // the whole line is a comment, to be ignored
+          newstring = "";
+          break;
+        }
+        // if it's '\#', then do not erase this part, but remove the '\'
+        if (newstring.compare(commentpos-1, 1, "\\") == 0) {
+            newstring.erase(commentpos-1, 1);
+            --commentpos; // the position of the '#' shifted after removing '\'
+            continue;
+        } else {
+          newstring = newstring.substr(0, commentpos);
+          break;
+        }
+      }
 
       // remove (multiple) spaces hanging around relevant information
       boost::algorithm::trim_all(newstring);

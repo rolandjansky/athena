@@ -12,6 +12,7 @@
 #include <stdexcept>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #include "TopConfiguration/Tokenize.h"
 
@@ -760,6 +761,9 @@ namespace top {
       // now remove all occurences of '"'
       for (std::string& iname : m_nominalWeightNames) {
         iname.erase(std::remove(iname.begin(), iname.end(), '"'), iname.end());
+        // and check if we have newline characters (some weight have those...)
+        // and parse them properly
+        boost::replace_all(iname, "\\n", "\n");
       }
 
       try {
