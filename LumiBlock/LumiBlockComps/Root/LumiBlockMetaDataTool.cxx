@@ -1,14 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** Modified from @file ReadMeta.cxx
  *  @brief The LumiBlockMetaDataTool reads luminosity metadata from input files and transfers it to output files
  *  @author Marjorie Shapiro <mdshapiro@lbl.gov> based on work from Peter van Gemmeren <gemmeren@anl.gov> 
- *  $Id: LumiBlockMetaDataTool.cxx 783129 2016-11-09 03:47:26Z ssnyder $
  **/
 
-#include "LumiBlockComps/LumiBlockMetaDataTool.h"
+#include "LumiBlockMetaDataTool.h"
 #include "GoodRunsLists/IGoodRunsListSelectorTool.h"
 #include "GoodRunsLists/TGoodRunsListReader.h"
 #include "LumiBlockComps/ILumiCalcSvc.h"
