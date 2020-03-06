@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from D3PDMakerConfig.D3PDMakerFlags           import D3PDMakerFlags
 
@@ -28,7 +28,7 @@ try:
    theemtrackisolationtool.useBremAssoc = True
    ToolSvc+=theemtrackisolationtool
 except Exception:
-   print traceback.format_exc()
+   traceback.print_exc()
 
 # Get BoostedTopD3PDMaker which contains MI filler tools
 import BoostedTopD3PDMaker
