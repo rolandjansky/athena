@@ -1,5 +1,4 @@
 #
-# $Id: PyAlgorithmExample_top.py,v 1.4 2007-04-23 20:12:52 tmaeno Exp $
 # File: PyAlgorithmExample_top.py
 # Created: sss, Apr 2005
 # Purpose: Example of a non-trivial python-based analysis.
@@ -31,9 +30,6 @@ include( "ParticleBuilderOptions/AOD_PoolCnv_jobOptions.py" )
 
 # initialize AnalysisCore
 include ("PyAnalysisCore/InitPyAnalysisCore.py")
-
-# Looad python algorithm code.
-include ("PyAnalysisUtils/AthenaPyAlgorithm.py")
 
 # Load the analysis code.
 include ("PyAnalysisExamples/PyAlgorithmExample.py")
