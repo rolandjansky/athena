@@ -26,7 +26,7 @@
 //bool glb_firstCall = true;
 
 #ifndef FAKEBKGTOOLS_ATLAS_ENVIRONMENT
-  #define declareProperty(n, p, h) ExtraPropertyManager<LhoodMM_tools>::declareProperty(n, &LhoodMM_tools::p, h)
+#define declareProperty(n, p, h) ExtraPropertyManager<LhoodMM_tools>::declareProperty(n, &LhoodMM_tools::p, h)
 #endif
 
 using namespace CP;
@@ -64,7 +64,7 @@ LhoodMM_tools::~LhoodMM_tools() {
 
 FakeBkgTools::Client LhoodMM_tools::clientForDB()
 {
-    return FakeBkgTools::Client::MATRIX_METHOD;
+  return FakeBkgTools::Client::MATRIX_METHOD;
 }
 
 
@@ -138,7 +138,7 @@ void LhoodMM_tools::reset() {
     m_nrf_mat_vec[ilep] = std::shared_ptr<TMatrixT<double>>(std::make_shared<TMatrixT<double>>(0x1 << (ilep+1),1) );
     m_MMmatrix_vec[ilep] =  std::shared_ptr<TMatrixT<double>>(std::make_shared<TMatrixT<double>> ((0x1 << (ilep+1)),(0x1 << (ilep+1))));
     m_ntlpred_vec[ilep] = std::shared_ptr<TMatrixT<double>>(std::make_shared< TMatrixT<double>>(0x1 << (ilep+1),1));
-   }
+  }
 
   m_lastSaveIndex = 0;
 
@@ -213,10 +213,10 @@ StatusCode LhoodMM_tools::register2DHistogram(TH2* h2, const float *xval, const 
 } 
 
 StatusCode LhoodMM_tools::addEventCustom(const std::vector<bool>& isTight_vals,
-                 const std::vector<Efficiency>& realEff_vals,
-                 const std::vector<Efficiency>& fakeEff_vals,
-                 const std::vector<int>& charges,
-                 float extraweight) {
+					 const std::vector<Efficiency>& realEff_vals,
+					 const std::vector<Efficiency>& fakeEff_vals,
+					 const std::vector<int>& charges,
+					 float extraweight) {
 
   if (extraweight > m_maxWeight) m_maxWeight = extraweight;
 
@@ -263,14 +263,14 @@ StatusCode LhoodMM_tools::addEventCustom() {
         {
 	  ATH_MSG_DEBUG("real eff uncertainties for first lepton are " <<  kv.second.up << " " << kv.second.down);
         }
-for(const std::pair<short unsigned int, FakeBkgTools::Uncertainty> kv : p.fake_efficiency.uncertainties)
+      for(const std::pair<short unsigned int, FakeBkgTools::Uncertainty> kv : p.fake_efficiency.uncertainties)
         {
 	  ATH_MSG_DEBUG("fake eff uncertainties for first lepton are " <<  kv.second.up << " " << kv.second.down);
         }
     }
     charges.push_back(p.charge);
     if ( r_eff < 0.01 && f_eff< 0.01) {
-       ATH_MSG_DEBUG("Found bad efficiency values");
+      ATH_MSG_DEBUG("Found bad efficiency values");
     }
   }
   
@@ -298,27 +298,27 @@ StatusCode LhoodMM_tools::getTotalYield(float& yield, float& statErrUp, float& s
 
   bool atLeastOneValid = false;
   for(unsigned n=1;n<=FakeBkgTools::maxParticles();++n)
-  {
-    std::string error;
-    FakeBkgTools::FinalState fs(1234, n, m_selection, m_process, error);
-    if(error.length()) {
-      if(!atLeastOneValid && n==FakeBkgTools::maxParticles()) {
-	ATH_MSG_ERROR(error); // if they all failed
-	return StatusCode::FAILURE;
+    {
+      std::string error;
+      FakeBkgTools::FinalState fs(1234, n, m_selection, m_process, error);
+      if(error.length()) {
+	if(!atLeastOneValid && n==FakeBkgTools::maxParticles()) {
+	  ATH_MSG_ERROR(error); // if they all failed
+	  return StatusCode::FAILURE;
+	}
+	continue;
       }
-      continue;
+      atLeastOneValid = true;
+      for(unsigned c=0;c<(1u<<n);++c) // loop on all possible n-particles tight/loose combinations; there are 2^n of them
+	{
+	  if(!fs.selection[c]) continue; // check if that particular combination is among the ones allowed        
+	  unsigned nTight = FakeBkgTools::FSBitset(c).count(); // if yes, count how many tight leptons it contains
+	  if(nTight < minNlep) minNlep = nTight; // minNlep set to "number of tight leptons in the combination with the least number fo tight leptons"
+	  if (nTight > maxNlep) maxNlep = nTight;
+	  inclusive = inclusive || (nTight>minNlep); // inclusive set to "whether there is at least one allowed combination with more tight leptons than the minimum"
+	}
+      reqSameSign = reqSameSign || fs.hasSS(); // this should in principle not be used standalone, but fs.accept() should be used instead
     }
-    atLeastOneValid = true;
-    for(unsigned c=0;c<(1u<<n);++c) // loop on all possible n-particles tight/loose combinations; there are 2^n of them
-      {
-	if(!fs.selection[c]) continue; // check if that particular combination is among the ones allowed        
-	unsigned nTight = FakeBkgTools::FSBitset(c).count(); // if yes, count how many tight leptons it contains
-	if(nTight < minNlep) minNlep = nTight; // minNlep set to "number of tight leptons in the combination with the least number fo tight leptons"
-	if (nTight > maxNlep) maxNlep = nTight;
-	inclusive = inclusive || (nTight>minNlep); // inclusive set to "whether there is at least one allowed combination with more tight leptons than the minimum"
-      }
-    reqSameSign = reqSameSign || fs.hasSS(); // this should in principle not be used standalone, but fs.accept() should be used instead
-  }
 
   // now check to make sure that minNlep is consistent with the smallest
   // number of fake leptons specified with the process string
@@ -330,25 +330,25 @@ StatusCode LhoodMM_tools::getTotalYield(float& yield, float& statErrUp, float& s
     
     if (success) {
       for(unsigned c=0;c<(1u<<n);++c) // loop on all possible n-particles tight/loose combinations; there are 2^n of them
-    {
-      FakeBkgTools::FSBitset fakes = c;
-      FakeBkgTools::FSBitset reals = 0;
-      FakeBkgTools::FSBitset tights = 0;      
-      for (unsigned ibit = 0; ibit < n; ibit++) {
-        reals.set(ibit, ~fakes[ibit]);
-        tights.set(ibit, 1);
-      }
+	{
+	  FakeBkgTools::FSBitset fakes = c;
+	  FakeBkgTools::FSBitset reals = 0;
+	  FakeBkgTools::FSBitset tights = 0;      
+	  for (unsigned ibit = 0; ibit < n; ibit++) {
+	    reals.set(ibit, ~fakes[ibit]);
+	    tights.set(ibit, 1);
+	  }
 
-      if (fs.accept_process(n, reals, tights) ) {
-        ATH_MSG_VERBOSE("Accepted a process for n = " << n);
-        if(n < minNlep_proc) minNlep_proc = n; // minNlep set to "number of tight leptons in the combination with the least number fo tight leptons"
-        if (n > maxNlep_proc) {
-          maxNlep_proc = n;
-        }
-        ATH_MSG_VERBOSE("maxNlep_proc = " << maxNlep_proc);
-        break;
-      }
-    }
+	  if (fs.accept_process(n, reals, tights) ) {
+	    ATH_MSG_VERBOSE("Accepted a process for n = " << n);
+	    if(n < minNlep_proc) minNlep_proc = n; // minNlep set to "number of tight leptons in the combination with the least number fo tight leptons"
+	    if (n > maxNlep_proc) {
+	      maxNlep_proc = n;
+	    }
+	    ATH_MSG_VERBOSE("maxNlep_proc = " << maxNlep_proc);
+	    break;
+	  }
+	}
     } else {
       ATH_MSG_ERROR("Selection and/or process strings unable to be parsed, or incompatible with each other");
       return StatusCode::FAILURE;
@@ -384,8 +384,8 @@ StatusCode LhoodMM_tools::incrementMatrices(const LhoodMMEvent& mmevt) {
 
   ATH_CHECK(incrementOneMatrixSet(m_global_fitInfo, mmevt));
 
-// increment matrix terms for all registered histograms
-// if size needs to increase, this must be done for all bins...
+  // increment matrix terms for all registered histograms
+  // if size needs to increase, this must be done for all bins...
 
   for (auto map1_iter = m_values_1dhisto_map.begin(); map1_iter != m_values_1dhisto_map.end(); map1_iter++) {
     const float* val = map1_iter->second;
@@ -560,49 +560,6 @@ StatusCode LhoodMM_tools::setup() {
 
   m_current_lhoodMM_tool = this;
 
-  /*  m_maxnlep_loose = 0;
-
-
-  m_coeffs.clear();
-
-  m_coeffs.resize(nLepMax+1);
-
-  m_totEvents = 0;
-
-  m_event_cat.clear();
-  m_event_cat.resize(nLepMax+1);
-
-  m_event_sumw2.clear();
-  m_event_sumw2.resize(nLepMax+1);
-
-  for (int ilep = 0; ilep <= nLepMax; ilep++) {
-    m_event_cat[ilep].clear();
-    m_event_sumw2[ilep].clear();
-    m_eventCount[ilep] = 0;
-    m_coeffs[ilep].clear();
-    m_coeffs[ilep].resize((0x1 << (ilep+1)) );
-    for (int ientry = 0; ientry < (0x1 << (ilep+1)); ientry++) {
-      m_event_cat.at(ilep).push_back(0.);
-      m_event_sumw2.at(ilep).push_back(0.);
-      m_coeffs[ilep][ientry].resize((0x1 << (ilep+1)) );
-      for (int jentry = 0; jentry < (0x1 << (ilep+1)); jentry++) {
-	m_coeffs[ilep][ientry][jentry] =0.;
-      }
-    }
-  }
-
-  float dilep_SSfrac_num = 0, dilep_SSfrac_denom = 0;
-  vector < vector<double> > OSfrac_num;
-  vector < vector <int> >  OSfrac_denom;
-  OSfrac_num.resize(nLepMax+1);
-  OSfrac_denom.resize(nLepMax+1);
-  for (int ilep = 0; ilep <= nLepMax; ilep++) {
-    OSfrac_num[ilep].resize(ilep+1);
-    OSfrac_denom[ilep].resize(ilep+1);
-  }
-
-  m_dilep_SSfrac = dilep_SSfrac_num/dilep_SSfrac_denom;
-  */
   for (int ilep = 0; ilep < m_maxnlep_loose; ilep++) {
     for (int jlep = 0; jlep < ilep; jlep++) {
       if (m_current_fitInfo->OSfrac_denom[ilep][jlep] > 0) {
@@ -625,9 +582,9 @@ double LhoodMM_tools::logPoisson(double obs, double pred) {
 }
 
 #ifdef FAKEBKGTOOLS_ATLAS_ENVIRONMENT
-    #define ASG_MSG_VERBOSE(x) do { if ( m_current_lhoodMM_tool->msgLvl(MSG::VERBOSE)) m_current_lhoodMM_tool->msg(MSG::VERBOSE) <<  x << endmsg; } while(0)
+#define ASG_MSG_VERBOSE(x) do { if ( m_current_lhoodMM_tool->msgLvl(MSG::VERBOSE)) m_current_lhoodMM_tool->msg(MSG::VERBOSE) <<  x << endmsg; } while(0)
 #else
-    #define ASG_MSG_VERBOSE(x) do { if(m_current_lhoodMM_tool->msgLvl(MSG::VERBOSE)) std::cout << x << std::endl; } while (0)      
+#define ASG_MSG_VERBOSE(x) do { if(m_current_lhoodMM_tool->msgLvl(MSG::VERBOSE)) std::cout << x << std::endl; } while (0)      
 #endif
 
 void LhoodMM_tools::fcn_minnlep_maxnlep(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
@@ -734,15 +691,10 @@ void LhoodMM_tools::fcn_nlep(Int_t &npar, Double_t *, Double_t &f, Double_t *par
     }
   }
 
-  //  if (l->m_mmevts_internal.at(nlep-1).size() == 0) {
-  //   f = par[0] + par[1];
-  //  return;
-  // }
-  
   if(verbose) {
     std::string txt = "testing variable transform: angle pars in fcn: ";
     for (int i = 0; i < npar; i++) {
-    txt += std::to_string(par[i]) + " ";
+      txt += std::to_string(par[i]) + " ";
     }
     ASG_MSG_VERBOSE(txt);
   }
@@ -863,9 +815,9 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
   
     for (int icomb = 0; icomb < (0x1 << ilep); icomb++) {
       FakeBkgTools::FSBitset tights(icomb);
-        ATH_MSG_VERBOSE("ilep " << ilep << " (0x1 << ilep) " << std::hex << (0x1 << ilep) << " icomb " << std::hex << icomb << std::dec);
-        ATH_MSG_VERBOSE("tights = " << std::hex << tights << std::dec);
-        ATH_MSG_VERBOSE("charges = " << std::hex << charges << std::dec);
+      ATH_MSG_VERBOSE("ilep " << ilep << " (0x1 << ilep) " << std::hex << (0x1 << ilep) << " icomb " << std::hex << icomb << std::dec);
+      ATH_MSG_VERBOSE("tights = " << std::hex << tights << std::dec);
+      ATH_MSG_VERBOSE("charges = " << std::hex << charges << std::dec);
 
       if (m_fsvec[ilep]->accept_selection(tights, charges)) {
 	int nlep = tights.count();
@@ -883,21 +835,21 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
   for (int  n=m_minnlep;n<=m_maxnlep;++n)  {
     for(unsigned c=0;c<(1u<<n);++c) // loop on all possible n-particles tight/loose combinations; there are 2^n of them
       {
-    FakeBkgTools::FSBitset fakes = c;
-    FakeBkgTools::FSBitset reals = 0;
-    FakeBkgTools::FSBitset tights = 0;      
-    for (int ibit = 0; ibit < n; ibit++) {
-      reals.set(ibit, ~fakes[ibit]);
-      tights.set(ibit, 1);
-    }
-    if (m_fsvec[n-1]->accept_process(n, reals, tights) ) {
-      if(n < minNlep_proc)  minNlep_proc = n; // minNlep set to "number of tight leptons in the combination with the least number fo tight leptons"
-      if (n > maxNlep_proc) {
-        maxNlep_proc = n;
-      }
-      ATH_MSG_VERBOSE("maxNlep_proc = "<< maxNlep_proc);
-      break;
-    }
+	FakeBkgTools::FSBitset fakes = c;
+	FakeBkgTools::FSBitset reals = 0;
+	FakeBkgTools::FSBitset tights = 0;      
+	for (int ibit = 0; ibit < n; ibit++) {
+	  reals.set(ibit, ~fakes[ibit]);
+	  tights.set(ibit, 1);
+	}
+	if (m_fsvec[n-1]->accept_process(n, reals, tights) ) {
+	  if(n < minNlep_proc)  minNlep_proc = n; // minNlep set to "number of tight leptons in the combination with the least number fo tight leptons"
+	  if (n > maxNlep_proc) {
+	    maxNlep_proc = n;
+	  }
+	  ATH_MSG_VERBOSE("maxNlep_proc = "<< maxNlep_proc);
+	  break;
+	}
       }
   }
 
@@ -1163,7 +1115,7 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
 
     // check that MINOS succeeded. If not, fix it...
 
-     if ( *poserr < 1.e-5) {
+    if ( *poserr < 1.e-5) {
       *poserr = fixPosErr(nfake_fit, lhoodFit);
     } 
     if (*negerr > -1.e-5 ) {
@@ -1174,7 +1126,7 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
       *negerr = -nfake_fitErr;
       // prevent negative error from extending below 0
       if (nfake_fit + *negerr < 0.) {
-    *negerr = -nfake_fit;
+	*negerr = -nfake_fit;
       }
     }
 
@@ -1225,8 +1177,8 @@ StatusCode LhoodMM_tools::fillHisto_internal(const std::vector< LhoodMMFitInfo>&
 
   int nbins = h->GetNcells();
 
-   ATH_MSG_VERBOSE("nbins = " << nbins);
-   Double_t nf, poserr, negerr, shift = 0.;
+  ATH_MSG_VERBOSE("nbins = " << nbins);
+  Double_t nf, poserr, negerr, shift = 0.;
 
   for (int ibin = 0; ibin < nbins; ibin++) {
 
@@ -1350,8 +1302,8 @@ void LhoodMM_tools::get_init_pars(vector<double> &init_pars, int nlep) {
     int ifake = 0;
     for (int ipar = m_real_indices[lepidx].size()+1; ipar < (0x1 << nlep); ipar++) {
       init_pars[ipar] = TMath::ACos(TMath::Sqrt(TMath::Max(nrf[m_fake_indices[lepidx][ifake] ], 0.)/(nfakes_std_thisnlep))/sinterm);
-    sinterm *= TMath::Sin(init_pars[ipar]);
-    ifake++;
+      sinterm *= TMath::Sin(init_pars[ipar]);
+      ifake++;
     }
   } else {
     for (int ipar = m_real_indices[lepidx].size()+1; ipar < (0x1 << nlep); ipar++) {
@@ -1384,81 +1336,11 @@ void LhoodMM_tools::get_analytic(vector<double>& nrf, const int nlep) {
 
   int lepidx = nlep-1;
 
-  //  int nevents = m_mmevts_internal.at(nlep-1).size();
-  //ATH_MSG_VERBOSE("nevents = " << nevents);
-
-  //  if (nevents == 0) return;
-
   if (m_current_fitInfo->eventCount[lepidx] == 0) return;
 
   const int rank = 0x1 << nlep;
-  //const int nnormterms = pow(4, nlep);
 
-  
-  //std::vector<std::vector<double>> coeff(rank, vector<double> (rank));
-  //std::vector<std::vector<double>> coeff_num(rank, vector<double> (rank));
   std::vector<FakeBkgTools::Efficiency> coeff_denom(rank);
-
-  //ATH_MSG_VERBOSE("rank is " << rank);
-
-  //  for (int irf = 0; irf < rank; irf++) {
-  //  coeff_denom[irf] = 0.;
-  //  for (int itl = 0; itl < rank; itl++) {
-  //    coeff_num[irf][itl] = 0.;
-  //  }
-  // }
-
-  //ATH_MSG_VERBOSE("Initialized coeff numerator and denominator vectors");
-
-  //std::vector<double> normterms(nnormterms);
-  // for (int inorm = 0; inorm < nnormterms; inorm++) {
-  //  normterms[inorm] = 0.;
-  //}
-
-  //ATH_MSG_VERBOSE("initialized normterm vector");
-
-
-  //for (vector<LhoodMMEvent>::iterator mmevt_iter = m_mmevts_internal.at(nlep-1).begin(); mmevt_iter != m_mmevts_internal.at(nlep-1).end(); mmevt_iter++) {
-
-    
-  //std::vector<std::vector<double>> vals(2, std::vector<double>(nlep));
-  //for (int ilep = 0; ilep < nlep; ilep++) {
-  //  // invert lepton pt ordering here since my notation assigns the LSB to
-  //   // the lowest-pt lepton
-  //  if (m_doFakeFactor) {
-  //	vals[0][nlep-ilep-1] = 1.;
-  //   } else {
-  //	vals[0][nlep-ilep-1] =  (*mmevt_iter).realEff(ilep, this);
-  //    }
-  //    vals[1][nlep-ilep-1] = (*mmevt_iter).fakeEff(ilep, this);
-  //    ATH_MSG_VERBOSE("Real and fake efficiencies for lepton " << ilep << ": " << vals[0][nlep-ilep-1] << " " << vals[1][nlep-ilep-1]);
-  //  }
-
-  //  double curr_coeff_num;
-  //  for (int irf = 0; irf < rank; irf++) {
-  //   for (int itl = 0; itl < rank; itl++) {
-  //	curr_coeff_num = 1.;
-  //     for (int ilep = 0; ilep < nlep; ilep++) {
-  //   if (itl & (0x1 << ilep) ) {
-  //     if (irf & (0x1 << ilep)) {
-  //       curr_coeff_num*=(1.-vals[1][ilep]);
-  //     } else {
-  //       curr_coeff_num*=(1.-vals[0][ilep]);
-  //      }
-  //   } else {
-  //      if (irf & (0x1 << ilep) ) {
-  //        curr_coeff_num*=vals[1][ilep];
-  //     } else {
-  //       curr_coeff_num*=vals[0][ilep];
-  //     }
-  //   }
-  // }
-  // ATH_MSG_VERBOSE("setting normterm " << (itl<<nlep) + irf);
-  // normterms[(itl<<nlep) + irf] += curr_coeff_num;
-  // coeff_num[itl][irf] += curr_coeff_num;
-  //   }
-  // }
-  //}
 
   ATH_MSG_VERBOSE("All set! ");
   
@@ -1486,16 +1368,16 @@ void LhoodMM_tools::get_analytic(vector<double>& nrf, const int nlep) {
       ATH_MSG_VERBOSE("reals "  << reals);
       ATH_MSG_VERBOSE("charges " << charges);
       if (m_fsvec[lepidx]->accept_selection(tights, charges)
-      &&  m_fsvec[lepidx]->accept_process(nlep, reals, tights) ) {
+	  &&  m_fsvec[lepidx]->accept_process(nlep, reals, tights) ) {
 	ATH_MSG_VERBOSE("Accepted in LhoodMM_tools " << irf);
 	ATH_MSG_VERBOSE("index is " << (itl<<nlep) + irf);
 	ATH_MSG_VERBOSE("Adding " << m_current_fitInfo->normterms[lepidx][(itl<<nlep) + irf].value(this) << " to " << irf);
-    // assume that dilepton fakes are evenly split between OS and SS
+	// assume that dilepton fakes are evenly split between OS and SS
 	if (nlep > 2 && tights.count() == 2) {
-      if (m_requireOS || m_requireSS) {
-        chargefactor = 0.5;
-        ATH_MSG_VERBOSE("Setting SSfactor ");
-      }
+	  if (m_requireOS || m_requireSS) {
+	    chargefactor = 0.5;
+	    ATH_MSG_VERBOSE("Setting SSfactor ");
+	  }
 	}
 	if (nlep == 2 && tights.count() == 2) {
 	  if (m_requireOS || m_requireSS) {
@@ -1587,12 +1469,12 @@ void LhoodMM_tools::get_analytic(vector<double>& nrf, const int nlep) {
       tights.set(ibit, 1);
       reals.set(ibit, ~fakes[ibit]);
     }
-      if (m_fsvec[lepidx]->accept_process(nlep, reals, tights) ) {
-	ATH_MSG_VERBOSE("Adding " <<  nfake_mat(ipar,0) << " to m_nfakes_std");
-	n_proc_acc++;
-	m_nfakes_std += nfake_mat(ipar,0);
-	m_nfakes_std_err += nfake_err_mat(ipar, 0);
-      }
+    if (m_fsvec[lepidx]->accept_process(nlep, reals, tights) ) {
+      ATH_MSG_VERBOSE("Adding " <<  nfake_mat(ipar,0) << " to m_nfakes_std");
+      n_proc_acc++;
+      m_nfakes_std += nfake_mat(ipar,0);
+      m_nfakes_std_err += nfake_err_mat(ipar, 0);
+    }
   }
   
   ATH_MSG_VERBOSE("Accepted " << n_proc_acc << " processes for nlep = " << nlep);
@@ -1608,7 +1490,7 @@ double LhoodMM_tools::fixPosErr(double n_fake_fit, TMinuit_LHMM* lhoodFit) {
   Double_t f_from_fit, junk;
   Int_t ijunk;
 
-    // do a binary search to find real value of positive error
+  // do a binary search to find real value of positive error
   double n_fake_guess_hi = TMath::Max(n_fake_fit*5,1.);
   double n_fake_guess_lo = n_fake_fit;
   double n_fake_guess = n_fake_guess_hi;
@@ -1642,8 +1524,8 @@ double LhoodMM_tools::fixPosErr(double n_fake_fit, TMinuit_LHMM* lhoodFit) {
     // fit with n_fake_tot fixed to guess value
     arglist[0] = nfake_tot_index;
     arglist[1] = n_fake_guess;
-     lhoodFit->mnexcm("SET PAR", arglist, 2, ierflg);
-     lhoodFit->mnexcm("FIX PAR", arglist, 1, ierflg);
+    lhoodFit->mnexcm("SET PAR", arglist, 2, ierflg);
+    lhoodFit->mnexcm("FIX PAR", arglist, 1, ierflg);
 
     arglist[0] = 10000;
     arglist[1] = 1.0;
@@ -1670,7 +1552,7 @@ double LhoodMM_tools::fixPosErr(double n_fake_fit, TMinuit_LHMM* lhoodFit) {
       stopSearch = 1;
       ATH_MSG_VERBOSE("(n_fake_guess_lo,  n_fake_fit = " << n_fake_guess_lo << " " <<  n_fake_fit);
       if (n_fake_guess_lo > n_fake_fit) {
-    errFound = 1;
+	errFound = 1;
       }
     
     }
@@ -1736,8 +1618,8 @@ double LhoodMM_tools::fixNegErr(double n_fake_fit, TMinuit_LHMM* lhoodFit) {
     
     arglist[0] = nfake_tot_index;
     arglist[1] = n_fake_guess;
-     lhoodFit->mnexcm("SET PAR", arglist, 2, ierflg);
-     lhoodFit->mnexcm("FIX PAR", arglist, 1, ierflg);
+    lhoodFit->mnexcm("SET PAR", arglist, 2, ierflg);
+    lhoodFit->mnexcm("FIX PAR", arglist, 1, ierflg);
 
     arglist[0] = 10000;
     arglist[1] = 1.0;
@@ -1757,7 +1639,7 @@ double LhoodMM_tools::fixNegErr(double n_fake_fit, TMinuit_LHMM* lhoodFit) {
     if (((n_fake_guess_hi - n_fake_guess_lo)/n_fake_guess_hi < convergeCriteria) || (n_fake_guess_hi < min_n_fake_guess) ) {
       stopSearch = 1;
       if (n_fake_guess_hi < n_fake_fit) {
-    errFound = 1;
+	errFound = 1;
       }
     }
   }
@@ -1781,6 +1663,8 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
 
   ATH_MSG_VERBOSE("Saving progress");
 
+  TClass::GetClass("LhoodMMFitInfo"); 
+
   if (m_prevSave) {
     ATH_MSG_ERROR("Multiple calls to saveProgress are not supported");
     return StatusCode::FAILURE;
@@ -1791,8 +1675,6 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
   TTree *t = new TTree("LhoodMM_progress", "Stores current info from LhoodMM_toos");
   TTree *t_nlep = new TTree("LhoodMM_progress_nlep", "Stores minimum an maximum lepton multiplicities");
   
-  // just try saving a LhoodMMFitInfo...
-  //std::string brName;
   auto fitInfoBranch = t->Branch("glb_fitInfo", &m_global_fitInfo);
   ATH_MSG_VERBOSE("Branch split level is " << fitInfoBranch->GetSplitLevel() );
 
@@ -1847,6 +1729,14 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
     histogram->Reset(); // just want to store empty histograms
     histogram->Write();
 
+    string brNameBase = histogram->GetName();
+    brNameBase += "_";
+    
+    for (int icell = 0; icell < histogram->GetNcells(); icell++) {
+      string brName = brNameBase+std::to_string(icell);
+      ATH_MSG_VERBOSE("saving fitInfo for histogram " << brName.c_str());
+      t->Branch(brName.c_str(), &(map2_iter->second[icell]));
+    }
     auto val_map_iter = m_values_2dhisto_map.find(map2_iter->first);
     h2_valx_addrs.emplace_back(new float);
     h2_valy_addrs.emplace_back(new float);
@@ -1866,69 +1756,6 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
  
   }
 
-/*  for (unsigned ievt = m_lastSaveIndex; ievt< m_eventsTot; ievt++) {
-
-    r_systUID.clear();
-    f_systUID.clear();
-    r_systUp.clear();
-    f_systUp.clear();
-    r_systDown.clear();
-    f_systDown.clear();
-
-    const LhoodMMEvent& m = m_mmevts_total[ievt];
-    nlep = m.nlep();
-    weight = m.weight();
-
-    for (int i = 0; i<nlep; i++) {
-      rnominal[i] = m.realEff(i);
-      fnominal[i] = m.fakeEff(i);
-      tight[i] = m.isTight(i);
-      charge[i] = m.charge(i);
-      const boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty>& r =  m.realEffObj(i).uncertainties;
-      r_systUID.emplace_back(); 
-      r_systUp.emplace_back(); 
-      r_systDown.emplace_back(); 
-      for (const auto& syst : r ) {
-        r_systUID.back().push_back(syst.first);
-        r_systUp.back().push_back(syst.second.up);
-        r_systDown.back().push_back(syst.second.down);
-      }
-
-      const boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty>& f =  m.fakeEffObj(i).uncertainties;
-      f_systUID.emplace_back(); 
-      f_systUp.emplace_back(); 
-      f_systDown.emplace_back(); 
-      for (const auto& syst : f) {
-        f_systUID.back().push_back(syst.first);
-        f_systUp.back().push_back(syst.second.up);
-        f_systDown.back().push_back(syst.second.down);
-      }
-    }
-
-    int ih1var = 0;
-    auto map1_iter = m_mmevts_1dhisto_map.begin();
-    for (; map1_iter != m_mmevts_1dhisto_map.end(); map1_iter++) {
-      float *h1_var_addr = h1_val_addrs[ih1var].get();
-      auto& mmevts_vec = map1_iter->second;
-      *h1_var_addr = mmevts_vec[ievt].aux();
-      ih1var++;
-    }
-
-    int ih2var = 0;
-    auto map2_iter = m_mmevts_2dhisto_map.begin();
-    for (; map2_iter != m_mmevts_2dhisto_map.end(); map2_iter++) {
-      float *h2_varx_addr = h2_valx_addrs[ih2var].get();
-      float *h2_vary_addr = h2_valy_addrs[ih2var].get();
-      auto& mmevts_vec = map2_iter->second;
-      *h2_varx_addr = mmevts_vec[ievt].aux();
-      *h2_vary_addr = mmevts_vec[ievt].aux2();
-      ih2var++;
-    }
-
-    t->Fill();
-  }
-  m_lastSaveIndex = m_mmevts_total.size();
-*/
   ATH_MSG_VERBOSE("Filling tree...");
   t->Fill();
   t_nlep->Fill();
@@ -1942,6 +1769,9 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
 StatusCode LhoodMM_tools::mergeSubJobs() {
 
   ATH_MSG_VERBOSE("Merging sub jobs");
+
+  TClass::GetClass("CP::LhoodMMFitInfo"); 
+
   m_alreadyMerged = true;
   std::string filename = PathResolverFindDataFile(m_progressFileName);
   TFile* fin = new TFile(filename.c_str());
@@ -1958,29 +1788,6 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
 
   std::string prefix = (m_progressFileDirectory.length()? "/" + m_progressFileDirectory + "/" : "");
   
-  /*  fin->cd((prefix + "histos_1d").c_str());
-  TIter nextkey(gDirectory->GetListOfKeys());
-  vector<float*> h1_val_addrs, h2_valx_addrs, h2_valy_addrs;
-  while (TKey* key = (TKey*)nextkey()) {
-    TH1F* h = (TH1F*)key->ReadObj()->Clone();
-    h->SetDirectory(0);
-    float* x = new float;
-    h1_val_addrs.push_back(x);
-    register1DHistogram(h, x);
-  }
-
-  fin->cd((prefix + "histos_2d").c_str());
-  nextkey = gDirectory->GetListOfKeys();
-  while (TKey* key = (TKey*)nextkey()) {
-    TH2F* h = (TH2F*)key->ReadObj()->Clone();
-    h->SetDirectory(0);
-    float* x = new float;
-    float* y = new float;
-    h2_valx_addrs.push_back(x);
-    h2_valx_addrs.push_back(y);
-    register2DHistogram(h, x, y);
-  }
-  */
   TTree *t_nlep = (TTree*)fin->Get((prefix + "LhoodMM_progress_nlep").c_str());
   if (t_nlep == nullptr) {
     ATH_MSG_ERROR("Unable to find LhoodMM_progress_nlep tree in " << filename);
@@ -2011,51 +1818,11 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
   m_maxnlep_loose = merged_maxnlep;
 
   m_global_fitInfo.resizeVectors(m_maxnlep_loose);
-  /*
-  TTreeReader rdr((prefix+"LhoodMM_progress").c_str(), fin);
-  
-  TTreeReaderValue<int> toteventsVal(rdr, "totEvents");
-  TTreeReaderValue<std::vector<int>> eventCountVal(rdr, "eventCount");
-  TTreeReaderValue<std::vector<std::vector<double>>> event_catVal(rdr, "event_cat");
-  TTreeReaderValue<std::vector<std::vector<double>>> event_sumw2Val(rdr, "event_sumw2");
-
-  // for (int ilep = m_minnlep; ilep<=m_maxnlep_loose; ilep++) {
-  for (int ilep = 0; ilep<=m_maxnlep_loose; ilep++) {
-    for (int j = 0; j < (0x1 << ilep); j++) {
-      for (int k = 0; k < (0x1 << ilep); k++) {
-	brName = "coeffs_num_"+std::to_string(ilep)+"_"+std::to_string(j)+"_"+std::to_string(k);
-	t->Branch(brName.c_str(), &m_global_fitInfo.coeffs_num[ilep][j][k].nominal);
-     	brName = "normterms_"+std::to_string(ilep)+"_"+std::to_string((j<<ilep) + k);
-	t->Branch(brName.c_str(), &m_global_fitInfo.normterms[ilep][(j<<ilep)+k].nominal);
-      }
-    }
-  }
-
-  while (rdr.Next()){
-    LhoodMMFitInfo thisFitInfo;
-    thisFitInfo.resizeVectors(m_maxnlep_loose);
-    thisFitInfo.totEvents = *toteventsVal;
-    thisFitInfo.eventCount = *eventCountVal;
-    thisFitInfo.event_cat = *event_catVal;
-    thisFitInfo.event_sumw2 = *event_sumw2Val;
-    // ATH_MSG_VERBOSE("tot events from one file " << thisFitInfo.totEvents);
-    m_global_fitInfo.add(thisFitInfo, m_maxnlep_loose);
-  }
-  
-  ATH_MSG_VERBOSE("Merged totEvents is " << m_global_fitInfo.totEvents);
-  for (int ilep = 0; ilep <= m_maxnlep_loose; ilep++) {
-    ATH_MSG_VERBOSE("Merged  event count is " << m_global_fitInfo.eventCount[ilep]);
-  }
-
-  */
 
   std::unique_ptr<LhoodMMFitInfo> tmpFitInfo(new LhoodMMFitInfo);
-  //LhoodMMFitInfo *tmpFitInfo = nullptr;
+
   tmpFitInfo->resizeVectors(m_maxnlep_loose);
   m_global_fitInfo.resizeVectors(m_maxnlep_loose);
-  // std::vector<int> *in_eventCount = new std::vector<int> ;
-  // std::vector<std::vector<double>> *in_event_cat = new std::vector<std::vector<double>> ;
-  //std::vector<std::vector<double>> *in_event_sumw2 = new std::vector<std::vector<double>>;
   
   LhoodMMFitInfo* fitInfoPtr = tmpFitInfo.get();
   t->SetBranchAddress("glb_fitInfo", &fitInfoPtr );

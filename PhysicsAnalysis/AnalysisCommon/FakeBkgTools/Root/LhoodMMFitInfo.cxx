@@ -6,6 +6,11 @@
 
 using namespace CP;
 
+LhoodMMFitInfo::LhoodMMFitInfo(int nlep) {
+  reset();
+  resizeVectors(nlep);
+}
+
 void LhoodMMFitInfo::reset() {
 
   totEvents = 0;
@@ -26,11 +31,8 @@ void LhoodMMFitInfo::reset() {
 
 void LhoodMMFitInfo::add(LhoodMMFitInfo& rhs, int nLepMax) {
  
-  std::cout << "Just adding some fitinfos" << std::endl;
   totEvents += rhs.totEvents;
  
-  std::cout << "adding ints is easy!" << std::endl;
-
   for (int ilep = 0; ilep < nLepMax; ilep++) {
     eventCount[ilep] += rhs.eventCount[ilep];
   }
@@ -49,12 +51,8 @@ void LhoodMMFitInfo::add(LhoodMMFitInfo& rhs, int nLepMax) {
     
   }
  
- 
-  std::cout << "adding vectors is hard!" << std::endl;
-  
   for (int ilep = 0; ilep <nLepMax; ilep++) {
     for (int jlep = 0; jlep < pow(2,2*(ilep+1)); jlep++) {
-      std::cout << "adding normterms " << ilep << " " << jlep << std::endl;
       normterms[ilep][jlep].add(rhs.normterms[ilep][jlep]);
     }  
   }
@@ -66,15 +64,12 @@ void LhoodMMFitInfo::add(LhoodMMFitInfo& rhs, int nLepMax) {
     }  
   }
 
-  std::cout << "I mean really hard!" << std::endl;
-
 }
 
 void LhoodMMFitInfo::resizeVectors(unsigned nlep) {
 
   // check that we're not being asked to shrink...
   if (nlep < event_cat.size()) {
-    //    ATH_MSG_WARNING("Being asked to shrink vectors in LhoodMMFitInfo; will ignore");
     return;
   }
 

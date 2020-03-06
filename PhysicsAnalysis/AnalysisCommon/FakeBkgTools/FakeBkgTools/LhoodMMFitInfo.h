@@ -5,11 +5,18 @@
 #include <vector>
 #include "FakeBkgTools/FakeBkgInternals.h"
 
+//namespace CP {
+//  class LhoodMM_tools;
+//}
+
 namespace CP
 {
- class  LhoodMMFitInfo{
+  class  LhoodMMFitInfo{
+    
+  public:
+    LhoodMMFitInfo(int nlep = 1);
 
- private:
+  private:
    std::vector< std::vector < std::vector< FakeBkgTools::Efficiency> > > coeffs_num;
    std::vector < std::vector< FakeBkgTools::Efficiency> > normterms;
    std::vector<std::vector<double> > event_cat;
@@ -22,6 +29,7 @@ namespace CP
    void resizeVectors(unsigned nlep);
    void add(LhoodMMFitInfo& rhs, int nLepMax); 
    friend class LhoodMM_tools;
+
  };
 
 }
