@@ -44,10 +44,3 @@ atlas_add_test( SCT_ID_test
                 POST_EXEC_SCRIPT "nopost.sh"                
                 )
 set_target_properties( InDetIdentifier_SCT_ID_test  PROPERTIES ENABLE_EXPORTS True )
-
-
-atlas_add_executable( test_indet_id
-                      test/test_indet_id.cxx
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasDetDescr IdDict Identifier IdDictParser GaudiKernel InDetIdentifier )
-

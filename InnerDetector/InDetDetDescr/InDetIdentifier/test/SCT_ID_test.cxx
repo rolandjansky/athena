@@ -40,7 +40,7 @@ private:
 //
 //would prefer to use a local file in the package
 static const std::string sctDictFilename{"InDetIdDictFiles/IdDictInnerDetector_IBL3D25-03.xml"};
-static const std::string rangeError{"SCT_ID              ERROR  SCT_ID::wafer_id result is NOT ok. ID, range 2/2/10/3/3/1/0 2/2/0/0/0:31/-6:-1/0:1 | 2/2/0/1/0:39/-6:-1/0:1 | 2/2/0/2/0:47/-6:-1/0:1 | 2/2/0/3/0:55/-6:-1/0:1 | 2/2/0/0/0:31/1:6/0:1 | 2/2/0/1/0:39/1:6/0:1 | 2/2/0/2/0:47/1:6/0:1 | 2/2/0/3/0:55/1:6/0:1 | 2/2/-2,2/0:8/0:51/0/0:1 | 2/2/-2,2/0/0:39/1/0:1 | 2/2/-2,2/1:5/0:39/1:2/0:1 | 2/2/-2,2/6:7/0:39/1/0:1\n"};
+static const std::string rangeError{"ERROR SCT_ID::wafer_id_checks  result is NOT ok. ID, range 2/2/10/3/3/1/02/2/0/0/0:31/-6:-1/0:1 | 2/2/0/1/0:39/-6:-1/0:1 | 2/2/0/2/0:47/-6:-1/0:1 | 2/2/0/3/0:55/-6:-1/0:1 | 2/2/0/0/0:31/1:6/0:1 | 2/2/0/1/0:39/1:6/0:1 | 2/2/0/2/0:47/1:6/0:1 | 2/2/0/3/0:55/1:6/0:1 | 2/2/-2,2/0:8/0:51/0/0:1 | 2/2/-2,2/0/0:39/1/0:1 | 2/2/-2,2/1:5/0:39/1:2/0:1 | 2/2/-2,2/6:7/0:39/1/0:1\n"};
 
 BOOST_AUTO_TEST_SUITE(SCT_ID_Test)
   BOOST_AUTO_TEST_CASE(IdentifierMethods){
