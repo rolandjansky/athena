@@ -484,3 +484,4 @@ def exit_banner(gridpack, cross_section, cross_section_error):
   banner += "##                                                                                      ##\n"
   banner += "##########################################################################################\n"
   return(banner)
+
