@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -334,7 +334,8 @@ StatusCode TRTDigitizationTool::lateInitialize() {
 }
 
 //_____________________________________________________________________________
-StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
+StatusCode TRTDigitizationTool::processStraws(const TimedHitCollection<TRTUncompressedHit>& thpctrt,
+                                              std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
                                               CLHEP::HepRandomEngine *rndmEngine,
                                               CLHEP::HepRandomEngine *strawRndmEngine,
                                               CLHEP::HepRandomEngine *elecProcRndmEngine,
@@ -364,7 +365,7 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
 
   // loop over all straws
   TimedHitCollection<TRTUncompressedHit>::const_iterator i, e;
-  while (m_thpctrt->nextDetectorElement(i, e)) {
+  while (thpctrt.nextDetectorElement(i, e)) {
 
     int hitID((*i)->GetHitID()); // Get hitID
 
@@ -547,14 +548,13 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
       ++iColl;
     }
   }
-  m_thpctrt = &thpctrt;
 
   //Set of all hitid's with simhits (used for noise simulation).
   std::set<int> sim_hitids;
   std::set<Identifier> simhitsIdentifiers;
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
-  ATH_CHECK(this->processStraws(sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine,paiRndmEngine));
+  ATH_CHECK(this->processStraws(thpctrt, sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine,paiRndmEngine));
 
   // no more hits
 
@@ -650,7 +650,7 @@ StatusCode TRTDigitizationTool::mergeEvent() {
 
   // Process the Hits straw by straw:
   //   get the iterator pairs for given straw
-  ATH_CHECK(this->processStraws(sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine,paiRndmEngine));
+  ATH_CHECK(this->processStraws(*m_thpctrt, sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine,paiRndmEngine));
 
   delete m_thpctrt;
   std::list<TRTUncompressedHitCollection*>::iterator trtHitColl(m_trtHitCollList.begin());
