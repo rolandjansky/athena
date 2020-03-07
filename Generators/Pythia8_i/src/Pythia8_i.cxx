@@ -323,8 +323,6 @@ StatusCode Pythia8_i::genInitialize() {
   }
 
   StatusCode returnCode = SUCCESS;
-  bool doGuess = m_pythia.settings.word("Merging:process") == "guess";
-  if (doGuess) m_pythia.settings.word("Merging:process","pp>e+e-");
 
   if(canInit){
     canInit = m_pythia.init();
@@ -334,8 +332,6 @@ StatusCode Pythia8_i::genInitialize() {
     returnCode = StatusCode::FAILURE;
     ATH_MSG_ERROR(" *** Unable to initialise Pythia !! ***");
   }
-
-  if (doGuess) m_pythia.settings.word("Merging:process","guess");
 
   m_pythia.particleData.listXML(m_outputParticleDataFile);
 

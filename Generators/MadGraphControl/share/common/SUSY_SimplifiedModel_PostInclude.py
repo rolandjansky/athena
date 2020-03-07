@@ -61,7 +61,7 @@ if not hasattr(runArgs,'inputGeneratorFile') or runArgs.inputGeneratorFile is No
 
 else:
     # These manipulations require a dummy SUSY process
-    from MadGraphControl.MadGraphUtils import new_process,update_lhe_file,add_madspin,arrange_output
+    from MadGraphControl.MadGraphUtils import new_process,update_lhe_file,add_madspin,arrange_output,SUSY_process
     process_dir = new_process(SUSY_process('generate p p > go go'))
     modify_param_card(process_dir=process_dir,params={'MASS':masses,'DECAY':decays})
     param_card_old = process_dir+'/Cards/param_card.dat'

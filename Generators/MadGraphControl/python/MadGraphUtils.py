@@ -1191,12 +1191,14 @@ define susyv~ = sve~ svm~ svt~
 
 def get_SUSY_variations( masses , syst_mod , ktdurham = None ):
     if ktdurham is None:
+        strong_ids = ['1000001','1000002','1000003','1000004','1000005','1000006','2000001','2000002','2000003','2000004','2000005','2000006','1000021']
+        weak_ids = ['1000023','1000024','1000025','1000011','1000013','1000015','2000011','2000013','2000015','1000012','1000014','1000016']
         # First check the lightest of the heavy sparticles - all squarks and gluino
-        my_mass = min([masses[x] for x in ['1000001','1000002','1000003','1000004','1000005','1000006','2000001','2000002','2000003','2000004','2000005','2000006','1000021'] if x in masses])
+        my_mass = min([masses[x] for x in strong_ids if x in masses])
         # Now check if strong production was not the key mode
         if my_mass>10000.:
             # This is a little tricky, but: we want the heaviest non-decoupled mass
-            my_mass = max([masses[x] for x in ['1000023','1000024','1000025','1000011','1000013','1000015','2000011','2000013','2000015','1000012','1000014','1000016'] if x in masses and x<10000.])
+            my_mass = max([masses[x] for x in weak_ids if x in masses and masses[x]<10000.])
         # Final check for N1N1 with everything else decoupled
         if my_mass>10000. and '1000022' in masses:
             my_mass = masses['1000022']
@@ -1231,7 +1233,9 @@ def SUSY_process(process=''):
             if 'import model' in l:
                 full_proc += l+'\n'
                 break
-        full_proc+=helpful_SUSY_definitions()
+        # Only magically add helpful definitions if we are in the right model
+        if 'MSSM_SLHA2' in full_proc:
+            full_proc+=helpful_SUSY_definitions()
         for l in process.split('\n'):
             if 'import model' not in l:
                 full_proc += l+'\n'
