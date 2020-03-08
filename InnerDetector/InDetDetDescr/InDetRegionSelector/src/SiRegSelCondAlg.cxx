@@ -78,18 +78,19 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
 
   /// Since there are only really ~ 10 lines that would be different between the 
   /// SCT and pixel versions of this code, we chose to do everything in one class
-  /// Sadly, the pixel and SCT cabling don't inherit from the same interface so 
-  /// we can't get the cabling using a generic call, and have to have separate 
+  /// Sadly, the pixel and SCT cabling don't inherit from the same interface 
+  /// so we can't get the cabling using a generic call, and have to have separate 
   /// code blocks for each
   /// As such, we need to set the cabling from inside conditional blocks, so have 
   /// to create the cabling as pointers so that we can set inside the blocks and 
   /// subsequently access them outside the blocks 
-  /// NB: since we store the LUT as conditions data, we need an EventIDRange for  
-  ///     the WriteCondHandle, but the SCT cabling is not yet conditions data so
-  ///     have to get the pixelCabling for the SCT case also so that the
-  ///     EventIDRange can be extracted
-  ///     Once the SCT cabling is iself conditions data, we will be able to get
-  ///     the corresponding EventIDRange from there
+
+  /// FIXME: since we store the LUT as conditions data, we need an EventIDRange for  
+  ///        the WriteCondHandle, but the SCT cabling is not yet conditions data so
+  ///        have to get the pixelCabling for the SCT case also so that the
+  ///        EventIDRange can be extracted
+  ///        Once the SCT cabling is iself conditions data, we will be able to get
+  ///        the corresponding EventIDRange from there
 
   std::unique_ptr<SG::ReadCondHandle<PixelCablingCondData> > pixCabling;
 
