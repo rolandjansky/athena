@@ -27,10 +27,12 @@
 //! Constructor
 RegSelTool::RegSelTool( const std::string& type, const std::string& name, const IInterface*  parent )
   :  base_class( type, name, parent ),
+     m_initialised(true),
      m_dumpTable(false)
 {
   //! Declare properties
-  declareProperty( "WriteTable", m_dumpTable,    "write out maps to files for debugging" );
+  declareProperty( "WriteTable",  m_dumpTable,    "write out maps to files for debugging" );
+  declareProperty( "Initialised", m_initialised=true,  "flag to determine whether the corresponding subsystem is initilised" );
 }
 
 
@@ -39,18 +41,22 @@ RegSelTool::~RegSelTool() { }
 
 
 const RegSelSiLUT* RegSelTool::lookup() const {
+  if ( !m_initialised ) return nullptr; 
   SG::ReadCondHandle< RegSelCondData<RegSelSiLUT> > table_handle( m_tableKey ); 
   //  ATH_CHECK( table_handle.isSuccess() );
   const RegSelSiLUT* lookup_table = (*table_handle)->payload();
   return lookup_table;
+    
 }
 
 
 
 
 StatusCode RegSelTool::initialize() {
-  ATH_CHECK( m_tableKey.initialize() );
-  ATH_MSG_INFO( "Initialising " << name() << "\tkey " << m_tableKey );
+  if ( m_initialised ) { 
+    ATH_CHECK( m_tableKey.initialize() );
+    ATH_MSG_INFO( "Initialising " << name() << "\tkey " << m_tableKey );
+  } 
   return StatusCode::SUCCESS;
 }
 
@@ -63,7 +69,7 @@ StatusCode RegSelTool::finalize() {
 
 
 bool RegSelTool::handle() { 
-  return m_initialised = true;
+  return true;
 }
 
 
@@ -71,7 +77,11 @@ bool RegSelTool::handle() {
 // new RegionSelector interface for the Innner Detector 
 
 void RegSelTool::getRoIData( const IRoiDescriptor& roi, std::vector<const RegSelModule*>& modules ) const {
+
   modules.clear();
+
+  if ( !m_initialised ) return; 
+
   RegSelRoI roitmp( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
   const RegSelSiLUT* lookuptable = lookup();
   if ( lookuptable ) lookuptable->getRoIData( roitmp, modules );
@@ -87,6 +97,8 @@ void RegSelTool::getRoIData( const IRoiDescriptor& roi, std::vector<const RegSel
 /// standard roi
 
 void RegSelTool::HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const {
+
+  if ( !m_initialised ) return; 
 
   if ( roi.composite() ) {
     idlist.clear();
@@ -108,6 +120,8 @@ void RegSelTool::HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHa
 /// standard roi for specific layer
 
 void RegSelTool::HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const {
+
+  if ( !m_initialised ) return; 
 
   if ( roi.composite() ) { 
     idlist.clear();
@@ -137,6 +151,8 @@ void RegSelTool::HashIDList( long layer, const IRoiDescriptor& roi, std::vector<
 
 void RegSelTool::ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const {
 
+  if ( !m_initialised ) return; 
+
   if ( roi.composite() ) { 
     roblist.clear();
     for ( unsigned iroi=roi.size() ; iroi-- ;  )  ROBIDList( *(roi.at(iroi)), roblist );
@@ -157,6 +173,8 @@ void RegSelTool::ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& ro
 /// standard roi for specific layer
 
 void RegSelTool::ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const {
+
+  if ( !m_initialised ) return; 
 
   if ( roi.composite() ) { 
     roblist.clear();

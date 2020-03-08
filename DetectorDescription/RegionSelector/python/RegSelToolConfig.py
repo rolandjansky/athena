@@ -1,34 +1,62 @@
+#
+#   @file    RegSelToolConfig.py
+#
+#            configuration functions for the new RegSelTools 
+#
+#   @author  sutt 
+#
+#   @date    Sun  8 Mar 2020 03:27:57 GMT
+#                 
+#   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration#                 
+#
 
 
-
-
-def makeRegSelTool(detector='Pixel') :
-    
-    from AthenaCommon.AlgSequence import AthSequencer
-    condseq = AthSequencer('AthCondSeq')
-
-    if not hasattr(condseq, 'RegSelCondAlg_'+detector):
-        from InDetRegionSelector.InDetRegionSelectorConf import SiRegSelCondAlg
-        CondAlg = SiRegSelCondAlg( name = ("RegSelCondAlg_"+detector),
-                                        ManagerName = detector,
-                                        PrintTable  = False)    
-        CondAlg.RegSelLUT   = "RegSelLUTCondData_"+detector
-        condseq += CondAlg
-
-    from AthenaCommon.AppMgr import ToolSvc
+def makeRegSelTool(detector='Pixel', enable=True) :
+                
     from RegionSelector.RegionSelectorConf import RegSelTool
-
     tool = RegSelTool(name="RegSelTool_"+detector)
-    tool.RegSelLUT = "RegSelLUTCondData_"+detector
+    
+    # should we enable the look up table access ?
 
+    if ( enable ) :
+
+        # add the lookup table to retrieve
+
+        tool.RegSelLUT = "RegSelLUTCondData_"+detector
+
+
+        # add the conditions algorithm to create the lookup table
+
+        from AthenaCommon.AlgSequence import AthSequencer
+        condseq = AthSequencer('AthCondSeq')
+        
+        if not hasattr(condseq, 'RegSelCondAlg_'+detector):
+            from InDetRegionSelector.InDetRegionSelectorConf import SiRegSelCondAlg
+            CondAlg = SiRegSelCondAlg( name = ("RegSelCondAlg_"+detector),
+                                       ManagerName = detector,
+                                       PrintTable  = False)    
+            CondAlg.RegSelLUT   = "RegSelLUTCondData_"+detector
+            condseq += CondAlg
+    else:
+        # detector not configured so don't enable 
+        # lookup table access
+
+        tool.Initialised = False
+    
+    from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += tool
 
     return tool
 
 
 
-def makeResgSelTool_Pixel() :
-    return makeRegSelTool('Pixel')
+def makeRegSelTool_Pixel() :
+    from AthenaCommon.DetFlags import DetFlags
+    enabled = DetFlags.detdescr.pixel_on()
+    return makeRegSelTool( 'Pixel', enabled )
 
-def makeResgSelTool_SCT() :
-    return makeRegSelTool('SCT')
+
+def makeRegSelTool_SCT() :
+    from AthenaCommon.DetFlags import DetFlags
+    enabled = DetFlags.detdescr.SCT_on()
+    return makeRegSelTool( 'SCT', enabled )
