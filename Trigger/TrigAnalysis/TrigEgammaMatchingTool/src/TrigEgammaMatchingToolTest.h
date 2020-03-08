@@ -12,7 +12,7 @@
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
-#include "TrigEgammaMatchingTool/TrigEgammaMatchingTool.h"
+//#include "TriggerMatchingTool/IMatchingTool.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODMuon/MuonContainer.h"
@@ -33,24 +33,30 @@ namespace Trig{
             /// Athena algorithm's Hooks
             StatusCode  initialize();
             StatusCode  execute();
+
             StatusCode  finalize();
 
+        private: 
 
+            /// Default constructor: 
+            TrigEgammaMatchingToolTest();
 
         private:
-            
-            std::vector<std::string> m_triggerList;
             ToolHandle<Trig::TrigDecisionTool> m_trigdec;
-            ToolHandle<TrigEgammaMatchingTool> m_matchTool;
-            StoreGateSvc * m_storeGate;
+            ToolHandle<ITrigEgammaMatchingTool> m_matchTool;
+            //ToolHandle<IMatchingTool> m_matchTool2;
 
 
+            std::vector<std::string> m_triggerList;
+            std::vector<std::string> m_cmbTriggerList;
+            std::map<std::string,int> m_counterBits;
+            std::map<std::string,int> m_counterCmbMatchBits;
+            std::map<std::string,int> m_counterMatch1Bits;
+            std::map<std::string,int> m_counterMatch2Bits;
+            std::map<std::string,int> m_counterMatch3Bits;
+            std::map<std::string,int> m_counterMatch4Bits;
 
-            TrigEgammaMatchingToolTest();
-            
-            Trig::TrigEgammaMatchingTool *match(){return &*m_matchTool;}
-            
-            void inspect(const std::string, const xAOD::Egamma *);
+            void match(const std::string, const xAOD::Egamma *);
     }; 
 }
 #endif
