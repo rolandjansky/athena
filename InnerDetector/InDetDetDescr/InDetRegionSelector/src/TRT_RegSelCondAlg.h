@@ -1,6 +1,6 @@
 /** emacs: this is -*- c++ -*- **/
 /**
- **   @file    SiRegSelCondAlg.h        
+ **   @file    TRT_RegSelCondAlg.h        
  **                   
  **   @author  sutt
  **   @date    Tue  4 Feb 2020 15:25:00 CET
@@ -8,35 +8,39 @@
  **   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
  
-#ifndef SiRegSelCondAlg_h
-#define SiRegSelCondAlg_h
-
-#include "GaudiKernel/ISvcLocator.h"
+#ifndef TRT_RegSelCondAlg_h
+#define TRT_RegSelCondAlg_h
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_Cabling/ISCT_CablingTool.h"
+
+#include "GaudiKernel/ISvcLocator.h"
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventIDRange.h"
 
+#include "TRT_Cabling/ITRT_CablingSvc.h"
 
 #include "PixelConditionsData/PixelCablingCondData.h"
-#include "StoreGate/ReadCondHandleKey.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
 #include "IRegionSelector/RegSelLUTCondData.h"
 
 #include <string>
 
+#include "TRT_RegSelCondAlg.h"
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 
-class SiRegSelCondAlg : public AthReentrantAlgorithm {
+class TRT_RegSelCondAlg : public AthReentrantAlgorithm {
 
 public:
 
-  SiRegSelCondAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  TRT_RegSelCondAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute (const EventContext& ctx) const override;
@@ -46,10 +50,10 @@ public:
   std::string m_managerName;
   bool        m_printTable;
 
-  /// Sadly the PIxel and SCT cabling are different classes so need both, 
-  /// even if only one is to be used
  
-  ToolHandle<ISCT_CablingTool>  m_sctCablingToolInc; // This class accesses SCT cabling during initialization.
+  ServiceHandle<ITRT_CablingSvc>    m_TRT_IdMapping;
+
+  /// Sadly still load the pixel cabling service to get the EventIDRange
 
   SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey
     {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
@@ -60,4 +64,4 @@ public:
 
 };
 
-#endif // SiRegSelCondAlg_h
+#endif // TRT_RegSelCondAlg_h
