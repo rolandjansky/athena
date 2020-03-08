@@ -227,13 +227,6 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
 
   rd->initialise();
 
-  if ( m_printTable ) rd->write("RegSelLUTTRT");
-
-
-  ATH_MSG_DEBUG( "Initialising new map " );
-
-  rd->initialise();
-
   // write out new new LUT to a file if need be
   if ( m_printTable ) rd->write("RegSelLUT_TRT");
 
