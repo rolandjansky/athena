@@ -99,7 +99,6 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
   if (!manager->isPixel()) { // SCT
     if (m_sctCablingToolInc.retrieve().isFailure()) {
       msg(MSG::ERROR) << "Can't get the SCT_CablingToolInc." << endmsg;
-      std::cout << "SUTT Can't get the SCT_CablingToolInc." << std::endl;
       return StatusCode::FAILURE;
     }
   }
