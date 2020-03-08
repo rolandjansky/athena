@@ -15,16 +15,26 @@
 #include "SpacePointConversionUtils.h"
 #include "IRegionSelector/IRegSelSvc.h"
 
+#include "IRegionSelector/IRegSelTool.h"
+
 #include "TrigSpacePointConversionTool.h"
+
+
 
 TrigSpacePointConversionTool::TrigSpacePointConversionTool(const std::string& t, 
 					     const std::string& n,
-					     const IInterface*  p ) : AthAlgTool(t,n,p),
-								      m_layerNumberTool("TrigL2LayerNumberTool")
-								      {
+					     const IInterface*  p ) : 
+  AthAlgTool(t,n,p),
+  m_layerNumberTool("TrigL2LayerNumberTool"),
+  m_regsel_pix("RegSelTool_Pixel"),
+  m_regsel_sct("RegSel_SCT")
+{
   declareInterface< ITrigSpacePointConversionTool >( this );
 
-  declareProperty( "RegionSelectorService",  m_regionSelectorName = "RegSelSvc" );
+  //  declareProperty( "RegionSelectorService",  m_regionSelectorName = "RegSelSvc" );
+  declareProperty( "RegSel_Pixel",           m_regsel_pix);
+  declareProperty( "RegSel_SCT",             m_regsel_sct);
+
   declareProperty( "DoPhiFiltering",         m_filter_phi = true );
   declareProperty( "UseBeamTilt",            m_useBeamTilt = true );
   declareProperty( "UseNewLayerScheme",      m_useNewScheme = false );
@@ -39,11 +49,14 @@ StatusCode TrigSpacePointConversionTool::initialize() {
 
   ATH_MSG_INFO("In initialize...");
 
-  sc = serviceLocator()->service( m_regionSelectorName, m_regionSelector);
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL("Unable to retrieve RegionSelector Service  " << m_regionSelectorName);
-    return sc;
-  }
+  //  sc = serviceLocator()->service( m_regionSelectorName, m_regionSelector);
+  //  if ( sc.isFailure() ) {
+  //    ATH_MSG_FATAL("Unable to retrieve RegionSelector Service  " << m_regionSelectorName);
+  //    return sc;
+  //  }
+
+  ATH_CHECK(m_regsel_pix.retrieve());
+  ATH_CHECK(m_regsel_sct.retrieve());
 
   sc=m_layerNumberTool.retrieve();
   if(sc.isFailure()) {
@@ -103,9 +116,13 @@ StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& in
   std::vector<IdentifierHash> listOfPixIds;
   std::vector<IdentifierHash> listOfSctIds;
         
-  m_regionSelector->DetHashIDList(PIXEL, internalRoI, listOfPixIds); 
-  m_regionSelector->DetHashIDList(SCT, internalRoI, listOfSctIds); 
+  //  m_regionSelector->DetHashIDList(PIXEL, internalRoI, listOfPixIds); 
+  //  m_regionSelector->DetHashIDList(SCT, internalRoI, listOfSctIds); 
 
+  m_regsel_pix->HashIDList( internalRoI, listOfPixIds );
+  m_regsel_sct->HashIDList( internalRoI, listOfSctIds );
+
+ 
   int offsets[3];
 
   offsets[0] = m_layerNumberTool->offsetEndcapPixels();
