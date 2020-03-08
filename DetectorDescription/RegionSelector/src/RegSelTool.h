@@ -26,7 +26,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 #include "IRegionSelector/RegSelLUTCondData.h"
 

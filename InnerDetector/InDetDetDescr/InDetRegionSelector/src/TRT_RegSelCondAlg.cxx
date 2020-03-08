@@ -168,33 +168,32 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
       double y1 = Belement->strawYPos(theLastStraw);
       double r0 = sqrt(x0*x0 + y0*y0);
       double r1 = sqrt(x1*x1 + y1*y1);
-      phiMin = atan2(y0,x0) - atan2(InnerRadiusOfStraw,r0); // over 0? 
+      phiMin = std::atan2(y0,x0) - std::atan2(InnerRadiusOfStraw,r0); // over 0? 
       while (phiMin >  M_PI)  phiMin -= twoPi; //isnt there a 'mod' operation alternative??
       while (phiMin < -M_PI)  phiMin += twoPi;
-      phiMax = atan2(y1,x1) + atan2(InnerRadiusOfStraw,r1); // over 0?
+      phiMax = std::atan2(y1,x1) + std::atan2(InnerRadiusOfStraw,r1); // over 0?
       while (phiMax >   M_PI) phiMax -= twoPi;
       while (phiMax <  -M_PI) phiMax += twoPi;
       double zmin = Belement->strawZPos(theLastStraw) - Length*0.5;
       double zmax = Belement->strawZPos(theLastStraw) + Length*0.5;
       double rmin = ( r0<r1 ? r0 : r1 ) - InnerRadiusOfStraw;
       double rmax = ( r1>r0 ? r1 : r0 ) + InnerRadiusOfStraw;
-      std::vector<uint32_t> vrob;
-      vrob = m_TRT_IdMapping->getRobID(idelement);  
+      std::vector<uint32_t> vrob = m_TRT_IdMapping->getRobID(idelement);  
       for (unsigned int ii=0 ; ii < vrob.size(); ++ii) { 
         RegSelModule smod( zmin, zmax, rmin, rmax, phiMin, phiMax, idLayerWheel, idSide, vrob[ii], idHash);
         rd->addModule(smod);
       }
     } else {
-      Eelement = manager->getEndcapElement(idSide, idLayerWheel, idStrawLayer, idPhiModule);
+      Eelement  = manager->getEndcapElement(idSide, idLayerWheel, idStrawLayer, idPhiModule);
       idelement = Eelement->identify();
-      int Nstraws = Eelement->getDescriptor()->nStraws();
-      double pitch = Eelement->getDescriptor()->strawPitch();
-      double phi0  = Eelement->getDescriptor()->startPhi();
+      int Nstraws   = Eelement->getDescriptor()->nStraws();
+      double pitch  = Eelement->getDescriptor()->strawPitch();
+      double phi0   = Eelement->getDescriptor()->startPhi();
       double length = Eelement->getDescriptor()->strawLength();
       double radius = Eelement->getDescriptor()->innerRadius ();
       //check the following line, was HepGeom::Point3D<double>
       Amg::Vector3D center = Eelement->transform() * Amg::Vector3D(0,0,0);
-      double dphi = atan2(InnerRadiusOfStraw, radius );
+      double dphi = std::atan2(InnerRadiusOfStraw, radius );
       phiMin = phi0 - dphi;
       while (phiMin >  M_PI)  phiMin -= twoPi;
       while (phiMin < -M_PI) phiMin += twoPi;

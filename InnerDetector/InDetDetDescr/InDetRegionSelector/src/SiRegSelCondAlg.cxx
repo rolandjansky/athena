@@ -60,7 +60,7 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
   ATH_MSG_DEBUG("SiRegSelCondAlg::execute() -- enter -- ");
   
   /// do stuff here ...  
-  if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Creating region selector table " << m_tableKey << endmsg;
+  ATH_MSG_DEBUG( "Creating region selector table " << m_tableKey );
  
   StatusCode sc;
 
@@ -126,7 +126,7 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
 
       IdentifierHash hashId = element->identifyHash();    
       
-      if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "Found element with HashId = " << hashId << endmsg;
+      ATH_MSG_VERBOSE( "Found element with HashId = " << hashId );
    
       // new region selector detector element extent
 
@@ -178,21 +178,19 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
       
       rd->addModule( smod );
       
-      if ( msgLvl(MSG::DEBUG) )   msg(MSG::DEBUG) << smod << endmsg;
+      ATH_MSG_DEBUG( smod );
       
-      if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "      " 
-						    << " robId = " << robId
-						    << " barrelEC = " << barrelEC 
-						    << ", layerDisk = " << layerDisk 
-						    << ", phiMin, phiMax = " << phiMin/CLHEP::degree << " " << phiMax/CLHEP::degree
-						    << ", rMin = " << rMin/CLHEP::mm << " mm, rMax = " << rMax/CLHEP::mm << " mm"  
-						    << endmsg;
-
+      ATH_MSG_VERBOSE( "\t robId = " << robId
+		       << " barrelEC = " << barrelEC 
+		       << ", layerDisk = " << layerDisk 
+		       << ", phiMin, phiMax = " << phiMin/CLHEP::degree << " " << phiMax/CLHEP::degree
+		       << ", rMin = " << rMin/CLHEP::mm << " mm, rMax = " << rMax/CLHEP::mm << " mm" );  
+      
     }
   }
-
-
-  msg(MSG::DEBUG) << " initialising new map " << endmsg;
+  
+  
+  ATH_MSG_DEBUG( " initialising new map " );
 
   rd->initialise();
 
