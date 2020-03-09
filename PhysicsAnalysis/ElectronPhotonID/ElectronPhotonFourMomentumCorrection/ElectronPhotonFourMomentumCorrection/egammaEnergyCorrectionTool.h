@@ -237,6 +237,7 @@ namespace egEnergyCorr {
     es2017_R21_v1,          // Release 21 model July 2018 adding forward, AFII, mc16d/reproc data, new mat syst 
     es2017_R21_ofc0_v1,  // Release 21 model calibration extrapolated for OFC(mu=0), coveering 2015,2016,2017 and 2018 data
     es2018_R21_v0,
+    es2018_R21_v1,     // model with new E1/E2 muon calibration from full run 2 low+high mu data
 
     UNDEFINED
 
