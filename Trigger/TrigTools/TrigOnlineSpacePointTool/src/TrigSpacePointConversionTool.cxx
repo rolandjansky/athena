@@ -26,8 +26,8 @@ TrigSpacePointConversionTool::TrigSpacePointConversionTool(const std::string& t,
 					     const IInterface*  p ) : 
   AthAlgTool(t,n,p),
   m_layerNumberTool("TrigL2LayerNumberTool"),
-  m_regsel_pix("RegSelTool_Pixel"),
-  m_regsel_sct("RegSel_SCT")
+  m_regsel_pix( "RegSelTool/RegSelTool_Pixel", this),
+  m_regsel_sct( "RegSelTool/RegSel_SCT", this)
 {
   declareInterface< ITrigSpacePointConversionTool >( this );
 

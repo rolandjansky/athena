@@ -11,6 +11,7 @@
 #
 
 
+
 def _makeSiRegSelTool(detector, enable) :
                 
     from RegionSelector.RegionSelectorConf import RegSelTool
@@ -43,9 +44,6 @@ def _makeSiRegSelTool(detector, enable) :
 
         tool.Initialised = False
     
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += tool
-
     return tool
 
 
@@ -96,7 +94,4 @@ def makeRegSelTool_TRT() :
 
         tool.Initialised = False
     
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += tool
-
     return tool

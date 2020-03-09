@@ -142,7 +142,10 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
 
   RegSelSiLUT *rd = new RegSelSiLUT(RegSelSiLUT::TRT);
 
-  const double twoPi=2.*M_PI;
+  constexpr double twoPi=2.*M_PI;
+  constexpr double InnerRadiusOfStraw = 2.; //hardcoded. No method? (it will NEVER change anyway)
+
+
   for (unsigned int index = 0; index < maxHash; index++) {
     IdentifierHash idHash = index;
     Identifier id = idHelper->layer_id(idHash);
@@ -154,7 +157,6 @@ StatusCode TRT_RegSelCondAlg::execute(const EventContext& ctx)  const
     const InDetDD::TRT_BarrelElement* Belement = nullptr;
     const InDetDD::TRT_EndcapElement* Eelement = nullptr;
     Identifier idelement;
-    double InnerRadiusOfStraw = 2.; //hardcoded. No method? (it will NEVER change anyway)
     double phiMin,phiMax,rz;    
     if (idHelper->is_barrel(id)) {
       Belement = manager->getBarrelElement(idSide, idLayerWheel, idPhiModule, idStrawLayer);
