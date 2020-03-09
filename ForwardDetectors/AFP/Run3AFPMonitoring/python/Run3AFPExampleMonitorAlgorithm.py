@@ -80,16 +80,17 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     # one might have an array of TH1's such as quantity[etaIndex][phiIndex][layerIndex].
     for alg in [afpSiLayerAlgorithm]:
 
-    # Using a map of groups
-        layerList = ['P0','P1', 'P2', 'P3'] ## TODO XXX adapt to the enum/xAOD namespace names
-        #stationList = ['FarStation','NearStation'] # TODO XXX
-        #sideList = ['Aside' , 'Cside' ]
-	combinedList = [ 0, 1, 2, 3 ]
-        #array = helper.addArray([sideList,stationList,layerList],alg,'AFPSiLayerTool')
-        array = helper.addArray([combinedList,layerList],alg,'AFPSiLayerTool')
-        array.defineHistogram(  'h_hitMap', title='Map of hits', type='TH2F', path='AFPSiLayer', xbins=80,xmin=0.5,xmax=80.5, ybins=336,ymin=0.5,ymax=336.5)
-        #array.defineHistogram('h_hitMap', title='hitmap for {0} {1} Layer {2}', path='Keys/{0}', xmax=3. )
-         array.defineHistogram('h_hitMap', title='hitmap for {0} Layer {1}', path='Keys/{0}', xmax=3. )
+       # Using a map of groups
+       layerList = ['P0','P1', 'P2', 'P3'] ## TODO XXX adapt to the enum/xAOD namespace names
+       #stationList = ['FarStation','NearStation'] # TODO XXX
+       #sideList = ['Aside' , 'Cside' ]        
+       combinedList = [ "farAside", "nearAside" , "nearCside" , "farCside" ]
+
+       #array = helper.addArray([sideList,stationList,layerList],alg,'AFPSiLayerTool')
+       array = helper.addArray([combinedList,layerList],alg,'AFPSiLayerTool')
+       array.defineHistogram(  'h_hitMap', title='Map of hits', type='TH2F', path='AFPSiLayer', xbins=80,xmin=0.5,xmax=80.5, ybins=336,ymin=0.5,ymax=336.5)
+       #array.defineHistogram('h_hitMap', title='hitmap for {0} {1} Layer {2}', path='Keys/{0}', xmax=3. )
+       array.defineHistogram('h_hitMap', title='hitmap for {0} Layer {1}', path='Keys/{0}', xmax=3. )
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
@@ -143,6 +144,6 @@ if __name__=='__main__':
 
     # If you want to turn on more detailed messages ...
     # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
-    cfg.printConfig(withDetails=False) # set True for exhaustive info
+ #   cfg.printConfig(withDetails=False) # set True for exhaustive info
 
-    cfg.run(1000) #use cfg.run(20) to only run on first 20 events
+    cfg.run(10) #use cfg.run(20) to only run on first 20 events

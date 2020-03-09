@@ -6,16 +6,7 @@
 //#include <xAODForward/AFPSiHit.h>
 //#include <xAODForward/AFPSiHitContainer.h>
 #include "StoreGate/ReadHandleKey.h"
-
-/* Old constructor:
-AFPHitsMonitorAlgorithm::AFPHitsMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
-:AthMonitorAlgorithm(name,pSvcLocator)
-,m_doRandom(true)
-{}
-*/
-
-const int s_cNearStationIndex = 2;
-const int s_cFarStationIndex = 3;
+#include "xAODForward/AFPStationID.h"
 
 
 AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
@@ -36,14 +27,7 @@ AFPSiLayerAlgorithm::~AFPSiLayerAlgorithm() {}
 StatusCode AFPSiLayerAlgorithm::initialize() {
     using namespace Monitored;
  
-    std::vector<std::string> layers = { "P0", "P1", "P2", "P3"};
-    std::vector<int> combined = { 0, 1, 2, 3};
-    //std::vector<std::string> stations = { "FarStation" , "NearStation" };
-    //std::vector<std::string> sides = { "Aside" , "Cside" };
-
-
-    //m_HitmapGroups = buildToolMap<std::map<std::string,std::map<std::string,int>>>(m_tools,"AFPSiLayerTool",sides,stations,layers);
-      m_HitmapGroups = buildToolMap<std::map<int,int>>(m_tools,"AFPSiLayerTool",combined,layers);
+    m_HitmapGroups = buildToolMap<std::map<std::string,int>>(m_tools,"AFPSiLayerTool",m_stationnames,m_pixlayers);
 
 //  std::map<std::string,std::map<std::string,int>> <std::map<std::string,int>> 
      // We must declare to the framework in initialize what SG objects we are going to use
@@ -163,36 +147,25 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     nhits = afpHitContainer->size();
     fill("AFPSiLayerTool", lb, nhits);
 
+    auto pixelRowIDChip = Monitored::Scalar<int>("pixelRowIDChip", 0); // Nikola
+    auto pixelColIDChip = Monitored::Scalar<int>("pixelColIDChip", 0); // Nikola
+
     for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
     {
-       //std::cout << hitsItr->stationID() << std::endl;
+      pixelRowIDChip=hitsItr->pixelRowIDChip();
+      pixelColIDChip = hitsItr->pixelColIDChip();
+      std::cout << hitsItr->stationID() << std::endl;
+      std::cout << hitsItr->pixelLayerID() << std::endl;
+	
+      if (hitsItr->stationID()<4 && hitsItr->stationID()>=0 
+	&& hitsItr->pixelLayerID()<4 && hitsItr->pixelLayerID()>=0) 
+      {
+         fill(m_tools[m_HitmapGroups.at( m_stationnames.at(hitsItr->stationID())).at( m_pixlayers.at(hitsItr->pixelLayerID()))] , pixelRowIDChip , pixelColIDChip);
+	}
+else ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
 
-	for ( auto& layer : std::vector<std::string>({"P0","P1", "P2", "P3"}) ) 
-	{
-	switch(hitsItr->stationID())
-	{
-	    case 0:
-		std::cout << "Case 0; Test" << std::endl;
-		fill(m_tools[m_HitmapGroups.at(layer).at(hitsItr)]);
-		break;
-	    case 1:
-		std::cout << "Case 1; Test" << std::endl;
-		fill(m_tools[m_HitmapGroups.at(layer).at(hitsItr)]);
-		break;
-	    case 2:
-		std::cout << "Case 2; Test" << std::endl;
-		fill(m_tools[m_HitmapGroups.at(layer).at(hitsItr)]);
-		break;
-	    case 3:
-		std::cout << "Case 3; Test" << std::endl;
-		fill(m_tools[m_HitmapGroups.at(layer).at(hitsItr)]);		
-		//m_cFarStation.fillHistograms(*hitsItr);
-		break;
-	    default:
-		ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
 	}
-	}
-    }
+    
 /*
     // Filling using a pre-defined map of groups.
     for ( auto& layer : std::vector<std::string>({"layer1","layer2"}) ) {
