@@ -6,7 +6,6 @@
 //-----------------------------------------------------------------------
 
 #include <iostream>
-using namespace std;
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -19,6 +18,8 @@ using namespace std;
 #include "TCanvas.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
+
+using namespace std;
 
 void Make_plots(TString infile_hit, TString infile_truth, TString outfile, bool dofit) {
 
