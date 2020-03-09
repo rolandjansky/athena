@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -84,7 +84,7 @@ StatusCode TileRawChannelMaker::execute() {
 
   if (!digitsContaner.isValid()) {
     ATH_MSG_WARNING( "Can't retrieve TileDigitsContainer '"
-                    << m_digitsContainerKey.key() << "' from TDS" );
+                     << m_digitsContainerKey.key() << "' from TDS" );
 
     return StatusCode::SUCCESS;
   }
@@ -112,7 +112,7 @@ StatusCode TileRawChannelMaker::execute() {
     // Iterate over all sub-algs
     for (ToolHandle<TileRawChannelBuilder>& rawChannelBuilder : m_tileRawChannelBuilderList) {
       // reconstruct all channels in one drawer
-      rawChannelBuilder->build(digitsCollection);
+      ATH_CHECK( rawChannelBuilder->build(digitsCollection) );
     }
 
   }
