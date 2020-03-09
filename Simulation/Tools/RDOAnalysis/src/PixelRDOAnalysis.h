@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -58,6 +58,8 @@ private:
   std::vector<int>* m_etaModule;
   std::vector<int>* m_phiIndex;
   std::vector<int>* m_etaIndex;
+  std::vector<int>* m_isInnermost;
+  std::vector<int>* m_isNextToInnermost;  
   // PixelRDORawData
   std::vector<int>* m_ToT;
   std::vector<int>* m_BCID;
@@ -158,6 +160,12 @@ private:
    
   TH1* m_h_ecPhiIndex_perLayer[33];
   TH1* m_h_ecEtaIndex_perLayer[33];
+  
+  TH1* m_h_PhiIndexInnermost;
+  TH1* m_h_EtaIndexInnermost;
+  
+  TH1* m_h_PhiIndexNextToInnermost;
+  TH1* m_h_EtaIndexNextToInnermost;
 
   TH2* m_h_globalZR;
   TH1* m_h_globalX;

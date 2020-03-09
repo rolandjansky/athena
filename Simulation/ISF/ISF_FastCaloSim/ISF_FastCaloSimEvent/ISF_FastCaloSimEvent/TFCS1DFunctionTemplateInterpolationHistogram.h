@@ -111,18 +111,4 @@ class TFCS1DFunctionInt16Int32InterpolationHistogram: public TFCS1DFunctionTempl
   ClassDef(TFCS1DFunctionInt16Int32InterpolationHistogram,1)  //TFCS1DFunctionInt16Int32InterpolationHistogram
 };
 
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCS1DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,uint8_t,float>+;
-#pragma link C++ class TFCS1DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,uint16_t,float>+;
-#pragma link C++ class TFCS1DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,uint16_t,float>+;
-#pragma link C++ class TFCS1DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,uint32_t,float>+;
-
-#pragma link C++ class TFCS1DFunctionInt8Int8InterpolationHistogram+;
-#pragma link C++ class TFCS1DFunctionInt8Int16InterpolationHistogram+;
-#pragma link C++ class TFCS1DFunctionInt16Int16InterpolationHistogram+;
-#pragma link C++ class TFCS1DFunctionInt16Int32InterpolationHistogram+;
-
-#endif
-
 #endif

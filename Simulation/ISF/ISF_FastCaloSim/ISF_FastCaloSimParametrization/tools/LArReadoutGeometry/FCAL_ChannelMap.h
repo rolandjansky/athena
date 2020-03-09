@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
 // Liquid Argon FCAL detector description package
 // -----------------------------------------
-// Copyright (C) 1998 by ATLAS Collaboration
 //
 //
 // 10-Sep-2000 S.Simion   Handling of the FCAL read-out identifiers
@@ -88,18 +87,18 @@ public:
 		   float x, 
 		   float y, 
 		   int& eta, 
-		   int& phi) const throw (std::range_error);
+		   int& phi) const;
 
     /** For reconstruction, decoding of tile identifiers */
     float x(int isam, 
 	    int eta, 
-	    int phi) const throw(std::range_error) ;
+	    int phi) const;
     float y(int isam, 
 	    int eta, 
-	    int phi) const throw(std::range_error) ;
+	    int phi) const;
 
     void tileSize(int sam, int eta, int phi, 
-		  float& dx, float& dy) const throw(std::range_error) ;
+		  float& dx, float& dy) const;
 
     void tileSize(int isam, int ntubes, float& dx, float& dy) const;
 

@@ -51,7 +51,7 @@ StatusCode NoiseStudy::initialize(){
 	m_inconeEtaPhi = new TH2F("HinconeEtaPhi","HinconeEtaPhi",100,-5,5,64,-M_PI,M_PI);
 	m_outconePt = new TH1F("HoutconePt","HoutconePt",100,0,100);
 	m_outconeEtaPhi = new TH2F("HoutconeEtaPhi","HoutconeEtaPhi",100,-5,5,64,-M_PI,M_PI);
-	m_ntuple = new TNtuple("Hcompare","Hcompare","ev:ID:bcid:bcidNor:ncells:ngains:en1:en2:en3:eta:phi:incone:samp");
+	m_ntuple = new TNtuple("Hcompare","Hcompare","ev:ID:bcid:bcidNor:ncells:ngains:en1:en2:en3:eta:phi:incone:samp:t1:t2");
 	m_noisetuple = new TNtuple("Hnoise","Hnoise","ID:n1:n2:n3:pu:t1:t2:t3:eta:phi:ncells:ngains:samp");
 
 	// for cell <-> SCell comparison
@@ -162,7 +162,7 @@ StatusCode NoiseStudy::execute(){
 	}
         uint32_t lenscellsimple = scellsimple->size();
 	std::vector<uint32_t> scellsimpleID(lenscellsimple);
-	for(int j=0; j<lenscellsimple;j++ ){
+	for(size_t j=0; j<lenscellsimple;j++ ){
 	       scellsimpleID.at(j) = scellsimple->at(j)->ID().get_identifier32().get_compact() ;
 	}
 
@@ -181,8 +181,8 @@ StatusCode NoiseStudy::execute(){
 		if ( cell->caloDDE()->is_tile() ) continue;
 		float pedestalshift = 0.0;
 		if ( m_addBCID ) pedestalshift = m_caloLumiBCIDTool->average(cell,bunch_crossing);
-		int idx = m_schelper->calo_cell_hash( m_scidtool->offlineToSuperCellID ( cell->ID() ) ).value();
-		if ( idx < 0 or idx > lenresimplescells ) { ATH_MSG_DEBUG ("Problems with index : " << cell->ID().get_identifier32().get_compact() << " " << m_scidtool->offlineToSuperCellID ( cell->ID() ) << " " << idx) ; continue; }
+		size_t idx = m_schelper->calo_cell_hash( m_scidtool->offlineToSuperCellID ( cell->ID() ) ).value();
+		if ( idx > lenresimplescells ) { ATH_MSG_DEBUG ("Problems with index : " << cell->ID().get_identifier32().get_compact() << " " << m_scidtool->offlineToSuperCellID ( cell->ID() ) << " " << idx) ; continue; }
 		m_resimplescells[idx]->setEnergy( m_resimplescells[idx]->energy() + cell->energy() + pedestalshift );
 		m_ncells[idx]++;
 		if ( cell->gain() != 0 ) m_ngains[idx]++;
@@ -207,7 +207,7 @@ StatusCode NoiseStudy::execute(){
 		   ele_noise_norm[idx]++;
 		}
 	}
-	for(int idx=0;idx<lenresimplescells;idx++){
+	for(size_t idx=0;idx<lenresimplescells;idx++){
 		if ( ele_noise_norm[idx] != 0 ) {
 	          float sigma = std::sqrt( ele_noise_sigma[idx] ) ;
 	          std::normal_distribution<double> distribution(0.0,sigma);
@@ -216,7 +216,7 @@ StatusCode NoiseStudy::execute(){
 		}
 	}
 	if ( m_first ){
-	for(int i=0;i<m_noise.size();i++){
+	for(size_t i=0;i<m_noise.size();i++){
 	   if ( m_ncells[i] == 0 ) continue;
 	   float inv = 1.0/m_ncells[i];
 	   m_noisetuple->Fill(m_noise[i].id,m_noise[i].elec_hnoise*inv,m_noise[i].elec_mnoise*inv,m_noise[i].elec_lnoise*inv,m_noise[i].pileup*inv,m_noise[i].total_hnoise*inv,m_noise[i].total_mnoise*inv,m_noise[i].total_lnoise*inv,m_resimplescells[i]->eta(), m_resimplescells[i]->phi(), m_ncells[i], m_ngains[i], m_resimplescells[i]->caloDDE()->getSampling() );
@@ -251,21 +251,24 @@ StatusCode NoiseStudy::execute(){
 		}
 		uint32_t ii = scell->ID().get_identifier32().get_compact();
 		const CaloCell* foundOne(0);
-		for(int j=0; j<scellsimple->size();j++ ){
+		for(size_t j=0; j<scellsimple->size();j++ ){
 			if ( ii != scellsimpleID.at(j) ) continue;
 			foundOne = scellsimple->at(j);
 			break;
 		}
 		float energy=0.0;
 		if ( foundOne ) energy = foundOne->energy();
-		for (int i=0;i<lenresimplescells;i++){
+		float time=0.0;
+		if ( foundOne ) time = foundOne->time();
+		for (size_t i=0;i<lenresimplescells;i++){
 			if ( ii != m_resimplescellsID[i] ) continue;
-			m_ntuple->Fill(evt->eventNumber(), ii, (float)bunch_crossing, (float)bunch_crossingNor, m_ncells[i], m_ngains[i], scell->energy(), m_resimplescells[i]->energy(), energy, m_resimplescells[i]->eta(), m_resimplescells[i]->phi(), (int)inconeFinal, m_resimplescells[i]->caloDDE()->getSampling() );
+			m_ntuple->Fill(evt->eventNumber(), ii, (float)bunch_crossing, (float)bunch_crossingNor, m_ncells[i], m_ngains[i], scell->energy(), m_resimplescells[i]->energy(), energy, m_resimplescells[i]->eta(), m_resimplescells[i]->phi(), (int)inconeFinal, m_resimplescells[i]->caloDDE()->getSampling(), scell->time(), time );
+
 			break;
 		   
-		}
+		} // end of the loop to find resimplescells
 		
-	}
+	} // loop over scell
 	
 	return StatusCode::SUCCESS;
 }

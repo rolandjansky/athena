@@ -20,8 +20,4 @@ private:
   ClassDefOverride(TFCSInvisibleParametrization,1)  //TFCSInvisibleParametrization
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSInvisibleParametrization+;
-#endif
-
 #endif

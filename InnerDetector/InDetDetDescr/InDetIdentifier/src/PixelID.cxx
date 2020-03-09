@@ -1194,27 +1194,6 @@ PixelID::test_wafer_packing     (void) const
 }
 
 bool        
-PixelID::is_blayer       (const Identifier& id) const 
-{
-  MsgStream log(m_msgSvc, "PixelID");
-  if(m_msgSvc) log << MSG::WARNING << "PixelID::is_blayer(id) becomes obsolete, use PixelID::is_innermost(id) instead " 
-		   << endmsg;
-  else std::cout << "WARNING : PixelID::is_blayer(id) becomes obsolete, use PixelID::is_innermost(id) instead" 
-		 << std::endl;
-  
-  bool isSLHC = (m_dict && m_dict->m_version.find("SLHC") != std::string::npos); 
-  
-  // Updated definition takes into account upgrade layouts
-  if(is_barrel(id) || isSLHC) {
-    return (0 == layer_disk(id));
-  }
-  else {
-    return (false);
-  }
-  
-}
-
-bool        
 PixelID::is_innermost       (const Identifier& id) const 
 {
   bool isSLHC = (m_dict && m_dict->m_version.find("SLHC") != std::string::npos); 

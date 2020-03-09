@@ -105,8 +105,4 @@ private:
   ClassDefOverride(TFCSLateralShapeParametrizationHitBase,1)  //TFCSLateralShapeParametrizationHitBase
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSLateralShapeParametrizationHitBase+;
-#endif
-
 #endif

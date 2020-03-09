@@ -340,7 +340,7 @@ StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vec
 StatusCode METAlg::Pufit_MET(const xAOD::JGTowerContainer*towers, TString metName, bool useNegTowers){
 
 
-  std::vector<float> EtMiss = Run_PUfit(towers, 3, useNegTowers);
+  std::array<float, 3> EtMiss = Run_PUfit(towers, 3, useNegTowers);
 
   std::shared_ptr<MET> met  = std::make_shared<MET>();
   met->ex=EtMiss[1];

@@ -104,6 +104,8 @@ addTool( "Muon::MuonTruthSummaryTool","MuonTruthSummaryTool")
 
 addTool( "Muon::MuonClusterizationTool","MuonClusterizationTool" )
 
+addTool( "NSWCalibTools.NSWCalibToolsConfig.NSWCalibTool","NSWCalibTool" )
+
 # Set some Muon Properties in the global ResidualPullCalculator
 # Those values should be in the C++ defaults really
 addTool("Trk::ResidualPullCalculator","ResidualPullCalculator",
@@ -227,6 +229,7 @@ if MuonGeometryFlags.hasCSC():
 addTool("MuonRecExample.NSWTools.SimpleMMClusterBuilderTool","SimpleMMClusterBuilderTool")
 addTool("MuonRecExample.NSWTools.UTPCMMClusterBuilderTool","UTPCMMClusterBuilderTool")
 addTool("MuonRecExample.NSWTools.ProjectionMMClusterBuilderTool","ProjectionMMClusterBuilderTool")
+addTool("MuonRecExample.NSWTools.ConstraintAngleMMClusterBuilderTool","ConstraintAngleMMClusterBuilderTool")
 addTool("MuonRecExample.NSWTools.SimpleSTgcClusterBuilderTool","SimpleSTgcClusterBuilderTool")
 
 ################################################################################

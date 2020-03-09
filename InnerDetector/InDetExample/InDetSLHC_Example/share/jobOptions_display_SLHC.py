@@ -18,6 +18,7 @@ globalflags.DataSource='geant4'
 #
 
 DetFlags.detdescr.ID_setOn()
+DetFlags.BCM_setOff()
 DetFlags.detdescr.TRT_setOff()
 
 # Select the geometry version. 

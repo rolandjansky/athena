@@ -153,7 +153,7 @@ const MinBiasPRDAssociation* UnassociatedHitsGetterTool::get (bool /*allowMissin
       }
 
       // count B-Layer unassociated hits
-      if(det->isBlayer()) PRDAssociation->nBlayerUA++;
+      if(det->isInnermostPixelLayer()) PRDAssociation->nBlayerUA++;
     }
   }
 
