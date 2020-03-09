@@ -11,10 +11,19 @@ if( ATLAS_RELEASE_MODE )
    return()
 endif()
 
-#set( PYTHIA8_VERSION 230 )
-#set( PYTHIA8_ROOT    
-# /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/pythia8/${PYTHIA8_VERSION}/${LCG_PLATFORM} )
+set( PYTHIA8_VERSION 244p3 )
+set( PYTHIA8_LCGVERSION 244p3 )
+set( PYTHIA8_ROOT    
+ /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/pythia8/${PYTHIA8_VERSION}/${LCG_PLATFORM} )
+set( PYTHIA8_LCGROOT    ${PYTHIA8_ROOT})
+set( PYTHIA8_LCGVERSION    ${PYTHIA8_ROOT})
 
+# message( INFO " Setting Pythia8 env. variables from External/Pythia8." )
+# set( PYTHIA8_LCGVERSION 301p3 )
+# set( PYTHIA8_LCGROOT    
+#  /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/pythia8/${PYTHIA8_LCGVERSION}/${LCG_PLATFORM} )
+# set( PYTHIA8_VERSION ${PYTHIA8_LCGVERSION})
+# set( PYTHIA8_ROOT    ${PYTHIA8_LCGROOT})
 
 # Find Pythia8:
 find_package( Pythia8 )
