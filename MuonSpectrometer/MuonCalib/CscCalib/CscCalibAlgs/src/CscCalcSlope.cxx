@@ -1139,7 +1139,7 @@ cerr << "done init services" << endl;
       double value = (*resItr)->value();
       std::string idString;
 
-      readCdo->indexToStringId(&m_idHelperSvc->cscIdHelper(), hashId, "CHANNEL", idString);
+      readCdo->indexToStringId(&m_idHelperSvc->cscIdHelper(), hashId, "CHANNEL", idString).ignore();
 
       out << idString << " " << value << "\n";
     }
