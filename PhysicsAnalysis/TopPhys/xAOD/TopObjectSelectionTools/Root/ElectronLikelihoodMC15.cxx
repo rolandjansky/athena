@@ -147,7 +147,7 @@ namespace top {
     //Veto electrons suffering from the 2015+2016/mc16a crack+topocluster association bug
     //See https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/HowToCleanJets2017#EGamma_Crack_Electron_topocluste for details
     if (el.isAvailable<char>("DFCommonCrackVetoCleaning"))
-	if (!int(el.auxdataConst<char>("DFCommonCrackVetoCleaning"))) return false;
+	if (!el.auxdataConst<char>("DFCommonCrackVetoCleaning")) return false;
 
     if (m_vetoCrack && std::fabs(el.caloCluster()->etaBE(2)) > 1.37 &&
         std::fabs(el.caloCluster()->etaBE(2)) < 1.52) return false;
