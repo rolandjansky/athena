@@ -155,9 +155,9 @@ void BTagJetAugmenter::augmentBtagJes(const xAOD::Jet &target,
   if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
   const xAOD::BTagging& btag = *btag_ptr;
 
-  pt_uncalib(btag) = uncalib.pt();
-  eta_uncalib(btag) = uncalib.eta();
-  abs_eta_uncalib(btag) = std::abs(uncalib.eta());
+  m_pt_uncalib(btag) = uncalib.pt();
+  m_eta_uncalib(btag) = uncalib.eta();
+  m_abs_eta_uncalib(btag) = std::abs(uncalib.eta());
 
 }
 

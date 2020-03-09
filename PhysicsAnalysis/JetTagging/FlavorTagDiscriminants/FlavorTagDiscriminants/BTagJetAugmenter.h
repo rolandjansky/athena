@@ -27,9 +27,9 @@ private:
   bool jfIsDefaults(const xAOD::BTagging &btag);
   typedef SG::AuxElement AE;
 
-  AE::Decorator<float> pt_uncalib;
-  AE::Decorator<float> eta_uncalib;
-  AE::Decorator<float> abs_eta_uncalib;
+  AE::Decorator<float> m_pt_uncalib;
+  AE::Decorator<float> m_eta_uncalib;
+  AE::Decorator<float> m_abs_eta_uncalib;
 
   AE::ConstAccessor<std::vector<float> > m_ip2d_weightBOfTracks;
   AE::Decorator<int> m_ip2d_nTrks;
