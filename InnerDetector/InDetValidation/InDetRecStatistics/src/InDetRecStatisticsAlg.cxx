@@ -741,7 +741,7 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
 	  << "\t" << "Secondary (non-primary) end   \t"
 	  << " R > "    << m_minREndSecondary   << "mm or"
 	  << " |z| > "  << m_minREndSecondary   << "mm" << "\n"
-          << "\t" << "DBM                \t"
+          << "\t" << "Forward                \t"
           << "|eta| > " << m_minEtaDBM     << "\n"
 	  << "\t" << "Low prob tracks #1    \t" << "< "               
 	  << m_fakeTrackCut  << " of hits from single Truth Track " 
@@ -795,7 +795,7 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
 
     out << "\n"
         << "----------------------------------------------------------------------------------------------------------------------------------------------------" << "\n"
-        << "  in DBM                   tracks/event  " << track_stummary_type_header << "\n"
+        << "  in FORWARD region        tracks/event  " << track_stummary_type_header << "\n"
         << "----------------------------------------------------------------------------------------------------------------------------------------------------" << "\n";
     printTrackSummary (out, ETA_DBM);
   }
