@@ -183,7 +183,7 @@ class ElectricalConnector(Connector):
         confObj["type"] = str(self.ctype)
         if self.legacy:
             confObj["legacy"] = self.legacy
-        confObj["triggerlines"] = {}
+        confObj["triggerlines"] = odict()
         for fpga in [0,1]:
             fpgas = "fpga%i" % fpga
             confObj["triggerlines"][fpgas] = odict()

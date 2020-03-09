@@ -29,7 +29,7 @@ namespace TrigConf {
       /** Destructor */
       virtual ~Chain();
 
-      virtual std::string className() const;
+      virtual std::string className() const override;
 
       /** Accessor to the chain counter
        *

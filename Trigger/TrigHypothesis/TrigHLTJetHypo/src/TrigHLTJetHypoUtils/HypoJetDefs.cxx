@@ -5,11 +5,14 @@
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
-std::ostream& operator<<(std::ostream& out, const HypoJetVector& hjv){
+std::ostream& operator << (std::ostream& out, const HypoJetVector& hjv) {
   auto hjv_addr = static_cast<const void*>(&hjv);
   out << "HypoJetVector (" << hjv_addr << ")\n";
   for(const auto& j : hjv) {
-    out << static_cast<const void*>(j) << '\n';
+    out << static_cast<const void*>(j)
+	<< " e " << j->e()
+	<< " et " << j->et()
+	<< " eta " << j->eta() << '\n';
   }
   return out;
 }

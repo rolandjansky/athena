@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -92,8 +92,8 @@ BOOST_FIXTURE_TEST_SUITE(TagFunctionsBasicTest , GaudiKernelFixture)
       TagInfo t{};
       const std::string empty{};
       const std::string someTag{"MyTag_6Char"};
-      t.addTag(std::pair<std::string, std::string>(dummyMagicTag,empty));
-      t.addTag(std::pair<std::string, std::string>(trialMagicTag,someTag));
+      t.addTag(std::pair<std::string, std::string>(dummyMagicTag,empty)).ignore();
+      t.addTag(std::pair<std::string, std::string>(trialMagicTag,someTag)).ignore();
       BOOST_TEST_MESSAGE("Calling resolveUsingTagInfo(..) with dummy magic tag should throw (test mode: TagInfo object passed in)");
       BOOST_CHECK_THROW(resolveUsingTagInfo(dummyMagicTag,nullptr, t), std::runtime_error);
       BOOST_TEST(resolveUsingTagInfo(trialMagicTag,nullptr, t) == "MyTag", "resolveUsingTagInfo(..) with magic tag returns valid string (test mode)");

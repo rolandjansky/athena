@@ -52,7 +52,7 @@ EXOT13StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "E
                                                                          expression = expression)
 
 ToolSvc += EXOT13StringSkimmingTool
-print EXOT13StringSkimmingTool
+printfunc (EXOT13StringSkimmingTool)
 
 #=======================================
 # THINNING

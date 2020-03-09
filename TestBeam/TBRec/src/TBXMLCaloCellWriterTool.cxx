@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -418,7 +418,7 @@ TBXMLCaloCellWriterTool::writeRunFiles(const std::string& fileDir,
 		     << std::setw(2)  << std::setfill(' ')    << tileSize 
 		     << std::endl;
 	}
-  this->finalize(thisFileStream);	
+  ATH_CHECK(this->finalize(thisFileStream));
   thisFileStream.close();
 
   return StatusCode::SUCCESS;

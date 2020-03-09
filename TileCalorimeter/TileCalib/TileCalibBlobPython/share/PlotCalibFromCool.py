@@ -664,7 +664,8 @@ elif one_run:
 
 cx = 1600
 cy = 800
-#if label is not None: cy = int(1.05*cy)
+#if label is not None:
+#  cy = int(1.05*cy)
 canv = TCanvas("PlotCalib","plotCalib",0,0,cx,cy)
 
 if opt2d:

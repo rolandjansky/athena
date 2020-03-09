@@ -22,6 +22,7 @@ muonCombinedRecFlags.printSummary = False
 muonCombinedRecFlags.doSiAssocForwardMuons = False
 muonCombinedRecFlags.doStatisticalCombination = False
 muonCombinedRecFlags.doCombinedFit = True
+muonRecFlags.enableErrorTuning = False
 
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 

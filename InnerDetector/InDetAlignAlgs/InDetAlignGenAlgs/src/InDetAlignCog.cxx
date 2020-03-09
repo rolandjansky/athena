@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetAlignCog.cxx
@@ -921,7 +921,7 @@ StatusCode InDetAlignCog::shiftIDbyCog(){
 //=====================================================================
 //  enableCog
 //=====================================================================
-StatusCode InDetAlignCog::enableCoG(Amg::Transform3D & trans,
+void InDetAlignCog::enableCoG(Amg::Transform3D & trans,
                                     bool dotx, bool doty, bool dotz, bool dorx, bool dory, bool dorz){
   ATH_MSG_DEBUG("in enableCoG with decisions " << dotx << doty << dotz << dorx << dory << dorz  );
 
@@ -938,14 +938,12 @@ StatusCode InDetAlignCog::enableCoG(Amg::Transform3D & trans,
   if( !dorz ) g=0.0;
 
   trans = makeAffine3d( a, b, g, vec);
-
-  return StatusCode::SUCCESS;
 }
 
 //=====================================================================
 //  add L1 transformation
 //=====================================================================
-StatusCode InDetAlignCog::addL1(){
+void InDetAlignCog::addL1(){
   ATH_MSG_DEBUG("in addL1... " );
 
 
@@ -961,8 +959,6 @@ StatusCode InDetAlignCog::addL1(){
   
   // substitute the original m_CoG:
   m_CoG = trans;
-
-  return StatusCode::SUCCESS;
 }
 
 //=====================================================================

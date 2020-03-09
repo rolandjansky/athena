@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file TileTPCnv/test/TileHitContainerCnv_p1_test.cxx
@@ -152,7 +152,7 @@ makecont()
 
   for (size_t hash = 0; hash < colls.size(); hash++) {
     if (colls[hash]) {
-      cont->addCollection (colls[hash].release(), hash);
+      cont->addCollection (colls[hash].release(), hash).ignore();
     }
   }
   return cont;
