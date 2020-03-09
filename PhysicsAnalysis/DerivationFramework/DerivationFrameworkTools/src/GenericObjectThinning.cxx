@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -9,11 +9,12 @@
 // Removes all ID tracks which do not pass a user-defined cut
 
 #include "DerivationFrameworkTools/GenericObjectThinning.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
 #include <string>
 
@@ -21,22 +22,13 @@
 DerivationFramework::GenericObjectThinning::GenericObjectThinning(const std::string& t,
                                                                   const std::string& n,
                                                                   const IInterface* p ) :
-AthAlgTool(t,n,p),
-m_thinningSvc("ThinningSvc",n),
+base_class(t,n,p),
 m_parser(0),
 m_selectionString(""),
 m_ntot(0),
-m_npass(0),
-m_SGKey(""),
-m_and(false)
+m_npass(0)
 {
-    declareInterface<DerivationFramework::IThinningTool>(this);
-    //thinning service
-    declareProperty("ThinningService", m_thinningSvc);
-    // logic and selection settings
     declareProperty("SelectionString", m_selectionString);
-    declareProperty("ApplyAnd", m_and);
-    declareProperty("ContainerName", m_SGKey);
 }
 
 // Destructor
@@ -62,10 +54,8 @@ StatusCode DerivationFramework::GenericObjectThinning::initialize()
     }
 
     //check xAOD::InDetTrackParticle collection
-    if (m_SGKey=="") {
-        ATH_MSG_FATAL("No object collection provided for thinning.");
-        return StatusCode::FAILURE;
-    } else {ATH_MSG_INFO("Using " << m_SGKey << "as the source collection");}
+    ATH_CHECK( m_SGKey.initialize (m_streamName) );
+    ATH_MSG_INFO("Using " << m_SGKey << "as the source collection");
         
     return StatusCode::SUCCESS;
 }
@@ -84,13 +74,10 @@ StatusCode DerivationFramework::GenericObjectThinning::finalize()
 // The thinning itself
 StatusCode DerivationFramework::GenericObjectThinning::doThinning() const
 {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     
     // Retrieve main object collection
-    const xAOD::IParticleContainer* particles = evtStore()->retrieve< const xAOD::IParticleContainer >( m_SGKey );
-    if( ! particles ) {
-        ATH_MSG_ERROR ("Couldn't retrieve IParticles with key: " << m_SGKey );
-        return StatusCode::FAILURE;
-    }   
+    SG::ThinningHandle<xAOD::IParticleContainer> particles (m_SGKey, ctx);
  
     // Check the event contains objects
     unsigned int nObjects = particles->size();
@@ -115,18 +102,10 @@ StatusCode DerivationFramework::GenericObjectThinning::doThinning() const
     	}
     }
     // Count the mask
-    for (unsigned int i=0; i<nObjects; ++i) {
-        if (mask[i]) ++m_npass;
-    }
+    m_npass += std::count (mask.begin(), mask.end(), true);
 
-    // Execute the thinning service based on the mask. Finish.
-    IThinningSvc::Operator::Type thinningOperator;
-    if (m_and) thinningOperator = IThinningSvc::Operator::And;
-    else thinningOperator = IThinningSvc::Operator::Or;
-    if (m_thinningSvc->filter(*particles, mask, thinningOperator).isFailure()) {
-      ATH_MSG_ERROR("Application of thinning service failed! ");
-      return StatusCode::FAILURE;
-    }
+    // Execute the thinning based on the mask. Finish.
+    particles.keep (mask);
     
     return StatusCode::SUCCESS;
 }
