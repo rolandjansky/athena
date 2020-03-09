@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopCPTools/TopTauCPTools.h"
@@ -28,6 +28,7 @@ namespace top {
     declareProperty("config", m_config);
 
     declareProperty("TauSmearingTool", m_tauSmearingTool);
+    declareProperty("TauTruthMatchingTool", m_truthMatchingTool);
   }
 
   StatusCode TauCPTools::initialize() {
@@ -322,6 +323,17 @@ namespace top {
       top::check(tauSmearingTool->initialize(), "Failed to initialize");
       m_tauSmearingTool = tauSmearingTool;
     }
+    
+    ///-- Truth matching --///
+    static const std::string tauTruthMatchingName = "TauAnalysisTools::TauTruthMatchingTool";
+    if (asg::ToolStore::contains<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName)) {
+      m_truthMatchingTool = asg::ToolStore::get<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName);
+    } else {
+      TauAnalysisTools::TauTruthMatchingTool* tauMatchingTool = new TauAnalysisTools::TauTruthMatchingTool(tauTruthMatchingName);
+      top::check(tauMatchingTool->initialize(), "Failed to initialize");
+      m_truthMatchingTool = tauMatchingTool;
+    }
+
 
     return StatusCode::SUCCESS;
   }
