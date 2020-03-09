@@ -1,15 +1,12 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* ***********************************************************************************\
  *                                                                      	     *
  *      Name: FFJetSmearingTool_MyExample                                     	     *
- *      Purpose: Example code for FFJetSmearingTool                         	     *
+ *      Purpose: Example code for using the FFJetSmearingTool                  	     *
  *                                                                      	     *
- *  #   Date    Comments                   By                          		     *
- * -- -------- -------------------------- ------------------------------------------ *
- *  1 05/06/19  First Version              A. Prades (alberto.prades.ibanez@cern.ch) * 
 \*************************************************************************************/
 
 //In order to simplify the usage of this example we recomend to set up a run directory as shown in:
@@ -28,18 +25,7 @@
 
 // ROOT
 #include "TFile.h"
-
-
-/*
-#ifdef XAOD_STANDALONE
-#include "xAODRootAccess/Init.h"
-#include "xAODRootAccess/TEvent.h"
-#include "xAODRootAccess/TStore.h"
-#else
-#include "POOLRootAccess/TEvent.h"
-#inclund_of_filesde "StoreGate/StoreGateSvc.h"
-#endif
-*/
+#include "TCanvas.h"
 
 
 //xAOD EDM classes
@@ -57,9 +43,6 @@
 
 //Other includes
 #include "TH1F.h"
-//#include "TCanvas.h"
-//#include "TLegend.h"
-//#include "TF1.h"
 #include "TTree.h"
 
 
@@ -91,16 +74,9 @@ void usage() {
   std::cout << "        --help : To get the help you're reading" << std::endl;
   std::cout << "        --jetColl= : Specify the jet collection (TrimmedLargeR)" << std::endl;
   std::cout << "        --MassDef= : Specify the kind of jet mass used (CALO, TA, Comb)" << std::endl;
-//  std::cout << "        --isMC=FALSE : Specify isMC false for FFJetSmearingTool" << std::endl;
-//  std::cout << "	--The FFJetSmearingTool can only be used to smear and unsmear MC jets" << std::endl;
   std::cout << "        --sample= : Specify input xAOD" << std::endl;
   std::cout << "        Example: FFJetSmearingTool_MyExample  --truth_jetColl=AntiKt10TruthTrimmedPtFrac5SmallR20Jets --reco_jetColl=AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets --MassDef=Comb  --sample=DAOD_JETM6.16317590._000003.pool.root.1  --output=file_name.root --ConfigFile=rel21/Spring2020/FFJetSmearingTool_TestOnly_JMS_JMR.config   --DebugTool=true" << std::endl;
 }
-
-
-
-
-//The matched truth jet function has to be a private function of the tool so the user will not be able to access to it 
 
 
 
@@ -112,7 +88,6 @@ void usage() {
 
 int main(int argc, char* argv[]){
 
-//FFJetSmearingTool test1("FFJetSmearingTool");
 
 
 
@@ -124,7 +99,6 @@ int main(int argc, char* argv[]){
   //---------------------------------------------
   // Declaring input variables with default values
   //---------------------------------------------
-//  std::string isMC = "";
   std::string sample = "";
   std::string truth_jetColl = "";
   std::string reco_jetColl = "";
@@ -161,8 +135,6 @@ int main(int argc, char* argv[]){
 
     if ( opt.find("--MassDef=")   != std::string::npos ) string_kindofmass = v[1];
 
-  //  if ( opt.find("--isMC=")   != std::string::npos ) isMC = v[1];
-
     if ( opt.find("--ConfigFile=")   != std::string::npos ) string_configfile_path = v[1];
 
     if ( opt.find("--DebugTool=")   != std::string::npos ) string_debugtool = v[1];
@@ -187,10 +159,6 @@ int main(int argc, char* argv[]){
     std::cout << "No kind of jet mass specified, exiting" << std::endl;
     return 1;
   }
-//  if(isMC==""){
-//    std::cout << "isData not specified, exiting" << std::endl;
-//    return 1;
-//  }
   if(string_configfile_path==""){
     std::cout << "No ConfigFile specified, exiting" << std::endl;
     return 1;
@@ -203,7 +171,7 @@ int main(int argc, char* argv[]){
     std::cout << "output not specified, exiting" << std::endl;
     return 1;
   }
-std::cout << sample << " " << truth_jetColl << " " << reco_jetColl  << " "/* << isMC*/ << output << " " << string_debugtool  << std::endl;
+std::cout << sample << " " << truth_jetColl << " " << reco_jetColl  << " " << output << " " << string_debugtool  << std::endl;
 
 
 
@@ -227,7 +195,6 @@ if(string_debugtool == "false"){want_to_debug = false;}
   //--------------------
   // Opening input file
   //--------------------
-//sample = "DAOD_JETM6.16317590._000003.pool.root.1";
 
   std::unique_ptr< TFile > ifile( TFile::Open( sample.c_str(), "READ" ) );
 
@@ -251,7 +218,6 @@ if(string_debugtool == "false"){want_to_debug = false;}
   // Call the constructor
   FFJetSmearingTool ffjetsmearingtool(name_FFJetSmearingTool.c_str());
 
-//  (ffjetsmearingtool.setProperty( "TruthJetCollection", truth_jetColl )).ignore();
   (ffjetsmearingtool.setProperty( "MassDef", kindofmass )).ignore();
 
   (ffjetsmearingtool.setProperty( "ConfigFile", string_configfile_path  )).ignore();
@@ -268,16 +234,13 @@ if(string_debugtool == "false"){want_to_debug = false;}
 
 ffjetsmearingtool.setProperty ("OutputLevel", MSG::FATAL);
 
-//ffjetsmearingtool.setProperty ("OutputLevel", MSG::DEBUG);
 if(want_to_debug==true){
 ffjetsmearingtool.setProperty ("OutputLevel", MSG::VERBOSE);
 }
 //***************************************************************** TESTINGGGG**********************
    // Print the recommended systematics
 
-//      const CP::SystematicRegistry& reg = CP::SystematicRegistry::getInstance();
-//   const CP::SystematicSet& recommendedSysts = reg.recommendedSystematics();
-const CP::SystematicSet& recommendedSysts = ffjetsmearingtool.recommendedSystematics();//take the systematics of the FFJETSmearing Tool, not from the tools that my package use
+const CP::SystematicSet& recommendedSysts = ffjetsmearingtool.recommendedSystematics();//take the systematics of the FFJETSmearing Tool
    Info( APP_NAME, "Recommended systematics:" );
    for(auto sysItr = recommendedSysts.begin();
        sysItr != recommendedSysts.end(); ++sysItr){
@@ -359,10 +322,6 @@ for (auto sys : recommendedSysts) { sysList.push_back(CP::SystematicSet({sys}));
 	
 
 
-
-//ffjetsmearingtool.applySystematicVariation
-
-
 //**************************************************************************************
 
 
@@ -381,6 +340,28 @@ for (auto sys : recommendedSysts) { sysList.push_back(CP::SystematicSet({sys}));
 
 
 
+
+
+
+	int upperlimit1 = 600;
+	int upperlimit2 = 1000;
+
+	int numBinsMass = 120;
+	int numBinsPt = 100;
+
+//numBinsMass = 12;
+//numBinsPt = 10;
+
+    TH3F* hist_jet_mass_scale_change_3D    = new TH3F ("hist_jet_mass_scale_change_3D","hist_jet_mass_scale_change_3D",numBinsPt,0,upperlimit2/*pt*/,numBinsMass,0,upperlimit1/*mass*/,numBinsMass,0,upperlimit1/*mass*/);
+
+
+float lowerlimit3 = -0.5;
+float upperlimit3 = 0.5;
+int numBinsDiff = 100;
+
+
+
+    TH3F* hist_jet_mass_resolution_change_3D    = new TH3F ("hist_jet_mass_resolution_change_3D","hist_jet_mass_resolution_change_3D",numBinsPt,0,upperlimit2/*pt*/,numBinsMass,0,upperlimit1/*mass*/,numBinsDiff,lowerlimit3,upperlimit3/*mass*/);
 
 
 
@@ -424,7 +405,6 @@ if(want_to_debug==true){
 
     // Get the truth jets from the event
     const xAOD::JetContainer* jets_truth = 0;
-//    CHECK( event.retrieve(jets_truth, "AntiKt4LCTopoJets") );
     CHECK( event.retrieve(jets_truth, "AntiKt10TruthTrimmedPtFrac5SmallR20Jets") );
 if(want_to_debug==true){
     Info(APP_NAME, "Number of truth jets: %i",
@@ -441,13 +421,6 @@ if(want_to_debug==true){
       Info(APP_NAME, "Truth Jet: pt = %g, mass = %g, eta = %g", jet_truth->pt()/1000., jet_truth->m()/1000., jet_truth->eta());
 }
 
-/* Test the LargeR jet label tagging for truth jets
-    CHECK( m_TaggerForJES->decorateTruthLabel(*jet_truth));// , "Failed to do truth labeling for large-R jet" 
-FatjetTruthLabel::TypeEnum jetTruthLabel;
-    static const SG::AuxElement::ConstAccessor<int> accTruthLabel("FatjetTruthLabel");
-    jetTruthLabel = FatjetTruthLabel::intToEnum(accTruthLabel(*jet_truth));
-asg::msgUserCode::ATH_MSG_WARNING("Funcionaaaaaa en util truth! Soy un jet " << jetTruthLabel);
-*/
 
     }
 
@@ -474,11 +447,6 @@ if(want_to_debug==true){
       //Give a TruthLabel to the LargeRJets. ou will need it in the FFSmearingTool (you need to know the jet topology) (JetUncertainties also used this)
       //
      CHECK( m_TaggerForJES->decorateTruthLabel(*jet_reco) );// , "Failed to do truth labeling for large-R jet" 
-     //To test if it works:
-     	//FatjetTruthLabel::TypeEnum jetTruthLabel;
-     	//static const SG::AuxElement::ConstAccessor<int> accTruthLabel("FatjetTruthLabel");
-     	//jetTruthLabel = FatjetTruthLabel::intToEnum(accTruthLabel(*jet_reco));
-     	//asg::msgUserCode::ATH_MSG_WARNING("Funcionaaaaaa en util reco! Soy un jet " << jetTruthLabel);
 
     }
 
@@ -506,10 +474,7 @@ if(want_to_debug==true){
 
 
 	//Calibrate the jet. This step is necessary to extract the CALO and TA mass inside the tool later (if we are talking about a combined mass jet)
-	//Info(APP_NAME, "Reco Jet: pt = %g, mass = %g, eta = %g", jet_reco->pt()/1000., jet_reco->m()/1000., jet_reco->eta());
-	//jetCalibrationTool.setProperty ("OutputLevel", MSG::VERBOSE);
 	jetCalibrationTool.applyCalibration( *jet_reco );		
-	        //Info(APP_NAME, "Reco Jet: pt = %g, mass = %g, eta = %g", jet_reco->pt()/1000., jet_reco->m()/1000., jet_reco->eta());	
 //------------------------------------------------------------------------------------------------------------------------------------------//
 //Test how the Calo and TA mass are set in the Combined mass.
 
@@ -562,19 +527,40 @@ if(want_to_debug==true){
 	           continue;            
 	      }
 
-//	      Info(APP_NAME, "Matched truth Jet: pt = %g, mass = %g, eta = %g", jet_truth_matched.pt()/1000., jet_truth_matched.m()/1000., jet_truth_matched.eta());
       
 				if(lead_jet == true){reco_jet_mass_hist->Fill(jet_reco->m()/1000.); matched_truth_jet_mass_hist->Fill(jet_truth_matched.m()/1000.);  }
 
 if(kindofmass=="TA"){
     	CHECK( m_TaggerForJES->decorateTruthLabel(*jet_reco_TA) );// , "Failed to do truth labeling for large-R jet" 
+
+        Double_t aux_original_jet_mass = jet_reco->m()/1000.;
+
 	ffjetsmearingtool.applyCorrection(jet_reco_TA);
-        if(lead_jet == true){smeared_reco_jet_mass_hist->Fill(jet_reco_TA->m()/1000.); lead_jet=false;}
+        if(lead_jet == true && aux_original_jet_mass > 0){
+		smeared_reco_jet_mass_hist->Fill(jet_reco_TA->m()/1000.); lead_jet=false;
+
+		hist_jet_mass_scale_change_3D->Fill(jet_reco->pt()/1000., aux_original_jet_mass, (jet_reco_TA->m()/1000.)/*/(aux_original_jet_mass)*/);
+
+		hist_jet_mass_resolution_change_3D->Fill(jet_reco->pt()/1000., aux_original_jet_mass, (jet_reco_TA->m()/1000.) - (aux_original_jet_mass));
+	}
+
+
 }
-else{ 
+else{
+	Double_t aux_original_jet_mass = jet_reco->m()/1000.;
+ 
 	ffjetsmearingtool.applyCorrection(jet_reco);
-//	      Info(APP_NAME, "Smeared Reco Jet: pt = %g, mass = %g, eta = %g", jet_reco->pt()/1000., jet_reco->m()/1000., jet_reco->eta());
-       	if(lead_jet == true){smeared_reco_jet_mass_hist->Fill(jet_reco->m()/1000.); lead_jet=false; }
+       	if(lead_jet == true && aux_original_jet_mass > 0){
+		smeared_reco_jet_mass_hist->Fill(jet_reco->m()/1000.); lead_jet=false; 
+
+		hist_jet_mass_scale_change_3D->Fill(jet_reco->pt()/1000., aux_original_jet_mass, (jet_reco->m()/1000.)/*/(aux_original_jet_mass)*/);
+
+                hist_jet_mass_resolution_change_3D->Fill(jet_reco->pt()/1000., aux_original_jet_mass, ((jet_reco->m()/1000.) - (aux_original_jet_mass))/ aux_original_jet_mass);
+ //Info(APP_NAME,"diference = %g", (jet_reco->m()/1000.) - (aux_original_jet_mass) );
+	}
+
+
+
 }
 delete jet_reco_TA;
 
@@ -598,6 +584,106 @@ TFile *jetmass_histograms = new TFile(output_path,"recreate"/*"UPDATE"*/);
         reco_jet_mass_hist->Write();
         matched_truth_jet_mass_hist->Write();
         smeared_reco_jet_mass_hist->Write();
+
+
+
+//------------------------------------------------------------------------------------------------------------//
+// 3D plots for testing the JetMassScale and JetMassResolution smearing for each systematic
+
+    TH2F* hist_jet_mass_scale_change_2D = new TH2F("hist_jet_mass_scale_change_2D","hist_jet_mass_scale_change_2D",numBinsPt,0,upperlimit2,numBinsMass,0,upperlimit1);
+
+    for (int i=1; i<=hist_jet_mass_scale_change_3D->GetNbinsX(); i++)
+    {
+      for (int j=1; j<= hist_jet_mass_scale_change_3D->GetNbinsY(); j++)
+      {
+        TH1F* hold = new TH1F("","",numBinsMass,0,upperlimit1);
+        for (int k=1; k<= hist_jet_mass_scale_change_3D->GetNbinsZ(); k++)
+        {
+          hold->SetBinContent(k,hist_jet_mass_scale_change_3D->GetBinContent(i,j,k));                    //Es basicamente una proyeccion en 2D del TH3
+        }
+          hist_jet_mass_scale_change_2D->SetBinContent(i,j,hold->GetMean()/hist_jet_mass_scale_change_3D->GetYaxis()->GetBinCenter(j));
+//                Info(APP_NAME,"meannnnn = %g", hold->GetMean() );
+//                Info(APP_NAME,"binCenter = %g", hist_jet_mass_scale_change_3D->GetYaxis()->GetBinCenter(j) );
+	delete hold;
+      }
+    }
+
+    //hist_jet_mass_scale_change_2D->Smooth(1,"");
+
+    TH2F* hist_jet_mass_resolution_change_2D = new TH2F("hist_jet_mass_resolution_change_2D","hist_jet_mass_resolution_change_2D",numBinsPt,0,upperlimit2,numBinsMass,0,upperlimit1);
+
+    for (int i=1; i<=hist_jet_mass_resolution_change_3D->GetNbinsX(); i++)
+    {
+      for (int j=1; j<= hist_jet_mass_resolution_change_3D->GetNbinsY(); j++)
+      {
+        TH1F* hold = new TH1F("","",numBinsDiff,lowerlimit3,upperlimit3);
+        for (int k=1; k<= hist_jet_mass_resolution_change_3D->GetNbinsZ(); k++)
+        {
+          hold->SetBinContent(k,hist_jet_mass_resolution_change_3D->GetBinContent(i,j,k));                    //Es basicamente una proyeccion en 2D del TH3
+        }
+          hist_jet_mass_resolution_change_2D->SetBinContent(i,j,hold->GetMean()/*/hist_jet_mass_resolution_change_3D->GetYaxis()->GetBinCenter(j)*/);
+//                Info(APP_NAME,"meannnnn = %g", hold->GetMean() );
+//                Info(APP_NAME,"binCenter = %g", hist_jet_mass_scale_change_3D->GetYaxis()->GetBinCenter(j) );
+        delete hold;
+      }
+    }
+
+
+
+
+
+    TCanvas *c1 = new TCanvas("c1","c1",500,500);
+
+
+    hist_jet_mass_scale_change_2D->GetXaxis()->SetTitleOffset(1.5);
+    hist_jet_mass_scale_change_2D->GetXaxis()->SetNdivisions(5);
+    hist_jet_mass_scale_change_2D->GetYaxis()->SetTitleOffset(1.5);
+    hist_jet_mass_scale_change_2D->GetZaxis()->SetTitleOffset(1.5);
+    hist_jet_mass_scale_change_2D->GetYaxis()->SetTitle("Initial Reco Mass [GeV]");
+    hist_jet_mass_scale_change_2D->GetXaxis()->SetTitle("Reco p_{T} [GeV]");
+    hist_jet_mass_scale_change_2D->GetZaxis()->SetTitle("Average Mass smearing (Initial_reco_mass/smeared_reco_mass)");
+
+    hist_jet_mass_scale_change_2D->GetZaxis()->SetRangeUser(0.95,1.05);
+
+    //hist_jet_mass_scale_change_2D->GetXaxis()->SetRangeUser(pt_low_bound,pt_up_bound);
+    hist_jet_mass_scale_change_2D->Draw("colz");
+
+	TString output_path_scale_debug = "output/debug_plots/scale_variations/" + sys.name() + "_scaleDebug.pdf"  ;
+
+    c1->Print(output_path_scale_debug);
+
+    TCanvas *c2 = new TCanvas("c2","c2",500,500);
+
+    hist_jet_mass_resolution_change_2D->GetXaxis()->SetTitleOffset(1.5);
+    hist_jet_mass_resolution_change_2D->GetXaxis()->SetNdivisions(5);
+    hist_jet_mass_resolution_change_2D->GetYaxis()->SetTitleOffset(1.5);
+    hist_jet_mass_resolution_change_2D->GetZaxis()->SetTitleOffset(1.5);
+    hist_jet_mass_resolution_change_2D->GetYaxis()->SetTitle("Initial Reco Mass [GeV]");
+    hist_jet_mass_resolution_change_2D->GetXaxis()->SetTitle("Reco p_{T} [GeV]");
+    hist_jet_mass_resolution_change_2D->GetZaxis()->SetTitle("Average Mass smearing (Initial_reco_mass/smeared_reco_mass)");
+
+    hist_jet_mass_resolution_change_2D->GetZaxis()->SetRangeUser(-0.1,0.1);
+
+    hist_jet_mass_resolution_change_2D->Draw("colz");
+
+    TString output_path_resolution_debug = "output/debug_plots/resolution_variations/" + sys.name() + "_resolutionDebug.pdf"  ;
+
+    c2->Print(output_path_resolution_debug);
+
+delete hist_jet_mass_scale_change_3D;
+delete hist_jet_mass_scale_change_2D;
+
+delete hist_jet_mass_resolution_change_3D;
+delete hist_jet_mass_resolution_change_2D;
+
+delete c1;
+delete c2;
+//------------------------------------------------------------------------------------------------------------//
+
+
+
+
+
 
 jetmass_histograms->Close();
 

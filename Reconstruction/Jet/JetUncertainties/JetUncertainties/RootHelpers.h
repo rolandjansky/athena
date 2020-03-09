@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUNCERTAINTIES_ROOTHELPERS_H
@@ -23,10 +23,6 @@ class TAxis;
 
 class RootHelpers 
 {
-
-// Histogram reading helpers
-	//        double readHisto(const double var1, const double var2=0, const double var3=0) const;
-	//        double checkBoundaries(const TAxis* axis, const int numBins, const double valInput) const;
 
         // RootHelper to have a const method for interpolation (why is there not a const version in ROOT???)
 public:

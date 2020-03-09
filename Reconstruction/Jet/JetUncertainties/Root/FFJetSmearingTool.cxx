@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* ***********************************************************************************\
@@ -8,20 +8,17 @@
  *      Purpose: Perform a jet mass smearing using Forward Folding                   *
  *      This tool allow the user to stimate the JMS & JMR systematics uncertainities *
  *                                                                                   *
- *  #   Date    Comments                   By                                        *
- * -- -------- -------------------------- ------------------------------------------ *
- *  1 20/06/19  First Version              A. Prades (alberto.prades.ibanez@cern.ch) * 
- *  2 14/11/19  Final Version		   Clean up of the code. Comb mass implement.*
 \*************************************************************************************/
 
-// System includes
-//#include <cmath>
-//#include <stdexcept>
+/// For information, see the Twiki:
+/// https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/FFJetSmearingTool
+///
+/// If you find any bug, please, contact <alberto.prades.ibanez@cern.ch>
+
 
 // Local includes
 #include "JetUncertainties/FFJetSmearingTool.h"
 
-// Other includes
 
 // Constructor
 FFJetSmearingTool::FFJetSmearingTool(const std::string name/*, std::string truth_jetColl, std::string variation*/)
@@ -64,33 +61,12 @@ StatusCode FFJetSmearingTool::initialize(/*const std::string&*/)
         ATH_MSG_FATAL("No name specified.  Aborting.");
         return StatusCode::FAILURE;
     }
-//    if (m_truth_jetColl == "")
-//    {
-//        ATH_MSG_FATAL("No truth jet Collection specified.  Aborting.");
-//        return StatusCode::FAILURE;
-//    }
     if (m_MassDef == "")
     {
         ATH_MSG_FATAL("No kind of jet mass specified.  Aborting.");
         return StatusCode::FAILURE;
     }
 
-
-
-  // Make sure we have a valid systematic mode
-//  if(m_MassDef != "Calo" && m_MassDef != "TA" && m_MassDef != "Comb"){
-//    ATH_MSG_ERROR("No Systematics associated to this mass definition: " << m_MassDef);
-//    ATH_MSG_ERROR("Should be 'Calo', 'TA' or 'Comb'");
-//    return StatusCode::FAILURE;
-
-//  }
-
-  // Add the affecting systematics to the global registry
-//  CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
-//  if(registry.registerSystematics(*this) != CP::SystematicCode::Ok){
-//    ATH_MSG_ERROR("Unable to register systematics!");
-//    return StatusCode::FAILURE;
-//  }
 
 
 	//reading the config file as in JetUncertaintiesTool
@@ -150,8 +126,6 @@ StatusCode FFJetSmearingTool::initialize(/*const std::string&*/)
       }
 
 
-    // Apply nominal sys config
-//    applySystematicVariation(CP::SystematicSet()).ignore();
 
   // Make sure we have a valid systematic mode
   if(m_MassDef != "Calo" && m_MassDef != "TA" && m_MassDef != "Comb"){
@@ -168,22 +142,6 @@ StatusCode FFJetSmearingTool::initialize(/*const std::string&*/)
     return StatusCode::FAILURE;
   }
 
-/*
-//Jet uncertainties tool to extract the calor weight of the combined mass
-//If the group accepts my method to calculate the weights. We can erase the tool.
-if(m_MassDef=="Comb"){
-	m_jetuncertaintiestool=new JetUncertaintiesTool(("FFJetSmearingTool_JetUncertaintiesTool"));
-
-	m_jetuncertaintiestool->setProperty("JetDefinition","AntiKt10LCTopoTrimmedPtFrac5SmallR20").isFailure();
-	m_jetuncertaintiestool->setProperty("MCType","MC16");
-	m_jetuncertaintiestool->setProperty("ConfigFile","rel21/Summer2019/R10_AllNuisanceParameters.config").isFailure();
-	m_jetuncertaintiestool->setProperty("IsData",false);
-
-	//m_jetuncertaintiestool->setProperty ("OutputLevel", MSG::FATAL);//I do not want to show the user the initialization of JetUncertainties
-
-	m_jetuncertaintiestool->initialize();
-}
-*/
 m_isInit = true;
 
   return StatusCode::SUCCESS;
@@ -313,8 +271,6 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
         	m_TA_ResponseMap->SetDirectory(0);//To keep it open when we close the .root file
 	}
 
-  //  ATH_MSG_VERBOSE(Form("  Calorimeter Mass Response map: \"%s\"",settings.GetValue("CaloResponseMap","")));
-//    ATH_MSG_VERBOSE(Form("  Topology of the Response map: \"%s\"",m_histFileName.Data()));
 
 
 
@@ -336,11 +292,6 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
                 m_Syst_MassDefAffected_map[Syst_Name] = settings.GetValue(prefix+"MassDef","");
                 m_Syst_TopologyAffected_map[Syst_Name] = settings.GetValue(prefix+"Topology","");
 		m_Syst_Affects_JMSorJMR[Syst_Name] = "JMS";
-
-//                ATH_MSG_INFO(Syst_Name);
-//                ATH_MSG_INFO(m_Syst_HistPath_map[Syst_Name]);
-//                ATH_MSG_INFO(m_Syst_MassDefAffected_map[Syst_Name]);
-//                ATH_MSG_INFO(m_Syst_TopologyAffected_map[Syst_Name]);
 
 
 		m_Syst_Hist_map[Syst_Name] = (TH2D*)data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str());
@@ -366,11 +317,6 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
                 m_Syst_MassDefAffected_map[Syst_Name] = settings.GetValue(prefix+"MassDef","");
                 m_Syst_TopologyAffected_map[Syst_Name] = settings.GetValue(prefix+"Topology","");
                 m_Syst_Affects_JMSorJMR[Syst_Name] = "JMR";
-
-//                ATH_MSG_INFO(Syst_Name);
-//                ATH_MSG_INFO(m_Syst_HistPath_map[Syst_Name]);
-//                ATH_MSG_INFO(m_Syst_MassDefAffected_map[Syst_Name]);
-//                ATH_MSG_INFO(m_Syst_TopologyAffected_map[Syst_Name]);
 
 
                 m_Syst_Hist_map[Syst_Name] = (TH2D*)data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str());
@@ -400,7 +346,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
     TString Calo_weight_hist_name = settings.GetValue("CombMassWeightCaloHist","");
     if (Calo_weight_hist_name == "")
     {
-        ATH_MSG_ERROR("Cannot find the hitogram name that contains the Calo weights in the config file");
+        ATH_MSG_ERROR("Cannot find the histogram name that contains the Calo weights in the config file");
         return StatusCode::FAILURE;
     }
 
@@ -638,11 +584,6 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 		return CP::CorrectionCode::Ok;//It exits applyCorrection without performingthe smearing 
 	}
 
-/*        if(jet_reco->pt()/1000. < 200){
-                ATH_MSG_VERBOSE("This jet exceeds the Pt range that the tool allows (Pt>200)");//Outside CaloWeight histogram. Maybe it can be solved in future versions.
-                return CP::CorrectionCode::Ok;
-        }
-*/
 
       //Find matched truth jet
       xAOD::Jet jet_truth_matched;
@@ -676,7 +617,6 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
    double jet_mass_CALO = 0;
    double jet_mass_TA = 0;
    double calo_mass_weight=1; // m_comb = Weight*m_Calo + (1-Weight)*m_TA
-   //double ta_mass_weight= 0;
 
     if(m_MassDef=="Comb"){
 
@@ -725,8 +665,6 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
 	double jetuncertaintiesmap_calo_mass_weight = (1/(aux1*aux1)) /((1/(aux1*aux1))+(1/(aux2*aux2)));
 
-	//ATH_MSG_VERBOSE("Map Calo weight = " << (1/(aux1*aux1)) /((1/(aux1*aux1))+(1/(aux2*aux2)))  );
-	//ATH_MSG_VERBOSE("Map TA weight = " << (1/(aux2*aux2)) /((1/(aux1*aux1))+(1/(aux2*aux2)))  );
 //Map Calo weight gives the same result as JetUncertainties (m_jetuncertaintiestool->getNormalizedCaloMassWeight(*jet_reco);). We have read the same map and apply the same procedure so we end up erasing the dependence in JetUncertainties
 
 
@@ -763,7 +701,6 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
     if(m_MassDef=="Comb" || m_MassDef=="Calo"){
 
-//        if(jet_mass_CALO/1000. > 600 || jet_reco->pt()/1000. < 200 || jet_reco->pt()/1000. > 3000){ 
         if(m_CALO_ResponseMap->GetBinContent(m_CALO_ResponseMap->GetXaxis()->FindBin(jet_reco->pt()/1000.),m_CALO_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.)) == 0){//If we look outside the Th2 histogram, we would obtain a 0 so we apply the nominal response (1)
 		avg_response_CALO=1;
 	}
@@ -774,7 +711,6 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
     if(m_MassDef=="Comb" || m_MassDef=="TA"){
 
-//        if(jet_mass_TA/1000. > 600 || jet_reco->pt()/1000. < 200 || jet_reco->pt()/1000. > 3000){
         if(m_TA_ResponseMap->GetBinContent(m_TA_ResponseMap->GetXaxis()->FindBin(jet_reco->pt()/1000.),m_TA_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.))==0){
 
                 avg_response_TA=1;
@@ -790,7 +726,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 	double JMS; double JMS_err; double JMR; double JMR_err;	
         double scale;
         double resolution;
-//JMS=1.0; JMS_err=0.5; JMR=1; JMR_err=0.0;//to test:
+	//JMS=1.0; JMS_err=0.5; JMR=1; JMR_err=0.0;//to test:
 
 	double smeared_CALO_mass =0;
 	double smeared_TA_mass =0;
@@ -822,31 +758,6 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
 
 
-
-
-
-
-/*	//Old smeared mass. It uses the weights calculated from the original calo and TA jets instead of the weights of the smeared ones 
-	double smeared_mass = calo_mass_weight*smeared_CALO_mass + (1- calo_mass_weight)*smeared_TA_mass;
-
-        ATH_MSG_VERBOSE("Smeared CALO mass " << smeared_CALO_mass);
-        ATH_MSG_VERBOSE("Smeared TA mass " << smeared_TA_mass);
-
-
-       xAOD::JetFourMom_t p4 = jet_reco->jetP4();
-
-       p4 = xAOD::JetFourMom_t(jet_reco->pt(),jet_reco->eta(),jet_reco->phi(),smeared_mass); 
-
-       jet_reco->setJetP4(p4);
-
-	ATH_MSG_VERBOSE("Smeared Reco Jet: pt = " << jet_reco->pt()/1000. << ", mass = " << jet_reco->m()/1000. << ", eta = " << jet_reco->eta());
-*/
-
-
-
-
-
-
 //Recalculate the weights after the smearing
 
 
@@ -858,13 +769,10 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
         xAOD::JetFourMom_t jet_reco_CALO;
         xAOD::JetFourMom_t jet_reco_TA;
-        xAOD::JetFourMom_t jet_reco_Comb;
 
         jet_reco->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo",jet_reco_CALO);
         jet_reco->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA",jet_reco_TA);
-        jet_reco->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCombQCD",jet_reco_Comb);
 
-	       //xAOD::JetiFourMom_t p4 = jet_reco->jetP4();
 
 	xAOD::JetFourMom_t p4_aux;
 
@@ -875,10 +783,6 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
        p4_aux = xAOD::JetFourMom_t(jet_reco_TA.pt(),jet_reco_TA.eta(),jet_reco_TA.phi(),smeared_TA_mass);
        jet_reco_TA = p4_aux;
-
-//        ATH_MSG_VERBOSE("CALO jet mass " << jet_reco_CALO.mass());
-//        ATH_MSG_VERBOSE("TA jet mass " << jet_reco_TA.mass() );
-//        ATH_MSG_VERBOSE("Comb jet mass " << jet_reco_Comb.mass() );
 
 	aux1=FFJetSmearingTool::Read3DHistogram(m_caloMassWeight,jet_reco_CALO.e()/1000.,TMath::Log(jet_reco_CALO.M()/jet_reco_CALO.e()),TMath::Abs(jet_reco_CALO.eta())/*1*/);
 
