@@ -11,7 +11,7 @@
 #
 
 
-def makeRegSelTool(detector='Pixel', enable=True) :
+def _makeSiRegSelTool(detector, enable) :
                 
     from RegionSelector.RegionSelectorConf import RegSelTool
     tool = RegSelTool(name="RegSelTool_"+detector)
@@ -53,13 +53,13 @@ def makeRegSelTool(detector='Pixel', enable=True) :
 def makeRegSelTool_Pixel() :
     from AthenaCommon.DetFlags import DetFlags
     enabled = DetFlags.detdescr.pixel_on()
-    return makeRegSelTool( 'Pixel', enabled )
+    return _makeSiRegSelTool( 'Pixel', enabled )
 
 
 def makeRegSelTool_SCT() :
     from AthenaCommon.DetFlags import DetFlags
     enabled = DetFlags.detdescr.SCT_on()
-    return makeRegSelTool( 'SCT', enabled )
+    return _makeSiRegSelTool( 'SCT', enabled )
 
 
 def makeRegSelTool_TRT() :

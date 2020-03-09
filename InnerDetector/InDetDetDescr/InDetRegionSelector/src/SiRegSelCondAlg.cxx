@@ -35,7 +35,7 @@ SiRegSelCondAlg::SiRegSelCondAlg(const std::string& name, ISvcLocator* pSvcLocat
   m_printTable(false),
   m_sctCablingToolInc("SCT_CablingToolInc")
 { 
-  ATH_MSG_DEBUG( "SiRegSelCondAlg::SiRegSelCondAlg() " << this->name() );
+  ATH_MSG_DEBUG( "SiRegSelCondAlg::SiRegSelCondAlg() " << name );
   declareProperty( "PrintTable",  m_printTable=false );  
   declareProperty( "ManagerName", m_managerName );  
 }
