@@ -28,6 +28,7 @@ find_package( Davix )
 find_package( PNG )
 find_package( BLAS )
 find_package( AIDA )
+find_package( VDT )
 
 # Set up the compilation option(s) for AthGeneration.
 add_definitions( -DGENERATIONBASE )

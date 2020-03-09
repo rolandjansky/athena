@@ -28,11 +28,6 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 
-using namespace Trig;
-
-
-
-
 class TrigEgammaAnalysisBaseTool: public asg::AsgTool, virtual public ITrigEgammaAnalysisBaseTool 
 {
   ASG_TOOL_CLASS(TrigEgammaAnalysisBaseTool, ITrigEgammaAnalysisBaseTool)

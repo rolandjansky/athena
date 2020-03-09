@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ITrigEgammaAnalysisBaseTool_H
@@ -13,7 +13,6 @@
 #include "xAODEgamma/Egamma.h"
 #include <utility>
 
-using namespace Trig;
 
 class ITrigEgammaAnalysisBaseTool : virtual public asg::IAsgTool {
   

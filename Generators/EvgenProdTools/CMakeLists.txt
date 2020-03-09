@@ -36,6 +36,6 @@ atlas_add_component( EvgenProdTools
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.txt )
-
+atlas_install_joboptions( share/common/*.py )
+atlas_install_runtime( share/file/*.txt )
+atlas_install_scripts( scripts/simple_lhe_plotter.py )

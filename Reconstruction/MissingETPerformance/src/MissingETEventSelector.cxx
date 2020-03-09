@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MissingETPerformance/MissingETEventSelector.h"
@@ -185,7 +185,7 @@ StatusCode MissingETEventSelector::retrieveContainers() {
     return StatusCode::FAILURE;
   }
 
-  m_jetVariables->retrieveContainers();
+  ATH_CHECK( m_jetVariables->retrieveContainers() );
 
   return sc;
 }//end retrieveContainers()

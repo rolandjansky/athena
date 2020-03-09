@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -459,7 +459,7 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		    }
 		    if (histo_flag){ 
 		      m_sectorlogicTowerCma_name_list2.push_back(sectorlogic_name+tower_name+cma_name+thr_name); 
-		      bookRPCLV1TriggerRoadHistograms(sectorlogic_name, tower_name, cma_name, thr_name);
+		      ATH_CHECK( bookRPCLV1TriggerRoadHistograms(sectorlogic_name, tower_name, cma_name, thr_name) );
 		    }
         	  
 		    const MuonDQAHistList& hists = m_stationHists.getList( sectorlogic_name );
@@ -611,7 +611,7 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		  }
 		  if (histo_flag){
 		    m_sectorlogicTowerCma_name_list.push_back(sectorlogic_name+tower_name+cma_name);
-		    bookRPCLV1cmatimevschHistograms(sectorlogic_name, tower_name, cma_name);
+		    ATH_CHECK( bookRPCLV1cmatimevschHistograms(sectorlogic_name, tower_name, cma_name) );
 		  }
 
 		  const MuonDQAHistList& hists = m_stationHists.getList( sectorlogic_name );
@@ -665,7 +665,7 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		    if (histo_flag) {
 		      m_profile_list.push_back(sectorlogic_name + cma_name_p + ijk_name_p);
 		      //bookRPCLV1ProfilesHistograms( i_sector, sectorlogic_name, i_cmaId, cma_name_p, i_ijk, ijk_name_p ); // compilation warning to i_cmaId
-		      bookRPCLV1ProfilesHistograms( i_sector, sectorlogic_name, cma_name_p, i_ijk, ijk_name_p );
+		      ATH_CHECK( bookRPCLV1ProfilesHistograms( i_sector, sectorlogic_name, cma_name_p, i_ijk, ijk_name_p ) );
 		    }
 		    const MuonDQAHistList& hists2 = m_stationHists.getList( sectorlogic_name );
 		    TH1* RPCLV1Profiles = hists2.getH1(sectorlogic_name + "_" + cma_name_p + "_" + ijk_name_p + "_Profiles") ;

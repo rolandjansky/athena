@@ -1,4 +1,10 @@
+
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+
 ## Set random seeds depending on used generators
+from __future__ import print_function
+from __future__ import division
 
 genseeds = {
     'Pythia'            : ["PYTHIA OFFSET {rnd} 47898993 {rnd}", "PYTHIA_INIT 820021 2347532"],
@@ -46,8 +52,12 @@ assert evgenConfig.generators
 if any(gen in ranluxlist for gen in evgenConfig.generators):
     evgenLog.info("Using RanLux random numbers!")
     atRndmGenSvc = svcMgr.AtRanluxGenSvc
+    atRndmGenSvc.EventReseeding = False
+    printfunc("Events will not be reseeded (RndmGenSvc) ")
 else:
     atRndmGenSvc = svcMgr.AtRndmGenSvc
+    atRndmGenSvc.EventReseeding = False
+    printfunc "Events will not be reseeded (RndmGenSvc) "
 
 ## Pass the random seed from the transform command line into each used generator's seed config string
 seedstrs = []

@@ -381,10 +381,10 @@ def _tests():
         
     )
     
-    decodeChainName = DictFromChainName.DictFromChainName()
 
     for cn in chain_names:
-        chain_dict = decodeChainName.getChainDict(cn)
+        chain_dict = DictFromChainName.dictFromChainName(cn)
+
         label = chainDict2jetLabel(chain_dict)
         print('\n')
         print(cn)
@@ -405,9 +405,8 @@ def _tests1():
     from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
     
     chain_name = 'HLT_j85_L1J20'
-    decodeChainName = DictFromChainName.DictFromChainName()
 
-    chain_dict = decodeChainName.getChainDict(chain_name)
+    chain_dict = DictFromChainName.dictFromChainName(chain_name)
     label = _make_simple_partition_label(chain_dict)
     
     print('\n')
@@ -427,9 +426,8 @@ def _tests2():
     from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
     
     chain_name = 'HLT_j85_L1J20'
-    decodeChainName = DictFromChainName.DictFromChainName()
 
-    chain_dict = decodeChainName.getChainDict(chain_name)
+    chain_dict = DictFromChainName.dictFromChainName(chain_name)
     label = _make_simple_comb_label(chain_dict)
 
     print('\n')
