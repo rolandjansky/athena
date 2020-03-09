@@ -1,8 +1,6 @@
 #
 # Package filtering rules for the AthGeneration project build.
 #
-+ AtlasTest/NightlyTestTools/ATNight
-+ AtlasTest/NightlyTestTools/Nicos
 + AtlasTest/TestTools
 + Calorimeter/CaloConditions
 + Calorimeter/CaloGeoHelpers
@@ -26,9 +24,7 @@
 + Control/AthenaPython
 + Control/AthenaServices
 + Control/CLIDComps
-+ Control/CLIDSvc
 + Control/CxxUtils
-+ Control/DataModel
 + Control/DataModelAthenaPool
 + Control/DataModelRoot
 + Control/GaudiSequencer
@@ -60,17 +56,13 @@
 #+ Database/APR/RootCollection
 + Database/APR/RootStorageSvc
 + Database/APR/StorageSvc
-+ Database/APR/TrigCollQuery
-+ Database/APR/XMLCatalog
 + Database/AthenaPOOL/AthenaPoolCnvSvc
-+ Database/AthenaPOOL/AthenaPoolKernel
 + Database/AthenaPOOL/AthenaPoolServices
 + Database/AthenaPOOL/AthenaPoolUtilities
 + Database/AthenaPOOL/DBDataModel
 + Database/AthenaPOOL/EventSelectorAthenaPool
 + Database/AthenaPOOL/OutputStreamAthenaPool
 + Database/AthenaPOOL/PoolSvc
-+ Database/AthenaPOOL/RDBAccessSvc
 + Database/AthenaPOOL/RootConversions
 #+ Database/AthenaPOOL/RootFileTools
 #+ Database/AthenaPOOL/StlAthenaPoolCnv
@@ -96,7 +88,6 @@
 + Database/TPTools
 #+ DataQuality/GoodRunsLists
 + DetectorDescription/AtlasDetDescr
-+ DetectorDescription/GeoModel/GeoModelKernel
 + DetectorDescription/GeoModel/GeoModelInterfaces
 + DetectorDescription/GeoModel/GeoModelUtilities
 + DetectorDescription/GeoPrimitives
@@ -140,20 +131,15 @@
 + Event/xAOD/xAODTruthAthenaPool
 + Event/xAOD/xAODTruthCnv
 + External/AtlasDataArea
-+ External/AtlasPyFwdBwdPorts
 + External/Pythia8
-+ External/pyAMI
 - Generators/AcerMC_i
 - Generators/AlpGen_i
-- Generators/Baur_i
 + Generators/Charybdis_i
 - Generators/CompHep_i
-- Generators/Exhume_i
 - Generators/EmbeddedTrackGenerator
 - Generators/ExoGraviton_i
 - Generators/GravADD_i
 - Generators/Herwig_i
-- Generators/Herwigpp_i
 - Generators/Horace_i
 - Generators/HvGen_i
 - Generators/MadCUP_i
@@ -164,11 +150,9 @@
 - Generators/Pyquench_i
 - Generators/Pythia_i
 - Generators/PythiaB
-- Generators/PythiaBc_i
 - Generators/PythiaChL_i
 - Generators/PythiaExo_i
 - Generators/PythiaRhad_i
-- Generators/PythiaSgluon_i
 - Generators/Reldis_i
 - Generators/VBFNLOControl
 - Generators/TrackRecordGenerator
@@ -207,13 +191,10 @@
 + Reconstruction/RecExample/RecExConfig
 + Simulation/Tools/AtlasCLHEP_RandomGenerators
 + Tools/ART
-+ Tools/AtlasDoxygen
-+ Tools/CodeCheck
 + Tools/JobTransforms
 + Tools/KitValidation
 + Tools/PathResolver
 + Tools/PmbCxxUtils
-+ Tools/PyCmt
 + Tools/PyJobTransforms
 + Tools/PyJobTransformsCore
 + Tools/PyUtils
