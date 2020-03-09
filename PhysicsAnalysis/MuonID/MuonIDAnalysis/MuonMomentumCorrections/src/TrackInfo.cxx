@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #define __TrackInfo_cxx__
 #include "TrackInfo.h"
 
@@ -18,11 +22,11 @@ void TrackInfo::Reset() {
     m_Chi2 = -999.;
     m_Charge = -999;
     m_NDoF = 0;
-    TrackPars.clear();
-    for (unsigned int i = 0; i < 5; i++) TrackPars.push_back(0.);
-    TrackCovMatrix.clear();
+    m_TrackPars.clear();
+    for (unsigned int i = 0; i < 5; i++) m_TrackPars.push_back(0.);
+    m_TrackCovMatrix.clear();
     for (unsigned int i = 0; i < 5; i++)
-        for (unsigned int j = 0; j < 5; j++) TrackCovMatrix.push_back(0.);
+        for (unsigned int j = 0; j < 5; j++) m_TrackCovMatrix.push_back(0.);
 }
 
 void TrackInfo::Register(TTree* t) {
@@ -33,8 +37,8 @@ void TrackInfo::Register(TTree* t) {
     t->Branch(("Muon_" + m_Type + "_QoverP").c_str(), &m_QoverP);
     t->Branch(("Muon_" + m_Type + "_Chi2").c_str(), &m_Chi2);
     t->Branch(("Muon_" + m_Type + "_NDoF").c_str(), &m_NDoF);
-    t->Branch(("Muon_" + m_Type + "_TrackPars").c_str(), &TrackPars);
-    t->Branch(("Muon_" + m_Type + "_TrackCovMatrix").c_str(), &TrackPars);
+    t->Branch(("Muon_" + m_Type + "_TrackPars").c_str(), &m_TrackPars);
+    t->Branch(("Muon_" + m_Type + "_TrackCovMatrix").c_str(), &m_TrackCovMatrix);
     for(auto s: m_Systs) {
       t->Branch(("Muon_" + m_Type + "_" + s + "CalibPt").c_str(), &m_CalibPt[s]);
     }
@@ -51,12 +55,12 @@ void TrackInfo::Fill(const xAOD::TrackParticle* tp) {
     AmgVector(5) pars = tp->definingParameters();
     AmgSymMatrix(5) cov = tp->definingParametersCovMatrix();
 
-    TrackPars.clear();
-    for (unsigned int i = 0; i < 5; i++) TrackPars.push_back(pars[i]);
-    TrackCovMatrix.clear();
+    m_TrackPars.clear();
+    for (unsigned int i = 0; i < 5; i++) m_TrackPars.push_back(pars[i]);
+    m_TrackCovMatrix.clear();
 
     for (unsigned int i = 0; i < 5; i++)
-        for (unsigned int j = 0; j < 5; j++) TrackCovMatrix.push_back(cov(i, j));
+        for (unsigned int j = 0; j < 5; j++) m_TrackCovMatrix.push_back(cov(i, j));
 }
 
 TLorentzVector TrackInfo::GetFourMomentum(bool calib) {

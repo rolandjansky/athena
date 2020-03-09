@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef __TrackInfo_h__
 #define __TrackInfo_h__
 
@@ -21,8 +25,8 @@ class TrackInfo {
     float m_Pt, m_Eta, m_Phi, m_QoverP, m_Chi2;
     std::map<std::string, float> m_CalibPt;
     int m_Charge, m_NDoF;
-    std::vector<float> TrackPars;
-    std::vector<float> TrackCovMatrix;
+    std::vector<float> m_TrackPars;
+    std::vector<float> m_TrackCovMatrix;
 
   public:
     TrackInfo(std::string type, std::vector<std::string> systs);
