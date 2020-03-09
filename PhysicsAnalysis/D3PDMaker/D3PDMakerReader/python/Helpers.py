@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id: Helpers.py 600807 2014-06-08 15:26:51Z krasznaa $
 #
@@ -297,10 +297,10 @@ def makeRootCorePackageSkeleton( directory, name ):
 
     # Create the directory structure:
     import os
-    os.mkdir( directory + "/" + name, 0755 )
-    os.mkdir( directory + "/" + name + "/" + name, 0755 )
-    os.mkdir( directory + "/" + name + "/Root", 0755 )
-    os.mkdir( directory + "/" + name + "/cmt", 0755 )
+    os.mkdir( directory + "/" + name, 0o755 )
+    os.mkdir( directory + "/" + name + "/" + name, 0o755 )
+    os.mkdir( directory + "/" + name + "/Root", 0o755 )
+    os.mkdir( directory + "/" + name + "/cmt", 0o755 )
 
     # Create the RootCore Makefile:
     makefile = open( directory + "/" + name + "/cmt/Makefile.RootCore", "w" )
@@ -364,10 +364,10 @@ def makeSFramePackageSkeleton( directory, name ):
 
     # Create the directory structure:
     import os
-    os.mkdir( directory + "/" + name, 0755 )
-    os.mkdir( directory + "/" + name + "/include", 0755 )
-    os.mkdir( directory + "/" + name + "/src", 0755 )
-    os.mkdir( directory + "/" + name + "/proof", 0755 )
+    os.mkdir( directory + "/" + name, 0o755 )
+    os.mkdir( directory + "/" + name + "/include", 0o755 )
+    os.mkdir( directory + "/" + name + "/src", 0o755 )
+    os.mkdir( directory + "/" + name + "/proof", 0o755 )
 
     # Create the SFrame Makefile:
     makefile = open( directory + "/" + name + "/Makefile", "w" )
@@ -402,7 +402,7 @@ def makeSFramePackageSkeleton( directory, name ):
     build.write( "fi\n\n" )
     build.write( "make default\n" )
     build.close()
-    os.chmod( directory + "/" + name + "/proof/BUILD.sh", 0755 )
+    os.chmod( directory + "/" + name + "/proof/BUILD.sh", 0o755 )
 
     # Signal that the function was successful:
     return 0
