@@ -23,10 +23,10 @@ OverlayBS_tf.py \
 --outputRDOFile legacyDataOverlayRDO.pool.root \
 --maxEvents $events \
 --conditionsTag CONDBR2-BLKPA-2016-12 \
+--samplingFractionDbTag FTFP_BERT_BIRK \
 --fSampltag LARElecCalibMCfSampl-G496-19213- \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' \
 --postExec 'outStream.ItemList.remove("xAOD::EventInfoContainer#*"); outStream.ItemList.remove("xAOD::EventInfoAuxContainer#*");' \
---preInclude 'SimulationJobOptions/preInclude.TRTOnlyConfig.py,SimulationJobOptions/preInclude.TruthOnlyConfig.py' \
 --postInclude 'EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py' \
 --ignorePatterns "L1TopoMenuLoader.+ERROR." \
 --imf False \
@@ -38,10 +38,10 @@ OverlayBS_tf.py \
 --outputRDOFile legacyDataOverlayRDO.pool.root \
 --maxEvents $events \
 --conditionsTag CONDBR2-BLKPA-2016-12 \
+--samplingFractionDbTag FTFP_BERT_BIRK \
 --fSampltag LARElecCalibMCfSampl-G496-19213- \
 --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' \
 --postExec 'job+=CfgMgr.JobOptsDumperAlg(FileName="OverlayLegacyConfig.txt"); outStream.ItemList.remove("xAOD::EventInfoContainer#*"); outStream.ItemList.remove("xAOD::EventInfoAuxContainer#*");' \
---preInclude 'SimulationJobOptions/preInclude.TRTOnlyConfig.py,SimulationJobOptions/preInclude.TruthOnlyConfig.py' \
 --postInclude 'EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py' \
 --ignorePatterns "L1TopoMenuLoader.+ERROR." \
 --imf False
@@ -53,7 +53,7 @@ mv log.OverlayBS log.OverlayLegacy
 rc2=-9999
 if [ $rc -eq 0 ]
 then
-    OverlayTest.py TRT -d -t 1 -n $events 2>&1 | tee log.OverlayTest
+    OverlayTest.py -d -t 1 -n $events 2>&1 | tee log.OverlayTest
     rc2=$?
 fi
 echo  "art-result: $rc2 configNew"
