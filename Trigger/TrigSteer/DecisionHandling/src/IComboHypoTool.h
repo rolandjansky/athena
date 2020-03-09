@@ -14,17 +14,23 @@
  **/
 
  /**
-  * @brief describes the association between each decId and the decisions associated to that 
+  * @brief LegDecisionsMap describes the association between each decId and the decisions (via EL) associated to that 
   **/
 
 typedef std::map<TrigCompositeUtils::DecisionID, ElementLinkVector<TrigCompositeUtils::DecisionContainer>> LegDecisionsMap;
+
+ /**
+  * @brief LegDecision is pair needed to use single elements, wihtout loosing the leg name
+  **/
+typedef std::pair <TrigCompositeUtils::DecisionID, ElementLink<TrigCompositeUtils::DecisionContainer> > LegDecision;
+
 
 class IComboHypoTool: virtual public ::IAlgTool { 
   
  public: 
   DeclareInterfaceID(IComboHypoTool, 1, 0);
 
-  virtual StatusCode decide( const LegDecisionsMap & IDCombMap, LegDecisionsMap & passingCombinations, const EventContext& ctx ) const = 0 ;
+  virtual StatusCode decide( LegDecisionsMap & passingLegs, const EventContext& /* ctx */ ) const = 0 ;
   
  
 }; 

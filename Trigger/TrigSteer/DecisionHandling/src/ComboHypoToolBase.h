@@ -29,11 +29,10 @@ public:
   
   /**
    * @brief retreives the decisions associated to this decId, make their combinations and apply the algorithm
-   @param[in]  InputDecisions
-   @param[in]  Cobminaiton map that lists all the decisions passing the multiplicity map of the ComboHypo
-   @param[out] Combination map that lists all the decisions passing the HypoTool algorithm
+   @param[in]  LegDecisionsMap that lists all the passing decisions, to be updated  
+   @param[in]  Event Context passed to store the output collection
   **/  
-  virtual StatusCode decide(const LegDecisionsMap & IDCombMap,LegDecisionsMap & passingLegs, const EventContext& ctx ) const override;
+  virtual StatusCode decide(LegDecisionsMap & passingLegs, const EventContext& /* ctx */ ) const override;
   
   
   /**
@@ -47,17 +46,19 @@ public:
   /**
   * @brief creates the decision legs starting from the initial LegDecision map, storing only those concerning this decisionID
   **/
-  StatusCode selectLegs(const LegDecisionsMap & IDCombMap, std::vector<ElementLinkVector<TrigCompositeUtils::DecisionContainer>>& leg_decisions) const;
+  
+  StatusCode selectLegs(const LegDecisionsMap & IDCombMap, std::vector<std::vector<LegDecision>>& leg_decisions) const;
     
    /**
   * @brief creates combinations of decisions starting from the legs vector of pairs, given the number of legs and the number of elements to combine
-    @param[in] v_legs: vector of legs (vector), each containing the corresponding decision pairs
+    @param[in] leg_decisions: vector of legs (vector), each containing the corresponding decision pairs
     @param[in] nLegs: number of legs to combine
     @param[in] nToGroup: number of elements to group in a combination, in case one leg is used
     @param[out] combinations: vector of combinations (vectors) of decision pairs
   **/
-  void createCombinations(const std::vector<ElementLinkVector<TrigCompositeUtils::DecisionContainer>> & v_legs,
-			  std::vector<ElementLinkVector<TrigCompositeUtils::DecisionContainer>> & combinations, int nLegs, int nToGroup) const;
+  void createCombinations( const std::vector<std::vector<LegDecision>>& leg_decisions,
+			   std::vector<std::vector<LegDecision>> & combinations,
+			   int nLegs, int nToGroup) const;
 
   /**
   * @brief recursively creates combinations of elements from differnt vectors
@@ -66,27 +67,26 @@ public:
     @param[in] lindex: leg index
     @param[out] tocombine: vector of combinations
   **/
-  void recursive_combine(const std::vector<ElementLinkVector<TrigCompositeUtils::DecisionContainer>> &all,
-			 std::vector<ElementLinkVector<TrigCompositeUtils::DecisionContainer>> & tocombine,
-			 ElementLinkVector<TrigCompositeUtils::DecisionContainer> & local, u_int lindex)  const;
-
+  void recursive_combine( const std::vector<std::vector<LegDecision>> & all,
+			  std::vector<std::vector<LegDecision>> & tocombine,
+			  std::vector<LegDecision> &local, u_int lindex)  const;
 
   /**
   * @brief contains the real algorithm to apply on the given combination of decisions
   **/
-  virtual bool executeAlg(ElementLinkVector<TrigCompositeUtils::DecisionContainer>& /* thecomb  */) const {return true;}
+  virtual bool executeAlg(std::vector<LegDecision> &  /* thecomb  */) const {return true;}
 
   
  /**
-  * @brief Retrieves the decisionIds from the passing combinations and produce a new LegDecisionMap
+  * @brief Converts the leg decision vector back to the map
   **/
-  void setDecisionIds(const ElementLinkVector<TrigCompositeUtils::DecisionContainer>& thecomb, LegDecisionsMap & passingLegs) const;
+  void updateLegDecisionsMap(const std::vector<std::vector<LegDecision>> & passing_comb,
+			     LegDecisionsMap & passingLegs) const;
 
 
   /**
   * @brief Print the Tool results stored in the passing combinations
   **/
-
   StatusCode printDebugInformation(const LegDecisionsMap & passingLegs) const;
 
   

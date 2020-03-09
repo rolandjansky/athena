@@ -19,19 +19,18 @@ StatusCode DeltaRRoIComboHypoTool::initialize() {
 
 
 
-bool DeltaRRoIComboHypoTool::executeAlg(ElementLinkVector<TrigCompositeUtils::DecisionContainer>& combination) const
+bool DeltaRRoIComboHypoTool::executeAlg(std::vector<LegDecision> &combination) const
 {
   //retrieve the rois 
   std::vector<ElementLink<TrigRoiDescriptorCollection>> selected_rois;
   for (auto el: combination){
-    auto dec= (*el);
+    auto EL= el.second;    
+    auto dec= (*EL);
     auto roiLink = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( dec, initialRoIString() ).link;
     selected_rois.push_back(roiLink);
   }
-  ATH_MSG_DEBUG("Selected RoIs: "<<selected_rois.size());
   auto roiLink1=selected_rois[0];
   auto roiLink2=selected_rois[1];
-
   // calucalte DeltaR
   float Dr = deltaR((*roiLink1)->eta(), (*roiLink2)->eta(), (*roiLink1)->phi(), (*roiLink2)->phi());
   ATH_MSG_DEBUG("Found two RoIs with eta/phi " << (*roiLink1)->eta() <<"/"<<(*roiLink1)->phi() <<" and "<< (*roiLink2)->eta()<<"/"<<(*roiLink2)->phi() <<" with Dr="<<Dr);

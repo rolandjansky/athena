@@ -24,7 +24,7 @@ class DeltaRRoIComboHypoTool:  public ComboHypoToolBase {
 
   private:
 
-  bool executeAlg(ElementLinkVector<TrigCompositeUtils::DecisionContainer>& thecomb) const override;
+  bool executeAlg(std::vector<LegDecision> & thecomb)  const override;
  
   double deltaR(double eta1, double eta2, double phi1, double phi2) const;
 

@@ -235,16 +235,13 @@ class MuonChainConfiguration(ChainConfigurationBase):
         return self.getStep(2,'muEFLate',[muEFLateSequenceCfg])
 
     #--------------------
-    # FP:
-    # Here example of how to create steps with ComboHypoTools 
-    # tmp: the problem is that we create a differnt Alg, insetad of reusing the same ComboAlg
-    # need to be fixed!
+
     def getmuCombDr(self):     
-        step=self.getStep(2, 'muCombDr', sequenceCfgArray=[muCombSequenceCfg])
+        step=self.getStep(2, 'muComb', sequenceCfgArray=[muCombSequenceCfg])
         step.addCombHypoTools([dimuDrComboHypoToolFromDict] )
         return step
 
     def getmuFastDr(self):     
-        step=self.getStep(1,"mufastDr", [muFastSequenceCfg] )
+        step=self.getStep(1,"mufast", [muFastSequenceCfg] )
         step.addCombHypoTools([dimuDrComboHypoToolFromDict] )
         return step

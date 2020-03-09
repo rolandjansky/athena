@@ -217,7 +217,7 @@ def generateL1DecoderAndChains():
             makeChain(name='HLT_2mu6Comb_L12MU6',   L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2mu_empty",  multiplicity=[2]),
                                                                                         ChainStep("Step2_2mu", [mu21], multiplicity=[2]) ]),
                                                                                        
-            makeChain(name='HLT_2mu4_bDimu_L12MU4', L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2muDr",  [mu11], multiplicity=[2], comboToolConfs=[dimuDrComboHypoTool]),
+            makeChain(name='HLT_2mu4_bDimu_L12MU4', L1Thresholds=["MU6"], ChainSteps=[ ChainStep("Step1_2mu",  [mu11], multiplicity=[2], comboToolConfs=[dimuDrComboHypoTool]),
                                                                                        ChainStep("Step2_2mu22",  [mu22], multiplicity=[2]),
                                                                                        ChainStep("Step3_2mu",    [mu31], multiplicity=[2]) ] ),
                                                                                        

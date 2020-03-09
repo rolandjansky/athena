@@ -4,7 +4,7 @@
  # to visualize: dot -T pdf Step1.dot > Step1.pdf
  
 from AthenaCommon.AlgSequence import AthSequencer
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import isHypoBase, isInputMakerBase, isFilterAlg
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import isHypoBase, isInputMakerBase, isFilterAlg, algColor
 import itertools
 
 
@@ -24,15 +24,15 @@ def drawHypoTools(file, all_hypos):
             file.write("    %s -> %s [style=dashed, color=grey]\n"%(hp.Alg.name(), hypotool))
 
 
-def algColor(alg):
-    """ Set given color to Alg type"""
-    if isHypoBase(alg):      
-        return "darkorchid1"
-    if isInputMakerBase(alg): 
-        return "cyan3"
-    if isFilterAlg(alg):      
-        return "chartreuse3"
-    return "cadetblue1"
+## def algColor(alg):
+##     """ Set given color to Alg type"""
+##     if isHypoBase(alg):      
+##         return "darkorchid1"
+##     if isInputMakerBase(alg): 
+##         return "cyan3"
+##     if isFilterAlg(alg):      
+##         return "chartreuse3"
+##     return "cadetblue1"
 
 def stepCF_ControlFlow_to_dot(stepCF):
     def _dump (seq, indent):

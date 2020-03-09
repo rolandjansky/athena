@@ -131,6 +131,8 @@ def algColor(alg):
         return "cyan3"
     if isFilterAlg(alg):
         return "chartreuse3"
+    if isComboHypoAlg(alg):
+        return "darkorange"
     return "cadetblue1"
 
 
@@ -243,7 +245,6 @@ class ComboMaker(AlgNode):
     def __init__(self, name, multiplicity):
         Alg = RecoFragmentsPool.retrieve( self.create, name )
         log.debug("ComboMaker init: Alg %s", name)
-        #Alg = ComboHypo(name)
         AlgNode.__init__(self,  Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
         self.prop="MultiplicitiesMap"
         self.mult=list(multiplicity)
@@ -306,6 +307,8 @@ def isInputMakerBase(alg):
 def isFilterAlg(alg):
     return isinstance(alg, RoRSeqFilter)
 
+def isComboHypoAlg(alg):
+    return isinstance(alg, ComboHypo)
 
 
 ##########################################################
@@ -780,7 +783,6 @@ class ChainStep(object):
         if self.isCombo:
             from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
             chainDict = TriggerConfigHLT.getChainDictFromChainName(chainName)
-            #chainDict = listOfChainDictsLegs[0]
             self.combo.createComboHypoTools(chainDict)
         
         

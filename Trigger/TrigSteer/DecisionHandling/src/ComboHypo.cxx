@@ -43,16 +43,14 @@ StatusCode ComboHypo::initialize() {
   if (msgLvl(MSG::INFO)){ 
     ATH_MSG_INFO( "with this multiplicity map: ");
     for ( const auto& m : m_multiplicitiesReqMap ) {
-      std::stringstream msgSS, mmsSS;
+      std::stringstream msgSS;
       msgSS << "[";
-      mmsSS << "[";
       for (const int mult : m.second){
         msgSS << mult << ", ";
-        mmsSS << std::to_string(mult) << ", ";
       }
+      msgSS.seekp(-2,msgSS.cur); // remove comma
       msgSS << "]";
-      mmsSS << "]";
-      ATH_MSG_INFO("-- " << m.first << " multiplicities: " << msgSS.str() << " -> " << mmsSS.str());
+      ATH_MSG_INFO("-- " << m.first << " multiplicities: " << msgSS.str() );
     }
   }
 
@@ -103,7 +101,7 @@ StatusCode ComboHypo::copyDecisions(  LegDecisionsMap & passingLegs, const Event
           std::inserter( common, common.end() ) );
 
 	// check if this EL is in the combination map for the passing decIDs:
-	ATH_MSG_DEBUG("   Searching this element in the map:"<<thisEL.dataID() << " , " << thisEL.index());
+	ATH_MSG_DEBUG("Searching this element in the map: ("<<thisEL.dataID() << " , " << thisEL.index()<<")");
         DecisionIDContainer finalIds;   
         for (const DecisionID c : common){
           const HLT::Identifier cID = HLT::Identifier(c);
@@ -111,21 +109,20 @@ StatusCode ComboHypo::copyDecisions(  LegDecisionsMap & passingLegs, const Event
 	  auto Comb=passingLegs[c];
 	  if(std::find(Comb.begin(), Comb.end(), thisEL) == Comb.end()) continue;
 
-	  ATH_MSG_DEBUG("   "<< cID <<" passed because the EL is found in its map ");
+	  ATH_MSG_DEBUG("  Adding "<< cID <<" because EL is found in the passingLegs map");
           finalIds.insert( cID.numeric() ); // all Ids used by the Filter, including legs
           if (TrigCompositeUtils::isLegId ( cID )){
             const HLT::Identifier mainChain = TrigCompositeUtils::getIDFromLeg( cID );
             finalIds.insert( mainChain.numeric() );
+	    ATH_MSG_DEBUG("  Adding "<< mainChain <<" consequently");
           }
         }
 
         Decision* newDec = newDecisionIn( outDecisions );
         linkToPrevious( newDec, inputDecision, context );
         ATH_MSG_DEBUG("New decision (Container Index:" << input_counter << ", Element Index:"<< newDec->index() <<") has "
-          << (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(newDec, initialRoIString())).isValid()
-          << " valid initialRoI and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions; valid Ids="<<finalIds.size()) ;   
-
-
+		      << (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(newDec, initialRoIString())).isValid()
+		      << " valid initialRoI, "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions and "<<finalIds.size()<<" decision IDs") ;   
         insertDecisionIDs( finalIds, newDec );
 	index++;
       }
@@ -136,9 +133,9 @@ StatusCode ComboHypo::copyDecisions(  LegDecisionsMap & passingLegs, const Event
       for (const Decision* d : *outputHandle){
         DecisionIDContainer objDecisions;      
         decisionIDs( d, objDecisions );
-        ATH_MSG_DEBUG("Number of positive decisions for Decision object #" << d->index() << ": " << objDecisions.size());
+        ATH_MSG_DEBUG("  Decision object #" << d->index() << " with " << objDecisions.size()<<" positive decision IDs");
         for (const TrigCompositeUtils::DecisionID id : objDecisions ) {
-          ATH_MSG_DEBUG(" --- Passes: " << HLT::Identifier( id ));
+          ATH_MSG_DEBUG("   --- Passes: " << HLT::Identifier( id ));
         }  
       }
     }
@@ -156,7 +153,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
   ATH_CHECK( fillDecisionsMap( dmap, context ) );
 
   //this is added for saving good combinations for the hypocombo tools
-  LegDecisionsMap goodMultCombMap;
+  LegDecisionsMap passingLegs;
 
 
   // loop over all chains in the mult-map
@@ -239,23 +236,21 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
     if ( overallDecision == true ) {
       for (auto decID: allDecisionIds) {
 	// saving the good combiantions
-	goodMultCombMap.insert (thisChainCombMap.begin(), thisChainCombMap.end());
+	passingLegs.insert (thisChainCombMap.begin(), thisChainCombMap.end());
         ATH_MSG_DEBUG("  Passing " << HLT::Identifier(decID)<<" after multiplicity test");
       }
     }      
   }
 
-  LegDecisionsMap passingLegs;
-  if  (goodMultCombMap.size()!=0){
+  if  (passingLegs.size()!=0){
     // launching the tools:
     ///////////////////////
     if (m_hypoTools.size()>0){
       for ( auto& tool: m_hypoTools ) {
 	ATH_MSG_DEBUG( "Calling  tool "<<tool->name());
-	ATH_CHECK( tool->decide( goodMultCombMap, passingLegs, context ) );
+	ATH_CHECK( tool->decide( passingLegs, context ) );
       }
     }
-    else  passingLegs=goodMultCombMap;
   }
 
     // this is only for debug:
