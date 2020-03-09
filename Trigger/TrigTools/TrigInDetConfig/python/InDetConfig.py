@@ -394,7 +394,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   #theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg",
   #                                                         doIBLresidual = False,
   #                                                         TrackName = "TrigFastTrackFinder_Tracks",
-  #                                                         TrackParticlesName = "xAODTracks",
+  #                                                         TrackParticlesName = "IDTrack",
   #                                                         ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
   #theTrackParticleCreatorAlg.roiCollectionName = roisKey
   #acc.addEventAlgo(theTrackParticleCreatorAlg)

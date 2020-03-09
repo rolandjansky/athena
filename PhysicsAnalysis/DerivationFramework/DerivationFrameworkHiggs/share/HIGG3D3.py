@@ -133,7 +133,7 @@ truth_expression = truth_cond1+' || '+truth_cond2 +' || '+truth_cond3 +' || '+tr
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 HIGG3D3TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "HIGG3D3TruthThinningTool", 
-                                                                     ThinningService         = HIGG3D3ThinningHelper.ThinningSvc(),
+                                                                     StreamName              = streamName,
                                                                      ParticleSelectionString = truth_expression,
                                                                      PreserveDescendants     = True,
                                                                      PreserveAncestors      = True,

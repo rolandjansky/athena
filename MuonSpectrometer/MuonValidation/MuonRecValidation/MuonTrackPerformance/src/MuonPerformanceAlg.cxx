@@ -253,10 +253,10 @@ StatusCode MuonPerformanceAlg::execute()
             } else print(" Muon not found by Loose ", truthMu);
             if (medium) {
               m_nfound[9] += 1;
-            } else if (!loose) print(" Muon not found by Medium ", truthMu);
+            } else if (loose) print(" Muon not found by Medium ", truthMu);
             if (tight) {
               m_nfound[8] += 1;
-            } else if (!medium) print(" Muon not found by Tight ", truthMu);
+            } else if (medium) print(" Muon not found by Tight ", truthMu);
             m_nfound[6] += 1;
             if (truthMu->pt() > 5000.) {
               if (loose) m_nfound5[10] += 1;
@@ -336,12 +336,12 @@ StatusCode MuonPerformanceAlg::execute()
             m_nfound[9] += 1;
             if (truthMu->pt() > 5000.) m_nfound5[9] += 1;
             if (truthMu->pt() > 10000.) m_nfound10[9] += 1;
-          } else if (!loose) print(" Muon not found by Medium endcap ", truthMu);
+          } else if (loose) print(" Muon not found by Medium endcap ", truthMu);
           if (tight) {
             m_nfound[8] += 1;
             if (truthMu->pt() > 5000.) m_nfound5[8] += 1;
             if (truthMu->pt() > 10000.) m_nfound10[8] += 1;
-          } else if (!medium) print(" Muon not found by Tight endcap ", truthMu);
+          } else if (medium) print(" Muon not found by Tight endcap ", truthMu);
         }
       } else {
         print(" No link Muon not found  by CaloTag and Calolikelihood ",  truthMu );

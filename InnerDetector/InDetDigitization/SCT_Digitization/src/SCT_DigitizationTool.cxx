@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DigitizationTool.h"
@@ -166,7 +166,9 @@ StatusCode SCT_DigitizationTool::initServices() {
   // SiDigitization.
   ATH_CHECK(detStore()->retrieve(m_detID, "SCT_ID"));
 
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
   ATH_CHECK(m_rndmSvc.retrieve());
 
   return StatusCode::SUCCESS;
@@ -642,7 +644,7 @@ SCT_RDO_Collection* SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* co
     // Under the current scheme time bin and ERRORS are hard-coded to
     // default values.
     int ERRORS{0};
-    static std::vector<int> dummyvector;
+    static const std::vector<int> dummyvector;
     for (; i_chargedDiode != i_chargedDiode_end; ++i_chargedDiode) {
       unsigned int flagmask{static_cast<unsigned int>((*i_chargedDiode).second.flag() & 0xFE)};
 

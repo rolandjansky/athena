@@ -22,14 +22,13 @@ if not 'InDetTrigFlags' in dir():
 from TrigInDetConfig.InDetConfig import InDetCacheNames
 
 def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs' ):
+
   #If signature specified add suffix to the algorithms
   signature =  "_" + whichSignature if whichSignature else ''
   if signature != "" and separateTrackParticleCreator == "":
     separateTrackParticleCreator = signature
     
     
-
-
   viewAlgs = []
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
   from InDetRecExample.InDetKeys import InDetKeys
@@ -241,11 +240,15 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
   from TrigEDMConfig.TriggerEDMRun3 import recordable
   from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
+
+  trackCollection = "HLT_IDTrack" + separateTrackParticleCreator + "_FTF"
+
   theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + whichSignature,
                                                             doIBLresidual = False,
                                                             TrackName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator,
-                                                            TrackParticlesName = recordable("HLT_xAODTracks" + separateTrackParticleCreator),
+                                                            TrackParticlesName = recordable( trackCollection ),
                                                             ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
+
   theTrackParticleCreatorAlg.roiCollectionName = rois
   viewAlgs.append(theTrackParticleCreatorAlg)
 

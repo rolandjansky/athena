@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -1722,23 +1722,20 @@ double TRT_ToT_dEdx::trackOccupancyCorrection(const Trk::Track* track,  bool use
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
   
   double corr=-999.;
-  int ijk;
   double trackOcc = m_localOccTool->LocalOccupancy(*track);
   const Trk::TrackParameters* perigee = track->perigeeParameters();
   const Amg::VectorX& parameterVector = perigee->parameters();
   double theta  = parameterVector[Trk::theta];
   double trackEta = -log(tan(theta/2.0));
-  trackEta=trackEta+2.;  //to make eta positive definite, as it is in the range between -2. and 2.
 
-  if(fabs(trackEta) < 1e-10) ijk=0; //this is determing the array index for the lower bound (trackEta=-2)
-  else if((fabs(trackEta)-4.0) < 1e-10) ijk=99; //this is determing the array index for the upper bound (trackEta=2)
-  else{ //this is determing the array indices for the eta values between -2 and 2  
-    ijk=int(trackEta/0.04);  //the calibrations was performed in bins of width 0.04
-  }
-	
-  //Function of the from f(x)=a+b*x+c*x^2 was used as a fitting function, separately for tracks with and excluding HT hits
-  if (!useHThits){corr=dEdxCorrection->trackOccPar0[ijk]+dEdxCorrection->trackOccPar1[ijk]*trackOcc+dEdxCorrection->trackOccPar2[ijk]*pow(trackOcc,2);}
-  else{corr=dEdxCorrection->trackOccPar0NoHt[ijk]+dEdxCorrection->trackOccPar1NoHt[ijk]*trackOcc+dEdxCorrection->trackOccPar2NoHt[ijk]*pow(trackOcc,2);}
+  // the correction constants were determined in 100 bins of 0.04 in the eta range between -2 and 2
+  int index = int(25*(trackEta+2.)); // determine the bin of the corrections
+  if (index < 0) index = 0;          // lower bound corresponding to eta = -2
+  else if (index > 99) index = 99;   // upper bound corresponding to eta = +2
+
+  //Function of the from f(x)=a+b*x+c*x^2 was used as a fitting function, separately for tracks with and without excluding HT hits
+  if (!useHThits) corr=dEdxCorrection->trackOccPar0[index]+dEdxCorrection->trackOccPar1[index]*trackOcc+dEdxCorrection->trackOccPar2[index]*pow(trackOcc,2);
+  else corr=dEdxCorrection->trackOccPar0NoHt[index]+dEdxCorrection->trackOccPar1NoHt[index]*trackOcc+dEdxCorrection->trackOccPar2NoHt[index]*pow(trackOcc,2);
 
   return corr;
 }

@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import sys, string ,re
+from __future__ import print_function
+
+import sys, re
 import xmlrpclib
 from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
@@ -10,9 +12,9 @@ try:
   serverfile=open("/afs/cern.ch/user/l/larmon/public/atlasdqmpass.txt")
   password=serverfile.readline().strip()
   serverfile.close()
-except Exception,e:
-  print "Failed to read xmlrpc server connection details from AFS location"
-  print e
+except Exception as e:
+  print ("Failed to read xmlrpc server connection details from AFS location")
+  print (e)
   sys.exit(-1)
 
 
@@ -25,7 +27,7 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
   nNotReadyLBs=0
   tdaqdb=indirectOpen('COOLONL_TDAQ/CONDBR2')
   if (tdaqdb is None):
-    print "ERROR: Can't access COOLONL_TDAQ/CONDBR2"
+    print ("ERROR: Can't access COOLONL_TDAQ/CONDBR2")
     sys.exit(-1)
     
   fmode=tdaqdb.getFolder("/TDAQ/RunCtrl/DataTakingMode")  
@@ -43,11 +45,12 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
     ts2=obj.until()
     if ts2<until: #ignore the IOV beyond the end of the run
       lb2=ts2 & 0xFFFFFFFF
-      if lb2>maxLb: maxLb=lb2
+      if lb2>maxLb:
+        maxLb=lb2
       if not isReady:
         if dropNonReady:
-          print "Ignoring LumiBlocks %i - %i not ATLAS READY" % (lb1,lb2)
-          badLBs.update(xrange(lb1,lb2))
+          print ("Ignoring LumiBlocks %i - %i not ATLAS READY" % (lb1,lb2))
+          badLBs.update(range(lb1,lb2))
         nNotReadyLBs+=(lb2-lb1)
       else:
         nReadyLBs+=(lb2-lb1)
@@ -58,7 +61,7 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
   itr.close()
   tdaqdb.closeDatabase()
   
-  print "Run %i goes up to LB %i" % (runnum,maxLb)
+  print ("Run %i goes up to LB %i" % (runnum,maxLb))
 
   #2. Get problematic LBs
   #2.1 Look for collisions in empty bunches - Fetch from DQ Web Server
@@ -73,7 +76,8 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
   run_spec = {'source': source, 'high_run': runnum, 'low_run': runnum}
   multicall.get_procpass_amitag_mapping(run_spec)
   results = multicall()
-  if len(results[0])==0: print "Nothing found about run",runnum,"on DQM server"
+  if len(results[0])==0:
+    print ("Nothing found about run",runnum,"on DQM server")
   proc = 0
   try:
     list = results[0][str(runnum)]
@@ -81,16 +85,16 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
       if ("f" in item[2] and bulkProcessing and "CosmicCalo" in item[1] and item[0]>proc):
         proc = 2
       if ("x" in item[2] and (not bulkProcessing) and "CosmicCalo" in item[1] and item[0]>proc):
-        print item
+        print (item)
         proc = 1
       pass
     pass
-  except Exception,e:
-    print "ERROR: can't retrieve the AMI Tag"
-    print e
+  except Exception as e:
+    print ("ERROR: can't retrieve the AMI Tag")
+    print (e)
 
   if (proc == 0):
-    print "I haven't found any processing version for CosmicCalo. Assume express processing"
+    print ("I haven't found any processing version for CosmicCalo. Assume express processing")
     proc=1 
 
 
@@ -101,11 +105,11 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
     results=multicall()
     timestamp=results[0][str(runnum)]
     from time import asctime,localtime
-    print "DQM server timestamp:", asctime(localtime(timestamp))
-    print "Now: ",asctime()
-  except Exception,e:
-    print "ERROR: can't get timestamp from DQM server"
-    print e
+    print ("DQM server timestamp:", asctime(localtime(timestamp)))
+    print ("Now: ",asctime())
+  except Exception as e:
+    print ("ERROR: can't get timestamp from DQM server")
+    print (e)
 
   
   multicall = xmlrpclib.MultiCall(server)
@@ -117,18 +121,19 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
   try:
     list = results[0][str(runnum)]
     for item in list:
-      if 'NBins' in item: continue
+      if 'NBins' in item:
+        continue
       m = RE.search(item).groupdict()
       lb=int(m['lb'])
       ncollisions=int(results[0][str(runnum)][item])
       if ncollisions > 50:
         badLBs.add(lb)
-        print "LumiBlock %i ignored because it is empty bunches are polluted with collisions" % lb
+        print ("LumiBlock %i ignored because it is empty bunches are polluted with collisions" % lb)
       pass
     pass
-  except Exception,e:
-    print "ERROR: can't get LArCollTimeLumiBlockTimeCut from DQM server"
-    print e
+  except Exception as e:
+    print ("ERROR: can't get LArCollTimeLumiBlockTimeCut from DQM server")
+    print (e)
 
   if (burstsFromCosmic):# CosmicCalo stream : from the DQ web
     histoName = {'EMBC':'BarrelC','EMBA':'BarrelA','EMECC':'EMECC','EMECA':'EMECA'}
@@ -140,20 +145,22 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
       results = multicall()
       try:
         resultlist = results[0][str(runnum)]
-        #print "Got %i items for NoisyEvent_TimeVeto_%s" % (len(list),histoName[iPart])
+        #print ("Got %i items for NoisyEvent_TimeVeto_%s" % (len(list),histoName[iPart]))
         for item in resultlist:
-          if 'NBins' in item: continue
+          if 'NBins' in item:
+
+            continue
           m = RE.search(item).groupdict()
           lb=int(m['lb'])
           yieldbursts=float(results[0][str(runnum)][item])
           if yieldbursts > 0:
             badLBs.add(lb)
-            print "LumiBlock %i ignored because it contains bursts in CosmicCalo stream in %s" % (lb,iPart)
+            print ("LumiBlock %i ignored because it contains bursts in CosmicCalo stream in %s" % (lb,iPart))
           pass
         pass
-      except Exception,e:
-        print "ERROR: can't get NoisyEvent from DQM server"
-        print e
+      except Exception as e:
+        print ("ERROR: can't get NoisyEvent from DQM server")
+        print (e)
       
 
   del multicall
@@ -169,7 +176,7 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
     if "HVTRIP" in defect.channel and defect.present:
       for lb in range(defect.since.lumi,defect.until.lumi):
         badLBs.add(lb)
-        print "LumiBlock %i ignored because of a HV trip in partition %s" % (lb,part)
+        print ("LumiBlock %i ignored because of a HV trip in partition %s" % (lb,part))
       pass
     pass
     #3.2.2 Check for Noise Bursts from the defects
@@ -178,23 +185,24 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
         if "NOISEBURST" in defect.channel  and defect.present:
           for lb in range(defect.since.lumi,defect.until.lumi):
             badLBs.add(lb)
-            print "LumiBlock %i ignored because of a noise burst in partition %s" % (lb,part)
+            print ("LumiBlock %i ignored because of a noise burst in partition %s" % (lb,part))
           pass
         pass
       else: #not bulk processing
         if "SEVNOISEBURST" in defect.channel  and defect.present:
           for lb in range(defect.since.lumi,defect.until.lumi):
             badLBs.add(lb)
-            print "LumiBlock %i ignored because of a severe noise burst in partition %s" % (lb,part)
+            print ("LumiBlock %i ignored because of a severe noise burst in partition %s" % (lb,part))
           pass
         pass
         
   del db #Close Defects DB
 
   nBadLBs=len(badLBs)
-  if dropNonReady: nBadLBs=nBadLBs-nNotReadyLBs
+  if dropNonReady:
+    nBadLBs=nBadLBs-nNotReadyLBs
 
-  print "Found %i not-ready LBs, %i atlas-ready LBs and %i bad LBs" % (nNotReadyLBs,nReadyLBs,nBadLBs)
+  print ("Found %i not-ready LBs, %i atlas-ready LBs and %i bad LBs" % (nNotReadyLBs,nReadyLBs,nBadLBs))
 
   return badLBs
 
@@ -205,9 +213,9 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
 if __name__ == "__main__":
   import getopt
   if len(sys.argv) == 1 :
-      print
-      print "usage: python %s <options> <runnumber> "%(sys.argv[0])
-      print
+      print ()
+      print ("usage: python %s <options> <runnumber> "%(sys.argv[0]))
+      print ()
       sys.exit(1)
 
   burstsFromCosmic=True
@@ -218,37 +226,41 @@ if __name__ == "__main__":
 
   opts,args=getopt.getopt(sys.argv[1:],"brco:",[])
   for o,a in opts:
-    if (o=='-c'): burstsFromCosmics=False
-    if (o=='-b'): bulkProcessing=True
-    if (o=='-r'): dropNonReady=False
-    if (o=='-o'): outputFN=a
+    if (o=='-c'):
+      burstsFromCosmics=False
+    if (o=='-b'):
+      bulkProcessing=True
+    if (o=='-r'):
+      dropNonReady=False
+    if (o=='-o'):
+      outputFN=a
 
   if len(args)<0:
-    print "No run number found"
+    print ("No run number found")
     sys.exit(-1)
 
   if len(args)>1:
-    print "Too many arguments"
+    print ("Too many arguments")
     sys.exit(-1)
 
   run=int(args[0])
       
   if (bulkProcessing):
-    print "Searching for bad lumi blocks in run %d for bulk processing"%run
+    print ("Searching for bad lumi blocks in run %d for bulk processing"%run)
   else:
-    print "Searching for bad lumi blocks in run %d for express processing"%run
+    print ("Searching for bad lumi blocks in run %d for express processing"%run)
 
   if (dropNonReady):
-    print "LB not marked as AtlasReady will be considered bad"
+    print ("LB not marked as AtlasReady will be considered bad")
   else:
-    print "LB not marked as AtlasReady will be considered good"
+    print ("LB not marked as AtlasReady will be considered good")
 
     
 
   badLBset=getLBsToIgnore(run,burstsFromCosmic,bulkProcessing, dropNonReady)
 
   badLBsorted=sorted(badLBset)
-  print "LBs to ignore:",badLBsorted
+  print ("LBs to ignore:",badLBsorted)
 
   if outputFN is not None:
     out=open(outputFN,"w")
@@ -258,4 +270,4 @@ if __name__ == "__main__":
 
 
 #  badLBset2=getLBsToIgnore(run)
-#  print "LBs to ignore:",sorted(badLBset)
+#  print ("LBs to ignore:",sorted(badLBset))

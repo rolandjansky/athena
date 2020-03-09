@@ -128,7 +128,7 @@ thinningTools.append(SUSY9TauTPThinningTool)
 #====================================================================
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 SUSY9TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY9TruthThinningTool",
-                                                     ThinningService              = SUSY9ThinningHelper.ThinningSvc(),
+                                                     StreamName                   = streamName,
                                                      WritePartons                 = False,
                                                      WriteHadrons                 = False,
                                                      WriteBHadrons                = True,
@@ -181,7 +181,7 @@ acceptors.append(METrequirement)
 # combine all
 looseSelection       = ' || '.join(acceptors)
 
-print "Skimming expression:", looseSelection
+printfunc ("Skimming expression:", looseSelection)
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SUSY9SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY9SkimmingTool",

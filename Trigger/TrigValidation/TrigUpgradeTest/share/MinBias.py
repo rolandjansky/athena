@@ -43,7 +43,7 @@ TrackCountHypo.OutputLevel= DEBUG
 
 TrackCountHypo.HypoInputDecisions="SPDecisions"
 TrackCountHypo.HypoOutputDecisions="TrackCountDecisions"
-TrackCountHypo.tracksKey="HLT_xAODTracksMinBias"
+TrackCountHypo.tracksKey="HLT_IDTrack_MinBias"
 TrackCountHypo.trackCountKey="HLT_TrackCount"
 
 

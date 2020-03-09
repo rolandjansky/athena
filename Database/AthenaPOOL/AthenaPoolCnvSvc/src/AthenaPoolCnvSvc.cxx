@@ -1163,7 +1163,7 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
    declareProperty("OutputPoolFileAllocator", m_streamClientFilesProp);
    declareProperty("PrintInputAttrPerEvt", m_inputPoolAttrPerEvent);
    declareProperty("MaxFileSizes", m_maxFileSizes);
-   declareProperty("PersSvcPerOutput", m_persSvcPerOutput = false);
+   declareProperty("PersSvcPerOutput", m_persSvcPerOutput = true);
    declareProperty("SkipFirstChronoCommit", m_skipFirstChronoCommit = false);
    declareProperty("InputStreamingTool", m_inputStreamingTool);
    declareProperty("OutputStreamingTool", m_outputStreamingTool);

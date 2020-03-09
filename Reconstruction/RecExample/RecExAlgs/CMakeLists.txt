@@ -25,3 +25,10 @@ atlas_install_headers( RecExAlgs )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
+atlas_add_test( flake8
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
+                POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( flake8_share
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/share
+                POST_EXEC_SCRIPT nopost.sh )

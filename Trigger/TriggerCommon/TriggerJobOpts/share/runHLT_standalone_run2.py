@@ -151,7 +151,7 @@ for name in menuMap:
                 
             if 'setupForMC' not in dir():
                 setupForMC=(key=='MC')
-                print 'Setting setupForMC = ',setupForMC
+                print('Setting setupForMC = ',setupForMC)
 
 if 'setupForMC' not in dir():
     setupForMC=False
@@ -275,10 +275,10 @@ if 'enableCostD3PD' in dir() or 'enableRateD3PD' in dir():
 log.info('Setup options:')
 for option in defaultOptions:
     if option in dir():
-        print ' %20s = %s' % (option,str(globals()[option]))
+        print(' %20s = %s' % (option,str(globals()[option])))
     else:
         globals()[option]=defaultOptions[option]
-        print ' %20s = (Default) %s' % (option,str(globals()[option]))
+        print(' %20s = (Default) %s' % (option,str(globals()[option])))
 
 #we don't want anything further on to depend on these flags
 del newMenuSetup
@@ -557,5 +557,5 @@ if len(condOverride)>0:
 if not TriggerFlags.Online.doValidation():  # Suppress this printout in ATN tests
     from AthenaCommon.JobProperties import jobproperties
     jobproperties.print_JobProperties('tree&value')
-    print AlgSequence
-    print ServiceMgr
+    print(AlgSequence)
+    print(ServiceMgr)

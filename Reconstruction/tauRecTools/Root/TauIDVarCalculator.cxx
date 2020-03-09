@@ -168,11 +168,7 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
  
   if(tau.nTracks() > 0){
     const xAOD::TrackParticle* track = 0;
-#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
     track = tau.track(0)->track();
-#else
-    track = tau.track(0);
-#endif
     acc_absEtaLead(tau) = fabs( track->eta() );
     acc_leadTrackEta(tau) = fabs( track->eta() );
     acc_absDeltaEta(tau) = fabs( track->eta() - tau.eta() );

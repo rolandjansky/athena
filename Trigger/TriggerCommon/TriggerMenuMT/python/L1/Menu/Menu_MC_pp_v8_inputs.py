@@ -74,7 +74,7 @@ def defineInputsMenu():
     # new topo board for multiplicities
     #
     topoBoards["Topo1"] = odict([("connectors",[])])
-    topoBoards["Topo1"]["connectors"].append({
+    topoBoards["Topo1"]["connectors"].append({ # first optical connector
         "name" : "Topo1Opt0",
         "format" : "multiplicity",
         "nbitsDefault" : 3,
@@ -87,7 +87,7 @@ def defineInputsMenu():
         ]
     })
 
-    topoBoards["Topo1"]["connectors"].append({
+    topoBoards["Topo1"]["connectors"].append({ # second optical connector
         "name" : "Topo1Opt1",
         "format" : "multiplicity",
         "nbitsDefault" : 3,
@@ -101,7 +101,7 @@ def defineInputsMenu():
         ]
     })
 
-    topoBoards["Topo1"]["connectors"].append({
+    topoBoards["Topo1"]["connectors"].append({ # third optical connector
         "name" : "Topo1Opt2",
         "format" : "multiplicity",
         "nbitsDefault" : 3,
@@ -114,7 +114,7 @@ def defineInputsMenu():
         ]
     })
 
-    topoBoards["Topo1"]["connectors"].append({
+    topoBoards["Topo1"]["connectors"].append({ # fourth optical connector
         "name" : "Topo1Opt3",
         "format" : "multiplicity",
         "nbitsDefault" : 3,
@@ -270,7 +270,7 @@ def defineInputsMenu():
             # we are still reflecting the old muon system, until the muon simulation is implemented.
             # the old one starts at bit 1 and has those 6 thresholds
             (None,1),
-            'MU4', 'MU6', 'MU10', 'MU11', 'MU15', 'MU20',
+            'MU4', 'MU6', 'MU10', 'MU11', 'MU20', 'MU21',
         ]
 
     })

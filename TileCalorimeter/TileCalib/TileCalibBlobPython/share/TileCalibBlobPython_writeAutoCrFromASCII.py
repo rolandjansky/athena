@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TileCalibBlobPython_writePedFromASCII.py
 # Nils Gollub <nils.gollub@cern.ch>, 2008-03-03
@@ -10,11 +10,11 @@
 import cppyy
 
 from TileCalibBlobPython import TileCalibTools
-from TileCalibBlobObjs.Classes import * 
+from TileCalibBlobObjs.Classes import TileCalibUtils
 import os
 
 #=== some preparation
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("writeAutoCr")
 import logging
 log.setLevel(logging.DEBUG)
@@ -32,7 +32,7 @@ def fillAutoCr(filePed, tag, since,
 
     #=== common noise autocr defaults (no correlation)
     default = cppyy.gbl.std.vector('float')()
-    for i in xrange(6):
+    for i in range(6):
         default.push_back(0.)
     defVec = cppyy.gbl.std.vector('std::vector<float>')()
     defVec.push_back(default)
@@ -43,35 +43,35 @@ def fillAutoCr(filePed, tag, since,
     #=====================================================
     writer = TileCalibTools.TileBlobWriter(db,folder,'Flt')
     writer.setComment(os.getlogin(),"Giulio's file for LBC test n.0, 2009-02-27")
-    parser = TileCalibTools.TileASCIIParser(filePed,"AutoCr");
+    parser = TileCalibTools.TileASCIIParser(filePed,"AutoCr")
 
     #=== initialize all channels and write global default
     util = cppyy.gbl.TileCalibUtils()
-    for ros in xrange(util.max_ros()):
-        for drawer in xrange(util.getMaxDrawer(ros)):
-            flt = writer.zeroBlob(ros,drawer)
+    for ros in range(util.max_ros()):
+        for drawer in range(util.getMaxDrawer(ros)):
+            writer.zeroBlob(ros,drawer)
     calibDrawer = writer.getDrawer(0,0)
     calibDrawer.init(defVec,1,1)
 
     #=== loop over whole detector
-    for ros in xrange(1,5):
-        for mod in xrange(64):
+    for ros in range(1,5):
+        for mod in range(64):
             #=== need to invalidate previous blob in DB when reading from ASCII file
             writer.zeroBlob(ros,mod)
-            for chn in xrange(48):
+            for chn in range(48):
                 values = parser.getData(ros,mod,chn)
                 if not len(values):
-                    log.warning("%i/%2i/%2i/x: No value found in file" % (ros,mod,chn))
+                    log.warning("%i/%2i/%2i/x: No value found in file", ros,mod,chn)
                     continue
                 #=== init drawer with defaults for first entry
                 calibDrawer = writer.getDrawer(ros,mod)
                 if not calibDrawer.getNObjs():
-                    log.info("Initializing drawer %i/%2i\t%i" % (ros,mod,calibDrawer.getNObjs()))
+                    log.info("Initializing drawer %i/%2i\t%i", ros,mod,calibDrawer.getNObjs())
                     calibDrawer.init(defVec,48,1)
                 #=== fill in realistic values
-                for adc in xrange(2):
+                for adc in range(2):
                     line = "%i/%2i/%2i/%i: " % (ros,mod,chn,adc)            
-                    for i in xrange(6):
+                    for i in range(6):
                         value = float(values[adc*6+i])
                         calibDrawer.setData(chn,adc,i,value)
                         line += "%f " % (value,)

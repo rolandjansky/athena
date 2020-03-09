@@ -94,7 +94,7 @@ thinningTools.append(SUSY4TauTPThinningTool)
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY4TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY4TruthThinningTool",
-                                                       ThinningService              = SUSY4ThinningHelper.ThinningSvc(),
+                                                       StreamName                   = streamName,
                                                        WritePartons                 = False,
                                                        WriteHadrons                 = False,
                                                        WriteBHadrons                = True,

@@ -9,6 +9,7 @@ def LArMonitoringConfig(inputFlags):
     from LArMonitoring.LArAffectedRegionsAlg import LArAffectedRegionsConfig
     from LArMonitoring.LArDigitMonAlg import LArDigitMonConfig
     from LArMonitoring.LArRODMonAlg import LArRODMonConfig
+    from LArMonitoring.LArNoisyROMonAlg import LArNoisyROMonConfig
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
@@ -17,6 +18,7 @@ def LArMonitoringConfig(inputFlags):
     if inputFlags.DQ.Environment != 'tier0Raw':
         if not inputFlags.Input.isMC:
             acc.merge(LArAffectedRegionsConfig(inputFlags))
+            acc.merge(LArNoisyROMonConfig(inputFlags))
 
     # algos which can run in ESD but not AOD:
     if inputFlags.DQ.Environment != 'AOD':

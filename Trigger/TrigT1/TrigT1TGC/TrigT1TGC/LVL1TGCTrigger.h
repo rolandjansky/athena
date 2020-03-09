@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // LVL1TGCTrigger.h
@@ -31,15 +31,22 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
 #include "MuonDigitContainer/TgcDigit.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "TrigT1TGC/TGCArguments.hh"
+#include "MuonDigitContainer/TgcDigitContainer.h"
+
+// Tile-Muon
+#include "TileEvent/TileMuContainer.h"
+#include "TileEvent/TileMuonReceiverObj.h"
 
 class TgcRdo;
 class TgcRawData;
 class ITGCcablingSvc;
-class TgcDigitContainer; 
 
 namespace LVL1TGCTrigger {
   
@@ -83,10 +90,10 @@ namespace LVL1TGCTrigger {
     StatusCode finalize() ;
     
   private:
-    StatusCode processOneBunch(const DataHandle<TgcDigitContainer>&,
+    StatusCode processOneBunch(const TgcDigitContainer*,
 			       LVL1MUONIF::Lvl1MuCTPIInput*,
 			       LVL1MUONIF::Lvl1MuCTPIInputPhase1*);
-    void doMaskOperation(const DataHandle<TgcDigitContainer>& ,std::map<Identifier, int>& );
+    void doMaskOperation(const TgcDigitContainer* ,std::map<Identifier, int>& );
     void fillTGCEvent(std::map<Identifier, int>& ,  TGCEvent&);
     
     // Fill TMDB event data
@@ -126,33 +133,20 @@ namespace LVL1TGCTrigger {
     
     
     // Properties
-    
+
     // Location of LVL1MUONIF::Lvl1MuSectorLogicData (output from SL)
     StringProperty m_keyMuCTPIInput_TGC{this,"MuCTPIInput_TGC","L1MuctpiStoreTGC"};
-    
+
     // Version of Coincidence Window
     StringProperty m_VerCW{this,"VersionCW","00_07_0022"};
     
-    // Location of TgcDigitContainer
-    StringProperty m_keyTgcDigit{this,"InputData_perEvent","TGC_DIGITS"};
-    
-    // Location of TileMuonReceiverContainer
-    StringProperty m_keyTileMu{this,"TileMuRcv_Input","TileMuRcvCnt"};
-    
-    StringProperty    m_MaskFileName{this,"MaskFileName",""};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     StringProperty    m_MaskFileName12{this,"MaskFileName12",""};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     ShortProperty     m_CurrentBunchTag{this,"CurrentBunchTag",TgcDigit::BC_CURRENT};  //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     BooleanProperty   m_ProcessAllBunches{this,"ProcessAllBunhes",true};
     BooleanProperty   m_OutputTgcRDO{this,"OutputTgcRDO",true};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     
     // expert usage
-    BooleanProperty   m_STRICTWD{this,"STRICTWD",false};
-    BooleanProperty   m_STRICTWT{this,"STRICTWT",false};
-    BooleanProperty   m_STRICTSD{this,"STRICTSD",false};
-    BooleanProperty   m_STRICTST{this,"STRICTST",false};
     BooleanProperty   m_OUTCOINCIDENCE{this,"OUTCOINCIDENCE",false}; //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
-    BooleanProperty   m_SINGLEBEAM{this,"SINGLEBEAM",false}; // for the single beam run
-    BooleanProperty   m_MUHALO{this,"MUHALO",false}; // flag for including MUHALO (i.e. 2-st coin ) in pt=1
     BooleanProperty   m_SHPTORED{this,"SHPTORED",true}; // flag for E1/E2 chamber ORED in Strip HPT
     BooleanProperty   m_USEINNER{this,"USEINNER",true}; // flag for using Inner Station for SL
     BooleanProperty   m_INNERVETO{this,"INNERVETO",true}; // flag for using VETO by Inner Station for SL
@@ -182,10 +176,14 @@ namespace LVL1TGCTrigger {
     
     TGCArguments m_tgcArgs;
     TGCArguments* tgcArgs();
-      
+
+
+    SG::ReadHandleKey<TgcDigitContainer> m_keyTgcDigit{this,"InputData_perEvent","TGC_DIGITS","Location of TgcDigitContainer"};
+    SG::ReadHandleKey<TileMuonReceiverContainer> m_keyTileMu{this,"TileMuRcv_Input","TileMuRcvCnt","Location of TileMuonReceiverContainer"};
     SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey{this,"ReadCondKey","TGCTriggerData"};
     SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInput> m_muctpiKey{this, "MuctpiLocationTGC", "L1MuctpiStoreTGC", "Location of muctpi for Tgc"};
     SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1Key{this, "MuctpiPhase1LocationTGC", "L1MuctpiStoreTGC", "Location of muctpiPhase1 for Tgc"};
+
   }; // class LVL1TGCTrigger
 
   inline TGCArguments* LVL1TGCTrigger::tgcArgs() {

@@ -24,8 +24,8 @@ namespace Muon
 {
 
   /** @class MuonAmbiTrackSelectionTool 
-      This tool cross checks the hits on a track with the hits already stored in 
-      a PRD_AssociationTool. Shared hits are allowed to some extent und under certain conditions
+      This tool cross checks the hits on a track with the hits already stored. Shared hits 
+      are allowed to some extent und under certain conditions
       (e.g. the track score is high enough), additional shared hits are removed if necessary.
       This tool does not delete any tracks. If the client is going to discard tracks entered into
       this tool, the tracks have to be deleted by this client.

@@ -91,8 +91,11 @@ We describe here how each field of the identifier is determined.
 
 #include "MuonSimEvent/RPCSimHitCollection.h"
 #include "MuonSimEvent/RpcHitIdHelper.h"
+#include <gtest/gtest_prod.h>
 
 class RPCSensitiveDetectorCosmics : public G4VSensitiveDetector {
+FRIEND_TEST( RPCSensitiveDetectorCosmicstest, Initialize );
+FRIEND_TEST( RPCSensitiveDetectorCosmicstest, ProcessHits );
 
 public:
     /** construction/destruction */

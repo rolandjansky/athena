@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -961,21 +961,6 @@ double Jet::getCalE()  const { return e(P4SignalState::JETFINAL);  }
 double Jet::getCalPx() const { return px(P4SignalState::JETFINAL); }
 double Jet::getCalPy() const { return py(P4SignalState::JETFINAL); }
 double Jet::getCalPz() const { return pz(P4SignalState::JETFINAL); }
-
-void Jet::setStateRaw() const
-{
-  this->setSignalState(P4SignalState::JETEMSCALE);
-}
-
-void Jet::setStateCScale() const
-{
-  this->setSignalState(P4SignalState::JETCONSTITUENTSCALE);
-}
-
-void Jet::setStateCal() const
-{
-  this->setSignalState(P4SignalState::JETFINAL);
-}
 
 double Jet::ei()  const { return this->e(); }
 

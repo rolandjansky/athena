@@ -53,8 +53,6 @@ The package contains the two tools:
   - SiRegionSelectorTable:  Pixel and SCT
   - TRT_RegionSelectorTable:  For TRT.
 
-  - FTK_RegionSelectorTable:  For FTK.
-
 
 @section InDetRegionSelector_InDetRegionSelectorJobOptions Job Options
 

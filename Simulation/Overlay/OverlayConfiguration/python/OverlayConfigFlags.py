@@ -15,6 +15,8 @@ def createOverlayConfigFlags():
     flags.addFlag("Overlay.BkgPrefix", "Bkg_")
     # Overlay signal StoreGate key prefix
     flags.addFlag("Overlay.SigPrefix", "Sig_")
+    # Overlay extra input dependencies
+    flags.addFlag("Overlay.ExtraInputs", [("McEventCollection", "TruthEvent")])
     # Name of MC EvtStore to overlay
     flags.addFlag("Overlay.Legacy.EventStore", "BkgEvent_0_SG")
     return flags
@@ -30,6 +32,7 @@ def setupOverlayDetectorFlags(configFlags):
     configFlags.Detector.OverlayTRT = True
     configFlags.Detector.OverlayLAr = True
     configFlags.Detector.OverlayTile = True
+    configFlags.Detector.OverlayL1Calo = not configFlags.Overlay.DataOverlay
     configFlags.Detector.OverlayCSC = True
     configFlags.Detector.OverlayMDT = True
     configFlags.Detector.OverlayRPC = True

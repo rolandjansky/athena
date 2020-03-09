@@ -444,10 +444,13 @@ if opt.doL1Unpacking:
         from L1Decoder.L1DecoderConfig import L1Decoder
         l1decoder = L1Decoder("L1Decoder")
         l1decoder.ctpUnpacker.ForceEnableAllChains = opt.forceEnableAllChains
+        if opt.decodePhaseIL1:
+            from L1Decoder.L1DecoderConfig import L1TriggerResultMaker
+            topSequence += L1TriggerResultMaker()
+        else:
+            l1decoder.L1TriggerResult = ""
         if not opt.decodeLegacyL1:
             l1decoder.RoIBResult = ""
-        if not opt.decodePhaseIL1:
-            l1decoder.L1TriggerResult = ""
         if TriggerFlags.doTransientByteStream():
             transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
             l1decoder.ExtraInputs += [transTypeKey]

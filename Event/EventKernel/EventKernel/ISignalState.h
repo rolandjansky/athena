@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTKERNEL_ISIGNALSTATE_H
@@ -36,8 +36,7 @@ struct P4SignalState {
 };
 
 class SignalStateHelper;
-template <class COLL>
-class SignalStateCollHelper;
+class SignalStateConstHelper;
 
 class ISignalState
 {
@@ -61,15 +60,14 @@ public:
 protected:
   
   /** set the current signal state */
-  virtual bool setSignalState(P4SignalState::State s) const = 0;
+  virtual bool setSignalState(P4SignalState::State s) = 0;
   
   /** reset the signal state */
-  virtual void resetSignalState() const = 0;
+  virtual void resetSignalState() = 0;
 
   /** make friends! */
   friend class SignalStateHelper;
-  template <class COLL>
-  friend class SignalStateCollHelper;
+  friend class SignalStateConstHelper;
   
 };
 #endif

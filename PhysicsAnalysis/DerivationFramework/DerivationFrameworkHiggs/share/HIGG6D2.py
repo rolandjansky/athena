@@ -37,12 +37,8 @@ streamName = derivationFlags.WriteDAOD_HIGG6D2Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG6D2Stream )
 HIGG6D2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 HIGG6D2Stream.AcceptAlgs(["HIGG6D2Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="HIGG6D2ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # TAU SELECTOR TOOL 
@@ -225,7 +221,7 @@ ToolSvc += HIGG6D2TPThinningTool
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 HIGG6D2TruthThinningTool = DerivationFramework__MenuTruthThinning(name          = "HIGG6D2TruthThinningTool",
-                                                     ThinningService            = "HIGG6D2ThinningSvc",
+                                                     StreamName                 = streamName,
                                                      WritePartons               = False,
                                                      WriteHadrons               = False,
                                                      WriteBHadrons              = True,

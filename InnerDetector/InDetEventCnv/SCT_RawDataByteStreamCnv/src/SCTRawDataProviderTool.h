@@ -51,7 +51,7 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
    *  */
   virtual StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecROBFrags,
                              ISCT_RDO_Container& rdoIDCont,
-                             InDetBSErrContainer* errs) const override;
+                             IDCInDetBSErrContainer& errs) const override;
 
  private: 
 

@@ -129,34 +129,18 @@ def all_DataFlow_to_dot(name, step_list):
                 cfseq_algs = []
                 cfseq_algs.append(cfseq.filter)
 
-                alreadydrawn = set()
-
                 if len(cfseq.step.sequences)==0:
                     last_step_hypoNodes.append(cfseq.filter)
 
                 for menuseq in cfseq.step.sequences:
-                    cfseq_algs.append(menuseq.maker)
-                    cfseq_algs.append(menuseq.sequence )
-                    if menuseq not in alreadydrawn:
-                        alreadydrawn.add(menuseq)
-                        file.write("    %s[fillcolor=%s]\n"%(menuseq.maker.Alg.name(), algColor(menuseq.maker.Alg)))
-                        file.write("    %s[fillcolor=%s]\n"%(menuseq.sequence.Alg.name(), algColor(menuseq.sequence.Alg)))
-                    if type(menuseq.hypo) is list:
-                       for hp in menuseq.hypo:
-                          cfseq_algs.append(hp)
-                          file.write("    %s[color=%s]\n"%(hp.Alg.name(), algColor(hp.Alg)))
-                          all_hypos.append(hp)
-                    else:
-                       cfseq_algs.append(menuseq.hypo)
-                       file.write("    %s[color=%s]\n"%(menuseq.hypo.Alg.name(), algColor(menuseq.hypo.Alg)))
-                       all_hypos.append(menuseq.hypo)
-                       if not cfseq.step.isCombo:
-                        if type(menuseq.hypo) is list:
-                           last_step_hypoNodes.append(menuseq.hypo[-1])
-                        else:
-                           last_step_hypoNodes.append(menuseq.hypo)
+                    cfseq_algs, all_hypos, last_step_hypoNodes = menuseq.buildCFDot(cfseq_algs,
+                                                                                    all_hypos,
+                                                                                    cfseq.step.isCombo,
+                                                                                    last_step_hypoNodes,
+                                                                                    file)
 
-                    #combo
+                                                                                     
+                #combo
                 if cfseq.step.isCombo:
                     if cfseq.step.combo is not None:
                         file.write("    %s[color=%s]\n"%(cfseq.step.combo.Alg.name(), algColor(cfseq.step.combo.Alg)))
@@ -201,26 +185,13 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
             cfseq_algs = []
             cfseq_algs.append(cfseq.filter)
 
-            alreadydrawn = set()
-                    
             for menuseq in cfseq.step.sequences:
-                cfseq_algs.append(menuseq.maker)
-                cfseq_algs.append(menuseq.sequence )
-                if menuseq not in alreadydrawn:
-                    alreadydrawn.add(menuseq)
-                    file.write("    %s[fillcolor=%s]\n"%(menuseq.maker.Alg.name(), algColor(menuseq.maker.Alg)))
-                    file.write("    %s[fillcolor=%s]\n"%(menuseq.sequence.Alg.name(), algColor(menuseq.sequence.Alg)))
-                if type(menuseq.hypo) is list:
-                   for hp in menuseq.hypo:
-                      cfseq_algs.append(hp)
-                      file.write("    %s[color=%s]\n"%(hp.Alg.name(), algColor(hp.Alg)))
-                      all_hypos.append(hp)
-                else:
-                   cfseq_algs.append(menuseq.hypo)
-                   file.write("    %s[color=%s]\n"%(menuseq.hypo.Alg.name(), algColor(menuseq.hypo.Alg)))
-                   all_hypos.append(menuseq.hypo)
-
-                #combo
+                    cfseq_algs, all_hypos, _ = menuseq.buildCFDot(cfseq_algs,
+                                                                  all_hypos,
+                                                                  True,
+                                                                  None,
+                                                                  file)
+            #combo
             if cfseq.step.isCombo:
                 if cfseq.step.combo is not None:
                     file.write("    %s[color=%s]\n"%(cfseq.step.combo.Alg.name(), algColor(cfseq.step.combo.Alg)))

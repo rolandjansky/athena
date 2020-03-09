@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,9 +17,6 @@
 // GeoModel
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
 
-// Cabling Service
-//#include "TGCcablingInterface/ITGCcablingServerSvc.h"
-
 #include "Identifier/Identifier.h"
 
 // MuonRDO
@@ -30,20 +27,13 @@
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
-//#include "MuonDQAUtils/TGCDQAUtils.h"
 
-// Eigen
-//#include "GeoPrimitives/GeoPrimitives.h"
-//#include "EventPrimitives/EventPrimitives.h"
- 
 #include "TgcRawDataMonitoring/TgcRawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 #include <TError.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TMath.h>
-#include <TF1.h>
+#include <TH1F.h>
+#include <TH2F.h>
 #include <inttypes.h> 
 
 #include <sstream>

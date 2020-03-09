@@ -304,6 +304,11 @@ def __parseIOVDbFolder(definition):
     if db_match:
         result['db'] = db_match.group(1)
         definition = definition.replace(db_match.group(0), '')
+    # key
+    key_match = re.search(r'<key>(.*)</key>', definition)
+    if key_match:
+        result['key'] = key_match.group(1)
+        definition = definition.replace(key_match.group(0), '')
     # tag
     tag_match = re.search(r'<tag>(.*)</tag>', definition)
     if tag_match:

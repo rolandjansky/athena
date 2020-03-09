@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -162,7 +162,7 @@ void L1CaloPprPlotManager::Analyze(const EventInfo* evtInfo, const xAOD::Trigger
     {
         if (m_firstRun)
         {
-            this->bookRunHistograms();
+            this->bookRunHistograms().ignore();
             m_firstRun = false;
         }
         if (this->isNewRun())

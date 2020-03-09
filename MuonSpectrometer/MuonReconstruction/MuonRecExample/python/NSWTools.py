@@ -18,6 +18,9 @@ def UTPCMMClusterBuilderTool(name="UTPCMMClusterBuilderTool",extraFlags=None,**k
 
 def ProjectionMMClusterBuilderTool(name="ProjectionMMClusterBuilderTool",extraFlags=None,**kwargs):
     return CfgMgr.Muon__ProjectionMMClusterBuilderTool(name,**kwargs)
+
+def ConstraintAngleMMClusterBuilderTool(name="ConstraintAngleMMClusterBuilderTool",extraFlags=None,**kwargs):
+    return CfgMgr.Muon__ConstraintAngleMMClusterBuilderTool(name,**kwargs)
 ##
 ## STgc Tools
 ##

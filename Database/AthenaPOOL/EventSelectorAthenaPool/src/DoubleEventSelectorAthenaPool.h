@@ -64,6 +64,9 @@ private:
   ServiceHandle<ISecondaryEventSelector> m_secondarySelector{this, "SecondaryEventSelector", "SecondaryEventSelector", ""};
 
   Gaudi::Property<std::string> m_secondaryAttrListSuffix{this, "SecondaryAttrListSuffix", "secondary", ""};
+
+  // Cache if secondary selector is ByteStream
+  bool m_secondaryByteStream{};
 };
 
 #endif

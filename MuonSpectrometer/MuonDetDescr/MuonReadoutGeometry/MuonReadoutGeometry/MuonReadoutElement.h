@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  Common Muon Readout Element properties
  -----------------------------------------
  ***************************************************************************/
-
-//<doc><file>	$Id: MuonReadoutElement.h,v 1.3 2009-03-03 00:27:38 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #ifndef MUONGEOMODEL_MUONREADOUTELEMENT_H
 # define MUONGEOMODEL_MUONREADOUTELEMENT_H
@@ -25,8 +22,6 @@
 #define maxfieldindex 10
 
 class GeoPhysVol;
-class IMessageSvc;
-class MsgStream;
 
 namespace MuonGM {
 
@@ -170,9 +165,6 @@ public:
    {return defTransform();};
  
 protected:
-   // Gaudi message service
-   IMessageSvc* m_msgSvc;
-   mutable std::unique_ptr<MsgStream> m_Log ATLAS_THREAD_SAFE;
    double m_Ssize, m_Rsize, m_Zsize, m_LongSsize, m_LongRsize, m_LongZsize;
    //!< size in the specified direction
    bool m_descratzneg;

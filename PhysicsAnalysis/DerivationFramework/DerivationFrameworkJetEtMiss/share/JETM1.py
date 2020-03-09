@@ -56,7 +56,7 @@ thinningTools.append(JETM1MuonTPThinningTool)
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 JETM1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM1ElectronTPThinningTool",
-                                                                               ThinningService         = JETM1ThinningHelper.ThinningSvc(),
+                                                                               StreamName              = streamName,
                                                                                SGKey                   = "Electrons",
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM1ElectronTPThinningTool
@@ -76,7 +76,7 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     JETM1TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "JETM1TruthThinningTool",
-                                                                        ThinningService = "JETM1ThinningSvc",
+                                                                        StreamName              = streamName,
                                                                         ParticlesKey = "TruthParticles",
                                                                         VerticesKey = "TruthVertices",
                                                                         ParticleSelectionString = truth_expression,

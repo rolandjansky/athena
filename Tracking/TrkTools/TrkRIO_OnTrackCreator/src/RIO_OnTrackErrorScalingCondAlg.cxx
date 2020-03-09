@@ -126,7 +126,7 @@ StatusCode RIO_OnTrackErrorScalingCondAlg::execute() {
 
   try {
     // now populate output conditions data objects from attribut lists.
-    for (const std::pair<unsigned int, coral::AttributeList>& channel : **readHandle ) {
+    for (const std::pair<const unsigned int, coral::AttributeList>& channel : **readHandle ) {
       const coral::AttributeList &alist = channel.second;
       unsigned int att_i=0;
       const std::string& attr_name=alist[att_i++].data<std::string>();

@@ -278,12 +278,10 @@ double MdtReadoutElement::getGasLength(int tubeLayer, int tube) const
 }
 double MdtReadoutElement::getTubeLength(int tubeLayer, int tube) const
 {
-  //std::cout<<" in getTubeLength going to compure getActiveTubeLength (+2.*m_deadlength="<<m_deadlength<<")"<<std::endl; 
   return getActiveTubeLength(tubeLayer, tube) + 2.*m_deadlength;
 }
 double MdtReadoutElement::getActiveTubeLength(int tubeLayer, int tube) const
 {
-  //std::cout<<" in getActiveTubeLength going to compute 2*bounds.halflength for tLayer,tube="<<tubeLayer<<" "<<tube<<" "<<std::endl;
   return 2.*(bounds(tubeLayer,tube).halflengthZ());
 }
 

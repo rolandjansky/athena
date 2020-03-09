@@ -58,10 +58,12 @@ def setupOverlayTestDetectorFlags(configFlags, detectors):
         configFlags.Detector.OverlaySCT = True
     if not detectors or 'TRT' in detectors or 'ID' in detectors:
         configFlags.Detector.OverlayTRT = True
-    if not detectors or 'LAr' in detectors or 'Calo' in detectors:
+    if not detectors or 'LAr' in detectors or 'Calo' in detectors or 'L1Calo' in detectors:
         configFlags.Detector.OverlayLAr = True
-    if not detectors or 'Tile' in detectors or 'Calo' in detectors:
+    if not detectors or 'Tile' in detectors or 'Calo' in detectors or 'L1Calo' in detectors:
         configFlags.Detector.OverlayTile = True
+    if not detectors or 'L1Calo' in detectors:
+        configFlags.Detector.OverlayL1Calo = not configFlags.Overlay.DataOverlay
     if not detectors or 'CSC' in detectors or 'Muon' in detectors:
         configFlags.Detector.OverlayCSC = True
     if not detectors or 'MDT' in detectors or 'Muon' in detectors:
@@ -78,9 +80,20 @@ def setupOverlayTestDetectorFlags(configFlags, detectors):
 
 def defaultTestFlags(configFlags, args):
     """Fill default overlay flags for testing"""
-    from AthenaConfiguration.TestDefaults import defaultTestFiles
     configFlags.GeoModel.Align.Dynamic = False
+    configFlags.Digitization.DoCaloNoise = False
     configFlags.Digitization.DoInnerDetectorNoise = False
+    configFlags.Digitization.DoDigiTruth = False
+    configFlags.LAr.OFCShapeFolder = "4samples1phase"
+    configFlags.LAr.ROD.DoOFCPileupOptimization = True
+    configFlags.LAr.ROD.nSamples = 4
+    configFlags.LAr.ROD.NumberOfCollisions = 20
+    configFlags.LAr.ROD.UseHighestGainAutoCorr = True
+    configFlags.Tile.BestPhaseFromCOOL = False
+    configFlags.Tile.correctTime = False
+    configFlags.Tile.zeroAmplitudeWithoutDigits = False
+
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
     if args.data:
         configFlags.Input.isMC = False  # TODO: this one should be autodetected
         configFlags.Input.Files = defaultTestFiles.HITS_DATA_OVERLAY
@@ -95,10 +108,16 @@ def defaultTestFlags(configFlags, args):
         configFlags.Output.RDOFileName = "mcOverlayRDO.pool.root"
         configFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-20"
         configFlags.Overlay.DataOverlay = False
+
     if args.output:
-        configFlags.Output.RDOFileName = args.output
+        if args.output == 'None':
+            configFlags.Output.RDOFileName = ''
+        else:
+            configFlags.Output.RDOFileName = args.output
+
     if args.outputSig:
         configFlags.Output.RDO_SGNLFileName = args.outputSig
+
     setupOverlayTestDetectorFlags(configFlags, args.detectors if 'detectors' in args else None)
 
 

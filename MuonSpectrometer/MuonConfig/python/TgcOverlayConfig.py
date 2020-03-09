@@ -33,10 +33,17 @@ def TgcOverlayAlgCfg(flags, name="TgcOverlay", **kwargs):
     acc.addEventAlgo(alg)
 
     # Setup output
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
-        "TgcRdoContainer#TGCRDO"
-    ]))
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "TgcRdoContainer#TGCRDO"
+        ]))
+
+    if flags.Output.doWriteRDO_SGNL:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
+            "TgcRdoContainer#" + flags.Overlay.SigPrefix + "TGCRDO"
+        ]))
 
     return acc
 
@@ -62,10 +69,17 @@ def TgcTruthOverlayCfg(flags, name="TgcTruthOverlay", **kwargs):
     acc.addEventAlgo(alg)
 
     # Setup output
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
-        "MuonSimDataCollection#TGC_SDO"
-    ]))
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "MuonSimDataCollection#TGC_SDO"
+        ]))
+
+    if flags.Output.doWriteRDO_SGNL:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
+            "MuonSimDataCollection#" + flags.Overlay.SigPrefix + "TGC_SDO"
+        ]))
 
     return acc
 

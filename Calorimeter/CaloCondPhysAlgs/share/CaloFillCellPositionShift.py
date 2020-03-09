@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloNoise2Ntuple
@@ -29,7 +30,7 @@ rec.RunNumber.set_Value_and_Lock(RunNumber)
 
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doMonitoring = True
-from AthenaCommon.Resilience import treatException,protectedInclude
+from AthenaCommon.Resilience import protectedInclude
 protectedInclude( "PerfMonComps/PerfMonSvc_jobOptions.py" )
 
 from AthenaCommon.DetFlags import DetFlags

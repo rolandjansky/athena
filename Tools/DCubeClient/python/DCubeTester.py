@@ -652,7 +652,7 @@ class DCubeTester( DCubeObject ):
         self.allGOOD = 0
         self.allWARN = 0
         self.allFAIL = 0
-        for key, value  in self.sumTable.iteritems():
+        for key, value  in self.sumTable.items():
             nbGOOD = value["OK"]
             nbWARN = value["WARN"]
             nbFAIL = value["FAIL"]
@@ -681,10 +681,10 @@ class DCubeTester( DCubeObject ):
         out += "* " + "-"*45+"\n"
 
         out += "*"*61+"\n"
-        self.nbErrors = sum( self.errors.itervalues() )
+        self.nbErrors = sum( self.errors.values() )
         out += "* WARNINGS = %3d\n" % self.nbErrors
         i = 1
-        for key, value in self.errors.iteritems( ):
+        for key, value in self.errors.items( ):
             sev, what = key.split(";")
 
             out += "* [%02d] %4s %-30s - occured %d " %  (i, sev, what, value )
@@ -724,7 +724,7 @@ class DCubeTester( DCubeObject ):
 
         testTable = self.xmldoc.createElement( "table" )
         testTable.appendChild( self.__sumTableRow( [ "test", "OK", "WARN", "FAIL" ] ) )
-        for test, results in self.sumTable.iteritems():
+        for test, results in self.sumTable.items():
             testTable.appendChild( self.__sumTableRow( [ test,
                                                          results["OK"],
                                                          results["WARN"],
@@ -741,7 +741,7 @@ class DCubeTester( DCubeObject ):
         errorsNode = self.xmldoc.createElement( "errors" )
         errorsNode.setAttribute( "nb", "%d" % self.nbErrors )
 
-        for error,times in self.errors.iteritems():
+        for error,times in self.errors.items():
             error = error.replace(";", " ")
             errorNode = self.xmldoc.createElement( "error" )
             errorNode.setAttribute( "times", "%d" % times )

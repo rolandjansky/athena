@@ -15,9 +15,11 @@ from AthenaCommon.SystemOfUnits import *
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
 class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
     def __init__ (self, name, doResMon=False):
-        self.name = "TrigFastTrackFinderMonitoring_" + name
+        self.name = "TrigFastTrackFinder_" + name
         super(TrigFastTrackFinderMonitoring, self).__init__( self.name )
         self.HistPath = self.name
         self.addSPHistograms(name)
@@ -28,16 +30,16 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
             self.addResidualHistograms()
 
     def addSPHistograms(self, name):
-        if name=="FS":
-            self.defineHistogram('roi_nSPsPIX', path='EXPERT',type='TH1F',title="Number of Pixel SPs", xbins = 500, xmin=-0.5, xmax=49999.5)
-            self.defineHistogram('roi_nSPsSCT', path='EXPERT',type='TH1F',title="Number of SCT SPs", xbins = 500, xmin=-0.5, xmax=99999.5)
-            self.defineHistogram('roi_phiWidth',path='EXPERT',type='TH1F',title="Phi width of the input RoI",xbins = 100, xmin=0, xmax=6.4)
-            self.defineHistogram('roi_etaWidth',path='EXPERT',type='TH1F',title="Eta width of the input RoI",xbins = 100, xmin=0, xmax=5)
-        else:
+        if name=='Electron' or name=='Muon' or name=='TauCore' or name=='MuonIso' or name=='TauIso':
             self.defineHistogram('roi_nSPsPIX', path='EXPERT',type='TH1F',title="Number of Pixel SPs", xbins = 50, xmin=-0.5, xmax=4999.5)
             self.defineHistogram('roi_nSPsSCT', path='EXPERT',type='TH1F',title="Number of SCT SPs", xbins = 50, xmin=-0.5, xmax=4999.5)
             self.defineHistogram('roi_phiWidth',path='EXPERT',type='TH1F',title="Phi width of the input RoI",xbins = 100, xmin=0, xmax=1.0)
             self.defineHistogram('roi_etaWidth',path='EXPERT',type='TH1F',title="Eta width of the input RoI",xbins = 100, xmin=0, xmax=1.0)
+        else:
+            self.defineHistogram('roi_nSPsPIX', path='EXPERT',type='TH1F',title="Number of Pixel SPs", xbins = 500, xmin=-0.5, xmax=49999.5)
+            self.defineHistogram('roi_nSPsSCT', path='EXPERT',type='TH1F',title="Number of SCT SPs", xbins = 500, xmin=-0.5, xmax=99999.5)
+            self.defineHistogram('roi_phiWidth',path='EXPERT',type='TH1F',title="Phi width of the input RoI",xbins = 100, xmin=0, xmax=6.4)
+            self.defineHistogram('roi_etaWidth',path='EXPERT',type='TH1F',title="Eta width of the input RoI",xbins = 100, xmin=0, xmax=5)
         self.defineHistogram('roi_eta',     path='EXPERT',type='TH1F',title='Eta of the input RoI;;Entries', xbins=100, xmin=-5, xmax=5)
         self.defineHistogram('roi_phi',     path='EXPERT',type='TH1F',title="Phi of the input RoI",xbins = 100, xmin=-3.2, xmax=3.2)
         self.defineHistogram('roi_z',       path='EXPERT',type='TH1F',title="z of the input RoI",xbins = 200, xmin=-400, xmax=400)
@@ -45,35 +47,35 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
 
     def addDataErrorHistograms(self):
         self.defineHistogram('roi_lastStageExecuted',path='EXPERT',type='TH1F',title="Last Step Successfully Executed", xbins = 8 , xmin=-0.5, xmax=7.5,
-                             xlabels=["Start","GetRoI","GetSPs","ZFinder","Triplets","TrackMaker","TrackFitter","TrackConverter"])
+                             labels=["Start","GetRoI","GetSPs","ZFinder","Triplets","TrackMaker","TrackFitter","TrackConverter"])
    
     def addTimingHistograms(self, name):
-        if name=="FS":
-            self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs", xbins = 200, xmin=0.0, xmax=200000.0, ybins = 100, ymin=0.0, ymax=40000000.0)
-            self.defineHistogram('roi_nTracks, TIME_PattReco',path='EXPERT',type='TH2F',title="PattReco time; nTracks", xbins = 50, xmin=0.0, xmax=10000.0, ybins = 100, ymin=0.0, ymax=40000000.0)
-            self.defineHistogram('TIME_PattReco',             path='EXPERT',type='TH1F',title="Pure PattReco time",     xbins = 200, xmin=0.0, xmax=40000000.0)
-            self.defineHistogram('TIME_SpacePointConversion', path='EXPERT',type='TH1F',title="SP Conversion time", xbins = 200, xmin=0.0, xmax=200000.0)
-            self.defineHistogram('TIME_ZFinder',              path='EXPERT',type='TH1F',title="ZFinder time", xbins = 200, xmin=0.0, xmax=40000000.0)
-            self.defineHistogram('TIME_Triplets',             path='EXPERT',type='TH1F',title="Triplets Making time",   xbins = 200, xmin=0.0, xmax=40000000.0)
-            self.defineHistogram('TIME_CmbTrack',             path='EXPERT',type='TH1F',title="Combined Tracking time", xbins = 200, xmin=0.0, xmax=40000000.0)
-            self.defineHistogram('TIME_TrackFitter',          path='EXPERT',type='TH1F',title="Track Fitter time", xbins = 200, xmin=0.0, xmax=2000000.0)
+        if name=='Electron' or name=='Muon' or name=='TauCore' or name=='MuonIso' or name=='TauIso':
+            self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs",    xbins = 200, xmin=0.0, xmax=3000.0, ybins = 100, ymin=0.0, ymax=400.0)
+            self.defineHistogram('roi_nTracks, TIME_PattReco',path='EXPERT',type='TH2F',title="PattReco time; nTracks", xbins = 50,  xmin=0.0, xmax=200.0,  ybins = 100, ymin=0.0, ymax=400.0)
+            self.defineHistogram('TIME_PattReco',             path='EXPERT',type='TH1F',title="Pure PattReco time (ms)",     xbins = 200, xmin=0.0, xmax=400.0)
+            self.defineHistogram('TIME_SpacePointConversion', path='EXPERT',type='TH1F',title="SP Conversion time (ms)",     xbins = 200, xmin=0.0, xmax=20.0)
+            self.defineHistogram('TIME_ZFinder',              path='EXPERT',type='TH1F',title="ZFinder time (ms)",           xbins = 200, xmin=0.0, xmax=1000.0)
+            self.defineHistogram('TIME_Triplets',             path='EXPERT',type='TH1F',title="Triplets Making time (ms)",   xbins = 200, xmin=0.0, xmax=400.0)
+            self.defineHistogram('TIME_CmbTrack',             path='EXPERT',type='TH1F',title="Combined Tracking time (ms)", xbins = 200, xmin=0.0, xmax=400.0)
+            self.defineHistogram('TIME_TrackFitter',          path='EXPERT',type='TH1F',title="Track Fitter time (ms)",      xbins = 200, xmin=0.0, xmax=200.0)
         else:
-            self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs", xbins = 200, xmin=0.0, xmax=3000.0, ybins = 100, ymin=0.0, ymax=400000.0)
-            self.defineHistogram('roi_nTracks, TIME_PattReco',path='EXPERT',type='TH2F',title="PattReco time; nTracks", xbins = 50, xmin=0.0, xmax=200.0, ybins = 100, ymin=0.0, ymax=400000.0)
-            self.defineHistogram('TIME_PattReco',             path='EXPERT',type='TH1F',title="Pure PattReco time", xbins = 200, xmin=0.0, xmax=400000.0)
-            self.defineHistogram('TIME_SpacePointConversion', path='EXPERT',type='TH1F',title="SP Conversion time", xbins = 200, xmin=0.0, xmax=20000.0)
-            self.defineHistogram('TIME_ZFinder',              path='EXPERT',type='TH1F',title="ZFinder time", xbins = 200, xmin=0.0, xmax=1000000.0)
-            self.defineHistogram('TIME_Triplets',             path='EXPERT',type='TH1F',title="Triplets Making time", xbins = 200, xmin=0.0, xmax=400000.0)
-            self.defineHistogram('TIME_CmbTrack',             path='EXPERT',type='TH1F',title="Combined Tracking time", xbins = 200, xmin=0.0, xmax=400000.0)
-            self.defineHistogram('TIME_TrackFitter',          path='EXPERT',type='TH1F',title="Track Fitter time", xbins = 200, xmin=0.0, xmax=200000.0)
+            self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs",    xbins = 200, xmin=0.0, xmax=200000.0, ybins = 100, ymin=0.0, ymax=40000.0)
+            self.defineHistogram('roi_nTracks, TIME_PattReco',path='EXPERT',type='TH2F',title="PattReco time; nTracks", xbins = 50,  xmin=0.0, xmax=10000.0,  ybins = 100, ymin=0.0, ymax=40000.0)
+            self.defineHistogram('TIME_PattReco',             path='EXPERT',type='TH1F',title="Pure PattReco time (ms)",     xbins = 200, xmin=0.0, xmax=40000.0)
+            self.defineHistogram('TIME_SpacePointConversion', path='EXPERT',type='TH1F',title="SP Conversion time (ms)",     xbins = 200, xmin=0.0, xmax=200.0)
+            self.defineHistogram('TIME_ZFinder',              path='EXPERT',type='TH1F',title="ZFinder time (ms)",           xbins = 200, xmin=0.0, xmax=40000.0)
+            self.defineHistogram('TIME_Triplets',             path='EXPERT',type='TH1F',title="Triplets Making time (ms)",   xbins = 200, xmin=0.0, xmax=40000.0)
+            self.defineHistogram('TIME_CmbTrack',             path='EXPERT',type='TH1F',title="Combined Tracking time (ms)", xbins = 200, xmin=0.0, xmax=40000.0)
+            self.defineHistogram('TIME_TrackFitter',          path='EXPERT',type='TH1F',title="Track Fitter time (ms)",      xbins = 200, xmin=0.0, xmax=2000.0)
 
     def addTrackHistograms(self, name):
-        if name=="FS":
-            self.defineHistogram('roi_nSeeds',     path='EXPERT',type='TH1F',title="Number of seeds",xbins = 1000, xmin=-0.5, xmax=99999.5)
-            self.defineHistogram('roi_nTracks',    path='EXPERT',type='TH1F',title="Number of Tracks",xbins = 100, xmin=-0.5, xmax=9999.5)
-        else:
+        if name=='Electron' or name=='Muon' or name=='TauCore' or name=='MuonIso' or name=='TauIso':
             self.defineHistogram('roi_nSeeds',     path='EXPERT',type='TH1F',title="Number of seeds",xbins =  100, xmin=-0.5, xmax=4999.5)
             self.defineHistogram('roi_nTracks',    path='EXPERT',type='TH1F',title="Number of Tracks",xbins =  50, xmin=-0.5, xmax=199.5)
+        else:
+            self.defineHistogram('roi_nSeeds',     path='EXPERT',type='TH1F',title="Number of seeds",xbins = 1000, xmin=-0.5, xmax=99999.5)
+            self.defineHistogram('roi_nTracks',    path='EXPERT',type='TH1F',title="Number of Tracks",xbins = 100, xmin=-0.5, xmax=9999.5)
         self.defineHistogram('roi_nZvertices', path='EXPERT',type='TH1F',title="Number of z vertices",xbins = 60 ,  xmin=-0.5, xmax=49.5)
         self.defineHistogram('roi_zVertices',  path='EXPERT',type='TH1F',title="ZFinder Vertices",xbins = 501, xmin=-250, xmax=250)
         self.defineHistogram('roi_nTrk_zVtx',  path='EXPERT',type='TH1F',title="Ntrk ZFinder Vertices",xbins = 100, xmin=-0.5, xmax=49.5)
@@ -592,10 +594,14 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         timeHist.TimerHistLimits = [0,10000]
         from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
         self.doResMon = InDetTrigSliceSettings[('doResMon',remapped_type)]
-        self.AthenaMonTools = [ TrigFastTrackFinder_ValidationMonitoring("TrigFastTrackFinder_ValidationMonitoring", self.doResMon),
-                                TrigFastTrackFinder_OnlineMonitoring("TrigFastTrackFinder_OnlineMonitoring", self.doResMon),
-                                timeHist ]
 
+        # switch between Run-2/3 monitoring
+        if TriggerFlags.doMT():
+            self.MonTool = TrigFastTrackFinderMonitoring(type, self.doResMon)
+        else:
+            self.AthenaMonTools = [ TrigFastTrackFinder_ValidationMonitoring("TrigFastTrackFinder_ValidationMonitoring", self.doResMon),
+                                    TrigFastTrackFinder_OnlineMonitoring("TrigFastTrackFinder_OnlineMonitoring", self.doResMon),
+                                    timeHist ]
         from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
         self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
 
@@ -771,18 +777,6 @@ class TrigFastTrackFinder_TauIso(TrigFastTrackFinderBase):
 class TrigFastTrackFinder_Jet(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_Jet"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_Jet","Jet")
-
-class TrigFastTrackFinder_FTK(TrigFastTrackFinderBase):
-  def __init__(self, name = "TrigFastTrackFinder_FTK"):
-    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTK","FTK")
-
-class TrigFastTrackFinder_FTKRefit(TrigFastTrackFinderBase):
-  def __init__(self, name = "TrigFastTrackFinder_FTKRefit"):
-    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTKRefit","FTKRefit")
-
-class TrigFastTrackFinder_FTKMon(TrigFastTrackFinderBase):
-  def __init__(self, name = "TrigFastTrackFinder_FTKMon"):
-    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTKMon","FTKMon")
 
 class TrigFastTrackFinder_MinBias(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_MinBias"):

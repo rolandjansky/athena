@@ -76,22 +76,22 @@ if redoPatternRecoAndTracking and reDoParticleCreation:
   reDoPrimaryVertexing = True
 
 if not (readESD or readAOD):
-  print "You have to turn on reading of ESD or AOD! That's the purpose of this jobO!"
+  printfunc ("You have to turn on reading of ESD or AOD! That's the purpose of this jobO!")
 if readESD and readAOD:
-  print "I can either read ESD or AOD but not both at the same time! Turn one or the other off!"
+  printfunc ("I can either read ESD or AOD but not both at the same time! Turn one or the other off!")
 if readESD and reDoPrimaryVertexing and not reDoParticleCreation:
-  print "INFO! You are running on ESD, redoing the vertexing but not recreating the TrackParticles!"
-  print "INFO! To avoid inconsistencies do not use the old track particles in conjunction with the new vertex!"
+  printfunc ("INFO! You are running on ESD, redoing the vertexing but not recreating the TrackParticles!")
+  printfunc ("INFO! To avoid inconsistencies do not use the old track particles in conjunction with the new vertex!")
   if doWriteESD or doWriteAOD:
-    print "INFO! To avoid inconsistencies the old track particle (truth) container will not be in the new ESD/AOD!"
+    printfunc ("INFO! To avoid inconsistencies the old track particle (truth) container will not be in the new ESD/AOD!")
 if readAOD and reDoPrimaryVertexing:
-  print "INFO! You are running on AOD, and redoing the vertexing. At the moment new track particles cannot be made from old ones."
-  print "INFO! To avoid inconsistencies do not use the old track particles in conjunction with the new vertex!"
+  printfunc ("INFO! You are running on AOD, and redoing the vertexing. At the moment new track particles cannot be made from old ones.")
+  printfunc ("INFO! To avoid inconsistencies do not use the old track particles in conjunction with the new vertex!")
   if doWriteAOD:
-    print "INFO! To avoid inconsistencies the old track particle (truth) container will not be in the new AOD!"
+    printfunc ("INFO! To avoid inconsistencies the old track particle (truth) container will not be in the new AOD!")
 if doRefitTracks and (reDoPrimaryVertexing or reDoParticleCreation):
-  print "INFO! You are refitting tracks and also revertex and/or recreate track particles"
-  print "INFO! The input for that will be the refitted tracks!"
+  printfunc ("INFO! You are refitting tracks and also revertex and/or recreate track particles")
+  printfunc ("INFO! The input for that will be the refitted tracks!")
 
 #--------------------------------------------------------------
 # Additional Detector setup
@@ -192,7 +192,7 @@ if doWriteESD:
 if doWriteAOD:
   InDetKeys.OutputAODFileName = "InDetRecAOD_new.root"  
 
-print "Printing InDetKeys"
+printfunc ("Printing InDetKeys")
 InDetKeys.lockAllExceptAlias()
 InDetKeys.print_JobProperties()
 

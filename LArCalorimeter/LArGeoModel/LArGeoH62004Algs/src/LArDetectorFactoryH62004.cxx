@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorFactoryH62004.h"
@@ -439,7 +439,7 @@ const LArDetectorManager *LArGeo::LArDetectorFactoryH62004::getDetectorManager()
 }
 
 
-StatusCode LArGeo::LArDetectorFactoryH62004::storeDDE()
+void LArGeo::LArDetectorFactoryH62004::storeDDE()
 {
    CaloDetDescrElementContainer *cDDEvec = new CaloDetDescrElementContainer() ;
 
@@ -525,6 +525,4 @@ StatusCode LArGeo::LArDetectorFactoryH62004::storeDDE()
    if(sc != StatusCode::SUCCESS) {
        std::cout<<"LArDetectorFactoryH62004::storeDDE could not record the ColdTC caloDDE !!!"<<std::endl;
    }
-   return sc;   
 }
-

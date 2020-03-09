@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimHitToPrdTest/RPC_SimHitToPrdCBNTAlgo.h"
@@ -442,7 +442,7 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::execute()
 	}
     }
 
-  ntupleSvc()->writeRecord(m_c->nt);
+  ATH_CHECK(ntupleSvc()->writeRecord(m_c->nt));
   return StatusCode::SUCCESS;  
 }
 

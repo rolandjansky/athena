@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////// JetCnv_p6.cxx
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for class JetCnv_p6
@@ -196,9 +196,6 @@ void JetCnv_p6::transToPers( const Jet* trans,
                              MsgStream& msg ) const
 {
   if(msg.level() == MSG::DEBUG ) msg << MSG::DEBUG << "JetCnv_p6 writing Jet to persistent state... " << trans->jetAuthor() <<"  id="<<trans->id() << endmsg;
-
-  // ALWAYS persistified FINAL state.
-  trans->setSignalState(P4SignalState::JETFINAL);
 
   if( ! s_write0constit) {
     navCnv.transToPers( &trans->navigableBase(), &pers->m_nav, msg );

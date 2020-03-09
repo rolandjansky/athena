@@ -36,6 +36,21 @@ else:
     isEVNT = False
     
 #==============================================================================
+# Set up stream
+#==============================================================================
+
+streamName = derivationFlags.WriteDAOD_TRUTH2Stream.StreamName
+fileName = buildFileName( derivationFlags.WriteDAOD_TRUTH2Stream )
+TRUTH2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+# Only events that pass the filters listed are written out
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+TRUTH2Stream.AcceptAlgs(['TRUTH2Kernel'])
+
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+#==============================================================================
 # Make truth jets and MET
 #==============================================================================
 
@@ -118,7 +133,7 @@ DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg(
 #==============================================================================
 
 # HardTruthThinning is designed to work with CompactHardTruth. It uses
-# ThinningSvc to keep truth particles related to hard objects:
+# thinning to keep truth particles related to hard objects:
 #      - Stable particles matching those from CompactHardTruth
 #      - Stable particles from truth jets (with some selection)
 #      - Selected particles and their descendant particles/vertices
@@ -134,7 +149,7 @@ keepers  = cHadrons + bHadrons + tau
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__HardTruthThinning
 TRUTH2TruthThinningTool = DerivationFramework__HardTruthThinning(
                          name = "HardThinTool",
-                         ThinningService = "TRUTH2ThinningSvc",
+                         StreamName = streamName,
                          EventInfo = "McEventInfo",
                          TruthParticles = "TruthParticles",
                          TruthVertices = "TruthVertices",
@@ -158,25 +173,6 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
                           "TRUTH2Kernel",
                           ThinningTools = thinningTools)
-
-#==============================================================================
-# Set up stream
-#==============================================================================
-
-streamName = derivationFlags.WriteDAOD_TRUTH2Stream.StreamName
-fileName = buildFileName( derivationFlags.WriteDAOD_TRUTH2Stream )
-TRUTH2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-# Only events that pass the filters listed are written out
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-TRUTH2Stream.AcceptAlgs(['TRUTH2Kernel'])
-
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="TRUTH2ThinningSvc", outStreams=[evtStream] )
 
 #==============================================================================
 # Set up slimming content list here

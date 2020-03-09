@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Common code for generators that need reconstructed event data inputs.
@@ -59,7 +59,7 @@ StatusCode EmbeddedGeneratorCommon::fillEvt(HepMC::GenEvent* genEvt) {
   }
   
   const EventInfo* pInputEvent(0);
-  m_pileUpStream.store().retrieve(pInputEvent);
+  m_pileUpStream.store().retrieve(pInputEvent).ignore();
   if (pInputEvent) {
     ATH_MSG_DEBUG("Event from file: " << *pInputEvent->event_ID());
   } else {
@@ -67,7 +67,7 @@ StatusCode EmbeddedGeneratorCommon::fillEvt(HepMC::GenEvent* genEvt) {
   }
   
   const EventInfo* pOutputEvent(0);
-  evtStore()->retrieve(pOutputEvent);
+  evtStore()->retrieve(pOutputEvent).ignore();
   if (pOutputEvent) {
     ATH_MSG_DEBUG("New event: "<< *pOutputEvent->event_ID());
   } else {

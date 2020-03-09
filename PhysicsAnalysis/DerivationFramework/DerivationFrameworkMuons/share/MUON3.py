@@ -85,7 +85,7 @@ myAugTools.append(MUON3AugmentTool1)
 skimmingORs.append(brPrefix1+'DIMU_pass>0')
 thinningORs.append(brPrefix1+'DIMU_trkStatus>0')
 # thinningORs.append('('+brPrefix1+'DIMU_pass>0&&'+brPrefix1+'DIMU_trkStatus>0)')
-print MUON3AugmentTool1
+printfunc (MUON3AugmentTool1)
 
 ### Upsilon tagging
 brPrefix2 = 'MUON3b'
@@ -97,7 +97,7 @@ andTriggers2_run1 = addL2StarB(andTriggers2a_run1)
 andTriggers2a_run2 = [] # No trigger in 8TeV data
 
 andTriggers2 = andTriggers2a_run2
-print andTriggers2
+printfunc (andTriggers2)
 
 MUON3AugmentTool2 = DerivationFramework__dimuonTaggingTool(name = "MUON3AugmentTool2",
                                                            OrTrigs = orTriggers2,
@@ -126,7 +126,7 @@ myAugTools.append(MUON3AugmentTool2)
 skimmingORs.append(brPrefix2+'DIMU_pass>0')
 thinningORs.append(brPrefix2+'DIMU_trkStatus>0')
 # thinningORs.append('('+brPrefix2+'DIMU_pass>0&&'+brPrefix2+'DIMU_trkStatus>0)')
-print MUON3AugmentTool2
+printfunc (MUON3AugmentTool2)
 
 #====================================================================
 # SKIMMING

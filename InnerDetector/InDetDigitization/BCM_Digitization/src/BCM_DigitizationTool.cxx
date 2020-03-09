@@ -37,7 +37,9 @@ StatusCode BCM_DigitizationTool::initialize()
 {
   ATH_MSG_VERBOSE ( "initialize()");
 
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
 
   // get random service
   ATH_CHECK(m_rndmGenSvc.retrieve());

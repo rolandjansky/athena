@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagJetFilterAlg.h"
 
 #include "JetEvent/JetCollection.h"
 #include "AthenaKernel/errorcheck.h"
-#include "EventKernel/ISignalState.h"
-#include "EventKernel/SignalStateHelper.h"
 #include "AthContainers/ConstDataVector.h"
 
 
@@ -68,9 +66,8 @@ StatusCode JetTagJetFilterAlg::execute() {
 bool JetTagJetFilterAlg::pass(const Jet* jet){
 
   if(m_useEMScale){
-    SignalStateHelper t(jet, P4SignalState::JETEMSCALE );
-    if(jet->pt() < m_ptMin ) return false;
-    if( fabs(jet->eta()) > m_etaCut) return false;
+    if(jet->pt(P4SignalState::JETEMSCALE) < m_ptMin ) return false;
+    if( fabs(jet->eta(P4SignalState::JETEMSCALE)) > m_etaCut) return false;
   }
   else{
     if(jet->pt() < m_ptMin ) return false;

@@ -572,7 +572,6 @@ namespace Muon {
           result = refined;
         }
       }
-
       // Post-processing : ambiguity resolution
       if(msgLvl(MSG::DEBUG) && result && !result->empty()){
         msg(MSG::DEBUG)  << "Initial track collection for strategy: " << strategy.getName()
@@ -594,7 +593,6 @@ namespace Muon {
           result = resolved;
         }
       }
-
       if( result && !result->empty()) resultAll->insert(resultAll->end(),result->begin(),result->end());
 
       delete result;
@@ -935,10 +933,18 @@ namespace Muon {
         // To remove warning. It seems, that is thread-safe
         // It is very bad way to use const_cast
         Trk::Track* track ATLAS_THREAD_SAFE = const_cast<Trk::Track*>( &(*cit)->releaseTrack() );
+        // add track summary to this track
+        if (m_trackSummaryTool.isEnabled()) {
+          m_trackSummaryTool->computeAndReplaceTrackSummary(*track, nullptr, false);
+        }
         result->push_back( track );
       }
       else {
         Trk::Track* track ATLAS_THREAD_SAFE = const_cast<Trk::Track*>( &(*cit)->track() );
+        // add track summary to this track
+        if (m_trackSummaryTool.isEnabled()) {
+          m_trackSummaryTool->computeAndReplaceTrackSummary(*track, nullptr, false);
+        }
         result->push_back( track );
       }
     }

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AGDDKernel/AGDDDetector.h"
@@ -16,7 +15,6 @@
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonDigitContainer/sTgcDigit.h"
 #include "MuonSimData/MuonSimDataCollection.h"
@@ -63,7 +61,6 @@ namespace NSWL1 {
         m_rndmSvc("AtRndmGenSvc",name),
         m_rndmEngine(0),
         m_detManager(0),
-        m_sTgcIdHelper(0),
         m_pad_cache_runNumber(-1),
         m_pad_cache_eventNumber(-1),
         m_pad_cache_status(CLEARED),
@@ -143,10 +140,8 @@ namespace NSWL1 {
             return StatusCode::FAILURE;
         }
 
-        //  retrieve the MuonDetectormanager
-        ATH_CHECK( detStore()->retrieve( m_detManager) );
-        //  retrieve the sTGC offline Id helper
-        ATH_CHECK( detStore()->retrieve( m_sTgcIdHelper ));
+        ATH_CHECK(detStore()->retrieve(m_detManager));
+        ATH_CHECK(m_idHelperSvc.retrieve());
         bool testGeometryAccess=false; // for now this is just an example DG-2014-07-11
         if(testGeometryAccess)
             printStgcGeometryFromAgdd();
@@ -392,16 +387,15 @@ namespace NSWL1 {
     //------------------------------------------------------------------------------
     bool PadTdsOfflineTool::is_pad_digit(const sTgcDigit* digit) const
     {
-        return (digit &&
-                m_sTgcIdHelper->channelType(digit->identify())==0);
+        return (digit && m_idHelperSvc->stgcIdHelper().channelType(digit->identify())==0);
     }
     //------------------------------------------------------------------------------
     int PadTdsOfflineTool::cache_index(const sTgcDigit* digit) const
     {
         Identifier Id = digit->identify();    
-        int stationEta = m_sTgcIdHelper->stationEta(Id);
-        int stationPhi = m_sTgcIdHelper->stationPhi(Id);
-        std::string stName = m_sTgcIdHelper->stationNameString(m_sTgcIdHelper->stationName(Id));
+        int stationEta = m_idHelperSvc->stgcIdHelper().stationEta(Id);
+        int stationPhi = m_idHelperSvc->stgcIdHelper().stationPhi(Id);
+        std::string stName = m_idHelperSvc->stgcIdHelper().stationNameString(m_idHelperSvc->stgcIdHelper().stationName(Id));
         int isSmall = stName[2] == 'S';
         int trigger_sector = (isSmall)? stationPhi*2-1 : stationPhi*2-2;
         return (stationEta>0)? trigger_sector + 16 : trigger_sector;
@@ -530,15 +524,15 @@ namespace NSWL1 {
     {
         if(!is_pad_digit(digit)) return;
         Identifier Id = digit->identify();    
-        std::string stName = m_sTgcIdHelper->stationNameString(m_sTgcIdHelper->stationName(Id));
-        int stationEta     = m_sTgcIdHelper->stationEta(Id);
-        int stationPhi     = m_sTgcIdHelper->stationPhi(Id);
-        int multiplet      = m_sTgcIdHelper->multilayer(Id);
-        int gas_gap        = m_sTgcIdHelper->gasGap(Id);
-        int channel_type   = m_sTgcIdHelper->channelType(Id);
-        int channel        = m_sTgcIdHelper->channel(Id);    
-        int pad_eta        = m_sTgcIdHelper->padEta(Id);
-        int pad_phi        = m_sTgcIdHelper->padPhi(Id);
+        std::string stName = m_idHelperSvc->stgcIdHelper().stationNameString(m_idHelperSvc->stgcIdHelper().stationName(Id));
+        int stationEta     = m_idHelperSvc->stgcIdHelper().stationEta(Id);
+        int stationPhi     = m_idHelperSvc->stgcIdHelper().stationPhi(Id);
+        int multiplet      = m_idHelperSvc->stgcIdHelper().multilayer(Id);
+        int gas_gap        = m_idHelperSvc->stgcIdHelper().gasGap(Id);
+        int channel_type   = m_idHelperSvc->stgcIdHelper().channelType(Id);
+        int channel        = m_idHelperSvc->stgcIdHelper().channel(Id);
+        int pad_eta        = m_idHelperSvc->stgcIdHelper().padEta(Id);
+        int pad_phi        = m_idHelperSvc->stgcIdHelper().padPhi(Id);
 
         ATH_MSG_DEBUG("sTGC Pad hit:"
                     <<" cache index ["<<cache_index(digit)<<"]"

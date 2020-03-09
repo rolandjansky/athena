@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // DFlowAlg3.cxx 
@@ -166,7 +166,7 @@ StatusCode DFlowAlg3::execute()
 
   //Dummy object to fix the data flow
   SG::WriteHandle< int > outputHandle( m_w_dflowDummy, ctx );
-  outputHandle.record( std::make_unique<int>(1) );
+  ATH_CHECK( outputHandle.record( std::make_unique<int>(1) ) );
 
   // Test update handles
   SG::ReadHandle< HiveDataObj > testUpdate( m_testUpdate, ctx );

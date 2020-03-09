@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,20 +59,10 @@
 
 
 // ROOT includes
-#include <TError.h>
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TMath.h>
-#include <TF1.h>
+#include <TH2I.h>
 #include <inttypes.h> 
-#include "TGraphAsymmErrors.h"
-
 
 //================================================================================================================================
-class TFile;
-class RpcIdHelper;
 template <class ConcreteAlgorithm> class AlgFactory;
 
 

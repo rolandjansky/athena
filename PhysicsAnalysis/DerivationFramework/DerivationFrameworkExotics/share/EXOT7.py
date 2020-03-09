@@ -96,12 +96,8 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT7Stream )
 EXOT7Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT7Stream.AcceptAlgs(["EXOT7Kernel"])
 
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT7ThinningSvc", outStreams=[evtStream] )
 
 
 #====================================================================
@@ -142,7 +138,7 @@ EXOT7StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EX
                                                                          expression = expression)
 
 ToolSvc += EXOT7StringSkimmingTool
-print EXOT7StringSkimmingTool
+printfunc (EXOT7StringSkimmingTool)
 
 # define thinning tool 
 thinningTools=[]
@@ -262,7 +258,7 @@ thinningTools.append(EXOT7A10CCThinningTool)
 # MC thinning ( status && Eta cut && pdgids)
 #from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 #EXOT7MCThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT7MCThinningTool",
-#                                                                ThinningService = "EXOT7ThinningSvc",
+#                                                                StreamName              = streamName,
 #                                                                ParticleSelectionString = final_expression, 
 #                                                                PreserveDescendants = False)
 #
@@ -275,7 +271,7 @@ thinningTools.append(EXOT7A10CCThinningTool)
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT7MCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT7MCThinningTool",
-                                                             ThinningService = "EXOT7ThinningSvc",
+                                                             StreamName                 = streamName,
 	                                                     WritePartons               = False,
 	                                                     WriteHadrons               = True,
 	                                                     WriteBHadrons              = True,
@@ -295,7 +291,7 @@ EXOT7MCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT7MCThin
                                                              PreserveDescendants        = False)
 
 EXOT7TMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT7TMCThinningTool",
-                                                             ThinningService = "EXOT7ThinningSvc",
+                                                             StreamName                 = streamName,
 	                                                     WritePartons               = False,
 	                                                     WriteHadrons               = False,
 	                                                     WriteBHadrons              = False,
@@ -315,7 +311,7 @@ EXOT7TMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT7TMCTh
                                                              PreserveDescendants        = True)
 
 EXOT7TAMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT7TAMCThinningTool",
-                                                             ThinningService = "EXOT7ThinningSvc",
+                                                             StreamName                 = streamName,
                                                              WritePartons               = False,
                                                              WriteHadrons               = False,
                                                              WriteBHadrons              = False,
@@ -338,7 +334,7 @@ EXOT7TAMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT7TAMC
 #
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT7MCGenThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT7MCGenThinningTool",
-                                                                ThinningService = "EXOT7ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 ParticleSelectionString = "abs(TruthParticles.pdgId) ==25 || abs(TruthParticles.pdgId)==39 || abs(TruthParticles.pdgId)==32 || abs(TruthParticles.pdgId)==5100021", 
                                                                 PreserveDescendants = False)
 

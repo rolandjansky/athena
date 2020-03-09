@@ -16,15 +16,37 @@
 #- HLT/.*
 #- Trigger/TrigValidation/TrigP1Test
 
-# Offload service has build problems
-- Offloading/.*
-
 # Temporary VP1 compilation issues
 - graphics/VP1/VP1Systems/VP1TriggerSystems
 - graphics/VP1/VP1Systems/VP12DGeometrySystems
 - graphics/VP1/VP1Systems/VP1MCSystems
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
 + graphics/VP1/.*
+
+# Some generators that are no longer needed in the release
+- Generators/AcerMC_i
+- Generators/AlpGen_i
+- Generators/CompHep_i
+- Generators/EmbeddedTrackGenerator
+- Generators/ExoGraviton_i
+- Generators/GravADD_i
+- Generators/Herwig_i
+- Generators/Horace_i
+- Generators/HvGen_i
+- Generators/MadCUP_i 
+- Generators/MadGraph_i 
+- Generators/Matchig_i
+- Generators/McAtNlo_i
+- Generators/Protos_i
+- Generators/Pyquench_i 
+- Generators/Pythia_i
+- Generators/PythiaB
+- Generators/PythiaChL_i
+- Generators/PythiaExo_i
+- Generators/PythiaRhad_i
+- Generators/PythiaSgluon_i
+- Generators/Reldis_i     
+- Generators/VBFNLOControl
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
@@ -40,7 +62,6 @@
 - PhysicsAnalysis/SUSYPhys/SUSYTools
 - PhysicsAnalysis/TauID/DiTauMassTools
 #- PhysicsAnalysis/TauID/TauCorrUncert  #no CMakeLists.txt file
-- PhysicsAnalysis/TopPhys/QuickAna
 - PhysicsAnalysis/TopPhys/TopPhysUtils/.*
 - PhysicsAnalysis/TopPhys/xAOD/.*
 - PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
@@ -48,7 +69,6 @@
 - Reconstruction/Jet/JetJvtEfficiency
 - Reconstruction/Jet/JetReclustering
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
-- Trigger/TrigFTK/FTKStandaloneMonitoring
 
 # Data quality packages that would generally go to AthDataQuality, but should be built in Athena
 # until we have Run 3 Tier-0 ops

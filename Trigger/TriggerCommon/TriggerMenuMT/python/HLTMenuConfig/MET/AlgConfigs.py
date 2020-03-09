@@ -120,7 +120,7 @@ class TrkMHTConfig(AlgConfig):
 
         # These are the names set by the upstream algorithms. Unfortunately
         # these aren't passed to us - we just have to 'know' them
-        tracks = "HLT_xAODTracks_FS"
+        tracks = "HLT_IDTrack_FS_FTF"
         vertices = "HLT_EFHistoPrmVtx"
         tva = "JetTrackVtxAssoc_{trkopt}".format(**jetRecoDict)
         track_links = "GhostTrack_{trkopt}".format(**jetRecoDict)

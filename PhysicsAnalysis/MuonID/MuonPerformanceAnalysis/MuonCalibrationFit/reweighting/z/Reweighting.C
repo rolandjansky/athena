@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define Reweighting_cxx
 #include "Reweighting.h"
+
+#include <TLorentzVector.h>
 
 void Reweighting::Begin( TTree * /*tree*/ ) {
   TString option = GetOption();
@@ -58,7 +60,7 @@ Bool_t Reweighting::Process( Long64_t entry ) {
   b_Neg_Charge->GetEntry( entry );
   b_Neg_PtCone20->GetEntry( entry );
   //::: First check: eta acceptance!
-  if( TMath::Abs( Pos_Eta ) > 2.5 || TMath::Abs( Neg_Eta ) > 2.5 ) return kTRUE;
+  if( std::abs( Pos_Eta ) > 2.5 || std::abs( Neg_Eta ) > 2.5 ) return kTRUE;
   //::: Second check: oppositely charged!
   if( Pos_Charge * Neg_Charge > 0 ) return kTRUE;
   //::: Third check: isolated!
@@ -95,7 +97,7 @@ Bool_t Reweighting::Process( Long64_t entry ) {
   m_Pair_Theta = Lead.Angle( Sub.Vect() );
   m_Pair_DeltaR = Lead.DeltaR( Sub );
   m_Pair_DeltaPhi = Lead.DeltaPhi( Sub );
-  m_Pair_CosTheta = TMath::Cos( m_Pair_Theta );
+  m_Pair_CosTheta = std::cos( m_Pair_Theta );
   m_Weight = GetWeight( m_Pair_Pt, m_Pair_y );
   //:::
   //::: Fifth check: Jpsi Mass cut!

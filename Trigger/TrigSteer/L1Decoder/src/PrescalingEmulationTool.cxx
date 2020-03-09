@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "GaudiKernel/IToolSvc.h"
 #include "CLHEP/Random/RandomEngine.h"
@@ -7,7 +7,7 @@
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "CLHEP/Random/Ranlux64Engine.h"
 
-std::function< CLHEP::HepRandomEngine*(void) > RanluxFactory = [](void)->CLHEP::HepRandomEngine*{
+const std::function< CLHEP::HepRandomEngine*(void) > RanluxFactory = [](void)->CLHEP::HepRandomEngine*{
   return new CLHEP::Ranlux64Engine();
 };
 

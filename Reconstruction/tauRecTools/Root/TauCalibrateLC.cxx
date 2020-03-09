@@ -63,7 +63,7 @@ StatusCode TauCalibrateLC::initialize() {
   
   std::string fullPath = find_file(m_calibrationFile);
 
-  TFile * file = TFile::Open(fullPath.c_str(), "READ");
+  std::unique_ptr<TFile> file(TFile::Open(fullPath.c_str(), "READ"));
 
   if (!file) {
     ATH_MSG_FATAL("Failed to open " << fullPath);
@@ -72,12 +72,10 @@ StatusCode TauCalibrateLC::initialize() {
 
   // get the histogram defining eta binning
   std::string key = "etaBinning";
-  TObject * obj = file->Get(key.c_str());
-  TH1* histo = dynamic_cast<TH1*> (obj);
-  m_etaBinHist = NULL;
+  TH1* histo = dynamic_cast<TH1*>(file->Get(key.c_str()));
   if (histo) {
     histo->SetDirectory(0);
-    m_etaBinHist = histo;
+    m_etaBinHist = std::unique_ptr<TH1>(histo);
   }
   else {
     ATH_MSG_FATAL("Failed to get an object with  key " << key);
@@ -97,12 +95,10 @@ StatusCode TauCalibrateLC::initialize() {
     
   // get the histogram with eta corrections
   key = "etaCorrection";
-  obj = file->Get(key.c_str());
-  histo = dynamic_cast<TH1*> (obj);
-  m_etaCorrectionHist = NULL;
+  histo = dynamic_cast<TH1*>(file->Get(key.c_str()));
   if (histo) {
     histo->SetDirectory(0);
-    m_etaCorrectionHist = histo;
+    m_etaCorrectionHist = std::unique_ptr<TH1>(histo);
   }
   else {
     ATH_MSG_FATAL("Failed to get an object with  key " << key);
@@ -112,13 +108,21 @@ StatusCode TauCalibrateLC::initialize() {
   TString tmpSlopKey[s_nProngBins] = {"slopeNPV1P", "slopeNPV3P"};
   TString tmpFuncBase[s_nProngBins] = {"OneP_Eta_", "MultiP_Eta_"};
 
+  /// m_slopeNPVHist with size of s_nProngBins
+  m_slopeNPVHist.resize(s_nProngBins);
+  
+  /// m_calibFunc with size of (s_nProngBins, m_nEtaBins)
+  m_calibFunc.resize(s_nProngBins);
+  for (int i = 0; i < s_nProngBins; ++i) {
+    m_calibFunc[i].resize(m_nEtaBins);
+  }
+
+
   for (int i = 0; i < s_nProngBins; i++) {
-    obj = file->Get(tmpSlopKey[i]); // get pile-up slope histograms
-    histo = dynamic_cast<TH1*> (obj);
-    m_slopeNPVHist[i] = NULL;
+    histo = dynamic_cast<TH1*>(file->Get(tmpSlopKey[i]));  // get pile-up slope histograms
     if (histo) {
       histo->SetDirectory(0);
-      m_slopeNPVHist[i] = histo;
+      m_slopeNPVHist[i] = std::unique_ptr<TH1>(histo);
     }
     else {
       ATH_MSG_FATAL("Failed to get an object with  key " << tmpSlopKey[i]);
@@ -128,15 +132,13 @@ StatusCode TauCalibrateLC::initialize() {
     for (int j = 0; j < m_nEtaBins; j++) {
       TString key = tmpFuncBase[i];
       key += j;
-      TObject * obj = file->Get(key);
-      TF1* fcn = dynamic_cast<TF1*> (obj);
-      m_calibFunc[i][j] = NULL;
+      TF1* fcn = dynamic_cast<TF1*>(file->Get(key));
       if (fcn) {
-	m_calibFunc[i][j] = fcn;
+        m_calibFunc[i][j] = std::unique_ptr<TF1>(fcn);
       }
       else {
-	ATH_MSG_FATAL("Failed to get an object with  key " << key);
-	return StatusCode::FAILURE;
+        ATH_MSG_FATAL("Failed to get an object with  key " << key);
+        return StatusCode::FAILURE;
       }
     }
   }
@@ -209,8 +211,6 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
 
     if (energyLC <= 0) {
       ATH_MSG_DEBUG("tau energy at LC scale is " << energyLC << "--> set energy=0.001");           
-      //TODO: we can not set tau energy to 0 due to bug in P4Helpers during deltaR calculation
-      //will set it to 0.001 MeV
       pTau.setP4(0.001, pTau.eta(), pTau.phi(), pTau.m());
       return StatusCode::SUCCESS;
     }

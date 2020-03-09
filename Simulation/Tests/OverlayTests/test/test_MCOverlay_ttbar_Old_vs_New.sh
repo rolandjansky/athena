@@ -45,9 +45,9 @@ then
         --ignore-leaves index_ref \
             RecoTimingObj_p1_HITStoRDO_timings.timings \
             RecoTimingObj_p1_EVNTtoHITS_timings.timings \
-            xAOD::EventAuxInfo_v1_EventInfoAuxDyn.subEventIndex \
-            xAOD::EventAuxInfo_v1_EventInfoAuxDyn.subEventTime \
-            xAOD::EventAuxInfo_v1_EventInfoAuxDyn.subEventType
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventIndex \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventTime \
+            xAOD::EventAuxInfo_v2_EventInfoAuxDyn.subEventType
     rc3=$?
 fi
 echo "art-result: $rc3 comparison"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -74,9 +74,9 @@ StatusCode LArFecLvTempDcsTest::execute()
 
     for ( std::vector<HWIdentifier>::const_iterator i=onlineID->feb_begin();
 	  i!=onlineID->feb_end();++i) {
-        ATH_MSG_DEBUG ( " HWIdentifier : " << *i );
-	m_tool->getFec(*i,fec);
-	fec.print( msg() );
+      ATH_MSG_DEBUG ( " HWIdentifier : " << *i );
+      ATH_CHECK(m_tool->getFec(*i,fec));
+      fec.print( msg() );
     }
 
     return sc ;

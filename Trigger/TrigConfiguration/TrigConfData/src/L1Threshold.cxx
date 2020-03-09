@@ -1,102 +1,124 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration */
 
 #include "TrigConfData/L1Threshold.h"
+#include "TrigConfData/L1ThrExtraInfo.h"
 
-TrigConf::L1Threshold::L1Threshold()
-{}
 
-TrigConf::L1Threshold::L1Threshold(const std::string & name, const std::string & type, const boost::property_tree::ptree & data) 
-   : DataStructure(data),
-     m_name(name),
-     m_type(type)
+TrigConf::L1Threshold_EM::L1Threshold_EM( const std::string & name, const std::string & type,
+                                          std::weak_ptr<L1ThrExtraInfoBase> m_extraInfo, const ptree & data) :
+   L1Threshold(name, type, m_extraInfo, data)
 {
    update();
 }
 
-TrigConf::L1Threshold::~L1Threshold()
-{}
-
 void
-TrigConf::L1Threshold::update()
+TrigConf::L1Threshold_EM::update()
 {
-   m_name = getAttribute("name", true, m_name);
-   m_type = getAttribute("type", true, m_type);
-   m_mapping = getAttribute("mapping", true, m_mapping);
-}
-
-const std::string &
-TrigConf::L1Threshold::name() const
-{
-   return m_name;
-}
-
-const std::string &
-TrigConf::L1Threshold::type() const
-{
-   return m_type;
-}
-
-const std::string &
-TrigConf::L1Threshold::input() const
-{
-   return getAttribute("input");
-}
-
-unsigned int
-TrigConf::L1Threshold::mapping() const
-{
-   return m_mapping;
-}
-
-unsigned int
-TrigConf::L1Threshold::id() const
-{
-   return getAttribute<unsigned int>("id");
-}
-
-std::vector<TrigConf::DataStructure>
-TrigConf::L1Threshold::thresholdValues() const
-{
-   std::vector<DataStructure> thrVlist;
-   if( const auto & thrVs = data().get_child_optional("thresholdValues") ) {
-      thrVlist.reserve(thrVs.get().size());
-      for( auto & thrVData : thrVs.get() )
-         thrVlist.emplace_back( thrVData.second );
-   }
-   return thrVlist;
-}
-
-
-TrigConf::DataStructure
-TrigConf::L1Threshold::thresholdValue(int eta) const
-{
-   int current_prio = -1;
-   DataStructure thrV;
-   if( const auto & thrVs = data().get_child_optional("thresholdValues") ) {
-
-      for( auto & thrVData : thrVs.get() ) {
-         auto prio = thrVData.second.get_child("priority").get_value<int>();
-         auto etamin = thrVData.second.get_child("etamin").get_value<int>();
-         auto etamax = thrVData.second.get_child("etamax").get_value<int>();
-         if(eta>etamax or eta<etamin) // outside the window
-            continue;
-         if(prio < current_prio)
-            continue;
-         if(prio == current_prio) {
-            throw std::runtime_error("Found two threshold values of the same priority for eta = " + std::to_string(eta));
+   // read the isolation
+   if( const auto & thrVs = data().get_child_optional("thrValues") ) {
+      for( auto & x : thrVs.get() ) {
+         auto isobits = x.second.get_child("isobits").get_value<std::string>();
+         auto etamin = x.second.get_child("etamin").get_value<unsigned int>();
+         auto etamax = x.second.get_child("etamax").get_value<unsigned int>();
+         auto priority = x.second.get_child("priority").get_value<unsigned int>();
+         // turn bin string into uint, e.g. "01001" -> 9 
+         uint16_t isomask(0);
+         for(char c: isobits) {
+            isomask <<= 1;
+            if(c=='1') isomask += 1;
          }
-         thrV.setData(thrVData.second);
+         m_isolationMask.addRangeValue(isomask, etamin, etamax, priority, /*symmetric=*/ false);
       }
    }
-   return thrV;
+}
+
+unsigned int
+TrigConf::L1Threshold_EM::thrValueCounts(int eta) const {
+   auto emInfo = std::dynamic_pointer_cast<L1ThrExtraInfo_EMTAULegacy>(m_extraInfo.lock());
+   return thrValue(eta) * emInfo->emScale();
+}
+
+void
+TrigConf::L1Threshold_EM::print(std::ostream & os) const {
+   os << "EM threshold " << name() << " with mapping " << mapping() << std::endl;
+   for( int eta = 0; eta<=49; eta++ ) {
+      auto vneg = thrValue(-eta);
+      auto vpos = thrValue(eta);
+      auto counts = thrValueCounts(eta);
+      auto iso = isolationMask(eta);
+      os << "    eta = " << eta << " : " << vneg << "  " << vpos << (vpos!=vneg ? "  !!!   " : "     ") 
+         << counts << ", isoMaks " << iso << std::endl;
+   }
 }
 
 
-TrigConf::DataStructure
-TrigConf::L1Threshold::cable() const
+TrigConf::L1Threshold_TAU::L1Threshold_TAU( const std::string & name, const std::string & type,
+                                            std::weak_ptr<L1ThrExtraInfoBase> m_extraInfo, const ptree & data) :
+   L1Threshold(name, type, m_extraInfo, data)
 {
-   bool ignoreIfMissing = true; 
-   return getObject("cable", ignoreIfMissing);
+   update();
 }
+
+void
+TrigConf::L1Threshold_TAU::update()
+{
+   // read the isolation
+   std::string isobits = getAttribute("isobits");
+   m_isolationMask = 0;
+   for(char c: isobits) {
+      m_isolationMask <<= 1;
+      if(c=='1') m_isolationMask += 1;
+   }
+}
+
+
+
+TrigConf::L1Threshold_eEM::L1Threshold_eEM( const std::string & name, const std::string & type,
+                                            std::weak_ptr<L1ThrExtraInfoBase> m_extraInfo, const ptree & data) :
+   L1Threshold(name, type, m_extraInfo, data)
+{
+   update();
+}
+
+void
+TrigConf::L1Threshold_eEM::update()
+{
+   auto translate = [](const std::string &wp) { return wp=="Loose" ? Isolation::WP::LOOSE : 
+                                                ( wp=="Medium" ? Isolation::WP::MEDIUM : 
+                                                  ( wp=="Medium" ? Isolation::WP::TIGHT : Isolation::WP::NONE ) ); };
+   // read the isolation requirements
+   m_reta = translate(getAttribute("reta"));
+   m_rhad = translate(getAttribute("rhad"));
+   m_wstot = translate(getAttribute("wstot"));
+}
+
+
+
+
+TrigConf::L1Threshold_MU::L1Threshold_MU( const std::string & name, const std::string & type,
+                                          std::weak_ptr<L1ThrExtraInfoBase> m_extraInfo, const ptree & data) :
+   L1Threshold(name, type, m_extraInfo, data)
+{
+   update();
+}
+
+void
+TrigConf::L1Threshold_MU::update()
+{
+   auto muInfo = std::dynamic_pointer_cast<L1ThrExtraInfo_MU>(m_extraInfo.lock());
+
+   m_ptBarrel   = getAttribute<unsigned int>("baThr");
+   m_ptEndcap   = getAttribute<unsigned int>("ecThr");
+   m_ptForward  = getAttribute<unsigned int>("fwThr");
+   m_idxBarrel  = muInfo->rpcIdxForPt(m_ptBarrel);
+   m_idxEndcap  = muInfo->tgcIdxForPt(m_ptEndcap);
+   m_idxForward = muInfo->tgcIdxForPt(m_ptForward);
+
+   m_rpcExclROIList = getAttribute("rpcExclROIList", true, "");
+   m_tgcFlag = getAttribute("tgcFlags");
+   m_region = getAttribute("region");
+}
+
+
+
+

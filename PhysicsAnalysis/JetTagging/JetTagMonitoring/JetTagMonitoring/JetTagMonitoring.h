@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // *******************************************************
@@ -76,8 +76,8 @@ private:
 
     enum Jet_t { goodJet, badJet, suspectJet };
 
-    virtual StatusCode registerHist (MonGroup& theGroup, TH1* h1);
-    virtual StatusCode registerHist (MonGroup& theGroup, LWHist* h1);
+    void registerHist (MonGroup& theGroup, TH1* h1);
+    void registerHist (MonGroup& theGroup, LWHist* h1);
 
     void fillJetHistograms();
     void fillGoodJetHistos(const xAOD::Jet *jet);

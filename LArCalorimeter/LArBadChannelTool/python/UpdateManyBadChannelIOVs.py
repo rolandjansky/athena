@@ -1,25 +1,27 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from PyCool import cool,coral
+from __future__ import print_function
+
+from PyCool import cool
 from struct import pack,unpack
 from copy import deepcopy
 
 def addAndRemove(dbname,folder,tag,ts1,ts2,chansToAdd=dict(),chansToRemove=()):
 
-    print "Add:",chansToAdd
-    print "Rem:",chansToRemove
+    print ("Add:",chansToAdd)
+    print ("Rem:",chansToRemove)
 
     dbSvc = cool.DatabaseSvcFactory.databaseService()
   
     try:
         db1= dbSvc.openDatabase(dbname,False)
-    except Exception,e:
-        print "Problems connecting to database:",e
+    except Exception as e:
+        print ("Problems connecting to database:",e)
         return 1
 
 
     if not db1.existsFolder(folder):
-        print "ERROR folder",folder,"does not exist in",inputdb
+        print ("ERROR folder",folder,"does not exist in",dbname)
         return
 
     fd1=db1.getFolder(folder)
@@ -30,7 +32,7 @@ def addAndRemove(dbname,folder,tag,ts1,ts2,chansToAdd=dict(),chansToRemove=()):
         payload=obj.payload()
         since=obj.since()
         cc=obj.channelId()
-        #print "Working on channel %i valid since run %i" % (cc,since>>32)
+        #print ("Working on channel %i valid since run %i" % (cc,since>>32))
         if since<ts1:
             since=ts1
             
@@ -38,7 +40,7 @@ def addAndRemove(dbname,folder,tag,ts1,ts2,chansToAdd=dict(),chansToRemove=()):
 
         touched=False
 
-        if chansToAdd.has_key(cc):
+        if cc in chansToAdd:
             toAdd=deepcopy(chansToAdd[cc])
             touched=True
         else:
@@ -48,19 +50,19 @@ def addAndRemove(dbname,folder,tag,ts1,ts2,chansToAdd=dict(),chansToRemove=()):
         for i in range(bcBlob.size()/8):
             (ch,bc)=unpack('II',bcBlob.read(8))
             if ch in chansToRemove:
-                print "Removing entry [0x%x 0x%x] from COOL channel %i, IOV start run %i" % (ch,bc,cc, since>>32)
+                print ("Removing entry [0x%x 0x%x] from COOL channel %i, IOV start run %i" % (ch,bc,cc, since>>32))
                 touched=True
                 continue
             
-            if toAdd.has_key(ch):
+            if ch in toAdd:
                 bc|=toAdd.pop(ch)
-                print "Augmenting existing channel 0x%x to 0x%x in COOL channel %i, IOV start run %i" % (ch,bc,cc, since>>32)
+                print ("Augmenting existing channel 0x%x to 0x%x in COOL channel %i, IOV start run %i" % (ch,bc,cc, since>>32))
             
             newData+=((ch,bc),)
 
         #Adding channels:
-        for (ch,bc) in toAdd.iteritems():
-            print "Adding entry [0x%x 0x%x] to COOL channel %i, IOV start run %i" % (ch,bc,cc, since>>32)
+        for (ch,bc) in toAdd.items():
+            print ("Adding entry [0x%x 0x%x] to COOL channel %i, IOV start run %i" % (ch,bc,cc, since>>32))
             newData+=((ch,bc),)
 
 
@@ -70,7 +72,7 @@ def addAndRemove(dbname,folder,tag,ts1,ts2,chansToAdd=dict(),chansToRemove=()):
             for i in range(len(newData)):
                 bcBlob.write(pack("II",newData[i][0],newData[i][1]))
 
-            print "Storing changed object channel %i, valid from run %i to %i" % (cc,since>>32,obj.until()>>32)
+            print ("Storing changed object channel %i, valid from run %i to %i" % (cc,since>>32,obj.until()>>32))
             fd1.storeObject(since,obj.until(),payload,cc,tag,True)
                     
     itr.close()

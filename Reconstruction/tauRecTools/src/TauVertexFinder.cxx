@@ -36,8 +36,9 @@ TauVertexFinder::~TauVertexFinder() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauVertexFinder::initialize() {
-  ATH_CHECK( m_vertexInputContainer.initialize() );
-  ATH_CHECK( m_trackPartInputContainer.initialize() );
+  ATH_CHECK( m_vertexInputContainer.initialize(SG::AllowEmpty) );
+  if (m_in_trigger)
+    ATH_CHECK( m_trackPartInputContainer.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_jetTrackVtxAssoc.initialize() );
   
   if (m_useTJVA) ATH_MSG_INFO("using TJVA to determine tau vertex");
@@ -52,62 +53,62 @@ StatusCode TauVertexFinder::finalize() {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauVertexFinder::execute(xAOD::TauJet& pTau) {
+StatusCode TauVertexFinder::executeVertexFinder(xAOD::TauJet& pTau, 
+                                                const xAOD::VertexContainer* vertexContainer, 
+                                                const xAOD::TrackParticleContainer* trackContainer) {
+  
   const xAOD::VertexContainer * vxContainer = 0;
-  const xAOD::Vertex* primaryVertex = 0;
-
-  // find default PrimaryVertex (needed if TJVA is switched off or fails)
-  // see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/VertexReselectionOnAOD
-  // code adapted from 
-  // https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/VxVertex/trunk/VxVertex/PrimaryVertexSelector.h
-  if ( !m_in_trigger ){
-    // get the primary vertex container from StoreGate
-    // do it here because of tau trigger
+    
+  if (!m_vertexInputContainer.empty()) {
     SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
     if (!vertexInHandle.isValid()) {
       ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
       return StatusCode::FAILURE;
     }
     vxContainer = vertexInHandle.cptr();
-
-    if (vxContainer->size()>0) {
-      // simple loop through and get the primary vertex
-      xAOD::VertexContainer::const_iterator vxIter    = vxContainer->begin();
-      xAOD::VertexContainer::const_iterator vxIterEnd = vxContainer->end();
-      for ( size_t ivtx = 0; vxIter != vxIterEnd; ++vxIter, ++ivtx ){
-	// the first and only primary vertex candidate is picked
-	if ( (*vxIter)->vertexType() ==  xAOD::VxType::PriVtx){
-	  primaryVertex = (*vxIter);
-	  break;
-	}
-      }
-    }
   }
-  else { // trigger mode
-    // find default PrimaryVertex (highest sum pt^2)
-    //for tau trigger
-    StatusCode sc = tauEventData()->getObject("VxPrimaryCandidate", vxContainer);
-    if ( sc.isFailure() ){
-      ATH_MSG_WARNING("Could not retrieve VxPrimaryCandidate");
+  else {
+    if (vertexContainer != nullptr) {
+      vxContainer = vertexContainer;
+    }
+    else {
+      ATH_MSG_WARNING ("No Vertex Container in trigger");
       return StatusCode::FAILURE;
     }
-    if (vxContainer->size()>0) primaryVertex = (*vxContainer)[0];
   }
 
   ATH_MSG_VERBOSE("size of VxPrimaryContainer is: "  << vxContainer->size() );
+  if ( 0 == vxContainer->size()) return StatusCode::SUCCESS;
+
+  // find default PrimaryVertex (needed if TJVA is switched off or fails)
+  // see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/VertexReselectionOnAOD
+  // code adapted from 
+  // https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/VxVertex/trunk/VxVertex/PrimaryVertexSelector.h
+  const xAOD::Vertex* primaryVertex = 0;
+  if ( m_in_trigger) { // trigger: find default PrimaryVertex (highest sum pt^2)
+    primaryVertex = (*vxContainer)[0];
+  }
+  else { // offline: the first and only primary vertex candidate is picked
+    for (const auto vertex : *vxContainer) {
+      if (vertex->vertexType() ==  xAOD::VxType::PriVtx) {
+        primaryVertex = vertex;
+        break;
+      }
+    }
+  }
     
   // associate vertex to tau
   if (primaryVertex) pTau.setVertex(vxContainer, primaryVertex);
       
-  //stop here if TJVA is disabled or vertex container is empty
-  if (!m_useTJVA || vxContainer->size()==0) return StatusCode::SUCCESS;
+  //stop here if TJVA is disabled 
+  if (!m_useTJVA) return StatusCode::SUCCESS;
 
   // try to find new PV with TJVA
   ATH_MSG_DEBUG("TJVA enabled -> try to find new PV for the tau candidate");
 
   float maxJVF = -100;
   ElementLink<xAOD::VertexContainer> newPrimaryVertexLink =
-    getPV_TJVA(pTau, *vxContainer, maxJVF );
+    getPV_TJVA(pTau, *vxContainer, trackContainer, maxJVF );
   if (newPrimaryVertexLink.isValid()) {
     // set new primary vertex
     // will overwrite default one which was set above
@@ -127,6 +128,7 @@ StatusCode TauVertexFinder::execute(xAOD::TauJet& pTau) {
 ElementLink<xAOD::VertexContainer>
 TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
                             const xAOD::VertexContainer& vertices,
+                            const xAOD::TrackParticleContainer * trackContainer,
                             float& maxJVF)
 {
   const xAOD::Jet* pJetSeed = (*pTau.jetLink());
@@ -139,11 +141,23 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   const xAOD::TrackParticleContainer* trackParticleCont = 0;
   std::vector<const xAOD::TrackParticle*> assocTracks;
   
-  if (m_in_trigger)   {
-    StatusCode sc = tauEventData()->getObject( "TrackContainer", trackParticleCont ); // to be replaced by full FTK collection?
-    if (sc.isFailure() || !trackParticleCont){
-      ATH_MSG_WARNING("No TrackContainer for TJVA in trigger found");
-      return ElementLink<xAOD::VertexContainer>();
+  if (m_in_trigger) {
+    if (!m_trackPartInputContainer.empty()) {
+      SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
+      if (!trackPartInHandle.isValid()) {
+        ATH_MSG_WARNING("No TrackContainer for TJVA in trigger found");
+        return ElementLink<xAOD::VertexContainer>();
+      }
+      trackParticleCont = trackPartInHandle.cptr();
+    }
+    else {
+      if (trackContainer != nullptr) {
+        trackParticleCont = trackContainer;
+      }
+      else {
+        ATH_MSG_WARNING("No TrackContainer for TJVA in trigger found");
+        return ElementLink<xAOD::VertexContainer>();
+      }
     }
     // convert TrackParticleContainer in std::vector<const xAOD::TrackParticle*>
     for (xAOD::TrackParticleContainer::const_iterator tpcItr = trackParticleCont->begin(); tpcItr != trackParticleCont->end(); ++tpcItr) {
@@ -166,7 +180,6 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
     if ( (xTrack->p4().DeltaR(pJetSeed->p4())<dDeltaRMax) && m_TrackSelectionToolForTJVA->accept(*xTrack) )
       tracksForTJVA.push_back(xTrack);
   }
-
 
   // Get the TVA object
   const jet::TrackVertexAssociation* tva = NULL;
@@ -233,7 +246,6 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
     tva = tvaInHandle.cptr();
   }
  
-
   // Get the highest JVF vertex and store maxJVF for later use
   // Note: the official JetMomentTools/JetVertexFractionTool doesn't provide any possibility to access the JVF value, but just the vertex.
   maxJVF=-100.;

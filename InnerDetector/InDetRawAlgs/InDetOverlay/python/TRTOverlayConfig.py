@@ -73,10 +73,17 @@ def TRTOverlayAlgCfg(flags, name="TRTOverlay", **kwargs):
     acc.addEventAlgo(alg)
 
     # Setup output
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
-        "TRT_RDO_Container#TRT_RDOs"
-    ]))
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "TRT_RDO_Container#TRT_RDOs"
+        ]))
+
+    if flags.Output.doWriteRDO_SGNL:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
+            "TRT_RDO_Container#" + flags.Overlay.SigPrefix + "TRT_RDOs"
+        ]))
 
     return acc
 
@@ -101,10 +108,17 @@ def TRTTruthOverlayCfg(flags, name="TRTSDOOverlay", **kwargs):
     acc.addEventAlgo(alg)
 
     # Setup output
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
-        "InDetSimDataCollection#TRT_SDO_Map"
-    ]))
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "InDetSimDataCollection#TRT_SDO_Map"
+        ]))
+
+    if flags.Output.doWriteRDO_SGNL:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
+            "InDetSimDataCollection#" + flags.Overlay.SigPrefix + "TRT_SDO_Map"
+        ]))
 
     return acc
 

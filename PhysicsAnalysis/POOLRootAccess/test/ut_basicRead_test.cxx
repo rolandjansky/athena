@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
 
 
    POOL::TEvent evt(POOL::TEvent::kPOOLAccess);
-   evt.readFrom(whatToRead.c_str());
+   evt.readFrom(whatToRead.c_str()).ignore();
    //evt.setEvtSelProperty("CollectionTree","POOLContainer/basic");
    //evt.setEvtSelProperty( "OutputLevel" , 3 );
 
@@ -52,14 +52,14 @@ int main(int argc, char* argv[]) {
 
    //just a quick example of retrieving metadata
    float beam_energy(0);
-   AAH::retrieveMetadata("/TagInfo","beam_energy",beam_energy,evt.inputMetaStore()); 
+   AAH::retrieveMetadata("/TagInfo","beam_energy",beam_energy,evt.inputMetaStore()).ignore();
    std::cout << "Beam energy = " << beam_energy << std::endl;
 
    TStopwatch st;
    st.Start();
    for(int i=0; i< maxEvt; i++) {
       evt.getEntry(i);
-      evt.retrieve( evtInfo , "EventInfo" );
+      evt.retrieve( evtInfo , "EventInfo" ).ignore();
       evtInfo->eventNumber();
    }
    st.Stop();

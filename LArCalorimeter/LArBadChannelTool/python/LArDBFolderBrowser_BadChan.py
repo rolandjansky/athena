@@ -1,13 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import AthenaCommon.SystemOfUnits as Units
+from __future__ import print_function
+
 from AthenaPython.PyAthena import StatusCode
-import AthenaPython.PyAthena as PyAthena
 import sys
-from PyCool import cool,coral
-
-from GaudiKernel.Constants import *
-import logging
+from PyCool import cool
 
 import LArBadChannelBrowserTools
 
@@ -72,7 +69,7 @@ class LArDBFolderBrowser_BadChan():
         
         # Add entry in dictionnary
         sChannelKey=coolChan
-        if not self.dict_vectBadChanEntry.has_key(sChannelKey):
+        if sChannelKey not in  self.dict_vectBadChanEntry:
             self.dict_vectBadChanEntry[sChannelKey]={}
             
         # Get channel name from first vect_BadChanEntry element 
@@ -97,13 +94,14 @@ class LArDBFolderBrowser_BadChan():
         listHWidKeys=[x for x in self.dict_vectBadChanEntry[coolChan].keys()]
         listHWidKeys.sort()
 
-        print ""
+        print ("")
         for sHWid in listHWidKeys:
 
-            if self.dict_vectBadChanEntry_Init[coolChan].has_key(sHWid):
+            if sHWid in self.dict_vectBadChanEntry_Init[coolChan]:
                 sChanName,badChan_word,sValueInit=self.dict_vectBadChanEntry_Init[coolChan][sHWid]
                 sPrefix=""
-                if self.dict_vectBadChanEntry_Status[coolChan][sHWid]!=STATUS_INIT:sPrefix="->"
+                if self.dict_vectBadChanEntry_Status[coolChan][sHWid]!=STATUS_INIT:
+                    sPrefix="->"
                 self.BadChan_DisplayBadChanEntryLine(sPrefix,iChanCmpt,sHWid,sChanName,badChan_word,sValueInit)
 
             if self.dict_vectBadChanEntry_Status[coolChan][sHWid]!=STATUS_INIT:
@@ -119,9 +117,6 @@ class LArDBFolderBrowser_BadChan():
         obj_HWid=self.class_HWIdentifier()
         obj_HWid.set(sHWid)
         
-        cblSvc_id = self.larCablingSvc.cnvToIdentifier(obj_HWid)
-        cblSvc_string = self.onlineID.print_to_string(cblSvc_id)
-
         barrel_ec=self.onlineID.barrel_ec(obj_HWid)
         pos_neg=self.onlineID.pos_neg(obj_HWid)
         feedthrough=self.onlineID.feedthrough(obj_HWid)
@@ -132,18 +127,18 @@ class LArDBFolderBrowser_BadChan():
         sStatusString=self.BadChan_GetBadChannelPb_String(larBadChannel)
 
         if sMessage=="":
-            print "    %5d :  %-10s  %1d %1d %2d %2d %3d %40s   %s " % (iChanCmpt+1,obj_HWid.getString(),
+            print ("    %5d :  %-10s  %1d %1d %2d %2d %3d %40s   %s " % (iChanCmpt+1,obj_HWid.getString(),
                                                                     barrel_ec,pos_neg,feedthrough,slot,channel,
-                                                                    sChanName,sStatusString)
+                                                                    sChanName,sStatusString))
         else:
-            print "%3s %5d :  %-10s  %1d %1d %2d %2d %3d %40s   %s  %s" % (sMessage,iChanCmpt+1,obj_HWid.getString(),
+            print ("%3s %5d :  %-10s  %1d %1d %2d %2d %3d %40s   %s  %s" % (sMessage,iChanCmpt+1,obj_HWid.getString(),
                                                                         barrel_ec,pos_neg,feedthrough,slot,channel,
-                                                                        sChanName,sStatusString,sValueInit)
+                                                                        sChanName,sStatusString,sValueInit))
 
             
-            #            print "%5d :  %-10s  %1d %1d %2d %2d %3d %40s %s  //  %s" % (iChanCmpt,obj_HWid.getString(),
+            #            print ("%5d :  %-10s  %1d %1d %2d %2d %3d %40s %s  //  %s" % (iChanCmpt,obj_HWid.getString(),
         #                                                                      barrel_ec,pos_neg,feedthrough,slot,channel,
-        #                                                                      sChanName,sStatusString,sValueInit)
+        #                                                                      sChanName,sStatusString,sValueInit))
 
     
 
@@ -156,7 +151,7 @@ class LArDBFolderBrowser_BadChan():
         version =  attrList['Version']
         vect_BadChanEntry=self.nspace_LArBadChannelDBTools.decodeBlob(blob,channelSize,statusWordSize,endianness,version,
                                                                       self.nspace_LArBadChannelDBTools.getDefaultMsgStream())
-        print "BadChanEntry vector size : ",vect_BadChanEntry.size()
+        print ("BadChanEntry vector size : ",vect_BadChanEntry.size())
         self.BadChan_DisplayBadChanEntryVector(vect_BadChanEntry)
 
     
@@ -178,7 +173,7 @@ class LArDBFolderBrowser_BadChan():
     def BadChan_TransformEntryIntoDictionnary(self,vBadChanEntry):
         """ Transform the BadChanEntry decoded from blob object into a python dictionnary """
         
-        print "--------------------------- Blob SIZE : ",vBadChanEntry.size()
+        print ("--------------------------- Blob SIZE : ",vBadChanEntry.size())
         iNbBadChannel=vBadChanEntry.size()
 
         sChannelDict={}
@@ -202,15 +197,20 @@ class LArDBFolderBrowser_BadChan():
         """ Get channel HW identifier and its status """
         
         sid = self.onlineID.channel_Id(int(barrel_ec),int(pos_neg),int(feedthrough),int(slot),int(channel))
-        print str(barrel_ec)+" "+str(pos_neg)+" "+str(feedthrough)+" "+str(slot)+" "+str(channel)+"  =>  ",sid.getString()
+        print (str(barrel_ec)+" "+str(pos_neg)+" "+str(feedthrough)+" "+str(slot)+" "+str(channel)+"  =>  ",sid.getString())
 
         # Check if HW identifier is valid
         bValidWHidentifier=False
-        if self.onlineID.isEMBchannel(sid): bValidWHidentifier=True
-        if self.onlineID.isEMECchannel(sid): bValidWHidentifier=True
-        if self.onlineID.isHECchannel(sid): bValidWHidentifier=True
-        if self.onlineID.isFCALchannel(sid): bValidWHidentifier=True
-        if bValidWHidentifier==False: return (-1,sid.getString(),"",0)
+        if self.onlineID.isEMBchannel(sid):
+            bValidWHidentifier=True
+        if self.onlineID.isEMECchannel(sid):
+            bValidWHidentifier=True
+        if self.onlineID.isHECchannel(sid):
+            bValidWHidentifier=True
+        if self.onlineID.isFCALchannel(sid):
+            bValidWHidentifier=True
+        if bValidWHidentifier is False:
+            return (-1,sid.getString(),"",0)
 
         # Check if HW identifier already corresponds to a bad channel
         for key in self.dict_vectBadChanEntry.keys():
@@ -218,8 +218,8 @@ class LArDBFolderBrowser_BadChan():
 
                 sChannelName,badChan_word,x=self.dict_vectBadChanEntry[key][sHWid]
                 if sid.getString()==sHWid:
-                    larBadChannel=self.class_LArBadChannel(badChan_word)
-                    larBadChannelStatus=self.BadChan_GetBadChannelPb_String(larBadChannel)
+                    #larBadChannel=self.class_LArBadChannel(badChan_word)
+                    #larBadChannelStatus=self.BadChan_GetBadChannelPb_String(larBadChannel)
 
                     return (0,sid.getString(),sChannelName,badChan_word)
 
@@ -294,8 +294,8 @@ class LArDBFolderBrowser_BadChan():
         for i in range(0,self.nbProblemType):
             self.channelProblemTypeList.append(obj_larBadChanBitPacking.stringName(i))
             
-        print "ENUM ProblemType : "
-        print self.channelProblemTypeList
+        print ("ENUM ProblemType : ")
+        print (self.channelProblemTypeList)
 
 
 
@@ -310,11 +310,11 @@ class LArDBFolderBrowser_BadChan():
         bEndOfCorrection=False
         while not bEndOfCorrection:
 
-            print ""
-            print ".. To select a channel : enter channel index or barrel_ec pos_neg feedthrough slot channel "
-            print ".. To add a channel    : enter barrel_ec pos_neg feedthrough slot channel "
-            print ".. To remove a channel : enter -(channel index) "
-            print ".. Other :   s (summary)  /  r (refresh list)  /  a (abort)  / q (save and quit)      .. > ",
+            print ("")
+            print (".. To select a channel : enter channel index or barrel_ec pos_neg feedthrough slot channel ")
+            print (".. To add a channel    : enter barrel_ec pos_neg feedthrough slot channel ")
+            print (".. To remove a channel : enter -(channel index) ")
+            print (".. Other :   s (summary)  /  r (refresh list)  /  a (abort)  / q (save and quit)      .. > ", end='')
             tty = open("/dev/tty", "r+")
             rep=tty.readline()
             rep=rep.strip()
@@ -332,31 +332,39 @@ class LArDBFolderBrowser_BadChan():
                 barrel_ec,pos_neg,feedthrough,slot,channel=rep.split(' ')
                 bReadableAnswer=True
                 iCombinationAnswer=1
-            except: 
-                if rep=="a": sTxtAnswer="abort"
-                elif rep=="r": sTxtAnswer="refresh"
-                elif rep=="s": sTxtAnswer="summary"
-                elif rep=="q": sTxtAnswer="save-quit"
+            except Exception: 
+                if rep=="a":
+                    sTxtAnswer="abort"
+                elif rep=="r":
+                    sTxtAnswer="refresh"
+                elif rep=="s":
+                    sTxtAnswer="summary"
+                elif rep=="q":
+                    sTxtAnswer="save-quit"
                 else:
                     try:
                         iSelection=int(rep)
-                        if iSelection in range(1,iNbBadChannel+1): iSelectedIndex=iSelection
-                        if iSelection in range(-iNbBadChannel-1,0): iSelectedIndex=iSelection
-                        if iSelectedIndex==-99999: bReadableAnswer=False
-                    except:
+                        if iSelection in range(1,iNbBadChannel+1):
+                            iSelectedIndex=iSelection
+                        if iSelection in range(-iNbBadChannel-1,0):
+                            iSelectedIndex=iSelection
+                        if iSelectedIndex==-99999:
+                            bReadableAnswer=False
+                    except Exception:
                         iSelectedIndex=0
                         bReadableAnswer=False
                         continue
 
-            if bReadableAnswer==False:
-                print "could not decode answer... "
+            if bReadableAnswer is False:
+                print ("could not decode answer... ")
                 bEndOfCorrection=False
                 continue
 
             # Abort answer
             if sTxtAnswer=="abort":
                 iAbortConfirmation=LArBadChannelBrowserTools.YesNoQuestion("Are you sure you want to quit ? ")
-                if iAbortConfirmation==1: return
+                if iAbortConfirmation==1:
+                    return
                 bEndOfCorrection=False
 
             # Refresh answer
@@ -394,26 +402,28 @@ class LArDBFolderBrowser_BadChan():
                 else:
                     iRes,sHWid,sChanName,badChan_word=self.BadChan_GetChannelHWIdentifierAndStatus(barrel_ec,pos_neg,feedthrough,slot,channel)
                     if iRes==-1:
-                        print "An error occured while computing HW identifier -> computed HW identifier does not exist"
+                        print ("An error occured while computing HW identifier -> computed HW identifier does not exist")
                         bChangeHWstatus=False
                     if iRes==1:
                         bNewHWidentifier=True
                         
                 if bChangeHWstatus:
-                    print""
-                    for i in range(0,50): print "-",
-                    print""
-                    for i in range(0,50): print "-",
-                    print""
+                    print ("")
+                    for i in range(0,50):
+                        print ("-",)
+                    print ("")
+                    for i in range(0,50):
+                        print ("-",)
+                    print ("")
                     self.BadChan_DisplayBadChanEntryLine("",0,sHWid,sChanName,badChan_word,"")
-                    print "      ",self.BadChan_GetCablingServiceNameFromHWIdentifier(sHWid)
+                    print ("      ",self.BadChan_GetCablingServiceNameFromHWIdentifier(sHWid))
 
                     iRes,sNewStatus=self.BadChan_GetNewChannelStatus(badChan_word)
 
-                    print "MODIFICATION STATUS : ",badChan_word," ",sNewStatus
+                    print ("MODIFICATION STATUS : ",badChan_word," ",sNewStatus)
 
                     if iRes==0 and sNewStatus!=badChan_word:
-                        if bNewHWidentifier==False:
+                        if bNewHWidentifier is False:
                             self.dict_vectBadChanEntry_Status[coolChan][sHWid]=STATUS_MODIFIED
                             self.dict_vectBadChanEntry[coolChan][sHWid]=(sChanName,sNewStatus,sValueInit)
                         else:
@@ -430,75 +440,6 @@ class LArDBFolderBrowser_BadChan():
 
 
         return StatusCode.Success
-
-    def BadChan_GetChannelHWIdentifierAndStatus(self,barrel_ec,pos_neg,feedthrough,slot,channel):
-        """ Get channel HW identifier and its status """
-        
-        sid = self.onlineID.channel_Id(int(barrel_ec),int(pos_neg),int(feedthrough),int(slot),int(channel))
-        print str(barrel_ec)+" "+str(pos_neg)+" "+str(feedthrough)+" "+str(slot)+" "+str(channel)+"  =>  ",sid.getString()
-
-        # Check if HW identifier is valid
-        bValidWHidentifier=False
-        if self.onlineID.isEMBchannel(sid): bValidWHidentifier=True
-        if self.onlineID.isEMECchannel(sid): bValidWHidentifier=True
-        if self.onlineID.isHECchannel(sid): bValidWHidentifier=True
-        if self.onlineID.isFCALchannel(sid): bValidWHidentifier=True
-        if bValidWHidentifier==False: return (-1,sid.getString(),"",0)
-
-        
-        # Check if HW identifier already corresponds to a bad channel
-        for key in self.dict_vectBadChanEntry.keys():
-            for sHWid in self.dict_vectBadChanEntry[key].keys():
-
-                sChannelName,badChan_word,x=self.dict_vectBadChanEntry[key][sHWid]
-                if sid.getString()==sHWid:
-                    larBadChannel=self.class_LArBadChannel(badChan_word)
-                    larBadChannelStatus=self.BadChan_GetBadChannelPb_String(larBadChannel)
-
-                    return (0,sid.getString(),sChannelName,badChan_word)
-
-        # default : new lar bad channel status
-        sChannelName=self.onlineID.channel_name(sid)
-        badChan_word=0
-        return (1,sid.getString(),sChannelName,badChan_word)
-
-
-    def BadChan_GetBadChannelPb_String(self,larBadChannel):
-        """ Get bad channel ProblemType names """
-
-        sBadChannelPb=""
-        for i in range(0,self.nbProblemType):
-            if larBadChannel.statusBad(i):
-                sBadChannelPb=sBadChannelPb+self.channelProblemTypeList[i]+","
-        
-        return sBadChannelPb
-
-
-    def BadChan_GetBadChannelPb_Int(self,larBadChannel):
-        """ Get bad channel ProblemType indexes """
-        
-        iBadChannelPb=[]
-        for i in range(0,self.nbProblemType):
-            if larBadChannel.statusBad(i):
-                iBadChannelPb.append(i)
-        
-        return iBadChannelPb
-
-
-
-    def BadChan_GetBadChannelProblemType(self):
-        """ Get list of problem type defines in LArBadChanBitPacking file """
-
-        obj_larBadChanBitPacking=self.class_LArBadChanBitPacking()
-
-        self.nbProblemType=int(obj_larBadChanBitPacking.numberOfProblemTypes())
-        
-        self.channelProblemTypeList=[]
-        for i in range(0,self.nbProblemType):
-            self.channelProblemTypeList.append(obj_larBadChanBitPacking.stringName(i))
-            
-        print "ENUM ProblemType : "
-        print self.channelProblemTypeList
 
 
     def BadChan_GetCablingServiceNameFromHWIdentifier(self, sHWid):
@@ -517,10 +458,10 @@ class LArDBFolderBrowser_BadChan():
         
         listHWidKeys=[x for x in self.dict_vectBadChanEntry[coolChan].keys()]
         listHWidKeys.sort()
-#                print listHWidKeys
-        print ""
+#                print (listHWidKeys)
+        print ("")
 
-        print "Correction summary : "+self.channelNameDict[coolChan]
+        print ("Correction summary : "+self.channelNameDict[coolChan])
         iNbCorrection=0
         for index,sHWid in enumerate(listHWidKeys):
             if self.dict_vectBadChanEntry_Status[coolChan][sHWid]!=STATUS_INIT:
@@ -529,7 +470,8 @@ class LArDBFolderBrowser_BadChan():
                 self.BadChan_DisplayBadChanEntryLine(channelStatus,index,sHWid,sChanName,badChan_word,"")
                 iNbCorrection += 1
 
-        if iNbCorrection==0: print"-"
+        if iNbCorrection==0:
+            print ("-")
 
     
     def BadChan_GetNewChannelStatus(self,badChan_wordInit):
@@ -541,27 +483,29 @@ class LArDBFolderBrowser_BadChan():
         sTmp="\n"
         for index,s in enumerate(self.channelProblemTypeList):
             sTmp=sTmp+"%2d %-20s" % (index,s)
-            if (index+1)%5==0: sTmp=sTmp+"\n"
-        print sTmp
-        print ".. to add/remove a pb  : enter index/-index or sequence of indexes"
-        print ".. other               :  a : abort /  c : cancel correction / r : reset to valid /  n : next channel"
-        print ""
+            if (index+1)%5==0:
+                sTmp=sTmp+"\n"
+        print (sTmp)
+        print (".. to add/remove a pb  : enter index/-index or sequence of indexes")
+        print (".. other               :  a : abort /  c : cancel correction / r : reset to valid /  n : next channel")
+        print ("")
 
         bEndOfStatusCorrection=False
         larBadChannel=self.class_LArBadChannel(badChan_word)
         while not bEndOfStatusCorrection:
 
             iProblemList=self.BadChan_GetBadChannelPb_Int(larBadChannel)
-            print "Status ",self.BadChan_GetBadChannelPb_String(larBadChannel)," ",iProblemList
-            print ""
-            print ".. > ",
+            print ("Status ",self.BadChan_GetBadChannelPb_String(larBadChannel)," ",iProblemList)
+            print ("")
+            print (".. > ", end='')
             tty = open("/dev/tty", "r+")
             rep=tty.readline()
             rep=rep.strip()
 
             if rep=="a":
                 iAbortConfirmation=LArBadChannelBrowserTools.YesNoQuestion("Are you sure you want to quit ? ")
-                if iAbortConfirmation==1: return (-1,badChan_wordInit)
+                if iAbortConfirmation==1:
+                    return (-1,badChan_wordInit)
                 bEndOfStatusCorrection=False
             elif rep=="n":
                 badChan_word=larBadChannel.packedData()
@@ -569,7 +513,8 @@ class LArDBFolderBrowser_BadChan():
                 bEndOfStatusCorrection=True
             elif rep=="c":
                 iCancelConfirmation=LArBadChannelBrowserTools.YesNoQuestion("Are you sure you want to cancel correction ? ")
-                if iCancelConfirmation==1: return (1,STATUS_INIT)
+                if iCancelConfirmation==1:
+                    return (1,STATUS_INIT)
                 bEndOfStatusCorrection=True
             else:
                 import re
@@ -578,15 +523,18 @@ class LArDBFolderBrowser_BadChan():
                 sRepSeq=[x for x in sTmp if x !='']
                 
                 # reset
-                if "r" in sRepSeq: iProblemList=[]
+                if "r" in sRepSeq:
+                    iProblemList=[]
                 
                 # Indexes
                 for index in sRepSeq:
                     try:
                         iNewPb=int(index)
-                        if iNewPb in range(1,self.nbProblemType) and iNewPb not in iProblemList: iProblemList.append(iNewPb)
-                        if iNewPb in range(-self.nbProblemType+1,0) and -iNewPb in iProblemList: iProblemList.remove(-iNewPb)
-                    except:
+                        if iNewPb in range(1,self.nbProblemType) and iNewPb not in iProblemList:
+                            iProblemList.append(iNewPb)
+                        if iNewPb in range(-self.nbProblemType+1,0) and -iNewPb in iProblemList:
+                            iProblemList.remove(-iNewPb)
+                    except Exception:
                         continue
 
                 larBadChannel=self.class_LArBadChannel()
@@ -609,7 +557,6 @@ class LArDBFolderBrowser_BadChan():
         inst_larBadChannelState=self.class_LArBadChannelState()
 
         # Loop over cool channels
-        bStoreNewCoolChannels=False
         bNewDBCreated=False
         for coolChan in listKeys:
 
@@ -641,7 +588,6 @@ class LArDBFolderBrowser_BadChan():
             if iNbCorrection>0:
                 for sEntry in vect_BadChanEntry:
                     inst_larBadChannelState.add(sEntry,coolChan)
-                bStoreNewCoolChannels=True
             else:
                 continue
 
@@ -653,14 +599,13 @@ class LArDBFolderBrowser_BadChan():
             athenaAttrList=self.nspace_LArBadChannelDBTools.createPayload(inst_larBadChannelState.coolChannel(coolChan), attrListSpec)
 
             # if save DB has not been created => do it
-            if bNewDBCreated==False:
-                import os
+            if bNewDBCreated is False:
                 try:
                     dbSave = dbSvc.createDatabase(dbstring)
-                except Exception,e:
-                    print 'Problem opening database',e
+                except Exception as e:
+                    print ('Problem opening database',e)
                     sys.exit(-1)
-                print "Opened database",dbstring
+                print ("Opened database",dbstring)
 
                 desc='<timeStamp>run-event</timeStamp><addrHeader><address_header service_type="71" clid="40774348" /></addrHeader><typeName>AthenaAttributeList</typeName>'
 
@@ -674,7 +619,7 @@ class LArDBFolderBrowser_BadChan():
                     elif typeName=="blob":
                         coolSpec.extend(attrSpec.name(),cool.StorageType.Blob64k)
                     else:
-                        print "Undefined cool.StorageType "+typeName
+                        print ("Undefined cool.StorageType "+typeName)
 
 #                myfolder=dbSave.createFolder(dbFolderName, coolSpec, desc, cool.FolderVersioning.SINGLE_VERSION,True)
                 myfolder=dbSave.createFolder(dbFolderName, coolSpec, desc, cool.FolderVersioning.MULTI_VERSION,True)
@@ -696,7 +641,7 @@ class LArDBFolderBrowser_BadChan():
             myfolder.storeObject(beginRun,endRun,coolPayload,coolChan,selectedTag)
             
         # Close new databse
-        if bNewDBCreated==True:
+        if bNewDBCreated is True:
             dbSave.closeDatabase()
 
 
@@ -706,47 +651,50 @@ class LArDBFolderBrowser_BadChan():
         # Dump new database content to screen
         try:
             dbase = dbSvc.openDatabase(dbName,False)
-        except Exception,e:
-            print 'Problem opening database',e
+        except Exception as e:
+            print ('Problem opening database',e)
             sys.exit(-1)
-        print "Opened database",dbName
+        print ("Opened database",dbName)
 
         # Get Folder
         try:
             f = dbase.getFolder(dbFolderName)
-            print "Analysing Folder " + str(dbFolderName)
-        except:
-            print "Skipping " + str(dbFolderName)
+            print ("Analysing Folder " + str(dbFolderName))
+        except Exception:
+            print ("Skipping " + str(dbFolderName))
             return
 
         # get tags
         tags  = f.listTags()
 
         # SES
-        if tags.size()==0: tags.push_back("notag")
+        if tags.size()==0:
+            tags.push_back("notag")
 
-        print "for tags ",
-        for tag in tags: print tag
+        print ("for tags ",)
+        for tag in tags:
+            print (tag)
 
         bTagFound=False
         bSavingProcessError=False
 
         for tag in tags:
 
-            if tag!=selectedTag: continue
+            if tag!=selectedTag:
+                continue
 
             bTagFound=True
 
-            nobjs = f.countObjects( cool.ValidityKeyMin,cool.ValidityKeyMax,cool.ChannelSelection.all())
+            f.countObjects( cool.ValidityKeyMin,cool.ValidityKeyMax,cool.ChannelSelection.all())
             objs = f.browseObjects( cool.ValidityKeyMin,cool.ValidityKeyMax,cool.ChannelSelection.all())
             i = 0
             while objs.hasNext():
                 obj = objs.next()
-                print "Found object", i,
-                print "since [r,l]: [", obj.since() >> 32,',',obj.since()%0x100000000,']',
-                print "until [r,l]: [", obj.until() >> 32,',',obj.until()%0x100000000,']',
-                print "payload", obj.payload(),
-                print "chan",obj.channelId() 
+                print ("Found object", i, end='')
+                print ("since [r,l]: [", obj.since() >> 32,',',obj.since()%0x100000000,']', end='')
+                print ("until [r,l]: [", obj.until() >> 32,',',obj.until()%0x100000000,']', end='')
+                print ("payload", obj.payload(), end='')
+                print ("chan",obj.channelId() )
 
                 # Get components of payload object
                 payload=obj.payload()
@@ -765,21 +713,23 @@ class LArDBFolderBrowser_BadChan():
 
                 sChannelKey=obj.channelId()
                 HWidChecked={}
-                for key in sChannelDict.keys(): HWidChecked[key]=0
+                for key in sChannelDict.keys():
+                    HWidChecked[key]=0
 
-                print " -> SQlite database content vs initial data : channel ", sChannelKey
+                print (" -> SQlite database content vs initial data : channel ", sChannelKey)
 
                 # Check all the saved data vs initial data
                 listHWidKeys=[x for x in sChannelDict.keys()]
                 for x in self.dict_vectBadChanEntry_Status[sChannelKey].keys():
-                    if x not in listHWidKeys: listHWidKeys.append(x)
+                    if x not in listHWidKeys:
+                        listHWidKeys.append(x)
                 listHWidKeys.sort()
                 iChanCmpt=0
                 for keyHWid in listHWidKeys:
 
                     try:
                         sChanName,badChan_word,sValueInit=sChannelDict[keyHWid]
-                    except:
+                    except Exception:
                         sChanName="UNDEFINED"
                         badChan_word=0
 
@@ -794,7 +744,7 @@ class LArDBFolderBrowser_BadChan():
                         self.BadChan_DisplayBadChanEntryLine(sPrefix,iChanCmpt,keyHWid,sChanName,badChan_word,sSuffix)
 
                     if self.dict_vectBadChanEntry_Status[sChannelKey][keyHWid]==STATUS_REMOVED:
-                        if sChannelDict.has_key(keyHWid):
+                        if keyHWid in sChannelDict:
                             sPrefix="ERR"
                             sSuffix=" deletion not taken into accout"+keyHWid
                             bSavingProcessError=True
@@ -825,21 +775,21 @@ class LArDBFolderBrowser_BadChan():
                     iChanCmpt += 1
 
                 for key in self.dict_vectBadChanEntry_Status[sChannelKey].keys():
-                    if not HWidChecked.has_key(key) and self.dict_vectBadChanEntry_Status[sChannelKey][key]!=STATUS_REMOVED:
-                        print "ERROR : initial ",key," has not been saved"
-                    elif HWidChecked.has_key(key) and HWidChecked[key]==0:
-                        print "ERROR : ",key," has not been checked"
+                    if key not in  HWidChecked and self.dict_vectBadChanEntry_Status[sChannelKey][key]!=STATUS_REMOVED:
+                        print ("ERROR : initial ",key," has not been saved")
+                    elif key in HWidChecked and HWidChecked[key]==0:
+                        print ("ERROR : ",key," has not been checked")
 
                 i += 1
 
 
             objs.close()
 
-        if bTagFound==False:
-            print "ERROR : tag "+selectedTag+" not found in saved SQlite file"
+        if bTagFound is False:
+            print ("ERROR : tag "+selectedTag+" not found in saved SQlite file")
             
-        if bSavingProcessError==True:
-            print "ERROR : found while making comparison between corrected and saved datas" 
+        if bSavingProcessError is True:
+            print ("ERROR : found while making comparison between corrected and saved datas" )
 
 
         dbase.closeDatabase()

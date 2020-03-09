@@ -151,7 +151,7 @@ if DerivationFrameworkIsMonteCarlo:
 
     EXOT5MCThinningTool = DerivationFramework__MenuTruthThinning(
         name                       = 'EXOT5MCThinningTool',
-        ThinningService            = 'EXOT5ThinningSvc',
+        StreamName                 = streamName,
         WriteEverything            = False,
         WritePartons               = False,
         PartonPtThresh             = -1.0,

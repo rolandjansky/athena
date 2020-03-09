@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import bisect
 
@@ -75,7 +75,7 @@ class TileCellHashMgr():
         self._nModules = 64
         self._nCellsPart = [0]
         self._nHashMax=0
-        for p in xrange(6):
+        for p in range(6):
             self._nHashMax+=self._nCellsModule[p]*self._nModules
             self._nCellsPart.append(self._nHashMax)
 
@@ -106,22 +106,33 @@ class TileCellHashMgr():
         modName="%s%02d" % (self._partNames[part],module)
         index=(hash-self._nCellsPart[part])%self._nCellsModule[part]
         if part>=4:
-            if index==0 and ((part==4 and module==18) or (part==5 and module==15)): index+=8
-            if index==0 and (module==14 or module==15 or module==18 or module==19): index+=6
-            if index==1 and ((module>=39 and module<=42) or (module>=55 and module<=58)): index+=6
+            if index==0 and ((part==4 and module==18) or (part==5 and module==15)):
+                index+=8
+            if index==0 and (module==14 or module==15 or module==18 or module==19):
+                index+=6
+            if index==1 and ((module>=39 and module<=42) or (module>=55 and module<=58)):
+                index+=6
             if index==2 and (self._cabling=='RUN2' or self._cabling=='RUN2a'):
                 if part==4: # E4' in EBC
-                    if module==28 or module==31 or module==35 or module==38: index+=7 # E1m
-                    if module==29 or module==32 or module==34 or module==37: index+=9 # E4'
-                if module==7 or module==25 or module==44 or module==53: index+=7 # E1m
-                if module==8 or module==24 or module==43 or module==54: index+=8 # MBTS
+                    if module==28 or module==31 or module==35 or module==38:
+                        index+=7 # E1m
+                    if module==29 or module==32 or module==34 or module==37:
+                        index+=9 # E4'
+                if module==7 or module==25 or module==44 or module==53:
+                    index+=7 # E1m
+                if module==8 or module==24 or module==43 or module==54:
+                    index+=8 # MBTS
                 if self._cabling=='RUN2a':
                     if part==5: # EBA
-                        if module==4 or module==21 or module==47 or module==60: index+=7 # E1m
-                        if module==3 or module==20 or module==46 or module==59: index+=8 # MBTS
+                        if module==4 or module==21 or module==47 or module==60:
+                            index+=7 # E1m
+                        if module==3 or module==20 or module==46 or module==59:
+                            index+=8 # MBTS
                     if part==4: # EBC
-                        if module==4 or module==18 or module==47 or module==60: index+=7 # E1m
-                        if module==3 or module==19 or module==46 or module==59: index+=8 # MBTS
+                        if module==4 or module==18 or module==47 or module==60:
+                            index+=7 # E1m
+                        if module==3 or module==19 or module==46 or module==59:
+                            index+=8 # MBTS
 
         return (modName,self._cellNames[part][index])
 
@@ -137,18 +148,25 @@ class TileCellHashMgr():
         module=(hash-self._nCellsPart[part])/self._nCellsModule[part]+1
         index=(hash-self._nCellsPart[part])%self._nCellsModule[part]
         if part>=4:
-            if index==0 and ((part==4 and module==18) or (part==5 and module==15)): index+=8
-            if index==0 and (module>=15 and module<=18): index+=6
-            if index==1 and ((module>=39 and module<=42) or (module>=55 and module<=58)): index+=6
+            if index==0 and ((part==4 and module==18) or (part==5 and module==15)):
+                index+=8
+            if index==0 and (module>=15 and module<=18):
+                index+=6
+            if index==1 and ((module>=39 and module<=42) or (module>=55 and module<=58)):
+                index+=6
             if index==2 and (self._cabling=='RUN2' or self._cabling=='RUN2a'):
                 if part==4: # E4' in EBC
-                    if module==28 or module==29 or module==31 or module==32 or module==35 or module==34 or module==38 or module==37: index+=7 # E1m or E4'
-                if module==7 or module==8 or module==25 or module==24 or module==44 or module==43 or module==53 or module==54: index+=7 # E1m or MBTS
+                    if module==28 or module==29 or module==31 or module==32 or module==35 or module==34 or module==38 or module==37:
+                        index+=7 # E1m or E4'
+                if module==7 or module==8 or module==25 or module==24 or module==44 or module==43 or module==53 or module==54:
+                    index+=7 # E1m or MBTS
                 if self._cabling=='RUN2a':
                     if part==5: # EBA
-                        if module==4 or module==3 or module==21 or module==20 or module==47 or module==46 or module==60 or module==59: index+=7 # E1m or MBTS
+                        if module==4 or module==3 or module==21 or module==20 or module==47 or module==46 or module==60 or module==59:
+                            index+=7 # E1m or MBTS
                     if part==4: # EBC
-                        if module==4 or module==3 or module==18 or module==19 or module==47 or module==46 or module==60 or module==59: index+=7 # E1m or MBTS
+                        if module==4 or module==3 or module==18 or module==19 or module==47 or module==46 or module==60 or module==59:
+                            index+=7 # E1m or MBTS
 
         return self._cellNames[part][index]
 

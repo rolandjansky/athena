@@ -36,11 +36,8 @@
 #include "MdtRawDataMonitoring/MuonChamberIDSelector.h"
 #include "MdtRawDataMonitoring/MdtRawDataMonAlg.h"
 #include "TrkEventPrimitives/FitQuality.h"
-//#include "xAODEventInfo/EventInfo.h"
-//#include "xAODMuon/MuonContainer.h"
 
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
-// #include "GaudiKernel/Property.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
@@ -51,24 +48,10 @@
 #include "GaudiKernel/MsgStream.h"
 
 //root includes
-#include <TH1.h>
-#include <TH2.h> 
-#include <TH1F.h>
 #include <TH2F.h>
-#include <TMath.h>
-#include <TF1.h>
-#include <TError.h>
-#include <math.h>
-#include "LWHists/TH1F_LW.h"
-#include "LWHists/TH2F_LW.h"
+#include <cmath>
 #include <sstream>
 
-using namespace std;
-
-//float parESD1, parESD2, parESD3, parESD4;
-
-//enum {enumBarrelA, enumBarrelC, enumEndCapA, enumEndCapC};
-//enum {enumBarrel, enumEndCap};
 enum {enumInner, enumMiddle, enumOuter, enumExtra};
 
 struct MDTOverviewHistogramStruct {
@@ -293,7 +276,7 @@ StatusCode MdtRawDataMonAlg::initialize()
       	std::string s = "NumberOfHitsIn"+ecap[iecap]+layer[ilayer]+"PerMultiLayer_ADCCut";
 	m_mdthitspermultilayerLumi[iecap][ilayer] = new TH2F(s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1);
 	m_mdthitspermultilayerLumi[iecap][ilayer]->SetDirectory(0);
-	string xAxis = ecap[iecap].substr(0,1) + layer[ilayer].substr(0,1) + ecap[iecap].substr(1,1);
+	std::string xAxis = ecap[iecap].substr(0,1) + layer[ilayer].substr(0,1) + ecap[iecap].substr(1,1);
 	sc=binMdtRegional(m_mdthitspermultilayerLumi[iecap][ilayer], xAxis);
 
       if( ilayer==0 && ((iecap==0||iecap==2)) ) {
@@ -315,36 +298,12 @@ StatusCode MdtRawDataMonAlg::initialize()
   m_mdthitsperML_byLayer[enumOuter] = new TH2F(s.c_str(), s.c_str(), 1, 0, 1, 1, 0, 1);
   m_mdthitsperML_byLayer[enumOuter]->SetDirectory(0);
   sc = binMdtGlobal_byLayer(m_mdthitsperML_byLayer[enumInner], m_mdthitsperML_byLayer[enumMiddle], m_mdthitsperML_byLayer[enumOuter]);
-  
-  /*
-  sc = bookMDTHisto_overview_2D(m_mdthitsperML_byLayer[enumInner], "NumberOfHitsInMDTInner_ADCCut","#eta station","#phi station", 
-				1, 0, 1, 1, 0, 1, m_mg->mongroup_overview_shiftLumi);
-  sc = bookMDTHisto_overview_2D(m_mdthitsperML_byLayer[enumMiddle], "NumberOfHitsInMDTMiddle_ADCCut","#eta station","#phi station", 
-				1, 0, 1, 1, 0, 1, m_mg->mongroup_overview_shiftLumi);
-  sc = bookMDTHisto_overview_2D(m_mdthitsperML_byLayer[enumOuter], "NumberOfHitsInMDTOuter_ADCCut","#eta station","#phi station", 
-				1, 0, 1, 1, 0, 1, m_mg->mongroup_overview_shiftLumi);
-  sc = binMdtGlobal_byLayer(m_mdthitsperML_byLayer[enumInner], m_mdthitsperML_byLayer[enumMiddle], m_mdthitsperML_byLayer[enumOuter]);
-  */
-
-  	//sc = bookMDTHisto_overview_2D(m_mdthitspermultilayerLumi[iecap][ilayer], 
-	//						   "NumberOfHitsIn"+ecap[iecap]+layer[ilayer]+"PerMultiLayer_ADCCut",
-	//						   "[Eta]", "[Phi,Multilayer]",1,0,1,1,0,1,m_mg->mongroup_brA_shiftLumi);      
-
-  //  else if(iecap==enumBarrelC) sc = bookMDTHisto_overview_2D(m_mdthitspermultilayerLumi[iecap][ilayer], 
-  //							    "NumberOfHitsIn"+ecap[iecap]+layer[ilayer]+"PerMultiLayer_ADCCut",
-  //							    "[Eta]", "[Phi,Multilayer]",1,0,1,1,0,1,m_mg->mongroup_brC_shiftLumi);
-  //  else if(iecap==enumEndCapA) sc = bookMDTHisto_overview_2D(m_mdthitspermultilayerLumi[iecap][ilayer], 
-  //							    "NumberOfHitsIn"+ecap[iecap]+layer[ilayer]+"PerMultiLayer_ADCCut",
-  //							    "[Eta]", "[Phi,Multilayer]",1,0,1,1,0,1,m_mg->mongroup_ecA_shiftLumi);
-  //  else sc = bookMDTHisto_overview_2D(m_mdthitspermultilayerLumi[iecap][ilayer], 
-  //				     "NumberOfHitsIn"+ecap[iecap]+layer[ilayer]+"PerMultiLayer_ADCCut",
-  //				     "[Eta]", "[Phi,Multilayer]",1,0,1,1,0,1,m_mg->mongroup_ecC_shiftLumi);
 
   //DEV this before was in bookHistogramsRecurrent-- problably still needed since we need to fill m_hist_hash_list??  
   clear_hist_map();
   int counter = 0;
 
-  for(vector<Identifier>::const_iterator itr = m_chambersId.begin(); itr != m_chambersId.end(); ++itr, ++counter){
+  for(std::vector<Identifier>::const_iterator itr = m_chambersId.begin(); itr != m_chambersId.end(); ++itr, ++counter){
     std::string hardware_name = convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(*itr),m_muonIdHelperTool->mdtIdHelper().stationEta(*itr),
 						   m_muonIdHelperTool->mdtIdHelper().stationPhi(*itr),"MDT");
     //Skip Chambers That Do NOT Exist
@@ -356,27 +315,9 @@ StatusCode MdtRawDataMonAlg::initialize()
     chamber->SetMDTHitsPerChamber_IMO_Bin(dynamic_cast<TH2F*> (m_mdthitsperchamber_InnerMiddleOuterLumi[chamber->GetBarrelEndcapEnum()]));
     chamber->SetMDTHitsPerML_byLayer_Bins(dynamic_cast<TH2F*> (m_mdthitspermultilayerLumi[chamber->GetRegionEnum()][chamber->GetLayerEnum()])
     					  ,dynamic_cast<TH2F*> (m_mdthitsperML_byLayer[ (chamber->GetLayerEnum() < 3 ? chamber->GetLayerEnum() : 0) ]));
-    /*DEV this was in bookHistogramsRecurrent, need to be reimplemented in someway    
-    // chamber->SetMDTHitsPerChamber_IMO_Bin(dynamic_cast<TH2F*> (m_mdthitsperchamber_InnerMiddleOuter_HighOcc[chamber->GetBarrelEndcapEnum()]));
-    
-    // if(m_doChamberHists){
-    //      sc = bookMDTHistograms(chamber, *itr); 
-    //    }
-    DEV */
+
   }
 
-  //code to obtain the map of the numbers of tubes per chamber
-  /*
-  ofstream myfile;
-  myfile.open ("tubeMaxMap.txt");
-  for(vector<Identifier>::const_iterator itr = m_chambersId.begin(); itr != m_chambersId.end(); ++itr){
-    std::string hardware_name = getChamberName( *itr );
-    int tubeIdMax = GetTubeMax(*itr, hardware_name);
-    std::cout << "\""<< hardware_name  << "\":\""<< tubeIdMax <<"\","<< std::endl; 
-    myfile << "\""<< hardware_name  << "\":\""<< tubeIdMax <<"\",\n"; 
-  }
-  myfile.close();
-  */
   
   ATH_MSG_DEBUG(" end of initialize " );
   return AthMonitorAlgorithm::initialize();
@@ -388,20 +329,6 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 /*----------------------------------------------------------------------------------*/ 
 {  
   StatusCode sc = StatusCode::SUCCESS;
-
-  //Set ATLASReadyFlag
-  //  setIsATLASReady(); //DEV still needed ? does not compile....
-
-
-  //Get lumiblock, event number, timing info
-  /* DEV still needed does not compile
-
-  sc= GetTimingInfo(); //time is done below 
-  if (sc.isFailure()){
-       ATH_MSG_ERROR(" Cannot GetTimingInfo " );
-       return sc;
-  }
-  DEV */
 
   int lumiblock = -1;
   SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo, ctx);
@@ -577,7 +504,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
             }
 	  }      
  
-          map<string,float>::iterator iter_hitsperchamber = evnt_hitsperchamber_map.find(hardware_name);
+          std::map<std::string,float>::iterator iter_hitsperchamber = evnt_hitsperchamber_map.find(hardware_name);
           if ( iter_hitsperchamber == evnt_hitsperchamber_map.end() ) { 
             evnt_hitsperchamber_map.insert( make_pair( hardware_name, 1 ) );
           } 
@@ -587,7 +514,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 
 	  std::map<std::string,float> hitsperchamber_map;
 	  if( adc >m_ADCCut) {
-	    map<string,float>::iterator iter_hitsperchamber = hitsperchamber_map.find(hardware_name);
+	    std::map<std::string,float>::iterator iter_hitsperchamber = hitsperchamber_map.find(hardware_name);
             if ( iter_hitsperchamber == hitsperchamber_map.end() ) { 
               hitsperchamber_map.insert( make_pair( hardware_name, 1 ) );
             } 
@@ -601,14 +528,14 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
           nColl_ADCCut++;
       } //loop in MdtPrepDataContainer
       fillMDTOverviewHistograms(overviewPlots);
-      fillMDTSummaryHistograms(summaryPlots, lumiblock);
+      ATH_CHECK( fillMDTSummaryHistograms(summaryPlots, lumiblock) );
       
       
       int nHighOccChambers = 0;
-      map<string,float>::iterator iterstat;
+      std::map<std::string,float>::iterator iterstat;
       std::map<std::string,float> tubesperchamber_map;
       for( iterstat = evnt_hitsperchamber_map.begin(); iterstat != evnt_hitsperchamber_map.end(); ++iterstat ) {
-          map<string,float>::iterator iter_tubesperchamber = tubesperchamber_map.find(hardware_name);
+          std::map<std::string,float>::iterator iter_tubesperchamber = tubesperchamber_map.find(hardware_name);
           float nTubes = iter_tubesperchamber->second;
           float hits = iterstat->second;
           float occ = hits/nTubes;
@@ -867,10 +794,10 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryVects( const Muon::MdtPrepData* mdtCo
     else binx=binx-7;
     int biny=chamber->GetMDTHitsPerChamber_IMO_BinY();
 
-    string varx = " ";
-    string vary = " ";
-    string varx_noise = " ";
-    string vary_noise = " ";
+    std::string varx = " ";
+    std::string vary = " ";
+    std::string varx_noise = " ";
+    std::string vary_noise = " ";
     if(iregion<2){
       varx="x_mon_barrel";
       vary="y_mon_barrel";
@@ -944,7 +871,6 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const MDTSummaryHistogram
 
   std::string region[4]={"BA","BC","EA","EC"};
   std::string layer[4]={"Inner","Middle","Outer","Extra"};
-  //  std::string slayer[4]={"inner","middle","outer","extra"};
 
   auto lb_mon = Monitored::Scalar<int>("lb_mon", lb);
 
@@ -974,10 +900,10 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const MDTSummaryHistogram
 	auto tdc_mon_adccut =  Monitored::Collection("tdc_mon_adccut", thisVects.tdc_mon_adccut);
 	fill(MDT_regionGroup, stationEta, tdc_mon_adccut, adc_mon_adccut);
     
-	string varx = iregion < 2 ? "x_mon_barrel" : "x_mon_endcap";
-	string vary = iregion < 2 ? "y_mon_barrel" : "y_mon_endcap";
-	string varx_noise = iregion < 2 ? "x_mon_barrel_noise" : "x_mon_endcap_noise";
-	string vary_noise = iregion < 2 ? "y_mon_barrel_noise" : "y_mon_endcap_noise";
+	std::string varx = iregion < 2 ? "x_mon_barrel" : "x_mon_endcap";
+	std::string vary = iregion < 2 ? "y_mon_barrel" : "y_mon_endcap";
+	std::string varx_noise = iregion < 2 ? "x_mon_barrel_noise" : "x_mon_endcap_noise";
+	std::string vary_noise = iregion < 2 ? "y_mon_barrel_noise" : "y_mon_endcap_noise";
 	
 	auto x_mon =  Monitored::Collection(varx, thisVects.x_mon);
 	auto y_mon =  Monitored::Collection(vary, thisVects.y_mon);
@@ -1110,60 +1036,6 @@ StatusCode MdtRawDataMonAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
 
 
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-/* DEV3
-
-   StatusCode MdtRawDataMonAlg::procHistograms(bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun ) {
-
-  if(endOfRunFlag()) {
-
-    ATH_MSG_DEBUG("********Reached Last Event in MdtRawDataValAlg !!!" );   
-    ATH_MSG_DEBUG("MdtRawDataValAlg finalize()" );
-
-    if(m_mdtchamberstat){
-      m_mdtchamberstat->SetStats(0);
-      //m_mdtchamberstat->SetBit(TH1::kCanRebin);
-      m_mdtchamberstat->LabelsDeflate("X");
-    }
-    map<string,float>::iterator iterstat;
-    char c[3]="  ";
-    for( iterstat = m_hitsperchamber_map.begin(); iterstat != m_hitsperchamber_map.end(); ++iterstat ) {
-      const char* chambername_char = iterstat->first.c_str();
-      float hits = iterstat->second;
-      if(m_mdtchamberstat)
-        m_mdtchamberstat->Fill(chambername_char,hits);
-
-      //Fills counts per hardware chambers in phi slice  plot
-      //Look for chamber names like XXXXXNMYYYYY where NM is a number in 01...16. And do it efficiently:
-      if (iterstat->first.length()<7)
-        continue;
-      c[0]=chambername_char[5];
-      c[1]=chambername_char[6];
-      if (!(c[0]=='0'||c[0]=='1')||c[1]<'0'||c[1]>'9')
-        continue;
-      int i(atoi(c)-1);
-      if (i<0||i>15)
-        continue;
-      //Now fill the histogram
-      TH1* h = m_mdtchamberstatphislice[i];
-      if (h)
-        h->Fill(chambername_char,hits);
-    }// for in m_hitsperchamber_map
-
-    if(m_mdtchamberstat)
-      m_mdtchamberstat->LabelsDeflate("X");
-
-    //Deflate phislice m_mdtchamberstatphislice
-    for(int j=0; j<=15; ++j) {
-      if( m_mdtchamberstatphislice[j] ) m_mdtchamberstatphislice[j]->LabelsDeflate("X");
-    }
-
-  } // endOfRunFlag()
-
-  return sc;
-}														  }
-DEV */
 
 StatusCode MdtRawDataMonAlg::handleEvent_effCalc(const Trk::SegmentCollection* segms) const {
   StatusCode sc=StatusCode::SUCCESS;
@@ -1275,13 +1147,11 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
       // Find unique chambers (since above we stored one chamber for every tube)
       // Also store the MLs affected by the ROTs, since we don't necessarily want to look for traversed tubes in entire chamber
       std::vector<Identifier> unique_chambers;
-      std::vector<vector<int> > unique_chambers_ML;
+      std::vector<std::vector<int> > unique_chambers_ML;
       for(unsigned i=0; i<ROTs_chamber.size(); i++) {
         bool isUnique = true;
         for(unsigned j=0; j<unique_chambers.size(); j++) {
           if( getChamberName(ROTs_chamber.at(i)) == getChamberName(unique_chambers.at(j)) ){
-            //    if( convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(ROTs_chamber.at(i)), m_muonIdHelperTool->mdtIdHelper().stationEta(ROTs_chamber.at(i)), m_muonIdHelperTool->mdtIdHelper().stationPhi(ROTs_chamber.at(i)),type)
-            //        == convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(unique_chambers.at(j)), m_muonIdHelperTool->mdtIdHelper().stationEta(unique_chambers.at(j)), m_muonIdHelperTool->mdtIdHelper().stationPhi(unique_chambers.at(j)),type) ) {
             isUnique = false;
             if( !AinB( ROTs_ML.at(i), unique_chambers_ML.at(j) ) ) 
               unique_chambers_ML.at(j).push_back( ROTs_ML.at(i) );
@@ -1307,7 +1177,6 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
         if( !m_muonIdHelperTool->mdtIdHelper().is_mdt( station_id ) ) {
           ATH_MSG_DEBUG("is_mdt() returned false in segm-based mdt eff calc" );
         }
-        //  std::string hardware_name = convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(station_id), m_muonIdHelperTool->mdtIdHelper().stationEta(station_id), m_muonIdHelperTool->mdtIdHelper().stationPhi(station_id),type);
         std::string hardware_name = getChamberName(station_id); 
 
         // SEGMENT track
@@ -1344,7 +1213,7 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
               Amg::Vector3D tube_position  = Amg::Vector3D(TubePos.x(), TubePos.y(), TubePos.z());
               Amg::Vector3D tube_direction = Amg::Vector3D(1,0,0);  
               MuonCalib::MTStraightLine tube_track = MuonCalib::MTStraightLine( tube_position, tube_direction, Amg::Vector3D(0,0,0), Amg::Vector3D(0,0,0));
-              double distance = TMath::Abs(segment_track.signDistFrom(tube_track));
+              double distance = std::abs(segment_track.signDistFrom(tube_track));
               if ( distance < (MdtRoEl->innerTubeRadius()) ){
                 traversed_station_id.push_back(station_id);
                 traversed_tube.push_back(i_tube);
@@ -1362,7 +1231,6 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
       // Here we fill the DRvsDT/DRvsSegD histos, as well is unique hits and traversed tubes to calculate efficiencies
       if(traversed_tube.size() < 20) { // quality cut here -- 20 traversed tubes is ridiculous and generates low efficiencies (these are due to non-pointing segments)
         for (unsigned k=0; k<traversed_tube.size(); k++) {
-          //    std::string hardware_name = convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(traversed_station_id.at(k)), m_muonIdHelperTool->mdtIdHelper().stationEta(traversed_station_id.at(k)), m_muonIdHelperTool->mdtIdHelper().stationPhi(traversed_station_id.at(k)),type);
           std::string hardware_name = getChamberName(traversed_station_id.at(k));
           // GET HISTS
           IdentifierHash idHash;

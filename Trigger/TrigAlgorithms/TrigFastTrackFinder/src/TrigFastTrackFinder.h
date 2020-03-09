@@ -126,9 +126,16 @@ protected:
 
   bool m_doCloneRemoval;
   bool m_useBeamSpot; 
+
   bool m_vertexSeededMode;
+
   bool m_doZFinder;
+  bool m_doZFinderOnly;
+
+  bool m_storeZFinderVertices;
+
   bool m_doFastZVseeding;
+
   bool m_doResMonitoring;
 
   // Cuts and settings
@@ -288,8 +295,6 @@ protected:
 
 
   Trk::ParticleHypothesis m_particleHypothesis;//particle hypothesis to attach to each track - usually pion, can be set to other values
-
-  std::map<Identifier, std::vector<long int> > m_siClusterMap;
 
   bool m_useNewLayerNumberScheme;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Include files
@@ -267,7 +267,11 @@ StatusCode DetDescrCnvSvc::createAddress( long /* svc_type */,
 	    log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
 	    return StatusCode::FAILURE;
 	}
-	ddAddr->fromString(refAddress);
+	if (ddAddr->fromString(refAddress).isFailure()) {
+      MsgStream log(msgSvc(),name());
+      log << MSG::FATAL << "Could not assign address " << refAddress << endmsg;
+      return StatusCode::FAILURE;
+    }
     }
     catch(...) {
 	refpAddress = 0;

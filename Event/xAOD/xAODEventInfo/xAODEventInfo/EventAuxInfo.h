@@ -1,19 +1,18 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventAuxInfo.h 629232 2014-11-18 18:17:36Z krasznaa $
 #ifndef XAODEVENTINFO_EVENTAUXINFO_H
 #define XAODEVENTINFO_EVENTAUXINFO_H
 
 // Local include(s):
-#include "xAODEventInfo/versions/EventAuxInfo_v1.h"
+#include "xAODEventInfo/versions/EventAuxInfo_v2.h"
 
 namespace xAOD {
    /// Definition of the latest event auxiliary info version
-   typedef EventAuxInfo_v1 EventAuxInfo;
+   typedef EventAuxInfo_v2 EventAuxInfo;
 }
 
 // Declare a CLID for the type:

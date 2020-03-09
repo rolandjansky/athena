@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/MuonDetectorTool.h" 
@@ -231,7 +231,7 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
   
   // Get the detector configuration.
   IGeoModelSvc *geoModel;
-  service ("GeoModelSvc",geoModel);
+  ATH_CHECK(service ("GeoModelSvc",geoModel));
   
   std::string AtlasVersion = geoModel->atlasVersion();
   std::string MuonVersion  = geoModel->muonVersionOverride();
@@ -253,7 +253,7 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
     {
       ATH_MSG_DEBUG("Detector Information coming from the database (job options IGNORED)" );
       IRDBAccessSvc *accessSvc;
-      service("RDBAccessSvc",accessSvc);
+      ATH_CHECK(service("RDBAccessSvc",accessSvc));
       IRDBRecordset_ptr switchSet = accessSvc->getRecordsetPtr("MuonSwitches", detectorKey, detectorNode);
       if ((*switchSet).size()==0) return StatusCode::FAILURE;
       const IRDBRecord    *switches   = (*switchSet)[0];
@@ -335,7 +335,7 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
   
   if ( 0 == m_detector ) {
     IRDBAccessSvc* access = 0;
-    service("RDBAccessSvc",access);
+    ATH_CHECK(service("RDBAccessSvc",access));
     
     // MuonDetectorFactory001 theFactory(detStore().operator->());
     

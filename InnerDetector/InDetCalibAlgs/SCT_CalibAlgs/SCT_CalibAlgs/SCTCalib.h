@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -252,7 +252,7 @@ class SCTCalib : public AthAlgorithm {
 
       // Methods implemented
       StatusCode prepareHV();
-      StatusCode doHVPrintXML(const std::pair<int, int>& timeInterval, const std::pair<int, int>& lbRange, Identifier);
+      void doHVPrintXML(const std::pair<int, int>& timeInterval, const std::pair<int, int>& lbRange, Identifier);
 
       bool       notEnoughStatistics(const int required, const int obtained, const std::string& histogramName="HIST") const;
 

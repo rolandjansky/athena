@@ -292,6 +292,9 @@ def PixelOverlayDigitizationBasicCfg(flags, **kwargs):
     if flags.Concurrency.NumThreads > 0:
         kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
 
+    # Set common overlay extra inputs
+    kwargs.setdefault("ExtraInputs", flags.Overlay.ExtraInputs)
+
     PixelDigitization = CompFactory.PixelDigitization
     acc.addEventAlgo(PixelDigitization(name="PixelOverlayDigitization", **kwargs))
     return acc

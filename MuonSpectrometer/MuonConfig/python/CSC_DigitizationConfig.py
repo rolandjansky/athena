@@ -108,6 +108,9 @@ def CSC_OverlayDigitizationBasicCfg(flags, **kwargs):
     if flags.Concurrency.NumThreads > 0:
         kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
 
+    # Set common overlay extra inputs
+    kwargs.setdefault("ExtraInputs", flags.Overlay.ExtraInputs)
+
     CscDigitBuilder = CompFactory.CscDigitBuilder
     acc.addEventAlgo(CscDigitBuilder(name="CscOverlayDigitBuilder", **kwargs))
     return acc

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -551,12 +551,12 @@ StatusCode
 IOVSvc::reinitialize()
 {
   // Set flag to reset all proxies 
-
+  StatusCode sc;
   toolMap::iterator itr = m_toolMap.begin();
   for ( ; itr!=m_toolMap.end(); ++itr) {
-    itr->second->reinitialize();
+    sc &= itr->second->reinitialize();
   }
-  return (StatusCode::SUCCESS);
+  return sc;
 
 }
 

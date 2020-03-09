@@ -15,7 +15,7 @@
 #include "TrigT1ResultByteStream/RoIBResultByteStreamTool.h"
 
 #include "../RoIBResultByteStreamDecoderAlg.h"
-#include "../L1TriggerResultMaker.h"
+#include "../L1TriggerByteStreamDecoderAlg.h"
 #include "../ExampleL1TriggerByteStreamTool.h"
 
 // ROBF for offline
@@ -41,5 +41,5 @@ DECLARE_COMPONENT( RecRoIBResultByteStreamTool )
 DECLARE_COMPONENT( RoIBResultByteStreamTool )
 
 DECLARE_COMPONENT( RoIBResultByteStreamDecoderAlg )
-DECLARE_COMPONENT( L1TriggerResultMaker )
+DECLARE_COMPONENT( L1TriggerByteStreamDecoderAlg )
 DECLARE_COMPONENT( ExampleL1TriggerByteStreamTool )

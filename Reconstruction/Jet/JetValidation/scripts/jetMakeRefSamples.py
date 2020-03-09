@@ -1,6 +1,9 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 ## **************************************************** 
 ## Create reference ESD/xAOD files from a given input.
 ##
@@ -47,7 +50,7 @@ parser.add_argument( '--overWrite', action='store_true' , help="force to overWri
 arg=parser.parse_args()
 ## **************************************************** 
 
-#print arg.sampleType , arg.outputDir, arg.noRun
+#print (arg.sampleType , arg.outputDir, arg.noRun)
 
 maxEvents=arg.maxEvents
 skipEvents=0
@@ -80,9 +83,9 @@ def makeDirAndCd(dir):
     if not os.path.exists(dir):        
         os.mkdir(dir)
     elif not arg.overWrite:
-        print 
-        print "ERROR !!!"
-        print " Directory ",dir,'already exists. Not overwriting it (use --overWrite option if needed)'
+        print ()
+        print ("ERROR !!!")
+        print (" Directory ",dir,'already exists. Not overwriting it (use --overWrite option if needed)')
         sys.exit(1)
 
     os.chdir(dir)
@@ -90,7 +93,7 @@ def makeDirAndCd(dir):
 
 def runStep(inputFile):
     if not os.path.exists(inputFile) and not arg.noRun:
-        print 'ERROR input file ', inputFile , ' missing'
+        print ('ERROR input file ', inputFile , ' missing')
         sys.exit(2)
 
     preExec = ''
@@ -123,11 +126,11 @@ def runStep(inputFile):
         preExec='''from RecExConfig.RecFlags import rec;rec.doTrigger=False;from JetValidation.RTTConfig import scheduleRTTJetTests;rec.UserExecs = ["scheduleRTTJetTests()"]'''
 
     else:
-        print "ERROR RunStep: Input file does not appear to be a supported type (RAW, HITS, RDO, ESD)"
-        print '   -> got', inputFileBase
+        print ("ERROR RunStep: Input file does not appear to be a supported type (RAW, HITS, RDO, ESD)")
+        print ('   -> got', inputFileBase)
         sys.exit(3)
 
-    print "Starting ",inputType, ' to ', outputType
+    print ("Starting ",inputType, ' to ', outputType)
 
 
     runDir = arg.outputDir + '/' + inputType+'to'+outputType + '/'
@@ -152,9 +155,9 @@ def runStep(inputFile):
                        #'--postExec=saxasxa'
                        ]
 
-    print 'Running : '
-    print transform, ' '.join(comandArgs)
-    print
+    print ('Running : ')
+    print (transform, ' '.join(comandArgs))
+    print()
     
     if arg.noRun :
         res = 0
@@ -164,19 +167,19 @@ def runStep(inputFile):
         logfile.close()
 
     if res != 0:
-        print 'ERROR RunStep: Transform appears to have failed - exiting. Check ', outputLog
+        print ('ERROR RunStep: Transform appears to have failed - exiting. Check ', outputLog)
         sys.exit(4)
 
 
 
-    print 'Done %s to %s step'%(inputType, outputType)
+    print ('Done %s to %s step'%(inputType, outputType))
     return outputFile
 
 
 def runChain(inputFile):
-    print 'runChain ', inputFile
+    print ('runChain ', inputFile)
     while any( [t in os.path.basename(inputFile) for t in ['HITS','RDO','RAW','ESD'] ] ):
-        print 'runStep at ',os.path.basename(inputFile)
+        print ('runStep at ',os.path.basename(inputFile))
         inputFile = runStep(inputFile)
         if arg.oneStep:
             return
@@ -191,7 +194,7 @@ else:
     inputFile = os.path.abspath(arg.sampleType)
 
 if not os.path.exists(inputFile):
-    print 'ERROR Input path does not exist ', inputFile
+    print ('ERROR Input path does not exist ', inputFile)
     sys.exit(5)
  
 

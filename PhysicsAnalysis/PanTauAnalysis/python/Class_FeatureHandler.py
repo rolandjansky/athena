@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import string
 
@@ -181,7 +183,7 @@ class FeatureHandler:
     
     def dump(self):
         print("config_FeatureCalculator: Dumping features:")
-        for iFeature in sorted(self.m_Feature_Names.iterkeys()):
+        for iFeature in sorted(self.m_Feature_Names.keys()):
             featName    = self.m_Feature_Names[iFeature]
             featType    = self.m_Feature_Types[iFeature]
             featDefault = self.m_Feature_Defaults[iFeature]

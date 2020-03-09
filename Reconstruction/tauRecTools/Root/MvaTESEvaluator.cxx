@@ -6,15 +6,12 @@
 #include "tauRecTools/MvaTESEvaluator.h"
 #include "tauRecTools/HelperFunctions.h"
 
-#include "TFile.h"
-#include "TTree.h"
-
 #include <vector>
 
 //_____________________________________________________________________________
 MvaTESEvaluator::MvaTESEvaluator(const std::string& name)
   : TauRecToolBase(name)
-  , m_reader(0)
+  , m_reader(nullptr)
   , m_mu(0)
   , m_nVtxPU(0)    
   , m_center_lambda(0)
@@ -98,7 +95,7 @@ StatusCode MvaTESEvaluator::initialize(){
   std::string weightFile = find_file(m_sWeightFileName);
 
   m_reader = tauRecTools::configureMVABDT( m_availableVars, weightFile.c_str() );
-  if(m_reader==0) {
+  if(m_reader==nullptr) {
     ATH_MSG_FATAL("Couldn't configure MVA");
     return StatusCode::FAILURE;
   }
@@ -109,8 +106,6 @@ StatusCode MvaTESEvaluator::initialize(){
 //_____________________________________________________________________________
 StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
 
-  // Retrieve input variables
-  
   // Retrieve event info
   const SG::AuxElement::ConstAccessor<float> acc_mu("mu");
   const SG::AuxElement::ConstAccessor<int> acc_nVtxPU("nVtxPU");

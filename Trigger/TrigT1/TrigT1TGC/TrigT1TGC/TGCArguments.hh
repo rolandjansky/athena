@@ -14,10 +14,6 @@ namespace LVL1TGCTrigger {
     TGCArguments();
     ~TGCArguments();
 
-    void set_STRICTWD(bool v);
-    void set_STRICTWT(bool v);
-    void set_STRICTSD(bool v);
-    void set_STRICTST(bool v);
     void set_OUTCOINCIDENCE(bool v);
     void set_TGCCOIN(TGCCoincidences* v);
     void set_DEBUGLEVEL(bool v);
@@ -28,10 +24,6 @@ namespace LVL1TGCTrigger {
     void set_USE_CONDDB(bool v);
     void set_useRun3Config(bool v);
 
-    bool STRICTWD() const;
-    bool STRICTWT() const;
-    bool STRICTSD() const;
-    bool STRICTST() const;
     bool OUTCOINCIDENCE() const;
     TGCCoincidences* TGCCOIN() const;
     bool DEBUGLEVEL() const;
@@ -45,10 +37,6 @@ namespace LVL1TGCTrigger {
     void clear();
 
   private:
-    bool m_STRICTWD;
-    bool m_STRICTWT;
-    bool m_STRICTSD;
-    bool m_STRICTST;
     bool m_OUTCOINCIDENCE;
     TGCCoincidences * m_TGCCOIN;
     bool m_DEBUGLEVEL;

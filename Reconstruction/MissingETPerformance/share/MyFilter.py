@@ -115,7 +115,7 @@ class EventFilter( PyAthena.Alg ):
             run_number = id.run_number()
             event_number = id.event_number()
         except Exception:
-            print 'failed to get run number and event number'
+            printfunc ('failed to get run number and event number')
 
         if (run_number, event_number) in self.run_event_list:
             self.setFilterPassed(True)
